@@ -28,6 +28,22 @@ struct she_mu_hdr {
     uint8_t tag;
 };
 
+
+/* MAC generation */
+
+struct she_cmd_generate_mac {
+	struct she_mu_hdr hdr;
+	uint16_t key_id;
+    uint16_t data_length;
+    uint16_t data_offset;
+    uint16_t mac_offset;
+};
+
+struct she_rsp_generate_mac {
+    struct she_mu_hdr header;
+    uint32_t rsp_code;
+};
+
 /* SHE inititalization */
 
 struct she_cmd_init {
@@ -37,6 +53,6 @@ struct she_cmd_init {
 struct she_rsp_init {
 	struct she_mu_hdr hdr;
     uint32_t rsp_code;
-    uint32_t shared_buf;
-    uint32_t shared_buf_size;
+    uint16_t shared_buf_offset;
+    uint16_t shared_buf_size;
 };

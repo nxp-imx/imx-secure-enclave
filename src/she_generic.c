@@ -17,6 +17,7 @@
 #include "she_msg.h"
 #include "she_platform.h"
 
+
 she_hdl *she_open_session(void) {
 	struct she_cmd_init cmd;
 	struct she_rsp_init rsp;
@@ -41,17 +42,58 @@ she_hdl *she_open_session(void) {
 		return NULL;
 	}
 
-	/* Read the response. */	
+	/* Read the response. */
 	len = she_platform_read_mu_message(hdl, (char *)&rsp, sizeof(struct she_rsp_init));
 	if (len != sizeof(struct she_rsp_init)) {
+		printf("she_open_session read error len:0x%x\n", len);
 		she_platform_close_session(hdl);
 		return NULL;
 	}
-	printf("she_open_session rsp_code:0x%x shared_buf:0x%x size:0x%x\n", rsp.rsp_code, rsp.shared_buf, rsp.shared_buf_size);
+
+	/* Configure the shared buffer. */
+	she_platform_configure_shared_buf(hdl, (void *)(uintptr_t)(rsp.shared_buf_offset), rsp.shared_buf_size);
 
 	return hdl;
 };
 
+
 void she_close_session(she_hdl *hdl) {
 	she_platform_close_session(hdl);
+}
+
+
+she_err she_cmd_generate_mac(she_hdl *hdl, uint8_t key_id, uint64_t message_length, uint8_t *message, uint8_t *mac)
+{
+
+	struct she_cmd_generate_mac cmd;
+	struct she_rsp_generate_mac rsp;
+	int len;
+
+	she_platform_copy_to_shared_buf(hdl, 0x0, message, message_length);
+
+	cmd.hdr.tag = MESSAGING_TAG_COMMAND;
+	cmd.hdr.command = AHAB_SHE_CMD_GENERATE_MAC;
+	cmd.hdr.size = sizeof(struct she_cmd_generate_mac) / sizeof(uint32_t);
+	cmd.hdr.ver = MESSAGING_VERSION_2;
+
+	cmd.key_id = key_id;
+    cmd.data_length = message_length;
+    cmd.data_offset = she_platform_shared_buf_offset(hdl) + 0x00;
+    cmd.mac_offset = she_platform_shared_buf_offset(hdl) + message_length;
+
+	len = she_platform_send_mu_message(hdl, (char *)&cmd, sizeof(struct she_cmd_generate_mac));
+	if (len != sizeof(struct she_cmd_generate_mac)) {
+		return ERC_GENERAL_ERROR;
+	}
+
+	/* Read the response. */
+	len = she_platform_read_mu_message(hdl, (char *)&rsp, sizeof(struct she_rsp_generate_mac));
+	if (len != sizeof(struct she_rsp_generate_mac)) {
+		printf("she_cmd_generate_mac read len:0x%x\n", len);
+		return ERC_GENERAL_ERROR;
+	}
+
+	she_platform_copy_from_shared_buf(hdl, message_length /*Mac offset */, mac, SHE_MAC_SIZE);
+
+	return ERC_NO_ERROR;
 }

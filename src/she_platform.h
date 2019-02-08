@@ -11,7 +11,7 @@
  * activate or otherwise use the software.
  */
 
-#include "she.h"
+#include "she_api.h"
 
 /* Platform specific implementations for SHE API.*/
 she_hdl *she_platform_open_session(void);
@@ -19,3 +19,11 @@ void she_platform_close_session(she_hdl *hdl);
 
 int she_platform_send_mu_message(she_hdl *hdl, char *message, int size);
 int she_platform_read_mu_message(she_hdl *hdl, char *message, int size);
+
+void she_platform_configure_shared_buf(she_hdl *hdl, void *shared_mem, int size);
+
+int she_platform_copy_to_shared_buf(she_hdl *hdl, int dst_off, void *src, int size);
+
+int she_platform_copy_from_shared_buf(she_hdl *hdl, int src_off, void *dst, int size);
+
+int she_platform_shared_buf_offset(she_hdl *hdl);
