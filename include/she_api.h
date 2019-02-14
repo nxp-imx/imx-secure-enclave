@@ -73,4 +73,22 @@ void she_close_session(she_hdl *hdl);
 she_err she_cmd_generate_mac(she_hdl *hdl, uint8_t key_id, uint64_t message_length, uint8_t *message, uint8_t *mac);
 #define SHE_MAC_SIZE 16 /**< size of the MAC generated is 128bits. */
 
+/**
+ *
+ * Verifies the MAC of a given message with the help of a key identified by key_id.
+ *
+ * \param hdl pointer to the SHE session handler
+ * \param key_id identifier of the key to be used for the operation
+ * \param message_length lenght in bytes of the input message
+ * \param message pointer to the message to be processed
+ * \param mac pointer to the MAC to be compared
+ * \param mac_length number of bytes to compare (must be at least 4)
+ * \param verification_status pointer to where write the result of the MAC comparison
+ *
+ * \return error code
+ */
+she_err she_cmd_verify_mac(she_hdl *hdl, uint8_t key_id, uint64_t message_length, uint8_t *message, uint8_t *mac, uint8_t mac_length, uint8_t *verification_status);
+#define SHE_MAC_VERIFICATION_SUCCESS 0 /**< indication of mac verification success  */
+#define SHE_MAC_VERIFICATION_FAILED  1 /**< indication of mac verification failure */
+
 /** \}*/

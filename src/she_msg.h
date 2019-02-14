@@ -20,6 +20,8 @@
 #define AHAB_SHE_CMD_GENERATE_MAC		0x31
 #define AHAB_SHE_CMD_VERIFY_MAC			0x32
 
+#define AHAB_SUCCESS_IND				0x00
+
 
 struct she_mu_hdr {
     uint8_t ver;
@@ -43,6 +45,25 @@ struct she_rsp_generate_mac {
     struct she_mu_hdr header;
     uint32_t rsp_code;
 };
+
+/* MAC verify */
+
+struct she_cmd_verify_mac{
+	struct she_mu_hdr hdr;
+    uint16_t key_id;
+    uint16_t data_length;
+    uint16_t data_offset;
+    uint16_t mac_offset;
+    uint16_t mac_length;
+    uint16_t pad;
+};
+
+struct she_rsp_verify_mac{
+	struct she_mu_hdr hdr;
+    uint32_t rsp_code;
+    uint32_t verification_status;
+};
+
 
 /* SHE inititalization */
 

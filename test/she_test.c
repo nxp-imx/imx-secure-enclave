@@ -52,6 +52,7 @@ int main(int argc, char *argv[])
 	int test_len;
 	struct timespec ts1, ts2;
 	long time_us;
+	uint8_t verif;
 
 	she_hdl *hdl = she_open_session();
 
@@ -61,7 +62,7 @@ int main(int argc, char *argv[])
 	if (memcmp(mac_output, mac_output_ref1, SHE_MAC_SIZE))
 		printf("\n--> ERROR\n");
 	else
-		printf("\n-->PASS\n");
+		printf("\n--> PASS\n");
 
 	printf("------------ MAC generation test 2 ----------------\n");
 	she_cmd_generate_mac(hdl, 1, MAC_TEST2_INPUT_SIZE, mac_input_message, mac_output);
@@ -69,11 +70,11 @@ int main(int argc, char *argv[])
 	if (memcmp(mac_output, mac_output_ref2, SHE_MAC_SIZE))
 		printf("\n--> ERROR\n");
 	else
-		printf("\n-->PASS\n");
+		printf("\n--> PASS\n");
 
 	/* Speed test. */
 	printf("------------ MAC generation speed test ------------\n");
-	test_len = 100000; /* default length. */
+	test_len = 10000;
 	clock_gettime(CLOCK_MONOTONIC_RAW, &ts1);
 
 	for (i=0; i<test_len; i++)
@@ -83,6 +84,46 @@ int main(int argc, char *argv[])
     time_us = (long)(ts2.tv_sec - ts1.tv_sec)*1000000 + (ts2.tv_nsec - ts1.tv_nsec)/1000;
 
 	printf("%d MAC generated in %ld microseconds (about %ld microseconds per MAC)\n", test_len, time_us, time_us/test_len);
+
+	printf("------------ MAC verification test 1 ----------------\n");
+	she_cmd_verify_mac(hdl, 1, MAC_TEST1_INPUT_SIZE, mac_input_message , mac_output_ref1, SHE_MAC_SIZE, &verif);
+
+	if (verif)
+		printf("\n--> ERROR\n");
+	else
+		printf("\n--> PASS\n");
+
+
+	printf("------------ MAC verification test 2 ----------------\n");
+	she_cmd_verify_mac(hdl, 1, MAC_TEST2_INPUT_SIZE, mac_input_message , mac_output_ref2, SHE_MAC_SIZE, &verif);
+
+	if (verif)
+		printf("\n--> ERROR\n");
+	else
+		printf("\n--> PASS\n");
+
+	printf("------------ MAC verification test 3 (bad MAC) ------\n");
+	she_cmd_verify_mac(hdl, 1, MAC_TEST2_INPUT_SIZE, mac_input_message , mac_output_ref1, SHE_MAC_SIZE, &verif);
+
+	if (verif)
+		printf("\n--> PASS (MAC verification status is false as expected)\n");
+	else
+		printf("\n--> ERROR (MAC verification status is true)\n");
+
+	/* Speed test. */
+	printf("------------ MAC verification speed test ------------\n");
+	test_len = 10000;
+	clock_gettime(CLOCK_MONOTONIC_RAW, &ts1);
+
+	for (i=0; i<test_len; i++)
+		she_cmd_verify_mac(hdl, 1, MAC_TEST1_INPUT_SIZE, mac_input_message , mac_output_ref1, SHE_MAC_SIZE, &verif);
+
+	clock_gettime(CLOCK_MONOTONIC_RAW, &ts2);
+    time_us = (long)(ts2.tv_sec - ts1.tv_sec)*1000000 + (ts2.tv_nsec - ts1.tv_nsec)/1000;
+
+	printf("%d MAC verified in %ld microseconds (about %ld microseconds per MAC)\n", test_len, time_us, time_us/test_len);
+
+
 
 	she_close_session(hdl);
 }
