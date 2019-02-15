@@ -53,8 +53,17 @@ int main(int argc, char *argv[])
 	struct timespec ts1, ts2;
 	long time_us;
 	uint8_t verif;
+	she_err err;
 
 	she_hdl *hdl = she_open_session();
+
+	printf("------------ load key test  ----------------\n");
+	err = she_cmd_load_key(hdl);
+
+	if (err == ERC_NO_ERROR)
+		printf("No error \n");
+	else
+		printf("ERROR !!! \n");
 
 	printf("------------ MAC generation test 1 ----------------\n");
 	she_cmd_generate_mac(hdl, 1, MAC_TEST1_INPUT_SIZE, mac_input_message , mac_output);
@@ -122,7 +131,6 @@ int main(int argc, char *argv[])
     time_us = (long)(ts2.tv_sec - ts1.tv_sec)*1000000 + (ts2.tv_nsec - ts1.tv_nsec)/1000;
 
 	printf("%d MAC verified in %ld microseconds (about %ld microseconds per MAC)\n", test_len, time_us, time_us/test_len);
-
 
 
 	she_close_session(hdl);

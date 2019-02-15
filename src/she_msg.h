@@ -16,11 +16,16 @@
 #define MESSAGING_TAG_RESPONSE			0xe1
 #define MESSAGING_VERSION_2				0x2
 
-#define AHAB_SHE_INIT					0x30
-#define AHAB_SHE_CMD_GENERATE_MAC		0x31
-#define AHAB_SHE_CMD_VERIFY_MAC			0x32
+#define AHAB_SHE_INIT					        0x30
+#define AHAB_SHE_CMD_GENERATE_MAC		        0x31
+#define AHAB_SHE_CMD_VERIFY_MAC	                0x32
+#define AHAB_SHE_CMD_STORAGE_EXPORT_INIT        0x33
+#define AHAB_SHE_CMD_LOAD_KEY                   0x34
+#define AHAB_SHE_CMD_STORAGE_EXPORT_REQ         0x35
+#define AHAB_SHE_CMD_STORAGE_IMPORT_REQ         0x36
 
-#define AHAB_SUCCESS_IND				0x00
+
+#define AHAB_SUCCESS_IND				        0x00
 
 
 struct she_mu_hdr {
@@ -64,6 +69,16 @@ struct she_rsp_verify_mac{
     uint32_t verification_status;
 };
 
+/* Load key */
+
+struct she_cmd_load_key {
+    struct she_mu_hdr hdr;
+};
+
+struct she_rsp_load_key  {
+    struct she_mu_hdr hdr;
+    uint32_t rsp_code;
+};
 
 /* SHE inititalization */
 

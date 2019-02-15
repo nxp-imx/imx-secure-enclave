@@ -91,4 +91,10 @@ she_err she_cmd_verify_mac(she_hdl *hdl, uint8_t key_id, uint64_t message_length
 #define SHE_MAC_VERIFICATION_SUCCESS 0 /**< indication of mac verification success  */
 #define SHE_MAC_VERIFICATION_FAILED  1 /**< indication of mac verification failure */
 
+
+/**
+ * Temporary: Entry point to test NVM storage
+ */
+she_err she_cmd_load_key(she_hdl *hdl);
+
 /** \}*/

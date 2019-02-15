@@ -153,3 +153,32 @@ she_err she_cmd_verify_mac(she_hdl *hdl, uint8_t key_id, uint64_t message_length
 	return ERC_NO_ERROR;
 
 }
+
+
+she_err she_cmd_load_key(she_hdl *hdl) {
+	struct she_cmd_load_key cmd;
+	struct she_rsp_load_key rsp;
+	int len;
+
+	cmd.hdr.tag = MESSAGING_TAG_COMMAND;
+	cmd.hdr.command = AHAB_SHE_CMD_LOAD_KEY;
+	cmd.hdr.size = sizeof(struct she_cmd_load_key) / sizeof(uint32_t);
+	cmd.hdr.ver = MESSAGING_VERSION_2;
+
+	len = she_platform_send_mu_message(hdl, (char *)&cmd, sizeof(struct she_cmd_load_key));
+	if (len != sizeof(struct she_cmd_load_key)) {
+		return ERC_GENERAL_ERROR;
+	}
+
+	len = she_platform_read_mu_message(hdl, (char *)&rsp, sizeof(struct she_rsp_load_key));
+	if (len != sizeof(struct she_rsp_load_key)) {
+		printf("she_cmd_load_key read len:0x%x\n", len);
+		return ERC_GENERAL_ERROR;
+	}
+
+	if (rsp.rsp_code != AHAB_SUCCESS_IND) {
+		return ERC_GENERAL_ERROR;
+	}
+
+	return ERC_NO_ERROR;
+}
