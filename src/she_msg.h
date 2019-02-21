@@ -10,7 +10,8 @@
  * bound by the applicable license terms, then you may not retain, install,
  * activate or otherwise use the software.
  */
-#include <stdint.h>
+
+#include "she_platform.h"
 
 #define MESSAGING_TAG_COMMAND			0x17
 #define MESSAGING_TAG_RESPONSE			0xe1
@@ -91,4 +92,36 @@ struct she_rsp_init {
     uint32_t rsp_code;
     uint16_t shared_buf_offset;
     uint16_t shared_buf_size;
+};
+
+struct she_cmd_blob_export_init{
+    struct she_mu_hdr header;
+    uint32_t blob_size;
+};
+
+struct she_rsp_blob_export_init{
+    struct she_mu_hdr header;
+    uint32_t rsp_code;
+    uint32_t load_address_ext;
+    uint32_t load_address;
+};
+
+struct she_cmd_blob_export {
+    struct she_mu_hdr header;
+};
+
+struct she_rsp_blob_export {
+    struct she_mu_hdr header;
+};
+
+struct she_cmd_blob_import {
+    struct she_mu_hdr header;
+    uint32_t load_address_ext;
+    uint32_t load_address;
+    uint32_t blob_size;
+};
+
+struct she_rsp_blob_import {
+    struct she_mu_hdr header;
+    uint32_t rsp_code;
 };

@@ -12,9 +12,8 @@
  * activate or otherwise use the software.
  */
 
-#include <stdio.h>
-
 #include "she_msg.h"
+#include "she_nvm.h"
 #include "she_platform.h"
 
 
@@ -24,9 +23,8 @@ she_hdl *she_open_session(void) {
 	int len;
 
 	/* Open the SHE session. */
-	she_hdl *hdl = she_platform_open_session();
+	she_hdl *hdl = she_platform_open_session(SHE_USER);
 	if (!hdl) {
-		printf("open session error\n");
 		return NULL;
 	}
 
@@ -37,7 +35,6 @@ she_hdl *she_open_session(void) {
 	cmd.hdr.ver = MESSAGING_VERSION_2;
 	len = she_platform_send_mu_message(hdl, (char *)&cmd, sizeof(struct she_cmd_init));
 	if (len != sizeof(struct she_cmd_init)) {
-		printf("she_open_session write error len:0x%x\n", len);
 		she_platform_close_session(hdl);
 		return NULL;
 	}
@@ -45,13 +42,16 @@ she_hdl *she_open_session(void) {
 	/* Read the response. */
 	len = she_platform_read_mu_message(hdl, (char *)&rsp, sizeof(struct she_rsp_init));
 	if (len != sizeof(struct she_rsp_init)) {
-		printf("she_open_session read error len:0x%x\n", len);
 		she_platform_close_session(hdl);
 		return NULL;
 	}
 
-	/* Configure the shared buffer. */
-	she_platform_configure_shared_buf(hdl, (void *)(uintptr_t)(rsp.shared_buf_offset), rsp.shared_buf_size);
+	/* Configure the shared buffer. and start the NVM manager.
+	 * (it currently needs the shared memory so cannot start it earlier)
+	 */
+	she_platform_configure_shared_buf(hdl, rsp.shared_buf_offset, rsp.shared_buf_size);
+
+	she_nvm_init(rsp.shared_buf_offset, rsp.shared_buf_size);
 
 	return hdl;
 };
@@ -89,12 +89,10 @@ she_err she_cmd_generate_mac(she_hdl *hdl, uint8_t key_id, uint64_t message_leng
 	/* Read the response. */
 	len = she_platform_read_mu_message(hdl, (char *)&rsp, sizeof(struct she_rsp_generate_mac));
 	if (len != sizeof(struct she_rsp_generate_mac)) {
-		printf("she_cmd_generate_mac read len:0x%x\n", len);
 		return ERC_GENERAL_ERROR;
 	}
 
 	if (rsp.rsp_code != AHAB_SUCCESS_IND) {
-		printf("she_cmd_generate_mac response error:0x%x\n", rsp.rsp_code);
 		// TODO: map Seco error codes to SHE errors
 		return ERC_GENERAL_ERROR;
 	}
@@ -135,14 +133,11 @@ she_err she_cmd_verify_mac(she_hdl *hdl, uint8_t key_id, uint64_t message_length
 	/* Read the response. */
 	len = she_platform_read_mu_message(hdl, (char *)&rsp, sizeof(struct she_rsp_verify_mac));
 	if (len != sizeof(struct she_rsp_verify_mac)) {
-		printf("she_cmd_verify_mac read len:0x%x\n", len);
 		*verification_status = SHE_MAC_VERIFICATION_FAILED;
 		return ERC_GENERAL_ERROR;
 	}
 
 	if (rsp.rsp_code != AHAB_SUCCESS_IND) {
-		printf("she_cmd_verify_mac response error:0x%x\n", rsp.rsp_code);
-
 		*verification_status = SHE_MAC_VERIFICATION_FAILED;
 		// TODO: map Seco error codes to SHE errors
 		return ERC_GENERAL_ERROR;
@@ -172,7 +167,6 @@ she_err she_cmd_load_key(she_hdl *hdl) {
 
 	len = she_platform_read_mu_message(hdl, (char *)&rsp, sizeof(struct she_rsp_load_key));
 	if (len != sizeof(struct she_rsp_load_key)) {
-		printf("she_cmd_load_key read len:0x%x\n", len);
 		return ERC_GENERAL_ERROR;
 	}
 

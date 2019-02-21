@@ -21,6 +21,10 @@
 
 #include <stdint.h>
 
+
+#ifndef SHE_API_H
+#define SHE_API_H
+
 /**
  * \brief Error codes returned by SHE functions.
  */
@@ -98,3 +102,4 @@ she_err she_cmd_verify_mac(she_hdl *hdl, uint8_t key_id, uint64_t message_length
 she_err she_cmd_load_key(she_hdl *hdl);
 
 /** \}*/
+#endif
