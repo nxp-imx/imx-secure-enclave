@@ -44,14 +44,12 @@ typedef enum {
 	ERC_GENERAL_ERROR,		/**< Error not covered by other codes occured. */
 } she_err;
 
-typedef void she_hdl;
-
 /**
  * Initiate a SHE session.
  *
  * \return pointer to the session handle.
  */
-she_hdl *she_open_session(void);
+struct she_hdl *she_open_session(void);
 
 
 /**
@@ -59,7 +57,7 @@ she_hdl *she_open_session(void);
  *
  * \param hdl pointer to the session handler to be closed.
  */
-void she_close_session(she_hdl *hdl);
+void she_close_session(struct she_hdl *hdl);
 
 
 /**
@@ -74,7 +72,7 @@ void she_close_session(she_hdl *hdl);
  *
  * \return error code
  */
-she_err she_cmd_generate_mac(she_hdl *hdl, uint8_t key_id, uint64_t message_length, uint8_t *message, uint8_t *mac);
+she_err she_cmd_generate_mac(struct she_hdl *hdl, uint8_t key_id, uint32_t message_length, uint8_t *message, uint8_t *mac);
 #define SHE_MAC_SIZE 16 /**< size of the MAC generated is 128bits. */
 
 /**
@@ -91,7 +89,7 @@ she_err she_cmd_generate_mac(she_hdl *hdl, uint8_t key_id, uint64_t message_leng
  *
  * \return error code
  */
-she_err she_cmd_verify_mac(she_hdl *hdl, uint8_t key_id, uint64_t message_length, uint8_t *message, uint8_t *mac, uint8_t mac_length, uint8_t *verification_status);
+she_err she_cmd_verify_mac(struct she_hdl *hdl, uint8_t key_id, uint32_t message_length, uint8_t *message, uint8_t *mac, uint8_t mac_length, uint8_t *verification_status);
 #define SHE_MAC_VERIFICATION_SUCCESS 0 /**< indication of mac verification success  */
 #define SHE_MAC_VERIFICATION_FAILED  1 /**< indication of mac verification failure */
 
@@ -99,7 +97,7 @@ she_err she_cmd_verify_mac(she_hdl *hdl, uint8_t key_id, uint64_t message_length
 /**
  * Temporary: Entry point to test NVM storage
  */
-she_err she_cmd_load_key(she_hdl *hdl);
+she_err she_cmd_load_key(struct she_hdl *hdl);
 
 /** \}*/
 #endif

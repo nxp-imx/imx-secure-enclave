@@ -16,163 +16,242 @@
 #include "she_nvm.h"
 #include "she_platform.h"
 
+struct she_hdl {
+	struct she_platform_hdl *phdl;
+};
 
-she_hdl *she_open_session(void) {
+
+/* Helper function to send a message and wait for the response. Return 0 on success.*/
+static int32_t she_send_msg_and_get_resp(struct she_hdl *hdl, uint8_t *cmd, uint32_t cmd_len, uint8_t *rsp, uint32_t rsp_len)
+{
+	int32_t err = -1;
+	uint32_t len;
+
+	do {
+		/* Send the command. */
+		len = she_platform_send_mu_message(hdl->phdl, cmd, cmd_len);
+		if (len != cmd_len) {
+			break;
+		}
+
+		/* Read the response. */
+		len = she_platform_read_mu_message(hdl->phdl, rsp, rsp_len);
+		if (len != rsp_len) {
+			break;
+		}
+
+		err = 0;
+	} while (0);
+	return err;
+}
+
+
+/* Close a previously opened SHE session. */
+void she_close_session(struct she_hdl *hdl) {
+	if (hdl) {
+		if (hdl->phdl) {
+			she_platform_close_session(hdl->phdl);
+		}
+		free(hdl);
+	}
+}
+
+
+/* Open a SHE user session and return a pointer to the session handle. */
+struct she_hdl *she_open_session(void)
+{
 	struct she_cmd_init cmd;
 	struct she_rsp_init rsp;
-	int len;
+	struct she_hdl *hdl = NULL;
+	int32_t error = 1;
 
-	/* Open the SHE session. */
-	she_hdl *hdl = she_platform_open_session(SHE_USER);
-	if (!hdl) {
-		return NULL;
+	do {
+		/* allocate the handle (free when closing the session). */
+		hdl = malloc(sizeof(struct she_hdl));
+		if (!hdl) {
+			break;
+		}
+
+		/* Open the SHE session. */
+		hdl->phdl = she_platform_open_session(SHE_USER);
+		if (!hdl->phdl) {
+			break;
+		}
+
+		/* Send the init command to Seco. */
+		she_fill_cmd_msg_hdr(&cmd.hdr, AHAB_SHE_INIT, sizeof(struct she_cmd_init));
+		error = she_send_msg_and_get_resp(hdl,
+					(uint8_t *)&cmd, sizeof(struct she_cmd_init),
+					(uint8_t *)&rsp, sizeof(struct she_rsp_init));
+		if (error) {
+			break;
+		}
+
+		/* Configure the shared buffer. and start the NVM manager. */
+		error = she_platform_configure_shared_buf(hdl->phdl, rsp.shared_buf_offset, rsp.shared_buf_size);
+		if (error) {
+			break;
+		}
+
+		/* Start the NVM manager. (it currently needs the shared memory so cannot start it earlier)*/
+		error = she_nvm_init(rsp.shared_buf_offset, rsp.shared_buf_size);
+		if (error) {
+			break;
+		}
+
+		/* Success. */
+		error = 0;
+	} while (0);
+
+	/* Clean-up in case of error. */
+	if (error && hdl) {
+		she_close_session(hdl);
+		hdl = NULL;
 	}
-
-	/* Send the init command to Seco. */
-	cmd.hdr.tag = MESSAGING_TAG_COMMAND;
-	cmd.hdr.command = AHAB_SHE_INIT;
-	cmd.hdr.size = sizeof(struct she_cmd_init) / sizeof(uint32_t);
-	cmd.hdr.ver = MESSAGING_VERSION_2;
-	len = she_platform_send_mu_message(hdl, (char *)&cmd, sizeof(struct she_cmd_init));
-	if (len != sizeof(struct she_cmd_init)) {
-		she_platform_close_session(hdl);
-		return NULL;
-	}
-
-	/* Read the response. */
-	len = she_platform_read_mu_message(hdl, (char *)&rsp, sizeof(struct she_rsp_init));
-	if (len != sizeof(struct she_rsp_init)) {
-		she_platform_close_session(hdl);
-		return NULL;
-	}
-
-	/* Configure the shared buffer. and start the NVM manager.
-	 * (it currently needs the shared memory so cannot start it earlier)
-	 */
-	she_platform_configure_shared_buf(hdl, rsp.shared_buf_offset, rsp.shared_buf_size);
-
-	she_nvm_init(rsp.shared_buf_offset, rsp.shared_buf_size);
-
 	return hdl;
 };
 
 
-void she_close_session(she_hdl *hdl) {
-	she_platform_close_session(hdl);
-}
 
-
-she_err she_cmd_generate_mac(she_hdl *hdl, uint8_t key_id, uint64_t message_length, uint8_t *message, uint8_t *mac)
+/* MAC generation command processing. */
+she_err she_cmd_generate_mac(struct she_hdl *hdl, uint8_t key_id, uint32_t message_length, uint8_t *message, uint8_t *mac)
 {
-
 	struct she_cmd_generate_mac cmd;
 	struct she_rsp_generate_mac rsp;
-	int len;
+	uint32_t len;
+	int32_t error;
+	she_err err = ERC_GENERAL_ERROR;
 
-	she_platform_copy_to_shared_buf(hdl, 0x0, message, message_length);
+	do {
+		/* Copy the message to the shared buffer at offset 0. */
+		len = she_platform_copy_to_shared_buf(hdl->phdl, 0x0, message, message_length);
+		if (len != message_length) {
+			break;
+		}
 
-	cmd.hdr.tag = MESSAGING_TAG_COMMAND;
-	cmd.hdr.command = AHAB_SHE_CMD_GENERATE_MAC;
-	cmd.hdr.size = sizeof(struct she_cmd_generate_mac) / sizeof(uint32_t);
-	cmd.hdr.ver = MESSAGING_VERSION_2;
+		/* Build command message. */
+		she_fill_cmd_msg_hdr(&cmd.hdr, AHAB_SHE_CMD_GENERATE_MAC, sizeof(struct she_cmd_generate_mac));
+		cmd.key_id = key_id;
+		cmd.data_length = message_length;
+		/* input data at offset 0. Output just after at offset "message_length". */
+		cmd.data_offset = she_platform_shared_buf_offset(hdl->phdl) + 0x00;
+		cmd.mac_offset = she_platform_shared_buf_offset(hdl->phdl) + message_length;
 
-	cmd.key_id = key_id;
-    cmd.data_length = message_length;
-    cmd.data_offset = she_platform_shared_buf_offset(hdl) + 0x00;
-    cmd.mac_offset = she_platform_shared_buf_offset(hdl) + message_length;
+		/* Send the message to Seco. */
+		error = she_send_msg_and_get_resp(hdl,
+					(uint8_t *)&cmd, sizeof(struct she_cmd_generate_mac),
+					(uint8_t *)&rsp, sizeof(struct she_rsp_generate_mac));
+		if (error) {
+			break;
+		}
 
-	len = she_platform_send_mu_message(hdl, (char *)&cmd, sizeof(struct she_cmd_generate_mac));
-	if (len != sizeof(struct she_cmd_generate_mac)) {
-		return ERC_GENERAL_ERROR;
-	}
-
-	/* Read the response. */
-	len = she_platform_read_mu_message(hdl, (char *)&rsp, sizeof(struct she_rsp_generate_mac));
-	if (len != sizeof(struct she_rsp_generate_mac)) {
-		return ERC_GENERAL_ERROR;
-	}
-
-	if (rsp.rsp_code != AHAB_SUCCESS_IND) {
 		// TODO: map Seco error codes to SHE errors
-		return ERC_GENERAL_ERROR;
-	}
+		if (rsp.rsp_code != AHAB_SUCCESS_IND) {
+			break;
+		}
 
-	she_platform_copy_from_shared_buf(hdl, message_length /*Mac offset */, mac, SHE_MAC_SIZE);
+		/* Get the result from shared memory (at offset "message_length". */
+		len = she_platform_copy_from_shared_buf(hdl->phdl, message_length, mac, SHE_MAC_SIZE);
+		if (len != SHE_MAC_SIZE) {
+			break;
+		}
 
-	return ERC_NO_ERROR;
+		/* Success. */
+		err = ERC_NO_ERROR;
+	} while (0);
+
+	return err;
 }
 
-
-she_err she_cmd_verify_mac(she_hdl *hdl, uint8_t key_id, uint64_t message_length, uint8_t *message, uint8_t *mac, uint8_t mac_length, uint8_t *verification_status)
+/* MAC verify command processing. */
+she_err she_cmd_verify_mac(struct she_hdl *hdl, uint8_t key_id, uint32_t message_length, uint8_t *message, uint8_t *mac, uint8_t mac_length, uint8_t *verification_status)
 {
-
 	struct she_cmd_verify_mac cmd;
 	struct she_rsp_verify_mac rsp;
-	int len;
+	uint32_t len;
+	uint32_t shared_mem_offset;
+	int32_t error;
+	she_err err = ERC_GENERAL_ERROR;
 
-	she_platform_copy_to_shared_buf(hdl, 0x0, message, message_length);
-	she_platform_copy_to_shared_buf(hdl, message_length, mac, mac_length);
+	do {
+		/* Copy the message to shared memory at offset 0. */
+		len = she_platform_copy_to_shared_buf(hdl->phdl, 0x0, message, message_length);
+		if (len != message_length) {
+			break;
+		}
+		/* Copy the MAC to shared memory just after the message at offset "message_length". */
+		len = she_platform_copy_to_shared_buf(hdl->phdl, message_length, mac, mac_length);
+		if (len != mac_length) {
+			break;
+		}
 
-	cmd.hdr.tag = MESSAGING_TAG_COMMAND;
-	cmd.hdr.command = AHAB_SHE_CMD_VERIFY_MAC;
-	cmd.hdr.size = sizeof(struct she_cmd_verify_mac) / sizeof(uint32_t);
-	cmd.hdr.ver = MESSAGING_VERSION_2;
+		/* Build command message. */
+		she_fill_cmd_msg_hdr(&cmd.hdr, AHAB_SHE_CMD_VERIFY_MAC, sizeof(struct she_cmd_verify_mac));
+		cmd.key_id = key_id;
+		cmd.data_length = message_length;
+		/* input message at offset 0. MAC just after at offset "message_length". */
+		shared_mem_offset = she_platform_shared_buf_offset(hdl->phdl);
+		cmd.data_offset = shared_mem_offset + 0x00;
+		cmd.mac_offset = shared_mem_offset + message_length;
+		cmd.mac_length = mac_length;
 
-	cmd.key_id = key_id;
-	cmd.data_length = message_length;
-	cmd.data_offset = she_platform_shared_buf_offset(hdl) + 0x00;
-	cmd.mac_offset = she_platform_shared_buf_offset(hdl) + message_length;
-	cmd.mac_length = mac_length;
 
-	len = she_platform_send_mu_message(hdl, (char *)&cmd, sizeof(struct she_cmd_verify_mac));
-	if (len != sizeof(struct she_cmd_verify_mac)) {
-		*verification_status = SHE_MAC_VERIFICATION_FAILED;
-		return ERC_GENERAL_ERROR;
-	}
+		/* Send the message to Seco. */
+		error = she_send_msg_and_get_resp(hdl,
+					(uint8_t *)&cmd, sizeof(struct she_cmd_verify_mac),
+					(uint8_t *)&rsp, sizeof(struct she_rsp_verify_mac));
+		if (error) {
+			break;
+		}
 
-	/* Read the response. */
-	len = she_platform_read_mu_message(hdl, (char *)&rsp, sizeof(struct she_rsp_verify_mac));
-	if (len != sizeof(struct she_rsp_verify_mac)) {
-		*verification_status = SHE_MAC_VERIFICATION_FAILED;
-		return ERC_GENERAL_ERROR;
-	}
-
-	if (rsp.rsp_code != AHAB_SUCCESS_IND) {
-		*verification_status = SHE_MAC_VERIFICATION_FAILED;
 		// TODO: map Seco error codes to SHE errors
-		return ERC_GENERAL_ERROR;
+		if (rsp.rsp_code != AHAB_SUCCESS_IND) {
+			break;
+		}
+
+		/* Command success: Report the verification status. */
+		*verification_status = (rsp.verification_status == 0 ? SHE_MAC_VERIFICATION_SUCCESS : SHE_MAC_VERIFICATION_FAILED);
+		err = ERC_NO_ERROR;
+	} while (0);
+
+	/* Force the status to fail in case of processing error. */
+	if (err != ERC_NO_ERROR) {
+		*verification_status = SHE_MAC_VERIFICATION_FAILED;
 	}
 
-	*verification_status = (rsp.verification_status == 0 ? SHE_MAC_VERIFICATION_SUCCESS : SHE_MAC_VERIFICATION_FAILED);
-
-	return ERC_NO_ERROR;
-
+	return err;
 }
 
 
-she_err she_cmd_load_key(she_hdl *hdl) {
+/* Load key command processing. */
+she_err she_cmd_load_key(struct she_hdl *hdl)
+{
 	struct she_cmd_load_key cmd;
 	struct she_rsp_load_key rsp;
-	int len;
+	uint32_t len;
+	int32_t error;
+	she_err err = ERC_GENERAL_ERROR;
 
-	cmd.hdr.tag = MESSAGING_TAG_COMMAND;
-	cmd.hdr.command = AHAB_SHE_CMD_LOAD_KEY;
-	cmd.hdr.size = sizeof(struct she_cmd_load_key) / sizeof(uint32_t);
-	cmd.hdr.ver = MESSAGING_VERSION_2;
+	do {
+		/* Build command message. */
+		she_fill_cmd_msg_hdr(&cmd.hdr, AHAB_SHE_CMD_LOAD_KEY, sizeof(struct she_cmd_load_key));
 
-	len = she_platform_send_mu_message(hdl, (char *)&cmd, sizeof(struct she_cmd_load_key));
-	if (len != sizeof(struct she_cmd_load_key)) {
-		return ERC_GENERAL_ERROR;
-	}
+		/* Send the message to Seco. */
+		error = she_send_msg_and_get_resp(hdl,
+					(uint8_t *)&cmd, sizeof(struct she_cmd_load_key),
+					(uint8_t *)&rsp, sizeof(struct she_rsp_load_key));
+		if (error) {
+			break;
+		}
 
-	len = she_platform_read_mu_message(hdl, (char *)&rsp, sizeof(struct she_rsp_load_key));
-	if (len != sizeof(struct she_rsp_load_key)) {
-		return ERC_GENERAL_ERROR;
-	}
+		// TODO: map Seco error codes to SHE errors
+		if (rsp.rsp_code != AHAB_SUCCESS_IND) {
+			break;
+		}
 
-	if (rsp.rsp_code != AHAB_SUCCESS_IND) {
-		return ERC_GENERAL_ERROR;
-	}
+		/* Success. */
+		err = ERC_NO_ERROR;
+	} while (0);
 
-	return ERC_NO_ERROR;
+	return err;
 }

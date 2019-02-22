@@ -11,4 +11,4 @@
  * activate or otherwise use the software.
  */
 
-void she_nvm_init(uintptr_t shared_mem_offset, int shared_mem_size);
+int32_t she_nvm_init(uint32_t shared_mem_offset, uint32_t shared_mem_size);

@@ -14,6 +14,7 @@
 
 #include <stdio.h>
 #include <stdint.h>
+#include <stdlib.h>
 
 #include "she_api.h"
 
@@ -27,26 +28,26 @@ typedef enum {
 } she_session_type;
 
 /* Platform specific implementations for SHE API.*/
-she_hdl *she_platform_open_session(she_session_type type);
+struct she_platform_hdl *she_platform_open_session(she_session_type type);
 
-void she_platform_close_session(she_hdl *hdl);
+void she_platform_close_session(struct she_platform_hdl *phdl);
 
-int she_platform_send_mu_message(she_hdl *hdl, char *message, int size);
+uint32_t she_platform_send_mu_message(struct she_platform_hdl *phdl, uint8_t *message, uint32_t size);
 
-int she_platform_read_mu_message(she_hdl *hdl, char *message, int size);
+uint32_t she_platform_read_mu_message(struct she_platform_hdl *phdl, uint8_t *message, int32_t size);
 
-void she_platform_configure_shared_buf(she_hdl *hdl, int shared_buf_off, int size);
+int32_t she_platform_configure_shared_buf(struct she_platform_hdl *phdl, uint32_t shared_buf_off, uint32_t size);
 
-int she_platform_copy_to_shared_buf(she_hdl *hdl, int dst_off, void *src, int size);
+uint32_t she_platform_copy_to_shared_buf(struct she_platform_hdl *phdl, uint32_t dst_off, void *src, uint32_t size);
 
-int she_platform_copy_from_shared_buf(she_hdl *hdl, int src_off, void *dst, int size);
+uint32_t she_platform_copy_from_shared_buf(struct she_platform_hdl *phdl, uint32_t src_off, void *dst, uint32_t size);
 
-int she_platform_shared_buf_offset(she_hdl *hdl);
+uint32_t she_platform_shared_buf_offset(struct she_platform_hdl *phdl);
 
-void she_platform_create_thread(void * (*func)(void *), void * arg);
+int32_t she_platform_create_thread(void * (*func)(void *), void * arg);
 
-uint32_t seco_storage_write(she_hdl *hdl, uint32_t offset, uint32_t size);
+uint32_t seco_storage_write(struct she_platform_hdl *phdl, uint32_t offset, uint32_t size);
 
-uint32_t seco_storage_read(she_hdl *hdl, uint32_t offset, uint32_t max_size);
+uint32_t seco_storage_read(struct she_platform_hdl *phdl, uint32_t offset, uint32_t max_size);
 
 #endif

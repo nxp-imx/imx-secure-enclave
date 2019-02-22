@@ -29,164 +29,213 @@
 #define SECO_MU_PATH "/dev/seco_mu"
 #define SECO_NVM_PATH "/dev/seco_nvm"
 
-struct she_linux_hdl{
-	int fd;
-	void *sec_mem;
-	int sec_mem_size;
-	int shared_buf_off;
+struct she_platform_hdl {
+	int32_t fd;
+	uint8_t *sec_mem;
+	uint32_t sec_mem_size;
+	uint32_t shared_buf_off;
 };
 
-she_hdl *she_platform_open_session(she_session_type type) {
-	struct she_linux_hdl *lhdl = malloc(sizeof(struct she_linux_hdl));
+/* Open a SHE session and returns a pointer to the handle or NULL in case of error.
+ * Here it consists in opening the decicated seco MU device file.
+ */
+struct she_platform_hdl *she_platform_open_session(she_session_type type)
+{
+	struct she_platform_hdl *phdl = malloc(sizeof(struct she_platform_hdl));
 
-	if (lhdl) {
+	if (phdl) {
+		/* Force secure memory pointer to NULL since it hasn't been allocated yet. */
+		phdl->sec_mem = NULL;
+
+		/* Select device path according to session type. */
 		switch (type) {
 			case SHE_NVM:
-				lhdl->fd = open(SECO_NVM_PATH, O_RDWR);
+				phdl->fd = open(SECO_NVM_PATH, O_RDWR);
 				break;
 			case SHE_USER:
 			default:
-				lhdl->fd = open(SECO_MU_PATH, O_RDWR);
+				phdl->fd = open(SECO_MU_PATH, O_RDWR);
 				break;
 		}
-		//TODO: handle fopen error
-		lhdl->sec_mem = NULL;
+		/* If open failed return NULL handle. */
+		if (phdl->fd < 0) {
+			free(phdl);
+			phdl = NULL;
+		}
 	}
-	return (she_hdl *)lhdl;
+	return phdl;
 };
 
-void she_platform_close_session(she_hdl *hdl) {
-	struct she_linux_hdl *lhdl = (struct she_linux_hdl *)hdl;
-	if (lhdl->sec_mem)
-		munmap(lhdl->sec_mem, lhdl->sec_mem_size);
-	close(lhdl->fd);
-	free(hdl);
-}
 
-int she_platform_send_mu_message(she_hdl *hdl, char *message, int size) {
-	return write(((struct she_linux_hdl *)hdl)->fd, message, size);
-}
-
-int she_platform_read_mu_message(she_hdl *hdl, char *message, int size) {
-	return read(((struct she_linux_hdl *)hdl)->fd, message, size);
-};
-
-void she_platform_configure_shared_buf(she_hdl *hdl, int shared_buf_off, int size) {
-	struct she_linux_hdl *lhdl = (struct she_linux_hdl *)hdl;
-
-	lhdl->shared_buf_off = shared_buf_off;
-	lhdl->sec_mem = mmap(NULL, size, PROT_READ|PROT_WRITE, MAP_SHARED, lhdl->fd, shared_buf_off);
-	lhdl->sec_mem_size = size;
-}
-
-int she_platform_copy_to_shared_buf(she_hdl *hdl, int dst_off, void *src, int size) {
-	struct she_linux_hdl *lhdl = (struct she_linux_hdl *)hdl;
-
-	if (!lhdl->sec_mem)
-		return 0;
-	/* TODO: check on the size vs. lenght of the allocated sec_mem buffer. */
-	memcpy(lhdl->sec_mem + dst_off, src, size);
-
-	return size;
-}
-
-int she_platform_copy_from_shared_buf(she_hdl *hdl, int src_off, void *dst, int size) {
-	struct she_linux_hdl *lhdl = (struct she_linux_hdl *)hdl;
-
-	if (!lhdl->sec_mem)
-		return 0;
-	memcpy(dst, lhdl->sec_mem + src_off, size);
-
-	return size;
-}
-
-int she_platform_shared_buf_offset(she_hdl *hdl) {
-	struct she_linux_hdl *lhdl = (struct she_linux_hdl *)hdl;
-	return lhdl->shared_buf_off;
-}
-
-
-void she_platform_create_thread(void * (*func)(void *), void * arg) {
-	pthread_t tid;
-	pthread_create(&tid, NULL, func, arg);
-}
-
-
-#define SECO_NVM_DEFAULT_STORAGE_FILE "/etc/seco_nvm"
-/* return size of data writen to nvm  */
-uint32_t seco_storage_write(she_hdl *hdl, uint32_t offset, uint32_t size)
+/* Close a previously opened session. */
+void she_platform_close_session(struct she_platform_hdl *phdl)
 {
-	struct she_linux_hdl *lhdl = (struct she_linux_hdl *)hdl;
-	int fd;
-	int l;
+	/* Unmap the secure memory if needed. */
+	if (phdl->sec_mem) {
+		(void)munmap(phdl->sec_mem, phdl->sec_mem_size);
+	}
+
+	/* Close the device. */
+	(void)close(phdl->fd);
+
+	free(phdl);
+}
+
+/* Send a message to Seco on the MU. Return the size of the data written. */
+uint32_t she_platform_send_mu_message(struct she_platform_hdl *phdl, uint8_t *message, uint32_t size)
+{
+	return write(phdl->fd, message, size);
+}
+
+/* Read a message from Seco on the MU. Return the size of the data that were read. */
+uint32_t she_platform_read_mu_message(struct she_platform_hdl *phdl, uint8_t *message, int32_t size)
+{
+	return read(phdl->fd, message, size);
+};
+
+/* Map the shared buffer allocated by Seco. */ 
+int32_t she_platform_configure_shared_buf(struct she_platform_hdl *phdl, uint32_t shared_buf_off, uint32_t size)
+{
+	int32_t error;
+	phdl->shared_buf_off = shared_buf_off;
+	phdl->sec_mem = mmap(NULL, size, PROT_READ|PROT_WRITE, MAP_SHARED, phdl->fd, shared_buf_off);
+	if (phdl->sec_mem != MAP_FAILED) {
+		phdl->sec_mem_size = size;
+		error = 0;
+	} else {
+		/* mmap failed. force the shared memory pointer to NULL and report error. */
+		phdl->sec_mem = NULL;
+		phdl->sec_mem_size = 0;
+		error = 1;
+	}
+	return error;
+}
+
+/* Copy data to the shared buffer. Return the copied length. */
+uint32_t she_platform_copy_to_shared_buf(struct she_platform_hdl *phdl, uint32_t dst_off, void *src, uint32_t size)
+{
+	uint32_t l = 0;
+
+	/* Ensure that secure memory is mapped and that the data will not overflow the allocated space. */
+	if ((phdl->sec_mem) && (dst_off + size < phdl->sec_mem_size)) {
+		(void)memcpy(phdl->sec_mem + dst_off, src, size);
+	}
+
+	return size;
+}
+
+/* Copy data to the shared buffer. Return the copied length. */
+uint32_t she_platform_copy_from_shared_buf(struct she_platform_hdl *phdl, uint32_t src_off, void *dst, uint32_t size)
+{
+	uint32_t l = 0;
+
+	/* Ensure that secure memory is mapped and that we won't read out of the allocated space. */
+	if ((phdl->sec_mem) && (src_off + size < phdl->sec_mem_size)) {
+		(void)memcpy(dst, phdl->sec_mem + src_off, size);
+	}
+
+	return size;
+}
+
+/* Returns the offset of the allocated section in secure memory. */
+uint32_t she_platform_shared_buf_offset(struct she_platform_hdl *phdl)
+{
+	return phdl->shared_buf_off;
+}
+
+/* Start a new thread. Return 0 in case of success or an non-null code in case of error. */
+int32_t she_platform_create_thread(void * (*func)(void *), void * arg)
+{
+	pthread_t tid;
+	return pthread_create(&tid, NULL, func, arg);
+}
+
+
+/* Write data in a file located in NVM. Return the size of the written data. */
+#define SECO_NVM_DEFAULT_STORAGE_FILE "/etc/seco_nvm"
+uint32_t seco_storage_write(struct she_platform_hdl *phdl, uint32_t offset, uint32_t size)
+{
+	int32_t fd = -1;
+	uint32_t l = 0;
 	uint32_t crc;
 
-	fd = open(SECO_NVM_DEFAULT_STORAGE_FILE, O_CREAT|O_WRONLY|O_SYNC, S_IRUSR|S_IWUSR);
-	if (fd < 0)
-		return 0;
+	do {
+		/* Open or create the file with access reserved to the current user. */
+		fd = open(SECO_NVM_DEFAULT_STORAGE_FILE, O_CREAT|O_WRONLY|O_SYNC, S_IRUSR|S_IWUSR);
+		if (fd < 0) {
+			break;
+		}
 
-	l = write(fd, &size, sizeof(uint32_t));
-	if (l != sizeof(uint32_t)) {
-		close(fd);
-		return 0;
+		/* Write the length of the data as header in the file. */
+		l = write(fd, &size, sizeof(uint32_t));
+		if (l != sizeof(uint32_t)) {
+			break;
+		}
+
+		/* compute CRC of the data to be stored and write it as header in the file. */
+		crc = crc32(0, phdl->sec_mem + offset, size);
+		l = write(fd, &crc, sizeof(uint32_t));
+		if (l != sizeof(uint32_t)) {
+			break;
+		}
+
+		/* Write the data. */
+		l = write(fd, phdl->sec_mem + offset, size);
+	} while (0);
+
+	if (fd >= 0) {
+		(void)close(fd);
 	}
-
-	/* compute CRC of the data to be stored and write it as header in the file. */
-	crc = crc32(0, lhdl->sec_mem + offset, size);
-	l = write(fd, &crc, sizeof(uint32_t));
-	if (l != sizeof(uint32_t)) {
-		close(fd);
-		return 0;
-	}
-
-	l = write(fd, lhdl->sec_mem + offset, size);
-
-	close(fd);
 
 	return l;
 }
 
 
-uint32_t seco_storage_read(she_hdl *hdl, uint32_t offset, uint32_t max_size)
+uint32_t seco_storage_read(struct she_platform_hdl *phdl, uint32_t offset, uint32_t max_size)
 {
-	struct she_linux_hdl *lhdl = (struct she_linux_hdl *)hdl;
-	int fd;
-	int l;
+	int32_t fd = -1;
+	uint32_t l = 0;
 	uint32_t crc, crc_ref;
 	uint32_t size;
 
-	fd = open(SECO_NVM_DEFAULT_STORAGE_FILE, O_CREAT|O_RDONLY, S_IRUSR|S_IWUSR);
-	if (fd < 0)
-		return 0;
+	do {
+		/* Open the file as read only. */
+		fd = open(SECO_NVM_DEFAULT_STORAGE_FILE, O_RDONLY);
+		if (fd < 0) {
+			break;
+		}
 
+		/* Read the size of the data contained in the file. */
+		l = read(fd, &size, sizeof(uint32_t));
+		if (l != sizeof(uint32_t)) {
+			break;
+		}
 
-	l = read(fd, &size, sizeof(uint32_t));
-	if (l != sizeof(uint32_t)) {
-		close(fd);
-		return 0;
+		/* If out put buffer is too small don read anything. */
+		if (max_size < size) {
+			break;
+		}
+
+		/* Read the CRC in the file to check that data were not corrupted.*/
+		l = read(fd, &crc_ref, sizeof(uint32_t));
+		if (l != sizeof(uint32_t)) {
+			break;
+		}
+
+		/* Read the data. */
+		l = read(fd, phdl->sec_mem + offset, size);
+
+		/* Compute the CRC of the data and check against the one from the file. */
+		crc = crc32(0, phdl->sec_mem + offset, size);
+		if (crc != crc_ref) {
+			(void)memset(phdl->sec_mem + offset, 0, size);
+			l = 0;
+		}
+	} while (0);
+
+	if (fd >= 0) {
+		(void)close(fd);
 	}
-
-	if (max_size < size) {
-		printf("not enough space in out buffer don't read anything.\n");
-		return 0;
-	}
-
-	l = read(fd, &crc_ref, sizeof(uint32_t));
-	if (l != sizeof(uint32_t)) {
-		close(fd);
-		return 0;
-	}
-
-	l = read(fd, lhdl->sec_mem + offset, size);
-
-	/* check CRC */
-	crc = crc32(0, lhdl->sec_mem + offset, size);
-	if (crc != crc_ref) {
-		memset(lhdl->sec_mem + offset, 0, size);
-		l = 0;
-	}
-
-	close(fd);
 
 	return l;
 }
