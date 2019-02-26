@@ -95,6 +95,22 @@ she_err she_cmd_verify_mac(struct she_hdl *hdl, uint8_t key_id, uint32_t message
 
 
 /**
+ * Encrypt a given plaintext with the key identified by key_id.
+ *
+ * \param hdl pointer to the SHE session handler
+ * \param key_id identifier of the key to be used for the operation
+ * \param data_length lenght in bytes of the plaintext and the cyphertext. Must be a multiple of 128bits.
+ * \param iv pointer to the 128bits IV to use for the encryption.
+ * \param plaintext pointer to the message to be encrypted.
+ * \param ciphertext pointer to ciphertext output area.
+ *
+ * \return error code
+ */
+she_err she_cmd_enc_cbc(struct she_hdl *hdl, uint8_t key_id, uint32_t data_length, uint8_t *iv, uint8_t *plaintext, uint8_t *ciphertext);
+#define SHE_CBC_BLOCK_SIZE_128       16 /**< size in bytes of a 128bits CBC bloc */
+
+
+/**
  * Temporary: Entry point to test NVM storage
  */
 she_err she_cmd_load_key(struct she_hdl *hdl);
