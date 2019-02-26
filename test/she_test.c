@@ -72,6 +72,9 @@ static uint8_t cbc_ciphertext[] = {	0x76, 0x49, 0xab, 0xac, 0x81, 0x19, 0xb2, 0x
 #define SHE_TEST_CBC_ENC1		0x00000100
 #define SHE_TEST_CBC_ENC2		0x00000200
 #define SHE_TEST_CBC_ENC_PERF	0x00000400
+#define SHE_TEST_CBC_DEC1		0x00000800
+#define SHE_TEST_CBC_DEC2		0x00001000
+#define SHE_TEST_CBC_DEC_PERF	0x00002000
 
 /* default test list:
  * All tests without key loading
@@ -257,6 +260,51 @@ static void she_test_cbc_enc_perf(struct she_hdl *hdl, uint32_t test_len)
 }
 
 
+/* Test CBC decryption. */
+static void she_test_cbc_dec(struct she_hdl *hdl, uint32_t len)
+{
+	she_err err;
+	uint8_t output[4*SHE_CBC_BLOCK_SIZE_128];
+
+	(void)printf("------------ CBC DEC test len:%d ----------------\n", len);
+
+	err = she_cmd_dec_cbc(hdl, 1, len, cbc_iv, cbc_ciphertext, output);
+	/* Check there is no error reported and that the generated MAC is correct. */
+
+	if (err != ERC_NO_ERROR) {
+		(void)printf("\n--> ERROR 0x%x\n", err);
+	} else if (memcmp(output, cbc_plaintext, len)) {
+		(void)printf("\n--> Wrong output\n");
+	} else {
+		(void)printf("\n--> PASS\n");
+	}
+}
+
+
+/* Test CBC decryption  - perf measurement. */
+static void she_test_cbc_dec_perf(struct she_hdl *hdl, uint32_t test_len)
+{
+	struct timespec ts1, ts2;
+	uint64_t time_us;
+	uint8_t output[SHE_CBC_BLOCK_SIZE_128];
+	uint32_t l = test_len;
+
+	if (test_len > 0) { /* To avoid a divide by 0 at the end ... */
+		(void)printf("------------ CBC encrypt speed test ------------\n");
+		(void)clock_gettime(CLOCK_MONOTONIC_RAW, &ts1);
+		while (l > 0) {
+			/* Don't check result here. Just perf measurement. */
+			(void)she_cmd_dec_cbc(hdl, 1, SHE_CBC_BLOCK_SIZE_128, cbc_iv, cbc_ciphertext, output);
+			l--;
+		}
+		/* Compute elapsed time. */
+		(void)clock_gettime(CLOCK_MONOTONIC_RAW, &ts2);
+		time_us = (uint64_t)(ts2.tv_sec - ts1.tv_sec)*1000000 + (ts2.tv_nsec - ts1.tv_nsec)/1000;
+		(void)printf("%d CBC decryptions in %ld microseconds (about %ld microseconds per CBC DEC)\n", test_len, time_us, time_us/test_len);
+	}
+}
+
+
 /* Test load key command. */
 static void she_test_load_key(struct she_hdl *hdl)
 {
@@ -318,6 +366,18 @@ static void she_test_sequence(struct she_hdl *hdl, uint32_t test_list, uint32_t 
 	/* CBC encryption performance test. */
 	if (test_list & SHE_TEST_CBC_ENC_PERF) {
 		she_test_cbc_enc_perf(hdl, test_len);
+	}
+	/* CBC decryption test. 1 block. */
+	if (test_list & SHE_TEST_CBC_DEC1) {
+		she_test_cbc_dec(hdl, SHE_CBC_BLOCK_SIZE_128);
+	}
+	/* CBC encryption test. 4 blocks. */
+	if (test_list & SHE_TEST_CBC_DEC2) {
+		she_test_cbc_dec(hdl, 4*SHE_CBC_BLOCK_SIZE_128);
+	}
+	/* CBC decryption performance test. */
+	if (test_list & SHE_TEST_CBC_DEC_PERF) {
+		she_test_cbc_dec_perf(hdl, test_len);
 	}
 }
 

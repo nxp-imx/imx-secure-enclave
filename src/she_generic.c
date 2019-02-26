@@ -246,11 +246,11 @@ she_err she_cmd_verify_mac(struct she_hdl *hdl, uint8_t key_id, uint32_t message
 	return err;
 }
 
-
-/* CBC encrypt command. */
-she_err she_cmd_enc_cbc(struct she_hdl *hdl, uint8_t key_id, uint32_t data_length, uint8_t *iv, uint8_t *plaintext, uint8_t *ciphertext)
-{	struct she_cmd_enc_cbc cmd;
-	struct she_rsp_enc_cbc rsp;
+/* Generic function for CBC encryption and decryption. */
+static she_err she_cmd_cbc(struct she_hdl *hdl, uint8_t key_id, uint32_t data_length, uint8_t *iv, uint8_t *input, uint8_t *output, uint8_t encrypt)
+{
+	struct she_cmd_cbc cmd;
+	struct she_rsp_cbc rsp;
 	uint32_t len;
 	uint32_t shared_mem_offset;
 	int32_t error;
@@ -263,25 +263,29 @@ she_err she_cmd_enc_cbc(struct she_hdl *hdl, uint8_t key_id, uint32_t data_lengt
 			break;
 		}
 		/* Copy the data to shared memory just after the IV at offset "SHE_CBC_BLOCK_SIZE_128". */
-		len = she_platform_copy_to_shared_buf(hdl->phdl, SHE_CBC_BLOCK_SIZE_128, plaintext, data_length);
+		len = she_platform_copy_to_shared_buf(hdl->phdl, SHE_CBC_BLOCK_SIZE_128, input, data_length);
 		if (len != data_length) {
 			break;
 		}
 
 		/* Build command message. */
-		she_fill_cmd_msg_hdr(&cmd.hdr, AHAB_SHE_CMD_ENC_CBC_REQ, sizeof(struct she_cmd_enc_cbc));
+		if (encrypt) {
+			she_fill_cmd_msg_hdr(&cmd.hdr, AHAB_SHE_CMD_ENC_CBC_REQ, sizeof(struct she_cmd_cbc));
+		} else {
+			she_fill_cmd_msg_hdr(&cmd.hdr, AHAB_SHE_CMD_DEC_CBC_REQ, sizeof(struct she_cmd_cbc));
+		}
 		cmd.key_id = key_id;
 		/* IV at offset 0. input data just after at offset SHE_CBC_BLOCK_SIZE_128. Then output data at offset (n+1)block_size. */
 		shared_mem_offset = she_platform_shared_buf_offset(hdl->phdl);
 		cmd.iv_offset = shared_mem_offset + 0x00;
-		cmd.data_offset = shared_mem_offset + SHE_CBC_BLOCK_SIZE_128;
+		cmd.input_offset = shared_mem_offset + SHE_CBC_BLOCK_SIZE_128;
 		cmd.output_offset = shared_mem_offset + SHE_CBC_BLOCK_SIZE_128 + data_length;
 		cmd.data_length = data_length;
 
 		/* Send the message to Seco. */
 		error = she_send_msg_and_get_resp(hdl,
-					(uint8_t *)&cmd, sizeof(struct she_cmd_enc_cbc),
-					(uint8_t *)&rsp, sizeof(struct she_rsp_enc_cbc));
+					(uint8_t *)&cmd, sizeof(struct she_cmd_cbc),
+					(uint8_t *)&rsp, sizeof(struct she_rsp_cbc));
 		if (error) {
 			break;
 		}
@@ -292,7 +296,7 @@ she_err she_cmd_enc_cbc(struct she_hdl *hdl, uint8_t key_id, uint32_t data_lengt
 		}
 
 		/* Get the result from shared memory. */
-		len = she_platform_copy_from_shared_buf(hdl->phdl, SHE_CBC_BLOCK_SIZE_128 + data_length, ciphertext, data_length);
+		len = she_platform_copy_from_shared_buf(hdl->phdl, SHE_CBC_BLOCK_SIZE_128 + data_length, output, data_length);
 		if (len != data_length) {
 			break;
 		}
@@ -301,6 +305,19 @@ she_err she_cmd_enc_cbc(struct she_hdl *hdl, uint8_t key_id, uint32_t data_lengt
 	} while (0);
 
 	return err;
+}
+
+
+/* CBC encrypt command. */
+she_err she_cmd_enc_cbc(struct she_hdl *hdl, uint8_t key_id, uint32_t data_length, uint8_t *iv, uint8_t *plaintext, uint8_t *ciphertext)
+{
+	return she_cmd_cbc(hdl, key_id, data_length, iv, plaintext, ciphertext, 1);
+}
+
+/* CBC decrypt command. */
+she_err she_cmd_dec_cbc(struct she_hdl *hdl, uint8_t key_id, uint32_t data_length, uint8_t *iv, uint8_t *ciphertext, uint8_t *plaintext)
+{
+	return she_cmd_cbc(hdl, key_id, data_length, iv, ciphertext, plaintext, 0);
 }
 
 

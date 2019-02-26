@@ -25,6 +25,7 @@
 #define AHAB_SHE_CMD_STORAGE_EXPORT_REQ			0x35
 #define AHAB_SHE_CMD_STORAGE_IMPORT_REQ			0x36
 #define AHAB_SHE_CMD_ENC_CBC_REQ				0x37
+#define AHAB_SHE_CMD_DEC_CBC_REQ				0x38
 
 
 #define AHAB_SUCCESS_IND						0x00
@@ -92,16 +93,16 @@ struct she_rsp_verify_mac{
 
 /* CBC */
 
-struct she_cmd_enc_cbc{
+struct she_cmd_cbc{
 	struct she_mu_hdr hdr;
 	uint16_t key_id;
 	uint16_t iv_offset;
-	uint16_t data_offset;
+	uint16_t input_offset;
 	uint16_t output_offset;
 	uint32_t data_length;
 };
 
-struct she_rsp_enc_cbc{
+struct she_rsp_cbc{
 	struct she_mu_hdr hdr;
 	uint32_t rsp_code;
 };

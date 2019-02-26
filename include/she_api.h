@@ -111,6 +111,21 @@ she_err she_cmd_enc_cbc(struct she_hdl *hdl, uint8_t key_id, uint32_t data_lengt
 
 
 /**
+ * Decrypt a given ciphertext with the key identified by key_id.
+ *
+ * \param hdl pointer to the SHE session handler
+ * \param key_id identifier of the key to be used for the operation
+ * \param data_length lenght in bytes of the plaintext and the cyphertext. Must be a multiple of 128bits.
+ * \param iv pointer to the 128bits IV to use for the decryption.
+ * \param ciphertext pointer to ciphertext to be decrypted.
+ * \param plaintext pointer to the plaintext output area.
+ *
+ * \return error code
+ */
+she_err she_cmd_dec_cbc(struct she_hdl *hdl, uint8_t key_id, uint32_t data_length, uint8_t *iv, uint8_t *ciphertext, uint8_t *plaintext);
+
+
+/**
  * Temporary: Entry point to test NVM storage
  */
 she_err she_cmd_load_key(struct she_hdl *hdl);
