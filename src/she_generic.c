@@ -26,18 +26,42 @@ static int32_t she_send_msg_and_get_resp(struct she_hdl *hdl, uint8_t *cmd, uint
 {
 	int32_t err = -1;
 	uint32_t len;
+	uint32_t msg_size, crc;
+	uint8_t i;
 
 	do {
+
+		msg_size = cmd_len / sizeof(uint32_t);
+		if(msg_size > 4) {
+			((uint32_t*)cmd) [msg_size - 1] = 0;
+
+			for (i = 0; i < msg_size - 1; i++) {
+				((uint32_t*)cmd) [msg_size - 1] ^= ((uint32_t*)cmd) [i];
+			}
+		}
+
 		/* Send the command. */
 		len = she_platform_send_mu_message(hdl->phdl, cmd, cmd_len);
 		if (len != cmd_len) {
 			break;
 		}
-
 		/* Read the response. */
 		len = she_platform_read_mu_message(hdl->phdl, rsp, rsp_len);
 		if (len != rsp_len) {
 			break;
+		}
+
+		msg_size = rsp_len / sizeof(uint32_t);
+
+		if(msg_size > 4) {
+			crc = 0;
+			for (i = 0; i < msg_size - 1; i++) {
+				crc ^= ((uint32_t*)rsp) [i];
+			}
+
+			if (crc != 	((uint32_t*)rsp) [msg_size - 1]) {
+				break;
+			}
 		}
 
 		err = 0;
