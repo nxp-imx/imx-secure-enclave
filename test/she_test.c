@@ -60,14 +60,14 @@ static uint8_t mac_output_ref2[] = {0xdf, 0xa6, 0x67, 0x47, 0xde, 0x9a, 0xe6, 0x
 #define SHE_TEST_DEFAULT        (0xFFFFFFFF & ~SHE_TEST_LOAD_KEY)
 #define SHE_TEST_LEN_DEFAULT    10000
 
-
+#define SHE_KEY_1                              0x4
 /* Test MAC generation command - pattern 1. */
 static void she_test_mac_gen1(struct she_hdl *hdl)
 {
 	she_err err;
 
 	(void)printf("------------ MAC generation test 1 ----------------\n");
-	err = she_cmd_generate_mac(hdl, 1, MAC_TEST1_INPUT_SIZE, mac_input_message , mac_output);
+	err = she_cmd_generate_mac(hdl, SHE_KEY_1, MAC_TEST1_INPUT_SIZE, mac_input_message , mac_output);
 	/* Check there is no error reported and that the generated MAC is correct. */
 	if ((err != ERC_NO_ERROR) || memcmp(mac_output, mac_output_ref1, SHE_MAC_SIZE)) {
 		(void)printf("\n--> ERROR\n");
@@ -83,7 +83,7 @@ static void she_test_mac_gen2(struct she_hdl *hdl)
 	she_err err;
 
 	(void)printf("------------ MAC generation test 2 ----------------\n");
-	err = she_cmd_generate_mac(hdl, 1, MAC_TEST2_INPUT_SIZE, mac_input_message, mac_output);
+	err = she_cmd_generate_mac(hdl, SHE_KEY_1, MAC_TEST2_INPUT_SIZE, mac_input_message, mac_output);
 	/* Check there is no error reported and that the generated MAC is correct. */
 	if ((err != ERC_NO_ERROR) || memcmp(mac_output, mac_output_ref2, SHE_MAC_SIZE)) {
 		(void)printf("\n--> ERROR\n");
@@ -105,7 +105,7 @@ static void she_test_mac_gen_perf(struct she_hdl *hdl, uint32_t test_len)
 		(void)clock_gettime(CLOCK_MONOTONIC_RAW, &ts1);
 		while (l > 0) {
 			/* Don't check result here. Just perf measurement. */
-			(void)she_cmd_generate_mac(hdl, 1, MAC_TEST1_INPUT_SIZE, mac_input_message , mac_output);
+			(void)she_cmd_generate_mac(hdl, SHE_KEY_1, MAC_TEST1_INPUT_SIZE, mac_input_message , mac_output);
 			l--;
 		}
 		/* Compute elapsed time. */
@@ -123,7 +123,7 @@ static void she_test_mac_verif1(struct she_hdl *hdl)
 	uint8_t verif;
 
 	(void)printf("------------ MAC verification test 1 ----------------\n");
-	err = she_cmd_verify_mac(hdl, 1, MAC_TEST1_INPUT_SIZE, mac_input_message , mac_output_ref1, SHE_MAC_SIZE, &verif);
+	err = she_cmd_verify_mac(hdl, SHE_KEY_1, MAC_TEST1_INPUT_SIZE, mac_input_message , mac_output_ref1, SHE_MAC_SIZE, &verif);
 	/* Check there is no error reported and that the verification is ok. */
 	if ((err != ERC_NO_ERROR) || verif) {
 		(void)printf("\n--> ERROR\n");
@@ -140,7 +140,7 @@ static void she_test_mac_verif2(struct she_hdl *hdl)
 	uint8_t verif;
 
 	(void)printf("------------ MAC verification test 2 ----------------\n");
-	err = she_cmd_verify_mac(hdl, 1, MAC_TEST2_INPUT_SIZE, mac_input_message , mac_output_ref2, SHE_MAC_SIZE, &verif);
+	err = she_cmd_verify_mac(hdl, SHE_KEY_1, MAC_TEST2_INPUT_SIZE, mac_input_message , mac_output_ref2, SHE_MAC_SIZE, &verif);
 	/* Check there is no error reported and that the verification is ok. */
 	if ((err != ERC_NO_ERROR) || verif) {
 		(void)printf("\n--> ERROR\n");
@@ -157,7 +157,7 @@ static void she_test_mac_verif3(struct she_hdl *hdl)
 	uint8_t verif;
 
 	(void)printf("------------ MAC verification test 3 (bad MAC) ------\n");
-	err = she_cmd_verify_mac(hdl, 1, MAC_TEST2_INPUT_SIZE, mac_input_message , mac_output_ref1, SHE_MAC_SIZE, &verif);
+	err = she_cmd_verify_mac(hdl, SHE_KEY_1, MAC_TEST2_INPUT_SIZE, mac_input_message , mac_output_ref1, SHE_MAC_SIZE, &verif);
 	/* This test expects a "no error" status but a verification status false. */
 	if (err != ERC_NO_ERROR) {
 		(void)printf("\n--> ERROR\n");
@@ -182,7 +182,7 @@ static void she_test_mac_verif_perf(struct she_hdl *hdl, uint32_t test_len)
 		(void)clock_gettime(CLOCK_MONOTONIC_RAW, &ts1);
 		while (l > 0) {
 			/* Don't check result here. Just perf measurement. */
-			(void)she_cmd_verify_mac(hdl, 1, MAC_TEST1_INPUT_SIZE, mac_input_message , mac_output_ref1, SHE_MAC_SIZE, &verif);
+			(void)she_cmd_verify_mac(hdl, SHE_KEY_1, MAC_TEST1_INPUT_SIZE, mac_input_message , mac_output_ref1, SHE_MAC_SIZE, &verif);
 			l--;
 		}
 		/* Compute elapsed time. */
