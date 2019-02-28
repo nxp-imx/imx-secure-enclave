@@ -20,7 +20,6 @@ struct she_hdl {
 	struct she_platform_hdl *phdl;
 };
 
-
 /* Helper function to send a message and wait for the response. Return 0 on success.*/
 static int32_t she_send_msg_and_get_resp(struct she_hdl *hdl, uint8_t *cmd, uint32_t cmd_len, uint8_t *rsp, uint32_t rsp_len)
 {
@@ -69,7 +68,7 @@ static int32_t she_send_msg_and_get_resp(struct she_hdl *hdl, uint8_t *cmd, uint
 	return err;
 }
 
-she_err she_seco_ind_to_she_err (uint32_t rsp_code)
+static she_err she_seco_ind_to_she_err (uint32_t rsp_code)
 {
 	she_err err = ERC_GENERAL_ERROR;
 	switch (rsp_code) {
@@ -214,7 +213,6 @@ she_err she_cmd_generate_mac(struct she_hdl *hdl, uint8_t key_id, uint32_t messa
 			break;
 		}
 
-		// TODO: map Seco error codes to SHE errors
 		if (rsp.rsp_code != AHAB_SUCCESS_IND) {
 			err = she_seco_ind_to_she_err(rsp.rsp_code);
 			break;
@@ -392,7 +390,6 @@ she_err she_cmd_load_key(struct she_hdl *hdl)
 			break;
 		}
 
-		// TODO: map Seco error codes to SHE errors
 		if (rsp.rsp_code != AHAB_SUCCESS_IND) {
 			err = she_seco_ind_to_she_err(rsp.rsp_code);
 			break;
