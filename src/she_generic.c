@@ -339,6 +339,7 @@ static she_err she_cmd_cbc(struct she_hdl *hdl, uint8_t key_id, uint32_t data_le
 
 		// TODO: map Seco error codes to SHE errors
 		if (rsp.rsp_code != AHAB_SUCCESS_IND) {
+			err = she_seco_ind_to_she_err(rsp.rsp_code);
 			break;
 		}
 

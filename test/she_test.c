@@ -75,8 +75,9 @@ static uint8_t cbc_ciphertext[] = {	0x76, 0x49, 0xab, 0xac, 0x81, 0x19, 0xb2, 0x
 #define SHE_TEST_CBC_DEC1		0x00000800
 #define SHE_TEST_CBC_DEC2		0x00001000
 #define SHE_TEST_CBC_DEC_PERF	0x00002000
-#define SHE_TEST_MAC_GEN3		0x00004000
-#define SHE_TEST_MAC_VERIF4		0x00008000
+#define SHE_TEST_CBC_ENC3		0x00004000
+#define SHE_TEST_MAC_GEN3		0x00008000
+#define SHE_TEST_MAC_VERIF4		0x00010000
 
 
 /* default test list:
@@ -84,9 +85,15 @@ static uint8_t cbc_ciphertext[] = {	0x76, 0x49, 0xab, 0xac, 0x81, 0x19, 0xb2, 0x
  */
 #define SHE_TEST_DEFAULT        (0xFFFFFFFF & ~SHE_TEST_LOAD_KEY)
 #define SHE_TEST_LEN_DEFAULT    10000
+/* Genera purpose keys configuration (temporary static configuration)
+ * KEY_1 - KEY_3 MAC GEN/VERIF
+ * KEY_4 - KEY_7 MAC VERIF ONLY
+ * KEY_8 - KEY_10 encryption/decryption
+*/
 
 #define SHE_KEY_1								0x4
 #define SHE_KEY_7								0xA
+#define SHE_KEY_10								0xD
 #define SHE_MASTER_ECU_KEY						0x1
 /* Test MAC generation command - pattern 1. */
 static void she_test_mac_gen1(struct she_hdl *hdl)
@@ -257,7 +264,7 @@ static void she_test_cbc_enc(struct she_hdl *hdl, uint32_t len)
 
 	(void)printf("------------ CBC ENC test len:%d ----------------\n", len);
 
-	err = she_cmd_enc_cbc(hdl, 1, len, cbc_iv, cbc_plaintext, output);
+	err = she_cmd_enc_cbc(hdl, SHE_KEY_10, len, cbc_iv, cbc_plaintext, output);
 	/* Check there is no error reported and that the generated MAC is correct. */
 
 	if (err != ERC_NO_ERROR) {
@@ -269,6 +276,23 @@ static void she_test_cbc_enc(struct she_hdl *hdl, uint32_t len)
 	}
 }
 
+/* Test CBC encryption using wrong key idx . */
+static void she_test_cbc_enc2(struct she_hdl *hdl, uint32_t len)
+{
+	she_err err;
+	uint8_t output[4*SHE_CBC_BLOCK_SIZE_128];
+
+	(void)printf("------------ CBC ENC test (KEY cannot be used for enc/dec operations) ----------------\n");
+
+	err = she_cmd_enc_cbc(hdl, SHE_KEY_7, len, cbc_iv, cbc_plaintext, output);
+	/* Check there is no error reported and that the generated MAC is correct. */
+
+	if (err != ERC_KEY_INVALID) {
+		(void)printf("\n--> ERROR 0x%x\n", err);
+	} else {
+		(void)printf("\n--> PASS (KEY is detected as invalid as expected)\n");
+	}
+}
 
 /* Test CBC encryption  - perf measurement. */
 static void she_test_cbc_enc_perf(struct she_hdl *hdl, uint32_t test_len)
@@ -283,7 +307,7 @@ static void she_test_cbc_enc_perf(struct she_hdl *hdl, uint32_t test_len)
 		(void)clock_gettime(CLOCK_MONOTONIC_RAW, &ts1);
 		while (l > 0) {
 			/* Don't check result here. Just perf measurement. */
-			(void)she_cmd_enc_cbc(hdl, 1, SHE_CBC_BLOCK_SIZE_128, cbc_iv, cbc_plaintext, output);
+			(void)she_cmd_enc_cbc(hdl, SHE_KEY_10, SHE_CBC_BLOCK_SIZE_128, cbc_iv, cbc_plaintext, output);
 			l--;
 		}
 		/* Compute elapsed time. */
@@ -302,7 +326,7 @@ static void she_test_cbc_dec(struct she_hdl *hdl, uint32_t len)
 
 	(void)printf("------------ CBC DEC test len:%d ----------------\n", len);
 
-	err = she_cmd_dec_cbc(hdl, 1, len, cbc_iv, cbc_ciphertext, output);
+	err = she_cmd_dec_cbc(hdl, SHE_KEY_10, len, cbc_iv, cbc_ciphertext, output);
 	/* Check there is no error reported and that the generated MAC is correct. */
 
 	if (err != ERC_NO_ERROR) {
@@ -328,7 +352,7 @@ static void she_test_cbc_dec_perf(struct she_hdl *hdl, uint32_t test_len)
 		(void)clock_gettime(CLOCK_MONOTONIC_RAW, &ts1);
 		while (l > 0) {
 			/* Don't check result here. Just perf measurement. */
-			(void)she_cmd_dec_cbc(hdl, 1, SHE_CBC_BLOCK_SIZE_128, cbc_iv, cbc_ciphertext, output);
+			(void)she_cmd_dec_cbc(hdl, SHE_KEY_10, SHE_CBC_BLOCK_SIZE_128, cbc_iv, cbc_ciphertext, output);
 			l--;
 		}
 		/* Compute elapsed time. */
@@ -404,6 +428,10 @@ static void she_test_sequence(struct she_hdl *hdl, uint32_t test_list, uint32_t 
 	/* CBC encryption test. 4 blocks. */
 	if (test_list & SHE_TEST_CBC_ENC2) {
 		she_test_cbc_enc(hdl, 4*SHE_CBC_BLOCK_SIZE_128);
+	}
+	/* CBC encryption test. bad key idx */
+	if (test_list & SHE_TEST_CBC_ENC3) {
+		she_test_cbc_enc2(hdl, 4*SHE_CBC_BLOCK_SIZE_128);
 	}
 	/* CBC encryption performance test. */
 	if (test_list & SHE_TEST_CBC_ENC_PERF) {
