@@ -130,5 +130,14 @@ she_err she_cmd_dec_cbc(struct she_hdl *hdl, uint8_t key_id, uint32_t data_lengt
  */
 she_err she_cmd_load_key(struct she_hdl *hdl);
 
+/**
+ *
+ * convert SECO indication codes in SHE error codes
+ *
+ * \param rsp_code error code reported by SECO through MessaginUnit
+ *
+ * \return SHE error code
+ */
+she_err she_seco_ind_to_she_err (uint32_t rsp_code);
 /** \}*/
 #endif

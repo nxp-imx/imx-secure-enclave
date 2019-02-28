@@ -69,6 +69,51 @@ static int32_t she_send_msg_and_get_resp(struct she_hdl *hdl, uint8_t *cmd, uint
 	return err;
 }
 
+she_err she_seco_ind_to_she_err (uint32_t rsp_code)
+{
+	she_err err = ERC_GENERAL_ERROR;
+	switch (rsp_code) {
+	case AHAB_SHE_ERC_SEQUENCE_ERROR :
+		err = ERC_SEQUENCE_ERROR;
+		break;
+	case AHAB_SHE_ERC_KEY_NOT_AVAILABLE :
+		err = ERC_KEY_NOT_AVAILABLE;
+		break;
+	case AHAB_SHE_ERC_KEY_INVALID :
+		err = ERC_KEY_INVALID;
+		break;
+	case AHAB_SHE_ERC_KEY_EMPTY :
+		err = ERC_KEY_EMPTY;
+		break;
+	case AHAB_SHE_ERC_NO_SECURE_BOOT :
+		err = ERC_NO_SECURE_BOOT;
+		break;
+	case AHAB_SHE_ERC_KEY_WRITE_PROTECTED :
+		err = ERC_KEY_WRITE_PROTECTED;
+		break;
+	case AHAB_SHE_ERC_KEY_UPDATE_ERROR :
+		err = ERC_KEY_UPDATE_ERROR;
+		break;
+	case AHAB_SHE_ERC_RNG_SEED :
+		err = ERC_RNG_SEED;
+		break;
+	case AHAB_SHE_ERC_NO_DEBUGGING :
+		err = ERC_NO_DEBUGGING;
+		break;
+	case AHAB_SHE_ERC_BUSY :
+		err = ERC_BUSY;
+		break;
+	case AHAB_SHE_ERC_MEMORY_FAILURE :
+		err = ERC_MEMORY_FAILURE;
+		break;
+	case AHAB_SHE_ERC_GENERAL_ERROR :
+		err = ERC_GENERAL_ERROR;
+		break;
+	default:
+		err = ERC_GENERAL_ERROR;
+	}
+	return err;
+}
 
 /* Close a previously opened SHE session. */
 void she_close_session(struct she_hdl *hdl) {
@@ -171,6 +216,7 @@ she_err she_cmd_generate_mac(struct she_hdl *hdl, uint8_t key_id, uint32_t messa
 
 		// TODO: map Seco error codes to SHE errors
 		if (rsp.rsp_code != AHAB_SUCCESS_IND) {
+			err = she_seco_ind_to_she_err(rsp.rsp_code);
 			break;
 		}
 
@@ -230,6 +276,7 @@ she_err she_cmd_verify_mac(struct she_hdl *hdl, uint8_t key_id, uint32_t message
 
 		// TODO: map Seco error codes to SHE errors
 		if (rsp.rsp_code != AHAB_SUCCESS_IND) {
+			err = she_seco_ind_to_she_err(rsp.rsp_code);
 			break;
 		}
 
@@ -344,6 +391,7 @@ she_err she_cmd_load_key(struct she_hdl *hdl)
 
 		// TODO: map Seco error codes to SHE errors
 		if (rsp.rsp_code != AHAB_SUCCESS_IND) {
+			err = she_seco_ind_to_she_err(rsp.rsp_code);
 			break;
 		}
 

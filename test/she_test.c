@@ -75,6 +75,9 @@ static uint8_t cbc_ciphertext[] = {	0x76, 0x49, 0xab, 0xac, 0x81, 0x19, 0xb2, 0x
 #define SHE_TEST_CBC_DEC1		0x00000800
 #define SHE_TEST_CBC_DEC2		0x00001000
 #define SHE_TEST_CBC_DEC_PERF	0x00002000
+#define SHE_TEST_MAC_GEN3		0x00004000
+#define SHE_TEST_MAC_VERIF4		0x00008000
+
 
 /* default test list:
  * All tests without key loading
@@ -82,7 +85,9 @@ static uint8_t cbc_ciphertext[] = {	0x76, 0x49, 0xab, 0xac, 0x81, 0x19, 0xb2, 0x
 #define SHE_TEST_DEFAULT        (0xFFFFFFFF & ~SHE_TEST_LOAD_KEY)
 #define SHE_TEST_LEN_DEFAULT    10000
 
-#define SHE_KEY_1                              0x4
+#define SHE_KEY_1								0x4
+#define SHE_KEY_7								0xA
+#define SHE_MASTER_ECU_KEY						0x1
 /* Test MAC generation command - pattern 1. */
 static void she_test_mac_gen1(struct she_hdl *hdl)
 {
@@ -92,7 +97,7 @@ static void she_test_mac_gen1(struct she_hdl *hdl)
 	err = she_cmd_generate_mac(hdl, SHE_KEY_1, MAC_TEST1_INPUT_SIZE, mac_input_message , mac_output);
 	/* Check there is no error reported and that the generated MAC is correct. */
 	if ((err != ERC_NO_ERROR) || memcmp(mac_output, mac_output_ref1, SHE_MAC_SIZE)) {
-		(void)printf("\n--> ERROR\n");
+		(void)printf("\n--> ERROR 0x%x\n", err);
 	} else {
 		(void)printf("\n--> PASS\n");
 	}
@@ -108,12 +113,26 @@ static void she_test_mac_gen2(struct she_hdl *hdl)
 	err = she_cmd_generate_mac(hdl, SHE_KEY_1, MAC_TEST2_INPUT_SIZE, mac_input_message, mac_output);
 	/* Check there is no error reported and that the generated MAC is correct. */
 	if ((err != ERC_NO_ERROR) || memcmp(mac_output, mac_output_ref2, SHE_MAC_SIZE)) {
-		(void)printf("\n--> ERROR\n");
+		(void)printf("\n--> ERROR 0x%x\n", err);
 	} else {
 		(void)printf("\n--> PASS\n");
 	}
 }
 
+/* Test MAC generation command - pattern 3. */
+static void she_test_mac_gen3(struct she_hdl *hdl)
+{
+	she_err err;
+
+	(void)printf("------------ MAC generation test 3 (KEY has flag VERIFY only) ----------------\n");
+	err = she_cmd_generate_mac(hdl, SHE_KEY_7, MAC_TEST2_INPUT_SIZE, mac_input_message, mac_output);
+	/* Check there is no error reported and that the generated MAC is correct. */
+	if (err != ERC_KEY_INVALID) {
+		(void)printf("\n--> ERROR 0x%x\n", err);
+	} else {
+		(void)printf("\n--> PASS (KEY is detected as invalid as expected)\n");
+	}
+}
 
 /* Test MAC generation command - perf measurement. */
 static void she_test_mac_gen_perf(struct she_hdl *hdl, uint32_t test_len)
@@ -148,7 +167,7 @@ static void she_test_mac_verif1(struct she_hdl *hdl)
 	err = she_cmd_verify_mac(hdl, SHE_KEY_1, MAC_TEST1_INPUT_SIZE, mac_input_message , mac_output_ref1, SHE_MAC_SIZE, &verif);
 	/* Check there is no error reported and that the verification is ok. */
 	if ((err != ERC_NO_ERROR) || verif) {
-		(void)printf("\n--> ERROR\n");
+		(void)printf("\n--> ERROR 0x%x\n", err);
 	} else {
 		(void)printf("\n--> PASS\n");
 	}
@@ -165,7 +184,7 @@ static void she_test_mac_verif2(struct she_hdl *hdl)
 	err = she_cmd_verify_mac(hdl, SHE_KEY_1, MAC_TEST2_INPUT_SIZE, mac_input_message , mac_output_ref2, SHE_MAC_SIZE, &verif);
 	/* Check there is no error reported and that the verification is ok. */
 	if ((err != ERC_NO_ERROR) || verif) {
-		(void)printf("\n--> ERROR\n");
+		(void)printf("\n--> ERROR 0x%x\n", err);
 	} else {
 		(void)printf("\n--> PASS\n");
 	}
@@ -182,7 +201,7 @@ static void she_test_mac_verif3(struct she_hdl *hdl)
 	err = she_cmd_verify_mac(hdl, SHE_KEY_1, MAC_TEST2_INPUT_SIZE, mac_input_message , mac_output_ref1, SHE_MAC_SIZE, &verif);
 	/* This test expects a "no error" status but a verification status false. */
 	if (err != ERC_NO_ERROR) {
-		(void)printf("\n--> ERROR\n");
+		(void)printf("\n--> ERROR 0x%x\n", err);
 	} else if (!verif) {
 		(void)printf("\n--> ERROR (MAC verification status is true)\n");
 	} else {
@@ -190,6 +209,21 @@ static void she_test_mac_verif3(struct she_hdl *hdl)
 	}
 }
 
+/* Test MAC verify command - pattern 4. */
+static void she_test_mac_verif4(struct she_hdl *hdl)
+{
+	she_err err;
+	uint8_t verif;
+
+	(void)printf("------------ MAC verification test 4 (KEY cannot be used for MAC operations) ------\n");
+	err = she_cmd_verify_mac(hdl, SHE_MASTER_ECU_KEY, MAC_TEST2_INPUT_SIZE, mac_input_message , mac_output_ref1, SHE_MAC_SIZE, &verif);
+	/* This test expects a "no error" status but a verification status false. */
+	if (err != ERC_KEY_INVALID) {
+		(void)printf("\n--> ERROR 0x%x\n", err);
+	} else {
+		(void)printf("\n--> PASS (KEY is detected as invalid as expected)\n");
+	}
+}
 
 /* Test MAC generation command - perf measurement. */
 static void she_test_mac_verif_perf(struct she_hdl *hdl, uint32_t test_len)
@@ -314,7 +348,7 @@ static void she_test_load_key(struct she_hdl *hdl)
 	err = she_cmd_load_key(hdl);
 	/* Check only that a success was reported. */
 	if (err != ERC_NO_ERROR) {
-		(void)printf("\n--> ERROR\n");
+		(void)printf("\n--> ERROR 0x%x\n", err);
 	} else {
 		(void)printf("\n--> PASS\n");
 	}
@@ -333,7 +367,11 @@ static void she_test_sequence(struct she_hdl *hdl, uint32_t test_list, uint32_t 
 	}
 	/* MAC generation test - pattern 2. */
 	if (test_list & SHE_TEST_MAC_GEN2) {
-		she_test_mac_gen1(hdl);
+		she_test_mac_gen2(hdl);
+	}
+	/* MAC generation test - - wrong KEY. */
+	if (test_list & SHE_TEST_MAC_GEN3) {
+		she_test_mac_gen3(hdl);
 	}
 	/* MAC generation performance test. */
 	if (test_list & SHE_TEST_MAC_GEN_PERF) {
@@ -350,6 +388,10 @@ static void she_test_sequence(struct she_hdl *hdl, uint32_t test_list, uint32_t 
 	/* MAC verification test - wrong MAC. */
 	if (test_list & SHE_TEST_MAC_VERIF3) {
 		she_test_mac_verif3(hdl);
+	}
+	/* MAC verification test - wrong KEY. */
+	if (test_list & SHE_TEST_MAC_VERIF4) {
+		she_test_mac_verif4(hdl);
 	}
 	/* MAC verification performance test. */
 	if (test_list & SHE_TEST_MAC_VERIF_PERF) {

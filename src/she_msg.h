@@ -31,6 +31,18 @@
 #define AHAB_SUCCESS_IND						0x00
 #define AHAB_FAILURE_IND						0x29
 
+#define	AHAB_SHE_ERC_SEQUENCE_ERROR         ((0xD1 << 8) | AHAB_FAILURE_IND)		/**< Invalid sequence of commands. */
+#define	AHAB_SHE_ERC_KEY_NOT_AVAILABLE      ((0xD2 << 8) | AHAB_FAILURE_IND)	    /**< Key is locked. */
+#define	AHAB_SHE_ERC_KEY_INVALID            ((0xD3 << 8) | AHAB_FAILURE_IND)		/**< Key not allowed for the given operation. */
+#define	AHAB_SHE_ERC_KEY_EMPTY              ((0xD4 << 8) | AHAB_FAILURE_IND)		/**< Key has not beed initialized yet. */
+#define	AHAB_SHE_ERC_NO_SECURE_BOOT         ((0xD5 << 8) | AHAB_FAILURE_IND)		/**< Conditions for a secure boot process are not met. */
+#define	AHAB_SHE_ERC_KEY_WRITE_PROTECTED    ((0xD6 << 8) | AHAB_FAILURE_IND)        /**< Memory slot for this key has been write-protected. */
+#define	AHAB_SHE_ERC_KEY_UPDATE_ERROR       ((0xD7 << 8) | AHAB_FAILURE_IND)	    /**< Key update did not succeed due to errors in verification of the messages. */
+#define	AHAB_SHE_ERC_RNG_SEED               ((0xD8 << 8) | AHAB_FAILURE_IND)		/*< The seed has not been initialized. */
+#define	AHAB_SHE_ERC_NO_DEBUGGING           ((0xD9 << 8) | AHAB_FAILURE_IND)		/**< Internal debugging is not possible. */
+#define	AHAB_SHE_ERC_BUSY                   ((0xDA << 8) | AHAB_FAILURE_IND)		/**< A function of SHE is called while another function is still processing. */
+#define	AHAB_SHE_ERC_MEMORY_FAILURE         ((0xDB << 8) | AHAB_FAILURE_IND)		/**< Memory error (e.g. flipped bits) */
+#define	AHAB_SHE_ERC_GENERAL_ERROR          ((0xDC << 8) | AHAB_FAILURE_IND)		/**< Error not covered by other codes occured. */
 
 struct she_mu_hdr {
 	uint8_t ver;
