@@ -107,11 +107,15 @@ struct she_rsp_verify_mac{
 
 struct she_cmd_cbc{
 	struct she_mu_hdr hdr;
-	uint16_t key_id;
-	uint16_t iv_offset;
-	uint16_t input_offset;
-	uint16_t output_offset;
-	uint32_t data_length;
+    uint16_t key_id;
+    uint16_t pad;
+    uint32_t inputs_address_ext;
+    uint32_t outputs_address_ext;
+    uint32_t iv_address;
+    uint32_t input_address;
+    uint32_t output_address;
+    uint32_t data_length;
+    uint32_t crc;
 };
 
 struct she_rsp_cbc{

@@ -21,6 +21,7 @@
 #ifndef SHE_PLATFORM_H
 #define SHE_PLATFORM_H
 
+#define SECURE_RAM_BASE_ADDRESS_SECURE	0x20800000
 
 typedef enum {
 	SHE_NVM,

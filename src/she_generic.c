@@ -324,9 +324,11 @@ static she_err she_cmd_cbc(struct she_hdl *hdl, uint8_t key_id, uint32_t data_le
 		cmd.key_id = key_id;
 		/* IV at offset 0. input data just after at offset SHE_CBC_BLOCK_SIZE_128. Then output data at offset (n+1)block_size. */
 		shared_mem_offset = she_platform_shared_buf_offset(hdl->phdl);
-		cmd.iv_offset = shared_mem_offset + 0x00;
-		cmd.input_offset = shared_mem_offset + SHE_CBC_BLOCK_SIZE_128;
-		cmd.output_offset = shared_mem_offset + SHE_CBC_BLOCK_SIZE_128 + data_length;
+		cmd.inputs_address_ext = ((uint64_t)(SECURE_RAM_BASE_ADDRESS_SECURE + shared_mem_offset) >> 32) & 0xFFFFFFFF;
+		cmd.outputs_address_ext = ((uint64_t)(SECURE_RAM_BASE_ADDRESS_SECURE + shared_mem_offset) >> 32) & 0xFFFFFFFF;
+		cmd.iv_address = SECURE_RAM_BASE_ADDRESS_SECURE + shared_mem_offset + 0x00;
+		cmd.input_address = SECURE_RAM_BASE_ADDRESS_SECURE + shared_mem_offset + SHE_CBC_BLOCK_SIZE_128;
+		cmd.output_address = SECURE_RAM_BASE_ADDRESS_SECURE + shared_mem_offset + SHE_CBC_BLOCK_SIZE_128 + data_length;
 		cmd.data_length = data_length;
 
 		/* Send the message to Seco. */

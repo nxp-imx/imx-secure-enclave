@@ -15,7 +15,6 @@
 #include "she_nvm.h"
 #include "she_platform.h"
 
-#define SECURE_RAM_BASE_ADDRESS_SECURE	0x20800000
 #define SECURE_RAM_NVM_OFFSET 0x400
 #define MAX_NVM_MSG_SIZE	20
 
