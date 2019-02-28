@@ -73,40 +73,40 @@ she_err she_seco_ind_to_she_err (uint32_t rsp_code)
 {
 	she_err err = ERC_GENERAL_ERROR;
 	switch (rsp_code) {
-	case AHAB_SHE_ERC_SEQUENCE_ERROR :
+	case AHAB_SHE_ERC_SEQUENCE_ERROR_IND :
 		err = ERC_SEQUENCE_ERROR;
 		break;
-	case AHAB_SHE_ERC_KEY_NOT_AVAILABLE :
+	case AHAB_SHE_ERC_KEY_NOT_AVAILABLE_IND :
 		err = ERC_KEY_NOT_AVAILABLE;
 		break;
-	case AHAB_SHE_ERC_KEY_INVALID :
+	case AHAB_SHE_ERC_KEY_INVALID_IND :
 		err = ERC_KEY_INVALID;
 		break;
-	case AHAB_SHE_ERC_KEY_EMPTY :
+	case AHAB_SHE_ERC_KEY_EMPTY_IND :
 		err = ERC_KEY_EMPTY;
 		break;
-	case AHAB_SHE_ERC_NO_SECURE_BOOT :
+	case AHAB_SHE_ERC_NO_SECURE_BOOT_IND :
 		err = ERC_NO_SECURE_BOOT;
 		break;
-	case AHAB_SHE_ERC_KEY_WRITE_PROTECTED :
+	case AHAB_SHE_ERC_KEY_WRITE_PROTECTED_IND :
 		err = ERC_KEY_WRITE_PROTECTED;
 		break;
-	case AHAB_SHE_ERC_KEY_UPDATE_ERROR :
+	case AHAB_SHE_ERC_KEY_UPDATE_ERROR_IND :
 		err = ERC_KEY_UPDATE_ERROR;
 		break;
-	case AHAB_SHE_ERC_RNG_SEED :
+	case AHAB_SHE_ERC_RNG_SEED_IND :
 		err = ERC_RNG_SEED;
 		break;
-	case AHAB_SHE_ERC_NO_DEBUGGING :
+	case AHAB_SHE_ERC_NO_DEBUGGING_IND :
 		err = ERC_NO_DEBUGGING;
 		break;
-	case AHAB_SHE_ERC_BUSY :
+	case AHAB_SHE_ERC_BUSY_IND :
 		err = ERC_BUSY;
 		break;
-	case AHAB_SHE_ERC_MEMORY_FAILURE :
+	case AHAB_SHE_ERC_MEMORY_FAILURE_IND :
 		err = ERC_MEMORY_FAILURE;
 		break;
-	case AHAB_SHE_ERC_GENERAL_ERROR :
+	case AHAB_SHE_ERC_GENERAL_ERROR_IND :
 		err = ERC_GENERAL_ERROR;
 		break;
 	default:
