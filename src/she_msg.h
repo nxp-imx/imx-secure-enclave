@@ -24,8 +24,7 @@
 #define AHAB_SHE_CMD_LOAD_KEY					0x34
 #define AHAB_SHE_CMD_STORAGE_EXPORT_REQ			0x35
 #define AHAB_SHE_CMD_STORAGE_IMPORT_REQ			0x36
-#define AHAB_SHE_CMD_ENC_CBC_REQ				0x37
-#define AHAB_SHE_CMD_DEC_CBC_REQ				0x38
+#define AHAB_SHE_CMD_CIPHER_REQ					0x37
 
 
 #define AHAB_SUCCESS_IND						0x00
@@ -105,10 +104,11 @@ struct she_rsp_verify_mac{
 
 /* CBC */
 
-struct she_cmd_cbc{
+struct she_cmd_cipher{
 	struct she_mu_hdr hdr;
     uint16_t key_id;
-    uint16_t pad;
+    uint8_t  algo;
+    uint8_t  flags;
     uint32_t inputs_address_ext;
     uint32_t outputs_address_ext;
     uint32_t iv_address;
@@ -117,8 +117,13 @@ struct she_cmd_cbc{
     uint32_t data_length;
     uint32_t crc;
 };
+#define SHE_CIPHER_ALGO_ECB 0x00
+#define SHE_CIPHER_ALGO_CBC 0x01
+#define SHE_CIPHER_FLAG_DECRYPT 0x00
+#define SHE_CIPHER_FLAG_ENCRYPT 0x01
 
-struct she_rsp_cbc{
+
+struct she_rsp_cipher{
 	struct she_mu_hdr hdr;
 	uint32_t rsp_code;
 };

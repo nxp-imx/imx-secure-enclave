@@ -61,6 +61,9 @@ static uint8_t cbc_ciphertext[] = {	0x76, 0x49, 0xab, 0xac, 0x81, 0x19, 0xb2, 0x
 									0x3f, 0xf1, 0xca, 0xa1, 0x68, 0x1f, 0xac, 0x09, 0x12, 0x0e, 0xca, 0x30, 0x75, 0x86, 0xe1, 0xa7};
 
 
+static uint8_t ecb_plaintext[]  = {0x00, 0x11, 0x22, 0x33, 0x44, 0x55, 0x66, 0x77, 0x88, 0x99, 0xaa, 0xbb, 0xcc, 0xdd, 0xee, 0xff};
+static uint8_t ecb_ciphertext[] = {0x69, 0xc4, 0xe0, 0xd8, 0x6a, 0x7b, 0x04, 0x30, 0xd8, 0xcd, 0xb7, 0x80, 0x70, 0xb4, 0xc5, 0x5a};
+
 #define SHE_TEST_MAC_GEN1		0x00000001
 #define SHE_TEST_MAC_GEN2		0x00000002
 #define SHE_TEST_MAC_GEN_PERF	0x00000004
@@ -78,6 +81,10 @@ static uint8_t cbc_ciphertext[] = {	0x76, 0x49, 0xab, 0xac, 0x81, 0x19, 0xb2, 0x
 #define SHE_TEST_CBC_ENC3		0x00004000
 #define SHE_TEST_MAC_GEN3		0x00008000
 #define SHE_TEST_MAC_VERIF4		0x00010000
+#define SHE_TEST_ECB_ENC		0x00020000
+#define SHE_TEST_ECB_DEC		0x00040000
+#define SHE_TEST_ECB_ENC_PERF	0x00080000
+#define SHE_TEST_ECB_DEC_PERF	0x00100000
 
 
 /* default test list:
@@ -88,11 +95,13 @@ static uint8_t cbc_ciphertext[] = {	0x76, 0x49, 0xab, 0xac, 0x81, 0x19, 0xb2, 0x
 /* Genera purpose keys configuration (temporary static configuration)
  * KEY_1 - KEY_3 MAC GEN/VERIF
  * KEY_4 - KEY_7 MAC VERIF ONLY
- * KEY_8 - KEY_10 encryption/decryption
+ * KEY_8         ECB  encryption/decryption
+ * KEY 9 - KEY_10 CBC encryption/decryption
 */
 
 #define SHE_KEY_1								0x4
 #define SHE_KEY_7								0xA
+#define SHE_KEY_8								0xB
 #define SHE_KEY_10								0xD
 #define SHE_MASTER_ECU_KEY						0x1
 /* Test MAC generation command - pattern 1. */
@@ -260,7 +269,7 @@ static void she_test_mac_verif_perf(struct she_hdl *hdl, uint32_t test_len)
 static void she_test_cbc_enc(struct she_hdl *hdl, uint32_t len)
 {
 	she_err err;
-	uint8_t output[4*SHE_CBC_BLOCK_SIZE_128];
+	uint8_t output[4*SHE_AES_BLOCK_SIZE_128];
 
 	(void)printf("------------ CBC ENC test len:%d ----------------\n", len);
 
@@ -280,7 +289,7 @@ static void she_test_cbc_enc(struct she_hdl *hdl, uint32_t len)
 static void she_test_cbc_enc2(struct she_hdl *hdl, uint32_t len)
 {
 	she_err err;
-	uint8_t output[4*SHE_CBC_BLOCK_SIZE_128];
+	uint8_t output[4*SHE_AES_BLOCK_SIZE_128];
 
 	(void)printf("------------ CBC ENC test (KEY cannot be used for enc/dec operations) ----------------\n");
 
@@ -299,7 +308,7 @@ static void she_test_cbc_enc_perf(struct she_hdl *hdl, uint32_t test_len)
 {
 	struct timespec ts1, ts2;
 	uint64_t time_us;
-	uint8_t output[SHE_CBC_BLOCK_SIZE_128];
+	uint8_t output[SHE_AES_BLOCK_SIZE_128];
 	uint32_t l = test_len;
 
 	if (test_len > 0) { /* To avoid a divide by 0 at the end ... */
@@ -307,7 +316,7 @@ static void she_test_cbc_enc_perf(struct she_hdl *hdl, uint32_t test_len)
 		(void)clock_gettime(CLOCK_MONOTONIC_RAW, &ts1);
 		while (l > 0) {
 			/* Don't check result here. Just perf measurement. */
-			(void)she_cmd_enc_cbc(hdl, SHE_KEY_10, SHE_CBC_BLOCK_SIZE_128, cbc_iv, cbc_plaintext, output);
+			(void)she_cmd_enc_cbc(hdl, SHE_KEY_10, SHE_AES_BLOCK_SIZE_128, cbc_iv, cbc_plaintext, output);
 			l--;
 		}
 		/* Compute elapsed time. */
@@ -322,7 +331,7 @@ static void she_test_cbc_enc_perf(struct she_hdl *hdl, uint32_t test_len)
 static void she_test_cbc_dec(struct she_hdl *hdl, uint32_t len)
 {
 	she_err err;
-	uint8_t output[4*SHE_CBC_BLOCK_SIZE_128];
+	uint8_t output[4*SHE_AES_BLOCK_SIZE_128];
 
 	(void)printf("------------ CBC DEC test len:%d ----------------\n", len);
 
@@ -344,21 +353,113 @@ static void she_test_cbc_dec_perf(struct she_hdl *hdl, uint32_t test_len)
 {
 	struct timespec ts1, ts2;
 	uint64_t time_us;
-	uint8_t output[SHE_CBC_BLOCK_SIZE_128];
+	uint8_t output[SHE_AES_BLOCK_SIZE_128];
 	uint32_t l = test_len;
 
 	if (test_len > 0) { /* To avoid a divide by 0 at the end ... */
-		(void)printf("------------ CBC encrypt speed test ------------\n");
+		(void)printf("------------ CBC decrypt speed test ------------\n");
 		(void)clock_gettime(CLOCK_MONOTONIC_RAW, &ts1);
 		while (l > 0) {
 			/* Don't check result here. Just perf measurement. */
-			(void)she_cmd_dec_cbc(hdl, SHE_KEY_10, SHE_CBC_BLOCK_SIZE_128, cbc_iv, cbc_ciphertext, output);
+			(void)she_cmd_dec_cbc(hdl, SHE_KEY_10, SHE_AES_BLOCK_SIZE_128, cbc_iv, cbc_ciphertext, output);
 			l--;
 		}
 		/* Compute elapsed time. */
 		(void)clock_gettime(CLOCK_MONOTONIC_RAW, &ts2);
 		time_us = (uint64_t)(ts2.tv_sec - ts1.tv_sec)*1000000 + (ts2.tv_nsec - ts1.tv_nsec)/1000;
 		(void)printf("%d CBC decryptions in %ld microseconds (about %ld microseconds per CBC DEC)\n", test_len, time_us, time_us/test_len);
+	}
+}
+
+
+/* Test ECB encryption . */
+static void she_test_ecb_enc(struct she_hdl *hdl)
+{
+	she_err err;
+	uint8_t output[SHE_AES_BLOCK_SIZE_128];
+
+	(void)printf("------------ ECB ENC test ----------------\n");
+
+	err = she_cmd_enc_ecb(hdl, SHE_KEY_8, ecb_plaintext, output);
+	/* Check there is no error reported and that the generated MAC is correct. */
+
+	if (err != ERC_NO_ERROR) {
+		(void)printf("\n--> ERROR 0x%x\n", err);
+	} else if (memcmp(output, ecb_ciphertext, SHE_AES_BLOCK_SIZE_128)) {
+		(void)printf("\n--> Wrong output\n");
+	} else {
+		(void)printf("\n--> PASS\n");
+	}
+}
+
+
+/* Test ECB decryption . */
+static void she_test_ecb_dec(struct she_hdl *hdl)
+{
+	she_err err;
+	uint8_t output[SHE_AES_BLOCK_SIZE_128];
+
+	(void)printf("------------ ECB ENC test ----------------\n");
+
+	err = she_cmd_dec_ecb(hdl, SHE_KEY_8, ecb_ciphertext, output);
+	/* Check there is no error reported and that the generated MAC is correct. */
+
+	if (err != ERC_NO_ERROR) {
+		(void)printf("\n--> ERROR 0x%x\n", err);
+	} else if (memcmp(output, ecb_plaintext, SHE_AES_BLOCK_SIZE_128)) {
+		(void)printf("\n--> Wrong output\n");
+	} else {
+		(void)printf("\n--> PASS\n");
+	}
+}
+
+
+
+/* Test ECB encryption  - perf measurement. */
+static void she_test_ecb_enc_perf(struct she_hdl *hdl, uint32_t test_len)
+{
+	struct timespec ts1, ts2;
+	uint64_t time_us;
+	uint8_t output[SHE_AES_BLOCK_SIZE_128];
+	uint32_t l = test_len;
+
+	if (test_len > 0) { /* To avoid a divide by 0 at the end ... */
+		(void)printf("------------ ECB encrypt speed test ------------\n");
+		(void)clock_gettime(CLOCK_MONOTONIC_RAW, &ts1);
+		while (l > 0) {
+			/* Don't check result here. Just perf measurement. */
+			(void)she_cmd_enc_ecb(hdl, SHE_KEY_8, ecb_plaintext, output);
+			l--;
+		}
+		/* Compute elapsed time. */
+		(void)clock_gettime(CLOCK_MONOTONIC_RAW, &ts2);
+		time_us = (uint64_t)(ts2.tv_sec - ts1.tv_sec)*1000000 + (ts2.tv_nsec - ts1.tv_nsec)/1000;
+		(void)printf("%d ECB encryptions in %ld microseconds (about %ld microseconds per ECB ENC)\n", test_len, time_us, time_us/test_len);
+	}
+}
+
+
+
+/* Test ECB decrypt  - perf measurement. */
+static void she_test_ecb_dec_perf(struct she_hdl *hdl, uint32_t test_len)
+{
+	struct timespec ts1, ts2;
+	uint64_t time_us;
+	uint8_t output[SHE_AES_BLOCK_SIZE_128];
+	uint32_t l = test_len;
+
+	if (test_len > 0) { /* To avoid a divide by 0 at the end ... */
+		(void)printf("------------ ECB decrypt speed test ------------\n");
+		(void)clock_gettime(CLOCK_MONOTONIC_RAW, &ts1);
+		while (l > 0) {
+			/* Don't check result here. Just perf measurement. */
+			(void)she_cmd_dec_ecb(hdl, SHE_KEY_8, ecb_plaintext, output);
+			l--;
+		}
+		/* Compute elapsed time. */
+		(void)clock_gettime(CLOCK_MONOTONIC_RAW, &ts2);
+		time_us = (uint64_t)(ts2.tv_sec - ts1.tv_sec)*1000000 + (ts2.tv_nsec - ts1.tv_nsec)/1000;
+		(void)printf("%d ECB decryptions in %ld microseconds (about %ld microseconds per ECB DEC)\n", test_len, time_us, time_us/test_len);
 	}
 }
 
@@ -423,15 +524,15 @@ static void she_test_sequence(struct she_hdl *hdl, uint32_t test_list, uint32_t 
 	}
 	/* CBC encryption test. 1 block. */
 	if (test_list & SHE_TEST_CBC_ENC1) {
-		she_test_cbc_enc(hdl, SHE_CBC_BLOCK_SIZE_128);
+		she_test_cbc_enc(hdl, SHE_AES_BLOCK_SIZE_128);
 	}
 	/* CBC encryption test. 4 blocks. */
 	if (test_list & SHE_TEST_CBC_ENC2) {
-		she_test_cbc_enc(hdl, 4*SHE_CBC_BLOCK_SIZE_128);
+		she_test_cbc_enc(hdl, 4*SHE_AES_BLOCK_SIZE_128);
 	}
 	/* CBC encryption test. bad key idx */
 	if (test_list & SHE_TEST_CBC_ENC3) {
-		she_test_cbc_enc2(hdl, 4*SHE_CBC_BLOCK_SIZE_128);
+		she_test_cbc_enc2(hdl, 4*SHE_AES_BLOCK_SIZE_128);
 	}
 	/* CBC encryption performance test. */
 	if (test_list & SHE_TEST_CBC_ENC_PERF) {
@@ -439,15 +540,31 @@ static void she_test_sequence(struct she_hdl *hdl, uint32_t test_list, uint32_t 
 	}
 	/* CBC decryption test. 1 block. */
 	if (test_list & SHE_TEST_CBC_DEC1) {
-		she_test_cbc_dec(hdl, SHE_CBC_BLOCK_SIZE_128);
+		she_test_cbc_dec(hdl, SHE_AES_BLOCK_SIZE_128);
 	}
 	/* CBC encryption test. 4 blocks. */
 	if (test_list & SHE_TEST_CBC_DEC2) {
-		she_test_cbc_dec(hdl, 4*SHE_CBC_BLOCK_SIZE_128);
+		she_test_cbc_dec(hdl, 4*SHE_AES_BLOCK_SIZE_128);
 	}
 	/* CBC decryption performance test. */
 	if (test_list & SHE_TEST_CBC_DEC_PERF) {
 		she_test_cbc_dec_perf(hdl, test_len);
+	}
+	/* ECB encryption test.. */
+	if (test_list & SHE_TEST_ECB_ENC) {
+		she_test_ecb_enc(hdl);
+	}
+	/* ECB decryption test. */
+	if (test_list & SHE_TEST_ECB_DEC) {
+		she_test_ecb_dec(hdl);
+	}
+	/* ECB encryption test. perf test. */
+	if (test_list & SHE_TEST_ECB_ENC_PERF) {
+		she_test_ecb_enc_perf(hdl, test_len);
+	}
+	/* ECB decryption test. perf test */
+	if (test_list & SHE_TEST_ECB_DEC_PERF) {
+		she_test_ecb_dec_perf(hdl, test_len);
 	}
 }
 
@@ -462,11 +579,11 @@ int main(int argc, char *argv[])
 	do {
 		/* First argument is a bitfield of the test to be executed. */
 		if (argc > 1) {
-			test_list = strtoul(argv[1], NULL, 0);
+			test_list = strtoull(argv[1], NULL, 0);
 		}
 		/* Second arg is the number of iterations for perf tests. */
 		if (argc > 2) {
-			test_len = strtoul(argv[2], NULL, 0);
+			test_len = strtoull(argv[2], NULL, 0);
 		}
 
 		(void)printf("SHE tests starting (bitmap:0x%x perf tests:%d iterations)\n", test_list, test_len);

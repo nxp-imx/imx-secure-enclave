@@ -95,7 +95,7 @@ she_err she_cmd_verify_mac(struct she_hdl *hdl, uint8_t key_id, uint32_t message
 
 
 /**
- * Encrypt a given plaintext with the key identified by key_id.
+ * CBC encryption of a given plaintext with the key identified by key_id.
  *
  * \param hdl pointer to the SHE session handler
  * \param key_id identifier of the key to be used for the operation
@@ -107,11 +107,11 @@ she_err she_cmd_verify_mac(struct she_hdl *hdl, uint8_t key_id, uint32_t message
  * \return error code
  */
 she_err she_cmd_enc_cbc(struct she_hdl *hdl, uint8_t key_id, uint32_t data_length, uint8_t *iv, uint8_t *plaintext, uint8_t *ciphertext);
-#define SHE_CBC_BLOCK_SIZE_128       16 /**< size in bytes of a 128bits CBC bloc */
+#define SHE_AES_BLOCK_SIZE_128       16 /**< size in bytes of a 128bits CBC bloc */
 
 
 /**
- * Decrypt a given ciphertext with the key identified by key_id.
+ * CBC decryption of a given ciphertext with the key identified by key_id.
  *
  * \param hdl pointer to the SHE session handler
  * \param key_id identifier of the key to be used for the operation
@@ -123,6 +123,32 @@ she_err she_cmd_enc_cbc(struct she_hdl *hdl, uint8_t key_id, uint32_t data_lengt
  * \return error code
  */
 she_err she_cmd_dec_cbc(struct she_hdl *hdl, uint8_t key_id, uint32_t data_length, uint8_t *iv, uint8_t *ciphertext, uint8_t *plaintext);
+
+
+/**
+ * ECB encryption of a given plaintext with the key identified by key_id.
+ *
+ * \param hdl pointer to the SHE session handler
+ * \param key_id identifier of the key to be used for the operation
+ * \param plaintext pointer to the 128bits message to be encrypted.
+ * \param ciphertext pointer to ciphertext output area (128bits).
+ *
+ * \return error code
+ */
+she_err she_cmd_enc_ecb(struct she_hdl *hdl, uint8_t key_id, uint8_t *plaintext, uint8_t *ciphertext);
+
+
+/**
+ * ECB decryption of a given ciphertext with the key identified by key_id.
+ *
+ * \param hdl pointer to the SHE session handler
+ * \param key_id identifier of the key to be used for the operation
+ * \param ciphertext pointer to 128bits ciphertext to be decrypted.
+ * \param plaintext pointer to the plaintext output area (128bits).
+ *
+ * \return error code
+ */
+she_err she_cmd_dec_ecb(struct she_hdl *hdl, uint8_t key_id, uint8_t *ciphertext, uint8_t *plaintext);
 
 
 /**
