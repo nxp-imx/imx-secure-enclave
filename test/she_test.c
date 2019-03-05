@@ -104,13 +104,19 @@ static uint8_t ecb_ciphertext[] = {0x69, 0xc4, 0xe0, 0xd8, 0x6a, 0x7b, 0x04, 0x3
 #define SHE_KEY_8								0xB
 #define SHE_KEY_10								0xD
 #define SHE_MASTER_ECU_KEY						0x1
+
+#define SHE_KEY_N_EXT_0							0x0
+#define SHE_KEY_N_EXT_1							0x1
+#define SHE_KEY_N_EXT_2							0x2
+#define SHE_KEY_N_EXT_3							0x3
+#define SHE_KEY_N_EXT_4							0x4
 /* Test MAC generation command - pattern 1. */
 static void she_test_mac_gen1(struct she_hdl *hdl)
 {
 	she_err err;
-
+	uint8_t key_id = SHE_KEY_N_EXT_1 << 0x4 | SHE_KEY_1;
 	(void)printf("------------ MAC generation test 1 ----------------\n");
-	err = she_cmd_generate_mac(hdl, SHE_KEY_1, MAC_TEST1_INPUT_SIZE, mac_input_message , mac_output);
+	err = she_cmd_generate_mac(hdl, key_id, MAC_TEST1_INPUT_SIZE, mac_input_message , mac_output);
 	/* Check there is no error reported and that the generated MAC is correct. */
 	if ((err != ERC_NO_ERROR) || memcmp(mac_output, mac_output_ref1, SHE_MAC_SIZE)) {
 		(void)printf("\n--> ERROR 0x%x\n", err);
@@ -124,9 +130,10 @@ static void she_test_mac_gen1(struct she_hdl *hdl)
 static void she_test_mac_gen2(struct she_hdl *hdl)
 {
 	she_err err;
+	uint8_t key_id = SHE_KEY_N_EXT_2 << 0x4 | SHE_KEY_1;
 
 	(void)printf("------------ MAC generation test 2 ----------------\n");
-	err = she_cmd_generate_mac(hdl, SHE_KEY_1, MAC_TEST2_INPUT_SIZE, mac_input_message, mac_output);
+	err = she_cmd_generate_mac(hdl, key_id, MAC_TEST2_INPUT_SIZE, mac_input_message, mac_output);
 	/* Check there is no error reported and that the generated MAC is correct. */
 	if ((err != ERC_NO_ERROR) || memcmp(mac_output, mac_output_ref2, SHE_MAC_SIZE)) {
 		(void)printf("\n--> ERROR 0x%x\n", err);
@@ -139,9 +146,10 @@ static void she_test_mac_gen2(struct she_hdl *hdl)
 static void she_test_mac_gen3(struct she_hdl *hdl)
 {
 	she_err err;
+	uint8_t key_id = SHE_KEY_N_EXT_3 << 0x4 | SHE_KEY_7;
 
 	(void)printf("------------ MAC generation test 3 (KEY has flag VERIFY only) ----------------\n");
-	err = she_cmd_generate_mac(hdl, SHE_KEY_7, MAC_TEST2_INPUT_SIZE, mac_input_message, mac_output);
+	err = she_cmd_generate_mac(hdl, key_id, MAC_TEST2_INPUT_SIZE, mac_input_message, mac_output);
 	/* Check there is no error reported and that the generated MAC is correct. */
 	if (err != ERC_KEY_INVALID) {
 		(void)printf("\n--> ERROR 0x%x\n", err);
@@ -156,13 +164,14 @@ static void she_test_mac_gen_perf(struct she_hdl *hdl, uint32_t test_len)
 	struct timespec ts1, ts2;
 	uint64_t time_us;
 	uint32_t l = test_len;
+	uint8_t key_id = SHE_KEY_N_EXT_4 << 0x4 | SHE_KEY_1;
 
 	if (test_len > 0) { /* To avoid a divide by 0 at the end ... */
 		(void)printf("------------ MAC generation speed test ------------\n");
 		(void)clock_gettime(CLOCK_MONOTONIC_RAW, &ts1);
 		while (l > 0) {
 			/* Don't check result here. Just perf measurement. */
-			(void)she_cmd_generate_mac(hdl, SHE_KEY_1, MAC_TEST1_INPUT_SIZE, mac_input_message , mac_output);
+			(void)she_cmd_generate_mac(hdl, key_id, MAC_TEST1_INPUT_SIZE, mac_input_message , mac_output);
 			l--;
 		}
 		/* Compute elapsed time. */
@@ -178,9 +187,10 @@ static void she_test_mac_verif1(struct she_hdl *hdl)
 {
 	she_err err;
 	uint8_t verif;
+	uint8_t key_id = SHE_KEY_N_EXT_1 << 0x4 | SHE_KEY_1;
 
 	(void)printf("------------ MAC verification test 1 ----------------\n");
-	err = she_cmd_verify_mac(hdl, SHE_KEY_1, MAC_TEST1_INPUT_SIZE, mac_input_message , mac_output_ref1, SHE_MAC_SIZE, &verif);
+	err = she_cmd_verify_mac(hdl, key_id, MAC_TEST1_INPUT_SIZE, mac_input_message , mac_output_ref1, SHE_MAC_SIZE, &verif);
 	/* Check there is no error reported and that the verification is ok. */
 	if ((err != ERC_NO_ERROR) || verif) {
 		(void)printf("\n--> ERROR 0x%x\n", err);
@@ -195,9 +205,10 @@ static void she_test_mac_verif2(struct she_hdl *hdl)
 {
 	she_err err;
 	uint8_t verif;
+	uint8_t key_id = SHE_KEY_N_EXT_2 << 0x4 | SHE_KEY_1;
 
 	(void)printf("------------ MAC verification test 2 ----------------\n");
-	err = she_cmd_verify_mac(hdl, SHE_KEY_1, MAC_TEST2_INPUT_SIZE, mac_input_message , mac_output_ref2, SHE_MAC_SIZE, &verif);
+	err = she_cmd_verify_mac(hdl, key_id, MAC_TEST2_INPUT_SIZE, mac_input_message , mac_output_ref2, SHE_MAC_SIZE, &verif);
 	/* Check there is no error reported and that the verification is ok. */
 	if ((err != ERC_NO_ERROR) || verif) {
 		(void)printf("\n--> ERROR 0x%x\n", err);
@@ -212,9 +223,10 @@ static void she_test_mac_verif3(struct she_hdl *hdl)
 {
 	she_err err;
 	uint8_t verif;
+	uint8_t key_id = SHE_KEY_N_EXT_3 << 0x4 | SHE_KEY_1;
 
 	(void)printf("------------ MAC verification test 3 (bad MAC) ------\n");
-	err = she_cmd_verify_mac(hdl, SHE_KEY_1, MAC_TEST2_INPUT_SIZE, mac_input_message , mac_output_ref1, SHE_MAC_SIZE, &verif);
+	err = she_cmd_verify_mac(hdl, key_id, MAC_TEST2_INPUT_SIZE, mac_input_message , mac_output_ref1, SHE_MAC_SIZE, &verif);
 	/* This test expects a "no error" status but a verification status false. */
 	if (err != ERC_NO_ERROR) {
 		(void)printf("\n--> ERROR 0x%x\n", err);
@@ -248,13 +260,14 @@ static void she_test_mac_verif_perf(struct she_hdl *hdl, uint32_t test_len)
 	uint64_t time_us;
 	uint8_t verif;
 	uint32_t l = test_len;
+	uint8_t key_id = SHE_KEY_N_EXT_4 << 0x4 | SHE_KEY_1;
 
 	if (test_len > 0) { /* To avoid a divide by 0 at the end ... */
 		(void)printf("------------ MAC generation speed test ------------\n");
 		(void)clock_gettime(CLOCK_MONOTONIC_RAW, &ts1);
 		while (l > 0) {
 			/* Don't check result here. Just perf measurement. */
-			(void)she_cmd_verify_mac(hdl, SHE_KEY_1, MAC_TEST1_INPUT_SIZE, mac_input_message , mac_output_ref1, SHE_MAC_SIZE, &verif);
+			(void)she_cmd_verify_mac(hdl, key_id, MAC_TEST1_INPUT_SIZE, mac_input_message , mac_output_ref1, SHE_MAC_SIZE, &verif);
 			l--;
 		}
 		/* Compute elapsed time. */
@@ -270,10 +283,11 @@ static void she_test_cbc_enc(struct she_hdl *hdl, uint32_t len)
 {
 	she_err err;
 	uint8_t output[4*SHE_AES_BLOCK_SIZE_128];
+	uint8_t key_id = SHE_KEY_N_EXT_1 << 0x4 | SHE_KEY_10;
 
 	(void)printf("------------ CBC ENC test len:%d ----------------\n", len);
 
-	err = she_cmd_enc_cbc(hdl, SHE_KEY_10, len, cbc_iv, cbc_plaintext, output);
+	err = she_cmd_enc_cbc(hdl, key_id, len, cbc_iv, cbc_plaintext, output);
 	/* Check there is no error reported and that the generated MAC is correct. */
 
 	if (err != ERC_NO_ERROR) {
@@ -290,10 +304,11 @@ static void she_test_cbc_enc2(struct she_hdl *hdl, uint32_t len)
 {
 	she_err err;
 	uint8_t output[4*SHE_AES_BLOCK_SIZE_128];
+	uint8_t key_id = SHE_KEY_N_EXT_2 << 0x4 | SHE_KEY_7;
 
 	(void)printf("------------ CBC ENC test (KEY cannot be used for enc/dec operations) ----------------\n");
 
-	err = she_cmd_enc_cbc(hdl, SHE_KEY_7, len, cbc_iv, cbc_plaintext, output);
+	err = she_cmd_enc_cbc(hdl, key_id, len, cbc_iv, cbc_plaintext, output);
 	/* Check there is no error reported and that the generated MAC is correct. */
 
 	if (err != ERC_KEY_INVALID) {
@@ -310,13 +325,14 @@ static void she_test_cbc_enc_perf(struct she_hdl *hdl, uint32_t test_len)
 	uint64_t time_us;
 	uint8_t output[SHE_AES_BLOCK_SIZE_128];
 	uint32_t l = test_len;
+	uint8_t key_id = SHE_KEY_N_EXT_3 << 0x4 | SHE_KEY_10;
 
 	if (test_len > 0) { /* To avoid a divide by 0 at the end ... */
 		(void)printf("------------ CBC encrypt speed test ------------\n");
 		(void)clock_gettime(CLOCK_MONOTONIC_RAW, &ts1);
 		while (l > 0) {
 			/* Don't check result here. Just perf measurement. */
-			(void)she_cmd_enc_cbc(hdl, SHE_KEY_10, SHE_AES_BLOCK_SIZE_128, cbc_iv, cbc_plaintext, output);
+			(void)she_cmd_enc_cbc(hdl, key_id, SHE_AES_BLOCK_SIZE_128, cbc_iv, cbc_plaintext, output);
 			l--;
 		}
 		/* Compute elapsed time. */
@@ -332,10 +348,11 @@ static void she_test_cbc_dec(struct she_hdl *hdl, uint32_t len)
 {
 	she_err err;
 	uint8_t output[4*SHE_AES_BLOCK_SIZE_128];
+	uint8_t key_id = SHE_KEY_N_EXT_4 << 0x4 | SHE_KEY_10;
 
 	(void)printf("------------ CBC DEC test len:%d ----------------\n", len);
 
-	err = she_cmd_dec_cbc(hdl, SHE_KEY_10, len, cbc_iv, cbc_ciphertext, output);
+	err = she_cmd_dec_cbc(hdl, key_id, len, cbc_iv, cbc_ciphertext, output);
 	/* Check there is no error reported and that the generated MAC is correct. */
 
 	if (err != ERC_NO_ERROR) {
@@ -355,13 +372,14 @@ static void she_test_cbc_dec_perf(struct she_hdl *hdl, uint32_t test_len)
 	uint64_t time_us;
 	uint8_t output[SHE_AES_BLOCK_SIZE_128];
 	uint32_t l = test_len;
+	uint8_t key_id = SHE_KEY_N_EXT_1 << 0x4 | SHE_KEY_10;
 
 	if (test_len > 0) { /* To avoid a divide by 0 at the end ... */
 		(void)printf("------------ CBC decrypt speed test ------------\n");
 		(void)clock_gettime(CLOCK_MONOTONIC_RAW, &ts1);
 		while (l > 0) {
 			/* Don't check result here. Just perf measurement. */
-			(void)she_cmd_dec_cbc(hdl, SHE_KEY_10, SHE_AES_BLOCK_SIZE_128, cbc_iv, cbc_ciphertext, output);
+			(void)she_cmd_dec_cbc(hdl, key_id, SHE_AES_BLOCK_SIZE_128, cbc_iv, cbc_ciphertext, output);
 			l--;
 		}
 		/* Compute elapsed time. */
