@@ -86,6 +86,7 @@ static uint8_t ecb_ciphertext[] = {0x69, 0xc4, 0xe0, 0xd8, 0x6a, 0x7b, 0x04, 0x3
 #define SHE_TEST_ECB_ENC_PERF	0x00080000
 #define SHE_TEST_ECB_DEC_PERF	0x00100000
 
+#define SHE_TEST_PERF	SHE_TEST_MAC_GEN_PERF | SHE_TEST_MAC_VERIF_PERF | SHE_TEST_CBC_ENC_PERF | SHE_TEST_CBC_DEC_PERF | SHE_TEST_ECB_ENC_PERF | SHE_TEST_ECB_DEC_PERF
 
 /* default test list:
  * All tests without key loading
@@ -395,10 +396,11 @@ static void she_test_ecb_enc(struct she_hdl *hdl)
 {
 	she_err err;
 	uint8_t output[SHE_AES_BLOCK_SIZE_128];
+	uint8_t key_id = SHE_KEY_N_EXT_1 << 0x4 | SHE_KEY_8;
 
 	(void)printf("------------ ECB ENC test ----------------\n");
 
-	err = she_cmd_enc_ecb(hdl, SHE_KEY_8, ecb_plaintext, output);
+	err = she_cmd_enc_ecb(hdl, key_id, ecb_plaintext, output);
 	/* Check there is no error reported and that the generated MAC is correct. */
 
 	if (err != ERC_NO_ERROR) {
@@ -416,10 +418,11 @@ static void she_test_ecb_dec(struct she_hdl *hdl)
 {
 	she_err err;
 	uint8_t output[SHE_AES_BLOCK_SIZE_128];
+	uint8_t key_id = SHE_KEY_N_EXT_2 << 0x4 | SHE_KEY_8;
 
 	(void)printf("------------ ECB ENC test ----------------\n");
 
-	err = she_cmd_dec_ecb(hdl, SHE_KEY_8, ecb_ciphertext, output);
+	err = she_cmd_dec_ecb(hdl, key_id, ecb_ciphertext, output);
 	/* Check there is no error reported and that the generated MAC is correct. */
 
 	if (err != ERC_NO_ERROR) {
@@ -440,13 +443,14 @@ static void she_test_ecb_enc_perf(struct she_hdl *hdl, uint32_t test_len)
 	uint64_t time_us;
 	uint8_t output[SHE_AES_BLOCK_SIZE_128];
 	uint32_t l = test_len;
+	uint8_t key_id = SHE_KEY_N_EXT_3 << 0x4 | SHE_KEY_8;
 
 	if (test_len > 0) { /* To avoid a divide by 0 at the end ... */
 		(void)printf("------------ ECB encrypt speed test ------------\n");
 		(void)clock_gettime(CLOCK_MONOTONIC_RAW, &ts1);
 		while (l > 0) {
 			/* Don't check result here. Just perf measurement. */
-			(void)she_cmd_enc_ecb(hdl, SHE_KEY_8, ecb_plaintext, output);
+			(void)she_cmd_enc_ecb(hdl, key_id, ecb_plaintext, output);
 			l--;
 		}
 		/* Compute elapsed time. */
@@ -465,13 +469,14 @@ static void she_test_ecb_dec_perf(struct she_hdl *hdl, uint32_t test_len)
 	uint64_t time_us;
 	uint8_t output[SHE_AES_BLOCK_SIZE_128];
 	uint32_t l = test_len;
+	uint8_t key_id = SHE_KEY_N_EXT_4 << 0x4 | SHE_KEY_8;
 
 	if (test_len > 0) { /* To avoid a divide by 0 at the end ... */
 		(void)printf("------------ ECB decrypt speed test ------------\n");
 		(void)clock_gettime(CLOCK_MONOTONIC_RAW, &ts1);
 		while (l > 0) {
 			/* Don't check result here. Just perf measurement. */
-			(void)she_cmd_dec_ecb(hdl, SHE_KEY_8, ecb_plaintext, output);
+			(void)she_cmd_dec_ecb(hdl, key_id, ecb_plaintext, output);
 			l--;
 		}
 		/* Compute elapsed time. */
