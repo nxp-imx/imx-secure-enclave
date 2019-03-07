@@ -23,19 +23,14 @@
 
 #define SECURE_RAM_BASE_ADDRESS_SECURE	0x20800000
 
-typedef enum {
-	SHE_NVM,
-	SHE_USER
-} she_session_type;
-
 /* Platform specific implementations for SHE API.*/
-struct she_platform_hdl *she_platform_open_session(she_session_type type);
+struct she_platform_hdl *she_platform_open_she_session(void);
 
 void she_platform_close_session(struct she_platform_hdl *phdl);
 
-uint32_t she_platform_send_mu_message(struct she_platform_hdl *phdl, uint8_t *message, uint32_t size);
+uint32_t she_platform_send_mu_message(struct she_platform_hdl *phdl, uint32_t *message, uint32_t size);
 
-uint32_t she_platform_read_mu_message(struct she_platform_hdl *phdl, uint8_t *message, int32_t size);
+uint32_t she_platform_read_mu_message(struct she_platform_hdl *phdl, uint32_t *message, int32_t size);
 
 int32_t she_platform_configure_shared_buf(struct she_platform_hdl *phdl, uint32_t shared_buf_off, uint32_t size);
 
@@ -47,8 +42,13 @@ uint32_t she_platform_shared_buf_offset(struct she_platform_hdl *phdl);
 
 int32_t she_platform_create_thread(void * (*func)(void *), void * arg);
 
-uint32_t seco_storage_write(struct she_platform_hdl *phdl, uint32_t offset, uint32_t size);
 
-uint32_t seco_storage_read(struct she_platform_hdl *phdl, uint32_t offset, uint32_t max_size);
+/* Functions specific to storage. */
+
+struct she_platform_hdl *she_platform_open_storage_session(void);
+
+uint32_t she_platform_storage_write(struct she_platform_hdl *phdl, uint32_t offset, uint32_t size);
+
+uint32_t she_platform_storage_read(struct she_platform_hdl *phdl, uint32_t offset, uint32_t max_size);
 
 #endif

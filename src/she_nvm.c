@@ -16,7 +16,7 @@
 #include "she_platform.h"
 
 #define SECURE_RAM_NVM_OFFSET 0x400
-#define MAX_NVM_MSG_SIZE	20
+#define MAX_NVM_MSG_SIZE	10
 
 
 struct seco_nvm_context {
@@ -59,7 +59,7 @@ static uint32_t seco_nvm_storage_export(struct seco_nvm_context *ctx, struct she
 
 	/* Write the data to the storage. Blob size was received in previous "storage_export_init" message.*/
 	if (ctx->blob_size > 0) {
-		l = seco_storage_write(ctx->hdl, SECURE_RAM_NVM_OFFSET, ctx->blob_size);
+		l = she_platform_storage_write(ctx->hdl, SECURE_RAM_NVM_OFFSET, ctx->blob_size);
 	}
 
 	/* Build the response. */
@@ -87,7 +87,7 @@ static int32_t seco_nvm_storage_import(struct seco_nvm_context *ctx)
 
 	do {
 		/* Place blob from nvm at the beginning of the secure memory area dedicated for NVM. */
-		blob_size = seco_storage_read(ctx->hdl, SECURE_RAM_NVM_OFFSET, ctx->shared_mem_size - SECURE_RAM_NVM_OFFSET);
+		blob_size = she_platform_storage_read(ctx->hdl, SECURE_RAM_NVM_OFFSET, ctx->shared_mem_size - SECURE_RAM_NVM_OFFSET);
 		if (blob_size == 0) {
 			/* No storage found or error while reading it. Don't send the command to Seco. */
 			break;
@@ -100,13 +100,13 @@ static int32_t seco_nvm_storage_import(struct seco_nvm_context *ctx)
 		msg.blob_size = blob_size;
 
 		/* Send the message to Seco. */
-		len = she_platform_send_mu_message(ctx->hdl, (char *)&msg, sizeof(struct she_cmd_blob_import));
+		len = she_platform_send_mu_message(ctx->hdl, (uint32_t *)&msg, sizeof(struct she_cmd_blob_import));
 		if (len != sizeof(struct she_cmd_blob_import)) {
 			break;
 		}
 
 		/* Read the response. */
-		len = she_platform_read_mu_message(ctx->hdl, (char *)&rsp, sizeof(struct she_rsp_blob_import));
+		len = she_platform_read_mu_message(ctx->hdl, (uint32_t *)&rsp, sizeof(struct she_rsp_blob_import));
 		if (len != sizeof(struct she_rsp_blob_import)) {
 			break;
 		}
@@ -126,8 +126,8 @@ static int32_t seco_nvm_storage_import(struct seco_nvm_context *ctx)
 /* Thread waiting for messages on the NVM MU and processing them in loop. */
 static void *seco_nvm_thread(void *arg) {
 
-	uint8_t	msg_in[MAX_NVM_MSG_SIZE];
-	uint8_t	msg_out[MAX_NVM_MSG_SIZE];
+	uint32_t msg_in[MAX_NVM_MSG_SIZE];
+	uint32_t msg_out[MAX_NVM_MSG_SIZE];
 	uint32_t msg_len, rsp_len;
 	struct she_mu_hdr *hdr;
 	struct seco_nvm_context *ctx = (struct seco_nvm_context *)arg;
@@ -194,7 +194,7 @@ int32_t she_nvm_init(uint32_t shared_mem_offset, uint32_t shared_mem_size) {
 		nvm_ctx->shared_mem_size = shared_mem_size;
 
 		/* Open the SHE NVM session. */
-		nvm_ctx->hdl = she_platform_open_session(SHE_NVM);
+		nvm_ctx->hdl = she_platform_open_storage_session();
 		if (!nvm_ctx->hdl) {
 			break;
 		}

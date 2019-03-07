@@ -39,7 +39,7 @@ struct she_platform_hdl {
 /* Open a SHE session and returns a pointer to the handle or NULL in case of error.
  * Here it consists in opening the decicated seco MU device file.
  */
-struct she_platform_hdl *she_platform_open_session(she_session_type type)
+struct she_platform_hdl *she_platform_open_she_session(void)
 {
 	struct she_platform_hdl *phdl = malloc(sizeof(struct she_platform_hdl));
 
@@ -47,16 +47,7 @@ struct she_platform_hdl *she_platform_open_session(she_session_type type)
 		/* Force secure memory pointer to NULL since it hasn't been allocated yet. */
 		phdl->sec_mem = NULL;
 
-		/* Select device path according to session type. */
-		switch (type) {
-			case SHE_NVM:
-				phdl->fd = open(SECO_NVM_PATH, O_RDWR);
-				break;
-			case SHE_USER:
-			default:
-				phdl->fd = open(SECO_MU_PATH, O_RDWR);
-				break;
-		}
+		phdl->fd = open(SECO_MU_PATH, O_RDWR);
 		/* If open failed return NULL handle. */
 		if (phdl->fd < 0) {
 			free(phdl);
@@ -66,8 +57,26 @@ struct she_platform_hdl *she_platform_open_session(she_session_type type)
 	return phdl;
 };
 
+/* Open a storage session over the MU. */
+struct she_platform_hdl *she_platform_open_storage_session(void)
+{
+	struct she_platform_hdl *phdl = malloc(sizeof(struct she_platform_hdl));
 
-/* Close a previously opened session. */
+	if (phdl) {
+		/* Force secure memory pointer to NULL since it hasn't been allocated yet. */
+		phdl->sec_mem = NULL;
+
+		phdl->fd = open(SECO_NVM_PATH, O_RDWR);
+		/* If open failed return NULL handle. */
+		if (phdl->fd < 0) {
+			free(phdl);
+			phdl = NULL;
+		}
+	}
+	return phdl;
+};
+
+/* Close a previously opened session (SHE or storage). */
 void she_platform_close_session(struct she_platform_hdl *phdl)
 {
 	/* Unmap the secure memory if needed. */
@@ -82,13 +91,13 @@ void she_platform_close_session(struct she_platform_hdl *phdl)
 }
 
 /* Send a message to Seco on the MU. Return the size of the data written. */
-uint32_t she_platform_send_mu_message(struct she_platform_hdl *phdl, uint8_t *message, uint32_t size)
+uint32_t she_platform_send_mu_message(struct she_platform_hdl *phdl, uint32_t *message, uint32_t size)
 {
 	return write(phdl->fd, message, size);
 }
 
 /* Read a message from Seco on the MU. Return the size of the data that were read. */
-uint32_t she_platform_read_mu_message(struct she_platform_hdl *phdl, uint8_t *message, int32_t size)
+uint32_t she_platform_read_mu_message(struct she_platform_hdl *phdl, uint32_t *message, int32_t size)
 {
 	return read(phdl->fd, message, size);
 };
@@ -153,7 +162,7 @@ int32_t she_platform_create_thread(void * (*func)(void *), void * arg)
 
 /* Write data in a file located in NVM. Return the size of the written data. */
 #define SECO_NVM_DEFAULT_STORAGE_FILE "/etc/seco_nvm"
-uint32_t seco_storage_write(struct she_platform_hdl *phdl, uint32_t offset, uint32_t size)
+uint32_t she_platform_storage_write(struct she_platform_hdl *phdl, uint32_t offset, uint32_t size)
 {
 	int32_t fd = -1;
 	uint32_t l = 0;
@@ -191,7 +200,7 @@ uint32_t seco_storage_write(struct she_platform_hdl *phdl, uint32_t offset, uint
 }
 
 
-uint32_t seco_storage_read(struct she_platform_hdl *phdl, uint32_t offset, uint32_t max_size)
+uint32_t she_platform_storage_read(struct she_platform_hdl *phdl, uint32_t offset, uint32_t max_size)
 {
 	int32_t fd = -1;
 	uint32_t l = 0;

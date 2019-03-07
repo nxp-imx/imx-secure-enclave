@@ -42,14 +42,17 @@ typedef enum {
 	ERC_BUSY				= 0xA,		/**< A function of SHE is called while another function is still processing. */
 	ERC_MEMORY_FAILURE		= 0xB,		/**< Memory error (e.g. flipped bits) */
 	ERC_GENERAL_ERROR		= 0xC,		/**< Error not covered by other codes occured. */
-} she_err;
+} she_err_t;
 
 /**
  * Initiate a SHE session.
+ * The returned session handle pointer is typed with the transparent struct "she_hdl_s".
+ * The user doesn't need to know or to access the fields of this struct.
+ * It only needs to store this pointer and pass it to every calls to other APIs within the same SHE session.
  *
  * \return pointer to the session handle.
  */
-struct she_hdl *she_open_session(void);
+struct she_hdl_s *she_open_session(void);
 
 
 /**
@@ -57,7 +60,7 @@ struct she_hdl *she_open_session(void);
  *
  * \param hdl pointer to the session handler to be closed.
  */
-void she_close_session(struct she_hdl *hdl);
+void she_close_session(struct she_hdl_s *hdl);
 
 
 /**
@@ -68,11 +71,11 @@ void she_close_session(struct she_hdl *hdl);
  * \param key_id identifier of the key to be used for the operation
  * \param message_length lenght in bytes of the input message
  * \param message pointer to the message to be processed
- * \param mac pointer to where the output MAC should be written
+ * \param mac pointer to where the output MAC should be written (128bits should be allocated there)
  *
  * \return error code
  */
-she_err she_cmd_generate_mac(struct she_hdl *hdl, uint8_t key_id, uint32_t message_length, uint8_t *message, uint8_t *mac);
+she_err_t she_cmd_generate_mac(struct she_hdl_s *hdl, uint8_t key_id, uint32_t message_length, uint8_t *message, uint8_t *mac);
 #define SHE_MAC_SIZE 16 /**< size of the MAC generated is 128bits. */
 
 /**
@@ -83,13 +86,13 @@ she_err she_cmd_generate_mac(struct she_hdl *hdl, uint8_t key_id, uint32_t messa
  * \param key_id identifier of the key to be used for the operation
  * \param message_length lenght in bytes of the input message
  * \param message pointer to the message to be processed
- * \param mac pointer to the MAC to be compared
+ * \param mac pointer to the MAC to be compared (implicitely 128 bits)
  * \param mac_length number of bytes to compare (must be at least 4)
  * \param verification_status pointer to where write the result of the MAC comparison
  *
  * \return error code
  */
-she_err she_cmd_verify_mac(struct she_hdl *hdl, uint8_t key_id, uint32_t message_length, uint8_t *message, uint8_t *mac, uint8_t mac_length, uint8_t *verification_status);
+she_err_t she_cmd_verify_mac(struct she_hdl_s *hdl, uint8_t key_id, uint32_t message_length, uint8_t *message, uint8_t *mac, uint8_t mac_length, uint8_t *verification_status);
 #define SHE_MAC_VERIFICATION_SUCCESS 0 /**< indication of mac verification success  */
 #define SHE_MAC_VERIFICATION_FAILED  1 /**< indication of mac verification failure */
 
@@ -106,7 +109,7 @@ she_err she_cmd_verify_mac(struct she_hdl *hdl, uint8_t key_id, uint32_t message
  *
  * \return error code
  */
-she_err she_cmd_enc_cbc(struct she_hdl *hdl, uint8_t key_id, uint32_t data_length, uint8_t *iv, uint8_t *plaintext, uint8_t *ciphertext);
+she_err_t she_cmd_enc_cbc(struct she_hdl_s *hdl, uint8_t key_id, uint32_t data_length, uint8_t *iv, uint8_t *plaintext, uint8_t *ciphertext);
 #define SHE_AES_BLOCK_SIZE_128       16 /**< size in bytes of a 128bits CBC bloc */
 
 
@@ -122,7 +125,7 @@ she_err she_cmd_enc_cbc(struct she_hdl *hdl, uint8_t key_id, uint32_t data_lengt
  *
  * \return error code
  */
-she_err she_cmd_dec_cbc(struct she_hdl *hdl, uint8_t key_id, uint32_t data_length, uint8_t *iv, uint8_t *ciphertext, uint8_t *plaintext);
+she_err_t she_cmd_dec_cbc(struct she_hdl_s *hdl, uint8_t key_id, uint32_t data_length, uint8_t *iv, uint8_t *ciphertext, uint8_t *plaintext);
 
 
 /**
@@ -135,7 +138,7 @@ she_err she_cmd_dec_cbc(struct she_hdl *hdl, uint8_t key_id, uint32_t data_lengt
  *
  * \return error code
  */
-she_err she_cmd_enc_ecb(struct she_hdl *hdl, uint8_t key_id, uint8_t *plaintext, uint8_t *ciphertext);
+she_err_t she_cmd_enc_ecb(struct she_hdl_s *hdl, uint8_t key_id, uint8_t *plaintext, uint8_t *ciphertext);
 
 
 /**
@@ -148,13 +151,14 @@ she_err she_cmd_enc_ecb(struct she_hdl *hdl, uint8_t key_id, uint8_t *plaintext,
  *
  * \return error code
  */
-she_err she_cmd_dec_ecb(struct she_hdl *hdl, uint8_t key_id, uint8_t *ciphertext, uint8_t *plaintext);
+she_err_t she_cmd_dec_ecb(struct she_hdl_s *hdl, uint8_t key_id, uint8_t *ciphertext, uint8_t *plaintext);
 
 
 /**
- * Temporary: Entry point to test NVM storage
+ * Temporary: Entry point to test NVM storage.
+ * Will be modified to support all parameters really needded by load key command.
  */
-she_err she_cmd_load_key(struct she_hdl *hdl);
+she_err_t she_cmd_load_key(struct she_hdl_s *hdl);
 
 /** \}*/
 #endif

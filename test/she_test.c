@@ -112,10 +112,11 @@ static uint8_t ecb_ciphertext[] = {0x69, 0xc4, 0xe0, 0xd8, 0x6a, 0x7b, 0x04, 0x3
 #define SHE_KEY_N_EXT_3							0x3
 #define SHE_KEY_N_EXT_4							0x4
 /* Test MAC generation command - pattern 1. */
-static void she_test_mac_gen1(struct she_hdl *hdl)
+static void she_test_mac_gen1(struct she_hdl_s *hdl)
 {
-	she_err err;
+	she_err_t err;
 	uint8_t key_id = SHE_KEY_N_EXT_1 << 0x4 | SHE_KEY_1;
+
 	(void)printf("------------ MAC generation test 1 ----------------\n");
 	err = she_cmd_generate_mac(hdl, key_id, MAC_TEST1_INPUT_SIZE, mac_input_message , mac_output);
 	/* Check there is no error reported and that the generated MAC is correct. */
@@ -128,9 +129,9 @@ static void she_test_mac_gen1(struct she_hdl *hdl)
 
 
 /* Test MAC generation command - pattern 2. */
-static void she_test_mac_gen2(struct she_hdl *hdl)
+static void she_test_mac_gen2(struct she_hdl_s *hdl)
 {
-	she_err err;
+	she_err_t err;
 	uint8_t key_id = SHE_KEY_N_EXT_2 << 0x4 | SHE_KEY_1;
 
 	(void)printf("------------ MAC generation test 2 ----------------\n");
@@ -144,9 +145,9 @@ static void she_test_mac_gen2(struct she_hdl *hdl)
 }
 
 /* Test MAC generation command - pattern 3. */
-static void she_test_mac_gen3(struct she_hdl *hdl)
+static void she_test_mac_gen3(struct she_hdl_s *hdl)
 {
-	she_err err;
+	she_err_t err;
 	uint8_t key_id = SHE_KEY_N_EXT_3 << 0x4 | SHE_KEY_7;
 
 	(void)printf("------------ MAC generation test 3 (KEY has flag VERIFY only) ----------------\n");
@@ -160,7 +161,7 @@ static void she_test_mac_gen3(struct she_hdl *hdl)
 }
 
 /* Test MAC generation command - perf measurement. */
-static void she_test_mac_gen_perf(struct she_hdl *hdl, uint32_t test_len)
+static void she_test_mac_gen_perf(struct she_hdl_s *hdl, uint32_t test_len)
 {
 	struct timespec ts1, ts2;
 	uint64_t time_us;
@@ -184,9 +185,9 @@ static void she_test_mac_gen_perf(struct she_hdl *hdl, uint32_t test_len)
 
 
 /* Test MAC verify command - pattern 1. */
-static void she_test_mac_verif1(struct she_hdl *hdl)
+static void she_test_mac_verif1(struct she_hdl_s *hdl)
 {
-	she_err err;
+	she_err_t err;
 	uint8_t verif;
 	uint8_t key_id = SHE_KEY_N_EXT_1 << 0x4 | SHE_KEY_1;
 
@@ -202,9 +203,9 @@ static void she_test_mac_verif1(struct she_hdl *hdl)
 
 
 /* Test MAC verify command - pattern 2. */
-static void she_test_mac_verif2(struct she_hdl *hdl)
+static void she_test_mac_verif2(struct she_hdl_s *hdl)
 {
-	she_err err;
+	she_err_t err;
 	uint8_t verif;
 	uint8_t key_id = SHE_KEY_N_EXT_2 << 0x4 | SHE_KEY_1;
 
@@ -220,9 +221,9 @@ static void she_test_mac_verif2(struct she_hdl *hdl)
 
 
 /* Test MAC verify command - pattern 3. */
-static void she_test_mac_verif3(struct she_hdl *hdl)
+static void she_test_mac_verif3(struct she_hdl_s *hdl)
 {
-	she_err err;
+	she_err_t err;
 	uint8_t verif;
 	uint8_t key_id = SHE_KEY_N_EXT_3 << 0x4 | SHE_KEY_1;
 
@@ -239,9 +240,9 @@ static void she_test_mac_verif3(struct she_hdl *hdl)
 }
 
 /* Test MAC verify command - pattern 4. */
-static void she_test_mac_verif4(struct she_hdl *hdl)
+static void she_test_mac_verif4(struct she_hdl_s *hdl)
 {
-	she_err err;
+	she_err_t err;
 	uint8_t verif;
 
 	(void)printf("------------ MAC verification test 4 (KEY cannot be used for MAC operations) ------\n");
@@ -255,7 +256,7 @@ static void she_test_mac_verif4(struct she_hdl *hdl)
 }
 
 /* Test MAC generation command - perf measurement. */
-static void she_test_mac_verif_perf(struct she_hdl *hdl, uint32_t test_len)
+static void she_test_mac_verif_perf(struct she_hdl_s *hdl, uint32_t test_len)
 {
 	struct timespec ts1, ts2;
 	uint64_t time_us;
@@ -280,9 +281,9 @@ static void she_test_mac_verif_perf(struct she_hdl *hdl, uint32_t test_len)
 
 
 /* Test CBC encryption . */
-static void she_test_cbc_enc(struct she_hdl *hdl, uint32_t len)
+static void she_test_cbc_enc(struct she_hdl_s *hdl, uint32_t len)
 {
-	she_err err;
+	she_err_t err;
 	uint8_t output[4*SHE_AES_BLOCK_SIZE_128];
 	uint8_t key_id = SHE_KEY_N_EXT_1 << 0x4 | SHE_KEY_10;
 
@@ -301,9 +302,9 @@ static void she_test_cbc_enc(struct she_hdl *hdl, uint32_t len)
 }
 
 /* Test CBC encryption using wrong key idx . */
-static void she_test_cbc_enc2(struct she_hdl *hdl, uint32_t len)
+static void she_test_cbc_enc2(struct she_hdl_s *hdl, uint32_t len)
 {
-	she_err err;
+	she_err_t err;
 	uint8_t output[4*SHE_AES_BLOCK_SIZE_128];
 	uint8_t key_id = SHE_KEY_N_EXT_2 << 0x4 | SHE_KEY_7;
 
@@ -320,7 +321,7 @@ static void she_test_cbc_enc2(struct she_hdl *hdl, uint32_t len)
 }
 
 /* Test CBC encryption  - perf measurement. */
-static void she_test_cbc_enc_perf(struct she_hdl *hdl, uint32_t test_len)
+static void she_test_cbc_enc_perf(struct she_hdl_s *hdl, uint32_t test_len)
 {
 	struct timespec ts1, ts2;
 	uint64_t time_us;
@@ -345,9 +346,9 @@ static void she_test_cbc_enc_perf(struct she_hdl *hdl, uint32_t test_len)
 
 
 /* Test CBC decryption. */
-static void she_test_cbc_dec(struct she_hdl *hdl, uint32_t len)
+static void she_test_cbc_dec(struct she_hdl_s *hdl, uint32_t len)
 {
-	she_err err;
+	she_err_t err;
 	uint8_t output[4*SHE_AES_BLOCK_SIZE_128];
 	uint8_t key_id = SHE_KEY_N_EXT_4 << 0x4 | SHE_KEY_10;
 
@@ -367,7 +368,7 @@ static void she_test_cbc_dec(struct she_hdl *hdl, uint32_t len)
 
 
 /* Test CBC decryption  - perf measurement. */
-static void she_test_cbc_dec_perf(struct she_hdl *hdl, uint32_t test_len)
+static void she_test_cbc_dec_perf(struct she_hdl_s *hdl, uint32_t test_len)
 {
 	struct timespec ts1, ts2;
 	uint64_t time_us;
@@ -392,9 +393,9 @@ static void she_test_cbc_dec_perf(struct she_hdl *hdl, uint32_t test_len)
 
 
 /* Test ECB encryption . */
-static void she_test_ecb_enc(struct she_hdl *hdl)
+static void she_test_ecb_enc(struct she_hdl_s *hdl)
 {
-	she_err err;
+	she_err_t err;
 	uint8_t output[SHE_AES_BLOCK_SIZE_128];
 	uint8_t key_id = SHE_KEY_N_EXT_1 << 0x4 | SHE_KEY_8;
 
@@ -414,9 +415,9 @@ static void she_test_ecb_enc(struct she_hdl *hdl)
 
 
 /* Test ECB decryption . */
-static void she_test_ecb_dec(struct she_hdl *hdl)
+static void she_test_ecb_dec(struct she_hdl_s *hdl)
 {
-	she_err err;
+	she_err_t err;
 	uint8_t output[SHE_AES_BLOCK_SIZE_128];
 	uint8_t key_id = SHE_KEY_N_EXT_2 << 0x4 | SHE_KEY_8;
 
@@ -437,7 +438,7 @@ static void she_test_ecb_dec(struct she_hdl *hdl)
 
 
 /* Test ECB encryption  - perf measurement. */
-static void she_test_ecb_enc_perf(struct she_hdl *hdl, uint32_t test_len)
+static void she_test_ecb_enc_perf(struct she_hdl_s *hdl, uint32_t test_len)
 {
 	struct timespec ts1, ts2;
 	uint64_t time_us;
@@ -463,7 +464,7 @@ static void she_test_ecb_enc_perf(struct she_hdl *hdl, uint32_t test_len)
 
 
 /* Test ECB decrypt  - perf measurement. */
-static void she_test_ecb_dec_perf(struct she_hdl *hdl, uint32_t test_len)
+static void she_test_ecb_dec_perf(struct she_hdl_s *hdl, uint32_t test_len)
 {
 	struct timespec ts1, ts2;
 	uint64_t time_us;
@@ -488,9 +489,9 @@ static void she_test_ecb_dec_perf(struct she_hdl *hdl, uint32_t test_len)
 
 
 /* Test load key command. */
-static void she_test_load_key(struct she_hdl *hdl)
+static void she_test_load_key(struct she_hdl_s *hdl)
 {
-	she_err err;
+	she_err_t err;
 
 	(void)printf("------------ load key test  ----------------\n");
 	err = she_cmd_load_key(hdl);
@@ -503,7 +504,7 @@ static void she_test_load_key(struct she_hdl *hdl)
 }
 
 
-static void she_test_sequence(struct she_hdl *hdl, uint32_t test_list, uint32_t test_len)
+static void she_test_sequence(struct she_hdl_s *hdl, uint32_t test_list, uint32_t test_len)
 {
 	/* Load key test is executed first so next tests can use the new key. */
 	if (test_list & SHE_TEST_LOAD_KEY) {
@@ -597,7 +598,7 @@ int main(int argc, char *argv[])
 {
 	uint32_t test_list = SHE_TEST_DEFAULT;
 	uint32_t test_len = SHE_TEST_LEN_DEFAULT;
-	struct she_hdl *hdl = NULL;
+	struct she_hdl_s *hdl = NULL;
 
 	do {
 		/* First argument is a bitfield of the test to be executed. */
