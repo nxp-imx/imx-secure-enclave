@@ -16,6 +16,8 @@ clean:
 	rm -rf she_test she_lib.o she_platform_lib.o she_nvm.o
 
 doc: include/she_api.h
-	rm -rf doc/html/
+	rm -rf doc/latex/
 	doxygen doc/Doxyfile
-
+	make -C ./doc/latex pdf
+	cp doc/latex/refman.pdf doc/she_api_manual.pdf
+	rm -rf doc/latex/
