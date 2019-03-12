@@ -20,6 +20,15 @@
 #define MESSAGING_TAG_RESPONSE					0xe1u
 #define MESSAGING_VERSION_2						0x02u
 
+#define AHAB_MAX_MSG_SIZE						20
+
+#define AHAB_SESSION_OPEN                       0x10
+#define AHAB_SESSION_CLOSE                      0x11
+#define AHAB_SESSION_OPEN_NVM                       0xF0
+#define AHAB_SESSION_CLOSE_NVM                      0xF1
+#define AHAB_KEY_STORE_OPEN                     0x12
+#define AHAB_KEY_STORE_CLOSE                    0x13
+
 #define AHAB_SHE_INIT							0x30u
 #define AHAB_SHE_CMD_GENERATE_MAC				0x31u
 #define AHAB_SHE_CMD_VERIFY_MAC					0x32u
@@ -70,7 +79,6 @@ static inline void she_fill_rsp_msg_hdr(struct she_mu_hdr *hdr, uint8_t cmd, uin
 	hdr->size = (uint8_t)(len / sizeof(uint32_t));
 	hdr->ver = MESSAGING_VERSION_2;
 };
-
 
 /* MAC generation */
 
@@ -192,5 +200,60 @@ struct she_cmd_blob_import_rsp {
 	struct she_mu_hdr hdr;
 	uint32_t rsp_code;
 };
+
+struct ahab_cmd_session_open_s {
+    struct she_mu_hdr hdr;
+    uint8_t mu_id;
+    uint8_t interrupt_idx;
+    uint8_t tz;
+    uint8_t did;
+    uint8_t priority;
+    uint8_t operating_mode;
+    uint16_t pad;
+};
+
+struct ahab_rsp_session_open_s {
+    struct she_mu_hdr hdr;
+    uint32_t rsp_code;
+    uint32_t sesssion_handle;
+};
+
+struct ahab_cmd_session_close_s {
+    struct she_mu_hdr hdr;
+    uint32_t sesssion_handle;
+};
+
+struct ahab_rsp_session_close_s {
+	struct she_mu_hdr hdr;
+	uint32_t rsp_code;
+};
+
+struct ahab_cmd_key_store_open_s{
+    struct she_mu_hdr  hdr;
+    uint32_t sesssion_handle;
+    uint32_t key_store_id;
+    uint32_t password;
+    uint32_t input_address_ext;
+    uint32_t output_address_ext;
+    uint8_t flags;
+    uint8_t rsv;
+    uint16_t rsv_1;
+} ;
+
+struct ahab_rsp_key_store_open_s {
+    struct she_mu_hdr  hdr;
+    uint32_t rsp_code;
+    uint32_t key_store_handle;
+} ;
+
+struct ahab_cmd_key_store_close_s{
+    struct she_mu_hdr  hdr;
+    uint32_t key_store_handle;
+} ;
+
+struct ahab_rsp_key_store_close_s {
+    struct she_mu_hdr  hdr;
+    uint32_t rsp_code;
+} ;
 
 #endif

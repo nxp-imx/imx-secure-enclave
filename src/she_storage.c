@@ -22,12 +22,65 @@ struct she_storage_context {
 	uint32_t blob_size;
 	uint8_t *blob_buf;
 	struct she_platform_hdl *hdl;
+	uint32_t session_handle;
 };
 
 struct seco_nvm_header_s {
 	uint32_t size;
 	uint32_t crc;
 };
+
+/* Helper function to send a message and wait for the response. Return 0 on success.*/
+static int32_t she_send_msg_and_get_resp(struct she_platform_hdl *hdl, uint32_t *cmd, uint32_t cmd_len, uint32_t *rsp, uint32_t rsp_len)
+{
+	int32_t err = -1;
+	uint32_t len;
+	uint32_t msg_size, crc;
+	uint8_t i;
+
+	do {
+
+		msg_size = cmd_len / sizeof(uint32_t);
+		if(msg_size > 4) {
+			((uint32_t*)cmd) [msg_size - 1] = 0;
+
+			for (i = 0; i < msg_size - 1; i++) {
+				((uint32_t*)cmd) [msg_size - 1] ^= ((uint32_t*)cmd) [i];
+			}
+		}
+
+		/* Send the command. */
+		len = she_platform_send_mu_message(hdl, cmd, cmd_len);
+		if (len != cmd_len) {
+			break;
+		}
+
+		/* Read the response. */
+		len = she_platform_read_mu_message(hdl, rsp, rsp_len);
+
+		if (len != rsp_len) {
+			break;
+		}
+
+		msg_size = rsp_len / sizeof(uint32_t);
+
+		if(msg_size > 4) {
+			crc = 0;
+			for (i = 0; i < msg_size - 1; i++) {
+				crc ^= ((uint32_t*)rsp) [i];
+			}
+
+			if (crc != 	((uint32_t*)rsp) [msg_size - 1]) {
+				break;
+			}
+		}
+
+		err = 0;
+	} while (0);
+
+	return err;
+}
+
 
 /* Storage export init command processing. */
 static int32_t she_storage_export_init(struct she_storage_context *ctx, struct she_cmd_blob_export_init_msg *msg, struct she_cmd_blob_export_init_rsp *resp)
@@ -265,14 +318,15 @@ static void *she_storage_thread(void *arg)
 	return NULL;
 }
 
-
 /* Init of the NVM storage manager. */
 struct she_storage_context *she_storage_init(void)
 {
 	struct she_storage_context *nvm_ctx = NULL;
 	int32_t error = -1;
-
+	uint32_t cmd[AHAB_MAX_MSG_SIZE];
+	uint32_t rsp[AHAB_MAX_MSG_SIZE];
 	do {
+		(void)printf("she_nvm_init starts\n");
 		/* Prepare the context to be passed to the thread function. */
 		nvm_ctx = malloc(sizeof(struct she_storage_context));
 		if (nvm_ctx == NULL) {
@@ -292,6 +346,20 @@ struct she_storage_context *she_storage_init(void)
  			break;
  		}
 
+		/* Send the session open command to Seco. */
+		she_fill_cmd_msg_hdr((struct she_mu_hdr *)cmd, AHAB_SESSION_OPEN_NVM, sizeof(struct ahab_cmd_session_open_s));
+		((struct ahab_cmd_session_open_s *)cmd) -> did = 0;
+		((struct ahab_cmd_session_open_s *)cmd) -> tz = 0;
+		((struct ahab_cmd_session_open_s *)cmd) -> mu_id = 1;
+
+		error = she_send_msg_and_get_resp(nvm_ctx->hdl,
+					cmd, sizeof(struct ahab_cmd_session_open_s),
+					rsp, sizeof(struct ahab_rsp_session_open_s));
+		if (error) {
+			break;
+		}
+		nvm_ctx->session_handle = ((struct ahab_rsp_session_open_s *)rsp)->sesssion_handle;
+
 		/* Try to import the NVM storage. */
 		error = she_storage_import(nvm_ctx);
 		// TODO: Handle errors. (currently Seco can generate himself a fake storage if we cannot provide it from here.)
@@ -303,11 +371,19 @@ struct she_storage_context *she_storage_init(void)
 	/* error clean-up. */
 	if ((error != 0) && (nvm_ctx != NULL)) {
 		if (nvm_ctx->hdl != NULL) {
+			/* Send the session close command to Seco. */
+			she_fill_cmd_msg_hdr((struct she_mu_hdr *)cmd, AHAB_SESSION_CLOSE_NVM, sizeof(struct ahab_cmd_session_close_s));
+			((struct ahab_cmd_session_close_s *)cmd)->sesssion_handle = nvm_ctx->session_handle;
+
+			error = she_send_msg_and_get_resp(nvm_ctx->hdl,
+					cmd, sizeof(struct ahab_cmd_session_close_s),
+					rsp, sizeof(struct ahab_rsp_session_close_s));
 			she_platform_close_session(nvm_ctx->hdl);
 		}
 		free(nvm_ctx);
 		nvm_ctx = NULL;
 	}
+
 
 	return nvm_ctx;
 }
@@ -315,11 +391,22 @@ struct she_storage_context *she_storage_init(void)
 int32_t she_storage_terminate(struct she_storage_context *nvm_ctx)
 {
 	int32_t err = 0;
+	struct ahab_cmd_session_close_s cmd;
+	struct ahab_rsp_session_close_s rsp;
 	if (nvm_ctx->hdl != NULL) {
+		/* Send the session close command to Seco. */
+		she_fill_cmd_msg_hdr((struct she_mu_hdr *)&cmd, AHAB_SESSION_CLOSE_NVM, sizeof(struct ahab_cmd_session_close_s));
+		((struct ahab_cmd_session_close_s *)&cmd)->sesssion_handle = nvm_ctx->session_handle;
+
+		(void)she_send_msg_and_get_resp(nvm_ctx->hdl,
+					(uint32_t *)&cmd, sizeof(struct ahab_cmd_session_close_s),
+					(uint32_t *)&rsp, sizeof(struct ahab_rsp_session_close_s));
+
 		err = she_platform_cancel_thread(nvm_ctx->hdl);
 		if (err == 0) {
 			she_platform_close_session(nvm_ctx->hdl);
 		}
+
 	}
 	if (err == 0) {
 		free(nvm_ctx);

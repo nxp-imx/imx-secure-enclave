@@ -17,6 +17,8 @@
 
 struct she_hdl_s {
 	struct she_platform_hdl *phdl;
+	uint32_t session_handle;
+	uint32_t key_store_handle;
 };
 
 static uint32_t she_compute_msg_crc(uint32_t *msg, uint32_t msg_len) {
@@ -113,20 +115,83 @@ static she_err_t she_seco_ind_to_she_err_t (uint32_t rsp_code)
 
 /* Close a previously opened SHE session. */
 void she_close_session(struct she_hdl_s *hdl) {
+
+	struct ahab_cmd_session_close_s cmd;
+	struct ahab_rsp_session_close_s rsp;
+	int32_t error = 1;
+
 	if (hdl != NULL) {
 		if (hdl->phdl != NULL) {
+
+			/* Send the session close command to Seco. */
+			she_fill_cmd_msg_hdr((struct she_mu_hdr *)&cmd, AHAB_SESSION_CLOSE, sizeof(struct ahab_cmd_session_close_s));
+			((struct ahab_cmd_session_close_s *)&cmd)->sesssion_handle = hdl->session_handle;
+
+			error = she_send_msg_and_get_resp(hdl,
+						(uint32_t *)&cmd, sizeof(struct ahab_cmd_session_close_s),
+						(uint32_t *)&rsp, sizeof(struct ahab_rsp_session_close_s));
+
 			she_platform_close_session(hdl->phdl);
 		}
 		free(hdl);
 	}
 }
 
+static she_err_t she_open_key_store(struct she_hdl_s *hdl)
+{
+	struct ahab_cmd_key_store_open_s cmd;
+	struct ahab_rsp_key_store_open_s rsp;
+
+	int32_t error = 1;
+	do {
+
+		/* Send the keys store open command to Seco. */
+		she_fill_cmd_msg_hdr(&cmd.hdr, AHAB_KEY_STORE_OPEN, sizeof(struct ahab_cmd_key_store_open_s));
+		cmd.sesssion_handle = hdl->session_handle;
+		cmd.key_store_id = 0;
+		cmd.password = 0xBEC00001;
+		error = she_send_msg_and_get_resp(hdl,
+					(uint32_t *)&cmd, sizeof(struct ahab_cmd_key_store_open_s),
+					(uint32_t *)&rsp, sizeof(struct ahab_rsp_key_store_open_s));
+		if (error) {
+			break;
+		}
+
+		hdl->key_store_handle = rsp.key_store_handle;
+		/* Success. */
+		error = 0;
+	} while(0);
+	return error;
+}
+
+static she_err_t she_close_key_store(struct she_hdl_s *hdl)
+{
+	struct ahab_cmd_key_store_close_s cmd;
+	struct ahab_rsp_key_store_close_s rsp;
+	int32_t error = 1;
+	do {
+		/* Send the keys store close command to Seco. */
+		she_fill_cmd_msg_hdr(&cmd.hdr, AHAB_KEY_STORE_CLOSE, sizeof(struct ahab_cmd_key_store_close_s));
+		cmd.key_store_handle = hdl->key_store_handle;
+
+		error = she_send_msg_and_get_resp(hdl,
+					(uint32_t *)&cmd, sizeof(struct ahab_cmd_key_store_close_s),
+					(uint32_t *)&rsp, sizeof(struct ahab_rsp_key_store_close_s));
+		if (error) {
+			break;
+		}
+
+		/* Success. */
+		error = 0;
+	} while(0);
+	return error;
+}
 
 /* Open a SHE user session and return a pointer to the session handle. */
 struct she_hdl_s *she_open_session(void)
 {
-	struct she_cmd_init_msg cmd;
-	struct she_cmd_init_rsp rsp;
+	uint32_t cmd[AHAB_MAX_MSG_SIZE];
+	uint32_t rsp[AHAB_MAX_MSG_SIZE];
 	struct she_hdl_s *hdl = NULL;
 	int32_t error = 1;
 
@@ -143,18 +208,36 @@ struct she_hdl_s *she_open_session(void)
 			break;
 		}
 
-		/* Send the init command to Seco. */
-		she_fill_cmd_msg_hdr(&cmd.hdr, AHAB_SHE_INIT, (uint32_t)sizeof(struct she_cmd_init_msg));
+		/* Send the session open command to Seco. */
+		she_fill_cmd_msg_hdr((struct she_mu_hdr *)cmd, AHAB_SESSION_OPEN, sizeof(struct ahab_cmd_session_open_s));
+		((struct ahab_cmd_session_open_s *)cmd) -> did = 0;
+		((struct ahab_cmd_session_open_s *)cmd) -> tz = 0;
+		((struct ahab_cmd_session_open_s *)cmd) -> mu_id = 1;
 		error = she_send_msg_and_get_resp(hdl,
-					(uint32_t *)&cmd, (uint32_t)sizeof(struct she_cmd_init_msg),
-					(uint32_t *)&rsp, (uint32_t)sizeof(struct she_cmd_init_rsp));
+					cmd, sizeof(struct ahab_cmd_session_open_s),
+					rsp, sizeof(struct ahab_rsp_session_open_s));
+		if (error) {
+			break;
+		}
+
+		hdl->session_handle = ((struct ahab_rsp_session_open_s *)rsp)->sesssion_handle;
+
+		/* Send the init command to Seco. */
+		she_fill_cmd_msg_hdr((struct she_mu_hdr *)cmd, AHAB_SHE_INIT, sizeof(struct she_cmd_init_msg));
+		error = she_send_msg_and_get_resp(hdl,
+					cmd, sizeof(struct she_cmd_init_msg),
+					rsp, sizeof(struct she_cmd_init_rsp));
 		if (error != 0) {
 			break;
 		}
 
 		/* Configure the shared buffer. and start the NVM manager. */
-		error = she_platform_configure_shared_buf(hdl->phdl, rsp.shared_buf_offset, rsp.shared_buf_size);
+		error = she_platform_configure_shared_buf(hdl->phdl, ((struct she_cmd_init_rsp *)rsp)->shared_buf_offset, ((struct she_cmd_init_rsp *)rsp)->shared_buf_size);
 		if (error != 0) {
+			break;
+		}
+
+		if(she_open_key_store(hdl) != 0) {
 			break;
 		}
 
@@ -169,8 +252,6 @@ struct she_hdl_s *she_open_session(void)
 	}
 	return hdl;
 };
-
-
 
 /* MAC generation command processing. */
 she_err_t she_cmd_generate_mac(struct she_hdl_s *hdl, uint8_t key_ext, uint8_t key_id, uint16_t message_length, uint8_t *message, uint8_t *mac)
