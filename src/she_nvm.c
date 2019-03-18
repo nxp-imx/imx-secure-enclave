@@ -23,31 +23,55 @@ struct seco_nvm_context {
 	uintptr_t shared_mem_offset;
 	uint32_t shared_mem_size;
 	uint32_t blob_size;
+	uint8_t *blob_buf;
 	struct she_platform_hdl *hdl;
 };
 
+struct seco_nvm_header_s {
+	uint32_t size;
+	uint32_t crc;
+};
 
 /* Storage export init command processing. */
 static uint32_t seco_nvm_storage_export_init(struct seco_nvm_context *ctx, struct she_cmd_blob_export_init *msg, struct she_rsp_blob_export_init *resp)
 {
+	uint64_t seco_addr;
+
 	/* Build the response. */
 	she_fill_rsp_msg_hdr(&resp->hdr, AHAB_SHE_CMD_STORAGE_EXPORT_INIT, sizeof(struct she_rsp_blob_export_init));
 
-	/* Check if there is enough space in allocated buffer. */
-	if (msg->blob_size < ctx->shared_mem_size - SECURE_RAM_NVM_OFFSET) {
-		/* Place the blob at the beginning of the shared memory area dedicated for NVM. */
-		resp->rsp_code = AHAB_SUCCESS_IND;
-		resp->load_address_ext = ((SECURE_RAM_BASE_ADDRESS_SECURE + ctx->shared_mem_offset) >> 32) & 0xFFFFFFFF;
-		resp->load_address = ((SECURE_RAM_BASE_ADDRESS_SECURE + ctx->shared_mem_offset + SECURE_RAM_NVM_OFFSET) & 0xFFFFFFFF);
-		/* Fill blob size in context for later processing. */
-		ctx->blob_size = msg->blob_size;
-	} else {
-		/* Not enough place. report error to Seco. */
+	if (ctx->blob_buf) {
+		/* a previous storage export transaction may have failed.*/
+		free(ctx->blob_buf);
+		ctx->blob_buf = NULL;
+		ctx->blob_size = 0;
+	}
+
+	do {
+		/* Initialize response with error as default. */
 		resp->rsp_code = AHAB_FAILURE_IND;
 		resp->load_address_ext = 0;
 		resp->load_address = 0;
 		ctx->blob_size = 0;
-	}
+
+		ctx->blob_buf = malloc(msg->blob_size + sizeof(struct seco_nvm_header_s));
+		ctx->blob_size = msg->blob_size;
+		if (!ctx->blob_buf) {
+			break;
+		}
+
+		seco_addr = she_platform_data_buf(ctx->hdl, ctx->blob_buf + sizeof(struct seco_nvm_header_s), msg->blob_size, DATA_BUF_USE_SEC_MEM);
+		/* Check if there is enough space in allocated buffer. */
+		if (seco_addr == 0) {
+			free(ctx->blob_buf);
+			ctx->blob_buf = NULL;
+			ctx->blob_size = 0;
+			break;
+		}
+		resp->load_address_ext = (seco_addr >> 32) & 0xFFFFFFFF;
+		resp->load_address = seco_addr & 0xFFFFFFFF;
+		resp->rsp_code = AHAB_SUCCESS_IND;
+	} while (0);
 
 	return sizeof(struct she_rsp_blob_export_init);
 }
@@ -55,22 +79,29 @@ static uint32_t seco_nvm_storage_export_init(struct seco_nvm_context *ctx, struc
 /* Storage export command processing. */
 static uint32_t seco_nvm_storage_export(struct seco_nvm_context *ctx, struct she_cmd_blob_export *msg, struct she_rsp_blob_export *resp)
 {
-	uint32_t l = 0;
+	uint32_t l;
+	struct seco_nvm_header_s *blob_hdr;
 
+	resp->rsp_code = AHAB_FAILURE_IND;
 	/* Write the data to the storage. Blob size was received in previous "storage_export_init" message.*/
-	if (ctx->blob_size > 0) {
-		l = she_platform_storage_write(ctx->hdl, SECURE_RAM_NVM_OFFSET, ctx->blob_size);
+	if (ctx->blob_buf) {
+		blob_hdr = (struct seco_nvm_header_s *)ctx->blob_buf;
+		blob_hdr->size = ctx->blob_size;
+		blob_hdr->crc = she_platform_crc(ctx->blob_buf + sizeof(struct seco_nvm_header_s), ctx->blob_size);
+
+		l = she_platform_storage_write(ctx->hdl, ctx->blob_buf, ctx->blob_size + sizeof(struct seco_nvm_header_s));
+
+		if (l == ctx->blob_size + sizeof(struct seco_nvm_header_s)) {
+			resp->rsp_code = AHAB_SUCCESS_IND;
+		}
+
+		free(ctx->blob_buf);
+		ctx->blob_buf = 0;
+		ctx->blob_size = 0;
 	}
 
 	/* Build the response. */
 	she_fill_rsp_msg_hdr(&resp->hdr, AHAB_SHE_CMD_STORAGE_EXPORT_REQ, sizeof(struct she_rsp_blob_export));
-
-	/* Success only if there was data to write and all data were written. */
-	if ((l != 0) && (l == ctx->blob_size)) {
-		resp->rsp_code = AHAB_SUCCESS_IND;
-	} else {
-		resp->rsp_code = AHAB_FAILURE_IND;
-	}
 
 	return sizeof(struct she_rsp_blob_export);
 }
@@ -80,24 +111,40 @@ static int32_t seco_nvm_storage_import(struct seco_nvm_context *ctx)
 {
 	struct she_cmd_blob_import msg;
 	struct she_rsp_blob_import rsp;
+	uint64_t seco_addr;
+	struct seco_nvm_header_s blob_hdr;
 
-	uint32_t blob_size;
+	uint8_t *blob_buf = NULL;
 	uint32_t len = 0;
 	int32_t error = -1;
 
 	do {
-		/* Place blob from nvm at the beginning of the secure memory area dedicated for NVM. */
-		blob_size = she_platform_storage_read(ctx->hdl, SECURE_RAM_NVM_OFFSET, ctx->shared_mem_size - SECURE_RAM_NVM_OFFSET);
-		if (blob_size == 0) {
-			/* No storage found or error while reading it. Don't send the command to Seco. */
+		len = she_platform_storage_read(ctx->hdl, (uint8_t *)&blob_hdr, sizeof(struct seco_nvm_header_s));
+		if (len != sizeof(struct seco_nvm_header_s)) {
 			break;
 		}
 
+		blob_buf = malloc(blob_hdr.size + sizeof(struct seco_nvm_header_s));
+		if (!blob_buf) {
+			break;
+		}
+
+		len = she_platform_storage_read(ctx->hdl, blob_buf, blob_hdr.size  + sizeof(struct seco_nvm_header_s));
+		if (len != (blob_hdr.size + sizeof(struct seco_nvm_header_s))) {
+			break;
+		}
+
+		if (she_platform_crc(blob_buf + sizeof(struct seco_nvm_header_s), blob_hdr.size) != blob_hdr.crc) {
+			break;
+		}
+
+		seco_addr = she_platform_data_buf(ctx->hdl, blob_buf + sizeof(struct seco_nvm_header_s), blob_hdr.size, DATA_BUF_IS_INPUT | DATA_BUF_USE_SEC_MEM);
+
 		/* Prepare command message. */
 		she_fill_cmd_msg_hdr(&msg.hdr, AHAB_SHE_CMD_STORAGE_IMPORT_REQ, sizeof(struct she_cmd_blob_import));
-		msg.load_address_ext = ((SECURE_RAM_BASE_ADDRESS_SECURE + ctx->shared_mem_offset) >> 32) & 0xFFFFFFFF;
-		msg.load_address = ((SECURE_RAM_BASE_ADDRESS_SECURE + ctx->shared_mem_offset + SECURE_RAM_NVM_OFFSET) & 0xFFFFFFFF);
-		msg.blob_size = blob_size;
+		msg.load_address_ext = (seco_addr >> 32) & 0xFFFFFFFF;
+		msg.load_address = seco_addr & 0xFFFFFFFF;
+		msg.blob_size = blob_hdr.size;
 
 		/* Send the message to Seco. */
 		len = she_platform_send_mu_message(ctx->hdl, (uint32_t *)&msg, sizeof(struct she_cmd_blob_import));
@@ -120,6 +167,9 @@ static int32_t seco_nvm_storage_import(struct seco_nvm_context *ctx)
 		error = 0;
 	} while (0);
 
+	if (blob_buf) {
+		free(blob_buf);
+	}
 	return error;
 }
 
@@ -190,18 +240,13 @@ int32_t she_nvm_init(uint32_t shared_mem_offset, uint32_t shared_mem_size) {
 		if (!nvm_ctx) {
 			break;
 		}
+		nvm_ctx->blob_buf = NULL;
 		nvm_ctx->shared_mem_offset = shared_mem_offset;
 		nvm_ctx->shared_mem_size = shared_mem_size;
 
 		/* Open the SHE NVM session. */
 		nvm_ctx->hdl = she_platform_open_storage_session();
 		if (!nvm_ctx->hdl) {
-			break;
-		}
-
-		/* map the shared buffer. */
-		error = she_platform_configure_shared_buf(nvm_ctx->hdl, nvm_ctx->shared_mem_offset, nvm_ctx->shared_mem_size);
-		if (error) {
 			break;
 		}
 

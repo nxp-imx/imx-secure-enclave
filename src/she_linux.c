@@ -16,6 +16,7 @@
 #include <errno.h>
 #include <stdlib.h>
 #include <string.h>
+#include <sys/ioctl.h>
 #include <sys/mman.h>
 #include <sys/types.h>
 #include <sys/stat.h>
@@ -25,9 +26,10 @@
 #include <zlib.h>
 #include "she_api.h"
 #include "she_platform.h"
+#include "seco_mu_ioctl.h"
 
-#define SECO_MU_PATH "/dev/seco_mu"
-#define SECO_NVM_PATH "/dev/seco_nvm"
+#define SECO_MU_PATH "/dev/seco_mu_0"
+#define SECO_NVM_PATH "/dev/seco_mu_1"
 
 struct she_platform_hdl {
 	int32_t fd;
@@ -71,6 +73,13 @@ struct she_platform_hdl *she_platform_open_storage_session(void)
 		if (phdl->fd < 0) {
 			free(phdl);
 			phdl = NULL;
+		} else {
+			/* If open is successful then configure the device to accept incoming commands. */
+			if (ioctl(phdl->fd, SECO_MU_IOCTL_ENABLE_CMD_RCV)) {
+				printf("ioctl error\n");
+				free(phdl);
+				phdl = NULL;		
+			}
 		}
 	}
 	return phdl;
@@ -97,7 +106,7 @@ uint32_t she_platform_send_mu_message(struct she_platform_hdl *phdl, uint32_t *m
 }
 
 /* Read a message from Seco on the MU. Return the size of the data that were read. */
-uint32_t she_platform_read_mu_message(struct she_platform_hdl *phdl, uint32_t *message, int32_t size)
+uint32_t she_platform_read_mu_message(struct she_platform_hdl *phdl, uint32_t *message, uint32_t size)
 {
 	return read(phdl->fd, message, size);
 };
@@ -106,6 +115,8 @@ uint32_t she_platform_read_mu_message(struct she_platform_hdl *phdl, uint32_t *m
 int32_t she_platform_configure_shared_buf(struct she_platform_hdl *phdl, uint32_t shared_buf_off, uint32_t size)
 {
 	int32_t error;
+	struct seco_mu_ioctl_shared_mem_cfg cfg;
+
 	phdl->shared_buf_off = shared_buf_off;
 	phdl->sec_mem = mmap(NULL, size, PROT_READ|PROT_WRITE, MAP_SHARED, phdl->fd, shared_buf_off);
 	if (phdl->sec_mem != MAP_FAILED) {
@@ -117,6 +128,11 @@ int32_t she_platform_configure_shared_buf(struct she_platform_hdl *phdl, uint32_
 		phdl->sec_mem_size = 0;
 		error = 1;
 	}
+
+	cfg.base_offset = shared_buf_off;
+	cfg.size = size;
+	error = ioctl(phdl->fd, SECO_MU_IOCTL_SHARED_BUF_CFG, &cfg);
+
 	return error;
 }
 
@@ -131,6 +147,23 @@ uint32_t she_platform_copy_to_shared_buf(struct she_platform_hdl *phdl, uint32_t
 	}
 
 	return size;
+}
+
+uint64_t she_platform_data_buf(struct she_platform_hdl *phdl, uint8_t *src, uint32_t size, uint32_t flags)
+{
+	struct seco_mu_ioctl_setup_iobuf io;
+	uint32_t err;
+
+	io.user_buf = src;
+	io.length = size;
+	io.flags = flags;
+
+	err = ioctl(phdl->fd, SECO_MU_IOCTL_SETUP_IOBUF, &io);
+
+	if (err)
+		io.seco_addr = 0;
+
+	return io.seco_addr;
 }
 
 /* Copy data to the shared buffer. Return the copied length. */
@@ -160,89 +193,43 @@ int32_t she_platform_create_thread(void * (*func)(void *), void * arg)
 }
 
 
+uint32_t she_platform_crc(uint8_t *data, uint32_t size)
+{
+	return  crc32(0, data, size);
+}
+
+
 /* Write data in a file located in NVM. Return the size of the written data. */
 #define SECO_NVM_DEFAULT_STORAGE_FILE "/etc/seco_nvm"
-uint32_t she_platform_storage_write(struct she_platform_hdl *phdl, uint32_t offset, uint32_t size)
+uint32_t she_platform_storage_write(struct she_platform_hdl *phdl, uint8_t *src, uint32_t size)
 {
 	int32_t fd = -1;
 	uint32_t l = 0;
-	uint32_t crc;
 
-	do {
-		/* Open or create the file with access reserved to the current user. */
-		fd = open(SECO_NVM_DEFAULT_STORAGE_FILE, O_CREAT|O_WRONLY|O_SYNC, S_IRUSR|S_IWUSR);
-		if (fd < 0) {
-			break;
-		}
-
-		/* Write the length of the data as header in the file. */
-		l = write(fd, &size, sizeof(uint32_t));
-		if (l != sizeof(uint32_t)) {
-			break;
-		}
-
-		/* compute CRC of the data to be stored and write it as header in the file. */
-		crc = crc32(0, phdl->sec_mem + offset, size);
-		l = write(fd, &crc, sizeof(uint32_t));
-		if (l != sizeof(uint32_t)) {
-			break;
-		}
-
-		/* Write the data. */
-		l = write(fd, phdl->sec_mem + offset, size);
-	} while (0);
-
+	/* Open or create the file with access reserved to the current user. */
+	fd = open(SECO_NVM_DEFAULT_STORAGE_FILE, O_CREAT|O_WRONLY|O_SYNC, S_IRUSR|S_IWUSR);
 	if (fd >= 0) {
+		/* Write the data. */
+		l = write(fd, src, size);
+
 		(void)close(fd);
 	}
 
 	return l;
 }
 
-
-uint32_t she_platform_storage_read(struct she_platform_hdl *phdl, uint32_t offset, uint32_t max_size)
+uint32_t she_platform_storage_read(struct she_platform_hdl *phdl, uint8_t *dst, uint32_t size)
 {
 	int32_t fd = -1;
 	uint32_t l = 0;
 	uint32_t crc, crc_ref;
-	uint32_t size;
 
-	do {
-		/* Open the file as read only. */
-		fd = open(SECO_NVM_DEFAULT_STORAGE_FILE, O_RDONLY);
-		if (fd < 0) {
-			break;
-		}
-
-		/* Read the size of the data contained in the file. */
-		l = read(fd, &size, sizeof(uint32_t));
-		if (l != sizeof(uint32_t)) {
-			break;
-		}
-
-		/* If out put buffer is too small don read anything. */
-		if (max_size < size) {
-			break;
-		}
-
-		/* Read the CRC in the file to check that data were not corrupted.*/
-		l = read(fd, &crc_ref, sizeof(uint32_t));
-		if (l != sizeof(uint32_t)) {
-			break;
-		}
-
-		/* Read the data. */
-		l = read(fd, phdl->sec_mem + offset, size);
-
-		/* Compute the CRC of the data and check against the one from the file. */
-		crc = crc32(0, phdl->sec_mem + offset, size);
-		if (crc != crc_ref) {
-			(void)memset(phdl->sec_mem + offset, 0, size);
-			l = 0;
-		}
-	} while (0);
-
+	/* Open the file as read only. */
+	fd = open(SECO_NVM_DEFAULT_STORAGE_FILE, O_RDONLY);
 	if (fd >= 0) {
+		/* Read the data. */
+		l = read(fd, dst, size);
+
 		(void)close(fd);
 	}
 

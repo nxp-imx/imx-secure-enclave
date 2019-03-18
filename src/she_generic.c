@@ -173,7 +173,6 @@ struct she_hdl_s *she_open_session(void)
 		if (error) {
 			break;
 		}
-
 		/* Success. */
 		error = 0;
 	} while (0);
@@ -198,19 +197,12 @@ she_err_t she_cmd_generate_mac(struct she_hdl_s *hdl, uint8_t key_id, uint32_t m
 	she_err_t err = ERC_GENERAL_ERROR;
 
 	do {
-		/* Copy the message to the shared buffer at offset 0. */
-		len = she_platform_copy_to_shared_buf(hdl->phdl, 0x0, message, message_length);
-		if (len != message_length) {
-			break;
-		}
-
 		/* Build command message. */
 		she_fill_cmd_msg_hdr(&cmd.hdr, AHAB_SHE_CMD_GENERATE_MAC, sizeof(struct she_cmd_generate_mac));
 		cmd.key_id = key_id;
 		cmd.data_length = message_length;
-		/* input data at offset 0. Output just after at offset "message_length". */
-		cmd.data_offset = she_platform_shared_buf_offset(hdl->phdl) + 0x00;
-		cmd.mac_offset = she_platform_shared_buf_offset(hdl->phdl) + message_length;
+		cmd.data_offset = she_platform_data_buf(hdl->phdl, message, message_length, DATA_BUF_IS_INPUT | DATA_BUF_USE_SEC_MEM | DATA_BUF_SHORT_ADDR) & SEC_MEM_SHORT_ADDR_MASK;
+		cmd.mac_offset = she_platform_data_buf(hdl->phdl, mac, SHE_MAC_SIZE, DATA_BUF_USE_SEC_MEM | DATA_BUF_SHORT_ADDR) & SEC_MEM_SHORT_ADDR_MASK;
 
 		/* Send the message to Seco. */
 		error = she_send_msg_and_get_resp(hdl,
@@ -222,12 +214,6 @@ she_err_t she_cmd_generate_mac(struct she_hdl_s *hdl, uint8_t key_id, uint32_t m
 
 		if (rsp.rsp_code != AHAB_SUCCESS_IND) {
 			err = she_seco_ind_to_she_err_t(rsp.rsp_code);
-			break;
-		}
-
-		/* Get the result from shared memory (at offset "message_length". */
-		len = she_platform_copy_from_shared_buf(hdl->phdl, message_length, mac, SHE_MAC_SIZE);
-		if (len != SHE_MAC_SIZE) {
 			break;
 		}
 
@@ -243,33 +229,18 @@ she_err_t she_cmd_verify_mac(struct she_hdl_s *hdl, uint8_t key_id, uint32_t mes
 {
 	struct she_cmd_verify_mac cmd;
 	struct she_rsp_verify_mac rsp;
-	uint32_t len;
-	uint32_t shared_mem_offset;
 	int32_t error;
-	she_err_t err = ERC_GENERAL_ERROR;
+	she_err_t ret = ERC_GENERAL_ERROR;
 
 	do {
-		/* Copy the message to shared memory at offset 0. */
-		len = she_platform_copy_to_shared_buf(hdl->phdl, 0x0, message, message_length);
-		if (len != message_length) {
-			break;
-		}
-		/* Copy the MAC to shared memory just after the message at offset "message_length". */
-		len = she_platform_copy_to_shared_buf(hdl->phdl, message_length, mac, mac_length);
-		if (len != mac_length) {
-			break;
-		}
-
 		/* Build command message. */
 		she_fill_cmd_msg_hdr(&cmd.hdr, AHAB_SHE_CMD_VERIFY_MAC, sizeof(struct she_cmd_verify_mac));
 		cmd.key_id = key_id;
 		cmd.data_length = message_length;
 		/* input message at offset 0. MAC just after at offset "message_length". */
-		shared_mem_offset = she_platform_shared_buf_offset(hdl->phdl);
-		cmd.data_offset = shared_mem_offset + 0x00;
-		cmd.mac_offset = shared_mem_offset + message_length;
+		cmd.data_offset = (uint16_t) she_platform_data_buf(hdl->phdl, message, message_length, DATA_BUF_IS_INPUT | DATA_BUF_USE_SEC_MEM | DATA_BUF_SHORT_ADDR);
+		cmd.mac_offset = (uint16_t) she_platform_data_buf(hdl->phdl, mac, SHE_MAC_SIZE, DATA_BUF_IS_INPUT | DATA_BUF_USE_SEC_MEM | DATA_BUF_SHORT_ADDR);
 		cmd.mac_length = mac_length;
-
 
 		/* Send the message to Seco. */
 		error = she_send_msg_and_get_resp(hdl,
@@ -279,23 +250,22 @@ she_err_t she_cmd_verify_mac(struct she_hdl_s *hdl, uint8_t key_id, uint32_t mes
 			break;
 		}
 
-		// TODO: map Seco error codes to SHE errors
 		if (rsp.rsp_code != AHAB_SUCCESS_IND) {
-			err = she_seco_ind_to_she_err_t(rsp.rsp_code);
+			ret = she_seco_ind_to_she_err_t(rsp.rsp_code);
 			break;
 		}
 
 		/* Command success: Report the verification status. */
 		*verification_status = (rsp.verification_status == 0 ? SHE_MAC_VERIFICATION_SUCCESS : SHE_MAC_VERIFICATION_FAILED);
-		err = ERC_NO_ERROR;
+		ret = ERC_NO_ERROR;
 	} while (0);
 
 	/* Force the status to fail in case of processing error. */
-	if (err != ERC_NO_ERROR) {
+	if (ret != ERC_NO_ERROR) {
 		*verification_status = SHE_MAC_VERIFICATION_FAILED;
 	}
 
-	return err;
+	return ret;
 }
 
 /* Generic function for encryption and decryption. */
@@ -306,36 +276,34 @@ static she_err_t she_cmd_cipher(struct she_hdl_s *hdl, uint8_t key_id, uint32_t 
 	uint32_t len;
 	uint32_t shared_mem_offset;
 	int32_t error;
+	uint64_t seco_iv_addr, seco_input_addr, seco_output_addr;
 	she_err_t err = ERC_GENERAL_ERROR;
 
 	do {
-		if (algo != SHE_CIPHER_ALGO_ECB) {
-			/* Copy the IV to shared memory at offset 0. */
-			len = she_platform_copy_to_shared_buf(hdl->phdl, 0, iv, SHE_AES_BLOCK_SIZE_128);
-			if (len != SHE_AES_BLOCK_SIZE_128) {
-				break;
-			}
-		}
-		/* Copy the data to shared memory just after the IV at offset "SHE_AES_BLOCK_SIZE_128". */
-		len = she_platform_copy_to_shared_buf(hdl->phdl, SHE_AES_BLOCK_SIZE_128, input, data_length);
-		if (len != data_length) {
-			break;
-		}
-
 		/* Build command message. */
 		she_fill_cmd_msg_hdr(&cmd.hdr, AHAB_SHE_CMD_CIPHER_REQ, sizeof(struct she_cmd_cipher));
 
 		cmd.key_id = key_id;
 		cmd.algo = algo;
 		cmd.flags = flags;
-		/* IV at offset 0. input data just after at offset SHE_AES_BLOCK_SIZE_128. Then output data at offset (n+1)block_size. */
-		shared_mem_offset = she_platform_shared_buf_offset(hdl->phdl);
-		cmd.inputs_address_ext = ((uint64_t)(SECURE_RAM_BASE_ADDRESS_SECURE + shared_mem_offset) >> 32) & 0xFFFFFFFF;
-		cmd.outputs_address_ext = ((uint64_t)(SECURE_RAM_BASE_ADDRESS_SECURE + shared_mem_offset) >> 32) & 0xFFFFFFFF;
+		if (algo != SHE_CIPHER_ALGO_ECB) {
+			seco_iv_addr = she_platform_data_buf(hdl->phdl, iv, SHE_AES_BLOCK_SIZE_128, DATA_BUF_IS_INPUT | DATA_BUF_USE_SEC_MEM);
+		} else {
+			seco_iv_addr = 0;
+		}
+		seco_input_addr = she_platform_data_buf(hdl->phdl, input, data_length, DATA_BUF_IS_INPUT | DATA_BUF_USE_SEC_MEM);
+		seco_output_addr = she_platform_data_buf(hdl->phdl, output, data_length, DATA_BUF_USE_SEC_MEM);
+
+		cmd.inputs_address_ext = (seco_input_addr >> 32) & 0xFFFFFFFF;
+		/* all inputs addresses must have same 32bits MSB . */
+		if ((algo != SHE_CIPHER_ALGO_ECB) && (cmd.inputs_address_ext != (seco_iv_addr >> 32) & 0xFFFFFFFF)) {
+			break;
+		}
+		cmd.outputs_address_ext =  (seco_output_addr >> 32) & 0xFFFFFFFF;;
 		/* Keep same layout in secure ram even for algos not using IV to simplify code here. */
-		cmd.iv_address = SECURE_RAM_BASE_ADDRESS_SECURE + shared_mem_offset + 0x00;
-		cmd.input_address = SECURE_RAM_BASE_ADDRESS_SECURE + shared_mem_offset + SHE_AES_BLOCK_SIZE_128;
-		cmd.output_address = SECURE_RAM_BASE_ADDRESS_SECURE + shared_mem_offset + SHE_AES_BLOCK_SIZE_128 + data_length;
+		cmd.iv_address = seco_iv_addr & 0xFFFFFFFF;
+		cmd.input_address = seco_input_addr & 0xFFFFFFFF;
+		cmd.output_address = seco_output_addr & 0xFFFFFFFF;
 		cmd.data_length = data_length;
 
 		/* Send the message to Seco. */
@@ -346,15 +314,8 @@ static she_err_t she_cmd_cipher(struct she_hdl_s *hdl, uint8_t key_id, uint32_t 
 			break;
 		}
 
-		// TODO: map Seco error codes to SHE errors
 		if (rsp.rsp_code != AHAB_SUCCESS_IND) {
 			err = she_seco_ind_to_she_err_t(rsp.rsp_code);
-			break;
-		}
-
-		/* Get the result from shared memory. */
-		len = she_platform_copy_from_shared_buf(hdl->phdl, SHE_AES_BLOCK_SIZE_128 + data_length, output, data_length);
-		if (len != data_length) {
 			break;
 		}
 
