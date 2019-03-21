@@ -28,6 +28,8 @@
 #define AHAB_SESSION_CLOSE_NVM                      0xF1
 #define AHAB_KEY_STORE_OPEN                     0x12
 #define AHAB_KEY_STORE_CLOSE                    0x13
+#define AHAB_CIPHER_OPEN                        0x14
+#define AHAB_CIPHER_CLOSE                       0x15
 
 #define AHAB_SHE_INIT							0x30u
 #define AHAB_SHE_CMD_GENERATE_MAC				0x31u
@@ -256,4 +258,29 @@ struct ahab_rsp_key_store_close_s {
     uint32_t rsp_code;
 } ;
 
+struct ahab_cmd_cipher_open_s{
+    struct she_mu_hdr  hdr;
+    uint32_t key_store_handle;
+    uint32_t input_address_ext;
+    uint32_t output_address_ext;
+    uint8_t flags;
+    uint8_t rsv;
+    uint16_t rsv_1;
+} ;
+
+struct ahab_rsp_cipher_open_s{
+    struct she_mu_hdr  hdr;
+    uint32_t rsp_code;
+    uint32_t cipher_handle;
+} ;
+
+struct ahab_cmd_cipher_close_s {
+    struct she_mu_hdr  hdr;
+    uint32_t cipher_handle;
+} ;
+
+struct ahab_rsp_chiper_close_s {
+    struct she_mu_hdr  hdr;
+    uint32_t rsp_code;
+} ;
 #endif

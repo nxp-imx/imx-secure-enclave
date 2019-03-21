@@ -19,6 +19,7 @@ struct she_hdl_s {
 	struct she_platform_hdl *phdl;
 	uint32_t session_handle;
 	uint32_t key_store_handle;
+	uint32_t service;
 };
 
 static uint32_t she_compute_msg_crc(uint32_t *msg, uint32_t msg_len) {
@@ -177,10 +178,64 @@ static she_err_t she_close_key_store(struct she_hdl_s *hdl)
 		error = she_send_msg_and_get_resp(hdl,
 					(uint32_t *)&cmd, sizeof(struct ahab_cmd_key_store_close_s),
 					(uint32_t *)&rsp, sizeof(struct ahab_rsp_key_store_close_s));
+
+		if ((error) || (rsp.rsp_code != AHAB_SUCCESS_IND)) {
+			break;
+		}
+
+		hdl->key_store_handle = 0;
+
+		/* Success. */
+		error = 0;
+	} while(0);
+	return error;
+}
+
+static she_err_t she_open_cipher(struct she_hdl_s *hdl)
+{
+	struct ahab_cmd_cipher_open_s cmd;
+	struct ahab_rsp_cipher_open_s rsp;
+
+	int32_t error = 1;
+	do {
+
+		/* Send the keys store open command to Seco. */
+		she_fill_cmd_msg_hdr(&cmd.hdr, AHAB_CIPHER_OPEN, sizeof(struct ahab_cmd_cipher_open_s));
+		cmd.key_store_handle = hdl->key_store_handle;
+		error = she_send_msg_and_get_resp(hdl,
+					(uint32_t *)&cmd, sizeof(struct ahab_cmd_cipher_open_s),
+					(uint32_t *)&rsp, sizeof(struct ahab_rsp_cipher_open_s));
+
+		if ((error) || (rsp.rsp_code != AHAB_SUCCESS_IND)) {
+			break;
+		}
+
+		hdl->service = rsp.cipher_handle;
+		/* Success. */
+		error = 0;
+	} while(0);
+	return error;
+}
+
+static she_err_t she_close_cipher(struct she_hdl_s *hdl)
+{
+	struct ahab_cmd_cipher_close_s cmd;
+	struct ahab_rsp_chiper_close_s rsp;
+
+	int32_t error = 1;
+	do {
+
+		/* Send the keys store open command to Seco. */
+		she_fill_cmd_msg_hdr(&cmd.hdr, AHAB_CIPHER_CLOSE, sizeof(struct ahab_cmd_cipher_close_s));
+		cmd.cipher_handle = hdl->service;
+		error = she_send_msg_and_get_resp(hdl,
+					(uint32_t *)&cmd, sizeof(struct ahab_cmd_cipher_close_s),
+					(uint32_t *)&rsp, sizeof(struct ahab_rsp_chiper_close_s));
 		if (error) {
 			break;
 		}
 
+		hdl->service = 0;
 		/* Success. */
 		error = 0;
 	} while(0);
@@ -262,6 +317,10 @@ she_err_t she_cmd_generate_mac(struct she_hdl_s *hdl, uint8_t key_ext, uint8_t k
 	she_err_t err = ERC_GENERAL_ERROR;
 
 	do {
+		if(she_open_cipher(hdl) != 0) {
+			break;
+		}
+
 		/* Build command message. */
 		she_fill_cmd_msg_hdr(&cmd.hdr, AHAB_SHE_CMD_GENERATE_MAC, (uint32_t)sizeof(struct she_cmd_generate_mac_msg));
 		cmd.key_id = (uint16_t)key_ext | (uint16_t)key_id;
@@ -282,6 +341,9 @@ she_err_t she_cmd_generate_mac(struct she_hdl_s *hdl, uint8_t key_ext, uint8_t k
 			break;
 		}
 
+		if(she_close_cipher(hdl) != 0) {
+			break;
+		}
 		/* Success. */
 		err = ERC_NO_ERROR;
 	} while (false);
