@@ -1,0 +1,2 @@
+SHE_TEST_LOAD_KEY
+0 # expected return value (ERC_NO_ERROR)
