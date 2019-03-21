@@ -143,6 +143,7 @@ static she_err_t she_open_key_store(struct she_hdl_s *hdl)
 	struct ahab_cmd_key_store_open_s cmd;
 	struct ahab_rsp_key_store_open_s rsp;
 
+	she_err_t err = ERC_GENERAL_ERROR;
 	int32_t error = 1;
 	do {
 
@@ -160,7 +161,7 @@ static she_err_t she_open_key_store(struct she_hdl_s *hdl)
 
 		hdl->key_store_handle = rsp.key_store_handle;
 		/* Success. */
-		error = 0;
+		err = ERC_NO_ERROR;
 	} while(0);
 	return error;
 }
@@ -169,6 +170,7 @@ static she_err_t she_close_key_store(struct she_hdl_s *hdl)
 {
 	struct ahab_cmd_key_store_close_s cmd;
 	struct ahab_rsp_key_store_close_s rsp;
+	she_err_t err = ERC_GENERAL_ERROR;
 	int32_t error = 1;
 	do {
 		/* Send the keys store close command to Seco. */
@@ -186,7 +188,7 @@ static she_err_t she_close_key_store(struct she_hdl_s *hdl)
 		hdl->key_store_handle = 0;
 
 		/* Success. */
-		error = 0;
+		err = ERC_NO_ERROR;
 	} while(0);
 	return error;
 }
@@ -196,6 +198,7 @@ static she_err_t she_open_cipher(struct she_hdl_s *hdl)
 	struct ahab_cmd_cipher_open_s cmd;
 	struct ahab_rsp_cipher_open_s rsp;
 
+	she_err_t err = ERC_GENERAL_ERROR;
 	int32_t error = 1;
 	do {
 
@@ -212,7 +215,7 @@ static she_err_t she_open_cipher(struct she_hdl_s *hdl)
 
 		hdl->service = rsp.cipher_handle;
 		/* Success. */
-		error = 0;
+		err = ERC_NO_ERROR;
 	} while(0);
 	return error;
 }
@@ -221,7 +224,7 @@ static she_err_t she_close_cipher(struct she_hdl_s *hdl)
 {
 	struct ahab_cmd_cipher_close_s cmd;
 	struct ahab_rsp_chiper_close_s rsp;
-
+	she_err_t err = ERC_GENERAL_ERROR;
 	int32_t error = 1;
 	do {
 
@@ -237,7 +240,7 @@ static she_err_t she_close_cipher(struct she_hdl_s *hdl)
 
 		hdl->service = 0;
 		/* Success. */
-		error = 0;
+		err = ERC_NO_ERROR;
 	} while(0);
 	return error;
 }
