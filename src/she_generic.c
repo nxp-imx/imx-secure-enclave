@@ -13,7 +13,6 @@
  */
 
 #include "she_msg.h"
-#include "she_nvm.h"
 #include "she_platform.h"
 
 struct she_hdl_s {
@@ -168,11 +167,6 @@ struct she_hdl_s *she_open_session(void)
 			break;
 		}
 
-		/* Start the NVM manager. (it currently needs the shared memory so cannot start it earlier)*/
-		error = she_nvm_init(rsp.shared_buf_offset, rsp.shared_buf_size);
-		if (error) {
-			break;
-		}
 		/* Success. */
 		error = 0;
 	} while (0);

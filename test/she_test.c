@@ -31,6 +31,7 @@
 #include <string.h>
 #include <time.h>
 #include "she_api.h"
+#include "she_storage.h"
 
 
 static uint32_t read_single_data(FILE *fp)
@@ -472,10 +473,12 @@ struct test_entry_t she_tests[] = {
 int main(int argc, char *argv[])
 {
 	struct she_hdl_s *hdl = NULL;
+	struct she_storage_context *storage_ctx = NULL;
 	char *line = NULL;
     size_t len = 0;
     ssize_t read;
     uint16_t i;
+    uint32_t err;
 
 	FILE *fp;
 
@@ -486,6 +489,12 @@ int main(int argc, char *argv[])
 
 		fp = fopen(argv[1], "r");
 		if (fp == NULL) {
+			break;
+		}
+
+		/* Start the storage manager.*/
+		storage_ctx = she_storage_init();
+		if (!storage_ctx) {
 			break;
 		}
 
@@ -511,5 +520,8 @@ int main(int argc, char *argv[])
 	/* Close session if it was opened. */
 	if (hdl) {
 		she_close_session(hdl);
+	}
+	if(storage_ctx) {
+		she_storage_terminate(storage_ctx);
 	}
 }

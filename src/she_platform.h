@@ -166,14 +166,28 @@ uint64_t she_platform_data_buf(struct she_platform_hdl *phdl, uint8_t *src, uint
 /**
  * Create a thread
  *
+ * the created thread is associated to a given session handle.
+ * 2 simultaneous threads per session handle must not be created.
+ * caller must cancel a previous thread before creating a new one. 
  * Used by storage manager to have a background task waiting for commands from Seco.
  *
+ * \param phdl pointer to the session handle associated to this thread.
  * \param func pointer to the thread function
  * \param arg argument to be provided to the thread function.
  *
  * \return 0 on success. Any other value means error.
  */
-int32_t she_platform_create_thread(void * (*func)(void *), void * arg);
+int32_t she_platform_create_thread(struct she_platform_hdl *phdl, void * (*func)(void *), void * arg);
+
+
+/**
+ *  Terminate a previously created thread.
+ *
+ * \param phdl pointer to the session handle aowning the thread to be canceled.
+ *
+ * \return 0 on success. Any other value means error.
+ */
+int32_t she_platform_cancel_thread(struct she_platform_hdl *phdl);
 
 /**
  * Compute the CRC of a buffer.

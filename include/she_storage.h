@@ -11,4 +11,17 @@
  * activate or otherwise use the software.
  */
 
-int32_t she_nvm_init(uint32_t shared_mem_offset, uint32_t shared_mem_size);
+/**
+ * Initialize SHE storage manager.
+ *
+ * \return pointer to the storage context 
+ */
+struct she_storage_context *she_storage_init(void);
+
+
+/**
+ * terminates the SHE storage manager.
+ *
+ * \param ctx pointer to the context of the storage manager  to be closed.
+ */
+void she_storage_terminate(struct she_storage_context *ctx);

@@ -12,16 +12,13 @@
  */
 
 #include "she_msg.h"
-#include "she_nvm.h"
 #include "she_platform.h"
 
 #define SECURE_RAM_NVM_OFFSET 0x400
 #define MAX_NVM_MSG_SIZE	10
 
 
-struct seco_nvm_context {
-	uintptr_t shared_mem_offset;
-	uint32_t shared_mem_size;
+struct she_storage_context {
 	uint32_t blob_size;
 	uint8_t *blob_buf;
 	struct she_platform_hdl *hdl;
@@ -33,7 +30,7 @@ struct seco_nvm_header_s {
 };
 
 /* Storage export init command processing. */
-static uint32_t seco_nvm_storage_export_init(struct seco_nvm_context *ctx, struct she_cmd_blob_export_init *msg, struct she_rsp_blob_export_init *resp)
+static uint32_t she_storage_export_init(struct she_storage_context *ctx, struct she_cmd_blob_export_init *msg, struct she_rsp_blob_export_init *resp)
 {
 	uint64_t seco_addr;
 
@@ -61,7 +58,6 @@ static uint32_t seco_nvm_storage_export_init(struct seco_nvm_context *ctx, struc
 		}
 
 		seco_addr = she_platform_data_buf(ctx->hdl, ctx->blob_buf + sizeof(struct seco_nvm_header_s), msg->blob_size, DATA_BUF_USE_SEC_MEM);
-		/* Check if there is enough space in allocated buffer. */
 		if (seco_addr == 0) {
 			free(ctx->blob_buf);
 			ctx->blob_buf = NULL;
@@ -77,7 +73,7 @@ static uint32_t seco_nvm_storage_export_init(struct seco_nvm_context *ctx, struc
 }
 
 /* Storage export command processing. */
-static uint32_t seco_nvm_storage_export(struct seco_nvm_context *ctx, struct she_cmd_blob_export *msg, struct she_rsp_blob_export *resp)
+static uint32_t she_storage_export(struct she_storage_context *ctx, struct she_cmd_blob_export *msg, struct she_rsp_blob_export *resp)
 {
 	uint32_t l;
 	struct seco_nvm_header_s *blob_hdr;
@@ -107,7 +103,7 @@ static uint32_t seco_nvm_storage_export(struct seco_nvm_context *ctx, struct she
 }
 
 /* Storage import processing. Return 0 on success.  */
-static int32_t seco_nvm_storage_import(struct seco_nvm_context *ctx)
+static int32_t she_storage_import(struct she_storage_context *ctx)
 {
 	struct she_cmd_blob_import msg;
 	struct she_rsp_blob_import rsp;
@@ -173,19 +169,55 @@ static int32_t seco_nvm_storage_import(struct seco_nvm_context *ctx)
 	return error;
 }
 
+
+static uint32_t she_storage_setup_shared_buffer(struct she_storage_context *ctx)
+{
+	struct she_cmd_init cmd;
+	struct she_rsp_init rsp;
+	uint32_t err = 1;
+	uint32_t len;
+
+	do {
+		/* Prepare command message. */
+		she_fill_cmd_msg_hdr(&cmd.hdr, AHAB_SHE_INIT, sizeof(struct she_cmd_init));
+		/* Send the message to Seco. */
+		len = she_platform_send_mu_message(ctx->hdl, (uint32_t *)&cmd, sizeof(struct she_cmd_init));
+		if (len != sizeof(struct she_cmd_init)) {
+			break;
+		}
+
+		/* Read the response. */
+		len = she_platform_read_mu_message(ctx->hdl, (uint32_t *)&rsp, sizeof(struct she_rsp_init));
+		if (len != sizeof(struct she_rsp_init)) {
+			break;
+		}
+
+		/* Configure the shared buffer. and start the NVM manager. */
+		err = she_platform_configure_shared_buf(ctx->hdl, rsp.shared_buf_offset, rsp.shared_buf_size);
+		if (err) {
+			break;
+		}
+	} while(0);
+
+	return err;
+}
+
+
 /* Thread waiting for messages on the NVM MU and processing them in loop. */
-static void *seco_nvm_thread(void *arg) {
+static void *she_storage_thread(void *arg) {
 
 	uint32_t msg_in[MAX_NVM_MSG_SIZE];
 	uint32_t msg_out[MAX_NVM_MSG_SIZE];
 	uint32_t msg_len, rsp_len;
 	struct she_mu_hdr *hdr;
-	struct seco_nvm_context *ctx = (struct seco_nvm_context *)arg;
+	struct she_storage_context *ctx = (struct she_storage_context *)arg;
 
 	do {
 		/* Wait message on the NVM MU (blocking read). */
+		printf("STORAGE THREAD: waiting\n");
 		msg_len = she_platform_read_mu_message(ctx->hdl, msg_in, MAX_NVM_MSG_SIZE);
 
+		printf("STORAGE THREAD: got a message len: 0x%x\n", msg_len);
 		if (msg_len == 0) {
 			continue;
 		}
@@ -195,12 +227,12 @@ static void *seco_nvm_thread(void *arg) {
 		hdr = (struct she_mu_hdr *)&msg_in[0];
 		switch (hdr->command) {
 			case AHAB_SHE_CMD_STORAGE_EXPORT_INIT:
-			rsp_len = seco_nvm_storage_export_init(ctx, (struct she_cmd_blob_export_init *)msg_in,
+			rsp_len = she_storage_export_init(ctx, (struct she_cmd_blob_export_init *)msg_in,
 						(struct she_rsp_blob_export_init *)msg_out);
 			break;
 
 			case AHAB_SHE_CMD_STORAGE_EXPORT_REQ:
-			rsp_len = seco_nvm_storage_export(ctx, (struct she_cmd_blob_export *)msg_in,
+			rsp_len = she_storage_export(ctx, (struct she_cmd_blob_export *)msg_in,
 						(struct she_rsp_blob_export *)msg_out);
 			break;
 
@@ -229,20 +261,18 @@ static void *seco_nvm_thread(void *arg) {
 
 
 /* Init of the NVM storage manager. */
-int32_t she_nvm_init(uint32_t shared_mem_offset, uint32_t shared_mem_size) {
+struct she_storage_context *she_storage_init(void) {
 	uint32_t msg_len, l;
-	struct seco_nvm_context *nvm_ctx = NULL;
+	struct she_storage_context *nvm_ctx = NULL;
 	int32_t error = -1;
 
 	do {
 		/* Prepare the context to be passed to the thread function. */
-		nvm_ctx = malloc(sizeof(struct seco_nvm_context));
+		nvm_ctx = malloc(sizeof(struct she_storage_context));
 		if (!nvm_ctx) {
 			break;
 		}
 		nvm_ctx->blob_buf = NULL;
-		nvm_ctx->shared_mem_offset = shared_mem_offset;
-		nvm_ctx->shared_mem_size = shared_mem_size;
 
 		/* Open the SHE NVM session. */
 		nvm_ctx->hdl = she_platform_open_storage_session();
@@ -250,12 +280,18 @@ int32_t she_nvm_init(uint32_t shared_mem_offset, uint32_t shared_mem_size) {
 			break;
 		}
 
+		/* Configures the shared buffer in secure memory used to commumicate blobs. */
+ 		error = she_storage_setup_shared_buffer(nvm_ctx);
+ 		if (error) {
+ 			break;
+ 		}
+
 		/* Try to import the NVM storage. */
-		error = seco_nvm_storage_import(nvm_ctx);
+		error = she_storage_import(nvm_ctx);
 		// TODO: Handle errors. (currently Seco can generate himself a fake storage if we cannot provide it from here.)
 
 		/* Start the background thread waiting for NVM commands from Seco. */
-		error = she_platform_create_thread(&seco_nvm_thread, nvm_ctx);
+		error = she_platform_create_thread(nvm_ctx->hdl, &she_storage_thread, nvm_ctx);
 	} while (0);
 
 	/* error clean-up. */
@@ -264,7 +300,17 @@ int32_t she_nvm_init(uint32_t shared_mem_offset, uint32_t shared_mem_size) {
 			she_platform_close_session(nvm_ctx->hdl);
 		}
 		free(nvm_ctx);
+		nvm_ctx = NULL;
 	}
 
-	return error;
+	return nvm_ctx;
+}
+
+void she_storage_terminate(struct she_storage_context *nvm_ctx)
+{
+	(void) she_platform_cancel_thread(nvm_ctx->hdl);
+	if (nvm_ctx->hdl) {
+		she_platform_close_session(nvm_ctx->hdl);
+	}
+	free(nvm_ctx);
 }

@@ -30,12 +30,11 @@
 
 #define SECO_MU_PATH "/dev/seco_mu_0"
 #define SECO_NVM_PATH "/dev/seco_mu_1"
+#define SECO_NVM_DEFAULT_STORAGE_FILE "/etc/seco_nvm"
 
 struct she_platform_hdl {
 	int32_t fd;
-	uint8_t *sec_mem;
-	uint32_t sec_mem_size;
-	uint32_t shared_buf_off;
+	pthread_t tid;
 };
 
 /* Open a SHE session and returns a pointer to the handle or NULL in case of error.
@@ -46,9 +45,6 @@ struct she_platform_hdl *she_platform_open_she_session(void)
 	struct she_platform_hdl *phdl = malloc(sizeof(struct she_platform_hdl));
 
 	if (phdl) {
-		/* Force secure memory pointer to NULL since it hasn't been allocated yet. */
-		phdl->sec_mem = NULL;
-
 		phdl->fd = open(SECO_MU_PATH, O_RDWR);
 		/* If open failed return NULL handle. */
 		if (phdl->fd < 0) {
@@ -65,9 +61,6 @@ struct she_platform_hdl *she_platform_open_storage_session(void)
 	struct she_platform_hdl *phdl = malloc(sizeof(struct she_platform_hdl));
 
 	if (phdl) {
-		/* Force secure memory pointer to NULL since it hasn't been allocated yet. */
-		phdl->sec_mem = NULL;
-
 		phdl->fd = open(SECO_NVM_PATH, O_RDWR);
 		/* If open failed return NULL handle. */
 		if (phdl->fd < 0) {
@@ -76,7 +69,6 @@ struct she_platform_hdl *she_platform_open_storage_session(void)
 		} else {
 			/* If open is successful then configure the device to accept incoming commands. */
 			if (ioctl(phdl->fd, SECO_MU_IOCTL_ENABLE_CMD_RCV)) {
-				printf("ioctl error\n");
 				free(phdl);
 				phdl = NULL;		
 			}
@@ -88,11 +80,6 @@ struct she_platform_hdl *she_platform_open_storage_session(void)
 /* Close a previously opened session (SHE or storage). */
 void she_platform_close_session(struct she_platform_hdl *phdl)
 {
-	/* Unmap the secure memory if needed. */
-	if (phdl->sec_mem) {
-		(void)munmap(phdl->sec_mem, phdl->sec_mem_size);
-	}
-
 	/* Close the device. */
 	(void)close(phdl->fd);
 
@@ -117,18 +104,6 @@ int32_t she_platform_configure_shared_buf(struct she_platform_hdl *phdl, uint32_
 	int32_t error;
 	struct seco_mu_ioctl_shared_mem_cfg cfg;
 
-	phdl->shared_buf_off = shared_buf_off;
-	phdl->sec_mem = mmap(NULL, size, PROT_READ|PROT_WRITE, MAP_SHARED, phdl->fd, shared_buf_off);
-	if (phdl->sec_mem != MAP_FAILED) {
-		phdl->sec_mem_size = size;
-		error = 0;
-	} else {
-		/* mmap failed. force the shared memory pointer to NULL and report error. */
-		phdl->sec_mem = NULL;
-		phdl->sec_mem_size = 0;
-		error = 1;
-	}
-
 	cfg.base_offset = shared_buf_off;
 	cfg.size = size;
 	error = ioctl(phdl->fd, SECO_MU_IOCTL_SHARED_BUF_CFG, &cfg);
@@ -136,18 +111,6 @@ int32_t she_platform_configure_shared_buf(struct she_platform_hdl *phdl, uint32_
 	return error;
 }
 
-/* Copy data to the shared buffer. Return the copied length. */
-uint32_t she_platform_copy_to_shared_buf(struct she_platform_hdl *phdl, uint32_t dst_off, void *src, uint32_t size)
-{
-	uint32_t l = 0;
-
-	/* Ensure that secure memory is mapped and that the data will not overflow the allocated space. */
-	if ((phdl->sec_mem) && (dst_off + size < phdl->sec_mem_size)) {
-		(void)memcpy(phdl->sec_mem + dst_off, src, size);
-	}
-
-	return size;
-}
 
 uint64_t she_platform_data_buf(struct she_platform_hdl *phdl, uint8_t *src, uint32_t size, uint32_t flags)
 {
@@ -166,30 +129,21 @@ uint64_t she_platform_data_buf(struct she_platform_hdl *phdl, uint8_t *src, uint
 	return io.seco_addr;
 }
 
-/* Copy data to the shared buffer. Return the copied length. */
-uint32_t she_platform_copy_from_shared_buf(struct she_platform_hdl *phdl, uint32_t src_off, void *dst, uint32_t size)
-{
-	uint32_t l = 0;
-
-	/* Ensure that secure memory is mapped and that we won't read out of the allocated space. */
-	if ((phdl->sec_mem) && (src_off + size < phdl->sec_mem_size)) {
-		(void)memcpy(dst, phdl->sec_mem + src_off, size);
-	}
-
-	return size;
-}
-
-/* Returns the offset of the allocated section in secure memory. */
-uint32_t she_platform_shared_buf_offset(struct she_platform_hdl *phdl)
-{
-	return phdl->shared_buf_off;
-}
-
 /* Start a new thread. Return 0 in case of success or an non-null code in case of error. */
-int32_t she_platform_create_thread(void * (*func)(void *), void * arg)
+int32_t she_platform_create_thread(struct she_platform_hdl *phdl, void * (*func)(void *), void * arg)
 {
-	pthread_t tid;
-	return pthread_create(&tid, NULL, func, arg);
+	int32_t err;
+	err = pthread_create(&phdl->tid, NULL, func, arg);
+	return err;
+}
+
+/* Cancel a previously created thread. Return 0 in case of success or an non-null code in case of error. */
+int32_t she_platform_cancel_thread(struct she_platform_hdl *phdl)
+{
+	int32_t err;
+	err = pthread_cancel(phdl->tid);
+
+	return err;
 }
 
 
@@ -200,7 +154,6 @@ uint32_t she_platform_crc(uint8_t *data, uint32_t size)
 
 
 /* Write data in a file located in NVM. Return the size of the written data. */
-#define SECO_NVM_DEFAULT_STORAGE_FILE "/etc/seco_nvm"
 uint32_t she_platform_storage_write(struct she_platform_hdl *phdl, uint8_t *src, uint32_t size)
 {
 	int32_t fd = -1;
