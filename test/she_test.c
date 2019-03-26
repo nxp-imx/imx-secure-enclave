@@ -38,8 +38,8 @@ static uint32_t read_single_data(FILE *fp)
 {
 	uint32_t value=0;
 	char *line = NULL;
-    size_t len = 0;
-    ssize_t read;
+	size_t len = 0;
+	ssize_t read;
 
 	read = getline(&line, &len, fp);
 	if (read > 0) {
@@ -54,10 +54,10 @@ static void read_buffer(FILE *fp, uint8_t *dst, uint32_t size) {
 	char *line = NULL;
 	char *startptr = NULL;
 	char *endptr = NULL;
-    size_t len = 0;
-    ssize_t read;
-    uint32_t idx = 0;
-    uint32_t data;
+	size_t len = 0;
+	ssize_t read;
+	uint32_t idx = 0;
+	uint32_t data;
 
 	while (idx < size) {
 		read = getline(&line, &len, fp);
@@ -92,7 +92,7 @@ static void print_result(uint32_t err, uint32_t expected_err, uint8_t *output, u
 
 static void print_perf(struct timespec *ts1, struct timespec *ts2, uint32_t nb_iter)
 {
-    uint64_t time_us;
+	uint64_t time_us;
 
 	time_us = (uint64_t)(ts2->tv_sec - ts1->tv_sec)*1000000 + (ts2->tv_nsec - ts1->tv_nsec)/1000;
 	(void)printf("%ld microseconds per operation (%d iterations).\n", time_us/nb_iter, nb_iter);
@@ -104,19 +104,23 @@ static void she_test_mac_gen(struct she_hdl_s *hdl, FILE *fp)
 {
 	uint32_t err = 1;
 	uint32_t expected_err;
-    uint8_t key_id;
-    uint32_t input_size;
-    uint8_t *input = NULL;
-    uint8_t *output = NULL;
-    uint8_t *reference = NULL;
-    struct timespec ts1, ts2;
-    uint32_t nb_iter, i;
+	uint8_t key_id;
+	uint8_t key_ext;
+	uint32_t input_size;
+	uint8_t *input = NULL;
+	uint8_t *output = NULL;
+	uint8_t *reference = NULL;
+	struct timespec ts1, ts2;
+	uint32_t nb_iter, i;
 
 	/* read number of iterations */
 	nb_iter = (uint8_t)read_single_data(fp);
 
 	/* read key ID */
 	key_id = (uint8_t)read_single_data(fp);
+
+	/* read key extension */
+	key_ext = (uint8_t)read_single_data(fp);
 
 	/* read input length */
 	input_size = read_single_data(fp);
@@ -137,7 +141,7 @@ static void she_test_mac_gen(struct she_hdl_s *hdl, FILE *fp)
 
 	for (i=0; i<nb_iter; i++) {
 		/* Call the API to be tested. */
-		err = she_cmd_generate_mac(hdl, key_id, input_size, input, output);
+		err = she_cmd_generate_mac(hdl, key_ext, key_id, input_size, input, output);
 	}
 
 	(void)clock_gettime(CLOCK_MONOTONIC_RAW, &ts2);
@@ -157,21 +161,24 @@ static void she_test_mac_verif(struct she_hdl_s *hdl, FILE *fp)
 {
 	uint32_t err = 1;
 	uint32_t expected_err;
-    uint8_t key_id;
-    uint32_t input_size;
-    uint8_t *input = NULL;
-    uint8_t *input_mac = NULL;
-    uint8_t verif = 1;
-    uint8_t ref_verif = 1;
-    struct timespec ts1, ts2;
-    uint64_t time_us;
-    uint32_t nb_iter, i;
+	uint8_t key_id;
+	uint8_t key_ext;
+	uint32_t input_size;
+	uint8_t *input = NULL;
+	uint8_t *input_mac = NULL;
+	uint8_t verif = 1;
+	uint8_t ref_verif = 1;
+	struct timespec ts1, ts2;
+	uint32_t nb_iter, i;
 
 	/* read number of iterations */
 	nb_iter = (uint8_t)read_single_data(fp);
 
 	/* read key ID */
 	key_id = (uint8_t)read_single_data(fp);
+
+	/* read key extension */
+	key_ext = (uint8_t)read_single_data(fp);
 
 	/* read input length */
 	input_size = read_single_data(fp);
@@ -194,7 +201,7 @@ static void she_test_mac_verif(struct she_hdl_s *hdl, FILE *fp)
 
 	for (i=0; i<nb_iter; i++) {
 		/* Call the API to be tested. */
-		err = she_cmd_verify_mac(hdl, key_id, input_size, input, input_mac, SHE_MAC_SIZE, &verif);
+		err = she_cmd_verify_mac(hdl, key_ext, key_id, input_size, input, input_mac, SHE_MAC_SIZE, &verif);
 	}
 
 	(void)clock_gettime(CLOCK_MONOTONIC_RAW, &ts2);
@@ -215,21 +222,24 @@ static void she_test_cbc_enc(struct she_hdl_s *hdl, FILE *fp)
 {
 	uint32_t err = 1;
 	uint32_t expected_err;
-    uint8_t key_id;
-    uint32_t input_size;
-    uint8_t *iv = NULL;
-    uint8_t *input = NULL;
-    uint8_t *output = NULL;
-    uint8_t *reference = NULL;
-    struct timespec ts1, ts2;
-    uint64_t time_us;
-    uint32_t nb_iter, i;
+	uint8_t key_id;
+	uint8_t key_ext;
+	uint32_t input_size;
+	uint8_t *iv = NULL;
+	uint8_t *input = NULL;
+	uint8_t *output = NULL;
+	uint8_t *reference = NULL;
+	struct timespec ts1, ts2;
+	uint32_t nb_iter, i;
 
 	/* read number of iterations */
 	nb_iter = (uint8_t)read_single_data(fp);
 
 	/* read key ID */
 	key_id = (uint8_t)read_single_data(fp);
+
+	/* read key extension */
+	key_ext = (uint8_t)read_single_data(fp);
 
 	/* read input length */
 	input_size = read_single_data(fp);
@@ -255,7 +265,7 @@ static void she_test_cbc_enc(struct she_hdl_s *hdl, FILE *fp)
 
 	for (i=0; i<nb_iter; i++) {
 		/* Call the API to be tested. */
-		err = she_cmd_enc_cbc(hdl, key_id, input_size, iv, input, output);
+		err = she_cmd_enc_cbc(hdl, key_ext, key_id, input_size, iv, input, output);
 	}
 
 	(void)clock_gettime(CLOCK_MONOTONIC_RAW, &ts2);
@@ -277,21 +287,24 @@ static void she_test_cbc_dec(struct she_hdl_s *hdl, FILE *fp)
 {
 	uint32_t err = 1;
 	uint32_t expected_err;
-    uint8_t key_id;
-    uint32_t input_size;
-    uint8_t *iv = NULL;
-    uint8_t *input = NULL;
-    uint8_t *output = NULL;
-    uint8_t *reference = NULL;
-    struct timespec ts1, ts2;
-    uint64_t time_us;
-    uint32_t nb_iter, i;
+	uint8_t key_id;
+	uint8_t key_ext;
+	uint32_t input_size;
+	uint8_t *iv = NULL;
+	uint8_t *input = NULL;
+	uint8_t *output = NULL;
+	uint8_t *reference = NULL;
+	struct timespec ts1, ts2;
+	uint32_t nb_iter, i;
 
 	/* read number of iterations */
 	nb_iter = (uint8_t)read_single_data(fp);
 
 	/* read key ID */
 	key_id = (uint8_t)read_single_data(fp);
+
+	/* read key extension */
+	key_ext = (uint8_t)read_single_data(fp);
 
 	/* read input length */
 	input_size = read_single_data(fp);
@@ -316,7 +329,7 @@ static void she_test_cbc_dec(struct she_hdl_s *hdl, FILE *fp)
 
 	for (i=0; i<nb_iter; i++) {
 		/* Call the API to be tested. */
-		err = she_cmd_dec_cbc(hdl, key_id, input_size, iv, input, output);
+		err = she_cmd_dec_cbc(hdl, key_ext, key_id, input_size, iv, input, output);
 	}
 
 	(void)clock_gettime(CLOCK_MONOTONIC_RAW, &ts2);
@@ -339,19 +352,22 @@ static void she_test_ecb_enc(struct she_hdl_s *hdl, FILE *fp)
 {
 	uint32_t err = 1;
 	uint32_t expected_err;
-    uint8_t key_id;
-    uint8_t *input = NULL;
-    uint8_t *output = NULL;
-    uint8_t *reference = NULL;
-    struct timespec ts1, ts2;
-    uint64_t time_us;
-    uint32_t nb_iter, i;
+	uint8_t key_id;
+	uint8_t key_ext;
+	uint8_t *input = NULL;
+	uint8_t *output = NULL;
+	uint8_t *reference = NULL;
+	struct timespec ts1, ts2;
+	uint32_t nb_iter, i;
 
 	/* read number of iterations */
 	nb_iter = (uint8_t)read_single_data(fp);
 
 	/* read key ID */
 	key_id = (uint8_t)read_single_data(fp);
+
+	/* read key extension */
+	key_ext = (uint8_t)read_single_data(fp);
 
 	/* allocate memory for the input data and read them.*/
 	input = malloc(SHE_AES_BLOCK_SIZE_128);
@@ -369,7 +385,7 @@ static void she_test_ecb_enc(struct she_hdl_s *hdl, FILE *fp)
 
 	for (i=0; i<nb_iter; i++) {
 		/* Call the API to be tested. */
-		err = she_cmd_enc_ecb(hdl, key_id, input, output);
+		err = she_cmd_enc_ecb(hdl, key_ext, key_id, input, output);
 	}
 
 	(void)clock_gettime(CLOCK_MONOTONIC_RAW, &ts2);
@@ -390,19 +406,22 @@ static void she_test_ecb_dec(struct she_hdl_s *hdl, FILE *fp)
 {
 	uint32_t err = 1;
 	uint32_t expected_err;
-    uint8_t key_id;
-    uint8_t *input = NULL;
-    uint8_t *output = NULL;
-    uint8_t *reference = NULL;
-    struct timespec ts1, ts2;
-    uint64_t time_us;
-    uint32_t nb_iter, i;
+	uint8_t key_id;
+	uint8_t key_ext;
+	uint8_t *input = NULL;
+	uint8_t *output = NULL;
+	uint8_t *reference = NULL;
+	struct timespec ts1, ts2;
+	uint32_t nb_iter, i;
 
 	/* read number of iterations */
 	nb_iter = (uint8_t)read_single_data(fp);
 
 	/* read key ID */
 	key_id = (uint8_t)read_single_data(fp);
+
+	/* read key extension */
+	key_ext = (uint8_t)read_single_data(fp);
 
 	/* allocate memory for the input data and read them.*/
 	input = malloc(SHE_AES_BLOCK_SIZE_128);
@@ -420,7 +439,7 @@ static void she_test_ecb_dec(struct she_hdl_s *hdl, FILE *fp)
 
 	for (i=0; i<nb_iter; i++) {
 		/* Call the API to be tested. */
-		err = she_cmd_dec_ecb(hdl, key_id, input, output);
+		err = she_cmd_dec_ecb(hdl, key_ext, key_id, input, output);
 	}
 
 	(void)clock_gettime(CLOCK_MONOTONIC_RAW, &ts2);
@@ -445,7 +464,7 @@ static void she_test_load_key(struct she_hdl_s *hdl, FILE *fp)
 
 	/* read the expected error code. */
 	expected_err = read_single_data(fp);
-	err = she_cmd_load_key(hdl);
+	err = she_cmd_load_key(hdl, NULL, NULL, NULL, NULL, NULL);
 
 	/* Check there is no error reported. */
 	print_result(err, expected_err, NULL, NULL, 0);
@@ -475,10 +494,9 @@ int main(int argc, char *argv[])
 	struct she_hdl_s *hdl = NULL;
 	struct she_storage_context *storage_ctx = NULL;
 	char *line = NULL;
-    size_t len = 0;
-    ssize_t read;
-    uint16_t i;
-    uint32_t err;
+	size_t len = 0;
+	ssize_t read;
+	uint16_t i;
 
 	FILE *fp;
 

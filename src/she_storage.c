@@ -30,12 +30,12 @@ struct seco_nvm_header_s {
 };
 
 /* Storage export init command processing. */
-static uint32_t she_storage_export_init(struct she_storage_context *ctx, struct she_cmd_blob_export_init *msg, struct she_rsp_blob_export_init *resp)
+static uint32_t she_storage_export_init(struct she_storage_context *ctx, struct she_cmd_blob_export_init_msg *msg, struct she_cmd_blob_export_init_rsp *resp)
 {
 	uint64_t seco_addr;
 
 	/* Build the response. */
-	she_fill_rsp_msg_hdr(&resp->hdr, AHAB_SHE_CMD_STORAGE_EXPORT_INIT, sizeof(struct she_rsp_blob_export_init));
+	she_fill_rsp_msg_hdr(&resp->hdr, AHAB_SHE_CMD_STORAGE_EXPORT_INIT, sizeof(struct she_cmd_blob_export_init_rsp));
 
 	if (ctx->blob_buf) {
 		/* a previous storage export transaction may have failed.*/
@@ -69,11 +69,11 @@ static uint32_t she_storage_export_init(struct she_storage_context *ctx, struct 
 		resp->rsp_code = AHAB_SUCCESS_IND;
 	} while (0);
 
-	return sizeof(struct she_rsp_blob_export_init);
+	return sizeof(struct she_cmd_blob_export_init_rsp);
 }
 
 /* Storage export command processing. */
-static uint32_t she_storage_export(struct she_storage_context *ctx, struct she_cmd_blob_export *msg, struct she_rsp_blob_export *resp)
+static uint32_t she_storage_export(struct she_storage_context *ctx, struct she_cmd_blob_export_msg *msg, struct she_cmd_blob_export_rsp *resp)
 {
 	uint32_t l;
 	struct seco_nvm_header_s *blob_hdr;
@@ -97,16 +97,16 @@ static uint32_t she_storage_export(struct she_storage_context *ctx, struct she_c
 	}
 
 	/* Build the response. */
-	she_fill_rsp_msg_hdr(&resp->hdr, AHAB_SHE_CMD_STORAGE_EXPORT_REQ, sizeof(struct she_rsp_blob_export));
+	she_fill_rsp_msg_hdr(&resp->hdr, AHAB_SHE_CMD_STORAGE_EXPORT_REQ, sizeof(struct she_cmd_blob_export_rsp));
 
-	return sizeof(struct she_rsp_blob_export);
+	return sizeof(struct she_cmd_blob_export_rsp);
 }
 
 /* Storage import processing. Return 0 on success.  */
 static int32_t she_storage_import(struct she_storage_context *ctx)
 {
-	struct she_cmd_blob_import msg;
-	struct she_rsp_blob_import rsp;
+	struct she_cmd_blob_import_msg msg;
+	struct she_cmd_blob_import_rsp rsp;
 	uint64_t seco_addr;
 	struct seco_nvm_header_s blob_hdr;
 
@@ -137,20 +137,20 @@ static int32_t she_storage_import(struct she_storage_context *ctx)
 		seco_addr = she_platform_data_buf(ctx->hdl, blob_buf + sizeof(struct seco_nvm_header_s), blob_hdr.size, DATA_BUF_IS_INPUT | DATA_BUF_USE_SEC_MEM);
 
 		/* Prepare command message. */
-		she_fill_cmd_msg_hdr(&msg.hdr, AHAB_SHE_CMD_STORAGE_IMPORT_REQ, sizeof(struct she_cmd_blob_import));
+		she_fill_cmd_msg_hdr(&msg.hdr, AHAB_SHE_CMD_STORAGE_IMPORT_REQ, sizeof(struct she_cmd_blob_import_msg));
 		msg.load_address_ext = (seco_addr >> 32) & 0xFFFFFFFF;
 		msg.load_address = seco_addr & 0xFFFFFFFF;
 		msg.blob_size = blob_hdr.size;
 
 		/* Send the message to Seco. */
-		len = she_platform_send_mu_message(ctx->hdl, (uint32_t *)&msg, sizeof(struct she_cmd_blob_import));
-		if (len != sizeof(struct she_cmd_blob_import)) {
+		len = she_platform_send_mu_message(ctx->hdl, (uint8_t *)&msg, sizeof(struct she_cmd_blob_import_msg));
+		if (len != sizeof(struct she_cmd_blob_import_msg)) {
 			break;
 		}
 
 		/* Read the response. */
-		len = she_platform_read_mu_message(ctx->hdl, (uint32_t *)&rsp, sizeof(struct she_rsp_blob_import));
-		if (len != sizeof(struct she_rsp_blob_import)) {
+		len = she_platform_read_mu_message(ctx->hdl, (uint8_t *)&rsp, sizeof(struct she_cmd_blob_import_rsp));
+		if (len != sizeof(struct she_cmd_blob_import_rsp)) {
 			break;
 		}
 
@@ -172,23 +172,23 @@ static int32_t she_storage_import(struct she_storage_context *ctx)
 
 static uint32_t she_storage_setup_shared_buffer(struct she_storage_context *ctx)
 {
-	struct she_cmd_init cmd;
-	struct she_rsp_init rsp;
+	struct she_cmd_init_msg msg;
+	struct she_cmd_init_rsp rsp;
 	uint32_t err = 1;
 	uint32_t len;
 
 	do {
 		/* Prepare command message. */
-		she_fill_cmd_msg_hdr(&cmd.hdr, AHAB_SHE_INIT, sizeof(struct she_cmd_init));
+		she_fill_cmd_msg_hdr(&msg.hdr, AHAB_SHE_INIT, sizeof(struct she_cmd_init_msg));
 		/* Send the message to Seco. */
-		len = she_platform_send_mu_message(ctx->hdl, (uint32_t *)&cmd, sizeof(struct she_cmd_init));
-		if (len != sizeof(struct she_cmd_init)) {
+		len = she_platform_send_mu_message(ctx->hdl, (uint8_t *)&msg, sizeof(struct she_cmd_init_msg));
+		if (len != sizeof(struct she_cmd_init_msg)) {
 			break;
 		}
 
 		/* Read the response. */
-		len = she_platform_read_mu_message(ctx->hdl, (uint32_t *)&rsp, sizeof(struct she_rsp_init));
-		if (len != sizeof(struct she_rsp_init)) {
+		len = she_platform_read_mu_message(ctx->hdl, (uint8_t *)&rsp, sizeof(struct she_cmd_init_rsp));
+		if (len != sizeof(struct she_cmd_init_rsp)) {
 			break;
 		}
 
@@ -214,10 +214,8 @@ static void *she_storage_thread(void *arg) {
 
 	do {
 		/* Wait message on the NVM MU (blocking read). */
-		printf("STORAGE THREAD: waiting\n");
-		msg_len = she_platform_read_mu_message(ctx->hdl, msg_in, MAX_NVM_MSG_SIZE);
+		msg_len = she_platform_read_mu_message(ctx->hdl, (uint8_t *)msg_in, MAX_NVM_MSG_SIZE);
 
-		printf("STORAGE THREAD: got a message len: 0x%x\n", msg_len);
 		if (msg_len == 0) {
 			continue;
 		}
@@ -227,13 +225,13 @@ static void *she_storage_thread(void *arg) {
 		hdr = (struct she_mu_hdr *)&msg_in[0];
 		switch (hdr->command) {
 			case AHAB_SHE_CMD_STORAGE_EXPORT_INIT:
-			rsp_len = she_storage_export_init(ctx, (struct she_cmd_blob_export_init *)msg_in,
-						(struct she_rsp_blob_export_init *)msg_out);
+			rsp_len = she_storage_export_init(ctx, (struct she_cmd_blob_export_init_msg *)msg_in,
+						(struct she_cmd_blob_export_init_rsp *)msg_out);
 			break;
 
 			case AHAB_SHE_CMD_STORAGE_EXPORT_REQ:
-			rsp_len = she_storage_export(ctx, (struct she_cmd_blob_export *)msg_in,
-						(struct she_rsp_blob_export *)msg_out);
+			rsp_len = she_storage_export(ctx, (struct she_cmd_blob_export_msg *)msg_in,
+						(struct she_cmd_blob_export_rsp *)msg_out);
 			break;
 
 			case AHAB_SHE_CMD_STORAGE_IMPORT_REQ:
@@ -248,7 +246,7 @@ static void *she_storage_thread(void *arg) {
 
 		/* If there is a response to be sent to Seco then write it on the MU. */
 		if (rsp_len) {
-			(void)she_platform_send_mu_message(ctx->hdl, msg_out, rsp_len);
+			(void)she_platform_send_mu_message(ctx->hdl, (uint8_t *)msg_out, rsp_len);
 		}
 
 	} while (1);

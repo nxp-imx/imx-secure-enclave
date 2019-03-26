@@ -88,7 +88,7 @@ void she_platform_close_session(struct she_platform_hdl *phdl);
  *
  * \return length in bytes written to the MU (for error check by caller)
  */
-uint32_t she_platform_send_mu_message(struct she_platform_hdl *phdl, uint32_t *message, uint32_t size);
+uint32_t she_platform_send_mu_message(struct she_platform_hdl *phdl, uint8_t *message, uint32_t size);
 
 /**
  * Read a message from Seco over a messaging unit.
@@ -112,7 +112,7 @@ uint32_t she_platform_send_mu_message(struct she_platform_hdl *phdl, uint32_t *m
  * \param message pointer to the message itself. It has to be aligned on 32bits.
  * \param size size in bytes of the message. It has to be multiple of 4 bytes.
  */
-uint32_t she_platform_read_mu_message(struct she_platform_hdl *phdl, uint32_t *message, uint32_t size);
+uint32_t she_platform_read_mu_message(struct she_platform_hdl *phdl, uint8_t *message, uint32_t size);
 
 /**
  * Configure the use of shared buffer in secure memory
@@ -177,7 +177,7 @@ uint64_t she_platform_data_buf(struct she_platform_hdl *phdl, uint8_t *src, uint
  *
  * \return 0 on success. Any other value means error.
  */
-int32_t she_platform_create_thread(struct she_platform_hdl *phdl, void * (*func)(void *), void * arg);
+int32_t she_platform_create_thread(struct she_platform_hdl *phdl, void * (*func)(void *arg), void * arg);
 
 
 /**

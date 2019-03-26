@@ -19,11 +19,10 @@
  * \{
  */
 
-#include <stdint.h>
-
-
 #ifndef SHE_API_H
 #define SHE_API_H
+
+#include <stdint.h>
 
 /**
  * \brief Error codes returned by SHE functions.
@@ -45,8 +44,33 @@ typedef enum {
 } she_err_t;
 
 /**
+ * \brief Identifiers for SHE keys.
+ */
+#define SHE_KEY_1	 (0x04)
+#define SHE_KEY_2	 (0x05)
+#define SHE_KEY_3	 (0x06)
+#define SHE_KEY_4	 (0x07)
+#define SHE_KEY_5	 (0x08)
+#define SHE_KEY_6	 (0x09)
+#define SHE_KEY_7	 (0x0a)
+#define SHE_KEY_8	 (0x0b)
+#define SHE_KEY_9	 (0x0c)
+#define SHE_KEY_10	 (0x0d)
+#define SHE_RAM_KEY	 (0x0e)
+
+/**
+ * \brief Identifiers for SHE keys extensions
+ */
+#define SHE_KEY_DEFAULT	(0x00)		/**< no key extension: keys from 0 to 10 as defined in SHE specification. */
+#define SHE_KEY_N_EXT_1	(0x10)		/**< keys 11 to 20. */
+#define SHE_KEY_N_EXT_2	(0x20)		/**< keys 21 to 30. */
+#define SHE_KEY_N_EXT_3	(0x30)		/**< keys 31 to 40. */
+#define SHE_KEY_N_EXT_4	(0x40)		/**< keys 41 to 50. */
+
+
+/**
  * Initiate a SHE session.
- * The returned session handle pointer is typed with the transparent struct "she_hdl_s".
+ * The returned session handle pointer is typed with the struct "she_hdl_s".
  * The user doesn't need to know or to access the fields of this struct.
  * It only needs to store this pointer and pass it to every calls to other APIs within the same SHE session.
  *
@@ -68,6 +92,7 @@ void she_close_session(struct she_hdl_s *hdl);
  * Generates a MAC of a given message with the help of a key identified by key_id.
  *
  * \param hdl pointer to the SHE session handler
+ * \param key_ext identifier of the key extension to be used for the operation
  * \param key_id identifier of the key to be used for the operation
  * \param message_length lenght in bytes of the input message
  * \param message pointer to the message to be processed
@@ -75,7 +100,7 @@ void she_close_session(struct she_hdl_s *hdl);
  *
  * \return error code
  */
-she_err_t she_cmd_generate_mac(struct she_hdl_s *hdl, uint8_t key_id, uint32_t message_length, uint8_t *message, uint8_t *mac);
+she_err_t she_cmd_generate_mac(struct she_hdl_s *hdl, uint8_t key_ext, uint8_t key_id, uint32_t message_length, uint8_t *message, uint8_t *mac);
 #define SHE_MAC_SIZE 16 /**< size of the MAC generated is 128bits. */
 
 /**
@@ -83,6 +108,7 @@ she_err_t she_cmd_generate_mac(struct she_hdl_s *hdl, uint8_t key_id, uint32_t m
  * Verifies the MAC of a given message with the help of a key identified by key_id.
  *
  * \param hdl pointer to the SHE session handler
+ * \param key_ext identifier of the key extension to be used for the operation
  * \param key_id identifier of the key to be used for the operation
  * \param message_length lenght in bytes of the input message
  * \param message pointer to the message to be processed
@@ -92,7 +118,7 @@ she_err_t she_cmd_generate_mac(struct she_hdl_s *hdl, uint8_t key_id, uint32_t m
  *
  * \return error code
  */
-she_err_t she_cmd_verify_mac(struct she_hdl_s *hdl, uint8_t key_id, uint32_t message_length, uint8_t *message, uint8_t *mac, uint8_t mac_length, uint8_t *verification_status);
+she_err_t she_cmd_verify_mac(struct she_hdl_s *hdl, uint8_t key_ext, uint8_t key_id, uint32_t message_length, uint8_t *message, uint8_t *mac, uint8_t mac_length, uint8_t *verification_status);
 #define SHE_MAC_VERIFICATION_SUCCESS 0 /**< indication of mac verification success  */
 #define SHE_MAC_VERIFICATION_FAILED  1 /**< indication of mac verification failure */
 
@@ -101,6 +127,7 @@ she_err_t she_cmd_verify_mac(struct she_hdl_s *hdl, uint8_t key_id, uint32_t mes
  * CBC encryption of a given plaintext with the key identified by key_id.
  *
  * \param hdl pointer to the SHE session handler
+ * \param key_ext identifier of the key extension to be used for the operation
  * \param key_id identifier of the key to be used for the operation
  * \param data_length lenght in bytes of the plaintext and the cyphertext. Must be a multiple of 128bits.
  * \param iv pointer to the 128bits IV to use for the encryption.
@@ -109,7 +136,7 @@ she_err_t she_cmd_verify_mac(struct she_hdl_s *hdl, uint8_t key_id, uint32_t mes
  *
  * \return error code
  */
-she_err_t she_cmd_enc_cbc(struct she_hdl_s *hdl, uint8_t key_id, uint32_t data_length, uint8_t *iv, uint8_t *plaintext, uint8_t *ciphertext);
+she_err_t she_cmd_enc_cbc(struct she_hdl_s *hdl, uint8_t key_ext, uint8_t key_id, uint32_t data_length, uint8_t *iv, uint8_t *plaintext, uint8_t *ciphertext);
 #define SHE_AES_BLOCK_SIZE_128       16 /**< size in bytes of a 128bits CBC bloc */
 
 
@@ -117,6 +144,7 @@ she_err_t she_cmd_enc_cbc(struct she_hdl_s *hdl, uint8_t key_id, uint32_t data_l
  * CBC decryption of a given ciphertext with the key identified by key_id.
  *
  * \param hdl pointer to the SHE session handler
+ * \param key_ext identifier of the key extension to be used for the operation
  * \param key_id identifier of the key to be used for the operation
  * \param data_length lenght in bytes of the plaintext and the cyphertext. Must be a multiple of 128bits.
  * \param iv pointer to the 128bits IV to use for the decryption.
@@ -125,40 +153,147 @@ she_err_t she_cmd_enc_cbc(struct she_hdl_s *hdl, uint8_t key_id, uint32_t data_l
  *
  * \return error code
  */
-she_err_t she_cmd_dec_cbc(struct she_hdl_s *hdl, uint8_t key_id, uint32_t data_length, uint8_t *iv, uint8_t *ciphertext, uint8_t *plaintext);
+she_err_t she_cmd_dec_cbc(struct she_hdl_s *hdl, uint8_t key_ext, uint8_t key_id, uint32_t data_length, uint8_t *iv, uint8_t *ciphertext, uint8_t *plaintext);
 
 
 /**
  * ECB encryption of a given plaintext with the key identified by key_id.
  *
  * \param hdl pointer to the SHE session handler
+ * \param key_ext identifier of the key extension to be used for the operation
  * \param key_id identifier of the key to be used for the operation
  * \param plaintext pointer to the 128bits message to be encrypted.
  * \param ciphertext pointer to ciphertext output area (128bits).
  *
  * \return error code
  */
-she_err_t she_cmd_enc_ecb(struct she_hdl_s *hdl, uint8_t key_id, uint8_t *plaintext, uint8_t *ciphertext);
+she_err_t she_cmd_enc_ecb(struct she_hdl_s *hdl, uint8_t key_ext, uint8_t key_id, uint8_t *plaintext, uint8_t *ciphertext);
 
 
 /**
  * ECB decryption of a given ciphertext with the key identified by key_id.
  *
  * \param hdl pointer to the SHE session handler
+ * \param key_ext identifier of the key extension to be used for the operation
  * \param key_id identifier of the key to be used for the operation
  * \param ciphertext pointer to 128bits ciphertext to be decrypted.
  * \param plaintext pointer to the plaintext output area (128bits).
  *
  * \return error code
  */
-she_err_t she_cmd_dec_ecb(struct she_hdl_s *hdl, uint8_t key_id, uint8_t *ciphertext, uint8_t *plaintext);
+she_err_t she_cmd_dec_ecb(struct she_hdl_s *hdl, uint8_t key_ext, uint8_t key_id, uint8_t *ciphertext, uint8_t *plaintext);
 
 
 /**
- * Temporary: Entry point to test NVM storage.
- * Will be modified to support all parameters really needded by load key command.
+ * Update an internal key of SHE with the protocol specified by SHE.
+ *
+ * \param m1 pointer to M1 message - 128 bits
+ * \param m2 pointer to M2 message - 256 bits
+ * \param m3 pointer to M3 message - 128 bits
+ * \param m4 pointer to the output address for M4 message - 256 bits
+ * \param m5 pointer to the output address for M5 message - 128 bits
+ *
+ * \return error code
  */
-she_err_t she_cmd_load_key(struct she_hdl_s *hdl);
+she_err_t she_cmd_load_key(struct she_hdl_s *hdl, uint8_t *m1, uint8_t *m2, uint8_t *m3, uint8_t *m4, uint8_t *m5);
+#define SHE_KEY_SIZE 16 /** SHE keys are 128 bits (16 bytes) long. */
 
+
+/**
+ * Load a key as plaintext to the RAM_REY slot without encryption and verification.
+ *
+ * \param hdl pointer to the SHE session handler
+ * \param key pointer to the plaintext key to be loaded - 128bits
+ *
+ * \return error code
+ */
+she_err_t she_cmd_load_plain_key(struct she_hdl_s *hdl, uint8_t *key);
+
+
+/**
+ * exports the RAM_KEY into a format protected by SECRET_KEY.
+ *
+ * \param hdl pointer to the SHE session handler
+ * \param m1 pointer to the output address for M1 message - 128 bits
+ * \param m2 pointer to the output address for M2 message - 256 bits
+ * \param m3 pointer to the output address for M3 message - 128 bits
+ * \param m4 pointer to the output address for M4 message - 256 bits
+ * \param m5 pointer to the output address for M5 message - 128 bits
+ *
+ * \return error code
+ */
+she_err_t she_cmd_export_ram_key(struct she_hdl_s *hdl, uint8_t *m1, uint8_t *m2, uint8_t *m3, uint8_t *m4, uint8_t *m5);
+
+
+/**
+ * initializes the seed and derives a key for the PRNG.
+ * The function must be called before CMD_RND after every power cycle/reset.
+ *
+ * \param hdl pointer to the SHE session handler
+ *
+ * \return error code
+ */
+she_err_t she_cmd_init_rng(struct she_hdl_s *hdl);
+
+
+/**
+ * extends the seed of the PRNG by compressing the former seed value and the
+ * supplied entropy into a new seed which will be used to generate the following random numbers.
+ * The random number generator has to be initialized by CMD_INIT_RNG before the seed can
+ * be extended.
+ *
+ * \param hdl pointer to the SHE session handler
+ * \param entropy pointer to the entropy vector (128bits) to use for the operation
+ *
+ * \return error code
+ */
+she_err_t she_cmd_extend_seed(struct she_hdl_s *hdl, uint8_t *entropy);
+
+
+/**
+ * returns a vector of 128 random bits.
+ * The random number generator has to be initialized by CMD_INIT_RNG before random
+ * numbers can be supplied.
+ *
+ * \param hdl pointer to the SHE session handler
+ * \param rnd pointer to the output address for the generated 128bits random vector
+ *
+ * \return error code
+ */
+she_err_t she_cmd_rnd(struct she_hdl_s *hdl, uint8_t *rnd);
+
+/**
+ * returns the content of the status register
+ *
+ * \param hdl pointer to the SHE session handler
+ * \param sreg pointer to the output address for status register(8bits)
+ *
+ * \return error code
+ */
+she_err_t she_cmd_get_status(struct she_hdl_s *hdl, uint8_t *sreg);
+
+
+/**
+ * returns the identity (UID) and the value of the status register protected by a
+ * MAC over a challenge and the data.
+ *
+ * \param hdl pointer to the SHE session handler
+ * \param challenge pointer to the challenge vector (128bits)
+ * \param id pointer to the output address for the identity (120bits)
+ * \param sreg pointer to the output address for status register(8bits)
+ * \param mac pointer to the output address for the computed MAC (128bits)
+ *
+ * \return error code
+ */
+she_err_t she_cmd_get_id(struct she_hdl_s *hdl, uint8_t *challenge, uint8_t *id, uint8_t *sreg, uint8_t *mac);
+
+/**
+ * interrupt any given function and discard all calculations and results.
+ *
+ * \param hdl pointer to the SHE session handler
+ *
+ * \return error code
+ */
+she_err_t she_cmd_cancel(struct she_hdl_s *hdl);
 /** \}*/
 #endif

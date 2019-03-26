@@ -70,7 +70,7 @@ struct she_platform_hdl *she_platform_open_storage_session(void)
 			/* If open is successful then configure the device to accept incoming commands. */
 			if (ioctl(phdl->fd, SECO_MU_IOCTL_ENABLE_CMD_RCV)) {
 				free(phdl);
-				phdl = NULL;		
+				phdl = NULL;
 			}
 		}
 	}
@@ -87,18 +87,18 @@ void she_platform_close_session(struct she_platform_hdl *phdl)
 }
 
 /* Send a message to Seco on the MU. Return the size of the data written. */
-uint32_t she_platform_send_mu_message(struct she_platform_hdl *phdl, uint32_t *message, uint32_t size)
+uint32_t she_platform_send_mu_message(struct she_platform_hdl *phdl, uint8_t *message, uint32_t size)
 {
 	return write(phdl->fd, message, size);
 }
 
 /* Read a message from Seco on the MU. Return the size of the data that were read. */
-uint32_t she_platform_read_mu_message(struct she_platform_hdl *phdl, uint32_t *message, uint32_t size)
+uint32_t she_platform_read_mu_message(struct she_platform_hdl *phdl, uint8_t *message, uint32_t size)
 {
 	return read(phdl->fd, message, size);
 };
 
-/* Map the shared buffer allocated by Seco. */ 
+/* Map the shared buffer allocated by Seco. */
 int32_t she_platform_configure_shared_buf(struct she_platform_hdl *phdl, uint32_t shared_buf_off, uint32_t size)
 {
 	int32_t error;
@@ -130,7 +130,7 @@ uint64_t she_platform_data_buf(struct she_platform_hdl *phdl, uint8_t *src, uint
 }
 
 /* Start a new thread. Return 0 in case of success or an non-null code in case of error. */
-int32_t she_platform_create_thread(struct she_platform_hdl *phdl, void * (*func)(void *), void * arg)
+int32_t she_platform_create_thread(struct she_platform_hdl *phdl, void * (*func)(void *arg), void * arg)
 {
 	int32_t err;
 	err = pthread_create(&phdl->tid, NULL, func, arg);
@@ -175,7 +175,6 @@ uint32_t she_platform_storage_read(struct she_platform_hdl *phdl, uint8_t *dst, 
 {
 	int32_t fd = -1;
 	uint32_t l = 0;
-	uint32_t crc, crc_ref;
 
 	/* Open the file as read only. */
 	fd = open(SECO_NVM_DEFAULT_STORAGE_FILE, O_RDONLY);

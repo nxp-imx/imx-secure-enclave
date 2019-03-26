@@ -20,7 +20,7 @@ struct she_hdl_s {
 };
 
 /* Helper function to send a message and wait for the response. Return 0 on success.*/
-static int32_t she_send_msg_and_get_resp(struct she_hdl_s *hdl, uint32_t *cmd, uint32_t cmd_len, uint32_t *rsp, uint32_t rsp_len)
+static int32_t she_send_msg_and_get_resp(struct she_hdl_s *hdl, uint8_t *cmd, uint32_t cmd_len, uint8_t *rsp, uint32_t rsp_len)
 {
 	int32_t err = -1;
 	uint32_t len;
@@ -134,8 +134,8 @@ void she_close_session(struct she_hdl_s *hdl) {
 /* Open a SHE user session and return a pointer to the session handle. */
 struct she_hdl_s *she_open_session(void)
 {
-	struct she_cmd_init cmd;
-	struct she_rsp_init rsp;
+	struct she_cmd_init_msg cmd;
+	struct she_cmd_init_rsp rsp;
 	struct she_hdl_s *hdl = NULL;
 	int32_t error = 1;
 
@@ -153,10 +153,10 @@ struct she_hdl_s *she_open_session(void)
 		}
 
 		/* Send the init command to Seco. */
-		she_fill_cmd_msg_hdr(&cmd.hdr, AHAB_SHE_INIT, sizeof(struct she_cmd_init));
+		she_fill_cmd_msg_hdr(&cmd.hdr, AHAB_SHE_INIT, sizeof(struct she_cmd_init_msg));
 		error = she_send_msg_and_get_resp(hdl,
-					(uint32_t *)&cmd, sizeof(struct she_cmd_init),
-					(uint32_t *)&rsp, sizeof(struct she_rsp_init));
+					(uint8_t *)&cmd, sizeof(struct she_cmd_init_msg),
+					(uint8_t *)&rsp, sizeof(struct she_cmd_init_rsp));
 		if (error) {
 			break;
 		}
@@ -182,26 +182,25 @@ struct she_hdl_s *she_open_session(void)
 
 
 /* MAC generation command processing. */
-she_err_t she_cmd_generate_mac(struct she_hdl_s *hdl, uint8_t key_id, uint32_t message_length, uint8_t *message, uint8_t *mac)
+she_err_t she_cmd_generate_mac(struct she_hdl_s *hdl, uint8_t key_ext, uint8_t key_id, uint32_t message_length, uint8_t *message, uint8_t *mac)
 {
-	struct she_cmd_generate_mac cmd;
-	struct she_rsp_generate_mac rsp;
-	uint32_t len;
+	struct she_cmd_generate_mac_msg cmd;
+	struct she_cmd_generate_mac_rsp rsp;
 	int32_t error;
 	she_err_t err = ERC_GENERAL_ERROR;
 
 	do {
 		/* Build command message. */
-		she_fill_cmd_msg_hdr(&cmd.hdr, AHAB_SHE_CMD_GENERATE_MAC, sizeof(struct she_cmd_generate_mac));
-		cmd.key_id = key_id;
+		she_fill_cmd_msg_hdr(&cmd.hdr, AHAB_SHE_CMD_GENERATE_MAC, sizeof(struct she_cmd_generate_mac_msg));
+		cmd.key_id = (uint16_t)key_ext | (uint16_t)key_id;
 		cmd.data_length = message_length;
 		cmd.data_offset = she_platform_data_buf(hdl->phdl, message, message_length, DATA_BUF_IS_INPUT | DATA_BUF_USE_SEC_MEM | DATA_BUF_SHORT_ADDR) & SEC_MEM_SHORT_ADDR_MASK;
 		cmd.mac_offset = she_platform_data_buf(hdl->phdl, mac, SHE_MAC_SIZE, DATA_BUF_USE_SEC_MEM | DATA_BUF_SHORT_ADDR) & SEC_MEM_SHORT_ADDR_MASK;
 
 		/* Send the message to Seco. */
 		error = she_send_msg_and_get_resp(hdl,
-					(uint32_t *)&cmd, sizeof(struct she_cmd_generate_mac),
-					(uint32_t *)&rsp, sizeof(struct she_rsp_generate_mac));
+					(uint8_t *)&cmd, sizeof(struct she_cmd_generate_mac_msg),
+					(uint8_t *)&rsp, sizeof(struct she_cmd_generate_mac_rsp));
 		if (error) {
 			break;
 		}
@@ -219,17 +218,17 @@ she_err_t she_cmd_generate_mac(struct she_hdl_s *hdl, uint8_t key_id, uint32_t m
 }
 
 /* MAC verify command processing. */
-she_err_t she_cmd_verify_mac(struct she_hdl_s *hdl, uint8_t key_id, uint32_t message_length, uint8_t *message, uint8_t *mac, uint8_t mac_length, uint8_t *verification_status)
+she_err_t she_cmd_verify_mac(struct she_hdl_s *hdl, uint8_t key_ext, uint8_t key_id, uint32_t message_length, uint8_t *message, uint8_t *mac, uint8_t mac_length, uint8_t *verification_status)
 {
-	struct she_cmd_verify_mac cmd;
-	struct she_rsp_verify_mac rsp;
+	struct she_cmd_verify_mac_msg cmd;
+	struct she_cmd_verify_mac_rsp rsp;
 	int32_t error;
 	she_err_t ret = ERC_GENERAL_ERROR;
 
 	do {
 		/* Build command message. */
-		she_fill_cmd_msg_hdr(&cmd.hdr, AHAB_SHE_CMD_VERIFY_MAC, sizeof(struct she_cmd_verify_mac));
-		cmd.key_id = key_id;
+		she_fill_cmd_msg_hdr(&cmd.hdr, AHAB_SHE_CMD_VERIFY_MAC, sizeof(struct she_cmd_verify_mac_msg));
+		cmd.key_id = (uint16_t)key_ext | (uint16_t)key_id;
 		cmd.data_length = message_length;
 		/* input message at offset 0. MAC just after at offset "message_length". */
 		cmd.data_offset = (uint16_t) she_platform_data_buf(hdl->phdl, message, message_length, DATA_BUF_IS_INPUT | DATA_BUF_USE_SEC_MEM | DATA_BUF_SHORT_ADDR);
@@ -238,8 +237,8 @@ she_err_t she_cmd_verify_mac(struct she_hdl_s *hdl, uint8_t key_id, uint32_t mes
 
 		/* Send the message to Seco. */
 		error = she_send_msg_and_get_resp(hdl,
-					(uint32_t *)&cmd, sizeof(struct she_cmd_verify_mac),
-					(uint32_t *)&rsp, sizeof(struct she_rsp_verify_mac));
+					(uint8_t *)&cmd, sizeof(struct she_cmd_verify_mac_msg),
+					(uint8_t *)&rsp, sizeof(struct she_cmd_verify_mac_rsp));
 		if (error) {
 			break;
 		}
@@ -263,21 +262,19 @@ she_err_t she_cmd_verify_mac(struct she_hdl_s *hdl, uint8_t key_id, uint32_t mes
 }
 
 /* Generic function for encryption and decryption. */
-static she_err_t she_cmd_cipher(struct she_hdl_s *hdl, uint8_t key_id, uint32_t data_length, uint8_t *iv, uint8_t *input, uint8_t *output, uint8_t flags, uint8_t algo)
+static she_err_t she_cmd_cipher(struct she_hdl_s *hdl, uint8_t key_ext, uint8_t key_id, uint32_t data_length, uint8_t *iv, uint8_t *input, uint8_t *output, uint8_t flags, uint8_t algo)
 {
-	struct she_cmd_cipher cmd;
-	struct she_rsp_cipher rsp;
-	uint32_t len;
-	uint32_t shared_mem_offset;
+	struct she_cmd_cipher_msg cmd;
+	struct she_cmd_cipher_rsp rsp;
 	int32_t error;
 	uint64_t seco_iv_addr, seco_input_addr, seco_output_addr;
 	she_err_t err = ERC_GENERAL_ERROR;
 
 	do {
 		/* Build command message. */
-		she_fill_cmd_msg_hdr(&cmd.hdr, AHAB_SHE_CMD_CIPHER_REQ, sizeof(struct she_cmd_cipher));
+		she_fill_cmd_msg_hdr(&cmd.hdr, AHAB_SHE_CMD_CIPHER_REQ, sizeof(struct she_cmd_cipher_msg));
 
-		cmd.key_id = key_id;
+		cmd.key_id = (uint16_t)key_ext | (uint16_t)key_id;
 		cmd.algo = algo;
 		cmd.flags = flags;
 		if (algo != SHE_CIPHER_ALGO_ECB) {
@@ -302,8 +299,8 @@ static she_err_t she_cmd_cipher(struct she_hdl_s *hdl, uint8_t key_id, uint32_t 
 
 		/* Send the message to Seco. */
 		error = she_send_msg_and_get_resp(hdl,
-					(uint32_t *)&cmd, sizeof(struct she_cmd_cipher),
-					(uint32_t *)&rsp, sizeof(struct she_rsp_cipher));
+					(uint8_t *)&cmd, sizeof(struct she_cmd_cipher_msg),
+					(uint8_t *)&rsp, sizeof(struct she_cmd_cipher_rsp));
 		if (error) {
 			break;
 		}
@@ -320,46 +317,45 @@ static she_err_t she_cmd_cipher(struct she_hdl_s *hdl, uint8_t key_id, uint32_t 
 }
 
 /* CBC encrypt command. */
-she_err_t she_cmd_enc_cbc(struct she_hdl_s *hdl, uint8_t key_id, uint32_t data_length, uint8_t *iv, uint8_t *plaintext, uint8_t *ciphertext)
+she_err_t she_cmd_enc_cbc(struct she_hdl_s *hdl, uint8_t key_ext, uint8_t key_id, uint32_t data_length, uint8_t *iv, uint8_t *plaintext, uint8_t *ciphertext)
 {
-	return she_cmd_cipher(hdl, key_id, data_length, iv, plaintext, ciphertext, SHE_CIPHER_FLAG_ENCRYPT, SHE_CIPHER_ALGO_CBC);
+	return she_cmd_cipher(hdl, key_ext, key_id, data_length, iv, plaintext, ciphertext, SHE_CIPHER_FLAG_ENCRYPT, SHE_CIPHER_ALGO_CBC);
 }
 
 /* CBC decrypt command. */
-she_err_t she_cmd_dec_cbc(struct she_hdl_s *hdl, uint8_t key_id, uint32_t data_length, uint8_t *iv, uint8_t *ciphertext, uint8_t *plaintext)
+she_err_t she_cmd_dec_cbc(struct she_hdl_s *hdl, uint8_t key_ext, uint8_t key_id, uint32_t data_length, uint8_t *iv, uint8_t *ciphertext, uint8_t *plaintext)
 {
-	return she_cmd_cipher(hdl, key_id, data_length, iv, ciphertext, plaintext, SHE_CIPHER_FLAG_DECRYPT, SHE_CIPHER_ALGO_CBC);
+	return she_cmd_cipher(hdl, key_ext, key_id, data_length, iv, ciphertext, plaintext, SHE_CIPHER_FLAG_DECRYPT, SHE_CIPHER_ALGO_CBC);
 }
 
 /* ECB encrypt command. */
-she_err_t she_cmd_enc_ecb(struct she_hdl_s *hdl, uint8_t key_id, uint8_t *plaintext, uint8_t *ciphertext)
+she_err_t she_cmd_enc_ecb(struct she_hdl_s *hdl, uint8_t key_ext, uint8_t key_id, uint8_t *plaintext, uint8_t *ciphertext)
 {
-	return she_cmd_cipher(hdl, key_id, SHE_AES_BLOCK_SIZE_128, NULL, plaintext, ciphertext, SHE_CIPHER_FLAG_ENCRYPT, SHE_CIPHER_ALGO_ECB);
+	return she_cmd_cipher(hdl, key_ext, key_id, SHE_AES_BLOCK_SIZE_128, NULL, plaintext, ciphertext, SHE_CIPHER_FLAG_ENCRYPT, SHE_CIPHER_ALGO_ECB);
 }
 
 /* ECB decrypt command. */
-she_err_t she_cmd_dec_ecb(struct she_hdl_s *hdl, uint8_t key_id, uint8_t *ciphertext, uint8_t *plaintext)
+she_err_t she_cmd_dec_ecb(struct she_hdl_s *hdl, uint8_t key_ext, uint8_t key_id, uint8_t *ciphertext, uint8_t *plaintext)
 {
-	return she_cmd_cipher(hdl, key_id, SHE_AES_BLOCK_SIZE_128, NULL, ciphertext, plaintext, SHE_CIPHER_FLAG_DECRYPT, SHE_CIPHER_ALGO_ECB);
+	return she_cmd_cipher(hdl, key_ext, key_id, SHE_AES_BLOCK_SIZE_128, NULL, ciphertext, plaintext, SHE_CIPHER_FLAG_DECRYPT, SHE_CIPHER_ALGO_ECB);
 }
 
 /* Load key command processing. */
-she_err_t she_cmd_load_key(struct she_hdl_s *hdl)
+she_err_t she_cmd_load_key(struct she_hdl_s *hdl, uint8_t *m1, uint8_t *m2, uint8_t *m3, uint8_t *m4, uint8_t *m5)
 {
-	struct she_cmd_load_key cmd;
-	struct she_rsp_load_key rsp;
-	uint32_t len;
+	struct she_cmd_load_key_msg cmd;
+	struct she_cmd_load_key_rsp rsp;
 	int32_t error;
 	she_err_t err = ERC_GENERAL_ERROR;
 
 	do {
 		/* Build command message. */
-		she_fill_cmd_msg_hdr(&cmd.hdr, AHAB_SHE_CMD_LOAD_KEY, sizeof(struct she_cmd_load_key));
+		she_fill_cmd_msg_hdr(&cmd.hdr, AHAB_SHE_CMD_LOAD_KEY, sizeof(struct she_cmd_load_key_msg));
 
 		/* Send the message to Seco. */
 		error = she_send_msg_and_get_resp(hdl,
-					(uint32_t *)&cmd, sizeof(struct she_cmd_load_key),
-					(uint32_t *)&rsp, sizeof(struct she_rsp_load_key));
+					(uint8_t *)&cmd, sizeof(struct she_cmd_load_key_msg),
+					(uint8_t *)&rsp, sizeof(struct she_cmd_load_key_rsp));
 		if (error) {
 			break;
 		}
@@ -372,6 +368,60 @@ she_err_t she_cmd_load_key(struct she_hdl_s *hdl)
 		/* Success. */
 		err = ERC_NO_ERROR;
 	} while (0);
+
+	return err;
+}
+
+she_err_t she_cmd_load_plain_key(struct she_hdl_s *hdl, uint8_t *key) {
+	she_err_t err = ERC_GENERAL_ERROR;
+
+	return err;
+}
+
+
+she_err_t she_cmd_export_ram_key(struct she_hdl_s *hdl, uint8_t *m1, uint8_t *m2, uint8_t *m3, uint8_t *m4, uint8_t *m5) {
+	she_err_t err = ERC_GENERAL_ERROR;
+
+	return err;
+}
+
+she_err_t she_cmd_init_rng(struct she_hdl_s *hdl) {
+	she_err_t err = ERC_GENERAL_ERROR;
+
+	return err;
+}
+
+
+she_err_t she_cmd_extend_seed(struct she_hdl_s *hdl, uint8_t *entropy) {
+	she_err_t err = ERC_GENERAL_ERROR;
+
+	return err;
+}
+
+
+she_err_t she_cmd_rnd(struct she_hdl_s *hdl, uint8_t *rnd) {
+	she_err_t err = ERC_GENERAL_ERROR;
+
+	return err;
+}
+
+
+she_err_t she_cmd_get_status(struct she_hdl_s *hdl, uint8_t *sreg) {
+	she_err_t err = ERC_GENERAL_ERROR;
+
+	return err;
+}
+
+
+she_err_t she_cmd_get_id(struct she_hdl_s *hdl, uint8_t *challenge, uint8_t *id, uint8_t *sreg, uint8_t *mac) {
+	she_err_t err = ERC_GENERAL_ERROR;
+
+	return err;
+}
+
+
+she_err_t she_cmd_cancel(struct she_hdl_s *hdl) {
+	she_err_t err = ERC_GENERAL_ERROR;
 
 	return err;
 }

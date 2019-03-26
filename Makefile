@@ -1,22 +1,25 @@
 all: she_test
 
 # Placeholder for platform specific implementation
-she_platform_lib.o: src/she_linux.c
+platform_lib.o: src/seco_mu_linux.c
 	$(CC) $^  -c -o $@ -I include
 
-she_lib.o: src/she_generic.c
+# SHE implementation
+she_lib.o: src/she_lib.c
 	$(CC) $^  -c -o $@ -I include
 
+# SHE storage implementation
 she_storage.o: src/she_storage.c
 	$(CC) $^  -c -o $@ -I include
 
-she_test: test/she_test.c she_lib.o she_storage.o she_platform_lib.o include/she_api.h
+#SHE test app
+she_test: test/she_test.c she_lib.o she_storage.o platform_lib.o include/she_api.h
 	$(CC) $^  -o $@ -I include -lpthread -lz
 
 clean:
-	rm -rf she_test she_lib.o she_platform_lib.o she_storage.o
+	rm -rf she_test she_lib.o platform_lib.o she_storage.o
 
-she_doc: include/she_api.h
+she_doc: include/she_api.h include/she_storage.h
 	rm -rf doc/latex/
 	doxygen doc/she/Doxyfile
 	make -C ./doc/latex pdf

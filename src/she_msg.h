@@ -71,7 +71,7 @@ static inline void she_fill_rsp_msg_hdr(struct she_mu_hdr *hdr, uint8_t cmd, uin
 
 /* MAC generation */
 
-struct she_cmd_generate_mac {
+struct she_cmd_generate_mac_msg {
 	struct she_mu_hdr hdr;
 	uint16_t key_id;
 	uint16_t data_length;
@@ -79,14 +79,14 @@ struct she_cmd_generate_mac {
 	uint16_t mac_offset;
 };
 
-struct she_rsp_generate_mac {
+struct she_cmd_generate_mac_rsp {
 	struct she_mu_hdr header;
 	uint32_t rsp_code;
 };
 
 /* MAC verify */
 
-struct she_cmd_verify_mac{
+struct she_cmd_verify_mac_msg{
 	struct she_mu_hdr hdr;
 	uint16_t key_id;
 	uint16_t data_length;
@@ -96,7 +96,7 @@ struct she_cmd_verify_mac{
 	uint16_t pad;
 };
 
-struct she_rsp_verify_mac{
+struct she_cmd_verify_mac_rsp{
 	struct she_mu_hdr hdr;
 	uint32_t rsp_code;
 	uint32_t verification_status;
@@ -104,18 +104,18 @@ struct she_rsp_verify_mac{
 
 /* CBC */
 
-struct she_cmd_cipher{
+struct she_cmd_cipher_msg{
 	struct she_mu_hdr hdr;
-    uint16_t key_id;
-    uint8_t  algo;
-    uint8_t  flags;
-    uint32_t inputs_address_ext;
-    uint32_t outputs_address_ext;
-    uint32_t iv_address;
-    uint32_t input_address;
-    uint32_t output_address;
-    uint32_t data_length;
-    uint32_t crc;
+	uint16_t key_id;
+	uint8_t  algo;
+	uint8_t  flags;
+	uint32_t inputs_address_ext;
+	uint32_t outputs_address_ext;
+	uint32_t iv_address;
+	uint32_t input_address;
+	uint32_t output_address;
+	uint32_t data_length;
+	uint32_t crc;
 };
 #define SHE_CIPHER_ALGO_ECB 0x00
 #define SHE_CIPHER_ALGO_CBC 0x01
@@ -123,64 +123,64 @@ struct she_cmd_cipher{
 #define SHE_CIPHER_FLAG_ENCRYPT 0x01
 
 
-struct she_rsp_cipher{
+struct she_cmd_cipher_rsp{
 	struct she_mu_hdr hdr;
 	uint32_t rsp_code;
 };
 
 /* Load key */
 
-struct she_cmd_load_key {
+struct she_cmd_load_key_msg {
 	struct she_mu_hdr hdr;
 };
 
-struct she_rsp_load_key  {
+struct she_cmd_load_key_rsp  {
 	struct she_mu_hdr hdr;
 	uint32_t rsp_code;
 };
 
 /* SHE inititalization */
 
-struct she_cmd_init {
+struct she_cmd_init_msg {
 	struct she_mu_hdr hdr;
 };
 
-struct she_rsp_init {
+struct she_cmd_init_rsp {
 	struct she_mu_hdr hdr;
 	uint32_t rsp_code;
 	uint16_t shared_buf_offset;
 	uint16_t shared_buf_size;
 };
 
-struct she_cmd_blob_export_init{
+struct she_cmd_blob_export_init_msg {
 	struct she_mu_hdr hdr;
 	uint32_t blob_size;
 };
 
-struct she_rsp_blob_export_init{
+struct she_cmd_blob_export_init_rsp {
 	struct she_mu_hdr hdr;
 	uint32_t rsp_code;
 	uint32_t load_address_ext;
 	uint32_t load_address;
 };
 
-struct she_cmd_blob_export {
+struct she_cmd_blob_export_msg {
 	struct she_mu_hdr hdr;
 };
 
-struct she_rsp_blob_export {
+struct she_cmd_blob_export_rsp {
 	struct she_mu_hdr hdr;
 	uint32_t rsp_code;
 };
 
-struct she_cmd_blob_import {
+struct she_cmd_blob_import_msg {
 	struct she_mu_hdr hdr;
 	uint32_t load_address_ext;
 	uint32_t load_address;
 	uint32_t blob_size;
 };
 
-struct she_rsp_blob_import {
+struct she_cmd_blob_import_rsp {
 	struct she_mu_hdr hdr;
 	uint32_t rsp_code;
 };
