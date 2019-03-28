@@ -95,7 +95,7 @@ static void print_perf(struct timespec *ts1, struct timespec *ts2, uint32_t nb_i
     uint64_t time_us;
 
 	time_us = (uint64_t)(ts2->tv_sec - ts1->tv_sec)*1000000 + (ts2->tv_nsec - ts1->tv_nsec)/1000;
-	(void)printf("%d microseconds per operation (%d iterations).\n", time_us/nb_iter, nb_iter);
+	(void)printf("%ld microseconds per operation (%d iterations).\n", time_us/nb_iter, nb_iter);
 }
 
 
@@ -509,7 +509,7 @@ int main(int argc, char *argv[])
 				if (memcmp(line, she_tests[i].name, strlen(she_tests[i].name)) == 0) {
 					printf("test: %s", line);
 					she_tests[i].func(hdl, fp);
-					printf("\n", line);
+					printf("\n");
 				}
 			}
 		}
