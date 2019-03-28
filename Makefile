@@ -1,3 +1,4 @@
+all: she_test
 
 # Placeholder for platform specific implementation
 she_platform_lib.o: src/she_linux.c
