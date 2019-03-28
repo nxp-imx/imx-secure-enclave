@@ -15,11 +15,16 @@
 #include "she_msg.h"
 #include "she_platform.h"
 
+#define SHE_DEFAULT_DID	0x0
+#define SHE_DEFAULT_TZ	0x0
+#define SHE_DEFAULT_MU	0x1
+
+
 struct she_hdl_s {
 	struct she_platform_hdl *phdl;
 	uint32_t session_handle;
 	uint32_t key_store_handle;
-	uint32_t service;
+	uint32_t cipher_handle;
 };
 
 static uint32_t she_compute_msg_crc(uint32_t *msg, uint32_t msg_len) {
@@ -152,6 +157,8 @@ static she_err_t she_open_key_store(struct she_hdl_s *hdl)
 		cmd.sesssion_handle = hdl->session_handle;
 		cmd.key_store_id = 0;
 		cmd.password = 0xBEC00001;
+		cmd.input_address_ext = 0;
+		cmd.output_address_ext = 0;
 		error = she_send_msg_and_get_resp(hdl,
 					(uint32_t *)&cmd, sizeof(struct ahab_cmd_key_store_open_s),
 					(uint32_t *)&rsp, sizeof(struct ahab_rsp_key_store_open_s));
@@ -202,8 +209,13 @@ static she_err_t she_open_cipher(struct she_hdl_s *hdl)
 	int32_t error = 1;
 	do {
 
+		if (hdl->cipher_handle != 0) {
+			break;
+		}
 		/* Send the keys store open command to Seco. */
 		she_fill_cmd_msg_hdr(&cmd.hdr, AHAB_CIPHER_OPEN, sizeof(struct ahab_cmd_cipher_open_s));
+		cmd.input_address_ext = 0;
+		cmd.output_address_ext = 0;
 		cmd.key_store_handle = hdl->key_store_handle;
 		error = she_send_msg_and_get_resp(hdl,
 					(uint32_t *)&cmd, sizeof(struct ahab_cmd_cipher_open_s),
@@ -213,7 +225,7 @@ static she_err_t she_open_cipher(struct she_hdl_s *hdl)
 			break;
 		}
 
-		hdl->service = rsp.cipher_handle;
+		hdl->cipher_handle = rsp.cipher_handle;
 		/* Success. */
 		err = ERC_NO_ERROR;
 	} while(0);
@@ -227,10 +239,12 @@ static she_err_t she_close_cipher(struct she_hdl_s *hdl)
 	she_err_t err = ERC_GENERAL_ERROR;
 	int32_t error = 1;
 	do {
-
+		if (hdl->cipher_handle == 0){
+			break;
+		}
 		/* Send the keys store open command to Seco. */
 		she_fill_cmd_msg_hdr(&cmd.hdr, AHAB_CIPHER_CLOSE, sizeof(struct ahab_cmd_cipher_close_s));
-		cmd.cipher_handle = hdl->service;
+		cmd.cipher_handle = hdl->cipher_handle;
 		error = she_send_msg_and_get_resp(hdl,
 					(uint32_t *)&cmd, sizeof(struct ahab_cmd_cipher_close_s),
 					(uint32_t *)&rsp, sizeof(struct ahab_rsp_chiper_close_s));
@@ -238,7 +252,7 @@ static she_err_t she_close_cipher(struct she_hdl_s *hdl)
 			break;
 		}
 
-		hdl->service = 0;
+		hdl->cipher_handle = 0;
 		/* Success. */
 		err = ERC_NO_ERROR;
 	} while(0);
@@ -268,9 +282,10 @@ struct she_hdl_s *she_open_session(void)
 
 		/* Send the session open command to Seco. */
 		she_fill_cmd_msg_hdr((struct she_mu_hdr *)cmd, AHAB_SESSION_OPEN, sizeof(struct ahab_cmd_session_open_s));
-		((struct ahab_cmd_session_open_s *)cmd) -> did = 0;
-		((struct ahab_cmd_session_open_s *)cmd) -> tz = 0;
-		((struct ahab_cmd_session_open_s *)cmd) -> mu_id = 1;
+		((struct ahab_cmd_session_open_s *)cmd) -> did = SHE_DEFAULT_DID;
+		((struct ahab_cmd_session_open_s *)cmd) -> tz = SHE_DEFAULT_TZ;
+		((struct ahab_cmd_session_open_s *)cmd) -> mu_id = SHE_DEFAULT_MU;
+
 		error = she_send_msg_and_get_resp(hdl,
 					cmd, sizeof(struct ahab_cmd_session_open_s),
 					rsp, sizeof(struct ahab_rsp_session_open_s));
@@ -320,9 +335,6 @@ she_err_t she_cmd_generate_mac(struct she_hdl_s *hdl, uint8_t key_ext, uint8_t k
 	she_err_t err = ERC_GENERAL_ERROR;
 
 	do {
-		if(she_open_cipher(hdl) != 0) {
-			break;
-		}
 
 		/* Build command message. */
 		she_fill_cmd_msg_hdr(&cmd.hdr, AHAB_SHE_CMD_GENERATE_MAC, (uint32_t)sizeof(struct she_cmd_generate_mac_msg));
@@ -344,9 +356,6 @@ she_err_t she_cmd_generate_mac(struct she_hdl_s *hdl, uint8_t key_ext, uint8_t k
 			break;
 		}
 
-		if(she_close_cipher(hdl) != 0) {
-			break;
-		}
 		/* Success. */
 		err = ERC_NO_ERROR;
 	} while (false);
@@ -401,45 +410,54 @@ she_err_t she_cmd_verify_mac(struct she_hdl_s *hdl, uint8_t key_ext, uint8_t key
 /* Generic function for encryption and decryption. */
 static she_err_t she_cmd_cipher(struct she_hdl_s *hdl, uint8_t key_ext, uint8_t key_id, uint32_t data_length, uint8_t *iv, uint8_t *input, uint8_t *output, uint8_t flags, uint8_t algo)
 {
-	struct she_cmd_cipher_msg cmd;
-	struct she_cmd_cipher_rsp rsp;
+	struct ahab_cmd_cipher_one_go_s cmd;
+	struct ahab_rsp_cipher_one_go_s rsp;
+	uint32_t len;
+	uint32_t shared_mem_offset;
 	int32_t error;
 	uint64_t seco_iv_addr, seco_input_addr, seco_output_addr;
+	uint16_t iv_size;
 	she_err_t err = ERC_GENERAL_ERROR;
 
 	do {
-		/* Build command message. */
-		she_fill_cmd_msg_hdr(&cmd.hdr, AHAB_SHE_CMD_CIPHER_REQ, (uint32_t)sizeof(struct she_cmd_cipher_msg));
-
-		cmd.key_id = (uint16_t)key_ext | (uint16_t)key_id;
-		cmd.algo = algo;
-		cmd.flags = flags;
-		if (algo != SHE_CIPHER_ALGO_ECB) {
-			seco_iv_addr = she_platform_data_buf(hdl->phdl, iv, SHE_AES_BLOCK_SIZE_128, DATA_BUF_IS_INPUT | DATA_BUF_USE_SEC_MEM);
-		} else {
-			seco_iv_addr = 0;
+		if(she_open_cipher(hdl) != 0) {
+			break;
 		}
+
+		/* Build command message. */
+		she_fill_cmd_msg_hdr(&cmd.hdr, AHAB_SHE_CMD_CIPHER_REQ, (uint32_t)sizeof(struct ahab_cmd_cipher_one_go_s));
+		cmd.cipher_handle = hdl->cipher_handle;
+		cmd.key_id = (uint16_t)key_ext | (uint16_t)key_id;		cmd.algo = algo;
+		cmd.flags = flags;
+
+		if (algo == AHAB_CIPHER_ONE_GO_ALGO_ECB) {
+			seco_iv_addr = 0;
+			iv_size = 0;
+		}
+		else if (algo == AHAB_CIPHER_ONE_GO_ALGO_CBC) {
+			seco_iv_addr = she_platform_data_buf(hdl->phdl, iv, SHE_AES_BLOCK_SIZE_128, DATA_BUF_IS_INPUT | DATA_BUF_USE_SEC_MEM);
+			iv_size = SHE_AES_BLOCK_SIZE_128;
+		} else {
+			break;
+		}
+
 		seco_input_addr = she_platform_data_buf(hdl->phdl, input, data_length, DATA_BUF_IS_INPUT | DATA_BUF_USE_SEC_MEM);
 		seco_output_addr = she_platform_data_buf(hdl->phdl, output, data_length, DATA_BUF_USE_SEC_MEM);
 
-		cmd.inputs_address_ext = (uint32_t)((seco_input_addr >> 32u) & 0xFFFFFFFFu);
-		/* all inputs addresses must have same 32bits MSB . */
-		if ((algo != SHE_CIPHER_ALGO_ECB) && (cmd.inputs_address_ext != (uint32_t)((seco_iv_addr >> 32u) & 0xFFFFFFFFu))) {
-			break;
-		}
-		cmd.outputs_address_ext = (uint32_t)((seco_output_addr >> 32u) & 0xFFFFFFFFu);
 		/* Keep same layout in secure ram even for algos not using IV to simplify code here. */
 		cmd.iv_address = (uint32_t)(seco_iv_addr & 0xFFFFFFFFu);
 		cmd.input_address = (uint32_t)(seco_input_addr & 0xFFFFFFFFu);
 		cmd.output_address = (uint32_t)(seco_output_addr & 0xFFFFFFFFu);
 		cmd.data_length = data_length;
-		cmd.crc = she_compute_msg_crc(cmd.words, (uint32_t)(sizeof(cmd.words) - sizeof(uint32_t)));
+		cmd.iv_size = iv_size;
+		cmd.crc = she_compute_msg_crc((uint32_t*)&cmd, (uint32_t)(sizeof(cmd) - sizeof(uint32_t)));
+
 
 		/* Send the message to Seco. */
 		error = she_send_msg_and_get_resp(hdl,
-					(uint32_t *)&cmd, (uint32_t)sizeof(struct she_cmd_cipher_msg),
-					(uint32_t *)&rsp, (uint32_t)sizeof(struct she_cmd_cipher_rsp));
-		if (error != 0) {
+					(uint32_t *)&cmd, sizeof(struct ahab_cmd_cipher_one_go_s),
+					(uint32_t *)&rsp, sizeof(struct ahab_rsp_cipher_one_go_s));
+		if (error) {
 			break;
 		}
 
@@ -451,31 +469,36 @@ static she_err_t she_cmd_cipher(struct she_hdl_s *hdl, uint8_t key_ext, uint8_t 
 		err = ERC_NO_ERROR;
 	} while (false);
 
+	if(she_close_cipher(hdl) != 0) {
+		err = ERC_GENERAL_ERROR;
+	}
+
+
 	return err;
 }
 
 /* CBC encrypt command. */
 she_err_t she_cmd_enc_cbc(struct she_hdl_s *hdl, uint8_t key_ext, uint8_t key_id, uint32_t data_length, uint8_t *iv, uint8_t *plaintext, uint8_t *ciphertext)
 {
-	return she_cmd_cipher(hdl, key_ext, key_id, data_length, iv, plaintext, ciphertext, SHE_CIPHER_FLAG_ENCRYPT, SHE_CIPHER_ALGO_CBC);
+	return she_cmd_cipher(hdl, key_ext, key_id, data_length, iv, plaintext, ciphertext, AHAB_CIPHER_ONE_GO_FLAGS_ENCRYPT, AHAB_CIPHER_ONE_GO_ALGO_CBC);
 }
 
 /* CBC decrypt command. */
 she_err_t she_cmd_dec_cbc(struct she_hdl_s *hdl, uint8_t key_ext, uint8_t key_id, uint32_t data_length, uint8_t *iv, uint8_t *ciphertext, uint8_t *plaintext)
 {
-	return she_cmd_cipher(hdl, key_ext, key_id, data_length, iv, ciphertext, plaintext, SHE_CIPHER_FLAG_DECRYPT, SHE_CIPHER_ALGO_CBC);
+	return she_cmd_cipher(hdl, key_ext, key_id, data_length, iv, ciphertext, plaintext, AHAB_CIPHER_ONE_GO_FLAGS_DECRYPT, AHAB_CIPHER_ONE_GO_ALGO_CBC);
 }
 
 /* ECB encrypt command. */
 she_err_t she_cmd_enc_ecb(struct she_hdl_s *hdl, uint8_t key_ext, uint8_t key_id, uint8_t *plaintext, uint8_t *ciphertext)
 {
-	return she_cmd_cipher(hdl, key_ext, key_id, SHE_AES_BLOCK_SIZE_128, NULL, plaintext, ciphertext, SHE_CIPHER_FLAG_ENCRYPT, SHE_CIPHER_ALGO_ECB);
+	return she_cmd_cipher(hdl, key_ext, key_id, SHE_AES_BLOCK_SIZE_128, NULL, plaintext, ciphertext, AHAB_CIPHER_ONE_GO_FLAGS_ENCRYPT, AHAB_CIPHER_ONE_GO_ALGO_ECB);
 }
 
 /* ECB decrypt command. */
 she_err_t she_cmd_dec_ecb(struct she_hdl_s *hdl, uint8_t key_ext, uint8_t key_id, uint8_t *ciphertext, uint8_t *plaintext)
 {
-	return she_cmd_cipher(hdl, key_ext, key_id, SHE_AES_BLOCK_SIZE_128, NULL, ciphertext, plaintext, SHE_CIPHER_FLAG_DECRYPT, SHE_CIPHER_ALGO_ECB);
+	return she_cmd_cipher(hdl, key_ext, key_id, SHE_AES_BLOCK_SIZE_128, NULL, ciphertext, plaintext, AHAB_CIPHER_ONE_GO_FLAGS_DECRYPT, AHAB_CIPHER_ONE_GO_ALGO_ECB);
 }
 
 /* Load key command processing. */
