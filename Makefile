@@ -1,5 +1,7 @@
 all: she_test
 
+all: she_test
+
 # Placeholder for platform specific implementation
 platform_lib.o: src/seco_mu_linux.c
 	$(CC) $^  -c -o $@ -I include

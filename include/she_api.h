@@ -291,6 +291,8 @@ she_err_t she_cmd_get_status(struct she_hdl_s *hdl, uint8_t *sreg);
  * \return error code
  */
 she_err_t she_cmd_get_id(struct she_hdl_s *hdl, uint8_t *challenge, uint8_t *id, uint8_t *sreg, uint8_t *mac);
+#define SHE_CHALLENGE_SIZE 16u /* 128 bits */
+#define SHE_ID_SIZE 15u /* 120 bits */
 
 /**
  * interrupt any given function and discard all calculations and results.

@@ -541,6 +541,59 @@ static void she_test_rnd(struct she_hdl_s *hdl, FILE *fp) {
 }
 
 
+/* get Status test*/
+static void she_test_get_status(struct she_hdl_s *hdl, FILE *fp)
+{
+    she_err_t err = 1;
+    she_err_t expected_err;
+    uint8_t status;
+    uint8_t expected_status;
+
+    expected_status = (uint8_t)read_single_data(fp);
+
+    expected_err = (she_err_t)read_single_data(fp);
+
+    err = she_cmd_get_status(hdl, &status);
+
+    print_result(err, expected_err, &status, &expected_status, (uint32_t)sizeof(uint8_t));
+}
+
+
+/* get ID test*/
+static void she_test_get_id(struct she_hdl_s *hdl, FILE *fp)
+{
+    she_err_t err = 1;
+    she_err_t expected_err;
+    uint8_t *challenge;
+    uint8_t *output, *id, *mac, *status;
+    uint8_t *reference, *id_ref, *mac_ref, *status_ref; 
+
+    challenge = malloc(SHE_CHALLENGE_SIZE);
+    read_buffer(fp, challenge, SHE_CHALLENGE_SIZE);
+
+    output = malloc(SHE_ID_SIZE + SHE_MAC_SIZE + sizeof(uint8_t));
+    id = output;
+    mac = id + SHE_ID_SIZE;
+    status = mac + SHE_MAC_SIZE;
+    reference = malloc(SHE_ID_SIZE + SHE_MAC_SIZE + sizeof(uint8_t));
+    id_ref = reference;
+    mac_ref = id_ref + SHE_ID_SIZE;
+    status_ref = mac_ref + SHE_MAC_SIZE;
+    read_buffer(fp, id_ref, SHE_ID_SIZE);
+    read_buffer(fp, mac_ref, SHE_MAC_SIZE);
+    read_buffer(fp, status_ref, (uint32_t)sizeof(uint8_t));
+
+    expected_err = (she_err_t)read_single_data(fp);
+
+    err = she_cmd_get_id(hdl, challenge, id, status, mac);
+
+    print_result(err, expected_err, output, reference, SHE_ID_SIZE + SHE_MAC_SIZE + (uint32_t)sizeof(uint8_t));
+
+    free(reference);
+    free(output);
+    free(challenge);
+}
+
 struct test_entry_t {
     const char *name;
     void (*func)(struct she_hdl_s *hdl, FILE *fp);
@@ -558,6 +611,8 @@ struct test_entry_t she_tests[] = {
     {"SHE_TEST_RNG_INIT", she_test_rng_init},
     {"SHE_TEST_EXTEND_SEED", she_test_extend_seed},
     {"SHE_TEST_RND", she_test_rnd},
+    {"SHE_TEST_GET_STATUS",she_test_get_status},
+    {"SHE_TEST_GET_ID",she_test_get_id},
 };
 
 

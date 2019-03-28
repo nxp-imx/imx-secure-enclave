@@ -38,6 +38,8 @@
 #define AHAB_SHE_CMD_INIT_RNG                   0x38u
 #define AHAB_SHE_CMD_EXTEND_SEED                0x39u
 #define AHAB_SHE_CMD_RND                        0x3Au
+#define AHAB_SHE_CMD_GET_STATUS_REQ             0x3Bu
+#define AHAB_SHE_CMD_GET_ID_REQ                 0x3Cu
 
 #define GET_STATUS_CODE(rsp_code)               ((uint8_t)((rsp_code) & 0xFFu))
 #define GET_RATING_CODE(rsp_code)               ((uint8_t)((rsp_code) >> 8))
@@ -180,6 +182,32 @@ struct she_cmd_rnd_rsp {
     uint32_t rsp_code;
 };
 
+struct she_cmd_get_status_msg {
+       struct she_mu_hdr hdr;
+};
+
+struct she_cmd_get_status_rsp {
+       struct she_mu_hdr hdr;
+       uint32_t rsp_code;
+       uint8_t sreg;
+       uint8_t pad[3];
+};
+
+struct she_cmd_get_id_msg {
+    struct she_mu_hdr hdr;
+    uint8_t challenge[16];
+    uint32_t outputs_address_ext;
+    uint32_t mac_addr;
+    uint32_t crc;
+};
+
+struct she_cmd_get_id_rsp {
+       struct she_mu_hdr hdr;
+       uint32_t rsp_code;
+       uint8_t id[15];
+       uint8_t sreg;
+       uint32_t crc;
+};
 
 /* SHE storage */
 
