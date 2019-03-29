@@ -251,6 +251,7 @@ she_err_t she_cmd_init_rng(struct she_hdl_s *hdl);
  * \return error code
  */
 she_err_t she_cmd_extend_seed(struct she_hdl_s *hdl, uint8_t *entropy);
+#define SHE_ENTROPY_SIZE 16u
 
 
 /**
@@ -264,6 +265,7 @@ she_err_t she_cmd_extend_seed(struct she_hdl_s *hdl, uint8_t *entropy);
  * \return error code
  */
 she_err_t she_cmd_rnd(struct she_hdl_s *hdl, uint8_t *rnd);
+#define SHE_RND_SIZE 16u
 
 /**
  * returns the content of the status register

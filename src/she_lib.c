@@ -474,14 +474,67 @@ she_err_t she_cmd_export_ram_key(struct she_hdl_s *hdl, uint8_t *m1, uint8_t *m2
 }
 
 she_err_t she_cmd_init_rng(struct she_hdl_s *hdl) {
+    struct she_cmd_init_rng_msg cmd;
+    struct she_cmd_init_rng_rsp rsp;
+    int32_t error;
     she_err_t err = ERC_GENERAL_ERROR;
+
+    do {
+        /* Build command message. */
+        she_fill_cmd_msg_hdr(&cmd.hdr, AHAB_SHE_CMD_INIT_RNG, (uint32_t)sizeof(struct she_cmd_init_rng_msg));
+
+        /* Send the message to Seco. */
+        error = she_send_msg_and_get_resp(hdl->phdl,
+                    (uint32_t *)&cmd, (uint32_t)sizeof(struct she_cmd_init_rng_msg),
+                    (uint32_t *)&rsp, (uint32_t)sizeof(struct she_cmd_init_rng_rsp));
+        if (error != 0) {
+            break;
+        }
+
+        if (GET_STATUS_CODE(rsp.rsp_code)!= SAB_SUCCESS_STATUS) {
+            err = she_seco_ind_to_she_err_t(rsp.rsp_code);
+            break;
+        }
+
+        /* Success. */
+        err = ERC_NO_ERROR;
+    } while (false);
 
     return err;
 }
 
 
 she_err_t she_cmd_extend_seed(struct she_hdl_s *hdl, uint8_t *entropy) {
+    struct she_cmd_extend_seed_msg cmd;
+    struct she_cmd_extend_seed_rsp rsp;
+    uint64_t seco_entropy_addr;
+    int32_t error;
     she_err_t err = ERC_GENERAL_ERROR;
+
+    do {
+        /* Build command message. */
+        she_fill_cmd_msg_hdr(&cmd.hdr, AHAB_SHE_CMD_EXTEND_SEED, (uint32_t)sizeof(struct she_cmd_extend_seed_msg));
+        seco_entropy_addr = she_platform_data_buf(hdl->phdl, entropy, SHE_ENTROPY_SIZE, DATA_BUF_IS_INPUT | DATA_BUF_USE_SEC_MEM);
+        cmd.entropy_addr_ext = (uint32_t)((seco_entropy_addr >> 32u) & 0xFFFFFFFFu);
+        cmd.entropy_addr = (uint32_t)(seco_entropy_addr & 0xFFFFFFFFu);
+        cmd.entropy_size = SHE_ENTROPY_SIZE;
+
+        /* Send the message to Seco. */
+        error = she_send_msg_and_get_resp(hdl->phdl,
+                    (uint32_t *)&cmd, (uint32_t)sizeof(struct she_cmd_extend_seed_msg),
+                    (uint32_t *)&rsp, (uint32_t)sizeof(struct she_cmd_extend_seed_rsp));
+        if (error != 0) {
+            break;
+        }
+
+        if (GET_STATUS_CODE(rsp.rsp_code)!= SAB_SUCCESS_STATUS) {
+            err = she_seco_ind_to_she_err_t(rsp.rsp_code);
+            break;
+        }
+
+        /* Success. */
+        err = ERC_NO_ERROR;
+    } while (false);
 
     return err;
 }
@@ -489,6 +542,35 @@ she_err_t she_cmd_extend_seed(struct she_hdl_s *hdl, uint8_t *entropy) {
 
 she_err_t she_cmd_rnd(struct she_hdl_s *hdl, uint8_t *rnd) {
     she_err_t err = ERC_GENERAL_ERROR;
+    struct she_cmd_rnd_msg cmd;
+    struct she_cmd_rnd_rsp rsp;
+    uint64_t seco_rnd_addr;
+    int32_t error;
+
+    do {
+        /* Build command message. */
+        she_fill_cmd_msg_hdr(&cmd.hdr, AHAB_SHE_CMD_RND, (uint32_t)sizeof(struct she_cmd_rnd_msg));
+        seco_rnd_addr = she_platform_data_buf(hdl->phdl, rnd, SHE_RND_SIZE, DATA_BUF_USE_SEC_MEM);
+        cmd.rnd_addr_ext = (uint32_t)((seco_rnd_addr >> 32u) & 0xFFFFFFFFu);
+        cmd.rnd_addr = (uint32_t)(seco_rnd_addr & 0xFFFFFFFFu);
+        cmd.rnd_size = SHE_RND_SIZE;
+
+        /* Send the message to Seco. */
+        error = she_send_msg_and_get_resp(hdl->phdl,
+                    (uint32_t *)&cmd, (uint32_t)sizeof(struct she_cmd_rnd_msg),
+                    (uint32_t *)&rsp, (uint32_t)sizeof(struct she_cmd_rnd_rsp));
+        if (error != 0) {
+            break;
+        }
+
+        if (GET_STATUS_CODE(rsp.rsp_code)!= SAB_SUCCESS_STATUS) {
+            err = she_seco_ind_to_she_err_t(rsp.rsp_code);
+            break;
+        }
+
+        /* Success. */
+        err = ERC_NO_ERROR;
+    } while (false);
 
     return err;
 }

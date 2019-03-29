@@ -474,6 +474,73 @@ static void she_test_load_key(struct she_hdl_s *hdl, FILE *fp)
 }
 
 
+/* Tests for RNG */
+
+static void she_test_rng_init(struct she_hdl_s *hdl, FILE *fp) {
+    she_err_t err = 1;
+    she_err_t expected_err;
+
+    /* read the expected error code. */
+    expected_err = (she_err_t)read_single_data(fp);
+
+    err = she_cmd_init_rng(hdl);
+
+    /* Check there is no error reported. */
+    print_result(err, expected_err, NULL, NULL, 0);
+}
+
+
+static void she_test_extend_seed(struct she_hdl_s *hdl, FILE *fp) {
+    she_err_t err = 1;
+    she_err_t expected_err;
+    uint8_t *entropy;
+
+    entropy = malloc(SHE_ENTROPY_SIZE);
+    read_buffer(fp, entropy, SHE_ENTROPY_SIZE);
+
+    /* read the expected error code. */
+    expected_err = (she_err_t)read_single_data(fp);
+
+    err = she_cmd_extend_seed(hdl, entropy);
+
+    /* Check there is no error reported. */
+    print_result(err, expected_err, NULL, NULL, 0);
+
+    free(entropy);
+}
+
+
+static void she_test_rnd(struct she_hdl_s *hdl, FILE *fp) {
+    she_err_t err = 1;
+    she_err_t expected_err;
+    uint8_t *rnd;
+    uint8_t *rnd_ref;
+    uint32_t i;
+
+    rnd = malloc(SHE_RND_SIZE);
+
+    /* read the expected error code. */
+    expected_err = (she_err_t)read_single_data(fp);
+
+    err = she_cmd_rnd(hdl, rnd);
+
+    for (i=0; i<SHE_RND_SIZE; i++) {
+        printf("0x%x ");
+        if (i%4 == 3) {
+            printf("\n");
+        }
+    }
+
+    /* Print the generated number. */
+
+    /* Check there is no error reported. */
+    print_result(err, expected_err, NULL, NULL, 0);
+
+    free(rnd);
+    free(rnd_ref);
+}
+
+
 struct test_entry_t {
     const char *name;
     void (*func)(struct she_hdl_s *hdl, FILE *fp);
@@ -488,6 +555,9 @@ struct test_entry_t she_tests[] = {
     {"SHE_TEST_ECB_ENC", she_test_ecb_enc},
     {"SHE_TEST_ECB_DEC", she_test_ecb_dec},
     {"SHE_TEST_LOAD_KEY", she_test_load_key},
+    {"SHE_TEST_RNG_INIT", she_test_rng_init},
+    {"SHE_TEST_EXTEND_SEED", she_test_extend_seed},
+    {"SHE_TEST_RND", she_test_rnd},
 };
 
 

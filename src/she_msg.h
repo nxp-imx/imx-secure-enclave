@@ -29,14 +29,15 @@
 #define SAB_CIPHER_CLOSE_REQ                    0x0Cu
 #define SAB_CIPHER_ONE_GO_REQ                   0x0Du
 
-
 #define AHAB_SHE_CMD_GENERATE_MAC               0x31u
 #define AHAB_SHE_CMD_VERIFY_MAC                 0x32u
 #define AHAB_SHE_CMD_STORAGE_EXPORT_INIT        0x33u
 #define AHAB_SHE_CMD_LOAD_KEY                   0x34u
 #define AHAB_SHE_CMD_STORAGE_EXPORT_REQ         0x35u
 #define AHAB_SHE_CMD_STORAGE_IMPORT_REQ         0x36u
-
+#define AHAB_SHE_CMD_INIT_RNG                   0x38u
+#define AHAB_SHE_CMD_EXTEND_SEED                0x39u
+#define AHAB_SHE_CMD_RND                        0x3Au
 
 #define GET_STATUS_CODE(rsp_code)               ((uint8_t)((rsp_code) & 0xFFu))
 #define GET_RATING_CODE(rsp_code)               ((uint8_t)((rsp_code) >> 8))
@@ -143,7 +144,46 @@ struct sab_cmd_shared_buffer_rsp {
     uint16_t shared_buf_size;
 };
 
-struct she_cmd_blob_export_init_msg {
+
+/* SHE random generation */
+
+struct she_cmd_init_rng_msg {
+    struct she_mu_hdr hdr;
+};
+
+struct she_cmd_init_rng_rsp {
+    struct she_mu_hdr hdr;
+    uint32_t rsp_code;
+};
+
+struct she_cmd_extend_seed_msg {
+    struct she_mu_hdr hdr;
+    uint32_t entropy_addr_ext;
+    uint32_t entropy_addr;
+    uint32_t entropy_size;
+};
+
+struct she_cmd_extend_seed_rsp {
+    struct she_mu_hdr hdr;
+    uint32_t rsp_code;
+};
+
+struct she_cmd_rnd_msg {
+    struct she_mu_hdr hdr;
+    uint32_t rnd_addr_ext;
+    uint32_t rnd_addr;
+    uint32_t rnd_size;
+};
+
+struct she_cmd_rnd_rsp {
+    struct she_mu_hdr hdr;
+    uint32_t rsp_code;
+};
+
+
+/* SHE storage */
+
+struct she_cmd_blob_export_init_msg{
     struct she_mu_hdr hdr;
     uint32_t blob_size;
 };
