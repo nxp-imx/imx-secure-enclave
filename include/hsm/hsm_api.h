@@ -48,8 +48,8 @@ typedef enum {
  * They only need to store this pointer and pass it to every calls to other APIs within the same HSM session.
  * 
  * \param key_storage_identifier key store identifier
- * \param password password for accesing the key storage
  * \param access_flags bitmap indicating the requested access to the key store. The create flag must be specified to create a new key storage.
+ * \param password password for accesing the key storage
  * \param session_priority not supported in current release, any value accepted.
  * \param operating_mode not supported in current release, any value accepted. 
  *
@@ -57,10 +57,12 @@ typedef enum {
  * \return pointer to the HSM handle.
  */
 struct hsm_hdl_s *hsm_open_session(uint32_t key_storage_identifier, uint8_t access_flags, uint32_t password, uint8_t session_priority, uint8_t operating_mode);
+
 /**
  * It must be specified to create a new key storage
  */
-#define HSM_KEY_STORAGE_ACCESS_FLAG_CREATE	(1 << 0)
+#define HSM_KEY_STORAGE_ACCESS_FLAG_NEW	(1 << 0)
+
 
 /**
  * Terminate a previously opened HSM session
@@ -70,7 +72,6 @@ struct hsm_hdl_s *hsm_open_session(uint32_t key_storage_identifier, uint8_t acce
  * \return error code
  */
 hsm_err_t hsm_close_session(struct hsm_hdl_s *hdl);
-
 
 
 /**
@@ -91,8 +92,8 @@ hsm_err_t hsm_open_key_management_service(struct hsm_hdl_s *hdl, uint32_t input_
  * User can call this function only after having opened a key management service flow
  *
  * \param hdl pointer to the HSM handle
- * \param key_identifier pointer to the identifier of the key slot to be used for the operation - The value 0xFFFFFFFF indicates to create a new key slot 
- * \param output pointer to the output area to store the public key - The value 0 indicates to not store the public key
+ * \param key_identifier pointer to the identifier of the key slot to be used for the operation - The value HSM_KEY_IDENTIFIER_NEW indicates to create a new key slot 
+ * \param output pointer to the output area to store the public key - A NULL pointer indicates to not store the public key
  * \param key_type indicates which type of key must be generated
  * \param output_size lenght in bytes of the output area
  * \param flags bitmap specifying the properties of the key
@@ -100,6 +101,11 @@ hsm_err_t hsm_open_key_management_service(struct hsm_hdl_s *hdl, uint32_t input_
  * \return error code
  */
 hsm_err_t hsm_key_management_cmd_key_generation(struct hsm_hdl_s *hdl, uint8_t *key_identifier, uint8_t *output, uint16_t key_type, uint8_t output_size, uint8_t flags);
+
+/**
+ * It must be specified to create a new key slot
+ */
+#define	HSM_KEY_IDENTIFIER_NEW					0xFFFFFFFF
 #define HSM_KEY_TYPE_ECDSA_NIST_P224			0x00
 #define HSM_KEY_TYPE_ECDSA_NIST_P256			0x01
 #define HSM_KEY_TYPE_ECDSA_NIST_P384			0x02
@@ -112,14 +118,18 @@ hsm_err_t hsm_key_management_cmd_key_generation(struct hsm_hdl_s *hdl, uint8_t *
 #define HSM_KEY_TYPE_AES_128					0x30
 #define HSM_KEY_TYPE_AES_192					0x31
 #define HSM_KEY_TYPE_AES_256					0x32
+
 /**
  * When set, the key is transient. Transient keys are deleted when the corresponding key store service flow is closed.
  */
 #define HSM_KEY_FLAGS_TRANSIENT					(1 << 0)
+
 /**
  * When set, the key is permanent. Once created, it will not be possible to update or delete the key anymore.
  */
 #define HSM_KEY_FLAGS_PERMANENT					(1 << 1)
+
+
 /**
  * Terminate a previously opened key management service flow
  *
@@ -128,6 +138,7 @@ hsm_err_t hsm_key_management_cmd_key_generation(struct hsm_hdl_s *hdl, uint8_t *
  * \return error code
  */
 hsm_err_t hsm_close_key_management_service(struct hsm_hdl_s *hdl);
+
 
 /**
  * Open a cipher service flow\n
@@ -145,16 +156,16 @@ hsm_err_t hsm_open_cipher_service(struct hsm_hdl_s *hdl, uint32_t input_address_
 
 /**
  *
- * Provide ciphering operation\n
+ * Prerform ciphering operation\n
  * User can call this function only after having opened a cipher service flow
  *
  * \param hdl pointer to the HSM handle
  * \param key_identifier identifier of the key to be used for the operation
  * \param input pointer to the input to be processed
  * \param output pointer to the output area
- * \param iv pointer to the initialization vector
+ * \param iv pointer to the initialization vector - it must be NULL for algorithms not using the initialization vector
  * \param input_size lenght in bytes of the input
- * \param iv_size lenght in bytes of the initialization vector
+ * \param iv_size lenght in bytes of the initialization vector - it must be 0 for algorithms not using the initialization vector
  * \param algorithm to be used for the operation
  * \param flags bitmap specifying the operation attributes
  *
