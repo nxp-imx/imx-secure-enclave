@@ -347,7 +347,7 @@ struct she_storage_context *she_storage_init(void)
  		}
 
 		/* Send the session open command to Seco. */
-		she_fill_cmd_msg_hdr((struct she_mu_hdr *)cmd, AHAB_SESSION_OPEN_NVM, sizeof(struct ahab_cmd_session_open_s));
+		she_fill_cmd_msg_hdr((struct she_mu_hdr *)cmd, AHAB_SESSION_OPEN, sizeof(struct ahab_cmd_session_open_s));
 		((struct ahab_cmd_session_open_s *)cmd) -> did = 0;
 		((struct ahab_cmd_session_open_s *)cmd) -> tz = 0;
 		((struct ahab_cmd_session_open_s *)cmd) -> mu_id = 1;
@@ -372,7 +372,7 @@ struct she_storage_context *she_storage_init(void)
 	if ((error != 0) && (nvm_ctx != NULL)) {
 		if (nvm_ctx->hdl != NULL) {
 			/* Send the session close command to Seco. */
-			she_fill_cmd_msg_hdr((struct she_mu_hdr *)cmd, AHAB_SESSION_CLOSE_NVM, sizeof(struct ahab_cmd_session_close_s));
+			she_fill_cmd_msg_hdr((struct she_mu_hdr *)cmd, AHAB_SESSION_CLOSE, sizeof(struct ahab_cmd_session_close_s));
 			((struct ahab_cmd_session_close_s *)cmd)->sesssion_handle = nvm_ctx->session_handle;
 
 			error = she_send_msg_and_get_resp(nvm_ctx->hdl,
@@ -395,7 +395,7 @@ int32_t she_storage_terminate(struct she_storage_context *nvm_ctx)
 	struct ahab_rsp_session_close_s rsp;
 	if (nvm_ctx->hdl != NULL) {
 		/* Send the session close command to Seco. */
-		she_fill_cmd_msg_hdr((struct she_mu_hdr *)&cmd, AHAB_SESSION_CLOSE_NVM, sizeof(struct ahab_cmd_session_close_s));
+		she_fill_cmd_msg_hdr((struct she_mu_hdr *)&cmd, AHAB_SESSION_CLOSE, sizeof(struct ahab_cmd_session_close_s));
 		((struct ahab_cmd_session_close_s *)&cmd)->sesssion_handle = nvm_ctx->session_handle;
 
 		(void)she_send_msg_and_get_resp(nvm_ctx->hdl,

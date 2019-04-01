@@ -24,8 +24,6 @@
 
 #define AHAB_SESSION_OPEN                       0x10
 #define AHAB_SESSION_CLOSE                      0x11
-#define AHAB_SESSION_OPEN_NVM                       0xF0
-#define AHAB_SESSION_CLOSE_NVM                      0xF1
 #define AHAB_KEY_STORE_OPEN                     0x12
 #define AHAB_KEY_STORE_CLOSE                    0x13
 #define AHAB_CIPHER_OPEN                        0x14
