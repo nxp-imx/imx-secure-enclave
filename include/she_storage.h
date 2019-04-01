@@ -23,5 +23,7 @@ struct she_storage_context *she_storage_init(void);
  * terminates the SHE storage manager.
  *
  * \param ctx pointer to the context of the storage manager  to be closed.
+ *
+ * \return 0 on success. other value on failure.
  */
-void she_storage_terminate(struct she_storage_context *nvm_ctx);
+int32_t she_storage_terminate(struct she_storage_context *nvm_ctx);

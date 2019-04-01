@@ -11,16 +11,15 @@
  * activate or otherwise use the software.
  */
 
+#ifndef SHE_PLATFORM_H
+#define SHE_PLATFORM_H
 
+#include <stdbool.h>
 #include <stdio.h>
 #include <stdint.h>
 #include <stdlib.h>
 
 #include "she_api.h"
-
-#ifndef SHE_PLATFORM_H
-#define SHE_PLATFORM_H
-
 
 /**
  * Opens a SHE session
@@ -86,9 +85,9 @@ void she_platform_close_session(struct she_platform_hdl *phdl);
  * \param message pointer to the message itself. It has to be aligned on 32bits.
  * \param size size in bytes of the message. It has to be multiple of 4 bytes.
  *
- * \return length in bytes written to the MU (for error check by caller)
+ * \return length in bytes written to the MU or negative value in case of error
  */
-uint32_t she_platform_send_mu_message(struct she_platform_hdl *phdl, uint8_t *message, uint32_t size);
+int32_t she_platform_send_mu_message(struct she_platform_hdl *phdl, uint32_t *message, uint32_t size);
 
 /**
  * Read a message from Seco over a messaging unit.
@@ -111,8 +110,10 @@ uint32_t she_platform_send_mu_message(struct she_platform_hdl *phdl, uint8_t *me
  * \param phdl pointer to handle identifying the session to be used to carry the message.
  * \param message pointer to the message itself. It has to be aligned on 32bits.
  * \param size size in bytes of the message. It has to be multiple of 4 bytes.
+ *
+ * \return length in bytes read from the MU or negative value in case of error
  */
-uint32_t she_platform_read_mu_message(struct she_platform_hdl *phdl, uint8_t *message, uint32_t size);
+int32_t she_platform_read_mu_message(struct she_platform_hdl *phdl, uint32_t *message, uint32_t size);
 
 /**
  * Configure the use of shared buffer in secure memory
@@ -158,10 +159,10 @@ int32_t she_platform_configure_shared_buf(struct she_platform_hdl *phdl, uint32_
  * \return the address to be inserted in the message to Seco to indicate him this buffer.
  */
 uint64_t she_platform_data_buf(struct she_platform_hdl *phdl, uint8_t *src, uint32_t size, uint32_t flags);
-#define DATA_BUF_IS_INPUT         0x01
-#define DATA_BUF_USE_SEC_MEM      0x02
-#define DATA_BUF_SHORT_ADDR       0x04
-#define SEC_MEM_SHORT_ADDR_MASK   0xFFFF
+#define DATA_BUF_IS_INPUT         0x01u
+#define DATA_BUF_USE_SEC_MEM      0x02u
+#define DATA_BUF_SHORT_ADDR       0x04u
+#define SEC_MEM_SHORT_ADDR_MASK   0xFFFFu
 
 /**
  * Create a thread
@@ -212,9 +213,9 @@ uint32_t she_platform_crc(uint8_t *data, uint32_t size);
  * \param src pointer to the data to be written in NVM
  * \param size size in bytes of the data to be writen in NVM
  *
- * return size in bytes of the data written to NVM
+ * return size in bytes of the data written to NVM or negative value in case of error
  */
-uint32_t she_platform_storage_write(struct she_platform_hdl *phdl, uint8_t *src, uint32_t size);
+int32_t she_platform_storage_write(struct she_platform_hdl *phdl, uint8_t *src, uint32_t size);
 
 /**
  * Read data stored in NVM
@@ -223,8 +224,8 @@ uint32_t she_platform_storage_write(struct she_platform_hdl *phdl, uint8_t *src,
  * \param src pointer to the data where data should be written
  * \param size maximum number of bytes to be read from NVM
  *
- * return size in bytes of the data read from NVM
+ * return size in bytes of the data read from NVM or negative value in case of error
  */
-uint32_t she_platform_storage_read(struct she_platform_hdl *phdl, uint8_t *dst, uint32_t size);
+int32_t she_platform_storage_read(struct she_platform_hdl *phdl, uint8_t *dst, uint32_t size);
 
 #endif

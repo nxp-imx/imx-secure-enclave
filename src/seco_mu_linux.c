@@ -44,7 +44,7 @@ struct she_platform_hdl *she_platform_open_she_session(void)
 {
 	struct she_platform_hdl *phdl = malloc(sizeof(struct she_platform_hdl));
 
-	if (phdl) {
+	if (phdl != NULL) {
 		phdl->fd = open(SECO_MU_PATH, O_RDWR);
 		/* If open failed return NULL handle. */
 		if (phdl->fd < 0) {
@@ -60,7 +60,7 @@ struct she_platform_hdl *she_platform_open_storage_session(void)
 {
 	struct she_platform_hdl *phdl = malloc(sizeof(struct she_platform_hdl));
 
-	if (phdl) {
+	if (phdl != NULL) {
 		phdl->fd = open(SECO_NVM_PATH, O_RDWR);
 		/* If open failed return NULL handle. */
 		if (phdl->fd < 0) {
@@ -87,15 +87,15 @@ void she_platform_close_session(struct she_platform_hdl *phdl)
 }
 
 /* Send a message to Seco on the MU. Return the size of the data written. */
-uint32_t she_platform_send_mu_message(struct she_platform_hdl *phdl, uint8_t *message, uint32_t size)
+int32_t she_platform_send_mu_message(struct she_platform_hdl *phdl, uint32_t *message, uint32_t size)
 {
-	return write(phdl->fd, message, size);
+	return (int32_t)write(phdl->fd, message, size);
 }
 
 /* Read a message from Seco on the MU. Return the size of the data that were read. */
-uint32_t she_platform_read_mu_message(struct she_platform_hdl *phdl, uint8_t *message, uint32_t size)
+int32_t she_platform_read_mu_message(struct she_platform_hdl *phdl, uint32_t *message, uint32_t size)
 {
-	return read(phdl->fd, message, size);
+	return (int32_t)read(phdl->fd, message, size);
 };
 
 /* Map the shared buffer allocated by Seco. */
@@ -115,7 +115,7 @@ int32_t she_platform_configure_shared_buf(struct she_platform_hdl *phdl, uint32_
 uint64_t she_platform_data_buf(struct she_platform_hdl *phdl, uint8_t *src, uint32_t size, uint32_t flags)
 {
 	struct seco_mu_ioctl_setup_iobuf io;
-	uint32_t err;
+	int32_t err;
 
 	io.user_buf = src;
 	io.length = size;
@@ -123,8 +123,9 @@ uint64_t she_platform_data_buf(struct she_platform_hdl *phdl, uint8_t *src, uint
 
 	err = ioctl(phdl->fd, SECO_MU_IOCTL_SETUP_IOBUF, &io);
 
-	if (err)
+	if (err != 0) {
 		io.seco_addr = 0;
+	}
 
 	return io.seco_addr;
 }
@@ -149,21 +150,21 @@ int32_t she_platform_cancel_thread(struct she_platform_hdl *phdl)
 
 uint32_t she_platform_crc(uint8_t *data, uint32_t size)
 {
-	return  crc32(0, data, size);
+	return (uint32_t)crc32(0, data, size);
 }
 
 
 /* Write data in a file located in NVM. Return the size of the written data. */
-uint32_t she_platform_storage_write(struct she_platform_hdl *phdl, uint8_t *src, uint32_t size)
+int32_t she_platform_storage_write(struct she_platform_hdl *phdl, uint8_t *src, uint32_t size)
 {
 	int32_t fd = -1;
-	uint32_t l = 0;
+	int32_t l = 0;
 
 	/* Open or create the file with access reserved to the current user. */
 	fd = open(SECO_NVM_DEFAULT_STORAGE_FILE, O_CREAT|O_WRONLY|O_SYNC, S_IRUSR|S_IWUSR);
 	if (fd >= 0) {
 		/* Write the data. */
-		l = write(fd, src, size);
+		l = (int32_t)write(fd, src, size);
 
 		(void)close(fd);
 	}
@@ -171,16 +172,16 @@ uint32_t she_platform_storage_write(struct she_platform_hdl *phdl, uint8_t *src,
 	return l;
 }
 
-uint32_t she_platform_storage_read(struct she_platform_hdl *phdl, uint8_t *dst, uint32_t size)
+int32_t she_platform_storage_read(struct she_platform_hdl *phdl, uint8_t *dst, uint32_t size)
 {
 	int32_t fd = -1;
-	uint32_t l = 0;
+	int32_t l = 0;
 
 	/* Open the file as read only. */
 	fd = open(SECO_NVM_DEFAULT_STORAGE_FILE, O_RDONLY);
 	if (fd >= 0) {
 		/* Read the data. */
-		l = read(fd, dst, size);
+		l = (int32_t)read(fd, dst, size);
 
 		(void)close(fd);
 	}

@@ -100,8 +100,8 @@ void she_close_session(struct she_hdl_s *hdl);
  *
  * \return error code
  */
-she_err_t she_cmd_generate_mac(struct she_hdl_s *hdl, uint8_t key_ext, uint8_t key_id, uint32_t message_length, uint8_t *message, uint8_t *mac);
-#define SHE_MAC_SIZE 16 /**< size of the MAC generated is 128bits. */
+she_err_t she_cmd_generate_mac(struct she_hdl_s *hdl, uint8_t key_ext, uint8_t key_id, uint16_t message_length, uint8_t *message, uint8_t *mac);
+#define SHE_MAC_SIZE 16u /**< size of the MAC generated is 128bits. */
 
 /**
  *
@@ -118,9 +118,9 @@ she_err_t she_cmd_generate_mac(struct she_hdl_s *hdl, uint8_t key_ext, uint8_t k
  *
  * \return error code
  */
-she_err_t she_cmd_verify_mac(struct she_hdl_s *hdl, uint8_t key_ext, uint8_t key_id, uint32_t message_length, uint8_t *message, uint8_t *mac, uint8_t mac_length, uint8_t *verification_status);
-#define SHE_MAC_VERIFICATION_SUCCESS 0 /**< indication of mac verification success  */
-#define SHE_MAC_VERIFICATION_FAILED  1 /**< indication of mac verification failure */
+she_err_t she_cmd_verify_mac(struct she_hdl_s *hdl, uint8_t key_ext, uint8_t key_id, uint16_t message_length, uint8_t *message, uint8_t *mac, uint8_t mac_length, uint8_t *verification_status);
+#define SHE_MAC_VERIFICATION_SUCCESS 0u /**< indication of mac verification success  */
+#define SHE_MAC_VERIFICATION_FAILED  1u /**< indication of mac verification failure */
 
 
 /**
@@ -137,7 +137,7 @@ she_err_t she_cmd_verify_mac(struct she_hdl_s *hdl, uint8_t key_ext, uint8_t key
  * \return error code
  */
 she_err_t she_cmd_enc_cbc(struct she_hdl_s *hdl, uint8_t key_ext, uint8_t key_id, uint32_t data_length, uint8_t *iv, uint8_t *plaintext, uint8_t *ciphertext);
-#define SHE_AES_BLOCK_SIZE_128       16 /**< size in bytes of a 128bits CBC bloc */
+#define SHE_AES_BLOCK_SIZE_128       16u /**< size in bytes of a 128bits CBC bloc */
 
 
 /**
@@ -196,7 +196,7 @@ she_err_t she_cmd_dec_ecb(struct she_hdl_s *hdl, uint8_t key_ext, uint8_t key_id
  * \return error code
  */
 she_err_t she_cmd_load_key(struct she_hdl_s *hdl, uint8_t *m1, uint8_t *m2, uint8_t *m3, uint8_t *m4, uint8_t *m5);
-#define SHE_KEY_SIZE 16 /** SHE keys are 128 bits (16 bytes) long. */
+#define SHE_KEY_SIZE 16u /** SHE keys are 128 bits (16 bytes) long. */
 
 
 /**

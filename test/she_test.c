@@ -26,6 +26,7 @@
  * (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
  * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
+#include <stdbool.h>
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
@@ -43,7 +44,7 @@ static uint32_t read_single_data(FILE *fp)
 
 	read = getline(&line, &len, fp);
 	if (read > 0) {
-		value = strtoull(line, NULL, 0);
+		value = (uint32_t)strtoul(line, NULL, 0);
 	}
 	free(line);
 	return value;
@@ -68,7 +69,7 @@ static void read_buffer(FILE *fp, uint8_t *dst, uint32_t size) {
 
 		data = strtoul(startptr, &endptr, 0);
 		while (endptr != startptr) {
-			dst[idx++] = data;
+			dst[idx++] = (uint8_t)(data & 0xFFu);
 			startptr = endptr + 1; /* skip separator */
 			data = strtoul(startptr, &endptr, 0);
 		}
@@ -77,12 +78,12 @@ static void read_buffer(FILE *fp, uint8_t *dst, uint32_t size) {
 	free(line);
 }
 
-static void print_result(uint32_t err, uint32_t expected_err, uint8_t *output, uint8_t *expected_output, uint32_t output_size)
+static void print_result(she_err_t err, she_err_t expected_err, uint8_t *output, uint8_t *expected_output, uint32_t output_size)
 {
 	/* Check there is no error reported and that the output is correct. */
 	if (err != expected_err) {
 		(void)printf("--> FAIL unexpected error: 0x%x\n", err);
-	} else if ( (err == ERC_NO_ERROR) && (output_size > 0) && (memcmp(output, expected_output, output_size))) {
+	} else if ( (err == ERC_NO_ERROR) && (output_size > 0u) && (memcmp(output, expected_output, output_size) != 0)) {
 		/* don't compare output for tests expecting an error as return code. */
 		(void)printf("--> FAIL wrong output\n");
 	} else {
@@ -94,7 +95,7 @@ static void print_perf(struct timespec *ts1, struct timespec *ts2, uint32_t nb_i
 {
 	uint64_t time_us;
 
-	time_us = (uint64_t)(ts2->tv_sec - ts1->tv_sec)*1000000 + (ts2->tv_nsec - ts1->tv_nsec)/1000;
+	time_us = (uint64_t)(ts2->tv_sec - ts1->tv_sec)*1000000u + (ts2->tv_nsec - ts1->tv_nsec)/1000;
 	(void)printf("%ld microseconds per operation (%d iterations).\n", time_us/nb_iter, nb_iter);
 }
 
@@ -102,8 +103,8 @@ static void print_perf(struct timespec *ts1, struct timespec *ts2, uint32_t nb_i
 /* Test MAC generation command. */
 static void she_test_mac_gen(struct she_hdl_s *hdl, FILE *fp)
 {
-	uint32_t err = 1;
-	uint32_t expected_err;
+	she_err_t err = 1;
+	she_err_t expected_err;
 	uint8_t key_id;
 	uint8_t key_ext;
 	uint32_t input_size;
@@ -135,18 +136,18 @@ static void she_test_mac_gen(struct she_hdl_s *hdl, FILE *fp)
 	read_buffer(fp, reference, SHE_MAC_SIZE);
 
 	/* read the expected error code. */
-	expected_err = read_single_data(fp);
+	expected_err = (she_err_t)read_single_data(fp);
 
 	(void)clock_gettime(CLOCK_MONOTONIC_RAW, &ts1);
 
 	for (i=0; i<nb_iter; i++) {
 		/* Call the API to be tested. */
-		err = she_cmd_generate_mac(hdl, key_ext, key_id, input_size, input, output);
+		err = she_cmd_generate_mac(hdl, key_ext, key_id, (uint16_t)input_size, input, output);
 	}
 
 	(void)clock_gettime(CLOCK_MONOTONIC_RAW, &ts2);
 
-	if (nb_iter > 1) {
+	if (nb_iter > 1u) {
 		print_perf(&ts1, &ts2, nb_iter);
 	} else {
 		print_result(err, expected_err, output, reference, SHE_MAC_SIZE);
@@ -159,8 +160,8 @@ static void she_test_mac_gen(struct she_hdl_s *hdl, FILE *fp)
 /* Test MAC verify command - pattern 1. */
 static void she_test_mac_verif(struct she_hdl_s *hdl, FILE *fp)
 {
-	uint32_t err = 1;
-	uint32_t expected_err;
+	she_err_t err = 1;
+	she_err_t expected_err;
 	uint8_t key_id;
 	uint8_t key_ext;
 	uint32_t input_size;
@@ -194,23 +195,23 @@ static void she_test_mac_verif(struct she_hdl_s *hdl, FILE *fp)
 	/* expected verification status. */
 	ref_verif = read_single_data(fp);
 	/* read the expected error code. */
-	expected_err = read_single_data(fp);
+	expected_err = (she_err_t)read_single_data(fp);
 
 
 	(void)clock_gettime(CLOCK_MONOTONIC_RAW, &ts1);
 
 	for (i=0; i<nb_iter; i++) {
 		/* Call the API to be tested. */
-		err = she_cmd_verify_mac(hdl, key_ext, key_id, input_size, input, input_mac, SHE_MAC_SIZE, &verif);
+		err = she_cmd_verify_mac(hdl, key_ext, key_id, (uint16_t)input_size, input, input_mac, SHE_MAC_SIZE, &verif);
 	}
 
 	(void)clock_gettime(CLOCK_MONOTONIC_RAW, &ts2);
 
 
-	if (nb_iter > 1) {
+	if (nb_iter > 1u) {
 		print_perf(&ts1, &ts2, nb_iter);
 	} else {
-		print_result(err, expected_err, &verif, &ref_verif, sizeof(verif));
+		print_result(err, expected_err, &verif, &ref_verif, (uint32_t)sizeof(verif));
 	}
 
 	free(input);
@@ -220,8 +221,8 @@ static void she_test_mac_verif(struct she_hdl_s *hdl, FILE *fp)
 /* Test CBC encryption .*/
 static void she_test_cbc_enc(struct she_hdl_s *hdl, FILE *fp)
 {
-	uint32_t err = 1;
-	uint32_t expected_err;
+	she_err_t err = 1;
+	she_err_t expected_err;
 	uint8_t key_id;
 	uint8_t key_ext;
 	uint32_t input_size;
@@ -258,7 +259,7 @@ static void she_test_cbc_enc(struct she_hdl_s *hdl, FILE *fp)
 	read_buffer(fp, reference, input_size);
 
 	/* read the expected error code. */
-	expected_err = read_single_data(fp);
+	expected_err = (she_err_t)read_single_data(fp);
 
 
 	(void)clock_gettime(CLOCK_MONOTONIC_RAW, &ts1);
@@ -270,7 +271,7 @@ static void she_test_cbc_enc(struct she_hdl_s *hdl, FILE *fp)
 
 	(void)clock_gettime(CLOCK_MONOTONIC_RAW, &ts2);
 
-	if (nb_iter > 1) {
+	if (nb_iter > 1u) {
 		print_perf(&ts1, &ts2, nb_iter);
 	} else {
 		print_result(err, expected_err, output, reference, input_size);
@@ -285,8 +286,8 @@ static void she_test_cbc_enc(struct she_hdl_s *hdl, FILE *fp)
 /* Test CBC decryption .*/
 static void she_test_cbc_dec(struct she_hdl_s *hdl, FILE *fp)
 {
-	uint32_t err = 1;
-	uint32_t expected_err;
+	she_err_t err = 1;
+	she_err_t expected_err;
 	uint8_t key_id;
 	uint8_t key_ext;
 	uint32_t input_size;
@@ -323,7 +324,7 @@ static void she_test_cbc_dec(struct she_hdl_s *hdl, FILE *fp)
 	read_buffer(fp, reference, input_size);
 
 	/* read the expected error code. */
-	expected_err = read_single_data(fp);
+	expected_err = (she_err_t)read_single_data(fp);
 
 	(void)clock_gettime(CLOCK_MONOTONIC_RAW, &ts1);
 
@@ -334,7 +335,7 @@ static void she_test_cbc_dec(struct she_hdl_s *hdl, FILE *fp)
 
 	(void)clock_gettime(CLOCK_MONOTONIC_RAW, &ts2);
 
-	if (nb_iter > 1) {
+	if (nb_iter > 1u) {
 		print_perf(&ts1, &ts2, nb_iter);
 	} else {
 		print_result(err, expected_err, output, reference, input_size);
@@ -350,8 +351,8 @@ static void she_test_cbc_dec(struct she_hdl_s *hdl, FILE *fp)
 /* Test ECB encryption .*/
 static void she_test_ecb_enc(struct she_hdl_s *hdl, FILE *fp)
 {
-	uint32_t err = 1;
-	uint32_t expected_err;
+	she_err_t err = 1;
+	she_err_t expected_err;
 	uint8_t key_id;
 	uint8_t key_ext;
 	uint8_t *input = NULL;
@@ -379,7 +380,7 @@ static void she_test_ecb_enc(struct she_hdl_s *hdl, FILE *fp)
 	read_buffer(fp, reference, SHE_AES_BLOCK_SIZE_128);
 
 	/* read the expected error code. */
-	expected_err = read_single_data(fp);
+	expected_err = (she_err_t)read_single_data(fp);
 
 	(void)clock_gettime(CLOCK_MONOTONIC_RAW, &ts1);
 
@@ -390,7 +391,7 @@ static void she_test_ecb_enc(struct she_hdl_s *hdl, FILE *fp)
 
 	(void)clock_gettime(CLOCK_MONOTONIC_RAW, &ts2);
 
-	if (nb_iter > 1) {
+	if (nb_iter > 1u) {
 		print_perf(&ts1, &ts2, nb_iter);
 	} else {
 		print_result(err, expected_err, output, reference, SHE_AES_BLOCK_SIZE_128);
@@ -404,8 +405,8 @@ static void she_test_ecb_enc(struct she_hdl_s *hdl, FILE *fp)
 /* Test ECB decryption .*/
 static void she_test_ecb_dec(struct she_hdl_s *hdl, FILE *fp)
 {
-	uint32_t err = 1;
-	uint32_t expected_err;
+	she_err_t err = 1;
+	she_err_t expected_err;
 	uint8_t key_id;
 	uint8_t key_ext;
 	uint8_t *input = NULL;
@@ -433,7 +434,7 @@ static void she_test_ecb_dec(struct she_hdl_s *hdl, FILE *fp)
 	read_buffer(fp, reference, SHE_AES_BLOCK_SIZE_128);
 
 	/* read the expected error code. */
-	expected_err = read_single_data(fp);
+	expected_err = (she_err_t)read_single_data(fp);
 
 	(void)clock_gettime(CLOCK_MONOTONIC_RAW, &ts1);
 
@@ -444,7 +445,7 @@ static void she_test_ecb_dec(struct she_hdl_s *hdl, FILE *fp)
 
 	(void)clock_gettime(CLOCK_MONOTONIC_RAW, &ts2);
 
-	if (nb_iter > 1) {
+	if (nb_iter > 1u) {
 		print_perf(&ts1, &ts2, nb_iter);
 	} else {
 		print_result(err, expected_err, output, reference, SHE_AES_BLOCK_SIZE_128);
@@ -459,11 +460,11 @@ static void she_test_ecb_dec(struct she_hdl_s *hdl, FILE *fp)
 /* Test load key */
 static void she_test_load_key(struct she_hdl_s *hdl, FILE *fp)
 {
-	uint32_t err = 1;
-	uint32_t expected_err;
+	she_err_t err = 1;
+	she_err_t expected_err;
 
 	/* read the expected error code. */
-	expected_err = read_single_data(fp);
+	expected_err = (she_err_t)read_single_data(fp);
 	err = she_cmd_load_key(hdl, NULL, NULL, NULL, NULL, NULL);
 
 	/* Check there is no error reported. */
@@ -498,7 +499,7 @@ int main(int argc, char *argv[])
 	ssize_t read;
 	uint16_t i;
 
-	FILE *fp;
+	FILE *fp = NULL;
 
 	do {
 		if (argc != 2) {
@@ -512,34 +513,36 @@ int main(int argc, char *argv[])
 
 		/* Start the storage manager.*/
 		storage_ctx = she_storage_init();
-		if (!storage_ctx) {
+		if (storage_ctx == NULL) {
 			break;
 		}
 
 		/* Open the SHE session. */
 		hdl = she_open_session();
-		if (!hdl) {
+		if (hdl == NULL) {
 			break;
 		}
 
 		while( (read = getline(&line, &len, fp)) != -1) {
 			for (i=0; i < (sizeof(she_tests)/sizeof(struct test_entry_t)); i++) {
 				if (memcmp(line, she_tests[i].name, strlen(she_tests[i].name)) == 0) {
-					printf("test: %s", line);
+					(void)printf("test: %s", line);
 					she_tests[i].func(hdl, fp);
-					printf("\n");
+					(void)printf("\n");
 				}
 			}
 		}
-		if (line)
-			free(line);
-	} while(0);
+		free(line);
+	} while(false);
 
 	/* Close session if it was opened. */
-	if (hdl) {
+	if (hdl != NULL) {
 		she_close_session(hdl);
 	}
-	if(storage_ctx) {
-		she_storage_terminate(storage_ctx);
+	if (storage_ctx != NULL) {
+		(void)she_storage_terminate(storage_ctx);
+	}
+	if (fp != NULL) {
+		(void)fclose(fp);
 	}
 }
