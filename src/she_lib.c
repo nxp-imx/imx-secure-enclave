@@ -14,6 +14,7 @@
 
 #include "she_msg.h"
 #include "she_platform.h"
+#include <string.h>
 
 #define SHE_DEFAULT_DID	0x0
 #define SHE_DEFAULT_TZ	0x0
@@ -273,6 +274,7 @@ struct she_hdl_s *she_open_session(void)
 		if (hdl == NULL) {
 			break;
 		}
+		memset(hdl, 0, sizeof(struct she_hdl_s));
 
 		/* Open the SHE session. */
 		hdl->phdl = she_platform_open_she_session();
@@ -296,16 +298,16 @@ struct she_hdl_s *she_open_session(void)
 		hdl->session_handle = ((struct ahab_rsp_session_open_s *)rsp)->sesssion_handle;
 
 		/* Send the init command to Seco. */
-		she_fill_cmd_msg_hdr((struct she_mu_hdr *)cmd, AHAB_SHE_INIT, sizeof(struct she_cmd_init_msg));
+		she_fill_cmd_msg_hdr((struct she_mu_hdr *)cmd, AHAB_SHARED_BUF_REQ, sizeof(struct ahab_cmd_shared_buffer_req));
 		error = she_send_msg_and_get_resp(hdl,
-					cmd, sizeof(struct she_cmd_init_msg),
-					rsp, sizeof(struct she_cmd_init_rsp));
+					cmd, sizeof(struct ahab_cmd_shared_buffer_req),
+					rsp, sizeof(struct ahab_rsp_shared_buffer_req));
 		if (error != 0) {
 			break;
 		}
 
 		/* Configure the shared buffer. and start the NVM manager. */
-		error = she_platform_configure_shared_buf(hdl->phdl, ((struct she_cmd_init_rsp *)rsp)->shared_buf_offset, ((struct she_cmd_init_rsp *)rsp)->shared_buf_size);
+		error = she_platform_configure_shared_buf(hdl->phdl, ((struct ahab_rsp_shared_buffer_req *)rsp)->shared_buf_offset, ((struct ahab_rsp_shared_buffer_req *)rsp)->shared_buf_size);
 		if (error != 0) {
 			break;
 		}

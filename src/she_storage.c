@@ -229,23 +229,23 @@ static int32_t she_storage_import(struct she_storage_context *ctx)
 
 static int32_t she_storage_setup_shared_buffer(struct she_storage_context *ctx)
 {
-	struct she_cmd_init_msg msg;
-	struct she_cmd_init_rsp rsp;
-	int32_t err = -1;
-	int32_t len;
+	struct ahab_cmd_shared_buffer_req cmd;
+	struct ahab_rsp_shared_buffer_req rsp;
+	uint32_t err = 1;
+	uint32_t len;
 
 	do {
 		/* Prepare command message. */
-		she_fill_cmd_msg_hdr(&msg.hdr, AHAB_SHE_INIT, (uint32_t)sizeof(struct she_cmd_init_msg));
+		she_fill_cmd_msg_hdr(&cmd.hdr, AHAB_SHARED_BUF_REQ, (uint32_t)sizeof(struct ahab_cmd_shared_buffer_req));
 		/* Send the message to Seco. */
-		len = she_platform_send_mu_message(ctx->hdl, (uint32_t *)&msg, (uint32_t)sizeof(struct she_cmd_init_msg));
-		if (len != (int32_t)sizeof(struct she_cmd_init_msg)) {
+		len = she_platform_send_mu_message(ctx->hdl, (uint32_t *)&cmd, (uint32_t)sizeof(struct ahab_cmd_shared_buffer_req));
+		if (len != (uint32_t)sizeof(struct ahab_cmd_shared_buffer_req)) {
 			break;
 		}
 
 		/* Read the response. */
-		len = she_platform_read_mu_message(ctx->hdl, (uint32_t *)&rsp, (uint32_t)sizeof(struct she_cmd_init_rsp));
-		if (len != (int32_t)sizeof(struct she_cmd_init_rsp)) {
+		len = she_platform_read_mu_message(ctx->hdl, (uint32_t *)&rsp, (uint32_t)sizeof(struct ahab_rsp_shared_buffer_req));
+		if (len != (int32_t)sizeof(struct ahab_rsp_shared_buffer_req)) {
 			break;
 		}
 

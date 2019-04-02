@@ -22,14 +22,14 @@
 
 #define AHAB_MAX_MSG_SIZE						20
 
-#define AHAB_SESSION_OPEN                       0x10
-#define AHAB_SESSION_CLOSE                      0x11
-#define AHAB_KEY_STORE_OPEN                     0x12
-#define AHAB_KEY_STORE_CLOSE                    0x13
-#define AHAB_CIPHER_OPEN                        0x14
-#define AHAB_CIPHER_CLOSE                       0x15
+#define AHAB_SESSION_OPEN                       0x10u
+#define AHAB_SESSION_CLOSE                      0x11u
+#define AHAB_KEY_STORE_OPEN                     0x12u
+#define AHAB_KEY_STORE_CLOSE                    0x13u
+#define AHAB_CIPHER_OPEN                        0x14u
+#define AHAB_CIPHER_CLOSE                       0x15u
 
-#define AHAB_SHE_INIT							0x30u
+#define AHAB_SHARED_BUF_REQ						0x30u
 #define AHAB_SHE_CMD_GENERATE_MAC				0x31u
 #define AHAB_SHE_CMD_VERIFY_MAC					0x32u
 #define AHAB_SHE_CMD_STORAGE_EXPORT_INIT		0x33u
@@ -157,11 +157,11 @@ struct she_cmd_load_key_rsp  {
 
 /* SHE inititalization */
 
-struct she_cmd_init_msg {
+struct ahab_cmd_shared_buffer_req {
 	struct she_mu_hdr hdr;
 };
 
-struct she_cmd_init_rsp {
+struct ahab_rsp_shared_buffer_req {
 	struct she_mu_hdr hdr;
 	uint32_t rsp_code;
 	uint16_t shared_buf_offset;
