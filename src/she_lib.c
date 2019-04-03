@@ -125,26 +125,27 @@ void she_close_session(struct she_hdl_s *hdl) {
 
 	struct ahab_cmd_session_close_s cmd;
 	struct ahab_rsp_session_close_s rsp;
-	int32_t error = 1;
 
 	if (hdl != NULL) {
-		if (hdl->phdl != NULL) {
 
+		if (hdl-> session_handle) {
 			/* Send the session close command to Seco. */
 			she_fill_cmd_msg_hdr((struct she_mu_hdr *)&cmd, AHAB_SESSION_CLOSE, sizeof(struct ahab_cmd_session_close_s));
 			((struct ahab_cmd_session_close_s *)&cmd)->sesssion_handle = hdl->session_handle;
 
-			error = she_send_msg_and_get_resp(hdl,
+			(void)she_send_msg_and_get_resp(hdl,
 						(uint32_t *)&cmd, sizeof(struct ahab_cmd_session_close_s),
 						(uint32_t *)&rsp, sizeof(struct ahab_rsp_session_close_s));
+		}
 
+		if (hdl->phdl != NULL) {
 			she_platform_close_session(hdl->phdl);
 		}
 		free(hdl);
 	}
 }
 
-static she_err_t she_open_key_store(struct she_hdl_s *hdl)
+static she_err_t she_open_key_store(struct she_hdl_s *hdl, uint32_t key_storage_identifier, uint32_t password)
 {
 	struct ahab_cmd_key_store_open_s cmd;
 	struct ahab_rsp_key_store_open_s rsp;
@@ -155,11 +156,17 @@ static she_err_t she_open_key_store(struct she_hdl_s *hdl)
 
 		/* Send the keys store open command to Seco. */
 		she_fill_cmd_msg_hdr(&cmd.hdr, AHAB_KEY_STORE_OPEN, sizeof(struct ahab_cmd_key_store_open_s));
+
+		if (!hdl->session_handle) {
+			break;
+		}
+
 		cmd.sesssion_handle = hdl->session_handle;
-		cmd.key_store_id = 0;
-		cmd.password = 0xBEC00001;
+		cmd.key_store_id = key_storage_identifier;
+		cmd.password = password;
 		cmd.input_address_ext = 0;
 		cmd.output_address_ext = 0;
+
 		error = she_send_msg_and_get_resp(hdl,
 					(uint32_t *)&cmd, sizeof(struct ahab_cmd_key_store_open_s),
 					(uint32_t *)&rsp, sizeof(struct ahab_rsp_key_store_open_s));
@@ -261,7 +268,7 @@ static she_err_t she_close_cipher(struct she_hdl_s *hdl)
 }
 
 /* Open a SHE user session and return a pointer to the session handle. */
-struct she_hdl_s *she_open_session(void)
+struct she_hdl_s *she_open_session(uint32_t key_storage_identifier, uint32_t password)
 {
 	uint32_t cmd[AHAB_MAX_MSG_SIZE];
 	uint32_t rsp[AHAB_MAX_MSG_SIZE];
@@ -299,6 +306,7 @@ struct she_hdl_s *she_open_session(void)
 
 		/* Send the init command to Seco. */
 		she_fill_cmd_msg_hdr((struct she_mu_hdr *)cmd, AHAB_SHARED_BUF_REQ, sizeof(struct ahab_cmd_shared_buffer_req));
+		((struct ahab_cmd_shared_buffer_req *)cmd) -> sesssion_handle = hdl->session_handle ;
 		error = she_send_msg_and_get_resp(hdl,
 					cmd, sizeof(struct ahab_cmd_shared_buffer_req),
 					rsp, sizeof(struct ahab_rsp_shared_buffer_req));
@@ -312,7 +320,7 @@ struct she_hdl_s *she_open_session(void)
 			break;
 		}
 
-		if(she_open_key_store(hdl) != 0) {
+		if(she_open_key_store(hdl, key_storage_identifier, password) != 0) {
 			break;
 		}
 

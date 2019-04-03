@@ -159,6 +159,7 @@ struct she_cmd_load_key_rsp  {
 
 struct ahab_cmd_shared_buffer_req {
 	struct she_mu_hdr hdr;
+	uint32_t sesssion_handle;
 };
 
 struct ahab_rsp_shared_buffer_req {

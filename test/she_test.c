@@ -34,6 +34,8 @@
 #include "she_api.h"
 #include "she_storage.h"
 
+#define SHE_KEY_STORE_ID	0
+#define SHE_KEY_STORE_PASSWORD	0xBEC00001
 
 static uint32_t read_single_data(FILE *fp)
 {
@@ -518,7 +520,7 @@ int main(int argc, char *argv[])
 		}
 
 		/* Open the SHE session. */
-		hdl = she_open_session();
+		hdl = she_open_session(SHE_KEY_STORE_ID, SHE_KEY_STORE_PASSWORD);
 		if (hdl == NULL) {
 			break;
 		}

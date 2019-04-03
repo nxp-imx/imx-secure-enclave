@@ -76,7 +76,7 @@ typedef enum {
  *
  * \return pointer to the session handle.
  */
-struct she_hdl_s *she_open_session(void);
+struct she_hdl_s *she_open_session(uint32_t key_storage_identifier, uint32_t password);
 
 
 /**

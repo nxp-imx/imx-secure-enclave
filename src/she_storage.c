@@ -237,6 +237,8 @@ static int32_t she_storage_setup_shared_buffer(struct she_storage_context *ctx)
 	do {
 		/* Prepare command message. */
 		she_fill_cmd_msg_hdr(&cmd.hdr, AHAB_SHARED_BUF_REQ, (uint32_t)sizeof(struct ahab_cmd_shared_buffer_req));
+		cmd.sesssion_handle = ctx->session_handle ;
+
 		/* Send the message to Seco. */
 		len = she_platform_send_mu_message(ctx->hdl, (uint32_t *)&cmd, (uint32_t)sizeof(struct ahab_cmd_shared_buffer_req));
 		if (len != (uint32_t)sizeof(struct ahab_cmd_shared_buffer_req)) {
@@ -340,12 +342,6 @@ struct she_storage_context *she_storage_init(void)
 			break;
 		}
 
-		/* Configures the shared buffer in secure memory used to commumicate blobs. */
- 		error = she_storage_setup_shared_buffer(nvm_ctx);
- 		if (error != 0) {
- 			break;
- 		}
-
 		/* Send the session open command to Seco. */
 		she_fill_cmd_msg_hdr((struct she_mu_hdr *)cmd, AHAB_SESSION_OPEN, sizeof(struct ahab_cmd_session_open_s));
 		((struct ahab_cmd_session_open_s *)cmd) -> did = 0;
@@ -359,6 +355,12 @@ struct she_storage_context *she_storage_init(void)
 			break;
 		}
 		nvm_ctx->session_handle = ((struct ahab_rsp_session_open_s *)rsp)->sesssion_handle;
+
+		/* Configures the shared buffer in secure memory used to commumicate blobs. */
+		error = she_storage_setup_shared_buffer(nvm_ctx);
+		if (error != 0) {
+			break;
+		}
 
 		/* Try to import the NVM storage. */
 		error = she_storage_import(nvm_ctx);
