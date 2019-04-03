@@ -18,6 +18,10 @@
 #define MAX_NVM_MSG_SIZE	10
 #define MAX_BLOB_SIZE 0x1000u
 
+#define SHE_DEFAULT_DID	0x0
+#define SHE_DEFAULT_TZ	0x0
+#define SHE_DEFAULT_MU	0x1
+
 struct she_storage_context {
 	uint32_t blob_size;
 	uint8_t *blob_buf;
@@ -344,9 +348,9 @@ struct she_storage_context *she_storage_init(void)
 
 		/* Send the session open command to Seco. */
 		she_fill_cmd_msg_hdr((struct she_mu_hdr *)cmd, AHAB_SESSION_OPEN, sizeof(struct ahab_cmd_session_open_s));
-		((struct ahab_cmd_session_open_s *)cmd) -> did = 0;
-		((struct ahab_cmd_session_open_s *)cmd) -> tz = 0;
-		((struct ahab_cmd_session_open_s *)cmd) -> mu_id = 1;
+		((struct ahab_cmd_session_open_s *)cmd) -> did = SHE_DEFAULT_DID;
+		((struct ahab_cmd_session_open_s *)cmd) -> tz = SHE_DEFAULT_TZ;
+		((struct ahab_cmd_session_open_s *)cmd) -> mu_id = SHE_DEFAULT_MU;
 
 		error = she_send_msg_and_get_resp(nvm_ctx->hdl,
 					cmd, sizeof(struct ahab_cmd_session_open_s),

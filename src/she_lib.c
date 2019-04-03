@@ -166,7 +166,7 @@ static she_err_t she_open_key_store(struct she_hdl_s *hdl, uint32_t key_storage_
 		cmd.password = password;
 		cmd.input_address_ext = 0;
 		cmd.output_address_ext = 0;
-
+		cmd.flags = 0;
 		error = she_send_msg_and_get_resp(hdl,
 					(uint32_t *)&cmd, sizeof(struct ahab_cmd_key_store_open_s),
 					(uint32_t *)&rsp, sizeof(struct ahab_rsp_key_store_open_s));
