@@ -332,7 +332,6 @@ struct she_storage_context *she_storage_init(void)
 	uint32_t cmd[AHAB_MAX_MSG_SIZE];
 	uint32_t rsp[AHAB_MAX_MSG_SIZE];
 	do {
-		(void)printf("she_nvm_init starts\n");
 		/* Prepare the context to be passed to the thread function. */
 		nvm_ctx = malloc(sizeof(struct she_storage_context));
 		if (nvm_ctx == NULL) {

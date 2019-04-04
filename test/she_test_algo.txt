@@ -169,7 +169,7 @@ SHE_TEST_ECB_DEC
 0x00, 0x11, 0x22, 0x33, 0x44, 0x55, 0x66, 0x77, 0x88, 0x99, 0xaa, 0xbb, 0xcc, 0xdd, 0xee, 0xff
 0 # expected return value (ERC_NO_ERROR)
 
-SHE_TEST_MAC_GEN perf measurement
+#SHE_TEST_MAC_GEN perf measurement
 100 #nb iter
 0x04 #SHE_KEY_1
 0x10 #SHE_KEY_N_EXT_1
@@ -178,7 +178,7 @@ SHE_TEST_MAC_GEN perf measurement
 0x07, 0x0a, 0x16, 0xb4, 0x6b, 0x4d, 0x41, 0x44, 0xf7, 0x9b, 0xdd, 0x9d, 0xd0, 0x4a, 0x28, 0x7c # expected output
 0 # expected return value (ERC_NO_ERROR)
 
-SHE_TEST_MAC_VERIF perf measurement
+#SHE_TEST_MAC_VERIF perf measurement
 100 #iteration
 0x04 #SHE_KEY_1
 0x10 #SHE_KEY_N_EXT_1
@@ -188,7 +188,7 @@ SHE_TEST_MAC_VERIF perf measurement
 0 # expected verification status
 0 # expected return value (ERC_NO_ERROR)
 
-SHE_TEST_CBC_ENC perf measurement
+#SHE_TEST_CBC_ENC perf measurement
 100 #iteration
 0x0D #SHE_KEY_10
 0x10 #SHE_KEY_N_EXT_1
@@ -198,7 +198,7 @@ SHE_TEST_CBC_ENC perf measurement
 0x76, 0x49, 0xab, 0xac, 0x81, 0x19, 0xb2, 0x46, 0xce, 0xe9, 0x8e, 0x9b, 0x12, 0xe9, 0x19, 0x7d #ref output
 0 # expected return value (ERC_NO_ERROR)
 
-SHE_TEST_CBC_DEC perf measurement
+#SHE_TEST_CBC_DEC perf measurement
 100 #iteration
 0x0D #SHE_KEY_10
 0x10 #SHE_KEY_N_EXT_1
@@ -208,7 +208,7 @@ SHE_TEST_CBC_DEC perf measurement
 0x6b, 0xc1, 0xbe, 0xe2, 0x2e, 0x40, 0x9f, 0x96, 0xe9, 0x3d, 0x7e, 0x11, 0x73, 0x93, 0x17, 0x2a #ref output
 0 # expected return value (ERC_NO_ERROR)
 
-SHE_TEST_ECB_ENC perf measurement
+#SHE_TEST_ECB_ENC perf measurement
 100 #iteration
 0x0B #SHE_KEY_8
 0x10 #SHE_KEY_N_EXT_1
@@ -216,7 +216,7 @@ SHE_TEST_ECB_ENC perf measurement
 0x69, 0xc4, 0xe0, 0xd8, 0x6a, 0x7b, 0x04, 0x30, 0xd8, 0xcd, 0xb7, 0x80, 0x70, 0xb4, 0xc5, 0x5a
 0 # expected return value (ERC_NO_ERROR)
 
-SHE_TEST_ECB_DEC perf measurement
+#SHE_TEST_ECB_DEC perf measurement
 100 #iteration
 0x0B #SHE_KEY_8
 0x10 #SHE_KEY_N_EXT_1
