@@ -113,37 +113,6 @@ struct she_cmd_verify_mac_rsp{
 	uint32_t verification_status;
 };
 
-/* CBC */
-
-struct she_cmd_cipher_msg{
-	union {
-		struct {
-			struct she_mu_hdr hdr;
-			uint16_t key_id;
-			uint8_t  algo;
-			uint8_t  flags;
-			uint32_t inputs_address_ext;
-			uint32_t outputs_address_ext;
-			uint32_t iv_address;
-			uint32_t input_address;
-			uint32_t output_address;
-			uint32_t data_length;
-			uint32_t crc;
-		};
-		uint32_t words[9];
-	};
-};
-#define SHE_CIPHER_ALGO_ECB (0x00u)
-#define SHE_CIPHER_ALGO_CBC (0x01u)
-#define SHE_CIPHER_FLAG_DECRYPT (0x00u)
-#define SHE_CIPHER_FLAG_ENCRYPT (0x01u)
-
-
-struct she_cmd_cipher_rsp{
-	struct she_mu_hdr hdr;
-	uint32_t rsp_code;
-};
-
 /* Load key */
 
 struct she_cmd_load_key_msg {
@@ -157,12 +126,12 @@ struct she_cmd_load_key_rsp  {
 
 /* SHE inititalization */
 
-struct ahab_cmd_shared_buffer_req {
+struct she_cmd_shared_buffer_msg {
 	struct she_mu_hdr hdr;
 	uint32_t sesssion_handle;
 };
 
-struct ahab_rsp_shared_buffer_req {
+struct she_cmd_shared_buffer_rsp {
 	struct she_mu_hdr hdr;
 	uint32_t rsp_code;
 	uint16_t shared_buf_offset;
@@ -202,7 +171,7 @@ struct she_cmd_blob_import_rsp {
 	uint32_t rsp_code;
 };
 
-struct ahab_cmd_session_open_s {
+struct she_cmd_session_open_msg {
     struct she_mu_hdr hdr;
     uint8_t mu_id;
     uint8_t interrupt_idx;
@@ -213,23 +182,23 @@ struct ahab_cmd_session_open_s {
     uint16_t pad;
 };
 
-struct ahab_rsp_session_open_s {
+struct she_cmd_session_open_rsp {
     struct she_mu_hdr hdr;
     uint32_t rsp_code;
     uint32_t sesssion_handle;
 };
 
-struct ahab_cmd_session_close_s {
+struct she_cmd_session_close_msg {
     struct she_mu_hdr hdr;
     uint32_t sesssion_handle;
 };
 
-struct ahab_rsp_session_close_s {
+struct she_cmd_session_close_rsp {
 	struct she_mu_hdr hdr;
 	uint32_t rsp_code;
 };
 
-struct ahab_cmd_key_store_open_s{
+struct she_cmd_key_store_open_msg{
 	struct she_mu_hdr hdr;
     uint32_t sesssion_handle;
     uint32_t key_store_id;
@@ -241,23 +210,23 @@ struct ahab_cmd_key_store_open_s{
     uint16_t rsv_1;
 } ;
 
-struct ahab_rsp_key_store_open_s {
+struct she_cmd_key_store_open_rsp {
 	struct she_mu_hdr hdr;
     uint32_t rsp_code;
     uint32_t key_store_handle;
 } ;
 
-struct ahab_cmd_key_store_close_s{
+struct she_cmd_key_store_close_msg{
 	struct she_mu_hdr hdr;
     uint32_t key_store_handle;
 } ;
 
-struct ahab_rsp_key_store_close_s {
+struct she_cmd_key_store_close_rsp {
 	struct she_mu_hdr hdr;
     uint32_t rsp_code;
 } ;
 
-struct ahab_cmd_cipher_open_s{
+struct she_cmd_cipher_open_msg{
 	struct she_mu_hdr hdr;
     uint32_t key_store_handle;
     uint32_t input_address_ext;
@@ -267,28 +236,28 @@ struct ahab_cmd_cipher_open_s{
     uint16_t rsv_1;
 } ;
 
-struct ahab_rsp_cipher_open_s{
+struct she_cmd_cipher_open_rsp{
 	struct she_mu_hdr hdr;
     uint32_t rsp_code;
     uint32_t cipher_handle;
 } ;
 
-struct ahab_cmd_cipher_close_s {
+struct she_cmd_cipher_close_msg {
 	struct she_mu_hdr hdr;
     uint32_t cipher_handle;
 } ;
 
-struct ahab_rsp_chiper_close_s {
+struct she_cmd_cipher_close_rsp {
 	struct she_mu_hdr hdr;
     uint32_t rsp_code;
 } ;
 
-#define AHAB_CIPHER_ONE_GO_ALGO_ECB 0x00
-#define AHAB_CIPHER_ONE_GO_ALGO_CBC 0x01
-#define AHAB_CIPHER_ONE_GO_FLAGS_ENCRYPT (1 << 0)
-#define AHAB_CIPHER_ONE_GO_FLAGS_DECRYPT (0 << 0)
+#define AHAB_CIPHER_ONE_GO_ALGO_ECB (0x00u)
+#define AHAB_CIPHER_ONE_GO_ALGO_CBC (0x01u)
+#define AHAB_CIPHER_ONE_GO_FLAGS_ENCRYPT (0x01u)
+#define AHAB_CIPHER_ONE_GO_FLAGS_DECRYPT (0x00u)
 
-struct ahab_cmd_cipher_one_go_s {
+struct she_cmd_cipher_one_go_msg {
 	struct she_mu_hdr hdr;
     uint32_t cipher_handle;
     uint32_t key_id;
@@ -302,7 +271,7 @@ struct ahab_cmd_cipher_one_go_s {
     uint32_t crc;
 } ;
 
-struct ahab_rsp_cipher_one_go_s {
+struct she_cmd_cipher_one_go_rsp {
 	struct she_mu_hdr hdr;
     uint32_t rsp_code;
 } ;
