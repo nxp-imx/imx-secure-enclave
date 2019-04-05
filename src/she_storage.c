@@ -14,6 +14,7 @@
 #include "she_msg.h"
 #include "she_platform.h"
 #include "she_storage.h"
+#include <string.h>
 
 #define MAX_NVM_MSG_SIZE	10
 #define MAX_BLOB_SIZE 0x1000u
@@ -337,7 +338,7 @@ struct she_storage_context *she_storage_init(void)
 		if (nvm_ctx == NULL) {
 			break;
 		}
-		nvm_ctx->blob_buf = NULL;
+		memset(nvm_ctx, 0 ,sizeof(struct she_storage_context));
 
 		/* Open the SHE NVM session. */
 		nvm_ctx->hdl = she_platform_open_storage_session();
@@ -401,16 +402,16 @@ int32_t she_storage_terminate(struct she_storage_context *nvm_ctx)
 	struct she_cmd_session_close_msg cmd;
 	struct she_cmd_session_close_rsp rsp;
 	int32_t err = 1;
-	(void) she_platform_cancel_thread(nvm_ctx->hdl);
 	if (nvm_ctx->hdl != NULL) {
+		if(nvm_ctx->session_handle != 0) {
+			/* Send the session close command to Seco. */
+			she_fill_cmd_msg_hdr((struct she_mu_hdr *)&cmd, AHAB_SESSION_CLOSE, sizeof(struct she_cmd_session_close_msg));
+			((struct she_cmd_session_close_msg *)&cmd)->sesssion_handle = nvm_ctx->session_handle;
 
-		/* Send the session close command to Seco. */
-		she_fill_cmd_msg_hdr((struct she_mu_hdr *)&cmd, AHAB_SESSION_CLOSE, sizeof(struct she_cmd_session_close_msg));
-		((struct she_cmd_session_close_msg *)&cmd)->sesssion_handle = nvm_ctx->session_handle;
-
-		(void)she_send_msg_and_get_resp(nvm_ctx->hdl,
-					(uint32_t *)&cmd, (uint32_t)sizeof(struct she_cmd_session_close_msg),
-					(uint32_t *)&rsp, (uint32_t)sizeof(struct she_cmd_session_close_rsp));
+			(void)she_send_msg_and_get_resp(nvm_ctx->hdl,
+						(uint32_t *)&cmd, (uint32_t)sizeof(struct she_cmd_session_close_msg),
+						(uint32_t *)&rsp, (uint32_t)sizeof(struct she_cmd_session_close_rsp));
+		}
 
 		err = she_platform_cancel_thread(nvm_ctx->hdl);
 		if (err == 0) {
