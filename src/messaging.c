@@ -100,7 +100,7 @@ she_err_t she_close_session_command (struct she_platform_hdl *phdl, uint32_t ses
 	she_err_t err = ERC_GENERAL_ERROR;
 
     do {
-        she_fill_cmd_msg_hdr(&cmd.hdr, AHAB_SESSION_CLOSE, sizeof(struct she_cmd_session_close_msg));
+        she_fill_cmd_msg_hdr(&cmd.hdr, AHAB_SESSION_CLOSE, (uint32_t)sizeof(struct she_cmd_session_close_msg));
         cmd.sesssion_handle = session_handle;
 
         error =  she_send_msg_and_get_resp(phdl, (uint32_t *)&cmd, (uint32_t)sizeof(struct she_cmd_session_close_msg), (uint32_t *)&rsp, (uint32_t)sizeof(struct she_cmd_session_close_rsp));

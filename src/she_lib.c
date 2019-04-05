@@ -31,14 +31,11 @@ struct she_hdl_s {
 
 /* Close a previously opened SHE session. */
 void she_close_session(struct she_hdl_s *hdl) {
-	struct she_cmd_session_close_msg cmd;
-	struct she_cmd_session_close_rsp rsp;
-
 	if (hdl != NULL) {
 		if (hdl->phdl != NULL) {
-			if (hdl -> session_handle) {
+			if (hdl -> session_handle != 0u) {
 				(void)she_close_session_command (hdl->phdl, hdl->session_handle);
-				hdl -> session_handle = 0;
+				hdl -> session_handle = 0u;
 			}
 			she_platform_close_session(hdl->phdl);
 		}
@@ -55,12 +52,12 @@ static she_err_t she_open_key_store(struct she_hdl_s *hdl, uint32_t key_storage_
 	int32_t error = 1;
 	do {
 
-		if (hdl->session_handle == 0) {
+		if (hdl->session_handle == 0u) {
 			break;
 		}
 
 		/* Send the keys store open command to Seco. */
-		she_fill_cmd_msg_hdr(&cmd.hdr, AHAB_KEY_STORE_OPEN, sizeof(struct she_cmd_key_store_open_msg));
+		she_fill_cmd_msg_hdr(&cmd.hdr, AHAB_KEY_STORE_OPEN, (uint32_t)sizeof(struct she_cmd_key_store_open_msg));
 
 		cmd.sesssion_handle = hdl->session_handle;
 		cmd.key_store_id = key_storage_identifier;
@@ -86,7 +83,7 @@ static she_err_t she_open_key_store(struct she_hdl_s *hdl, uint32_t key_storage_
 		hdl->key_store_handle = rsp.key_store_handle;
 		/* Success. */
 		err = ERC_NO_ERROR;
-	} while(0);
+	} while(false);
 	return err;
 }
 
@@ -99,12 +96,12 @@ static she_err_t she_get_shared_bufer(struct she_hdl_s *hdl, uint32_t *shared_bu
 	int32_t error = 1;
 	do {
 
-		if (hdl->session_handle == 0) {
+		if (hdl->session_handle == 0u) {
 			break;
 		}
 
 		/* Send the keys store open command to Seco. */
-		she_fill_cmd_msg_hdr(&cmd.hdr, AHAB_SHARED_BUF_REQ, sizeof(struct she_cmd_shared_buffer_msg));
+		she_fill_cmd_msg_hdr(&cmd.hdr, AHAB_SHARED_BUF_REQ, (uint32_t)sizeof(struct she_cmd_shared_buffer_msg));
 
 		cmd.sesssion_handle = hdl->session_handle;
 		error = she_send_msg_and_get_resp(hdl->phdl,
@@ -124,7 +121,7 @@ static she_err_t she_get_shared_bufer(struct she_hdl_s *hdl, uint32_t *shared_bu
 		*shared_buf_size = rsp.shared_buf_size;
 		/* Success. */
 		err = ERC_NO_ERROR;
-	} while(0);
+	} while(false);
 	return err;
 }
 
@@ -138,11 +135,11 @@ static she_err_t she_close_key_store(struct she_hdl_s *hdl)
 	int32_t error = 1;
 	do {
 
-		if (hdl->key_store_handle == 0) {
+		if (hdl->key_store_handle == 0u) {
 			break;
 		}
 		/* Send the keys store close command to Seco. */
-		she_fill_cmd_msg_hdr(&cmd.hdr, AHAB_KEY_STORE_CLOSE, sizeof(struct she_cmd_key_store_close_msg));
+		she_fill_cmd_msg_hdr(&cmd.hdr, AHAB_KEY_STORE_CLOSE, (uint32_t)sizeof(struct she_cmd_key_store_close_msg));
 		cmd.key_store_handle = hdl->key_store_handle;
 
 		error = she_send_msg_and_get_resp(hdl->phdl,
@@ -162,7 +159,7 @@ static she_err_t she_close_key_store(struct she_hdl_s *hdl)
 
 		/* Success. */
 		err = ERC_NO_ERROR;
-	} while(0);
+	} while(false);
 	return err;
 }
 
@@ -170,18 +167,18 @@ static she_err_t she_open_cipher(struct she_hdl_s *hdl)
 {
 	struct she_cmd_cipher_open_msg cmd;
 	struct she_cmd_cipher_open_rsp rsp;
-
 	she_err_t err = ERC_GENERAL_ERROR;
 	int32_t error = 1;
 	do {
 
-		if (hdl->cipher_handle != 0) {
+		if (hdl->cipher_handle != 0u) {
 			break;
 		}
 		/* Send the keys store open command to Seco. */
-		she_fill_cmd_msg_hdr(&cmd.hdr, AHAB_CIPHER_OPEN, sizeof(struct she_cmd_cipher_open_msg));
+		she_fill_cmd_msg_hdr(&cmd.hdr, AHAB_CIPHER_OPEN, (uint32_t)sizeof(struct she_cmd_cipher_open_msg));
 		cmd.input_address_ext = 0;
 		cmd.output_address_ext = 0;
+		cmd.flags = 0;
 		cmd.key_store_handle = hdl->key_store_handle;
 		cmd.crc = she_compute_msg_crc((uint32_t*)&cmd, (uint32_t)(sizeof(cmd) - sizeof(uint32_t)));
 
@@ -201,8 +198,8 @@ static she_err_t she_open_cipher(struct she_hdl_s *hdl)
 		hdl->cipher_handle = rsp.cipher_handle;
 		/* Success. */
 		err = ERC_NO_ERROR;
-	} while(0);
-	return error;
+	} while(false);
+	return err;
 }
 
 static she_err_t she_close_cipher(struct she_hdl_s *hdl)
@@ -212,11 +209,11 @@ static she_err_t she_close_cipher(struct she_hdl_s *hdl)
 	she_err_t err = ERC_GENERAL_ERROR;
 	int32_t error = 1;
 	do {
-		if (hdl->cipher_handle == 0){
+		if (hdl->cipher_handle == 0u){
 			break;
 		}
 		/* Send the keys store open command to Seco. */
-		she_fill_cmd_msg_hdr(&cmd.hdr, AHAB_CIPHER_CLOSE, sizeof(struct she_cmd_cipher_close_msg));
+		she_fill_cmd_msg_hdr(&cmd.hdr, AHAB_CIPHER_CLOSE, (uint32_t)sizeof(struct she_cmd_cipher_close_msg));
 		cmd.cipher_handle = hdl->cipher_handle;
 		error = she_send_msg_and_get_resp(hdl->phdl,
 					(uint32_t *)&cmd, (uint32_t)sizeof(struct she_cmd_cipher_close_msg),
@@ -234,7 +231,7 @@ static she_err_t she_close_cipher(struct she_hdl_s *hdl)
 		hdl->cipher_handle = 0;
 		/* Success. */
 		err = ERC_NO_ERROR;
-	} while(0);
+	} while(false);
 	return err;
 }
 
@@ -252,7 +249,7 @@ struct she_hdl_s *she_open_session(uint32_t key_storage_identifier, uint32_t pas
 		if (hdl == NULL) {
 			break;
 		}
-		memset(hdl, 0, sizeof(struct she_hdl_s));
+		(void)memset(hdl, 0, sizeof(struct she_hdl_s));
 
 		/* Open the SHE session. */
 		hdl->phdl = she_platform_open_she_session();
@@ -261,7 +258,7 @@ struct she_hdl_s *she_open_session(uint32_t key_storage_identifier, uint32_t pas
 		}
 
 		/* Send the session open command to Seco. */
-		she_fill_cmd_msg_hdr((struct she_mu_hdr *)&msg, AHAB_SESSION_OPEN, sizeof(struct she_cmd_session_open_msg));
+		she_fill_cmd_msg_hdr((struct she_mu_hdr *)&msg, AHAB_SESSION_OPEN, (uint32_t)sizeof(struct she_cmd_session_open_msg));
 		msg.did = SHE_DEFAULT_DID;
 		msg.tz = SHE_DEFAULT_TZ;
 		msg.mu_id = SHE_DEFAULT_MU;
@@ -435,7 +432,7 @@ static she_err_t she_cmd_cipher_one_go(struct she_hdl_s *hdl, uint8_t key_ext, u
 		error = she_send_msg_and_get_resp(hdl->phdl,
 					(uint32_t *)&cmd, (uint32_t)sizeof(struct she_cmd_cipher_one_go_msg),
 					(uint32_t *)&rsp, (uint32_t)sizeof(struct she_cmd_cipher_one_go_rsp));
-		if (error) {
+		if (error != 0) {
 			break;
 		}
 
@@ -447,7 +444,7 @@ static she_err_t she_cmd_cipher_one_go(struct she_hdl_s *hdl, uint8_t key_ext, u
 		err = ERC_NO_ERROR;
 	} while (false);
 
-	if(she_close_cipher(hdl) != 0) {
+	if(she_close_cipher(hdl) != ERC_NO_ERROR) {
 		err = ERC_GENERAL_ERROR;
 	}
 
