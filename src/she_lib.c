@@ -166,6 +166,8 @@ static she_err_t she_open_key_store(struct she_hdl_s *hdl, uint32_t key_storage_
 		cmd.input_address_ext = 0;
 		cmd.output_address_ext = 0;
 		cmd.flags = 0;
+		cmd.crc = she_compute_msg_crc((uint32_t*)&cmd, (uint32_t)(sizeof(cmd) - sizeof(uint32_t)));
+
 		error = she_send_msg_and_get_resp(hdl,
 					(uint32_t *)&cmd, (uint32_t)sizeof(struct she_cmd_key_store_open_msg),
 					(uint32_t *)&rsp, (uint32_t)sizeof(struct she_cmd_key_store_open_rsp));
@@ -263,6 +265,8 @@ static she_err_t she_open_cipher(struct she_hdl_s *hdl)
 		cmd.input_address_ext = 0;
 		cmd.output_address_ext = 0;
 		cmd.key_store_handle = hdl->key_store_handle;
+		cmd.crc = she_compute_msg_crc((uint32_t*)&cmd, (uint32_t)(sizeof(cmd) - sizeof(uint32_t)));
+
 		error = she_send_msg_and_get_resp(hdl,
 					(uint32_t *)&cmd, (uint32_t)sizeof(struct she_cmd_cipher_open_msg),
 					(uint32_t *)&rsp, (uint32_t)sizeof(struct she_cmd_cipher_open_rsp));

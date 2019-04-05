@@ -236,8 +236,8 @@ static int32_t she_storage_setup_shared_buffer(struct she_storage_context *ctx)
 {
 	struct she_cmd_shared_buffer_msg cmd;
 	struct she_cmd_shared_buffer_rsp rsp;
-	uint32_t err = 1;
-	uint32_t len;
+	int32_t err = -1;
+	int32_t len;
 
 	do {
 		/* Prepare command message. */
@@ -245,7 +245,7 @@ static int32_t she_storage_setup_shared_buffer(struct she_storage_context *ctx)
 		cmd.sesssion_handle = ctx->session_handle ;
 
 		/* Send the message to Seco. */
-		len = she_platform_send_mu_message(ctx->hdl, (uint32_t *)&cmd, sizeof(struct she_cmd_shared_buffer_msg));
+		len = she_platform_send_mu_message(ctx->hdl, (uint32_t *)&cmd, (uint32_t)sizeof(struct she_cmd_shared_buffer_msg));
 		if (len != (uint32_t)sizeof(struct she_cmd_shared_buffer_msg)) {
 			break;
 		}
@@ -339,7 +339,6 @@ struct she_storage_context *she_storage_init(void)
 			break;
 		}
 		memset(nvm_ctx, 0 ,sizeof(struct she_storage_context));
-
 		/* Open the SHE NVM session. */
 		nvm_ctx->hdl = she_platform_open_storage_session();
 		if (nvm_ctx->hdl == NULL) {
@@ -369,10 +368,12 @@ struct she_storage_context *she_storage_init(void)
 
 		/* Try to import the NVM storage. */
 		error = she_storage_import(nvm_ctx);
+
 		// TODO: Handle errors. (currently Seco can generate himself a fake storage if we cannot provide it from here.)
 
 		/* Start the background thread waiting for NVM commands from Seco. */
 		error = she_platform_create_thread(nvm_ctx->hdl, &she_storage_thread, nvm_ctx);
+
 	} while (false);
 
 	/* error clean-up. */

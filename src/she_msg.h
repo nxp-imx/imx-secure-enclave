@@ -208,6 +208,7 @@ struct she_cmd_key_store_open_msg{
     uint8_t flags;
     uint8_t rsv;
     uint16_t rsv_1;
+    uint32_t crc;
 } ;
 
 struct she_cmd_key_store_open_rsp {
@@ -234,6 +235,7 @@ struct she_cmd_cipher_open_msg{
     uint8_t flags;
     uint8_t rsv;
     uint16_t rsv_1;
+    uint32_t crc;
 } ;
 
 struct she_cmd_cipher_open_rsp{
