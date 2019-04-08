@@ -20,8 +20,6 @@
 #define MESSAGING_TAG_RESPONSE					0xe1u
 #define MESSAGING_VERSION_2						0x02u
 
-#define AHAB_MAX_MSG_SIZE						20
-
 #define AHAB_SHE_SESSION_OPEN                   0x10u
 #define AHAB_SHE_SESSION_CLOSE                  0x11u
 #define AHAB_SHE_KEY_STORE_OPEN                 0x12u
