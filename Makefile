@@ -21,7 +21,7 @@ she_test: test/she_test.c she_lib.o she_storage.o platform_lib.o messaging.o inc
 	$(CC) $^  -o $@ -I include -lpthread -lz
 
 clean:
-	rm -rf she_test she_lib.o platform_lib.o she_storage.o
+	rm -rf she_test she_lib.o platform_lib.o she_storage.o messaging.o
 
 she_doc: include/she_api.h include/she_storage.h
 	rm -rf doc/latex/
