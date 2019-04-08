@@ -20,9 +20,12 @@
 #define MAX_NVM_MSG_SIZE	10
 #define MAX_BLOB_SIZE 0x1000u
 
-#define SHE_DEFAULT_DID	0x0
-#define SHE_DEFAULT_TZ	0x0
-#define SHE_DEFAULT_MU	0x1
+#define SHE_STORAGE_DEFAULT_DID				0x0u
+#define SHE_STORAGE_DEFAULT_TZ				0x0u
+#define SHE_STORAGE_DEFAULT_MU				0x1u
+#define SHE_STORAGE_DEFAULT_INTERRUPT_IDX	0x0u
+#define SHE_STORAGE_DEFAULT_PRIORITY		0x0u
+#define SHE_STORAGE_DEFAULT_OPERATING_MODE	0x0u
 
 struct she_storage_context {
 	uint32_t blob_size;
@@ -183,33 +186,21 @@ static int32_t she_storage_import(struct she_storage_context *ctx)
 
 static int32_t she_storage_setup_shared_buffer(struct she_storage_context *ctx)
 {
-	struct she_cmd_shared_buffer_msg cmd;
-	struct she_cmd_shared_buffer_rsp rsp;
 	int32_t err = -1;
-	int32_t len;
+	uint32_t shared_buf_offset, shared_buf_size;
 
 	do {
-		/* Prepare command message. */
-		she_fill_cmd_msg_hdr(&cmd.hdr, AHAB_SHARED_BUF_REQ, (uint32_t)sizeof(struct she_cmd_shared_buffer_msg));
-		cmd.sesssion_handle = ctx->session_handle ;
 
-		/* Send the message to Seco. */
-		len = she_platform_send_mu_message(ctx->hdl, (uint32_t *)&cmd, (uint32_t)sizeof(struct she_cmd_shared_buffer_msg));
-		if (len != (int32_t)sizeof(struct she_cmd_shared_buffer_msg)) {
-			break;
-		}
-
-		/* Read the response. */
-		len = she_platform_read_mu_message(ctx->hdl, (uint32_t *)&rsp, (uint32_t)sizeof(struct she_cmd_shared_buffer_rsp));
-		if (len != (int32_t)sizeof(struct she_cmd_shared_buffer_rsp)) {
+		if (she_get_shared_buffer(ctx->hdl, ctx->session_handle, &shared_buf_offset, &shared_buf_size) != ERC_NO_ERROR) {
 			break;
 		}
 
 		/* Configure the shared buffer. and start the NVM manager. */
-		err = she_platform_configure_shared_buf(ctx->hdl, rsp.shared_buf_offset, rsp.shared_buf_size);
+		err = she_platform_configure_shared_buf(ctx->hdl, shared_buf_offset, shared_buf_size);
 		if (err != 0) {
 			break;
 		}
+
 	} while(false);
 
 	return err;
@@ -279,8 +270,6 @@ struct she_storage_context *she_storage_init(void)
 {
 	struct she_storage_context *nvm_ctx = NULL;
 	int32_t error = -1;
-	struct she_cmd_session_open_msg cmd;
-	struct she_cmd_session_open_rsp rsp;
 	do {
 		/* Prepare the context to be passed to the thread function. */
 		nvm_ctx = malloc(sizeof(struct she_storage_context));
@@ -294,20 +283,12 @@ struct she_storage_context *she_storage_init(void)
 			break;
 		}
 
-		/* Send the session open command to Seco. */
-		she_fill_cmd_msg_hdr((struct she_mu_hdr *)&cmd, AHAB_SESSION_OPEN, (uint32_t)sizeof(struct she_cmd_session_open_msg));
-		cmd.did = SHE_DEFAULT_DID;
-		cmd.tz = SHE_DEFAULT_TZ;
-		cmd.mu_id = SHE_DEFAULT_MU;
-
-		error = she_send_msg_and_get_resp(nvm_ctx->hdl,
-					(uint32_t *)&cmd, (uint32_t)sizeof(struct she_cmd_session_open_msg),
-					(uint32_t *)&rsp, (uint32_t)sizeof(struct she_cmd_session_open_rsp));
-		if (error != 0) {
+		/* Open the SHE session on SECO side */
+		if (she_open_session_command (nvm_ctx->hdl, &nvm_ctx->session_handle,
+				SHE_STORAGE_DEFAULT_MU, SHE_STORAGE_DEFAULT_INTERRUPT_IDX, SHE_STORAGE_DEFAULT_TZ,
+				SHE_STORAGE_DEFAULT_DID, SHE_STORAGE_DEFAULT_PRIORITY, SHE_STORAGE_DEFAULT_OPERATING_MODE) != ERC_NO_ERROR) {
 			break;
 		}
-
-		nvm_ctx->session_handle = rsp.sesssion_handle;
 
 		/* Configures the shared buffer in secure memory used to commumicate blobs. */
 		error = she_storage_setup_shared_buffer(nvm_ctx);

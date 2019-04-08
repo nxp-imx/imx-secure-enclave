@@ -94,28 +94,110 @@ uint32_t she_compute_msg_crc(uint32_t *msg, uint32_t msg_len) {
 }
 
 she_err_t she_close_session_command (struct she_platform_hdl *phdl, uint32_t session_handle) {
-    struct she_cmd_session_close_msg cmd;
-    struct she_cmd_session_close_rsp rsp;
+	struct she_cmd_session_close_msg cmd;
+	struct she_cmd_session_close_rsp rsp;
 	int32_t error;
 	she_err_t err = ERC_GENERAL_ERROR;
 
-    do {
-        she_fill_cmd_msg_hdr(&cmd.hdr, AHAB_SESSION_CLOSE, (uint32_t)sizeof(struct she_cmd_session_close_msg));
-        cmd.sesssion_handle = session_handle;
+	do {
 
-        error =  she_send_msg_and_get_resp(phdl, (uint32_t *)&cmd, (uint32_t)sizeof(struct she_cmd_session_close_msg), (uint32_t *)&rsp, (uint32_t)sizeof(struct she_cmd_session_close_rsp));
+		if (session_handle == 0u) {
+			break;
+		}
 
-        if (error != 0) {
-            break;
-        }
+		she_fill_cmd_msg_hdr(&cmd.hdr, AHAB_SHE_SESSION_CLOSE, (uint32_t)sizeof(struct she_cmd_session_close_msg));
+		cmd.sesssion_handle = session_handle;
 
-        if (rsp.rsp_code != AHAB_SUCCESS_IND) {
-            err = she_seco_ind_to_she_err_t(rsp.rsp_code);
-            break;
-        }
+		error =  she_send_msg_and_get_resp(phdl, (uint32_t *)&cmd, (uint32_t)sizeof(struct she_cmd_session_close_msg), (uint32_t *)&rsp, (uint32_t)sizeof(struct she_cmd_session_close_rsp));
 
-            /* Success. */
+		if (error != 0) {
+			break;
+		}
+
+		if (rsp.rsp_code != AHAB_SUCCESS_IND) {
+			err = she_seco_ind_to_she_err_t(rsp.rsp_code);
+			break;
+		}
+
+			/* Success. */
 	err = ERC_NO_ERROR;
+	} while (false);
+
+	return err;
+}
+
+she_err_t she_get_shared_buffer(struct she_platform_hdl *phdl, uint32_t session_handle, uint32_t *shared_buf_offset, uint32_t *shared_buf_size)
+{
+	struct she_cmd_shared_buffer_msg cmd;
+	struct she_cmd_shared_buffer_rsp rsp;
+
+	she_err_t err = ERC_GENERAL_ERROR;
+	int32_t error = 1;
+	do {
+
+		if (session_handle == 0u) {
+			break;
+		}
+
+		/* Send the keys store open command to Seco. */
+		she_fill_cmd_msg_hdr(&cmd.hdr, AHAB_SHARED_BUF_REQ, (uint32_t)sizeof(struct she_cmd_shared_buffer_msg));
+
+		cmd.sesssion_handle = session_handle;
+		error = she_send_msg_and_get_resp(phdl,
+					(uint32_t *)&cmd, (uint32_t)sizeof(struct she_cmd_shared_buffer_msg),
+					(uint32_t *)&rsp, (uint32_t)sizeof(struct she_cmd_shared_buffer_rsp));
+
+		if (error != 0) {
+			break;
+		}
+
+		if (rsp.rsp_code != AHAB_SUCCESS_IND) {
+			err = she_seco_ind_to_she_err_t(rsp.rsp_code);
+			break;
+		}
+
+		*shared_buf_offset = rsp.shared_buf_offset;
+		*shared_buf_size = rsp.shared_buf_size;
+		/* Success. */
+		err = ERC_NO_ERROR;
+	} while(false);
+	return err;
+}
+
+she_err_t she_open_session_command (struct she_platform_hdl *phdl, uint32_t *session_handle, uint8_t mu_id, uint8_t interrupt_idx, uint8_t tz, uint8_t did, uint8_t priority,uint8_t operating_mode) {
+	struct she_cmd_session_open_msg cmd;
+	struct she_cmd_session_open_rsp rsp;
+	int32_t error;
+	she_err_t err = ERC_GENERAL_ERROR;
+
+	cmd.mu_id = mu_id;
+	cmd.interrupt_idx = interrupt_idx;
+	cmd.tz = tz;
+	cmd.did = did;
+	cmd.priority = priority;
+	cmd.operating_mode = operating_mode;
+
+	do {
+		/* Send the session open command to Seco. */
+		she_fill_cmd_msg_hdr((struct she_mu_hdr *)&cmd, AHAB_SHE_SESSION_OPEN, (uint32_t)sizeof(struct she_cmd_session_open_msg));
+
+
+		error = she_send_msg_and_get_resp(phdl,
+					(uint32_t *)&cmd, (uint32_t)sizeof(struct she_cmd_session_open_msg),
+					(uint32_t *)&rsp, (uint32_t)sizeof(struct she_cmd_session_open_rsp));
+
+		if (error != 0) {
+			break;
+		}
+
+		if (rsp.rsp_code != AHAB_SUCCESS_IND) {
+			err = she_seco_ind_to_she_err_t(rsp.rsp_code);
+			break;
+		}
+
+		*session_handle = rsp.sesssion_handle;
+		/* Success. */
+		err = ERC_NO_ERROR;
 	} while (false);
 
 	return err;

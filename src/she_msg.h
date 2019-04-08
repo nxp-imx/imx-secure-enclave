@@ -22,12 +22,12 @@
 
 #define AHAB_MAX_MSG_SIZE						20
 
-#define AHAB_SESSION_OPEN                       0x10u
-#define AHAB_SESSION_CLOSE                      0x11u
-#define AHAB_KEY_STORE_OPEN                     0x12u
-#define AHAB_KEY_STORE_CLOSE                    0x13u
-#define AHAB_CIPHER_OPEN                        0x14u
-#define AHAB_CIPHER_CLOSE                       0x15u
+#define AHAB_SHE_SESSION_OPEN                   0x10u
+#define AHAB_SHE_SESSION_CLOSE                  0x11u
+#define AHAB_SHE_KEY_STORE_OPEN                 0x12u
+#define AHAB_SHE_KEY_STORE_CLOSE                0x13u
+#define AHAB_SHE_CIPHER_OPEN                    0x14u
+#define AHAB_SHE_CIPHER_CLOSE                   0x15u
 
 #define AHAB_SHARED_BUF_REQ						0x30u
 #define AHAB_SHE_CMD_GENERATE_MAC				0x31u
@@ -36,7 +36,7 @@
 #define AHAB_SHE_CMD_LOAD_KEY					0x34u
 #define AHAB_SHE_CMD_STORAGE_EXPORT_REQ			0x35u
 #define AHAB_SHE_CMD_STORAGE_IMPORT_REQ			0x36u
-#define AHAB_SHE_CMD_CIPHER_REQ					0x37u
+#define AHAB_SHE_CMD_CIPHER_ONE_GO_REQ			0x37u
 
 
 #define AHAB_SUCCESS_IND						0x00u

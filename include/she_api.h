@@ -74,6 +74,9 @@ typedef enum {
  * The user doesn't need to know or to access the fields of this struct.
  * It only needs to store this pointer and pass it to every calls to other APIs within the same SHE session.
  *
+ * \param key_storage_identifier key store identifier
+ * \param password password for accesing the key storage
+ *
  * \return pointer to the session handle.
  */
 struct she_hdl_s *she_open_session(uint32_t key_storage_identifier, uint32_t password);
