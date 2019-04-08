@@ -27,17 +27,17 @@
  * \brief Error codes returned by HSM functions.
  */
 typedef enum {
-	HSM_NO_ERROR                = 0x0,		/**< Success. */
-	HSM_OUT_OF_MEM              = 0x1,		/**< There is not enough memory to open a new session or service flow. */
-	HSM_UNKNOWN_HANDLE          = 0x2,		/**< The provided handle doens't exist */
-	HSM_UNKNOWN_KEY_STORE       = 0x3,		/**< The provided key store identifier doesn't exist */
-	HSM_KEY_STORE_AUTH_ERROR    = 0x4,		/**< Key store authentication fails */
-	HSM_UNKNOWN_ID              = 0x5,		/**< The provided identifier doens't exist. */
-	HSM_BUF_SIZE_ERROR          = 0x6,		/**< The size of the buffer provided by the requester is too small for the requested operation */
-	HSM_KEY_ERROR               = 0x7,		/**< The key cannot be used for the requested opearation. */
-	HSM_MEM_ACCESS_ERROR        = 0x8,		/**< The specified memory address cannot be accessed. */
-	HSM_INVALID_PARAM           = 0x9,		/**< One or more parameters are not valid */
-	HSM_GENERAL_ERROR           = 0xFF,		/**< Error not covered by other codes occured. */
+    HSM_NO_ERROR                = 0x0,      /**< Success. */
+    HSM_OUT_OF_MEM              = 0x1,      /**< There is not enough memory to open a new session or service flow. */
+    HSM_UNKNOWN_HANDLE          = 0x2,      /**< The provided handle doens't exist */
+    HSM_UNKNOWN_KEY_STORE       = 0x3,      /**< The provided key store identifier doesn't exist */
+    HSM_KEY_STORE_AUTH_ERROR    = 0x4,      /**< Key store authentication fails */
+    HSM_UNKNOWN_ID              = 0x5,      /**< The provided identifier doens't exist. */
+    HSM_BUF_SIZE_ERROR          = 0x6,      /**< The size of the buffer provided by the requester is too small for the requested operation */
+    HSM_KEY_ERROR               = 0x7,      /**< The key cannot be used for the requested opearation. */
+    HSM_MEM_ACCESS_ERROR        = 0x8,      /**< The specified memory address cannot be accessed. */
+    HSM_INVALID_PARAM           = 0x9,      /**< One or more parameters are not valid */
+    HSM_GENERAL_ERROR           = 0xFF,     /**< Error not covered by other codes occured. */
 } hsm_err_t;
 
 
@@ -61,7 +61,7 @@ struct hsm_hdl_s *hsm_open_session(uint32_t key_storage_identifier, uint8_t acce
 /**
  * It must be specified to create a new key storage
  */
-#define HSM_KEY_STORAGE_ACCESS_FLAG_NEW	(1 << 0)
+#define HSM_KEY_STORAGE_ACCESS_FLAG_NEW (1 << 0)
 
 
 /**
@@ -105,29 +105,29 @@ hsm_err_t hsm_key_management_cmd_key_generation(struct hsm_hdl_s *hdl, uint8_t *
 /**
  * It must be specified to create a new key slot
  */
-#define	HSM_KEY_IDENTIFIER_NEW					0xFFFFFFFF
-#define HSM_KEY_TYPE_ECDSA_NIST_P224			0x00
-#define HSM_KEY_TYPE_ECDSA_NIST_P256			0x01
-#define HSM_KEY_TYPE_ECDSA_NIST_P384			0x02
-#define HSM_KEY_TYPE_ECDSA_BRAINPOOL_R1_224		0x10
-#define HSM_KEY_TYPE_ECDSA_BRAINPOOL_R1_256		0x11
-#define HSM_KEY_TYPE_ECDSA_BRAINPOOL_R1_384		0x12
-#define HSM_KEY_TYPE_ECDSA_BRAINPOOL_T1_224		0x20		
-#define HSM_KEY_TYPE_ECDSA_BRAINPOOL_T1_256		0x21
-#define HSM_KEY_TYPE_ECDSA_BRAINPOOL_T1_384		0x22
-#define HSM_KEY_TYPE_AES_128					0x30
-#define HSM_KEY_TYPE_AES_192					0x31
-#define HSM_KEY_TYPE_AES_256					0x32
+#define HSM_KEY_IDENTIFIER_NEW                  0xFFFFFFFF
+#define HSM_KEY_TYPE_ECDSA_NIST_P224            0x00
+#define HSM_KEY_TYPE_ECDSA_NIST_P256            0x01
+#define HSM_KEY_TYPE_ECDSA_NIST_P384            0x02
+#define HSM_KEY_TYPE_ECDSA_BRAINPOOL_R1_224     0x10
+#define HSM_KEY_TYPE_ECDSA_BRAINPOOL_R1_256     0x11
+#define HSM_KEY_TYPE_ECDSA_BRAINPOOL_R1_384     0x12
+#define HSM_KEY_TYPE_ECDSA_BRAINPOOL_T1_224     0x20        
+#define HSM_KEY_TYPE_ECDSA_BRAINPOOL_T1_256     0x21
+#define HSM_KEY_TYPE_ECDSA_BRAINPOOL_T1_384     0x22
+#define HSM_KEY_TYPE_AES_128                    0x30
+#define HSM_KEY_TYPE_AES_192                    0x31
+#define HSM_KEY_TYPE_AES_256                    0x32
 
 /**
  * When set, the key is transient. Transient keys are deleted when the corresponding key store service flow is closed.
  */
-#define HSM_KEY_FLAGS_TRANSIENT					(1 << 0)
+#define HSM_KEY_FLAGS_TRANSIENT                 (1 << 0)
 
 /**
  * When set, the key is permanent. Once created, it will not be possible to update or delete the key anymore.
  */
-#define HSM_KEY_FLAGS_PERMANENT					(1 << 1)
+#define HSM_KEY_FLAGS_PERMANENT                 (1 << 1)
 
 
 /**

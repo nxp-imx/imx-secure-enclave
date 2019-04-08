@@ -33,8 +33,8 @@
 #define SECO_NVM_DEFAULT_STORAGE_FILE "/etc/seco_nvm"
 
 struct she_platform_hdl {
-	int32_t fd;
-	pthread_t tid;
+    int32_t fd;
+    pthread_t tid;
 };
 
 /* Open a SHE session and returns a pointer to the handle or NULL in case of error.
@@ -42,149 +42,149 @@ struct she_platform_hdl {
  */
 struct she_platform_hdl *she_platform_open_she_session(void)
 {
-	struct she_platform_hdl *phdl = malloc(sizeof(struct she_platform_hdl));
+    struct she_platform_hdl *phdl = malloc(sizeof(struct she_platform_hdl));
 
-	if (phdl != NULL) {
-		phdl->fd = open(SECO_MU_PATH, O_RDWR);
-		/* If open failed return NULL handle. */
-		if (phdl->fd < 0) {
-			free(phdl);
-			phdl = NULL;
-		}
-	}
-	return phdl;
+    if (phdl != NULL) {
+        phdl->fd = open(SECO_MU_PATH, O_RDWR);
+        /* If open failed return NULL handle. */
+        if (phdl->fd < 0) {
+            free(phdl);
+            phdl = NULL;
+        }
+    }
+    return phdl;
 };
 
 /* Open a storage session over the MU. */
 struct she_platform_hdl *she_platform_open_storage_session(void)
 {
-	struct she_platform_hdl *phdl = malloc(sizeof(struct she_platform_hdl));
+    struct she_platform_hdl *phdl = malloc(sizeof(struct she_platform_hdl));
 
-	if (phdl != NULL) {
-		phdl->fd = open(SECO_NVM_PATH, O_RDWR);
-		/* If open failed return NULL handle. */
-		if (phdl->fd < 0) {
-			free(phdl);
-			phdl = NULL;
-		} else {
-			/* If open is successful then configure the device to accept incoming commands. */
-			if (ioctl(phdl->fd, SECO_MU_IOCTL_ENABLE_CMD_RCV)) {
-				free(phdl);
-				phdl = NULL;
-			}
-		}
-	}
-	return phdl;
+    if (phdl != NULL) {
+        phdl->fd = open(SECO_NVM_PATH, O_RDWR);
+        /* If open failed return NULL handle. */
+        if (phdl->fd < 0) {
+            free(phdl);
+            phdl = NULL;
+        } else {
+            /* If open is successful then configure the device to accept incoming commands. */
+            if (ioctl(phdl->fd, SECO_MU_IOCTL_ENABLE_CMD_RCV)) {
+                free(phdl);
+                phdl = NULL;
+            }
+        }
+    }
+    return phdl;
 };
 
 /* Close a previously opened session (SHE or storage). */
 void she_platform_close_session(struct she_platform_hdl *phdl)
 {
-	/* Close the device. */
-	(void)close(phdl->fd);
+    /* Close the device. */
+    (void)close(phdl->fd);
 
-	free(phdl);
+    free(phdl);
 }
 
 /* Send a message to Seco on the MU. Return the size of the data written. */
 int32_t she_platform_send_mu_message(struct she_platform_hdl *phdl, uint32_t *message, uint32_t size)
 {
-	return (int32_t)write(phdl->fd, message, size);
+    return (int32_t)write(phdl->fd, message, size);
 }
 
 /* Read a message from Seco on the MU. Return the size of the data that were read. */
 int32_t she_platform_read_mu_message(struct she_platform_hdl *phdl, uint32_t *message, uint32_t size)
 {
-	return (int32_t)read(phdl->fd, message, size);
+    return (int32_t)read(phdl->fd, message, size);
 };
 
 /* Map the shared buffer allocated by Seco. */
 int32_t she_platform_configure_shared_buf(struct she_platform_hdl *phdl, uint32_t shared_buf_off, uint32_t size)
 {
-	int32_t error;
-	struct seco_mu_ioctl_shared_mem_cfg cfg;
+    int32_t error;
+    struct seco_mu_ioctl_shared_mem_cfg cfg;
 
-	cfg.base_offset = shared_buf_off;
-	cfg.size = size;
-	error = ioctl(phdl->fd, SECO_MU_IOCTL_SHARED_BUF_CFG, &cfg);
+    cfg.base_offset = shared_buf_off;
+    cfg.size = size;
+    error = ioctl(phdl->fd, SECO_MU_IOCTL_SHARED_BUF_CFG, &cfg);
 
-	return error;
+    return error;
 }
 
 
 uint64_t she_platform_data_buf(struct she_platform_hdl *phdl, uint8_t *src, uint32_t size, uint32_t flags)
 {
-	struct seco_mu_ioctl_setup_iobuf io;
-	int32_t err;
+    struct seco_mu_ioctl_setup_iobuf io;
+    int32_t err;
 
-	io.user_buf = src;
-	io.length = size;
-	io.flags = flags;
+    io.user_buf = src;
+    io.length = size;
+    io.flags = flags;
 
-	err = ioctl(phdl->fd, SECO_MU_IOCTL_SETUP_IOBUF, &io);
+    err = ioctl(phdl->fd, SECO_MU_IOCTL_SETUP_IOBUF, &io);
 
-	if (err != 0) {
-		io.seco_addr = 0;
-	}
+    if (err != 0) {
+        io.seco_addr = 0;
+    }
 
-	return io.seco_addr;
+    return io.seco_addr;
 }
 
 /* Start a new thread. Return 0 in case of success or an non-null code in case of error. */
 int32_t she_platform_create_thread(struct she_platform_hdl *phdl, void * (*func)(void *arg), void * arg)
 {
-	int32_t err;
-	err = pthread_create(&phdl->tid, NULL, func, arg);
-	return err;
+    int32_t err;
+    err = pthread_create(&phdl->tid, NULL, func, arg);
+    return err;
 }
 
 /* Cancel a previously created thread. Return 0 in case of success or an non-null code in case of error. */
 int32_t she_platform_cancel_thread(struct she_platform_hdl *phdl)
 {
-	int32_t err;
-	err = pthread_cancel(phdl->tid);
+    int32_t err;
+    err = pthread_cancel(phdl->tid);
 
-	return err;
+    return err;
 }
 
 
 uint32_t she_platform_crc(uint8_t *data, uint32_t size)
 {
-	return (uint32_t)crc32(0, data, size);
+    return (uint32_t)crc32(0, data, size);
 }
 
 
 /* Write data in a file located in NVM. Return the size of the written data. */
 int32_t she_platform_storage_write(struct she_platform_hdl *phdl, uint8_t *src, uint32_t size)
 {
-	int32_t fd = -1;
-	int32_t l = 0;
+    int32_t fd = -1;
+    int32_t l = 0;
 
-	/* Open or create the file with access reserved to the current user. */
-	fd = open(SECO_NVM_DEFAULT_STORAGE_FILE, O_CREAT|O_WRONLY|O_SYNC, S_IRUSR|S_IWUSR);
-	if (fd >= 0) {
-		/* Write the data. */
-		l = (int32_t)write(fd, src, size);
+    /* Open or create the file with access reserved to the current user. */
+    fd = open(SECO_NVM_DEFAULT_STORAGE_FILE, O_CREAT|O_WRONLY|O_SYNC, S_IRUSR|S_IWUSR);
+    if (fd >= 0) {
+        /* Write the data. */
+        l = (int32_t)write(fd, src, size);
 
-		(void)close(fd);
-	}
+        (void)close(fd);
+    }
 
-	return l;
+    return l;
 }
 
 int32_t she_platform_storage_read(struct she_platform_hdl *phdl, uint8_t *dst, uint32_t size)
 {
-	int32_t fd = -1;
-	int32_t l = 0;
+    int32_t fd = -1;
+    int32_t l = 0;
 
-	/* Open the file as read only. */
-	fd = open(SECO_NVM_DEFAULT_STORAGE_FILE, O_RDONLY);
-	if (fd >= 0) {
-		/* Read the data. */
-		l = (int32_t)read(fd, dst, size);
+    /* Open the file as read only. */
+    fd = open(SECO_NVM_DEFAULT_STORAGE_FILE, O_RDONLY);
+    if (fd >= 0) {
+        /* Read the data. */
+        l = (int32_t)read(fd, dst, size);
 
-		(void)close(fd);
-	}
+        (void)close(fd);
+    }
 
-	return l;
+    return l;
 }

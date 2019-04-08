@@ -28,44 +28,44 @@
  * \brief Error codes returned by SHE functions.
  */
 typedef enum {
-	ERC_NO_ERROR			= 0x0,		/**< Success. */
-	ERC_SEQUENCE_ERROR		= 0x1,		/**< Invalid sequence of commands. */
-	ERC_KEY_NOT_AVAILABLE	= 0x2,		/**< Key is locked. */
-	ERC_KEY_INVALID			= 0x3,		/**< Key not allowed for the given operation. */
-	ERC_KEY_EMPTY			= 0x4,		/**< Key has not beed initialized yet. */
-	ERC_NO_SECURE_BOOT		= 0x5,		/**< Conditions for a secure boot process are not met. */
-	ERC_KEY_WRITE_PROTECTED	= 0x6,		/**< Memory slot for this key has been write-protected. */
-	ERC_KEY_UPDATE_ERROR	= 0x7,		/**< Key update did not succeed due to errors in verification of the messages. */
-	ERC_RNG_SEED			= 0x8,		/**< The seed has not been initialized. */
-	ERC_NO_DEBUGGING		= 0x9,		/**< Internal debugging is not possible. */
-	ERC_BUSY				= 0xA,		/**< A function of SHE is called while another function is still processing. */
-	ERC_MEMORY_FAILURE		= 0xB,		/**< Memory error (e.g. flipped bits) */
-	ERC_GENERAL_ERROR		= 0xC,		/**< Error not covered by other codes occured. */
+    ERC_NO_ERROR            = 0x0,      /**< Success. */
+    ERC_SEQUENCE_ERROR      = 0x1,      /**< Invalid sequence of commands. */
+    ERC_KEY_NOT_AVAILABLE   = 0x2,      /**< Key is locked. */
+    ERC_KEY_INVALID         = 0x3,      /**< Key not allowed for the given operation. */
+    ERC_KEY_EMPTY           = 0x4,      /**< Key has not beed initialized yet. */
+    ERC_NO_SECURE_BOOT      = 0x5,      /**< Conditions for a secure boot process are not met. */
+    ERC_KEY_WRITE_PROTECTED = 0x6,      /**< Memory slot for this key has been write-protected. */
+    ERC_KEY_UPDATE_ERROR    = 0x7,      /**< Key update did not succeed due to errors in verification of the messages. */
+    ERC_RNG_SEED            = 0x8,      /**< The seed has not been initialized. */
+    ERC_NO_DEBUGGING        = 0x9,      /**< Internal debugging is not possible. */
+    ERC_BUSY                = 0xA,      /**< A function of SHE is called while another function is still processing. */
+    ERC_MEMORY_FAILURE      = 0xB,      /**< Memory error (e.g. flipped bits) */
+    ERC_GENERAL_ERROR       = 0xC,      /**< Error not covered by other codes occured. */
 } she_err_t;
 
 /**
  * \brief Identifiers for SHE keys.
  */
-#define SHE_KEY_1	 (0x04)
-#define SHE_KEY_2	 (0x05)
-#define SHE_KEY_3	 (0x06)
-#define SHE_KEY_4	 (0x07)
-#define SHE_KEY_5	 (0x08)
-#define SHE_KEY_6	 (0x09)
-#define SHE_KEY_7	 (0x0a)
-#define SHE_KEY_8	 (0x0b)
-#define SHE_KEY_9	 (0x0c)
-#define SHE_KEY_10	 (0x0d)
-#define SHE_RAM_KEY	 (0x0e)
+#define SHE_KEY_1    (0x04)
+#define SHE_KEY_2    (0x05)
+#define SHE_KEY_3    (0x06)
+#define SHE_KEY_4    (0x07)
+#define SHE_KEY_5    (0x08)
+#define SHE_KEY_6    (0x09)
+#define SHE_KEY_7    (0x0a)
+#define SHE_KEY_8    (0x0b)
+#define SHE_KEY_9    (0x0c)
+#define SHE_KEY_10   (0x0d)
+#define SHE_RAM_KEY  (0x0e)
 
 /**
  * \brief Identifiers for SHE keys extensions
  */
-#define SHE_KEY_DEFAULT	(0x00)		/**< no key extension: keys from 0 to 10 as defined in SHE specification. */
-#define SHE_KEY_N_EXT_1	(0x10)		/**< keys 11 to 20. */
-#define SHE_KEY_N_EXT_2	(0x20)		/**< keys 21 to 30. */
-#define SHE_KEY_N_EXT_3	(0x30)		/**< keys 31 to 40. */
-#define SHE_KEY_N_EXT_4	(0x40)		/**< keys 41 to 50. */
+#define SHE_KEY_DEFAULT (0x00)      /**< no key extension: keys from 0 to 10 as defined in SHE specification. */
+#define SHE_KEY_N_EXT_1 (0x10)      /**< keys 11 to 20. */
+#define SHE_KEY_N_EXT_2 (0x20)      /**< keys 21 to 30. */
+#define SHE_KEY_N_EXT_3 (0x30)      /**< keys 31 to 40. */
+#define SHE_KEY_N_EXT_4 (0x40)      /**< keys 41 to 50. */
 
 
 /**
