@@ -18,40 +18,47 @@
 
 #define MESSAGING_TAG_COMMAND                   0x17u
 #define MESSAGING_TAG_RESPONSE                  0xe1u
-#define MESSAGING_VERSION_2                     0x02u
+#define MESSAGING_VERSION_6                     0x06u
 
-#define AHAB_SHE_SESSION_OPEN                   0x10u
-#define AHAB_SHE_SESSION_CLOSE                  0x11u
-#define AHAB_SHE_KEY_STORE_OPEN                 0x12u
-#define AHAB_SHE_KEY_STORE_CLOSE                0x13u
-#define AHAB_SHE_CIPHER_OPEN                    0x14u
-#define AHAB_SHE_CIPHER_CLOSE                   0x15u
+#define SAB_SHARED_BUF_REQ                      0x00u
+#define SAB_SESSION_OPEN_REQ                    0x01u
+#define SAB_SESSION_CLOSE_REQ                   0x02u
+#define SAB_KEY_STORE_OPEN_REQ                  0x03u
+#define SAB_KEY_STORE_CLOSE_REQ                 0x04u
+#define SAB_CIPHER_OPEN_REQ                     0x0Bu
+#define SAB_CIPHER_CLOSE_REQ                    0x0Cu
+#define SAB_CIPHER_ONE_GO_REQ                   0x0Du
 
-#define AHAB_SHARED_BUF_REQ                     0x30u
+
 #define AHAB_SHE_CMD_GENERATE_MAC               0x31u
 #define AHAB_SHE_CMD_VERIFY_MAC                 0x32u
 #define AHAB_SHE_CMD_STORAGE_EXPORT_INIT        0x33u
 #define AHAB_SHE_CMD_LOAD_KEY                   0x34u
 #define AHAB_SHE_CMD_STORAGE_EXPORT_REQ         0x35u
 #define AHAB_SHE_CMD_STORAGE_IMPORT_REQ         0x36u
-#define AHAB_SHE_CMD_CIPHER_ONE_GO_REQ          0x37u
 
 
-#define AHAB_SUCCESS_IND                        0x00u
-#define AHAB_FAILURE_IND                        0x29u
+#define GET_STATUS_CODE(rsp_code)               ((uint8_t)((rsp_code) & 0xFFu))
+#define GET_RATING_CODE(rsp_code)               ((uint8_t)((rsp_code) >> 8))
 
-#define AHAB_SHE_ERC_SEQUENCE_ERROR_IND         ((0xD1u << 8u) | AHAB_FAILURE_IND)      /**< Invalid sequence of commands. */
-#define AHAB_SHE_ERC_KEY_NOT_AVAILABLE_IND      ((0xD2u << 8u) | AHAB_FAILURE_IND)      /**< Key is locked. */
-#define AHAB_SHE_ERC_KEY_INVALID_IND            ((0xD3u << 8u) | AHAB_FAILURE_IND)      /**< Key not allowed for the given operation. */
-#define AHAB_SHE_ERC_KEY_EMPTY_IND              ((0xD4u << 8u) | AHAB_FAILURE_IND)      /**< Key has not beed initialized yet. */
-#define AHAB_SHE_ERC_NO_SECURE_BOOT_IND         ((0xD5u << 8u) | AHAB_FAILURE_IND)      /**< Conditions for a secure boot process are not met. */
-#define AHAB_SHE_ERC_KEY_WRITE_PROTECTED_IND    ((0xD6u << 8u) | AHAB_FAILURE_IND)        /**< Memory slot for this key has been write-protected. */
-#define AHAB_SHE_ERC_KEY_UPDATE_ERROR_IND       ((0xD7u << 8u) | AHAB_FAILURE_IND)      /**< Key update did not succeed due to errors in verification of the messages. */
-#define AHAB_SHE_ERC_RNG_SEED_IND               ((0xD8u << 8u) | AHAB_FAILURE_IND)      /*< The seed has not been initialized. */
-#define AHAB_SHE_ERC_NO_DEBUGGING_IND           ((0xD9u << 8u) | AHAB_FAILURE_IND)      /**< Internal debugging is not possible. */
-#define AHAB_SHE_ERC_BUSY_IND                   ((0xDAu << 8u) | AHAB_FAILURE_IND)      /**< A function of SHE is called while another function is still processing. */
-#define AHAB_SHE_ERC_MEMORY_FAILURE_IND         ((0xDBu << 8u) | AHAB_FAILURE_IND)      /**< Memory error (e.g. flipped bits) */
-#define AHAB_SHE_ERC_GENERAL_ERROR_IND          ((0xDCu << 8u) | AHAB_FAILURE_IND)      /**< Error not covered by other codes occured. */
+/* Status code definition */
+#define SAB_SUCCESS_STATUS                      0x00u
+#define SAB_FAILURE_STATUS                      0x29u
+
+/* Rating code definition */
+/* SHE specific rating */
+#define SAB_SHE_SEQUENCE_ERROR_RATING           (0xD1u)     /**< Invalid sequence of commands. */
+#define SAB_SHE_KEY_NOT_AVAILABLE_RATING        (0xD2u)     /**< Key is locked. */
+#define SAB_SHE_KEY_INVALID_RATING              (0xD3u)     /**< Key not allowed for the given operation. */
+#define SAB_SHE_KEY_EMPTY_RATING                (0xD4u)     /**< Key has not beed initialized yet. */
+#define SAB_SHE_NO_SECURE_BOOT_RATING           (0xD5u)     /**< Conditions for a secure boot process are not met. */
+#define SAB_SHE_KEY_WRITE_PROTECTED_RATING      (0xD6u)     /**< Memory slot for this key has been write-protected. */
+#define SAB_SHE_KEY_UPDATE_ERROR_RATING         (0xD7u)     /**< Key update did not succeed due to errors in verification of the messages. */
+#define SAB_SHE_RNG_SEED_RATING                 (0xD8u)     /*< The seed has not been initialized. */
+#define SAB_SHE_NO_DEBUGGING_RATING             (0xD9u)     /**< Internal debugging is not possible. */
+#define SAB_SHE_BUSY_RATING                     (0xDAu)     /**< A function of SHE is called while another function is still processing. */
+#define SAB_SHE_MEMORY_FAILURE_RATING           (0xDBu)     /**< Memory error (e.g. flipped bits) */
+#define SAB_SHE_GENERAL_ERROR_RATING            (0xDCu)     /**< Error not covered by other codes occured. */
 
 struct she_mu_hdr {
     uint8_t ver;
@@ -66,7 +73,7 @@ static inline void she_fill_cmd_msg_hdr(struct she_mu_hdr *hdr, uint8_t cmd, uin
     hdr->tag = MESSAGING_TAG_COMMAND;
     hdr->command = cmd;
     hdr->size = (uint8_t)(len / sizeof(uint32_t));
-    hdr->ver = MESSAGING_VERSION_2;
+    hdr->ver = MESSAGING_VERSION_6;
 };
 
 /* Fill a response message header with a given command ID and length in bytes. */
@@ -75,7 +82,7 @@ static inline void she_fill_rsp_msg_hdr(struct she_mu_hdr *hdr, uint8_t cmd, uin
     hdr->tag = MESSAGING_TAG_RESPONSE;
     hdr->command = cmd;
     hdr->size = (uint8_t)(len / sizeof(uint32_t));
-    hdr->ver = MESSAGING_VERSION_2;
+    hdr->ver = MESSAGING_VERSION_6;
 };
 
 /* MAC generation */
@@ -124,12 +131,12 @@ struct she_cmd_load_key_rsp  {
 
 /* SHE inititalization */
 
-struct she_cmd_shared_buffer_msg {
+struct sab_cmd_shared_buffer_msg {
     struct she_mu_hdr hdr;
     uint32_t sesssion_handle;
 };
 
-struct she_cmd_shared_buffer_rsp {
+struct sab_cmd_shared_buffer_rsp {
     struct she_mu_hdr hdr;
     uint32_t rsp_code;
     uint16_t shared_buf_offset;
@@ -169,7 +176,7 @@ struct she_cmd_blob_import_rsp {
     uint32_t rsp_code;
 };
 
-struct she_cmd_session_open_msg {
+struct sab_cmd_session_open_msg {
     struct she_mu_hdr hdr;
     uint8_t mu_id;
     uint8_t interrupt_idx;
@@ -180,23 +187,23 @@ struct she_cmd_session_open_msg {
     uint16_t pad;
 };
 
-struct she_cmd_session_open_rsp {
+struct sab_cmd_session_open_rsp {
     struct she_mu_hdr hdr;
     uint32_t rsp_code;
     uint32_t sesssion_handle;
 };
 
-struct she_cmd_session_close_msg {
+struct sab_cmd_session_close_msg {
     struct she_mu_hdr hdr;
     uint32_t sesssion_handle;
 };
 
-struct she_cmd_session_close_rsp {
+struct sab_cmd_session_close_rsp {
     struct she_mu_hdr hdr;
     uint32_t rsp_code;
 };
 
-struct she_cmd_key_store_open_msg{
+struct sab_cmd_key_store_open_msg{
     struct she_mu_hdr hdr;
     uint32_t sesssion_handle;
     uint32_t key_store_id;
@@ -209,23 +216,23 @@ struct she_cmd_key_store_open_msg{
     uint32_t crc;
 } ;
 
-struct she_cmd_key_store_open_rsp {
+struct sab_cmd_key_store_open_rsp {
     struct she_mu_hdr hdr;
     uint32_t rsp_code;
     uint32_t key_store_handle;
 } ;
 
-struct she_cmd_key_store_close_msg{
+struct sab_cmd_key_store_close_msg{
     struct she_mu_hdr hdr;
     uint32_t key_store_handle;
 } ;
 
-struct she_cmd_key_store_close_rsp {
+struct sab_cmd_key_store_close_rsp {
     struct she_mu_hdr hdr;
     uint32_t rsp_code;
 } ;
 
-struct she_cmd_cipher_open_msg{
+struct sab_cmd_cipher_open_msg{
     struct she_mu_hdr hdr;
     uint32_t key_store_handle;
     uint32_t input_address_ext;
@@ -236,18 +243,18 @@ struct she_cmd_cipher_open_msg{
     uint32_t crc;
 } ;
 
-struct she_cmd_cipher_open_rsp{
+struct sab_cmd_cipher_open_rsp{
     struct she_mu_hdr hdr;
     uint32_t rsp_code;
     uint32_t cipher_handle;
 } ;
 
-struct she_cmd_cipher_close_msg {
+struct sab_cmd_cipher_close_msg {
     struct she_mu_hdr hdr;
     uint32_t cipher_handle;
 } ;
 
-struct she_cmd_cipher_close_rsp {
+struct sab_cmd_cipher_close_rsp {
     struct she_mu_hdr hdr;
     uint32_t rsp_code;
 } ;
@@ -257,7 +264,7 @@ struct she_cmd_cipher_close_rsp {
 #define AHAB_CIPHER_ONE_GO_FLAGS_ENCRYPT (0x01u)
 #define AHAB_CIPHER_ONE_GO_FLAGS_DECRYPT (0x00u)
 
-struct she_cmd_cipher_one_go_msg {
+struct sab_cmd_cipher_one_go_msg {
     struct she_mu_hdr hdr;
     uint32_t cipher_handle;
     uint32_t key_id;
@@ -271,7 +278,7 @@ struct she_cmd_cipher_one_go_msg {
     uint32_t crc;
 } ;
 
-struct she_cmd_cipher_one_go_rsp {
+struct sab_cmd_cipher_one_go_rsp {
     struct she_mu_hdr hdr;
     uint32_t rsp_code;
 } ;

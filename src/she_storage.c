@@ -56,7 +56,7 @@ static int32_t she_storage_export_init(struct she_storage_context *ctx, struct s
 
     do {
         /* Initialize response with error as default. */
-        resp->rsp_code = AHAB_FAILURE_IND;
+        resp->rsp_code = SAB_FAILURE_STATUS;
         resp->load_address_ext = 0;
         resp->load_address = 0;
         ctx->blob_size = 0;
@@ -80,7 +80,7 @@ static int32_t she_storage_export_init(struct she_storage_context *ctx, struct s
         }
         resp->load_address_ext = (uint32_t)((seco_addr >> 32u) & 0xFFFFFFFFu);
         resp->load_address = (uint32_t)(seco_addr & 0xFFFFFFFFu);
-        resp->rsp_code = AHAB_SUCCESS_IND;
+        resp->rsp_code = SAB_SUCCESS_STATUS;
     } while (false);
 
     return (int32_t)sizeof(struct she_cmd_blob_export_init_rsp);
@@ -92,7 +92,7 @@ static int32_t she_storage_export(struct she_storage_context *ctx, struct she_cm
     int32_t l;
     struct seco_nvm_header_s *blob_hdr;
 
-    resp->rsp_code = AHAB_FAILURE_IND;
+    resp->rsp_code = SAB_FAILURE_STATUS;
     /* Write the data to the storage. Blob size was received in previous "storage_export_init" message.*/
     if (ctx->blob_buf != NULL) {
         blob_hdr = (struct seco_nvm_header_s *)ctx->blob_buf;
@@ -102,7 +102,7 @@ static int32_t she_storage_export(struct she_storage_context *ctx, struct she_cm
         l = she_platform_storage_write(ctx->hdl, ctx->blob_buf, ctx->blob_size + (uint32_t)sizeof(struct seco_nvm_header_s));
 
         if (l == (int32_t)ctx->blob_size + (int32_t)sizeof(struct seco_nvm_header_s)) {
-            resp->rsp_code = AHAB_SUCCESS_IND;
+            resp->rsp_code = SAB_SUCCESS_STATUS;
         }
 
         free(ctx->blob_buf);
@@ -169,7 +169,7 @@ static int32_t she_storage_import(struct she_storage_context *ctx)
         }
 
         /* Check error status reported by Seco. */
-        if (rsp.rsp_code != AHAB_SUCCESS_IND) {
+        if (GET_STATUS_CODE(rsp.rsp_code) != SAB_SUCCESS_STATUS) {
             break;
         }
 

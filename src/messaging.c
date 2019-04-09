@@ -19,42 +19,42 @@
 she_err_t she_seco_ind_to_she_err_t (uint32_t rsp_code)
 {
     she_err_t err = ERC_GENERAL_ERROR;
-    switch (rsp_code) {
+    switch (GET_RATING_CODE(rsp_code)) {
     /* 1 to 1 mapping for all SHE specific error codes. */
-    case AHAB_SHE_ERC_SEQUENCE_ERROR_IND :
+    case SAB_SHE_SEQUENCE_ERROR_RATING :
         err = ERC_SEQUENCE_ERROR;
         break;
-    case AHAB_SHE_ERC_KEY_NOT_AVAILABLE_IND :
+    case SAB_SHE_KEY_NOT_AVAILABLE_RATING :
         err = ERC_KEY_NOT_AVAILABLE;
         break;
-    case AHAB_SHE_ERC_KEY_INVALID_IND :
+    case  SAB_SHE_KEY_INVALID_RATING :
         err = ERC_KEY_INVALID;
         break;
-    case AHAB_SHE_ERC_KEY_EMPTY_IND :
+    case SAB_SHE_KEY_EMPTY_RATING :
         err = ERC_KEY_EMPTY;
         break;
-    case AHAB_SHE_ERC_NO_SECURE_BOOT_IND :
+    case SAB_SHE_NO_SECURE_BOOT_RATING :
         err = ERC_NO_SECURE_BOOT;
         break;
-    case AHAB_SHE_ERC_KEY_WRITE_PROTECTED_IND :
+    case SAB_SHE_KEY_WRITE_PROTECTED_RATING :
         err = ERC_KEY_WRITE_PROTECTED;
         break;
-    case AHAB_SHE_ERC_KEY_UPDATE_ERROR_IND :
+    case SAB_SHE_KEY_UPDATE_ERROR_RATING :
         err = ERC_KEY_UPDATE_ERROR;
         break;
-    case AHAB_SHE_ERC_RNG_SEED_IND :
+    case SAB_SHE_RNG_SEED_RATING :
         err = ERC_RNG_SEED;
         break;
-    case AHAB_SHE_ERC_NO_DEBUGGING_IND :
+    case SAB_SHE_NO_DEBUGGING_RATING :
         err = ERC_NO_DEBUGGING;
         break;
-    case AHAB_SHE_ERC_BUSY_IND :
+    case SAB_SHE_BUSY_RATING :
         err = ERC_BUSY;
         break;
-    case AHAB_SHE_ERC_MEMORY_FAILURE_IND :
+    case SAB_SHE_MEMORY_FAILURE_RATING :
         err = ERC_MEMORY_FAILURE;
         break;
-    case AHAB_SHE_ERC_GENERAL_ERROR_IND :
+    case SAB_SHE_GENERAL_ERROR_RATING :
         err = ERC_GENERAL_ERROR;
         break;
     /* All other SECO error codes. */
@@ -107,8 +107,8 @@ uint32_t she_compute_msg_crc(uint32_t *msg, uint32_t msg_len) {
 }
 
 she_err_t she_close_session_command (struct she_platform_hdl *phdl, uint32_t session_handle) {
-    struct she_cmd_session_close_msg cmd;
-    struct she_cmd_session_close_rsp rsp;
+    struct sab_cmd_session_close_msg cmd;
+    struct sab_cmd_session_close_rsp rsp;
     int32_t error;
     she_err_t err = ERC_GENERAL_ERROR;
 
@@ -118,16 +118,16 @@ she_err_t she_close_session_command (struct she_platform_hdl *phdl, uint32_t ses
             break;
         }
 
-        she_fill_cmd_msg_hdr(&cmd.hdr, AHAB_SHE_SESSION_CLOSE, (uint32_t)sizeof(struct she_cmd_session_close_msg));
+        she_fill_cmd_msg_hdr(&cmd.hdr, SAB_SESSION_CLOSE_REQ, (uint32_t)sizeof(struct sab_cmd_session_close_msg));
         cmd.sesssion_handle = session_handle;
 
-        error =  she_send_msg_and_get_resp(phdl, (uint32_t *)&cmd, (uint32_t)sizeof(struct she_cmd_session_close_msg), (uint32_t *)&rsp, (uint32_t)sizeof(struct she_cmd_session_close_rsp));
+        error =  she_send_msg_and_get_resp(phdl, (uint32_t *)&cmd, (uint32_t)sizeof(struct sab_cmd_session_close_msg), (uint32_t *)&rsp, (uint32_t)sizeof(struct sab_cmd_session_close_rsp));
 
         if (error != 0) {
             break;
         }
 
-        if (rsp.rsp_code != AHAB_SUCCESS_IND) {
+        if (GET_STATUS_CODE(rsp.rsp_code) != SAB_SUCCESS_STATUS) {
             err = she_seco_ind_to_she_err_t(rsp.rsp_code);
             break;
         }
@@ -141,8 +141,8 @@ she_err_t she_close_session_command (struct she_platform_hdl *phdl, uint32_t ses
 
 she_err_t she_get_shared_buffer(struct she_platform_hdl *phdl, uint32_t session_handle, uint32_t *shared_buf_offset, uint32_t *shared_buf_size)
 {
-    struct she_cmd_shared_buffer_msg cmd;
-    struct she_cmd_shared_buffer_rsp rsp;
+    struct sab_cmd_shared_buffer_msg cmd;
+    struct sab_cmd_shared_buffer_rsp rsp;
 
     she_err_t err = ERC_GENERAL_ERROR;
     int32_t error = 1;
@@ -153,18 +153,18 @@ she_err_t she_get_shared_buffer(struct she_platform_hdl *phdl, uint32_t session_
         }
 
         /* Send the keys store open command to Seco. */
-        she_fill_cmd_msg_hdr(&cmd.hdr, AHAB_SHARED_BUF_REQ, (uint32_t)sizeof(struct she_cmd_shared_buffer_msg));
+        she_fill_cmd_msg_hdr(&cmd.hdr, SAB_SHARED_BUF_REQ, (uint32_t)sizeof(struct sab_cmd_shared_buffer_msg));
 
         cmd.sesssion_handle = session_handle;
         error = she_send_msg_and_get_resp(phdl,
-                    (uint32_t *)&cmd, (uint32_t)sizeof(struct she_cmd_shared_buffer_msg),
-                    (uint32_t *)&rsp, (uint32_t)sizeof(struct she_cmd_shared_buffer_rsp));
+                    (uint32_t *)&cmd, (uint32_t)sizeof(struct sab_cmd_shared_buffer_msg),
+                    (uint32_t *)&rsp, (uint32_t)sizeof(struct sab_cmd_shared_buffer_rsp));
 
         if (error != 0) {
             break;
         }
 
-        if (rsp.rsp_code != AHAB_SUCCESS_IND) {
+        if (GET_STATUS_CODE(rsp.rsp_code) != SAB_SUCCESS_STATUS) {
             err = she_seco_ind_to_she_err_t(rsp.rsp_code);
             break;
         }
@@ -178,8 +178,8 @@ she_err_t she_get_shared_buffer(struct she_platform_hdl *phdl, uint32_t session_
 }
 
 she_err_t she_open_session_command (struct she_platform_hdl *phdl, uint32_t *session_handle, uint8_t mu_id, uint8_t interrupt_idx, uint8_t tz, uint8_t did, uint8_t priority,uint8_t operating_mode) {
-    struct she_cmd_session_open_msg cmd;
-    struct she_cmd_session_open_rsp rsp;
+    struct sab_cmd_session_open_msg cmd;
+    struct sab_cmd_session_open_rsp rsp;
     int32_t error;
     she_err_t err = ERC_GENERAL_ERROR;
 
@@ -192,18 +192,18 @@ she_err_t she_open_session_command (struct she_platform_hdl *phdl, uint32_t *ses
 
     do {
         /* Send the session open command to Seco. */
-        she_fill_cmd_msg_hdr((struct she_mu_hdr *)&cmd, AHAB_SHE_SESSION_OPEN, (uint32_t)sizeof(struct she_cmd_session_open_msg));
+        she_fill_cmd_msg_hdr((struct she_mu_hdr *)&cmd, SAB_SESSION_OPEN_REQ, (uint32_t)sizeof(struct sab_cmd_session_open_msg));
 
 
         error = she_send_msg_and_get_resp(phdl,
-                    (uint32_t *)&cmd, (uint32_t)sizeof(struct she_cmd_session_open_msg),
-                    (uint32_t *)&rsp, (uint32_t)sizeof(struct she_cmd_session_open_rsp));
+                    (uint32_t *)&cmd, (uint32_t)sizeof(struct sab_cmd_session_open_msg),
+                    (uint32_t *)&rsp, (uint32_t)sizeof(struct sab_cmd_session_open_rsp));
 
         if (error != 0) {
             break;
         }
 
-        if (rsp.rsp_code != AHAB_SUCCESS_IND) {
+        if (GET_STATUS_CODE(rsp.rsp_code) != SAB_SUCCESS_STATUS) {
             err = she_seco_ind_to_she_err_t(rsp.rsp_code);
             break;
         }
