@@ -124,6 +124,7 @@ struct test_entry_t she_tests[] = {
     {"SHE_TEST_ECB_ENC", she_test_ecb_enc},
     {"SHE_TEST_ECB_DEC", she_test_ecb_dec},
     {"SHE_TEST_LOAD_KEY", she_test_load_key},
+    {"SHE_TEST_LOAD_PLAIN_KEY", she_test_load_plain_key},
     {"SHE_TEST_RNG_INIT", she_test_rng_init},
     {"SHE_TEST_EXTEND_SEED", she_test_extend_seed},
     {"SHE_TEST_RND", she_test_rnd},

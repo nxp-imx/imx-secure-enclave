@@ -31,5 +31,6 @@
 #define __she_test_keys_h__
 
 uint32_t she_test_load_key(struct she_hdl_s *hdl, FILE *fp);
+uint32_t she_test_load_plain_key(struct she_hdl_s *hdl, FILE *fp);
 
 #endif  // __she_test_keys_h__

@@ -500,8 +500,35 @@ she_err_t she_cmd_load_key(struct she_hdl_s *hdl, uint8_t *m1, uint8_t *m2, uint
     return err;
 }
 
-she_err_t she_cmd_load_plain_key(struct she_hdl_s *hdl, uint8_t *key) {
+she_err_t she_cmd_load_plain_key(struct she_hdl_s *hdl, uint8_t *key) 
+{
+    struct she_cmd_load_plain_key_msg cmd;
+    struct she_cmd_load_plain_key_rsp rsp;
+    int32_t error;
     she_err_t err = ERC_GENERAL_ERROR;
+
+    do {
+        /* Build command message. */
+        she_fill_cmd_msg_hdr(&cmd.hdr, AHAB_SHE_CMD_LOAD_PLAIN_KEY_REQ, (uint32_t)sizeof(struct she_cmd_load_plain_key_msg));
+        memcpy(cmd.key, key, SHE_KEY_SIZE);
+        cmd.crc = she_compute_msg_crc((uint32_t*)&cmd, (uint32_t)(sizeof(cmd) - sizeof(uint32_t)));
+
+        /* Send the message to Seco. */
+        error = she_send_msg_and_get_resp(hdl->phdl,
+                    (uint32_t *)&cmd, (uint32_t)sizeof(struct she_cmd_load_plain_key_msg),
+                    (uint32_t *)&rsp, (uint32_t)sizeof(struct she_cmd_load_plain_key_rsp));
+        if (error != 0) {
+            break;
+        }
+
+        if ((GET_STATUS_CODE(rsp.rsp_code)!= SAB_SUCCESS_STATUS)) {
+            err = she_seco_ind_to_she_err_t(rsp.rsp_code);
+            break;
+        }
+
+        /* Success. */
+        err = ERC_NO_ERROR;
+    } while (false);
 
     return err;
 }

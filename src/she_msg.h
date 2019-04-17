@@ -64,6 +64,7 @@
 #define AHAB_SHE_CMD_STORAGE_IMPORT_REQ         0x36u
 #define AHAB_SHE_CMD_GET_STATUS_REQ             0x3Bu
 #define AHAB_SHE_CMD_GET_ID_REQ                 0x3Cu
+#define AHAB_SHE_CMD_LOAD_PLAIN_KEY_REQ         0x3Du
 
 #define GET_STATUS_CODE(rsp_code)               ((uint8_t)((rsp_code) & 0xFFu))
 #define GET_RATING_CODE(rsp_code)               ((uint8_t)((rsp_code) >> 8))
@@ -152,6 +153,19 @@ struct she_cmd_load_key_msg {
 };
 
 struct she_cmd_load_key_rsp  {
+    struct she_mu_hdr hdr;
+    uint32_t rsp_code;
+};
+
+/* Load Plain key */
+
+struct she_cmd_load_plain_key_msg {
+    struct she_mu_hdr hdr;
+    uint8_t key[16];
+    uint32_t crc;
+};
+
+struct she_cmd_load_plain_key_rsp {
     struct she_mu_hdr hdr;
     uint32_t rsp_code;
 };
