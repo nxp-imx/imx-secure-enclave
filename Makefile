@@ -2,25 +2,27 @@ all: she_test
 
 all: she_test
 
+CFLAGS = -Werror
+
 # Placeholder for platform specific implementation
 platform_lib.o: src/seco_mu_linux.c
-	$(CC) $^  -c -o $@ -I include
+	$(CC) $^  -c -o $@ -I include $(CFLAGS)
 
 # SHE implementation
 she_lib.o: src/she_lib.c
-	$(CC) $^  -c -o $@ -I include
+	$(CC) $^  -c -o $@ -I include $(CFLAGS)
 
 # SHE storage implementation
 she_storage.o: src/she_storage.c
-	$(CC) $^  -c -o $@ -I include
+	$(CC) $^  -c -o $@ -I include $(CFLAGS)
 
 # SHE storage implementation
 messaging.o: src/messaging.c
-	$(CC) $^  -c -o $@ -I include
+	$(CC) $^  -c -o $@ -I include $(CFLAGS)
 
 #SHE test app
 she_test: test/she_test.c she_lib.o she_storage.o platform_lib.o messaging.o include/she_api.h
-	$(CC) $^  -o $@ -I include -lpthread -lz
+	$(CC) $^  -o $@ -I include $(CFLAGS) -lpthread -lz
 
 clean:
 	rm -rf she_test she_lib.o platform_lib.o she_storage.o messaging.o

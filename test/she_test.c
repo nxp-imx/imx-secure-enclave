@@ -80,7 +80,7 @@ static void read_buffer(FILE *fp, uint8_t *dst, uint32_t size) {
     free(line);
 }
 
-static void print_result(she_err_t err, she_err_t expected_err, uint8_t *output, uint8_t *expected_output, uint32_t output_size)
+static uint32_t print_result(she_err_t err, she_err_t expected_err, uint8_t *output, uint8_t *expected_output, uint32_t output_size)
 {
     /* Check there is no error reported and that the output is correct. */
     if (err != expected_err) {
@@ -90,7 +90,9 @@ static void print_result(she_err_t err, she_err_t expected_err, uint8_t *output,
         (void)printf("--> FAIL wrong output\n");
     } else {
         (void)printf("--> PASS\n");
+        return 0;
     }
+    return 1;
 }
 
 static void print_perf(struct timespec *ts1, struct timespec *ts2, uint32_t nb_iter)
@@ -103,8 +105,10 @@ static void print_perf(struct timespec *ts1, struct timespec *ts2, uint32_t nb_i
 
 
 /* Test MAC generation command. */
-static void she_test_mac_gen(struct she_hdl_s *hdl, FILE *fp)
+static uint32_t she_test_mac_gen(struct she_hdl_s *hdl, FILE *fp)
 {
+    uint32_t fails = 0;
+
     she_err_t err = 1;
     she_err_t expected_err;
     uint8_t key_id;
@@ -152,16 +156,20 @@ static void she_test_mac_gen(struct she_hdl_s *hdl, FILE *fp)
     if (nb_iter > 1u) {
         print_perf(&ts1, &ts2, nb_iter);
     } else {
-        print_result(err, expected_err, output, reference, SHE_MAC_SIZE);
+        fails += print_result(err, expected_err, output, reference, SHE_MAC_SIZE);
     }
     free(input);
     free(output);
     free(reference);
+
+    return fails;
 }
 
 /* Test MAC verify command - pattern 1. */
-static void she_test_mac_verif(struct she_hdl_s *hdl, FILE *fp)
+static uint32_t she_test_mac_verif(struct she_hdl_s *hdl, FILE *fp)
 {
+    uint32_t fails = 0;
+
     she_err_t err = 1;
     she_err_t expected_err;
     uint8_t key_id;
@@ -213,16 +221,20 @@ static void she_test_mac_verif(struct she_hdl_s *hdl, FILE *fp)
     if (nb_iter > 1u) {
         print_perf(&ts1, &ts2, nb_iter);
     } else {
-        print_result(err, expected_err, &verif, &ref_verif, (uint32_t)sizeof(verif));
+        fails += print_result(err, expected_err, &verif, &ref_verif, (uint32_t)sizeof(verif));
     }
 
     free(input);
     free(input_mac);
+
+    return fails;
 }
 
 /* Test CBC encryption .*/
-static void she_test_cbc_enc(struct she_hdl_s *hdl, FILE *fp)
+static uint32_t she_test_cbc_enc(struct she_hdl_s *hdl, FILE *fp)
 {
+    uint32_t fails = 0;
+
     she_err_t err = 1;
     she_err_t expected_err;
     uint8_t key_id;
@@ -276,18 +288,22 @@ static void she_test_cbc_enc(struct she_hdl_s *hdl, FILE *fp)
     if (nb_iter > 1u) {
         print_perf(&ts1, &ts2, nb_iter);
     } else {
-        print_result(err, expected_err, output, reference, input_size);
+        fails += print_result(err, expected_err, output, reference, input_size);
     }
 
     free(iv);
     free(input);
     free(output);
     free(reference);
+
+    return fails;
 }
 
 /* Test CBC decryption .*/
-static void she_test_cbc_dec(struct she_hdl_s *hdl, FILE *fp)
+static uint32_t she_test_cbc_dec(struct she_hdl_s *hdl, FILE *fp)
 {
+    uint32_t fails = 0;
+
     she_err_t err = 1;
     she_err_t expected_err;
     uint8_t key_id;
@@ -340,19 +356,23 @@ static void she_test_cbc_dec(struct she_hdl_s *hdl, FILE *fp)
     if (nb_iter > 1u) {
         print_perf(&ts1, &ts2, nb_iter);
     } else {
-        print_result(err, expected_err, output, reference, input_size);
+        fails += print_result(err, expected_err, output, reference, input_size);
     }
 
     free(iv);
     free(input);
     free(output);
     free(reference);
+
+    return fails;
 }
 
 
 /* Test ECB encryption .*/
-static void she_test_ecb_enc(struct she_hdl_s *hdl, FILE *fp)
+static uint32_t she_test_ecb_enc(struct she_hdl_s *hdl, FILE *fp)
 {
+    uint32_t fails = 0;
+
     she_err_t err = 1;
     she_err_t expected_err;
     uint8_t key_id;
@@ -396,17 +416,21 @@ static void she_test_ecb_enc(struct she_hdl_s *hdl, FILE *fp)
     if (nb_iter > 1u) {
         print_perf(&ts1, &ts2, nb_iter);
     } else {
-        print_result(err, expected_err, output, reference, SHE_AES_BLOCK_SIZE_128);
+        fails += print_result(err, expected_err, output, reference, SHE_AES_BLOCK_SIZE_128);
     }
 
     free(input);
     free(output);
     free(reference);
+
+    return fails;
 }
 
 /* Test ECB decryption .*/
-static void she_test_ecb_dec(struct she_hdl_s *hdl, FILE *fp)
+static uint32_t she_test_ecb_dec(struct she_hdl_s *hdl, FILE *fp)
 {
+    uint32_t fails = 0;
+
     she_err_t err = 1;
     she_err_t expected_err;
     uint8_t key_id;
@@ -450,18 +474,22 @@ static void she_test_ecb_dec(struct she_hdl_s *hdl, FILE *fp)
     if (nb_iter > 1u) {
         print_perf(&ts1, &ts2, nb_iter);
     } else {
-        print_result(err, expected_err, output, reference, SHE_AES_BLOCK_SIZE_128);
+        fails += print_result(err, expected_err, output, reference, SHE_AES_BLOCK_SIZE_128);
     }
 
     free(input);
     free(output);
     free(reference);
+
+    return fails;
 }
 
 
 /* Test load key */
-static void she_test_load_key(struct she_hdl_s *hdl, FILE *fp)
+static uint32_t she_test_load_key(struct she_hdl_s *hdl, FILE *fp)
 {
+    uint32_t fails = 0;
+
     she_err_t err = 1;
     she_err_t expected_err;
 
@@ -470,13 +498,17 @@ static void she_test_load_key(struct she_hdl_s *hdl, FILE *fp)
     err = she_cmd_load_key(hdl, NULL, NULL, NULL, NULL, NULL);
 
     /* Check there is no error reported. */
-    print_result(err, expected_err, NULL, NULL, 0);
+    fails += print_result(err, expected_err, NULL, NULL, 0);
+
+    return fails;
 }
 
 
 /* Tests for RNG */
 
-static void she_test_rng_init(struct she_hdl_s *hdl, FILE *fp) {
+static uint32_t she_test_rng_init(struct she_hdl_s *hdl, FILE *fp) {
+    uint32_t fails = 0;
+
     she_err_t err = 1;
     she_err_t expected_err;
 
@@ -486,11 +518,15 @@ static void she_test_rng_init(struct she_hdl_s *hdl, FILE *fp) {
     err = she_cmd_init_rng(hdl);
 
     /* Check there is no error reported. */
-    print_result(err, expected_err, NULL, NULL, 0);
+    fails += print_result(err, expected_err, NULL, NULL, 0);
+
+    return fails;
 }
 
 
-static void she_test_extend_seed(struct she_hdl_s *hdl, FILE *fp) {
+static uint32_t she_test_extend_seed(struct she_hdl_s *hdl, FILE *fp) {
+    uint32_t fails = 0;
+
     she_err_t err = 1;
     she_err_t expected_err;
     uint8_t *entropy;
@@ -504,13 +540,17 @@ static void she_test_extend_seed(struct she_hdl_s *hdl, FILE *fp) {
     err = she_cmd_extend_seed(hdl, entropy);
 
     /* Check there is no error reported. */
-    print_result(err, expected_err, NULL, NULL, 0);
+    fails += print_result(err, expected_err, NULL, NULL, 0);
 
     free(entropy);
+
+    return fails;
 }
 
 
-static void she_test_rnd(struct she_hdl_s *hdl, FILE *fp) {
+static uint32_t she_test_rnd(struct she_hdl_s *hdl, FILE *fp) {
+    uint32_t fails = 0;
+
     she_err_t err = 1;
     she_err_t expected_err;
     uint8_t *rnd;
@@ -525,7 +565,7 @@ static void she_test_rnd(struct she_hdl_s *hdl, FILE *fp) {
     err = she_cmd_rnd(hdl, rnd);
 
     for (i=0; i<SHE_RND_SIZE; i++) {
-        printf("0x%x ");
+        printf("0x%x ", i);
         if (i%4 == 3) {
             printf("\n");
         }
@@ -534,16 +574,20 @@ static void she_test_rnd(struct she_hdl_s *hdl, FILE *fp) {
     /* Print the generated number. */
 
     /* Check there is no error reported. */
-    print_result(err, expected_err, NULL, NULL, 0);
+    fails += print_result(err, expected_err, NULL, NULL, 0);
 
     free(rnd);
     free(rnd_ref);
+
+    return fails;
 }
 
 
 /* get Status test*/
-static void she_test_get_status(struct she_hdl_s *hdl, FILE *fp)
+static uint32_t she_test_get_status(struct she_hdl_s *hdl, FILE *fp)
 {
+    uint32_t fails = 0;
+
     she_err_t err = 1;
     she_err_t expected_err;
     uint8_t status;
@@ -555,13 +599,17 @@ static void she_test_get_status(struct she_hdl_s *hdl, FILE *fp)
 
     err = she_cmd_get_status(hdl, &status);
 
-    print_result(err, expected_err, &status, &expected_status, (uint32_t)sizeof(uint8_t));
+    fails += print_result(err, expected_err, &status, &expected_status, (uint32_t)sizeof(uint8_t));
+
+    return fails;
 }
 
 
 /* get ID test*/
-static void she_test_get_id(struct she_hdl_s *hdl, FILE *fp)
+static uint32_t she_test_get_id(struct she_hdl_s *hdl, FILE *fp)
 {
+    uint32_t fails = 0;
+
     she_err_t err = 1;
     she_err_t expected_err;
     uint8_t *challenge;
@@ -587,16 +635,18 @@ static void she_test_get_id(struct she_hdl_s *hdl, FILE *fp)
 
     err = she_cmd_get_id(hdl, challenge, id, status, mac);
 
-    print_result(err, expected_err, output, reference, SHE_ID_SIZE + SHE_MAC_SIZE + (uint32_t)sizeof(uint8_t));
+    fails += print_result(err, expected_err, output, reference, SHE_ID_SIZE + SHE_MAC_SIZE + (uint32_t)sizeof(uint8_t));
 
     free(reference);
     free(output);
     free(challenge);
+
+    return fails;
 }
 
 struct test_entry_t {
     const char *name;
-    void (*func)(struct she_hdl_s *hdl, FILE *fp);
+    uint32_t (*func)(struct she_hdl_s *hdl, FILE *fp);
 };
 
 
@@ -619,6 +669,8 @@ struct test_entry_t she_tests[] = {
 /* Test entry function. */
 int main(int argc, char *argv[])
 {
+    uint32_t fails = 0;
+
     struct she_hdl_s *hdl = NULL;
     struct she_storage_context *storage_ctx = NULL;
     char *line = NULL;
@@ -637,6 +689,9 @@ int main(int argc, char *argv[])
         if (fp == NULL) {
             break;
         }
+
+        /* Indicate the start of a test */
+        printf("\n<test>\n");
 
         /* Start the storage manager.*/
         storage_ctx = she_storage_init();
@@ -660,6 +715,7 @@ int main(int argc, char *argv[])
             }
         }
         free(line);
+
     } while(false);
 
     /* Close session if it was opened. */
@@ -669,7 +725,20 @@ int main(int argc, char *argv[])
     if (storage_ctx != NULL) {
         (void)she_storage_terminate(storage_ctx);
     }
+
     if (fp != NULL) {
         (void)fclose(fp);
+    }
+
+    /* Indicate the end of a test */
+    printf("\n</test>\n");
+
+    if (0 == fails)
+    {
+        return 0;
+    }
+    else
+    {
+        return -1;
     }
 }
