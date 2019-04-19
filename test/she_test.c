@@ -733,12 +733,5 @@ int main(int argc, char *argv[])
     /* Indicate the end of a test */
     printf("\n</test>\n");
 
-    if (0 == fails)
-    {
-        return 0;
-    }
-    else
-    {
-        return -1;
-    }
+    return fails;
 }
