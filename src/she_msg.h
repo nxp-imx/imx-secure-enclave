@@ -62,9 +62,6 @@
 #define AHAB_SHE_CMD_LOAD_KEY                   0x34u
 #define AHAB_SHE_CMD_STORAGE_EXPORT_REQ         0x35u
 #define AHAB_SHE_CMD_STORAGE_IMPORT_REQ         0x36u
-#define AHAB_SHE_CMD_INIT_RNG                   0x38u
-#define AHAB_SHE_CMD_EXTEND_SEED                0x39u
-#define AHAB_SHE_CMD_RND                        0x3Au
 #define AHAB_SHE_CMD_GET_STATUS_REQ             0x3Bu
 #define AHAB_SHE_CMD_GET_ID_REQ                 0x3Cu
 
@@ -175,36 +172,52 @@ struct sab_cmd_shared_buffer_rsp {
 
 
 /* SHE random generation */
-
-struct she_cmd_init_rng_msg {
+struct sab_cmd_rng_open_msg{
     struct she_mu_hdr hdr;
+    uint32_t session_handle;
+    uint32_t input_address_ext;
+    uint32_t output_address_ext;
+    uint8_t flags;
+    uint8_t pad[3];
+    uint32_t crc;
 };
 
-struct she_cmd_init_rng_rsp {
+struct sab_cmd_rng_open_rsp{
+    struct she_mu_hdr hdr;
+    uint32_t rsp_code;
+    uint32_t rng_handle;
+};
+
+struct sab_cmd_rng_close_msg {
+    struct she_mu_hdr hdr;
+    uint32_t rng_handle;
+};
+
+struct sab_cmd_rng_close_rsp {
     struct she_mu_hdr hdr;
     uint32_t rsp_code;
 };
 
-struct she_cmd_extend_seed_msg {
+struct sab_cmd_extend_seed_msg {
     struct she_mu_hdr hdr;
-    uint32_t entropy_addr_ext;
-    uint32_t entropy_addr;
-    uint32_t entropy_size;
+    uint32_t rng_handle;
+    uint32_t entropy[4];
+    uint32_t crc;
 };
 
-struct she_cmd_extend_seed_rsp {
+struct sab_cmd_extend_seed_rsp {
     struct she_mu_hdr hdr;
     uint32_t rsp_code;
 };
 
-struct she_cmd_rnd_msg {
+struct sab_cmd_get_rnd_msg {
     struct she_mu_hdr hdr;
-    uint32_t rnd_addr_ext;
+    uint32_t rng_handle;
     uint32_t rnd_addr;
     uint32_t rnd_size;
 };
 
-struct she_cmd_rnd_rsp {
+struct sab_cmd_get_rnd_rsp {
     struct she_mu_hdr hdr;
     uint32_t rsp_code;
 };
