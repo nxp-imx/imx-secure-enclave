@@ -20,14 +20,41 @@
 #define MESSAGING_TAG_RESPONSE                  0xe1u
 #define MESSAGING_VERSION_6                     0x06u
 
-#define SAB_SHARED_BUF_REQ                      0x00u
-#define SAB_SESSION_OPEN_REQ                    0x01u
-#define SAB_SESSION_CLOSE_REQ                   0x02u
-#define SAB_KEY_STORE_OPEN_REQ                  0x03u
-#define SAB_KEY_STORE_CLOSE_REQ                 0x04u
-#define SAB_CIPHER_OPEN_REQ                     0x0Bu
-#define SAB_CIPHER_CLOSE_REQ                    0x0Cu
-#define SAB_CIPHER_ONE_GO_REQ                   0x0Du
+#define SAB_SESSION_OPEN_REQ                    0x10u
+#define SAB_SESSION_CLOSE_REQ                   0x11u
+#define SAB_SHARED_BUF_REQ                      0x12u
+
+#define SAB_RNG_OPEN_REQ                        0x20u
+#define SAB_RNG_CLOSE_REQ                       0x21u
+#define SAB_RNG_GET_RANDOM                      0x22u
+#define SAB_RNG_EXTEND_SEED                     0x23u
+
+#define SAB_KEY_STORE_OPEN_REQ                  0x30u
+#define SAB_KEY_STORE_CLOSE_REQ                 0x31u
+
+#define SAB_KEY_MANAGEMENT_OPEN_REQ             0x40u
+#define SAB_KEY_MANAGEMENT_CLOSE_REQ            0x41u
+#define SAB_KEY_GENERATE_REQ                    0x42u
+#define SAB_KEY_UPDATE_REQ                      0x43u
+#define SAB_MANAGE_KEY_REQ                      0x44u
+
+#define SAB_MAC_OPEN_REQ                        0x50u
+#define SAB_MAC_CLOSE_REQ                       0x51u
+#define SAB_MAC_ONE_GO_REQ                      0x52u
+#define SAB_FAST_MAC_REQ                        0x53u
+
+#define SAB_CIPHER_OPEN_REQ                     0x60u
+#define SAB_CIPHER_CLOSE_REQ                    0x61u
+#define SAB_CIPHER_ONE_GO_REQ                   0x62u
+
+#define SAB_SHE_UTILS_OPEN                      0xF0u
+#define SAB_SHE_UTILS_CLOSE                     0xF1u
+#define SAB_SHE_KEY_UPDATE                      0xF2u
+#define SAB_SHE_PLAIN_KEY_UPDATE                0xF3u
+#define SAB_SHE_PLAIN_KEY_EXPORT                0xF4u
+#define SAB_SHE_GET_ID                          0xF5u
+#define SAB_SHE_GET_STATUS                      0xF6u
+
 
 #define AHAB_SHE_CMD_GENERATE_MAC               0x31u
 #define AHAB_SHE_CMD_VERIFY_MAC                 0x32u
