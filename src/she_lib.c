@@ -33,6 +33,7 @@ struct she_hdl_s {
     uint32_t key_store_handle;
     uint32_t cipher_handle;
     uint32_t rng_handle;
+    uint32_t utils_handle;
 };
 
 static she_err_t she_open_key_store(struct she_hdl_s *hdl, uint32_t key_storage_identifier, uint32_t password)
@@ -220,11 +221,85 @@ static she_err_t she_close_rng(struct she_hdl_s *hdl)
 }
 
 
+
+static she_err_t she_open_utils(struct she_hdl_s *hdl)
+{
+    struct sab_cmd_she_utils_open_msg cmd;
+    struct sab_cmd_she_utils_open_rsp rsp;
+    she_err_t ret = ERC_GENERAL_ERROR;
+    int32_t error = 1;
+    do {
+
+        if (hdl->utils_handle != 0u) {
+            break;
+        }
+        /* Send the keys store open command to Seco. */
+        she_fill_cmd_msg_hdr(&cmd.hdr, SAB_SHE_UTILS_OPEN, (uint32_t)sizeof(struct sab_cmd_she_utils_open_msg));
+        cmd.input_address_ext = 0;
+        cmd.output_address_ext = 0;
+        cmd.key_store_handle = hdl->key_store_handle;
+
+        error = she_send_msg_and_get_resp(hdl->phdl,
+                    (uint32_t *)&cmd, (uint32_t)sizeof(struct sab_cmd_she_utils_open_msg),
+                    (uint32_t *)&rsp, (uint32_t)sizeof(struct sab_cmd_she_utils_open_rsp));
+
+        if (error != 0) {
+            break;
+        }
+
+        if (GET_STATUS_CODE(rsp.rsp_code) != SAB_SUCCESS_STATUS) {
+            ret = she_seco_ind_to_she_err_t(rsp.rsp_code);
+            break;
+        }
+
+        hdl->utils_handle = rsp.utils_handle;
+        /* Success. */
+        ret = ERC_NO_ERROR;
+    } while(false);
+    return ret;
+}
+
+static she_err_t she_close_utils(struct she_hdl_s *hdl)
+{
+    struct sab_cmd_she_utils_close_msg cmd;
+    struct sab_cmd_she_utils_close_rsp rsp;
+    she_err_t ret = ERC_GENERAL_ERROR;
+    int32_t error = 1;
+    do {
+        if (hdl->utils_handle == 0u){
+            break;
+        }
+        /* Send the keys store open command to Seco. */
+        she_fill_cmd_msg_hdr(&cmd.hdr, SAB_SHE_UTILS_CLOSE, (uint32_t)sizeof(struct sab_cmd_she_utils_close_msg));
+        cmd.utils_handle = hdl->utils_handle;
+        error = she_send_msg_and_get_resp(hdl->phdl,
+                    (uint32_t *)&cmd, (uint32_t)sizeof(struct sab_cmd_she_utils_close_msg),
+                    (uint32_t *)&rsp, (uint32_t)sizeof(struct sab_cmd_she_utils_close_rsp));
+
+        if (error != 0) {
+            break;
+        }
+
+        if (GET_STATUS_CODE(rsp.rsp_code) != SAB_SUCCESS_STATUS) {
+            ret = she_seco_ind_to_she_err_t(rsp.rsp_code);
+            break;
+        }
+
+        hdl->cipher_handle = 0u;
+        /* Success. */
+        ret = ERC_NO_ERROR;
+    } while(false);
+    return ret;
+}
+
+
+
 /* Close a previously opened SHE session. */
 void she_close_session(struct she_hdl_s *hdl)
 {
     if (hdl != NULL) {
         if (hdl->phdl != NULL) {
+            (void) she_close_utils(hdl);
             (void) she_close_rng(hdl);
             (void) she_close_key_store(hdl);
             if (hdl -> session_handle != 0u) {
@@ -280,6 +355,10 @@ struct she_hdl_s *she_open_session(uint32_t key_storage_identifier, uint32_t pas
             break;
         }
 
+        /* open cipher service. */
+        if (she_open_utils(hdl) != ERC_NO_ERROR) {
+            break;
+        }
         /* Success. */
         error = 0;
     } while (false);

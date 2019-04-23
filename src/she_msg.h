@@ -379,6 +379,28 @@ struct sab_cmd_cipher_close_rsp {
     uint32_t rsp_code;
 } ;
 
+struct sab_cmd_she_utils_open_msg{
+    struct she_mu_hdr hdr;
+    uint32_t key_store_handle;
+    uint32_t input_address_ext;
+    uint32_t output_address_ext;
+} ;
+
+struct sab_cmd_she_utils_open_rsp{
+    struct she_mu_hdr hdr;
+    uint32_t rsp_code;
+    uint32_t utils_handle;
+} ;
+
+struct sab_cmd_she_utils_close_msg {
+    struct she_mu_hdr hdr;
+    uint32_t utils_handle;
+} ;
+
+struct sab_cmd_she_utils_close_rsp {
+    struct she_mu_hdr hdr;
+    uint32_t rsp_code;
+} ;
 #define AHAB_CIPHER_ONE_GO_ALGO_ECB (0x00u)
 #define AHAB_CIPHER_ONE_GO_ALGO_CBC (0x01u)
 #define AHAB_CIPHER_ONE_GO_FLAGS_ENCRYPT (0x01u)
