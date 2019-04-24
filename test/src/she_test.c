@@ -33,6 +33,7 @@
 #include <time.h>
 #include "she_api.h"
 #include "she_storage.h"
+#include "she_test.h"
 #include "she_test_mac.h"
 #include "she_test_cbc.h"
 #include "she_test_ecb.h"
@@ -110,7 +111,7 @@ void print_perf(struct timespec *ts1, struct timespec *ts2, uint32_t nb_iter)
 
 struct test_entry_t {
     const char *name;
-    uint32_t (*func)(struct she_hdl_s *hdl, FILE *fp);
+    uint32_t (*func)(test_struct_t *testCtx, FILE *fp);
 };
 
 
@@ -139,7 +140,6 @@ int main(int argc, char *argv[])
 {
     uint32_t fails = 0;
 
-    struct she_hdl_s *hdl = NULL;
     struct she_storage_context *storage_ctx = NULL;
     char *line = NULL;
     size_t len = 0;
@@ -147,6 +147,8 @@ int main(int argc, char *argv[])
     uint16_t i;
 
     FILE *fp = NULL;
+
+    test_struct_t testCtx = { 0 };
 
     do {
         if (argc != 2) {
@@ -179,7 +181,7 @@ int main(int argc, char *argv[])
                 for (i=0; i < (sizeof(she_tests)/sizeof(struct test_entry_t)); i++) {
                     if (memcmp(line, she_tests[i].name, strlen(she_tests[i].name)) == 0) {
                         (void)printf("test: %s", line);
-                        fails += she_tests[i].func(hdl, fp);
+                        fails += she_tests[i].func(&testCtx, fp);
                         (void)printf("\n");
                     }
                 }

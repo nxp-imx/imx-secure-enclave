@@ -36,7 +36,7 @@
 #include "she_test.h"
 
 /* Test ECB encryption .*/
-uint32_t she_test_ecb_enc(struct she_hdl_s *hdl, FILE *fp)
+uint32_t she_test_ecb_enc(test_struct_t *testCtx, FILE *fp)
 {
     uint32_t fails = 0;
 
@@ -75,7 +75,7 @@ uint32_t she_test_ecb_enc(struct she_hdl_s *hdl, FILE *fp)
 
     for (i=0; i<nb_iter; i++) {
         /* Call the API to be tested. */
-        err = she_cmd_enc_ecb(hdl, key_ext, key_id, input, output);
+        err = she_cmd_enc_ecb(testCtx->hdl[0], key_ext, key_id, input, output);
     }
 
     (void)clock_gettime(CLOCK_MONOTONIC_RAW, &ts2);
@@ -94,7 +94,7 @@ uint32_t she_test_ecb_enc(struct she_hdl_s *hdl, FILE *fp)
 }
 
 /* Test ECB decryption .*/
-uint32_t she_test_ecb_dec(struct she_hdl_s *hdl, FILE *fp)
+uint32_t she_test_ecb_dec(test_struct_t *testCtx, FILE *fp)
 {
     uint32_t fails = 0;
 
@@ -133,7 +133,7 @@ uint32_t she_test_ecb_dec(struct she_hdl_s *hdl, FILE *fp)
 
     for (i=0; i<nb_iter; i++) {
         /* Call the API to be tested. */
-        err = she_cmd_dec_ecb(hdl, key_ext, key_id, input, output);
+        err = she_cmd_dec_ecb(testCtx->hdl[0], key_ext, key_id, input, output);
     }
 
     (void)clock_gettime(CLOCK_MONOTONIC_RAW, &ts2);

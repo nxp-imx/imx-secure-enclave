@@ -30,6 +30,11 @@
 #ifndef __she_test_h__
 #define __she_test_h__
 
+typedef struct
+{
+    struct she_hdl_s *hdl[16];
+} test_struct_t;
+
 uint32_t read_single_data(FILE *fp);
 
 void read_buffer(FILE *fp, uint8_t *dst, uint32_t size);

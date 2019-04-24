@@ -36,7 +36,7 @@
 #include "she_test.h"
 
 /* Test MAC generation command. */
-uint32_t she_test_mac_gen(struct she_hdl_s *hdl, FILE *fp)
+uint32_t she_test_mac_gen(test_struct_t *testCtx, FILE *fp)
 {
     uint32_t fails = 0;
 
@@ -79,7 +79,7 @@ uint32_t she_test_mac_gen(struct she_hdl_s *hdl, FILE *fp)
 
     for (i=0; i<nb_iter; i++) {
         /* Call the API to be tested. */
-        err = she_cmd_generate_mac(hdl, key_ext, key_id, (uint16_t)input_size, input, output);
+        err = she_cmd_generate_mac(testCtx->hdl[0], key_ext, key_id, (uint16_t)input_size, input, output);
     }
 
     (void)clock_gettime(CLOCK_MONOTONIC_RAW, &ts2);
@@ -97,7 +97,7 @@ uint32_t she_test_mac_gen(struct she_hdl_s *hdl, FILE *fp)
 }
 
 /* Test MAC verify command - pattern 1. */
-uint32_t she_test_mac_verif(struct she_hdl_s *hdl, FILE *fp)
+uint32_t she_test_mac_verif(test_struct_t *testCtx, FILE *fp)
 {
     uint32_t fails = 0;
 
@@ -143,7 +143,7 @@ uint32_t she_test_mac_verif(struct she_hdl_s *hdl, FILE *fp)
 
     for (i=0; i<nb_iter; i++) {
         /* Call the API to be tested. */
-        err = she_cmd_verify_mac(hdl, key_ext, key_id, (uint16_t)input_size, input, input_mac, SHE_MAC_SIZE, &verif);
+        err = she_cmd_verify_mac(testCtx->hdl[0], key_ext, key_id, (uint16_t)input_size, input, input_mac, SHE_MAC_SIZE, &verif);
     }
 
     (void)clock_gettime(CLOCK_MONOTONIC_RAW, &ts2);

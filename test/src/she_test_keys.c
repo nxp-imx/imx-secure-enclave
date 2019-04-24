@@ -37,7 +37,7 @@
 
 
 /* Test load key */
-uint32_t she_test_load_key(struct she_hdl_s *hdl, FILE *fp)
+uint32_t she_test_load_key(test_struct_t *testCtx, FILE *fp)
 {
     uint32_t fails = 0;
 
@@ -46,7 +46,7 @@ uint32_t she_test_load_key(struct she_hdl_s *hdl, FILE *fp)
 
     /* read the expected error code. */
     expected_err = (she_err_t)read_single_data(fp);
-    err = she_cmd_load_key(hdl, NULL, NULL, NULL, NULL, NULL);
+    err = she_cmd_load_key(testCtx->hdl[0], NULL, NULL, NULL, NULL, NULL);
 
     /* Check there is no error reported. */
     fails += print_result(err, expected_err, NULL, NULL, 0);

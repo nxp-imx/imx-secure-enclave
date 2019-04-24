@@ -37,7 +37,7 @@
 
 /* Tests for RNG */
 
-uint32_t she_test_rng_init(struct she_hdl_s *hdl, FILE *fp) {
+uint32_t she_test_rng_init(test_struct_t *testCtx, FILE *fp) {
     uint32_t fails = 0;
 
     she_err_t err = 1;
@@ -46,7 +46,7 @@ uint32_t she_test_rng_init(struct she_hdl_s *hdl, FILE *fp) {
     /* read the expected error code. */
     expected_err = (she_err_t)read_single_data(fp);
 
-    err = she_cmd_init_rng(hdl);
+    err = she_cmd_init_rng(testCtx->hdl[0]);
 
     /* Check there is no error reported. */
     fails += print_result(err, expected_err, NULL, NULL, 0);
@@ -55,7 +55,7 @@ uint32_t she_test_rng_init(struct she_hdl_s *hdl, FILE *fp) {
 }
 
 
-uint32_t she_test_extend_seed(struct she_hdl_s *hdl, FILE *fp) {
+uint32_t she_test_extend_seed(test_struct_t *testCtx, FILE *fp) {
     uint32_t fails = 0;
 
     she_err_t err = 1;
@@ -68,7 +68,7 @@ uint32_t she_test_extend_seed(struct she_hdl_s *hdl, FILE *fp) {
     /* read the expected error code. */
     expected_err = (she_err_t)read_single_data(fp);
 
-    err = she_cmd_extend_seed(hdl, entropy);
+    err = she_cmd_extend_seed(testCtx->hdl[0], entropy);
 
     /* Check there is no error reported. */
     fails += print_result(err, expected_err, NULL, NULL, 0);
@@ -79,7 +79,7 @@ uint32_t she_test_extend_seed(struct she_hdl_s *hdl, FILE *fp) {
 }
 
 
-uint32_t she_test_rnd(struct she_hdl_s *hdl, FILE *fp) {
+uint32_t she_test_rnd(test_struct_t *testCtx, FILE *fp) {
     uint32_t fails = 0;
 
     she_err_t err = 1;
@@ -93,7 +93,7 @@ uint32_t she_test_rnd(struct she_hdl_s *hdl, FILE *fp) {
     /* read the expected error code. */
     expected_err = (she_err_t)read_single_data(fp);
 
-    err = she_cmd_rnd(hdl, rnd);
+    err = she_cmd_rnd(testCtx->hdl[0], rnd);
 
     for (i=0; i<SHE_RND_SIZE; i++) {
         printf("0x%x ", rnd[i]);

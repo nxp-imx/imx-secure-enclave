@@ -33,8 +33,8 @@
 #define SHE_KEY_STORE_ID    0u
 #define SHE_KEY_STORE_PASSWORD  0xBEC00001u
 
-uint32_t she_test_open_session(struct she_hdl_s *hdl, FILE *fp);
+uint32_t she_test_open_session(test_struct_t *testCtx, FILE *fp);
 
-uint32_t she_test_close_session(struct she_hdl_s *hdl, FILE *fp);
+uint32_t she_test_close_session(test_struct_t *testCtx, FILE *fp);
 
 #endif  // __she_test_open_sessions_h__

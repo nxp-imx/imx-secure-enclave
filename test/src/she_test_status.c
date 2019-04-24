@@ -37,7 +37,7 @@
 
 
 /* get Status test*/
-uint32_t she_test_get_status(struct she_hdl_s *hdl, FILE *fp)
+uint32_t she_test_get_status(test_struct_t *testCtx, FILE *fp)
 {
     uint32_t fails = 0;
 
@@ -50,7 +50,7 @@ uint32_t she_test_get_status(struct she_hdl_s *hdl, FILE *fp)
 
     expected_err = (she_err_t)read_single_data(fp);
 
-    err = she_cmd_get_status(hdl, &status);
+    err = she_cmd_get_status(testCtx->hdl[0], &status);
 
     fails += print_result(err, expected_err, &status, &expected_status, (uint32_t)sizeof(uint8_t));
 
@@ -59,7 +59,7 @@ uint32_t she_test_get_status(struct she_hdl_s *hdl, FILE *fp)
 
 
 /* get ID test*/
-uint32_t she_test_get_id(struct she_hdl_s *hdl, FILE *fp)
+uint32_t she_test_get_id(test_struct_t *testCtx, FILE *fp)
 {
     uint32_t fails = 0;
 
@@ -86,7 +86,7 @@ uint32_t she_test_get_id(struct she_hdl_s *hdl, FILE *fp)
 
     expected_err = (she_err_t)read_single_data(fp);
 
-    err = she_cmd_get_id(hdl, challenge, id, status, mac);
+    err = she_cmd_get_id(testCtx->hdl[0], challenge, id, status, mac);
 
     fails += print_result(err, expected_err, output, reference, SHE_ID_SIZE + SHE_MAC_SIZE + (uint32_t)sizeof(uint8_t));
 

@@ -37,7 +37,7 @@
 #include "she_test_sessions.h"
 
 /* Test open session */
-uint32_t she_test_open_session(struct she_hdl_s *hdl, FILE *fp)
+uint32_t she_test_open_session(test_struct_t *testCtx, FILE *fp)
 {
     uint32_t fails = 0;
 
@@ -45,10 +45,10 @@ uint32_t she_test_open_session(struct she_hdl_s *hdl, FILE *fp)
     she_err_t expected_err = (she_err_t)read_single_data(fp);
 
     /* Open the SHE session. */
-    hdl = she_open_session(SHE_KEY_STORE_ID, SHE_KEY_STORE_PASSWORD);
+    testCtx->hdl[0] = she_open_session(SHE_KEY_STORE_ID, SHE_KEY_STORE_PASSWORD);
 
     she_err_t err;
-    if (hdl != NULL) {
+    if (testCtx->hdl[0] != NULL) {
         err = 1;
     }
     else {
@@ -63,9 +63,9 @@ uint32_t she_test_open_session(struct she_hdl_s *hdl, FILE *fp)
 
 
 /* Test close session */
-uint32_t she_test_close_session(struct she_hdl_s *hdl, FILE *fp)
+uint32_t she_test_close_session(test_struct_t *testCtx, FILE *fp)
 {
     /* Close session if it was opened. */
-    she_close_session(hdl);
+    she_close_session(testCtx->hdl[0]);
 }
 

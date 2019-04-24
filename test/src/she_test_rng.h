@@ -30,10 +30,10 @@
 #ifndef __she_test_rng_h__
 #define __she_test_rng_h__
 
-uint32_t she_test_rng_init(struct she_hdl_s *hdl, FILE *fp);
+uint32_t she_test_rng_init(test_struct_t *testCtx, FILE *fp);
 
-uint32_t she_test_extend_seed(struct she_hdl_s *hdl, FILE *fp);
+uint32_t she_test_extend_seed(test_struct_t *testCtx, FILE *fp);
 
-uint32_t she_test_rnd(struct she_hdl_s *hdl, FILE *fp);
+uint32_t she_test_rnd(test_struct_t *testCtx, FILE *fp);
 
 #endif  // __she_test_rng_h__
