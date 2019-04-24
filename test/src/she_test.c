@@ -693,6 +693,8 @@ int main(int argc, char *argv[])
         /* Indicate the start of a test */
         printf("\n<test>\n");
 
+        printf("<filename>%s</filename>\n", argv[1]);
+
         /* Start the storage manager.*/
         storage_ctx = she_storage_init();
         if (storage_ctx == NULL) {
@@ -702,6 +704,7 @@ int main(int argc, char *argv[])
         /* Open the SHE session. */
         hdl = she_open_session(SHE_KEY_STORE_ID, SHE_KEY_STORE_PASSWORD);
         if (hdl == NULL) {
+            printf("she_open_session() --> FAIL\n");
             break;
         }
 
