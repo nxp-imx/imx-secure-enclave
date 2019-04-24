@@ -1,3 +1,5 @@
+<requirement>R100.1 The firmware can use MAC</requirement>
+
 SHE_TEST_MAC_GEN pattern 1 (16bytes)
 1 #iteration
 0x04 #SHE_KEY_1

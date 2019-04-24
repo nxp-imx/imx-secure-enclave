@@ -710,11 +710,16 @@ int main(int argc, char *argv[])
         }
 
         while( (read = getline(&line, &len, fp)) != -1) {
-            for (i=0; i < (sizeof(she_tests)/sizeof(struct test_entry_t)); i++) {
-                if (memcmp(line, she_tests[i].name, strlen(she_tests[i].name)) == 0) {
-                    (void)printf("test: %s", line);
-                    fails += she_tests[i].func(hdl, fp);
-                    (void)printf("\n");
+            if (line[0] == '<') {
+                (void)printf("%s", line);
+            }
+            else {
+                for (i=0; i < (sizeof(she_tests)/sizeof(struct test_entry_t)); i++) {
+                    if (memcmp(line, she_tests[i].name, strlen(she_tests[i].name)) == 0) {
+                        (void)printf("test: %s", line);
+                        fails += she_tests[i].func(hdl, fp);
+                        (void)printf("\n");
+                    }
                 }
             }
         }

@@ -1,3 +1,5 @@
+<requirement>R100.1 The firmware can initialize the RNG</requirement>
+
 SHE_TEST_RNG_INIT
 0 # expected return value (ERC_NO_ERROR)
 
