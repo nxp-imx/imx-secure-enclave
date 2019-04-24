@@ -1,5 +1,8 @@
 <requirement>R102.1 The firmware furnishes a status api</requirement>
 
+SHE_TEST_OPEN_SESSION
+1 # expect a pointer of any value other than 0
+
 SHE_TEST_GET_STATUS
 2 # expected status (bit 0) BUSY BIT not set, (bit 1) SECURE BIT set
 0 # expected return value (ERC_NO_ERROR)
@@ -18,3 +21,7 @@ SHE_TEST_GET_ID
 SHE_TEST_GET_STATUS
 2 # expected status (bit 0) BUSY BIT not set, (bit 1) SECURE BIT set
 0 # expected return value (ERC_NO_ERROR)
+
+
+SHE_TEST_CLOSE_SESSION
+

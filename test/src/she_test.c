@@ -39,9 +39,7 @@
 #include "she_test_rng.h"
 #include "she_test_status.h"
 #include "she_test_keys.h"
-
-#define SHE_KEY_STORE_ID    0u
-#define SHE_KEY_STORE_PASSWORD  0xBEC00001u
+#include "she_test_sessions.h"
 
 uint32_t read_single_data(FILE *fp)
 {
@@ -117,19 +115,22 @@ struct test_entry_t {
 
 
 struct test_entry_t she_tests[] = {
-    {"SHE_TEST_MAC_GEN", she_test_mac_gen},
-    {"SHE_TEST_MAC_VERIF", she_test_mac_verif},
     {"SHE_TEST_CBC_ENC", she_test_cbc_enc},
     {"SHE_TEST_CBC_DEC", she_test_cbc_dec},
+    {"SHE_TEST_CLOSE_SESSION", she_test_close_session},
     {"SHE_TEST_ECB_ENC", she_test_ecb_enc},
     {"SHE_TEST_ECB_DEC", she_test_ecb_dec},
-    {"SHE_TEST_LOAD_KEY", she_test_load_key},
-    {"SHE_TEST_LOAD_PLAIN_KEY", she_test_load_plain_key},
     {"SHE_TEST_RNG_INIT", she_test_rng_init},
     {"SHE_TEST_EXTEND_SEED", she_test_extend_seed},
-    {"SHE_TEST_RND", she_test_rnd},
     {"SHE_TEST_GET_STATUS",she_test_get_status},
     {"SHE_TEST_GET_ID",she_test_get_id},
+    {"SHE_TEST_LOAD_KEY", she_test_load_key},
+    {"SHE_TEST_LOAD_PLAIN_KEY", she_test_load_plain_key},
+    {"SHE_TEST_MAC_GEN", she_test_mac_gen},
+    {"SHE_TEST_MAC_VERIF", she_test_mac_verif},
+    {"SHE_TEST_OPEN_SESSION", she_test_open_session},
+    {"SHE_TEST_RNG_INIT", she_test_rng_init},
+    {"SHE_TEST_RND", she_test_rnd},
 };
 
 
@@ -169,12 +170,6 @@ int main(int argc, char *argv[])
             break;
         }
 
-        /* Open the SHE session. */
-        hdl = she_open_session(SHE_KEY_STORE_ID, SHE_KEY_STORE_PASSWORD);
-        if (hdl == NULL) {
-            printf("she_open_session() --> FAIL\n");
-            break;
-        }
 
         while( (read = getline(&line, &len, fp)) != -1) {
             if (line[0] == '<') {
@@ -194,10 +189,6 @@ int main(int argc, char *argv[])
 
     } while(false);
 
-    /* Close session if it was opened. */
-    if (hdl != NULL) {
-        she_close_session(hdl);
-    }
     if (storage_ctx != NULL) {
         (void)she_storage_terminate(storage_ctx);
     }

@@ -1,5 +1,8 @@
 <requirement>R100.1 The firmware can initialize the RNG</requirement>
 
+SHE_TEST_OPEN_SESSION
+1 # expect a pointer of any value other than 0
+
 SHE_TEST_RNG_INIT
 0 # expected return value (ERC_NO_ERROR)
 
@@ -9,3 +12,7 @@ SHE_TEST_EXTEND_SEED
 
 SHE_TEST_RND
 0 # expected return value (ERC_NO_ERROR)
+
+SHE_TEST_CLOSE_SESSION
+
+
