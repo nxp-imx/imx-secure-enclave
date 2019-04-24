@@ -698,6 +698,7 @@ int main(int argc, char *argv[])
         /* Start the storage manager.*/
         storage_ctx = she_storage_init();
         if (storage_ctx == NULL) {
+            printf("she_storage_init() --> FAIL\n");
             break;
         }
 
