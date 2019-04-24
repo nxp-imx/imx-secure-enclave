@@ -96,7 +96,7 @@ uint32_t she_test_rnd(struct she_hdl_s *hdl, FILE *fp) {
     err = she_cmd_rnd(hdl, rnd);
 
     for (i=0; i<SHE_RND_SIZE; i++) {
-        printf("0x%x ", i);
+        printf("0x%x ", rnd[i]);
         if (i%4 == 3) {
             printf("\n");
         }
