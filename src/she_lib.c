@@ -299,6 +299,7 @@ void she_close_session(struct she_hdl_s *hdl)
 {
     if (hdl != NULL) {
         if (hdl->phdl != NULL) {
+            (void) she_close_cipher(hdl);
             (void) she_close_utils(hdl);
             (void) she_close_rng(hdl);
             (void) she_close_key_store(hdl);
@@ -358,6 +359,10 @@ struct she_hdl_s *she_open_session(uint32_t key_storage_identifier, uint32_t pas
 
         /* open cipher service. */
         if (she_open_utils(hdl) != ERC_NO_ERROR) {
+            break;
+        }
+
+        if(she_open_cipher(hdl) != ERC_NO_ERROR) {
             break;
         }
         /* Success. */
@@ -467,11 +472,6 @@ static she_err_t she_cmd_cipher_one_go(struct she_hdl_s *hdl, uint8_t key_ext, u
     she_err_t ret = ERC_GENERAL_ERROR;
 
     do {
-        ret = she_open_cipher(hdl);
-        if(ret != ERC_NO_ERROR) {
-            break;
-        }
-
         /* Build command message. */
         she_fill_cmd_msg_hdr(&cmd.hdr, SAB_CIPHER_ONE_GO_REQ, (uint32_t)sizeof(struct sab_cmd_cipher_one_go_msg));
         cmd.cipher_handle = hdl->cipher_handle;
@@ -519,10 +519,6 @@ static she_err_t she_cmd_cipher_one_go(struct she_hdl_s *hdl, uint8_t key_ext, u
 
         ret = ERC_NO_ERROR;
     } while (false);
-
-    if(she_close_cipher(hdl) != ERC_NO_ERROR) {
-        ret = ERC_GENERAL_ERROR;
-    }
 
     return ret;
 }
