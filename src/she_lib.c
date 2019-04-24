@@ -54,8 +54,6 @@ static she_err_t she_open_key_store(struct she_hdl_s *hdl, uint32_t key_storage_
         cmd.sesssion_handle = hdl->session_handle;
         cmd.key_store_id = key_storage_identifier;
         cmd.password = password;
-        cmd.input_address_ext = 0;
-        cmd.output_address_ext = 0;
         cmd.flags = SHE_DEFAULT_KEY_STORE_OPEN_FLAGS;
         cmd.crc = she_compute_msg_crc((uint32_t*)&cmd, (uint32_t)(sizeof(cmd) - sizeof(uint32_t)));
 

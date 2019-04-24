@@ -330,8 +330,6 @@ struct sab_cmd_key_store_open_msg{
     uint32_t sesssion_handle;
     uint32_t key_store_id;
     uint32_t password;
-    uint32_t input_address_ext;
-    uint32_t output_address_ext;
     uint8_t flags;
     uint8_t rsv;
     uint16_t rsv_1;
