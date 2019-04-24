@@ -42,6 +42,7 @@ struct she_platform_hdl {
  */
 struct she_platform_hdl *she_platform_open_she_session(void)
 {
+
     struct she_platform_hdl *phdl = malloc(sizeof(struct she_platform_hdl));
 
     if (phdl != NULL) {
@@ -187,4 +188,24 @@ int32_t she_platform_storage_read(struct she_platform_hdl *phdl, uint8_t *dst, u
     }
 
     return l;
+}
+
+void she_platform_memset(uint8_t *dst, uint8_t val, uint32_t len)
+{
+    (void)memset(dst, (int32_t)val, len);
+}
+
+void she_platform_memcpy(uint8_t *dst, uint8_t *src, uint32_t len)
+{
+    (void)memcpy(dst, src, len);
+}
+
+uint8_t *she_platform_malloc(uint32_t size)
+{
+    return (uint8_t *)malloc(size);
+}
+
+void she_platform_free(void *ptr)
+{
+    free(ptr);
 }

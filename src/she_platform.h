@@ -228,4 +228,20 @@ int32_t she_platform_storage_write(struct she_platform_hdl *phdl, uint8_t *src, 
  */
 int32_t she_platform_storage_read(struct she_platform_hdl *phdl, uint8_t *dst, uint32_t size);
 
+/**
+ * Force all bytes of a buffer to a given value.
+ *
+ */
+void she_platform_memset(uint8_t *dst, uint8_t val, uint32_t len);
+
+/**
+ * Copy the content of a buffer to another location.
+ */
+void she_platform_memcpy(uint8_t *dst, uint8_t *src, uint32_t len);
+
+
+uint8_t *she_platform_malloc(uint32_t size);
+
+void she_platform_free(void *ptr);
+
 #endif

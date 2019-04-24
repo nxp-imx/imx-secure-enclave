@@ -14,7 +14,6 @@
 #include "she_msg.h"
 #include "she_platform.h"
 #include "she_storage.h"
-#include <string.h>
 #include "messaging.h"
 
 #define MAX_NVM_MSG_SIZE    10
@@ -49,7 +48,7 @@ static int32_t she_storage_export_init(struct she_storage_context *ctx, struct s
 
     if (ctx->blob_buf != NULL) {
         /* a previous storage export transaction may have failed.*/
-        free(ctx->blob_buf);
+        she_platform_free(ctx->blob_buf);
         ctx->blob_buf = NULL;
         ctx->blob_size = 0;
     }
@@ -65,15 +64,15 @@ static int32_t she_storage_export_init(struct she_storage_context *ctx, struct s
             break;
         }
 
-        ctx->blob_buf = malloc(msg->blob_size + sizeof(struct seco_nvm_header_s));
+        ctx->blob_buf = she_platform_malloc(msg->blob_size + (uint32_t)sizeof(struct seco_nvm_header_s));
         ctx->blob_size = msg->blob_size;
         if (ctx->blob_buf == NULL) {
             break;
         }
 
-        seco_addr = she_platform_data_buf(ctx->hdl, ctx->blob_buf + sizeof(struct seco_nvm_header_s), msg->blob_size, DATA_BUF_USE_SEC_MEM);
+        seco_addr = she_platform_data_buf(ctx->hdl, ctx->blob_buf + (uint32_t)sizeof(struct seco_nvm_header_s), msg->blob_size, DATA_BUF_USE_SEC_MEM);
         if (seco_addr == 0u) {
-            free(ctx->blob_buf);
+            she_platform_free(ctx->blob_buf);
             ctx->blob_buf = NULL;
             ctx->blob_size = 0;
             break;
@@ -105,7 +104,7 @@ static int32_t she_storage_export(struct she_storage_context *ctx, struct she_cm
             resp->rsp_code = SAB_SUCCESS_STATUS;
         }
 
-        free(ctx->blob_buf);
+        she_platform_free(ctx->blob_buf);
         ctx->blob_buf = NULL;
         ctx->blob_size = 0;
     }
@@ -134,7 +133,7 @@ static int32_t she_storage_import(struct she_storage_context *ctx)
             break;
         }
 
-        blob_buf = malloc(blob_hdr.size + sizeof(struct seco_nvm_header_s));
+        blob_buf = she_platform_malloc(blob_hdr.size + (uint32_t)sizeof(struct seco_nvm_header_s));
         if (blob_buf == NULL) {
             break;
         }
@@ -178,7 +177,7 @@ static int32_t she_storage_import(struct she_storage_context *ctx)
     } while (false);
 
     if (blob_buf != NULL) {
-        free(blob_buf);
+        she_platform_free(blob_buf);
     }
     return error;
 }
@@ -261,7 +260,7 @@ static void *she_storage_thread(void *arg)
 
     /* Should not come here for now ... */
     she_platform_close_session(ctx->hdl);
-    free(ctx);
+    she_platform_free(ctx);
     return NULL;
 }
 
@@ -272,11 +271,11 @@ struct she_storage_context *she_storage_init(void)
     int32_t error = -1;
     do {
         /* Prepare the context to be passed to the thread function. */
-        nvm_ctx = malloc(sizeof(struct she_storage_context));
+        nvm_ctx = (struct she_storage_context *)she_platform_malloc((uint32_t)sizeof(struct she_storage_context));
         if (nvm_ctx == NULL) {
             break;
         }
-        (void)memset(nvm_ctx, 0 ,sizeof(struct she_storage_context));
+        she_platform_memset((uint8_t *)nvm_ctx, 0u, (uint32_t)sizeof(struct she_storage_context));
         /* Open the SHE NVM session. */
         nvm_ctx->hdl = she_platform_open_storage_session();
         if (nvm_ctx->hdl == NULL) {
@@ -315,7 +314,7 @@ struct she_storage_context *she_storage_init(void)
             }
             she_platform_close_session(nvm_ctx->hdl);
         }
-        free(nvm_ctx);
+        she_platform_free(nvm_ctx);
         nvm_ctx = NULL;
     }
     return nvm_ctx;
@@ -336,7 +335,7 @@ int32_t she_storage_terminate(struct she_storage_context *nvm_ctx)
 
     }
     if (err == 0) {
-        free(nvm_ctx);
+        she_platform_free(nvm_ctx);
     }
     return err;
 }
