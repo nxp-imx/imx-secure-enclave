@@ -21,7 +21,7 @@ messaging.o: src/messaging.c
 	$(CC) $^  -c -o $@ -I include $(CFLAGS)
 
 #SHE test app
-she_test: test/she_test.c she_lib.o she_storage.o platform_lib.o messaging.o include/she_api.h
+she_test: test/src/she_test.c she_lib.o she_storage.o platform_lib.o messaging.o include/she_api.h
 	$(CC) $^  -o $@ -I include $(CFLAGS) -lpthread -lz
 
 clean:
