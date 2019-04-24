@@ -59,7 +59,7 @@ uint32_t she_test_load_key(test_struct_t *testCtx, FILE *fp)
 
 
 /* Test load plain key */
-uint32_t she_test_load_plain_key(struct she_hdl_s *hdl, FILE *fp)
+uint32_t she_test_load_plain_key(test_struct_t *testCtx, FILE *fp)
 {
     uint32_t fails = 0;
 
@@ -70,10 +70,13 @@ uint32_t she_test_load_plain_key(struct she_hdl_s *hdl, FILE *fp)
     key = malloc(SHE_KEY_SIZE);
     read_buffer(fp, key, SHE_KEY_SIZE);
 
+    /* read the session index. */
+    uint32_t index = read_single_data(fp);
+
     /* read the expected error code. */
     expected_err = (she_err_t)read_single_data(fp);
 
-    err = she_cmd_load_plain_key(hdl, key);
+    err = she_cmd_load_plain_key(testCtx->hdl[index], key);
 
     /* Check there is no error reported. */
     fails += print_result(err, expected_err, NULL, NULL, 0);
