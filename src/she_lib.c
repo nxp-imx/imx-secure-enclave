@@ -34,6 +34,7 @@ struct she_hdl_s {
     uint32_t cipher_handle;
     uint32_t rng_handle;
     uint32_t utils_handle;
+    uint32_t cancel;
 };
 
 static she_err_t she_open_key_store(struct she_hdl_s *hdl, uint32_t key_storage_identifier, uint32_t password)
@@ -41,7 +42,7 @@ static she_err_t she_open_key_store(struct she_hdl_s *hdl, uint32_t key_storage_
     struct sab_cmd_key_store_open_msg cmd;
     struct sab_cmd_key_store_open_rsp rsp;
 
-    she_err_t err = ERC_GENERAL_ERROR;
+    she_err_t ret = ERC_GENERAL_ERROR;
     int32_t error = 1;
     do {
 
@@ -67,22 +68,22 @@ static she_err_t she_open_key_store(struct she_hdl_s *hdl, uint32_t key_storage_
         }
 
         if (GET_STATUS_CODE(rsp.rsp_code) != SAB_SUCCESS_STATUS) {
-            err = she_seco_ind_to_she_err_t(rsp.rsp_code);
+            ret = she_seco_ind_to_she_err_t(rsp.rsp_code);
             break;
         }
 
         hdl->key_store_handle = rsp.key_store_handle;
         /* Success. */
-        err = ERC_NO_ERROR;
+        ret = ERC_NO_ERROR;
     } while(false);
-    return err;
+    return ret;
 }
 
 static she_err_t she_close_key_store(struct she_hdl_s *hdl)
 {
     struct sab_cmd_key_store_close_msg cmd;
     struct sab_cmd_key_store_close_rsp rsp;
-    she_err_t err = ERC_GENERAL_ERROR;
+    she_err_t ret = ERC_GENERAL_ERROR;
     int32_t error = 1;
     do {
 
@@ -102,23 +103,23 @@ static she_err_t she_close_key_store(struct she_hdl_s *hdl)
         }
 
         if (GET_STATUS_CODE(rsp.rsp_code)!= SAB_SUCCESS_STATUS) {
-            err = she_seco_ind_to_she_err_t(rsp.rsp_code);
+            ret = she_seco_ind_to_she_err_t(rsp.rsp_code);
             break;
         }
 
         hdl->key_store_handle = 0;
 
         /* Success. */
-        err = ERC_NO_ERROR;
+        ret = ERC_NO_ERROR;
     } while(false);
-    return err;
+    return ret;
 }
 
 static she_err_t she_open_cipher(struct she_hdl_s *hdl)
 {
     struct sab_cmd_cipher_open_msg cmd;
     struct sab_cmd_cipher_open_rsp rsp;
-    she_err_t err = ERC_GENERAL_ERROR;
+    she_err_t ret = ERC_GENERAL_ERROR;
     int32_t error = 1;
     do {
 
@@ -142,22 +143,22 @@ static she_err_t she_open_cipher(struct she_hdl_s *hdl)
         }
 
         if (GET_STATUS_CODE(rsp.rsp_code) != SAB_SUCCESS_STATUS) {
-            err = she_seco_ind_to_she_err_t(rsp.rsp_code);
+            ret = she_seco_ind_to_she_err_t(rsp.rsp_code);
             break;
         }
 
         hdl->cipher_handle = rsp.cipher_handle;
         /* Success. */
-        err = ERC_NO_ERROR;
+        ret = ERC_NO_ERROR;
     } while(false);
-    return err;
+    return ret;
 }
 
 static she_err_t she_close_cipher(struct she_hdl_s *hdl)
 {
     struct sab_cmd_cipher_close_msg cmd;
     struct sab_cmd_cipher_close_rsp rsp;
-    she_err_t err = ERC_GENERAL_ERROR;
+    she_err_t ret = ERC_GENERAL_ERROR;
     int32_t error = 1;
     do {
         if (hdl->cipher_handle == 0u){
@@ -175,16 +176,16 @@ static she_err_t she_close_cipher(struct she_hdl_s *hdl)
         }
 
         if (GET_STATUS_CODE(rsp.rsp_code) != SAB_SUCCESS_STATUS) {
-            err = she_seco_ind_to_she_err_t(rsp.rsp_code);
+            ret = she_seco_ind_to_she_err_t(rsp.rsp_code);
             break;
         }
 
         hdl->cipher_handle = 0;
         /* Success. */
-        err = ERC_NO_ERROR;
+        ret = ERC_NO_ERROR;
     } while(false);
 
-    return err;
+    return ret;
 }
 
 static she_err_t she_close_rng(struct she_hdl_s *hdl)
@@ -377,10 +378,9 @@ she_err_t she_cmd_generate_mac(struct she_hdl_s *hdl, uint8_t key_ext, uint8_t k
     struct she_cmd_generate_mac_msg cmd;
     struct she_cmd_generate_mac_rsp rsp;
     int32_t error;
-    she_err_t err = ERC_GENERAL_ERROR;
+    she_err_t ret = ERC_GENERAL_ERROR;
 
     do {
-
         /* Build command message. */
         she_fill_cmd_msg_hdr(&cmd.hdr, SAB_FAST_MAC_REQ, (uint32_t)sizeof(struct she_cmd_generate_mac_msg));
         cmd.key_id = (uint16_t)key_ext | (uint16_t)key_id;
@@ -396,16 +396,18 @@ she_err_t she_cmd_generate_mac(struct she_hdl_s *hdl, uint8_t key_ext, uint8_t k
             break;
         }
 
-        if (GET_STATUS_CODE(rsp.rsp_code) != SAB_SUCCESS_STATUS) {
-            err = she_seco_ind_to_she_err_t(rsp.rsp_code);
+        if ((hdl->cancel != 0u) || (GET_STATUS_CODE(rsp.rsp_code) != SAB_SUCCESS_STATUS)) {
+            ret = she_seco_ind_to_she_err_t(rsp.rsp_code);
+            memset(mac, 0, SHE_MAC_SIZE);
+            hdl->cancel = 0u;
             break;
         }
 
         /* Success. */
-        err = ERC_NO_ERROR;
+        ret = ERC_NO_ERROR;
     } while (false);
 
-    return err;
+    return ret;
 }
 
 /* MAC verify command processing. */
@@ -434,13 +436,15 @@ she_err_t she_cmd_verify_mac(struct she_hdl_s *hdl, uint8_t key_ext, uint8_t key
             break;
         }
 
-        if (GET_STATUS_CODE(rsp.rsp_code) != SAB_SUCCESS_STATUS) {
+        if ((hdl->cancel != 0u) || (GET_STATUS_CODE(rsp.rsp_code) != SAB_SUCCESS_STATUS)) {
             ret = she_seco_ind_to_she_err_t(rsp.rsp_code);
+            *verification_status = SHE_MAC_VERIFICATION_FAILED;
+            hdl->cancel = 0u;
             break;
         }
 
         /* Command success: Report the verification status. */
-        *verification_status = (rsp.verification_status == (uint32_t)0 ? SHE_MAC_VERIFICATION_SUCCESS : SHE_MAC_VERIFICATION_FAILED);
+        *verification_status = (rsp.verification_status == 0u ? SHE_MAC_VERIFICATION_SUCCESS : SHE_MAC_VERIFICATION_FAILED);
         ret = ERC_NO_ERROR;
     } while (false);
 
@@ -460,11 +464,11 @@ static she_err_t she_cmd_cipher_one_go(struct she_hdl_s *hdl, uint8_t key_ext, u
     int32_t error;
     uint64_t seco_iv_addr, seco_input_addr, seco_output_addr;
     uint16_t iv_size;
-    she_err_t err = ERC_GENERAL_ERROR;
+    she_err_t ret = ERC_GENERAL_ERROR;
 
     do {
-        err = she_open_cipher(hdl);
-        if(err != ERC_NO_ERROR) {
+        ret = she_open_cipher(hdl);
+        if(ret != ERC_NO_ERROR) {
             break;
         }
 
@@ -506,19 +510,21 @@ static she_err_t she_cmd_cipher_one_go(struct she_hdl_s *hdl, uint8_t key_ext, u
             break;
         }
 
-        if (GET_STATUS_CODE(rsp.rsp_code) != SAB_SUCCESS_STATUS) {
-            err = she_seco_ind_to_she_err_t(rsp.rsp_code);
+        if ((hdl->cancel != 0u) || (GET_STATUS_CODE(rsp.rsp_code) != SAB_SUCCESS_STATUS)) {
+            ret = she_seco_ind_to_she_err_t(rsp.rsp_code);
+            memset(output, 0, data_length);
+            hdl->cancel = 0u;
             break;
         }
 
-        err = ERC_NO_ERROR;
+        ret = ERC_NO_ERROR;
     } while (false);
 
     if(she_close_cipher(hdl) != ERC_NO_ERROR) {
-        err = ERC_GENERAL_ERROR;
+        ret = ERC_GENERAL_ERROR;
     }
 
-    return err;
+    return ret;
 }
 
 /* CBC encrypt command. */
@@ -551,7 +557,7 @@ she_err_t she_cmd_load_key(struct she_hdl_s *hdl, uint8_t *m1, uint8_t *m2, uint
     struct she_cmd_load_key_msg cmd;
     struct she_cmd_load_key_rsp rsp;
     int32_t error;
-    she_err_t err = ERC_GENERAL_ERROR;
+    she_err_t ret = ERC_GENERAL_ERROR;
 
     do {
         /* Build command message. */
@@ -565,16 +571,17 @@ she_err_t she_cmd_load_key(struct she_hdl_s *hdl, uint8_t *m1, uint8_t *m2, uint
             break;
         }
 
-        if (GET_STATUS_CODE(rsp.rsp_code)!= SAB_SUCCESS_STATUS) {
-            err = she_seco_ind_to_she_err_t(rsp.rsp_code);
+        if ((hdl->cancel != 0u) || (GET_STATUS_CODE(rsp.rsp_code)!= SAB_SUCCESS_STATUS)) {
+            ret = she_seco_ind_to_she_err_t(rsp.rsp_code);
+            hdl->cancel = 0u;
             break;
         }
 
         /* Success. */
-        err = ERC_NO_ERROR;
+        ret = ERC_NO_ERROR;
     } while (false);
 
-    return err;
+    return ret;
 }
 
 she_err_t she_cmd_load_plain_key(struct she_hdl_s *hdl, uint8_t *key) 
@@ -582,7 +589,7 @@ she_err_t she_cmd_load_plain_key(struct she_hdl_s *hdl, uint8_t *key)
     struct she_cmd_load_plain_key_msg cmd;
     struct she_cmd_load_plain_key_rsp rsp;
     int32_t error;
-    she_err_t err = ERC_GENERAL_ERROR;
+    she_err_t ret = ERC_GENERAL_ERROR;
 
     do {
         /* Build command message. */
@@ -598,23 +605,24 @@ she_err_t she_cmd_load_plain_key(struct she_hdl_s *hdl, uint8_t *key)
             break;
         }
 
-        if ((GET_STATUS_CODE(rsp.rsp_code)!= SAB_SUCCESS_STATUS)) {
-            err = she_seco_ind_to_she_err_t(rsp.rsp_code);
+        if ((hdl->cancel != 0u) || (GET_STATUS_CODE(rsp.rsp_code)!= SAB_SUCCESS_STATUS)) {
+            ret = she_seco_ind_to_she_err_t(rsp.rsp_code);
+            hdl->cancel = 0u;
             break;
         }
 
         /* Success. */
-        err = ERC_NO_ERROR;
+        ret = ERC_NO_ERROR;
     } while (false);
 
-    return err;
+    return ret;
 }
 
 
 she_err_t she_cmd_export_ram_key(struct she_hdl_s *hdl, uint8_t *m1, uint8_t *m2, uint8_t *m3, uint8_t *m4, uint8_t *m5) {
-    she_err_t err = ERC_GENERAL_ERROR;
+    she_err_t ret = ERC_GENERAL_ERROR;
 
-    return err;
+    return ret;
 }
 
 she_err_t she_cmd_init_rng(struct she_hdl_s *hdl) {
@@ -643,8 +651,9 @@ she_err_t she_cmd_init_rng(struct she_hdl_s *hdl) {
             break;
         }
 
-        if (GET_STATUS_CODE(rsp.rsp_code)!= SAB_SUCCESS_STATUS) {
+        if ((hdl->cancel != 0u) || (GET_STATUS_CODE(rsp.rsp_code)!= SAB_SUCCESS_STATUS)) {
             ret = she_seco_ind_to_she_err_t(rsp.rsp_code);
+            hdl->cancel = 0u;
             break;
         }
 
@@ -661,11 +670,11 @@ she_err_t she_cmd_extend_seed(struct she_hdl_s *hdl, uint8_t *entropy) {
     struct sab_cmd_extend_seed_msg cmd;
     struct sab_cmd_extend_seed_rsp rsp;
     int32_t error;
-    she_err_t err = ERC_GENERAL_ERROR;
+    she_err_t ret = ERC_GENERAL_ERROR;
 
     do {
         if (hdl->rng_handle == 0u) {
-            err = ERC_SEQUENCE_ERROR;
+            ret = ERC_SEQUENCE_ERROR;
             break;
         }
         /* Build command message. */
@@ -682,16 +691,17 @@ she_err_t she_cmd_extend_seed(struct she_hdl_s *hdl, uint8_t *entropy) {
             break;
         }
 
-        if (GET_STATUS_CODE(rsp.rsp_code)!= SAB_SUCCESS_STATUS) {
-            err = she_seco_ind_to_she_err_t(rsp.rsp_code);
+        if ((hdl->cancel != 0u) || (GET_STATUS_CODE(rsp.rsp_code)!= SAB_SUCCESS_STATUS)) {
+            ret = she_seco_ind_to_she_err_t(rsp.rsp_code);
+            hdl->cancel = 0u;
             break;
         }
 
         /* Success. */
-        err = ERC_NO_ERROR;
+        ret = ERC_NO_ERROR;
     } while (false);
 
-    return err;
+    return ret;
 }
 
 
@@ -724,8 +734,10 @@ she_err_t she_cmd_rnd(struct she_hdl_s *hdl, uint8_t *rnd)
             break;
         }
 
-        if (GET_STATUS_CODE(rsp.rsp_code)!= SAB_SUCCESS_STATUS) {
+        if ((hdl->cancel != 0u) || (GET_STATUS_CODE(rsp.rsp_code)!= SAB_SUCCESS_STATUS)) {
             ret = she_seco_ind_to_she_err_t(rsp.rsp_code);
+            memset(rnd, 0, SHE_RND_SIZE);
+            hdl->cancel = 0u;
             break;
         }
 
@@ -741,7 +753,7 @@ she_err_t she_cmd_get_status(struct she_hdl_s *hdl, uint8_t *sreg) {
     struct she_cmd_get_status_msg cmd;
     struct she_cmd_get_status_rsp rsp;
     int32_t error;
-    she_err_t err = ERC_GENERAL_ERROR;
+    she_err_t ret = ERC_GENERAL_ERROR;
 
     do {
         /* Build command message. */
@@ -755,9 +767,10 @@ she_err_t she_cmd_get_status(struct she_hdl_s *hdl, uint8_t *sreg) {
             break;
         }
 
-        if (GET_STATUS_CODE(rsp.rsp_code)!= SAB_SUCCESS_STATUS) {
-            err = she_seco_ind_to_she_err_t(rsp.rsp_code);
+        if ((hdl->cancel != 0u) || (GET_STATUS_CODE(rsp.rsp_code)!= SAB_SUCCESS_STATUS)) {
+            ret = she_seco_ind_to_she_err_t(rsp.rsp_code);
             *sreg = 0;
+            hdl->cancel = 0u;
             break;
         }
 
@@ -765,10 +778,10 @@ she_err_t she_cmd_get_status(struct she_hdl_s *hdl, uint8_t *sreg) {
         *sreg = rsp.sreg;
 
         /* Success. */
-        err = ERC_NO_ERROR;
+        ret = ERC_NO_ERROR;
     } while (false);
 
-    return err;
+    return ret;
 }
 
 
@@ -776,7 +789,7 @@ she_err_t she_cmd_get_id(struct she_hdl_s *hdl, uint8_t *challenge, uint8_t *id,
     struct she_cmd_get_id_msg cmd;
     struct she_cmd_get_id_rsp rsp;
     int32_t error;
-    she_err_t err = ERC_GENERAL_ERROR;
+    she_err_t ret = ERC_GENERAL_ERROR;
     uint64_t seco_challenge_addr, seco_mac_addr;
 
     do {
@@ -797,11 +810,13 @@ she_err_t she_cmd_get_id(struct she_hdl_s *hdl, uint8_t *challenge, uint8_t *id,
             break;
         }
 
-        if ((GET_STATUS_CODE(rsp.rsp_code)!= SAB_SUCCESS_STATUS)
+        if ((hdl->cancel != 0u)
+            || (GET_STATUS_CODE(rsp.rsp_code)!= SAB_SUCCESS_STATUS)
             || (rsp.crc != she_compute_msg_crc((uint32_t*)&rsp, (uint32_t)(sizeof(rsp) - sizeof(uint32_t))))) {
-            err = she_seco_ind_to_she_err_t(rsp.rsp_code);
+            ret = she_seco_ind_to_she_err_t(rsp.rsp_code);
             *sreg = 0;
             memset(id, 0, SHE_ID_SIZE);
+            hdl->cancel = 0u;
             break;
         }
 
@@ -810,15 +825,17 @@ she_err_t she_cmd_get_id(struct she_hdl_s *hdl, uint8_t *challenge, uint8_t *id,
         memcpy(id, rsp.id, SHE_ID_SIZE);
 
         /* Success. */
-        err = ERC_NO_ERROR;
+        ret = ERC_NO_ERROR;
     } while (false);
 
-    return err;
+    return ret;
 }
 
 
 she_err_t she_cmd_cancel(struct she_hdl_s *hdl) {
-    she_err_t err = ERC_GENERAL_ERROR;
+    she_err_t ret = ERC_GENERAL_ERROR;
 
-    return err;
+    hdl->cancel = 1u;
+
+    return ret;
 }
