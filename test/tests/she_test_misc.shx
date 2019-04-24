@@ -1,9 +1,11 @@
 <requirement>R102.1 The firmware furnishes a status api</requirement>
 
 SHE_TEST_OPEN_SESSION
+0 # index to a list of session pointers
 1 # expect a pointer of any value other than 0
 
 SHE_TEST_GET_STATUS
+0 # index to a list of session pointers
 2 # expected status (bit 0) BUSY BIT not set, (bit 1) SECURE BIT set
 0 # expected return value (ERC_NO_ERROR)
 
@@ -11,6 +13,7 @@ SHE_TEST_GET_STATUS
 <requirement>R102.2 The firmware furnishes an id api</requirement>
 
 SHE_TEST_GET_ID
+0 # index to a list of session pointers
 0x40, 0xab, 0xde, 0xab, 0x16, 0xde, 0x77, 0xb9, 0x59, 0x99, 0x64, 0xb3, 0xd2, 0xdd, 0x72, 0x61 # challenge
 0x8f, 0x55, 0x96, 0x82, 0x0e, 0x30, 0x1d, 0x16, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00 # ID 120-bit
 0xce, 0xfa, 0x54, 0x76, 0x4e, 0x77, 0xac, 0xc4, 0xe7, 0x29, 0x7e, 0x01, 0x37, 0x48, 0x35, 0x2e # MAC 128-bit
@@ -19,9 +22,11 @@ SHE_TEST_GET_ID
 
 
 SHE_TEST_GET_STATUS
+0 # index to a list of session pointers
 2 # expected status (bit 0) BUSY BIT not set, (bit 1) SECURE BIT set
 0 # expected return value (ERC_NO_ERROR)
 
 
 SHE_TEST_CLOSE_SESSION
+0 # index to a list of session pointers
 

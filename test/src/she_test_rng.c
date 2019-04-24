@@ -43,10 +43,13 @@ uint32_t she_test_rng_init(test_struct_t *testCtx, FILE *fp) {
     she_err_t err = 1;
     she_err_t expected_err;
 
+    /* read the session index. */
+    uint32_t index = read_single_data(fp);
+
     /* read the expected error code. */
     expected_err = (she_err_t)read_single_data(fp);
 
-    err = she_cmd_init_rng(testCtx->hdl[0]);
+    err = she_cmd_init_rng(testCtx->hdl[index]);
 
     /* Check there is no error reported. */
     fails += print_result(err, expected_err, NULL, NULL, 0);
@@ -65,10 +68,13 @@ uint32_t she_test_extend_seed(test_struct_t *testCtx, FILE *fp) {
     entropy = malloc(SHE_ENTROPY_SIZE);
     read_buffer(fp, entropy, SHE_ENTROPY_SIZE);
 
+    /* read the session index. */
+    uint32_t index = read_single_data(fp);
+
     /* read the expected error code. */
     expected_err = (she_err_t)read_single_data(fp);
 
-    err = she_cmd_extend_seed(testCtx->hdl[0], entropy);
+    err = she_cmd_extend_seed(testCtx->hdl[index], entropy);
 
     /* Check there is no error reported. */
     fails += print_result(err, expected_err, NULL, NULL, 0);
@@ -90,10 +96,13 @@ uint32_t she_test_rnd(test_struct_t *testCtx, FILE *fp) {
 
     rnd = malloc(SHE_RND_SIZE);
 
+    /* read the session index. */
+    uint32_t index = read_single_data(fp);
+
     /* read the expected error code. */
     expected_err = (she_err_t)read_single_data(fp);
 
-    err = she_cmd_rnd(testCtx->hdl[0], rnd);
+    err = she_cmd_rnd(testCtx->hdl[index], rnd);
 
     for (i=0; i<SHE_RND_SIZE; i++) {
         printf("0x%x ", rnd[i]);

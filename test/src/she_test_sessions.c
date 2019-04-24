@@ -41,14 +41,17 @@ uint32_t she_test_open_session(test_struct_t *testCtx, FILE *fp)
 {
     uint32_t fails = 0;
 
+    /* read the session index. */
+    uint32_t index = read_single_data(fp);
+
     /* read the expected error code. */
     she_err_t expected_err = (she_err_t)read_single_data(fp);
 
     /* Open the SHE session. */
-    testCtx->hdl[0] = she_open_session(SHE_KEY_STORE_ID, SHE_KEY_STORE_PASSWORD);
+    testCtx->hdl[index] = she_open_session(SHE_KEY_STORE_ID, SHE_KEY_STORE_PASSWORD);
 
     she_err_t err;
-    if (testCtx->hdl[0] != NULL) {
+    if (testCtx->hdl[index] != NULL) {
         err = 1;
     }
     else {
@@ -65,7 +68,10 @@ uint32_t she_test_open_session(test_struct_t *testCtx, FILE *fp)
 /* Test close session */
 uint32_t she_test_close_session(test_struct_t *testCtx, FILE *fp)
 {
+    /* read the session index. */
+    uint32_t index = read_single_data(fp);
+
     /* Close session if it was opened. */
-    she_close_session(testCtx->hdl[0]);
+    she_close_session(testCtx->hdl[index]);
 }
 

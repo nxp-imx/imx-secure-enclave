@@ -52,6 +52,9 @@ uint32_t she_test_cbc_enc(test_struct_t *testCtx, FILE *fp)
     struct timespec ts1, ts2;
     uint32_t nb_iter, i;
 
+    /* read the session index. */
+    uint32_t index = read_single_data(fp);
+
     /* read number of iterations */
     nb_iter = (uint8_t)read_single_data(fp);
 
@@ -85,7 +88,7 @@ uint32_t she_test_cbc_enc(test_struct_t *testCtx, FILE *fp)
 
     for (i=0; i<nb_iter; i++) {
         /* Call the API to be tested. */
-        err = she_cmd_enc_cbc(testCtx->hdl[0], key_ext, key_id, input_size, iv, input, output);
+        err = she_cmd_enc_cbc(testCtx->hdl[index], key_ext, key_id, input_size, iv, input, output);
     }
 
     (void)clock_gettime(CLOCK_MONOTONIC_RAW, &ts2);
@@ -121,6 +124,9 @@ uint32_t she_test_cbc_dec(test_struct_t *testCtx, FILE *fp)
     struct timespec ts1, ts2;
     uint32_t nb_iter, i;
 
+    /* read the session index. */
+    uint32_t index = read_single_data(fp);
+
     /* read number of iterations */
     nb_iter = (uint8_t)read_single_data(fp);
 
@@ -153,7 +159,7 @@ uint32_t she_test_cbc_dec(test_struct_t *testCtx, FILE *fp)
 
     for (i=0; i<nb_iter; i++) {
         /* Call the API to be tested. */
-        err = she_cmd_dec_cbc(testCtx->hdl[0], key_ext, key_id, input_size, iv, input, output);
+        err = she_cmd_dec_cbc(testCtx->hdl[index], key_ext, key_id, input_size, iv, input, output);
     }
 
     (void)clock_gettime(CLOCK_MONOTONIC_RAW, &ts2);
