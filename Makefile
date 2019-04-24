@@ -20,8 +20,14 @@ she_storage.o: src/she_storage.c
 messaging.o: src/messaging.c
 	$(CC) $^  -c -o $@ -I include $(CFLAGS)
 
+#SHE test components
+TEST_OBJ=$(patsubst %.c,%.o,$(wildcard test/src/*.c))
+
+test/src/%.o: test/src/%.c 
+	$(CC) $^  -c -o $@ -I include -I test/src $(CFLAGS)
+
 #SHE test app
-she_test: test/src/she_test.c she_lib.o she_storage.o platform_lib.o messaging.o include/she_api.h
+she_test: she_lib.o she_storage.o platform_lib.o messaging.o $(TEST_OBJ) include/she_api.h
 	$(CC) $^  -o $@ -I include $(CFLAGS) -lpthread -lz
 
 clean:
