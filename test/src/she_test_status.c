@@ -34,6 +34,7 @@
 #include "she_api.h"
 #include "she_storage.h"
 #include "she_test.h"
+#include "she_test_macros.h"
 
 
 /* get Status test*/
@@ -43,19 +44,17 @@ uint32_t she_test_get_status(test_struct_t *testCtx, FILE *fp)
 
     she_err_t err = 1;
     she_err_t expected_err;
-    uint8_t status;
     uint8_t expected_status;
 
     /* read the session index. */
-    uint32_t index = read_single_data(fp);
+    uint32_t index;
+    READ_VALUE(fp, index);
+    READ_OUTPUT_BUFFER(fp, status, 1);
 
-    expected_status = (uint8_t)read_single_data(fp);
+    err = she_cmd_get_status(testCtx->hdl[index], status);
 
-    expected_err = (she_err_t)read_single_data(fp);
-
-    err = she_cmd_get_status(testCtx->hdl[index], &status);
-
-    fails += print_result(err, expected_err, &status, &expected_status, (uint32_t)sizeof(uint8_t));
+    READ_CHECK_VALUE(fp, err);
+    READ_CHECK_VALUE(fp, expected_status);
 
     return fails;
 }
@@ -68,37 +67,26 @@ uint32_t she_test_get_id(test_struct_t *testCtx, FILE *fp)
 
     she_err_t err = 1;
     she_err_t expected_err;
-    uint8_t *challenge;
-    uint8_t *output, *id, *mac, *status;
-    uint8_t *reference, *id_ref, *mac_ref, *status_ref; 
-
-    challenge = malloc(SHE_CHALLENGE_SIZE);
-    read_buffer(fp, challenge, SHE_CHALLENGE_SIZE);
-
-    output = malloc(SHE_ID_SIZE + SHE_MAC_SIZE + sizeof(uint8_t));
-    id = output;
-    mac = id + SHE_ID_SIZE;
-    status = mac + SHE_MAC_SIZE;
-    reference = malloc(SHE_ID_SIZE + SHE_MAC_SIZE + sizeof(uint8_t));
-    id_ref = reference;
-    mac_ref = id_ref + SHE_ID_SIZE;
-    status_ref = mac_ref + SHE_MAC_SIZE;
-    read_buffer(fp, id_ref, SHE_ID_SIZE);
-    read_buffer(fp, mac_ref, SHE_MAC_SIZE);
-    read_buffer(fp, status_ref, (uint32_t)sizeof(uint8_t));
 
     /* read the session index. */
-    uint32_t index = read_single_data(fp);
+    uint32_t index;
+    READ_VALUE(fp, index);
 
-    expected_err = (she_err_t)read_single_data(fp);
+    READ_INPUT_BUFFER(fp, challenge, SHE_CHALLENGE_SIZE);
+    READ_OUTPUT_BUFFER(fp, output, SHE_ID_SIZE);
+    READ_OUTPUT_BUFFER(fp, id, 1);
+    READ_OUTPUT_BUFFER(fp, status, 1);
+    READ_OUTPUT_BUFFER(fp, mac, SHE_MAC_SIZE);
 
+    /* Execute the command */
     err = she_cmd_get_id(testCtx->hdl[index], challenge, id, status, mac);
 
-    fails += print_result(err, expected_err, output, reference, SHE_ID_SIZE + SHE_MAC_SIZE + (uint32_t)sizeof(uint8_t));
+    /* Check the results */
+    READ_CHECK_VALUE(fp, err);
 
-    free(reference);
-    free(output);
-    free(challenge);
+    READ_CHECK_BUFFER(fp, id, SHE_ID_SIZE);
+    READ_CHECK_BUFFER(fp, mac, SHE_MAC_SIZE);
+    READ_CHECK_BUFFER(fp, status, sizeof(uint8_t));
 
     return fails;
 }

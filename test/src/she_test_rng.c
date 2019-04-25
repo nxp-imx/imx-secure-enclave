@@ -34,6 +34,7 @@
 #include "she_api.h"
 #include "she_storage.h"
 #include "she_test.h"
+#include "she_test_macros.h"
 
 /* Tests for RNG */
 
@@ -44,15 +45,12 @@ uint32_t she_test_rng_init(test_struct_t *testCtx, FILE *fp) {
     she_err_t expected_err;
 
     /* read the session index. */
-    uint32_t index = read_single_data(fp);
-
-    /* read the expected error code. */
-    expected_err = (she_err_t)read_single_data(fp);
+    uint32_t index;
+    READ_VALUE(fp, index);
 
     err = she_cmd_init_rng(testCtx->hdl[index]);
 
-    /* Check there is no error reported. */
-    fails += print_result(err, expected_err, NULL, NULL, 0);
+    READ_CHECK_VALUE(fp, err);
 
     return fails;
 }
@@ -63,23 +61,16 @@ uint32_t she_test_extend_seed(test_struct_t *testCtx, FILE *fp) {
 
     she_err_t err = 1;
     she_err_t expected_err;
-    uint8_t *entropy;
-
-    entropy = malloc(SHE_ENTROPY_SIZE);
-    read_buffer(fp, entropy, SHE_ENTROPY_SIZE);
 
     /* read the session index. */
-    uint32_t index = read_single_data(fp);
+    uint32_t index;
+    READ_VALUE(fp, index);
 
-    /* read the expected error code. */
-    expected_err = (she_err_t)read_single_data(fp);
+    READ_INPUT_BUFFER(fp, entropy, SHE_ENTROPY_SIZE);
 
     err = she_cmd_extend_seed(testCtx->hdl[index], entropy);
 
-    /* Check there is no error reported. */
-    fails += print_result(err, expected_err, NULL, NULL, 0);
-
-    free(entropy);
+    READ_CHECK_VALUE(fp, err);
 
     return fails;
 }
@@ -90,34 +81,25 @@ uint32_t she_test_rnd(test_struct_t *testCtx, FILE *fp) {
 
     she_err_t err = 1;
     she_err_t expected_err;
-    uint8_t *rnd;
-    uint8_t *rnd_ref;
-    uint32_t i;
-
-    rnd = malloc(SHE_RND_SIZE);
 
     /* read the session index. */
-    uint32_t index = read_single_data(fp);
+    uint32_t index;
+    READ_VALUE(fp, index);
+
+    READ_OUTPUT_BUFFER(fp, rnd, SHE_RND_SIZE);
+
+    err = she_cmd_rnd(testCtx->hdl[index], rnd);
 
     /* read the expected error code. */
     expected_err = (she_err_t)read_single_data(fp);
 
-    err = she_cmd_rnd(testCtx->hdl[index], rnd);
-
-    for (i=0; i<SHE_RND_SIZE; i++) {
+    /* Print the generated number. */
+    for (uint32_t i=0; i<SHE_RND_SIZE; i++) {
         printf("0x%x ", rnd[i]);
         if (i%4 == 3) {
             printf("\n");
         }
     }
-
-    /* Print the generated number. */
-
-    /* Check there is no error reported. */
-    fails += print_result(err, expected_err, NULL, NULL, 0);
-
-    free(rnd);
-    free(rnd_ref);
 
     return fails;
 }
