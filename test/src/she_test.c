@@ -100,16 +100,18 @@ void read_buffer_ptr(FILE *fp, uint8_t **dst, uint32_t size) {
         if (read<0) {
             break;
         }
-        startptr = line;
-
         if ((read >= 4) && (0 == memcmp("NULL", line, 4))) {
             *dst = NULL;
             break;
         }
 
+        uint8_t *d = *dst;
+
+        startptr = line;
+
         data = strtoul(startptr, &endptr, 0);
         while (endptr != startptr) {
-            *dst[idx++] = (uint8_t)(data & 0xFFu);
+            d[idx++] = (uint8_t)(data & 0xFFu);
             startptr = endptr + 1; /* skip separator */
             data = strtoul(startptr, &endptr, 0);
         }

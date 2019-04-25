@@ -40,8 +40,7 @@
 
 #define INPUT_BUFFER(NAME, SIZE) \
     uint8_t i_buff_##NAME[SIZE]; \
-    uint8_t *NAME = i_buff_##NAME; \
-    printf("%s:  %p\n", #NAME, NAME);
+    uint8_t *NAME = i_buff_##NAME;
 
 #define OUTPUT_BUFFER(NAME, SIZE) INPUT_BUFFER(NAME, SIZE)
 
@@ -55,7 +54,8 @@
 
 #define READ_INPUT_BUFFER(FP, NAME, SIZE) \
     INPUT_BUFFER(NAME, SIZE) \
-    read_buffer_ptr(FP, &NAME, SIZE);
+    read_buffer_ptr(FP, &NAME, SIZE); \
+    printf("%s:  %p\n", #NAME, NAME);
 
 #define READ_OUTPUT_BUFFER(FP, NAME, SIZE) READ_INPUT_BUFFER(FP, NAME, SIZE)
 
