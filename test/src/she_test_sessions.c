@@ -48,7 +48,7 @@ uint32_t she_test_open_session(test_struct_t *testCtx, FILE *fp)
     uint32_t password = READ_VALUE(fp, uint32_t);
 
     /* Open the SHE session. */
-    testCtx->hdl[hdl_index] = she_open_session(key_storage_identifier, password);
+    testCtx->hdl[hdl_index] = she_open_session(key_storage_identifier, password, NULL, NULL);
 
     she_err_t ptrOk;
     if (testCtx->hdl[hdl_index] != NULL) {

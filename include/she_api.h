@@ -94,13 +94,18 @@ uint32_t she_storage_create(uint32_t key_storage_identifier, uint32_t password, 
  * The returned session handle pointer is typed with the struct "she_hdl_s".
  * The user doesn't need to know or to access the fields of this struct.
  * It only needs to store this pointer and pass it to every calls to other APIs within the same SHE session.
+ * If a callback is provided then the SHE APIs will return immediately with an error code indicating if the operation was subitted succesfully.
+ * Then the callback will be called on completion of the operation by SECO with the resulting error code passed as a parameter.
+ * If the callback pointer is NULL then all SHE API will be synchronous.
  *
  * \param key_storage_identifier key store identifier
  * \param password password for accesing the key storage
+ * \param async_cb user callback to be called on completion of a SHE operation
+ * \param priv user pointer to be passed to the callback
  *
  * \return pointer to the session handle.
  */
-struct she_hdl_s *she_open_session(uint32_t key_storage_identifier, uint32_t password);
+struct she_hdl_s *she_open_session(uint32_t key_storage_identifier, uint32_t password, void (*async_cb)(void *priv, she_err_t err), void *priv);
 
 
 /**

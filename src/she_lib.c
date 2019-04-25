@@ -302,12 +302,16 @@ uint32_t she_storage_create(uint32_t key_storage_identifier, uint32_t password, 
 }
 
 /* Open a SHE user session and return a pointer to the session handle. */
-struct she_hdl_s *she_open_session(uint32_t key_storage_identifier, uint32_t password)
+struct she_hdl_s *she_open_session(uint32_t key_storage_identifier, uint32_t password, void (*async_cb)(void *priv, she_err_t err), void *priv)
 {
     struct she_hdl_s *hdl = NULL;
     int32_t error = 1;
     uint32_t shared_buf_offset, shared_buf_size;
     do {
+        if((async_cb != NULL) || (priv != NULL)) {
+            /* not supported yet. */
+            break;
+        }
         /* allocate the handle (free when closing the session). */
         hdl = (struct she_hdl_s *)she_platform_malloc((uint32_t)sizeof(struct she_hdl_s));
         if (hdl == NULL) {
