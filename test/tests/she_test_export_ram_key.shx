@@ -1,0 +1,25 @@
+<requirement>The firmware can output a key for SHE.</requirement>
+
+SHE_TEST_OPEN_SESSION
+0 # index to a list of session pointers
+0 # id
+0xBEC00001 # password
+1 # expect a pointer of any value other than 0
+
+SHE_TEST_EXPORT_RAM_KEY
+0 # index to a list of session pointers
+NULL # m1 (128 bits)
+NULL # m2 (256 bits)
+NULL # m3 (128 bits)
+NULL # m4 (256 bits)
+NULL # m5 (128 bits)
+0 # expected return value (ERC_NO_ERROR)
+NULL # expected m1 (128 bits)
+NULL # expected m2 (256 bits)
+NULL # expected m3 (128 bits)
+NULL # expected m4 (256 bits)
+NULL # expected m5 (128 bits)
+
+SHE_TEST_CLOSE_SESSION
+0 # index to a list of session pointers
+
