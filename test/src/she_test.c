@@ -85,6 +85,39 @@ void read_buffer(FILE *fp, uint8_t *dst, uint32_t size) {
     free(line);
 }
 
+void read_buffer_ptr(FILE *fp, uint8_t **dst, uint32_t size) {
+
+    char *line = NULL;
+    char *startptr = NULL;
+    char *endptr = NULL;
+    size_t len = 0;
+    ssize_t read;
+    uint32_t idx = 0;
+    uint32_t data;
+
+    while (idx < size) {
+        read = getline(&line, &len, fp);
+        if (read<0) {
+            break;
+        }
+        startptr = line;
+
+        if ((read >= 4) && (0 == memcmp("NULL", line, 4))) {
+            *dst = NULL;
+            break;
+        }
+
+        data = strtoul(startptr, &endptr, 0);
+        while (endptr != startptr) {
+            *dst[idx++] = (uint8_t)(data & 0xFFu);
+            startptr = endptr + 1; /* skip separator */
+            data = strtoul(startptr, &endptr, 0);
+        }
+    }
+
+    free(line);
+}
+
 uint32_t print_result(she_err_t err, she_err_t expected_err, uint8_t *output, uint8_t *expected_output, uint32_t output_size)
 {
     /* Check there is no error reported and that the output is correct. */

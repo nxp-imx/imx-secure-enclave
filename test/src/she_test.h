@@ -39,6 +39,8 @@ uint32_t read_single_data(FILE *fp);
 
 void read_buffer(FILE *fp, uint8_t *dst, uint32_t size);
 
+void read_buffer_ptr(FILE *fp, uint8_t **dst, uint32_t size);
+
 uint32_t print_result(she_err_t err, she_err_t expected_err, uint8_t *output, uint8_t *expected_output, uint32_t output_size);
 
 void print_perf(struct timespec *ts1, struct timespec *ts2, uint32_t nb_iter);

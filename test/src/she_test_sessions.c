@@ -41,29 +41,27 @@ uint32_t she_test_open_session(test_struct_t *testCtx, FILE *fp)
 {
     uint32_t fails = 0;
 
-    /* struct she_hdl_s *she_open_session(uint32_t key_storage_identifier, uint32_t password); */
-
     /* read the parameters. */
     uint32_t hdl_index = read_single_data(fp);
     uint32_t key_storage_identifier = read_single_data(fp);
     uint32_t password = read_single_data(fp);
 
     /* read the expected error code. */
-    she_err_t expected_err = (she_err_t)read_single_data(fp);
+    she_err_t expected_ptrOk = (she_err_t)read_single_data(fp);
 
     /* Open the SHE session. */
     testCtx->hdl[hdl_index] = she_open_session(key_storage_identifier, password);
 
-    she_err_t err;
+    she_err_t ptrOk;
     if (testCtx->hdl[hdl_index] != NULL) {
-        err = 1;
+        ptrOk = 1;
     }
     else {
-        err = 0;
+        ptrOk = 0;
     }
 
     /* Check there is no error reported. */
-    fails += print_result(err, expected_err, NULL, NULL, 0);
+    fails += print_result(ptrOk, expected_ptrOk, NULL, NULL, 0);
 
     return fails;
 }
