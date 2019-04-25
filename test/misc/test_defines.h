@@ -27,11 +27,10 @@
  * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-#ifndef __she_test_sessions_h__
-#define __she_test_sessions_h__
+#ifndef __she_test_defines_h__
+#define __she_test_defines_h__
 
-uint32_t she_test_open_session(test_struct_t *testCtx, FILE *fp);
+#define SHE_KEY_STORE_ID    0
+#define SHE_KEY_STORE_PASSWORD  0xBEC00001
 
-uint32_t she_test_close_session(test_struct_t *testCtx, FILE *fp);
-
-#endif  // __she_test_open_sessions_h__
+#endif  // __she_test_defines_h__
