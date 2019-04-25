@@ -74,6 +74,21 @@
 #define SAB_FAILURE_STATUS                      0x29u
 
 /* Rating code definition */
+#define SAB_INVALID_MESSAGE_RATING              (0x01u)
+#define SAB_INVALID_ADDRESS_RATING              (0x02u)
+#define SAB_UNKNOWN_ID_RATING                   (0x03u)
+#define SAB_INVALID_PARAM_RATING                (0x04u)
+#define SAB_NVM_ERROR_RATING                    (0x05u)
+#define SAB_OUT_OF_MEMORY_RATING                (0x06u)
+#define SAB_UNKNOWN_HANDLE_RATING               (0x07u)
+#define SAB_UNKNOWN_KEY_STORE_RATING            (0x08u)
+#define SAB_KEY_STORE_AUTH_RATING               (0x09u)
+#define SAB_KEY_STORAGE_ERROR_RATING            (0x0Au)
+#define SAB_ID_CONFLICT_RATING                  (0x0Bu)
+#define SAB_RNG_NOT_STARTED_RATING              (0x0Cu)
+#define SAB_CMD_NOT_SUPPORTED_RATING            (0x0Du)
+#define SAB_INVALID_LIFECYCLE_RATING            (0x0Eu)
+
 /* SHE specific rating */
 #define SAB_SHE_SEQUENCE_ERROR_RATING           (0xD1u)     /**< Invalid sequence of commands. */
 #define SAB_SHE_KEY_NOT_AVAILABLE_RATING        (0xD2u)     /**< Key is locked. */
@@ -330,9 +345,9 @@ struct sab_cmd_key_store_open_msg{
     uint32_t sesssion_handle;
     uint32_t key_store_id;
     uint32_t password;
+    uint16_t max_updates;
     uint8_t flags;
     uint8_t rsv;
-    uint16_t rsv_1;
     uint32_t crc;
 } ;
 

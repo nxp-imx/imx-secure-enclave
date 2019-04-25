@@ -187,6 +187,13 @@ int main(int argc, char *argv[])
     test_struct_t testCtx = { 0 };
 
     do {
+        if (argc < 2) {
+            printf("re-provisioning \n");
+            i = she_storage_create(1234, 5678, SHE_STORAGE_NUMBER_UPDATES_DEFAULT, NULL, 0);
+            printf("result: %d\n", i);
+            break;
+        }
+
         if (argc != 2) {
             break;
         }

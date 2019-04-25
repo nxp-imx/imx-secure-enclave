@@ -69,6 +69,27 @@ typedef enum {
 
 
 /**
+ * Creates an empty SHE storage
+ *
+ * Must be called before opening any SHE session.
+ * A signed message can be provided to authorize the operation. This message is not necessary under some conditions related to chip's lifecycle.
+ *
+ * \param key_storage_identifier key store identifier
+ * \param password new password to be associated with the created key store
+ * \param max_updates_number maximum number of updates authorized on this new storage. Cannot be higher than 300.
+ * \param signed_message pointer to a signed message authorizing the operation (NULL if no signed message to be used)
+ * \param msg_len length in bytes of the signed message
+ *
+ * \return error code
+ */
+uint32_t she_storage_create(uint32_t key_storage_identifier, uint32_t password, uint16_t max_updates_number, uint8_t *signed_message, uint32_t msg_len);
+#define SHE_STORAGE_CREATE_SUCCESS          0u     /**< New storage created succesfully. */
+#define SHE_STORAGE_CREATE_WARNING          1u     /**< New storage created but its usage is restricted to a limited security state of the chip. */
+#define SHE_STORAGE_CREATE_UNAUTHORIZED     2u     /**< Creation of the storage is not authorized. */
+#define SHE_STORAGE_CREATE_FAIL             3u     /**< Creation of the storage failed for any other reason. */
+#define SHE_STORAGE_NUMBER_UPDATES_DEFAULT  300u   /**< default number of maximum number of updated for SHE storage. */
+
+/**
  * Initiate a SHE session.
  * The returned session handle pointer is typed with the struct "she_hdl_s".
  * The user doesn't need to know or to access the fields of this struct.

@@ -22,7 +22,6 @@
 #define SHE_DEFAULT_INTERRUPT_IDX           0x0u
 #define SHE_DEFAULT_PRIORITY                0x0u
 #define SHE_DEFAULT_OPERATING_MODE          0x0u
-#define SHE_DEFAULT_KEY_STORE_OPEN_FLAGS    0x0u
 #define SHE_DEFAULT_CIPHER_OPEN_FLAGS       0x0u
 #define SHE_DEFAULT_RNG_OPEN_FLAGS          0x1u
 
@@ -35,84 +34,6 @@ struct she_hdl_s {
     uint32_t utils_handle;
     uint32_t cancel;
 };
-
-static she_err_t she_open_key_store(struct she_hdl_s *hdl, uint32_t key_storage_identifier, uint32_t password)
-{
-    struct sab_cmd_key_store_open_msg cmd;
-    struct sab_cmd_key_store_open_rsp rsp;
-
-    she_err_t ret = ERC_GENERAL_ERROR;
-    int32_t error = 1;
-    do {
-
-        if (hdl->session_handle == 0u) {
-            break;
-        }
-
-        /* Send the keys store open command to Seco. */
-        she_fill_cmd_msg_hdr(&cmd.hdr, SAB_KEY_STORE_OPEN_REQ, (uint32_t)sizeof(struct sab_cmd_key_store_open_msg));
-
-        cmd.sesssion_handle = hdl->session_handle;
-        cmd.key_store_id = key_storage_identifier;
-        cmd.password = password;
-        cmd.flags = SHE_DEFAULT_KEY_STORE_OPEN_FLAGS;
-        cmd.crc = she_compute_msg_crc((uint32_t*)&cmd, (uint32_t)(sizeof(cmd) - sizeof(uint32_t)));
-
-        error = she_send_msg_and_get_resp(hdl->phdl,
-                    (uint32_t *)&cmd, (uint32_t)sizeof(struct sab_cmd_key_store_open_msg),
-                    (uint32_t *)&rsp, (uint32_t)sizeof(struct sab_cmd_key_store_open_rsp));
-
-        if (error != 0) {
-            break;
-        }
-
-        if (GET_STATUS_CODE(rsp.rsp_code) != SAB_SUCCESS_STATUS) {
-            ret = she_seco_ind_to_she_err_t(rsp.rsp_code);
-            break;
-        }
-
-        hdl->key_store_handle = rsp.key_store_handle;
-        /* Success. */
-        ret = ERC_NO_ERROR;
-    } while(false);
-    return ret;
-}
-
-static she_err_t she_close_key_store(struct she_hdl_s *hdl)
-{
-    struct sab_cmd_key_store_close_msg cmd;
-    struct sab_cmd_key_store_close_rsp rsp;
-    she_err_t ret = ERC_GENERAL_ERROR;
-    int32_t error = 1;
-    do {
-
-        if (hdl->key_store_handle == 0u) {
-            break;
-        }
-        /* Send the keys store close command to Seco. */
-        she_fill_cmd_msg_hdr(&cmd.hdr, SAB_KEY_STORE_CLOSE_REQ, (uint32_t)sizeof(struct sab_cmd_key_store_close_msg));
-        cmd.key_store_handle = hdl->key_store_handle;
-
-        error = she_send_msg_and_get_resp(hdl->phdl,
-                    (uint32_t *)&cmd, (uint32_t)sizeof(struct sab_cmd_key_store_close_msg),
-                    (uint32_t *)&rsp, (uint32_t)sizeof(struct sab_cmd_key_store_close_rsp));
-
-        if (error != 0) {
-            break;
-        }
-
-        if (GET_STATUS_CODE(rsp.rsp_code)!= SAB_SUCCESS_STATUS) {
-            ret = she_seco_ind_to_she_err_t(rsp.rsp_code);
-            break;
-        }
-
-        hdl->key_store_handle = 0;
-
-        /* Success. */
-        ret = ERC_NO_ERROR;
-    } while(false);
-    return ret;
-}
 
 static she_err_t she_open_cipher(struct she_hdl_s *hdl)
 {
@@ -302,7 +223,10 @@ void she_close_session(struct she_hdl_s *hdl)
             (void) she_close_cipher(hdl);
             (void) she_close_utils(hdl);
             (void) she_close_rng(hdl);
-            (void) she_close_key_store(hdl);
+            if (hdl->key_store_handle != 0u) {
+                (void)sab_close_key_store(hdl->phdl, hdl->key_store_handle);
+                hdl->key_store_handle = 0u;
+            }
             if (hdl -> session_handle != 0u) {
                 (void)she_close_session_command (hdl->phdl, hdl->session_handle);
                 hdl -> session_handle = 0u;
@@ -312,6 +236,69 @@ void she_close_session(struct she_hdl_s *hdl)
         }
         she_platform_free(hdl);
     }
+}
+
+uint32_t she_storage_create(uint32_t key_storage_identifier, uint32_t password, uint16_t max_updates_number, uint8_t *signed_message, uint32_t msg_len)
+{
+    struct she_hdl_s *hdl = NULL;
+    uint32_t ret = SHE_STORAGE_CREATE_FAIL;
+    uint32_t err;
+
+    do {
+        /* TODO: send the signed message to SECO if provided here. */
+        if ((signed_message != NULL) || (msg_len != 0u)) {
+            break;
+        }
+
+        /* allocate the handle (free when closing the session). */
+        hdl = (struct she_hdl_s *)she_platform_malloc((uint32_t)sizeof(struct she_hdl_s));
+        if (hdl == NULL) {
+            break;
+        }
+        she_platform_memset((uint8_t *)hdl, 0u, (uint32_t)sizeof(struct she_hdl_s));
+
+        /* Open the SHE session on the SHE kernel driver */
+        hdl->phdl = she_platform_open_she_session();
+        if (hdl->phdl == NULL) {
+            break;
+        }
+
+        /* Open the SHE session on SECO side */
+        if (she_open_session_command (hdl->phdl, &hdl->session_handle, SHE_DEFAULT_MU,
+                SHE_DEFAULT_INTERRUPT_IDX, SHE_DEFAULT_TZ, SHE_DEFAULT_DID, SHE_DEFAULT_PRIORITY,
+                SHE_DEFAULT_OPERATING_MODE) != ERC_NO_ERROR) {
+            break;
+        }
+
+        /* Create the SHE keystore */
+        err = sab_open_key_store_command(hdl->phdl,
+                                         hdl->session_handle,
+                                         &hdl->key_store_handle,
+                                         key_storage_identifier,
+                                         password,
+                                         max_updates_number,
+                                         SHE_STORE_OPEN_FLAGS_CREATE | SHE_STORE_OPEN_FLAGS_SHE);
+
+        /* Interpret Seco status code*/
+        if (GET_STATUS_CODE(err) == SAB_SUCCESS_STATUS) {
+            if (GET_RATING_CODE(err) == SAB_INVALID_LIFECYCLE_RATING) {
+                ret = SHE_STORAGE_CREATE_WARNING;
+            } else {
+                ret = SHE_STORAGE_CREATE_SUCCESS;
+            }
+        } else {
+            if (GET_RATING_CODE(err) == SAB_INVALID_LIFECYCLE_RATING) {
+                ret = SHE_STORAGE_CREATE_UNAUTHORIZED;
+            } else {
+                ret = SHE_STORAGE_CREATE_FAIL;
+            }
+        }
+    } while (false);
+
+    if (hdl != NULL) {
+        she_close_session(hdl);
+    }
+    return ret;
 }
 
 /* Open a SHE user session and return a pointer to the session handle. */
@@ -353,15 +340,22 @@ struct she_hdl_s *she_open_session(uint32_t key_storage_identifier, uint32_t pas
         }
 
         /* Get the access to the SHE keystore */
-        if(she_open_key_store(hdl, key_storage_identifier, password) != ERC_NO_ERROR) {
+        if(sab_open_key_store_command(hdl->phdl,
+                                      hdl->session_handle,
+                                      &hdl->key_store_handle,
+                                      key_storage_identifier,
+                                      password,
+                                      0u,
+                                      SHE_STORE_OPEN_FLAGS_SHE) != SAB_SUCCESS_STATUS) {
             break;
         }
 
-        /* open cipher service. */
+        /* open SHE utils service. */
         if (she_open_utils(hdl) != ERC_NO_ERROR) {
             break;
         }
 
+        /* open cipher service. */
         if(she_open_cipher(hdl) != ERC_NO_ERROR) {
             break;
         }

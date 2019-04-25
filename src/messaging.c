@@ -217,3 +217,66 @@ she_err_t she_open_session_command (struct she_platform_hdl *phdl, uint32_t *ses
 }
 
 
+uint32_t sab_open_key_store_command(struct she_platform_hdl *phdl, uint32_t session_handle, uint32_t *key_store_handle, uint32_t key_storage_identifier, uint32_t password, uint16_t max_updates, uint8_t flags)
+{
+    struct sab_cmd_key_store_open_msg cmd;
+    struct sab_cmd_key_store_open_rsp rsp;
+
+    uint32_t ret = SAB_FAILURE_STATUS;
+    int32_t error = 1;
+    do {
+        /* Send the keys store open command to Seco. */
+        she_fill_cmd_msg_hdr(&cmd.hdr, SAB_KEY_STORE_OPEN_REQ, (uint32_t)sizeof(struct sab_cmd_key_store_open_msg));
+
+        cmd.sesssion_handle = session_handle;
+        cmd.key_store_id = key_storage_identifier;
+        cmd.password = password;
+        cmd.flags = flags;
+        cmd.max_updates = max_updates;
+        cmd.crc = she_compute_msg_crc((uint32_t*)&cmd, (uint32_t)(sizeof(cmd) - sizeof(uint32_t)));
+
+        error = she_send_msg_and_get_resp(phdl,
+                    (uint32_t *)&cmd, (uint32_t)sizeof(struct sab_cmd_key_store_open_msg),
+                    (uint32_t *)&rsp, (uint32_t)sizeof(struct sab_cmd_key_store_open_rsp));
+        if (error != 0) {
+            break;
+        }
+
+        ret = rsp.rsp_code;
+
+        if (GET_STATUS_CODE(rsp.rsp_code) == SAB_SUCCESS_STATUS) {
+            *key_store_handle = rsp.key_store_handle;
+        }
+
+    } while(false);
+    return ret;
+}
+
+uint32_t sab_close_key_store(struct she_platform_hdl *phdl, uint32_t key_store_handle)
+{
+    struct sab_cmd_key_store_close_msg cmd;
+    struct sab_cmd_key_store_close_rsp rsp;
+
+    uint32_t ret = SAB_FAILURE_STATUS;
+    int32_t error = 1;
+    do {
+
+        /* Send the keys store close command to Seco. */
+        she_fill_cmd_msg_hdr(&cmd.hdr, SAB_KEY_STORE_CLOSE_REQ, (uint32_t)sizeof(struct sab_cmd_key_store_close_msg));
+        cmd.key_store_handle = key_store_handle;
+
+        error = she_send_msg_and_get_resp(phdl,
+                    (uint32_t *)&cmd, (uint32_t)sizeof(struct sab_cmd_key_store_close_msg),
+                    (uint32_t *)&rsp, (uint32_t)sizeof(struct sab_cmd_key_store_close_rsp));
+
+        if (error != 0) {
+            break;
+        }
+
+        ret = rsp.rsp_code;
+
+    } while(false);
+    return ret;
+}
+
+

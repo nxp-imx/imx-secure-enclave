@@ -22,5 +22,9 @@ uint32_t she_compute_msg_crc(uint32_t *msg, uint32_t msg_len);
 she_err_t she_close_session_command (struct she_platform_hdl *phdl, uint32_t session_handle);
 she_err_t she_get_shared_buffer(struct she_platform_hdl *phdl, uint32_t session_handle, uint32_t *shared_buf_offset, uint32_t *shared_buf_size);
 she_err_t she_open_session_command (struct she_platform_hdl *phdl, uint32_t *session_handle, uint8_t mu_id, uint8_t interrupt_idx, uint8_t tz, uint8_t did, uint8_t priority,uint8_t operating_mode);
+uint32_t sab_open_key_store_command(struct she_platform_hdl *phdl, uint32_t session_handle, uint32_t *key_store_handle, uint32_t key_storage_identifier, uint32_t password, uint16_t max_updates, uint8_t flags);
+#define SHE_STORE_OPEN_FLAGS_CREATE     0x1u
+#define SHE_STORE_OPEN_FLAGS_SHE        0x2u
+uint32_t sab_close_key_store(struct she_platform_hdl *phdl, uint32_t key_store_handle);
 
 #endif
