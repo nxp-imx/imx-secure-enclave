@@ -59,7 +59,6 @@
 #define AHAB_SHE_CMD_GENERATE_MAC               0x31u
 #define AHAB_SHE_CMD_VERIFY_MAC                 0x32u
 #define AHAB_SHE_CMD_STORAGE_EXPORT_INIT        0x33u
-#define AHAB_SHE_CMD_LOAD_KEY                   0x34u
 #define AHAB_SHE_CMD_STORAGE_EXPORT_REQ         0x35u
 #define AHAB_SHE_CMD_STORAGE_IMPORT_REQ         0x36u
 #define AHAB_SHE_CMD_GET_STATUS_REQ             0x3Bu
@@ -161,15 +160,23 @@ struct she_cmd_verify_mac_rsp{
     uint32_t verification_status;
 };
 
-/* Load key */
+/* Update key */
 
-struct she_cmd_load_key_msg {
+struct sab_she_key_update_msg {
     struct she_mu_hdr hdr;
+    uint32_t utils_handle;
+    uint32_t m1[4];
+    uint32_t m2[8];
+    uint32_t m3[4];
+    uint32_t crc;
 };
 
-struct she_cmd_load_key_rsp  {
+struct sab_she_key_update_rsp {
     struct she_mu_hdr hdr;
     uint32_t rsp_code;
+    uint32_t m4[8];
+    uint32_t m5[4];
+    uint32_t crc;
 };
 
 /* Load Plain key */

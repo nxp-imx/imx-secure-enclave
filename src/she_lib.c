@@ -548,28 +548,45 @@ she_err_t she_cmd_dec_ecb(struct she_hdl_s *hdl, uint8_t key_ext, uint8_t key_id
 /* Load key command processing. */
 she_err_t she_cmd_load_key(struct she_hdl_s *hdl, uint8_t *m1, uint8_t *m2, uint8_t *m3, uint8_t *m4, uint8_t *m5)
 {
-    struct she_cmd_load_key_msg cmd;
-    struct she_cmd_load_key_rsp rsp;
+    struct sab_she_key_update_msg cmd;
+    struct sab_she_key_update_rsp rsp;
     int32_t error;
     she_err_t ret = ERC_GENERAL_ERROR;
 
     do {
+        if (hdl->utils_handle == 0u) {
+            ret = ERC_SEQUENCE_ERROR;
+            break;
+        }
         /* Build command message. */
-        she_fill_cmd_msg_hdr(&cmd.hdr, AHAB_SHE_CMD_LOAD_KEY, (uint32_t)sizeof(struct she_cmd_load_key_msg));
+        she_fill_cmd_msg_hdr(&cmd.hdr, SAB_SHE_KEY_UPDATE, (uint32_t)sizeof(struct sab_she_key_update_msg));
+        cmd.utils_handle = hdl->utils_handle;
+        she_platform_memcpy((uint8_t *)cmd.m1, m1, SHE_KEY_SIZE);
+        she_platform_memcpy((uint8_t *)cmd.m2, m2, 2*SHE_KEY_SIZE);
+        she_platform_memcpy((uint8_t *)cmd.m3, m3, SHE_KEY_SIZE);
+        cmd.crc = she_compute_msg_crc((uint32_t*)&cmd, (uint32_t)(sizeof(cmd) - sizeof(uint32_t)));
 
         /* Send the message to Seco. */
         error = she_send_msg_and_get_resp(hdl->phdl,
-                    (uint32_t *)&cmd, (uint32_t)sizeof(struct she_cmd_load_key_msg),
-                    (uint32_t *)&rsp, (uint32_t)sizeof(struct she_cmd_load_key_rsp));
+                    (uint32_t *)&cmd, (uint32_t)sizeof(struct sab_she_key_update_msg),
+                    (uint32_t *)&rsp, (uint32_t)sizeof(struct sab_she_key_update_rsp));
         if (error != 0) {
             break;
         }
 
-        if ((hdl->cancel != 0u) || (GET_STATUS_CODE(rsp.rsp_code)!= SAB_SUCCESS_STATUS)) {
+        if ((hdl->cancel != 0u)
+            || (GET_STATUS_CODE(rsp.rsp_code)!= SAB_SUCCESS_STATUS)
+            || (rsp.crc != she_compute_msg_crc((uint32_t*)&rsp, (uint32_t)(sizeof(rsp) - sizeof(uint32_t))))) {
             ret = she_seco_ind_to_she_err_t(rsp.rsp_code);
+            she_platform_memset(m4, 0u, 2*SHE_KEY_SIZE);
+            she_platform_memset(m5, 0u, SHE_KEY_SIZE);
             hdl->cancel = 0u;
             break;
         }
+
+        /* Success: copy m4 and m5 reported by SECO to output.*/
+        she_platform_memcpy(m4, (uint8_t *)rsp.m4, 2*SHE_KEY_SIZE);
+        she_platform_memcpy(m5, (uint8_t *)rsp.m5, SHE_KEY_SIZE);
 
         /* Success. */
         ret = ERC_NO_ERROR;
