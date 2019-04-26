@@ -179,6 +179,23 @@ struct sab_she_key_update_rsp {
     uint32_t crc;
 };
 
+/* SHE export plain key (Ram key) */
+struct sab_she_plain_key_export_msg {
+    struct she_mu_hdr hdr;
+    uint32_t utils_handle;
+} ;
+
+struct sab_she_plain_key_export_rsp {
+    struct she_mu_hdr hdr;
+    uint32_t rsp_code;
+    uint32_t m1[4];
+    uint32_t m2[8];
+    uint32_t m3[4];
+    uint32_t m4[8];
+    uint32_t m5[4];
+    uint32_t crc;
+} ;
+
 /* Load Plain key */
 
 struct she_cmd_load_plain_key_msg {
