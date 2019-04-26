@@ -49,8 +49,8 @@
 /* Read data from the test file                 */
 /*----------------------------------------------*/
 
-#define READ_VALUE(FP, NAME) \
-    NAME = (typeof(NAME))read_single_data(fp);
+#define READ_VALUE(FP, TYPE) \
+    (TYPE)read_single_data(fp);
 
 #define READ_INPUT_BUFFER(FP, NAME, SIZE) \
     INPUT_BUFFER(NAME, SIZE) \
@@ -66,7 +66,7 @@
 
 #define CHECK_VALUE(VAL, EXP) \
     if (VAL != EXP) { \
-        printf("--> FAIL unexpected error: 0x%x\n", err); \
+        printf("--> FAIL unexpected error: 0x%x\n", VAL); \
         fails++; \
     } \
     else { \
@@ -93,8 +93,7 @@
 /*----------------------------------------------*/
 
 #define READ_CHECK_VALUE(FP, NAME) \
-    typeof(NAME) EXP_##NAME; \
-    READ_VALUE(FP, EXP_##NAME) \
+    typeof(NAME) EXP_##NAME = READ_VALUE(FP, typeof(NAME)) \
     CHECK_VALUE(NAME, EXP_##NAME);
 
 #define READ_CHECK_BUFFER(FP, NAME, SIZE) \

@@ -34,67 +34,40 @@
 #include "she_api.h"
 #include "she_storage.h"
 #include "she_test.h"
+#include "she_test_macros.h"
 
 /* Test MAC generation command. */
 uint32_t she_test_mac_gen(test_struct_t *testCtx, FILE *fp)
 {
     uint32_t fails = 0;
-
     she_err_t err = 1;
-    she_err_t expected_err;
-    uint8_t key_id;
-    uint8_t key_ext;
-    uint32_t input_size;
-    uint8_t *input = NULL;
-    uint8_t *output = NULL;
-    uint8_t *reference = NULL;
     struct timespec ts1, ts2;
-    uint32_t nb_iter, i;
 
-    /* read the session index. */
-    uint32_t index = read_single_data(fp);
+    uint8_t nb_iter = READ_VALUE(fp, uint8_t);
 
-    /* read number of iterations */
-    nb_iter = (uint8_t)read_single_data(fp);
-
-    /* read key ID */
-    key_id = (uint8_t)read_single_data(fp);
-
-    /* read key extension */
-    key_ext = (uint8_t)read_single_data(fp);
-
-    /* read input length */
-    input_size = read_single_data(fp);
-
-    /* allocate memory for the input data and read them.*/
-    input = malloc(input_size);
-    read_buffer(fp, input, input_size);
-
-    /* allocate memory for the output data and read the reference pattern.*/
-    output = malloc(SHE_MAC_SIZE);
-    reference = malloc(SHE_MAC_SIZE);
-    read_buffer(fp, reference, SHE_MAC_SIZE);
-
-    /* read the expected error code. */
-    expected_err = (she_err_t)read_single_data(fp);
+    uint32_t index = READ_VALUE(fp, uint32_t);
+    uint8_t key_ext = READ_VALUE(fp, uint8_t);
+    uint8_t key_id = READ_VALUE(fp, uint8_t);
+    uint16_t input_size = READ_VALUE(fp, uint16_t);
+    READ_INPUT_BUFFER(fp, input, input_size);
+    READ_OUTPUT_BUFFER(fp, output, SHE_MAC_SIZE);
 
     (void)clock_gettime(CLOCK_MONOTONIC_RAW, &ts1);
 
-    for (i=0; i<nb_iter; i++) {
+    for (uint32_t i=0; i<nb_iter; i++) {
         /* Call the API to be tested. */
-        err = she_cmd_generate_mac(testCtx->hdl[index], key_ext, key_id, (uint16_t)input_size, input, output);
+        err = she_cmd_generate_mac(testCtx->hdl[index], key_ext, key_id, input_size, input, output);
     }
 
     (void)clock_gettime(CLOCK_MONOTONIC_RAW, &ts2);
 
+    /* check the last result */
+    READ_CHECK_VALUE(fp, err);
+        READ_CHECK_BUFFER(fp, output, SHE_MAC_SIZE);
+
     if (nb_iter > 1u) {
         print_perf(&ts1, &ts2, nb_iter);
-    } else {
-        fails += print_result(err, expected_err, output, reference, SHE_MAC_SIZE);
     }
-    free(input);
-    free(output);
-    free(reference);
 
     return fails;
 }
@@ -103,66 +76,36 @@ uint32_t she_test_mac_gen(test_struct_t *testCtx, FILE *fp)
 uint32_t she_test_mac_verif(test_struct_t *testCtx, FILE *fp)
 {
     uint32_t fails = 0;
-
     she_err_t err = 1;
-    she_err_t expected_err;
-    uint8_t key_id;
-    uint8_t key_ext;
-    uint32_t input_size;
-    uint8_t *input = NULL;
-    uint8_t *input_mac = NULL;
-    uint8_t verif = 1;
-    uint8_t ref_verif = 1;
     struct timespec ts1, ts2;
-    uint32_t nb_iter, i;
 
-    /* read the session index. */
-    uint32_t index = read_single_data(fp);
+    uint8_t nb_iter = READ_VALUE(fp, uint8_t);
 
-    /* read number of iterations */
-    nb_iter = (uint8_t)read_single_data(fp);
-
-    /* read key ID */
-    key_id = (uint8_t)read_single_data(fp);
-
-    /* read key extension */
-    key_ext = (uint8_t)read_single_data(fp);
-
-    /* read input length */
-    input_size = read_single_data(fp);
-
-    /* allocate memory for the input data and read them.*/
-    input = malloc(input_size);
-    read_buffer(fp, input, input_size);
-
-    /* allocate memory for the input MAC and read it.*/
-    input_mac = malloc(SHE_MAC_SIZE);
-    read_buffer(fp, input_mac, SHE_MAC_SIZE);
-
-    /* expected verification status. */
-    ref_verif = read_single_data(fp);
-    /* read the expected error code. */
-    expected_err = (she_err_t)read_single_data(fp);
-
+    uint32_t index = READ_VALUE(fp, uint32_t);
+    uint8_t key_ext = READ_VALUE(fp, uint8_t);
+    uint8_t key_id = READ_VALUE(fp, uint8_t);
+    uint16_t input_size = READ_VALUE(fp, uint16_t);
+    READ_INPUT_BUFFER(fp, input, input_size);
+    uint8_t mac_size = READ_VALUE(fp, uint8_t);
+    READ_INPUT_BUFFER(fp, input_mac, mac_size);
+    READ_OUTPUT_BUFFER(fp, verif, 1);
 
     (void)clock_gettime(CLOCK_MONOTONIC_RAW, &ts1);
 
-    for (i=0; i<nb_iter; i++) {
+    for (uint32_t i=0; i<nb_iter; i++) {
         /* Call the API to be tested. */
-        err = she_cmd_verify_mac(testCtx->hdl[index], key_ext, key_id, (uint16_t)input_size, input, input_mac, SHE_MAC_SIZE, &verif);
+        err = she_cmd_verify_mac(testCtx->hdl[index], key_ext, key_id, input_size, input, input_mac, SHE_MAC_SIZE, verif);
     }
 
     (void)clock_gettime(CLOCK_MONOTONIC_RAW, &ts2);
 
+    /* check the last result */
+    READ_CHECK_VALUE(fp, err);
+    READ_CHECK_BUFFER(fp, verif, 1);
 
     if (nb_iter > 1u) {
         print_perf(&ts1, &ts2, nb_iter);
-    } else {
-        fails += print_result(err, expected_err, &verif, &ref_verif, (uint32_t)sizeof(verif));
     }
-
-    free(input);
-    free(input_mac);
 
     return fails;
 }

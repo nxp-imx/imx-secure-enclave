@@ -35,6 +35,7 @@
 #include "she_storage.h"
 #include "she_test.h"
 #include "she_test_sessions.h"
+#include "she_test_macros.h"
 
 /* Test open session */
 uint32_t she_test_open_session(test_struct_t *testCtx, FILE *fp)
@@ -43,11 +44,8 @@ uint32_t she_test_open_session(test_struct_t *testCtx, FILE *fp)
 
     /* read the parameters. */
     uint32_t hdl_index = read_single_data(fp);
-    uint32_t key_storage_identifier = read_single_data(fp);
-    uint32_t password = read_single_data(fp);
-
-    /* read the expected error code. */
-    she_err_t expected_ptrOk = (she_err_t)read_single_data(fp);
+    uint32_t key_storage_identifier = READ_VALUE(fp, uint32_t);
+    uint32_t password = READ_VALUE(fp, uint32_t);
 
     /* Open the SHE session. */
     testCtx->hdl[hdl_index] = she_open_session(key_storage_identifier, password);
@@ -61,7 +59,7 @@ uint32_t she_test_open_session(test_struct_t *testCtx, FILE *fp)
     }
 
     /* Check there is no error reported. */
-    fails += print_result(ptrOk, expected_ptrOk, NULL, NULL, 0);
+    READ_CHECK_VALUE(fp, ptrOk);
 
     return fails;
 }

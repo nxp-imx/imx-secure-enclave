@@ -46,8 +46,7 @@ uint32_t she_test_load_key(test_struct_t *testCtx, FILE *fp)
     she_err_t expected_err;
 
     /* read the session index. */
-    uint32_t index;
-    READ_VALUE(fp, index);
+    uint32_t index = READ_VALUE(fp, uint32_t);
 
     // These macros define buffers and use pointers so that
     // we can replace them with values, if specified
@@ -79,8 +78,7 @@ uint32_t she_test_load_plain_key(test_struct_t *testCtx, FILE *fp)
     she_err_t expected_err;
 
     /* read the session index. */
-    uint32_t index;
-    READ_VALUE(fp, index);
+    uint32_t index = READ_VALUE(fp, uint32_t);
 
     /* read the key parameter */
     READ_INPUT_BUFFER(fp, key, 16u);  // input: 128 bits
@@ -89,9 +87,6 @@ uint32_t she_test_load_plain_key(test_struct_t *testCtx, FILE *fp)
 
     /* read the expected error code and check it. */
     READ_CHECK_VALUE(fp, err);
-
-    /* Check there is no error reported. */
-    fails += print_result(err, expected_err, NULL, NULL, 0);
 
     return fails;
 }
@@ -106,8 +101,7 @@ uint32_t she_test_export_ram_key(test_struct_t *testCtx, FILE *fp)
     she_err_t expected_err;
 
     /* read the session index. */
-    uint32_t index;
-    READ_VALUE(fp, index);
+    uint32_t index = READ_VALUE(fp, uint32_t);
 
     READ_OUTPUT_BUFFER(fp, m1, 16u);  // input: 128 bits
     READ_OUTPUT_BUFFER(fp, m2, 32u);  // input: 256 bits

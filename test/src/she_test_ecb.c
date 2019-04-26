@@ -34,64 +34,38 @@
 #include "she_api.h"
 #include "she_storage.h"
 #include "she_test.h"
+#include "she_test_macros.h"
 
 /* Test ECB encryption .*/
 uint32_t she_test_ecb_enc(test_struct_t *testCtx, FILE *fp)
 {
     uint32_t fails = 0;
-
     she_err_t err = 1;
-    she_err_t expected_err;
-    uint8_t key_id;
-    uint8_t key_ext;
-    uint8_t *input = NULL;
-    uint8_t *output = NULL;
-    uint8_t *reference = NULL;
     struct timespec ts1, ts2;
-    uint32_t nb_iter, i;
 
-    /* read the session index. */
-    uint32_t index = read_single_data(fp);
+    uint8_t nb_iter = READ_VALUE(fp, uint8_t);
 
-    /* read number of iterations */
-    nb_iter = (uint8_t)read_single_data(fp);
-
-    /* read key ID */
-    key_id = (uint8_t)read_single_data(fp);
-
-    /* read key extension */
-    key_ext = (uint8_t)read_single_data(fp);
-
-    /* allocate memory for the input data and read them.*/
-    input = malloc(SHE_AES_BLOCK_SIZE_128);
-    read_buffer(fp, input, SHE_AES_BLOCK_SIZE_128);
-
-    /* allocate memory for the output data and read the reference pattern.*/
-    output = malloc(SHE_AES_BLOCK_SIZE_128);
-    reference = malloc(SHE_AES_BLOCK_SIZE_128);
-    read_buffer(fp, reference, SHE_AES_BLOCK_SIZE_128);
-
-    /* read the expected error code. */
-    expected_err = (she_err_t)read_single_data(fp);
+    uint32_t index = READ_VALUE(fp, uint32_t);
+    uint8_t key_ext = READ_VALUE(fp, uint8_t);
+    uint8_t key_id = READ_VALUE(fp, uint8_t);
+    READ_INPUT_BUFFER(fp, input, SHE_AES_BLOCK_SIZE_128);
+    READ_OUTPUT_BUFFER(fp, output, SHE_AES_BLOCK_SIZE_128);
 
     (void)clock_gettime(CLOCK_MONOTONIC_RAW, &ts1);
 
-    for (i=0; i<nb_iter; i++) {
+    for (uint32_t i=0; i<nb_iter; i++) {
         /* Call the API to be tested. */
         err = she_cmd_enc_ecb(testCtx->hdl[index], key_ext, key_id, input, output);
     }
 
     (void)clock_gettime(CLOCK_MONOTONIC_RAW, &ts2);
 
+    READ_CHECK_VALUE(fp, err);
+    READ_CHECK_BUFFER(fp, output, SHE_AES_BLOCK_SIZE_128);
+
     if (nb_iter > 1u) {
         print_perf(&ts1, &ts2, nb_iter);
-    } else {
-        fails += print_result(err, expected_err, output, reference, SHE_AES_BLOCK_SIZE_128);
     }
-
-    free(input);
-    free(output);
-    free(reference);
 
     return fails;
 }
@@ -100,59 +74,32 @@ uint32_t she_test_ecb_enc(test_struct_t *testCtx, FILE *fp)
 uint32_t she_test_ecb_dec(test_struct_t *testCtx, FILE *fp)
 {
     uint32_t fails = 0;
-
     she_err_t err = 1;
-    she_err_t expected_err;
-    uint8_t key_id;
-    uint8_t key_ext;
-    uint8_t *input = NULL;
-    uint8_t *output = NULL;
-    uint8_t *reference = NULL;
     struct timespec ts1, ts2;
-    uint32_t nb_iter, i;
 
-    /* read the session index. */
-    uint32_t index = read_single_data(fp);
+    uint8_t nb_iter = READ_VALUE(fp, uint8_t);
 
-    /* read number of iterations */
-    nb_iter = (uint8_t)read_single_data(fp);
-
-    /* read key ID */
-    key_id = (uint8_t)read_single_data(fp);
-
-    /* read key extension */
-    key_ext = (uint8_t)read_single_data(fp);
-
-    /* allocate memory for the input data and read them.*/
-    input = malloc(SHE_AES_BLOCK_SIZE_128);
-    read_buffer(fp, input, SHE_AES_BLOCK_SIZE_128);
-
-    /* allocate memory for the output data and read the reference pattern.*/
-    output = malloc(SHE_AES_BLOCK_SIZE_128);
-    reference = malloc(SHE_AES_BLOCK_SIZE_128);
-    read_buffer(fp, reference, SHE_AES_BLOCK_SIZE_128);
-
-    /* read the expected error code. */
-    expected_err = (she_err_t)read_single_data(fp);
+    uint32_t index = READ_VALUE(fp, uint32_t);
+    uint8_t key_ext = READ_VALUE(fp, uint8_t);
+    uint8_t key_id = READ_VALUE(fp, uint8_t);
+    READ_INPUT_BUFFER(fp, input, SHE_AES_BLOCK_SIZE_128);
+    READ_OUTPUT_BUFFER(fp, output, SHE_AES_BLOCK_SIZE_128);
 
     (void)clock_gettime(CLOCK_MONOTONIC_RAW, &ts1);
 
-    for (i=0; i<nb_iter; i++) {
+    for (uint32_t i=0; i<nb_iter; i++) {
         /* Call the API to be tested. */
         err = she_cmd_dec_ecb(testCtx->hdl[index], key_ext, key_id, input, output);
     }
 
     (void)clock_gettime(CLOCK_MONOTONIC_RAW, &ts2);
 
+    READ_CHECK_VALUE(fp, err);
+    READ_CHECK_BUFFER(fp, output, SHE_AES_BLOCK_SIZE_128);
+
     if (nb_iter > 1u) {
         print_perf(&ts1, &ts2, nb_iter);
-    } else {
-        fails += print_result(err, expected_err, output, reference, SHE_AES_BLOCK_SIZE_128);
     }
-
-    free(input);
-    free(output);
-    free(reference);
 
     return fails;
 }

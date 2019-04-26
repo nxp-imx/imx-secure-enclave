@@ -45,8 +45,7 @@ uint32_t she_test_rng_init(test_struct_t *testCtx, FILE *fp) {
     she_err_t expected_err;
 
     /* read the session index. */
-    uint32_t index;
-    READ_VALUE(fp, index);
+    uint32_t index = READ_VALUE(fp, uint32_t);
 
     err = she_cmd_init_rng(testCtx->hdl[index]);
 
@@ -63,8 +62,7 @@ uint32_t she_test_extend_seed(test_struct_t *testCtx, FILE *fp) {
     she_err_t expected_err;
 
     /* read the session index. */
-    uint32_t index;
-    READ_VALUE(fp, index);
+    uint32_t index = READ_VALUE(fp, uint32_t);
 
     READ_INPUT_BUFFER(fp, entropy, SHE_ENTROPY_SIZE);
 
@@ -83,15 +81,14 @@ uint32_t she_test_rnd(test_struct_t *testCtx, FILE *fp) {
     she_err_t expected_err;
 
     /* read the session index. */
-    uint32_t index;
-    READ_VALUE(fp, index);
+    uint32_t index = READ_VALUE(fp, uint32_t);
 
     READ_OUTPUT_BUFFER(fp, rnd, SHE_RND_SIZE);
 
     err = she_cmd_rnd(testCtx->hdl[index], rnd);
 
     /* read the expected error code. */
-    expected_err = (she_err_t)read_single_data(fp);
+    READ_CHECK_VALUE(fp, err);
 
     /* Print the generated number. */
     for (uint32_t i=0; i<SHE_RND_SIZE; i++) {
