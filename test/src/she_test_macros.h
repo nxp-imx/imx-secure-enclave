@@ -34,6 +34,19 @@
 #ifndef __SHE_TEST_MACROS_H__
 #define __SHE_TEST_MACROS_H__
 
+
+/*----------------------------------------------*/
+/* allocate buffers and define pointers to them */
+/*----------------------------------------------*/
+#define dump_buffer(BUF, SIZE) \
+    for (uint32_t i=0; i<SIZE; i++) { \
+        printf("0x%x ", BUF[i]); \
+        if (i%4 == 3) { \
+            printf("\n"); \
+        } \
+    }
+
+
 /*----------------------------------------------*/
 /* allocate buffers and define pointers to them */
 /*----------------------------------------------*/
@@ -55,7 +68,8 @@
 #define READ_INPUT_BUFFER(FP, NAME, SIZE) \
     INPUT_BUFFER(NAME, SIZE) \
     read_buffer_ptr(FP, &NAME, SIZE); \
-    printf("%s:  %p\n", #NAME, NAME);
+    printf("%s:  %p\n", #NAME, NAME); \
+    dump_buffer(NAME, SIZE);
 
 #define READ_OUTPUT_BUFFER(FP, NAME, SIZE) READ_INPUT_BUFFER(FP, NAME, SIZE)
 
@@ -82,6 +96,10 @@
         else if (0 != memcmp(BUF, EXP, SIZE)) { \
             printf("--> FAIL wrong output\n"); \
             fails++; \
+            printf("Received buffer:\n"); \
+            dump_buffer(BUF, SIZE); \
+            printf("Expected buffer:\n"); \
+            dump_buffer(EXP, SIZE); \
         } \
         else { \
             printf("--> PASS\n"); \
