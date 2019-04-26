@@ -71,8 +71,7 @@ uint32_t she_test_get_id(test_struct_t *testCtx, FILE *fp)
     uint32_t index = READ_VALUE(fp, uint32_t);
 
     READ_INPUT_BUFFER(fp, challenge, SHE_CHALLENGE_SIZE);
-    READ_OUTPUT_BUFFER(fp, output, SHE_ID_SIZE);
-    READ_OUTPUT_BUFFER(fp, id, 1);
+    READ_OUTPUT_BUFFER(fp, id, SHE_ID_SIZE);
     READ_OUTPUT_BUFFER(fp, status, 1);
     READ_OUTPUT_BUFFER(fp, mac, SHE_MAC_SIZE);
 
@@ -83,8 +82,8 @@ uint32_t she_test_get_id(test_struct_t *testCtx, FILE *fp)
     READ_CHECK_VALUE(fp, err);
 
     READ_CHECK_BUFFER(fp, id, SHE_ID_SIZE);
-    READ_CHECK_BUFFER(fp, mac, SHE_MAC_SIZE);
     READ_CHECK_BUFFER(fp, status, sizeof(uint8_t));
+    READ_CHECK_BUFFER(fp, mac, SHE_MAC_SIZE);
 
     return fails;
 }
