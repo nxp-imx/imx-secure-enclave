@@ -44,7 +44,6 @@ uint32_t she_test_get_status(test_struct_t *testCtx, FILE *fp)
 
     she_err_t err = 1;
     she_err_t expected_err;
-    uint8_t expected_status;
 
     /* read the session index. */
     uint32_t index = READ_VALUE(fp, uint32_t);
@@ -53,7 +52,7 @@ uint32_t she_test_get_status(test_struct_t *testCtx, FILE *fp)
     err = she_cmd_get_status(testCtx->hdl[index], status);
 
     READ_CHECK_VALUE(fp, err);
-    READ_CHECK_VALUE(fp, expected_status);
+    READ_CHECK_BUFFER(fp, status, 1);
 
     return fails;
 }
@@ -65,14 +64,13 @@ uint32_t she_test_get_id(test_struct_t *testCtx, FILE *fp)
     uint32_t fails = 0;
 
     she_err_t err = 1;
-    she_err_t expected_err;
 
     /* read the session index. */
     uint32_t index = READ_VALUE(fp, uint32_t);
 
     READ_INPUT_BUFFER(fp, challenge, SHE_CHALLENGE_SIZE);
     READ_OUTPUT_BUFFER(fp, id, SHE_ID_SIZE);
-    READ_OUTPUT_BUFFER(fp, status, 1);
+    READ_OUTPUT_BUFFER(fp, status, sizeof(uint8_t));
     READ_OUTPUT_BUFFER(fp, mac, SHE_MAC_SIZE);
 
     /* Execute the command */
