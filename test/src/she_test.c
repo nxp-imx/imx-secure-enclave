@@ -41,6 +41,7 @@
 #include "she_test_status.h"
 #include "she_test_keys.h"
 #include "she_test_sessions.h"
+#include "she_test_storage_create.h"
 
 uint32_t read_single_data(FILE *fp)
 {
@@ -168,6 +169,7 @@ struct test_entry_t she_tests[] = {
     {"SHE_TEST_OPEN_SESSION", she_test_open_session},
     {"SHE_TEST_RNG_INIT", she_test_rng_init},
     {"SHE_TEST_RND", she_test_rnd},
+    {"SHE_TEST_STORAGE_CREATE", she_test_storage_create},
 };
 
 
