@@ -200,6 +200,7 @@ struct sab_she_plain_key_export_rsp {
 
 struct she_cmd_load_plain_key_msg {
     struct she_mu_hdr hdr;
+    uint32_t she_utils_handle;
     uint8_t key[16];
     uint32_t crc;
 };
@@ -277,6 +278,7 @@ struct sab_cmd_get_rnd_rsp {
 
 struct she_cmd_get_status_msg {
        struct she_mu_hdr hdr;
+       uint32_t she_utils_handle;
 };
 
 struct she_cmd_get_status_rsp {
@@ -288,9 +290,8 @@ struct she_cmd_get_status_rsp {
 
 struct she_cmd_get_id_msg {
     struct she_mu_hdr hdr;
+    uint32_t she_utils_handle;
     uint8_t challenge[16];
-    uint32_t outputs_address_ext;
-    uint32_t mac_addr;
     uint32_t crc;
 };
 
@@ -299,6 +300,7 @@ struct she_cmd_get_id_rsp {
        uint32_t rsp_code;
        uint8_t id[15];
        uint8_t sreg;
+       uint8_t mac[16];
        uint32_t crc;
 };
 

@@ -75,7 +75,6 @@ uint32_t she_test_load_plain_key(test_struct_t *testCtx, FILE *fp)
     uint32_t fails = 0;
 
     she_err_t err = 1;
-    she_err_t expected_err;
 
     /* read the session index. */
     uint32_t index = READ_VALUE(fp, uint32_t);

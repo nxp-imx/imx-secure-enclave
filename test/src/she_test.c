@@ -129,6 +129,9 @@ uint32_t print_result(she_err_t err, she_err_t expected_err, uint8_t *output, ui
     } else if ( (err == ERC_NO_ERROR) && (output_size > 0u) && (memcmp(output, expected_output, output_size) != 0)) {
         /* don't compare output for tests expecting an error as return code. */
         (void)printf("--> FAIL wrong output\n");
+        for (uint32_t i = 0; i < output_size/4; i++) {
+            printf("--> output %d : 0x%8x \n", i, *(uint32_t *)(output+i*4));
+        }
     } else {
         (void)printf("--> PASS\n");
         return 0;

@@ -604,9 +604,11 @@ she_err_t she_cmd_load_plain_key(struct she_hdl_s *hdl, uint8_t *key)
 
     do {
         /* Build command message. */
-        she_fill_cmd_msg_hdr(&cmd.hdr, AHAB_SHE_CMD_LOAD_PLAIN_KEY_REQ, (uint32_t)sizeof(struct she_cmd_load_plain_key_msg));
-        she_platform_memcpy(cmd.key, key, SHE_KEY_SIZE);
+        she_fill_cmd_msg_hdr(&cmd.hdr, SAB_SHE_PLAIN_KEY_UPDATE, (uint32_t)sizeof(struct she_cmd_load_plain_key_msg));
+        memcpy(cmd.key, key, SHE_KEY_SIZE);
+        cmd.she_utils_handle = hdl->utils_handle;
         cmd.crc = she_compute_msg_crc((uint32_t*)&cmd, (uint32_t)(sizeof(cmd) - sizeof(uint32_t)));
+
 
         /* Send the message to Seco. */
         error = she_send_msg_and_get_resp(hdl->phdl,
@@ -813,8 +815,8 @@ she_err_t she_cmd_get_status(struct she_hdl_s *hdl, uint8_t *sreg) {
 
     do {
         /* Build command message. */
-        she_fill_cmd_msg_hdr(&cmd.hdr, AHAB_SHE_CMD_GET_STATUS_REQ, (uint32_t)sizeof(struct she_cmd_get_status_msg));
-
+        she_fill_cmd_msg_hdr(&cmd.hdr, SAB_SHE_GET_STATUS, (uint32_t)sizeof(struct she_cmd_get_status_msg));
+        cmd.she_utils_handle = hdl->utils_handle;
         /* Send the message to Seco. */
         error = she_send_msg_and_get_resp(hdl->phdl,
                     (uint32_t *)&cmd, (uint32_t)sizeof(struct she_cmd_get_status_msg),
@@ -845,17 +847,15 @@ she_err_t she_cmd_get_id(struct she_hdl_s *hdl, uint8_t *challenge, uint8_t *id,
     struct she_cmd_get_id_msg cmd;
     struct she_cmd_get_id_rsp rsp;
     int32_t error;
-    she_err_t ret = ERC_GENERAL_ERROR;
-    uint64_t seco_challenge_addr, seco_mac_addr;
+    she_err_t err = ERC_GENERAL_ERROR;
+    uint64_t seco_challenge_addr;
 
     do {
-        /* Provide I/O buffers to Seco. */
-        seco_mac_addr = she_platform_data_buf(hdl->phdl, mac, SHE_MAC_SIZE, DATA_BUF_USE_SEC_MEM);
+
         /* Build command message. */
-        she_fill_cmd_msg_hdr(&cmd.hdr, AHAB_SHE_CMD_GET_ID_REQ, (uint32_t)sizeof(struct she_cmd_get_id_msg));
-        she_platform_memcpy(cmd.challenge, challenge, SHE_CHALLENGE_SIZE);
-        cmd.outputs_address_ext = (uint32_t)((seco_mac_addr >> 32u) & 0xFFFFFFFFu);
-        cmd.mac_addr = (uint32_t)(seco_mac_addr & 0xFFFFFFFFu);
+        she_fill_cmd_msg_hdr(&cmd.hdr, SAB_SHE_GET_ID, (uint32_t)sizeof(struct she_cmd_get_id_msg));
+        memcpy(cmd.challenge, challenge, SHE_CHALLENGE_SIZE);
+        cmd.she_utils_handle = hdl->utils_handle;
         cmd.crc = she_compute_msg_crc((uint32_t*)&cmd, (uint32_t)(sizeof(cmd) - sizeof(uint32_t)));
 
         /* Send the message to Seco. */
@@ -872,13 +872,15 @@ she_err_t she_cmd_get_id(struct she_hdl_s *hdl, uint8_t *challenge, uint8_t *id,
             ret = she_seco_ind_to_she_err_t(rsp.rsp_code);
             *sreg = 0;
             she_platform_memset(id, 0u, SHE_ID_SIZE);
+	    she_platform_memset(mac, 0u, SHE_MAC_SIZE);
             hdl->cancel = 0u;
             break;
         }
 
-        /* Success: copy sreg and id reported by SECO to output.*/
+        /* Success: copy sreg , id and cmac reported by SECO to output.*/
         *sreg = rsp.sreg;
         she_platform_memcpy(id, rsp.id, SHE_ID_SIZE);
+	she_platform_memcpy(mac, rsp.mac, SHE_MAC_SIZE);
 
         /* Success. */
         ret = ERC_NO_ERROR;
