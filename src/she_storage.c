@@ -1,3 +1,4 @@
+
 /*
  * Copyright 2019 NXP
  *
@@ -10,332 +11,211 @@
  * bound by the applicable license terms, then you may not retain, install,
  * activate or otherwise use the software.
  */
+#include <stdio.h>
+#include <errno.h>
+#include <stdlib.h>
+#include <string.h>
+#include <sys/ioctl.h>
+#include <sys/mman.h>
+#include <sys/types.h>
+#include <sys/stat.h>
+#include <fcntl.h>
+#include <pthread.h>
+#include <unistd.h>
+#include <zlib.h>
 
-#include "she_msg.h"
-#include "she_platform.h"
-#include "she_storage.h"
-#include "messaging.h"
+#include "she_api.h"
+#include "seco_ioctl.h"
 
-#define MAX_NVM_MSG_SIZE    10
-#define MAX_BLOB_SIZE 0x1000u
 
-#define SHE_STORAGE_DEFAULT_DID             0x0u
-#define SHE_STORAGE_DEFAULT_TZ              0x0u
-#define SHE_STORAGE_DEFAULT_MU              0x1u
-#define SHE_STORAGE_DEFAULT_INTERRUPT_IDX   0x0u
-#define SHE_STORAGE_DEFAULT_PRIORITY        0x0u
-#define SHE_STORAGE_DEFAULT_OPERATING_MODE  0x0u
+#define SECO_SHE_NVM_PATH "/dev/seco_she_nvm"
 
+
+struct seco_nvm_hdl {
+    int32_t fd;
+};
+
+/**
+ * open an nvm storage session and provide existing storage data if existing.
+ */
+struct seco_nvm_hdl *seco_nvm_open_session(uint32_t flags, uint8_t *data, uint32_t len)
+{
+    struct seco_nvm_hdl *nvm_hdl = NULL;
+    struct seco_ioctl_nvm_open_session ioctl_msg;
+
+    do {
+        /* allocate the handle (free when closing the session). */
+        nvm_hdl = malloc(sizeof(struct seco_nvm_hdl));
+        if (nvm_hdl == NULL) {
+            break;
+        }
+        nvm_hdl->fd = open(SECO_SHE_NVM_PATH, O_RDWR);
+        if (nvm_hdl->fd < 0) {
+            free(nvm_hdl);
+            nvm_hdl = NULL;
+            break;
+        }
+
+        ioctl_msg.flags = flags;
+        ioctl_msg.data = data;
+        ioctl_msg.len = len;
+
+        ioctl(nvm_hdl->fd, SECO_MU_IOCTL_NVM_OPEN_SESSION, &ioctl_msg);
+    } while(0);
+    return nvm_hdl;
+}
+
+void seco_nvm_close_session(struct seco_nvm_hdl *nvm_hdl)
+{
+
+}
+
+uint32_t seco_nvm_get_data_len(struct seco_nvm_hdl *nvm_hdl)
+{
+    struct seco_ioctl_nvm_get_data_len ioctl_msg;
+
+    ioctl(nvm_hdl->fd, SECO_MU_IOCTL_NVM_GET_DATA_LEN, &ioctl_msg);
+
+    return ioctl_msg.data_len;
+}
+
+uint32_t seco_nvm_get_data(struct seco_nvm_hdl *nvm_hdl, uint8_t *dst)
+{
+    struct seco_ioctl_nvm_get_data ioctl_msg;
+
+    ioctl_msg.dst = dst;
+
+    ioctl(nvm_hdl->fd, SECO_MU_IOCTL_NVM_GET_DATA, &ioctl_msg);
+
+    return ioctl_msg.error;
+}
+
+/**
+ * confirm to SECO if the data has been written correctly to NVM
+ * error: 0 means that the write to NVM was succesful. any other value means that an error occured.
+ */
+uint32_t seco_nvm_write_status(struct seco_nvm_hdl *nvm_hdl, uint32_t error)
+{
+    struct seco_ioctl_nvm_write_status ioctl_msg;
+
+    ioctl_msg.error = error;
+    ioctl(nvm_hdl->fd, SECO_MU_IOCTL_NVM_WRITE_STATUS, &ioctl_msg);
+
+    return ioctl_msg.error;
+}
+
+
+/*
+ * Storage manager
+ */
 struct she_storage_context {
-    uint32_t blob_size;
-    uint8_t *blob_buf;
-    struct she_platform_hdl *hdl;
-    uint32_t session_handle;
+    struct seco_nvm_hdl *nvm_hdl;
+    pthread_t tid;
+    char *storage_path;
 };
 
-struct seco_nvm_header_s {
-    uint32_t size;
-    uint32_t crc;
-};
-
-/* Storage export init command processing. */
-static int32_t she_storage_export_init(struct she_storage_context *ctx, struct she_cmd_blob_export_init_msg *msg, struct she_cmd_blob_export_init_rsp *resp)
+void *seco_nvm_manager_thread(void *arg)
 {
-    uint64_t seco_addr;
-
-    /* Build the response. */
-    she_fill_rsp_msg_hdr(&resp->hdr, AHAB_SHE_CMD_STORAGE_EXPORT_INIT, (uint32_t)sizeof(struct she_cmd_blob_export_init_rsp));
-
-    if (ctx->blob_buf != NULL) {
-        /* a previous storage export transaction may have failed.*/
-        she_platform_free(ctx->blob_buf);
-        ctx->blob_buf = NULL;
-        ctx->blob_size = 0;
-    }
+    struct she_storage_context *ctx = (struct she_storage_context *)arg;
+    uint8_t *data = NULL;
+    uint32_t data_len = 0;
+    uint32_t err = 1;
+    int32_t fd = -1;
 
     do {
-        /* Initialize response with error as default. */
-        resp->rsp_code = SAB_FAILURE_STATUS;
-        resp->load_address_ext = 0;
-        resp->load_address = 0;
-        ctx->blob_size = 0;
+        data_len = seco_nvm_get_data_len(ctx->nvm_hdl);
 
-        if (msg->blob_size > MAX_BLOB_SIZE) {
+        // TODO: check length against a max value tbd.
+        data = malloc(data_len);
+        if (!data) {
             break;
         }
 
-        ctx->blob_buf = she_platform_malloc(msg->blob_size + (uint32_t)sizeof(struct seco_nvm_header_s));
-        ctx->blob_size = msg->blob_size;
-        if (ctx->blob_buf == NULL) {
-            break;
-        }
-
-        seco_addr = she_platform_data_buf(ctx->hdl, ctx->blob_buf + (uint32_t)sizeof(struct seco_nvm_header_s), msg->blob_size, DATA_BUF_USE_SEC_MEM);
-        if (seco_addr == 0u) {
-            she_platform_free(ctx->blob_buf);
-            ctx->blob_buf = NULL;
-            ctx->blob_size = 0;
-            break;
-        }
-        resp->load_address_ext = (uint32_t)((seco_addr >> 32u) & 0xFFFFFFFFu);
-        resp->load_address = (uint32_t)(seco_addr & 0xFFFFFFFFu);
-        resp->rsp_code = SAB_SUCCESS_STATUS;
-    } while (false);
-
-    return (int32_t)sizeof(struct she_cmd_blob_export_init_rsp);
-}
-
-/* Storage export command processing. */
-static int32_t she_storage_export(struct she_storage_context *ctx, struct she_cmd_blob_export_msg *msg, struct she_cmd_blob_export_rsp *resp)
-{
-    int32_t l;
-    struct seco_nvm_header_s *blob_hdr;
-
-    resp->rsp_code = SAB_FAILURE_STATUS;
-    /* Write the data to the storage. Blob size was received in previous "storage_export_init" message.*/
-    if (ctx->blob_buf != NULL) {
-        blob_hdr = (struct seco_nvm_header_s *)ctx->blob_buf;
-        blob_hdr->size = ctx->blob_size;
-        blob_hdr->crc = she_platform_crc(ctx->blob_buf + sizeof(struct seco_nvm_header_s), ctx->blob_size);
-
-        l = she_platform_storage_write(ctx->hdl, ctx->blob_buf, ctx->blob_size + (uint32_t)sizeof(struct seco_nvm_header_s));
-
-        if (l == (int32_t)ctx->blob_size + (int32_t)sizeof(struct seco_nvm_header_s)) {
-            resp->rsp_code = SAB_SUCCESS_STATUS;
-        }
-
-        she_platform_free(ctx->blob_buf);
-        ctx->blob_buf = NULL;
-        ctx->blob_size = 0;
-    }
-
-    /* Build the response. */
-    she_fill_rsp_msg_hdr(&resp->hdr, AHAB_SHE_CMD_STORAGE_EXPORT_REQ, (uint32_t)sizeof(struct she_cmd_blob_export_rsp));
-
-    return (int32_t)sizeof(struct she_cmd_blob_export_rsp);
-}
-
-/* Storage import processing. Return 0 on success.  */
-static int32_t she_storage_import(struct she_storage_context *ctx)
-{
-    struct she_cmd_blob_import_msg msg;
-    struct she_cmd_blob_import_rsp rsp;
-    uint64_t seco_addr;
-    struct seco_nvm_header_s blob_hdr;
-
-    uint8_t *blob_buf = NULL;
-    int32_t len = 0;
-    int32_t error = -1;
-
-    do {
-        len = she_platform_storage_read(ctx->hdl, (uint8_t *)&blob_hdr, (uint32_t)sizeof(struct seco_nvm_header_s));
-        if (len != (int32_t)sizeof(struct seco_nvm_header_s)) {
-            break;
-        }
-
-        blob_buf = she_platform_malloc(blob_hdr.size + (uint32_t)sizeof(struct seco_nvm_header_s));
-        if (blob_buf == NULL) {
-            break;
-        }
-
-        len = she_platform_storage_read(ctx->hdl, blob_buf, blob_hdr.size  + (uint32_t)sizeof(struct seco_nvm_header_s));
-        if (len != (int32_t)blob_hdr.size + (int32_t)sizeof(struct seco_nvm_header_s)) {
-            break;
-        }
-
-        if (she_platform_crc(blob_buf + sizeof(struct seco_nvm_header_s), blob_hdr.size) != blob_hdr.crc) {
-            break;
-        }
-
-        seco_addr = she_platform_data_buf(ctx->hdl, blob_buf + sizeof(struct seco_nvm_header_s), blob_hdr.size, DATA_BUF_IS_INPUT | DATA_BUF_USE_SEC_MEM);
-
-        /* Prepare command message. */
-        she_fill_cmd_msg_hdr(&msg.hdr, AHAB_SHE_CMD_STORAGE_IMPORT_REQ, (uint32_t)sizeof(struct she_cmd_blob_import_msg));
-        msg.load_address_ext = (uint32_t)((seco_addr >> 32u) & 0xFFFFFFFFu);
-        msg.load_address = (uint32_t)(seco_addr & 0xFFFFFFFFu);
-        msg.blob_size = blob_hdr.size;
-
-        /* Send the message to Seco. */
-        len = she_platform_send_mu_message(ctx->hdl, (uint32_t *)&msg, (uint32_t)sizeof(struct she_cmd_blob_import_msg));
-        if (len != (int32_t)sizeof(struct she_cmd_blob_import_msg)) {
-            break;
-        }
-
-        /* Read the response. */
-        len = she_platform_read_mu_message(ctx->hdl, (uint32_t *)&rsp, (uint32_t)sizeof(struct she_cmd_blob_import_rsp));
-        if (len != (int32_t)sizeof(struct she_cmd_blob_import_rsp)) {
-            break;
-        }
-
-        /* Check error status reported by Seco. */
-        if (GET_STATUS_CODE(rsp.rsp_code) != SAB_SUCCESS_STATUS) {
-            break;
-        }
-
-        /* Success. */
-        error = 0;
-    } while (false);
-
-    if (blob_buf != NULL) {
-        she_platform_free(blob_buf);
-    }
-    return error;
-}
-
-
-static int32_t she_storage_setup_shared_buffer(struct she_storage_context *ctx)
-{
-    int32_t err = -1;
-    uint32_t shared_buf_offset, shared_buf_size;
-
-    do {
-
-        if (she_get_shared_buffer(ctx->hdl, ctx->session_handle, &shared_buf_offset, &shared_buf_size) != ERC_NO_ERROR) {
-            break;
-        }
-
-        /* Configure the shared buffer. and start the NVM manager. */
-        err = she_platform_configure_shared_buf(ctx->hdl, shared_buf_offset, shared_buf_size);
+        err = seco_nvm_get_data(ctx->nvm_hdl, data);
         if (err != 0) {
             break;
         }
 
-    } while(false);
-
-    return err;
-}
-
-
-/* Thread waiting for messages on the NVM MU and processing them in loop. */
-static void *she_storage_thread(void *arg)
-{
-    uint32_t msg_in[MAX_NVM_MSG_SIZE];
-    uint32_t msg_out[MAX_NVM_MSG_SIZE];
-    int32_t msg_len, rsp_len;
-    struct she_mu_hdr *hdr;
-    struct she_storage_context *ctx = (struct she_storage_context *)arg;
-
-    do {
-        /* Wait message on the NVM MU (blocking read). */
-        msg_len = she_platform_read_mu_message(ctx->hdl, msg_in, MAX_NVM_MSG_SIZE);
-
-        if (msg_len == 0) {
-            continue;
-        }
-
-        rsp_len = 0;
-        /* Triage the message based on the command ID from the header. */
-        hdr = (struct she_mu_hdr *)&msg_in[0];
-        switch (hdr->command) {
-            case AHAB_SHE_CMD_STORAGE_EXPORT_INIT:
-            rsp_len = she_storage_export_init(ctx, (struct she_cmd_blob_export_init_msg *)msg_in,
-                        (struct she_cmd_blob_export_init_rsp *)msg_out);
-            break;
-
-            case AHAB_SHE_CMD_STORAGE_EXPORT_REQ:
-            rsp_len = she_storage_export(ctx, (struct she_cmd_blob_export_msg *)msg_in,
-                        (struct she_cmd_blob_export_rsp *)msg_out);
-            break;
-
-            case AHAB_SHE_CMD_STORAGE_IMPORT_REQ:
-                /*'This is the response.*/
-                //TODO: handle error.
-            break;
-
-            default:
-            /* Unknown command: skip. */
-            break;
-        }
-
-        /* If there is a response to be sent to Seco then write it on the MU. */
-        if (rsp_len > 0) {
-            msg_len = she_platform_send_mu_message(ctx->hdl, msg_out, (uint32_t)rsp_len);
-            if (msg_len != rsp_len) {
-                /* error while sending the message: exit */
-                break;
+        err = 1;
+        fd = open(ctx->storage_path, O_CREAT|O_WRONLY|O_SYNC, S_IRUSR|S_IWUSR);
+        if (fd >= 0) {
+            /* Write the data. */
+            if (write(fd, data, data_len) == data_len) {
+                /* write successful.*/
+                err = 0;
             }
+            (void)close(fd);
         }
 
-    } while (true);
+        free(data);
+        data = NULL;
+        data_len = 0;
 
-    /* Should not come here for now ... */
-    she_platform_close_session(ctx->hdl);
-    she_platform_free(ctx);
+        err = seco_nvm_write_status(ctx->nvm_hdl, err);
+        if (err != 0) {
+            break;
+        }
+    } while(1);
+    free(data);
     return NULL;
 }
 
-/* Init of the NVM storage manager. */
+
+#define SECO_NVM_DEFAULT_STORAGE_FILE "/etc/seco_nvm"
+
 struct she_storage_context *she_storage_init(void)
 {
-    struct she_storage_context *nvm_ctx = NULL;
-    int32_t error = -1;
+    struct she_storage_context *ctx;
+    uint8_t *data = NULL;
+    uint32_t data_len = 0;
+    uint32_t err = 1;
+    int32_t fd = -1;
+    struct stat sb;
+
     do {
-        /* Prepare the context to be passed to the thread function. */
-        nvm_ctx = (struct she_storage_context *)she_platform_malloc((uint32_t)sizeof(struct she_storage_context));
-        if (nvm_ctx == NULL) {
+        ctx = malloc(sizeof(struct she_storage_context));
+        if (!ctx)
             break;
-        }
-        she_platform_memset((uint8_t *)nvm_ctx, 0u, (uint32_t)sizeof(struct she_storage_context));
-        /* Open the SHE NVM session. */
-        nvm_ctx->hdl = she_platform_open_storage_session();
-        if (nvm_ctx->hdl == NULL) {
-            break;
-        }
-
-        /* Open the SHE session on SECO side */
-        if (she_open_session_command (nvm_ctx->hdl, &nvm_ctx->session_handle,
-                SHE_STORAGE_DEFAULT_MU, SHE_STORAGE_DEFAULT_INTERRUPT_IDX, SHE_STORAGE_DEFAULT_TZ,
-                SHE_STORAGE_DEFAULT_DID, SHE_STORAGE_DEFAULT_PRIORITY, SHE_STORAGE_DEFAULT_OPERATING_MODE) != ERC_NO_ERROR) {
-            break;
-        }
-
-        /* Configures the shared buffer in secure memory used to commumicate blobs. */
-        error = she_storage_setup_shared_buffer(nvm_ctx);
-        if (error != 0) {
-            break;
-        }
-
-        /* Try to import the NVM storage. */
-        error = she_storage_import(nvm_ctx);
-
-        // TODO: Handle errors. (currently Seco can generate himself a fake storage if we cannot provide it from here.)
-
-        /* Start the background thread waiting for NVM commands from Seco. */
-        error = she_platform_create_thread(nvm_ctx->hdl, &she_storage_thread, nvm_ctx);
-
-    } while (false);
-
-    /* error clean-up. */
-    if ((error != 0) && (nvm_ctx != NULL)) {
-        if (nvm_ctx->hdl != NULL) {
-            if (nvm_ctx->session_handle != 0u) {
-                /* Send the session close command to Seco. */
-                (void)she_close_session_command (nvm_ctx->hdl, nvm_ctx->session_handle);
+        ctx->storage_path = SECO_NVM_DEFAULT_STORAGE_FILE;
+        fd = open(ctx->storage_path, O_RDONLY);
+        if (fd >= 0) {
+            if (fstat(fd, &sb) == 0) {
+                data_len = sb.st_size;
             }
-            she_platform_close_session(nvm_ctx->hdl);
+            if (data_len != 0) {
+                data = malloc(data_len);
+                if (data) {
+                    if (read(fd, data, data_len) != data_len) {
+                        /* File existing - but cannot be read.*/
+                        free(data);
+                        data = NULL;
+                        data_len = 0;
+                    }
+                }
+            }
+            close(fd);
         }
-        she_platform_free(nvm_ctx);
-        nvm_ctx = NULL;
+        ctx->nvm_hdl = seco_nvm_open_session(1 /*SHE*/, data, data_len);
+        free(data);
+        if (!ctx->nvm_hdl) {
+            break;
+        }
+        err = pthread_create(&ctx->tid, NULL, seco_nvm_manager_thread, ctx);
+    } while (0);
+
+    if (err) {
+        free(ctx);
+        ctx = NULL;
     }
-    return nvm_ctx;
+    return ctx;
 }
 
 int32_t she_storage_terminate(struct she_storage_context *nvm_ctx)
 {
-    int32_t err = 1;
-    if (nvm_ctx->hdl != NULL) {
-        if(nvm_ctx->session_handle != 0u) {
-            (void)she_close_session_command (nvm_ctx->hdl, nvm_ctx->session_handle);
-        }
+    int32_t err;
+    err = pthread_cancel(nvm_ctx->tid);
 
-        err = she_platform_cancel_thread(nvm_ctx->hdl);
-        if (err == 0) {
-            she_platform_close_session(nvm_ctx->hdl);
-        }
+    seco_nvm_close_session(nvm_ctx->nvm_hdl);
 
-    }
-    if (err == 0) {
-        she_platform_free(nvm_ctx);
-    }
     return err;
 }
