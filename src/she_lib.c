@@ -605,7 +605,7 @@ she_err_t she_cmd_load_plain_key(struct she_hdl_s *hdl, uint8_t *key)
     do {
         /* Build command message. */
         she_fill_cmd_msg_hdr(&cmd.hdr, SAB_SHE_PLAIN_KEY_UPDATE, (uint32_t)sizeof(struct she_cmd_load_plain_key_msg));
-        memcpy(cmd.key, key, SHE_KEY_SIZE);
+        she_platform_memcpy(cmd.key, key, SHE_KEY_SIZE);
         cmd.she_utils_handle = hdl->utils_handle;
         cmd.crc = she_compute_msg_crc((uint32_t*)&cmd, (uint32_t)(sizeof(cmd) - sizeof(uint32_t)));
 
@@ -847,14 +847,14 @@ she_err_t she_cmd_get_id(struct she_hdl_s *hdl, uint8_t *challenge, uint8_t *id,
     struct she_cmd_get_id_msg cmd;
     struct she_cmd_get_id_rsp rsp;
     int32_t error;
-    she_err_t err = ERC_GENERAL_ERROR;
+    she_err_t ret = ERC_GENERAL_ERROR;
     uint64_t seco_challenge_addr;
 
     do {
 
         /* Build command message. */
         she_fill_cmd_msg_hdr(&cmd.hdr, SAB_SHE_GET_ID, (uint32_t)sizeof(struct she_cmd_get_id_msg));
-        memcpy(cmd.challenge, challenge, SHE_CHALLENGE_SIZE);
+        she_platform_memcpy(cmd.challenge, challenge, SHE_CHALLENGE_SIZE);
         cmd.she_utils_handle = hdl->utils_handle;
         cmd.crc = she_compute_msg_crc((uint32_t*)&cmd, (uint32_t)(sizeof(cmd) - sizeof(uint32_t)));
 
