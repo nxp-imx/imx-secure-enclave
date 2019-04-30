@@ -6,5 +6,5 @@ SHE_TEST_STORAGE_CREATE
 SHE_STORAGE_NUMBER_UPDATES_DEFAULT  # max number of updates
 0 # signed message length
 NULL  # signed message
-0 # expected return value (ERC_NO_ERROR)
+3 # expected return value (ERROR_GENERIC) -- there should already be a key store present
 
