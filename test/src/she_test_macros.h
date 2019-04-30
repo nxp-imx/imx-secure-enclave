@@ -67,9 +67,9 @@
 
 #define READ_INPUT_BUFFER(FP, NAME, SIZE) \
     INPUT_BUFFER(NAME, SIZE) \
-    read_buffer_ptr(FP, &NAME, SIZE); \
-    printf("%s:  %p\n", #NAME, NAME);
+    read_buffer_ptr(FP, &NAME, SIZE);
 
+// printf("%s:  %p\n", #NAME, NAME);
 // dump_buffer(NAME, SIZE);
 
 #define READ_OUTPUT_BUFFER(FP, NAME, SIZE) READ_INPUT_BUFFER(FP, NAME, SIZE)
