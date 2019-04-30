@@ -157,7 +157,6 @@ struct test_entry_t she_tests[] = {
     {"SHE_TEST_CLOSE_SESSION", she_test_close_session},
     {"SHE_TEST_ECB_ENC", she_test_ecb_enc},
     {"SHE_TEST_ECB_DEC", she_test_ecb_dec},
-    {"SHE_TEST_RNG_INIT", she_test_rng_init},
     {"SHE_TEST_EXPORT_RAM_KEY", she_test_export_ram_key},
     {"SHE_TEST_EXTEND_SEED", she_test_extend_seed},
     {"SHE_TEST_GET_STATUS",she_test_get_status},
