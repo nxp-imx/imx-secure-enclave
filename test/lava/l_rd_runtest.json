@@ -1,0 +1,72 @@
+device_type: fsl-imx8qm-ddr4-arm2-linux
+job_name:  ${JOB_NAME}
+
+tags:
+- mougins-stec01-debian-lava
+
+metadata:
+  submitter: ${SUBMITTER}
+
+timeouts:
+  job:
+    minutes: 5
+  action:
+    minutes: 5
+  connection:
+    minutes: 5
+priority: medium
+visibility: public
+
+# context allows specific values to be overridden or included
+context:
+  arch: arm64
+
+# ACTION_BLOCK
+actions:
+- deploy:
+    timeout:
+      minutes: 3
+    to: tftp
+    kernel:
+      url: ${KERNEL_PATH}
+      type: image
+    ramdisk:
+      url: ${RAMDISK_PATH}
+      compression: gz
+    dtb:
+      url: ${DTB_PATH}
+    modules:
+      url: ${MODULES_PATH}
+      compression: bz2
+    os: oe
+- boot:
+    method: u-boot
+    commands: nfs
+    auto_login:
+      login_prompt: "login:"
+      username: root
+    prompts:
+    - '# '
+    timeout:
+      minutes: 3
+
+- test:
+    timeout:
+      minutes: 4
+    definitions:
+    - from: inline
+      name: run_tests
+      path: inline/run_tests.yaml
+      repository:
+        metadata:
+          name: run_something_on_the_target
+          description: Verify that the ramdisk-based root booted and is functional, then run a test
+        run:
+          steps:
+          - mount
+          - cd /tmp
+          - mkdir tests
+          - df .
+          - cd tests
+          - ${RUN_TEST}
+
