@@ -17,7 +17,7 @@ SHE_TEST_LOAD_PLAIN_KEY
 SHE_TEST_LOAD_PLAIN_KEY
 0 # index to a list of session pointers
 NULL # key = null pointer
-0 # expected return value (ERC_NO_ERROR)
+0xc # expected a fail
 
 
 SHE_TEST_CLOSE_SESSION
