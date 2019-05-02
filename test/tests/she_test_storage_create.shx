@@ -3,7 +3,7 @@
 SHE_TEST_STORAGE_CREATE
 1234  # key storage identifier
 5678  # password
-SHE_STORAGE_NUMBER_UPDATES_DEFAULT  # max number of updates
+128   # max number of updates
 0 # signed message length
 NULL  # signed message
 3 # expected return value (ERROR_GENERIC) -- there should already be a key store present

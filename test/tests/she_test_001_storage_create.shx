@@ -1,0 +1,10 @@
+<requirement>R100.1 The firmware can create a storage for SHE</requirement>
+
+SHE_TEST_STORAGE_CREATE
+0  # key storage identifier
+0xbec00001  # password
+128  # max number of updates
+0 # signed message length
+NULL  # signed message
+0 # expected return value (ERROR_GENERIC) -- there should already be a key store present
+
