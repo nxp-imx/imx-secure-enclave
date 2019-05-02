@@ -158,6 +158,20 @@ struct test_entry_t {
 };
 
 
+struct she_storage_context *storage_ctx = NULL;
+
+uint32_t she_test_start_storage_manager(test_struct_t *testCtx, FILE *fp)
+{
+    /* Start the storage manager.*/
+    storage_ctx = she_storage_init();
+    if (storage_ctx == NULL) {
+        printf("she_storage_init() --> FAIL\n");
+        return 1;
+    }
+    return 0;
+}
+
+
 struct test_entry_t she_tests[] = {
     {"SHE_TEST_CBC_ENC", she_test_cbc_enc},
     {"SHE_TEST_CBC_DEC", she_test_cbc_dec},
@@ -175,6 +189,7 @@ struct test_entry_t she_tests[] = {
     {"SHE_TEST_OPEN_SESSION", she_test_open_session},
     {"SHE_TEST_RNG_INIT", she_test_rng_init},
     {"SHE_TEST_RND", she_test_rnd},
+    {"SHE_TEST_START_STORAGE_MANAGER", she_test_start_storage_manager},
     {"SHE_TEST_STORAGE_CREATE", she_test_storage_create},
 };
 
@@ -184,7 +199,6 @@ int main(int argc, char *argv[])
 {
     uint32_t fails = 0;
 
-    struct she_storage_context *storage_ctx = NULL;
     char *line = NULL;
     size_t len = 0;
     ssize_t read;
@@ -204,14 +218,6 @@ int main(int argc, char *argv[])
         printf("\n<test>\n");
 
         printf("<filename>%s</filename>\n", argv[1]);
-
-        /* Start the storage manager.*/
-        storage_ctx = she_storage_init();
-        if (storage_ctx == NULL) {
-            printf("she_storage_init() --> FAIL\n");
-            break;
-        }
-
 
         while( (read = getline(&line, &len, fp)) != -1) {
             if (line[0] == '<') {

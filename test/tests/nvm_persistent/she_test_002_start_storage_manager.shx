@@ -1,0 +1,5 @@
+<requirement>R100.1 The firmware can create a storage for SHE</requirement>
+
+SHE_TEST_START_STORAGE_MANAGER
+0 # expected return value
+
