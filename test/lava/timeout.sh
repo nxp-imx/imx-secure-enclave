@@ -1,10 +1,26 @@
 #!/bin/bash
 
+# 
+# Execute a command and kill it if it takes too long
+#
+
+# Implement a timeout of 30 seconds by default
+timeout=${TIMEOUT:=30}
+
+if [ "$#" == "0" ]
+then
+    echo "Execute a command and timeout after a given time in seconds."
+    echo "The timeout value is "${timeout}" seconds."
+    echo ""
+    echo "Usage:"
+    echo "    [TIMEOUT=seconds] $0 <executable command>"
+    exit -1
+fi
+
+# Execute the specified command in the background, and get its pid
 $@ &
 
 target_pid=$!
-
-timeout=${TIMEOUT:=30}
 
 while [ "${timeout}" -gt 0 ]
 do
@@ -17,11 +33,7 @@ do
     fi
 done
 
-#echo $target_pid
-
 kill -0 $target_pid >& /dev/null
-
-#echo $?
 
 if [ "0" == "$?" ]
 then
