@@ -1,5 +1,11 @@
 #!/bin/bash
 
+if [ "2" != $# ]
+then
+    echo "Usage: $0 <artifactUrl> <submitter>"
+    exit -1
+fi
+
 artifactUrl=$1
 submitter=$2
 
@@ -22,9 +28,14 @@ export RAMDISK_PATH=${artifactUrl}/rootfs.cpio.gz/rootfs.cpio.gz
 #tests=(`wget -q -O - ${TEST_PACKAGE_PATH} | tar tjf - | grep '\.shx$'`)
 
 # Extract the test package to obtain the list of tests to run
+tmpdir=`mktemp -d`
+curdir=$PWD
+cd ${tmpdir}
 wget -q -O - ${TEST_PACKAGE_PATH} | tar xjf -
 tests=(`find . -name '*.shx' | sort`)
 echo Tests: ${tests[@]}
+rm -rf ${tmpdir}
+cd ${curdir}
 
 # Make a directory for lava files
 mkdir -p lava
