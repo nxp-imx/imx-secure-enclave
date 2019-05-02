@@ -171,11 +171,12 @@ uint32_t she_test_start_storage_manager(test_struct_t *testCtx, FILE *fp)
     return 0;
 }
 
-/*
+uint32_t she_test_stop_storage_manager(test_struct_t *testCtx, FILE *fp)
+{
     if (storage_ctx != NULL) {
         (void)she_storage_terminate(storage_ctx);
     }
-*/
+}
 
 struct test_entry_t she_tests[] = {
     {"SHE_TEST_CBC_ENC", she_test_cbc_enc},
@@ -195,6 +196,7 @@ struct test_entry_t she_tests[] = {
     {"SHE_TEST_RNG_INIT", she_test_rng_init},
     {"SHE_TEST_RND", she_test_rnd},
     {"SHE_TEST_START_STORAGE_MANAGER", she_test_start_storage_manager},
+    {"SHE_TEST_STOP_STORAGE_MANAGER", she_test_stop_storage_manager},
     {"SHE_TEST_STORAGE_CREATE", she_test_storage_create},
 };
 
