@@ -67,13 +67,8 @@
 /* Read data from the test file                 */
 /*----------------------------------------------*/
 
-#ifdef DEBUG
 #define READ_VALUE(FP, TYPE) \
     (TYPE)read_single_data(fp);
-#else 
-#define READ_VALUE(FP, TYPE) \
-    (TYPE)read_single_data(fp);
-#endif
 
 #ifdef DEBUG
 #define READ_INPUT_BUFFER(FP, NAME, SIZE) \

@@ -54,6 +54,9 @@ uint32_t read_single_data(FILE *fp)
     if (read > 0) {
         value = (uint32_t)strtoul(line, NULL, 0);
     }
+#ifdef DEBUG
+    printf("VALUE: 0x%x\n", value);
+#endif
     free(line);
     return value;
 }
@@ -67,10 +70,6 @@ void read_buffer(FILE *fp, uint8_t *dst, uint32_t size) {
     ssize_t read;
     uint32_t idx = 0;
     uint32_t data;
-
-    if (0 == size) {  // Always read one byte ... we have to support NULL for zero-length
-        size = 1;
-    }
 
     while (idx < size) {
         read = getline(&line, &len, fp);
@@ -99,6 +98,10 @@ void read_buffer_ptr(FILE *fp, uint8_t **dst, uint32_t size) {
     ssize_t read;
     uint32_t idx = 0;
     uint32_t data;
+
+    if (0 == size) {  // Always read one byte ... we have to support NULL for zero-length
+        size = 1;
+    }
 
     while (idx < size) {
         read = getline(&line, &len, fp);

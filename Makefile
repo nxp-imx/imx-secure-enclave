@@ -13,14 +13,18 @@ she_storage.o: src/she_storage.c
 	$(CC) $^  -c -o $@ -I include $(CFLAGS)
 
 #SHE test components
+ifdef DEBUG
+DEFINES=-DDEBUG
+endif
+
 TEST_OBJ=$(patsubst %.c,%.o,$(wildcard test/src/*.c))
 
 test/src/%.o: test/src/%.c 
-	$(CC) $^  -c -o $@ -I include -I test/src $(CFLAGS)
+	$(CC) $^  -c -o $@ -I include -I test/src $(CFLAGS) $(DEFINES)
 
 #SHE test app
 she_test: she_lib.o she_storage.o $(TEST_OBJ) include/she_api.h
-	$(CC) $^  -o $@ -I include $(CFLAGS) -lpthread -lz
+	$(CC) $^  -o $@ -I include $(CFLAGS) -lpthread -lz $(DEFINES)
 
 clean:
 	rm -rf she_test she_lib.o $(TEST_OBJ)
