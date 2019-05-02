@@ -39,10 +39,15 @@
 /* allocate buffers and define pointers to them */
 /*----------------------------------------------*/
 #define dump_buffer(BUF, SIZE) \
-    for (uint32_t i=0; i<SIZE; i++) { \
-        printf("0x%x ", BUF[i]); \
-        if (i%4 == 3) { \
-            printf("\n"); \
+    if (BUF == NULL) { \
+        printf("NULL\n"); \
+    } \
+    else { \
+        for (uint32_t i=0; i<SIZE; i++) { \
+            printf("0x%x ", BUF[i]); \
+            if (i%4 == 3) { \
+                printf("\n"); \
+            } \
         } \
     }
 
@@ -62,15 +67,25 @@
 /* Read data from the test file                 */
 /*----------------------------------------------*/
 
+#ifdef DEBUG
 #define READ_VALUE(FP, TYPE) \
     (TYPE)read_single_data(fp);
+#else 
+#define READ_VALUE(FP, TYPE) \
+    (TYPE)read_single_data(fp);
+#endif
 
+#ifdef DEBUG
+#define READ_INPUT_BUFFER(FP, NAME, SIZE) \
+    INPUT_BUFFER(NAME, SIZE) \
+    read_buffer_ptr(FP, &NAME, SIZE); \
+    printf("%s @  %p\n", #NAME, NAME); \
+    dump_buffer(NAME, SIZE);
+#else 
 #define READ_INPUT_BUFFER(FP, NAME, SIZE) \
     INPUT_BUFFER(NAME, SIZE) \
     read_buffer_ptr(FP, &NAME, SIZE);
-
-// printf("%s:  %p\n", #NAME, NAME);
-// dump_buffer(NAME, SIZE);
+#endif
 
 #define READ_OUTPUT_BUFFER(FP, NAME, SIZE) READ_INPUT_BUFFER(FP, NAME, SIZE)
 
