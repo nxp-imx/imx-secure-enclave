@@ -156,29 +156,50 @@ struct seco_ioctl_nvm_write_status {
 
 #define SECO_MU_IOCTL			0x0A /* like MISC_MAJOR. */
 
-#define SECO_MU_IOCTL_SHE_STORAGE_CREATE _IOWR(SECO_MU_IOCTL, 0x01, struct seco_ioctl_she_storage_create)
-#define SECO_MU_IOCTL_SHE_OPEN_SESSION   _IOWR(SECO_MU_IOCTL, 0x02, struct seco_ioctl_she_open_session)
+#define SECO_MU_IOCTL_SHE_STORAGE_CREATE _IOWR(SECO_MU_IOCTL, 0x01, \
+			struct seco_ioctl_she_storage_create)
+#define SECO_MU_IOCTL_SHE_OPEN_SESSION   _IOWR(SECO_MU_IOCTL, 0x02, \
+			struct seco_ioctl_she_open_session)
 #define SECO_MU_IOCTL_SHE_CLOSE_SESSION  _IO(SECO_MU_IOCTL, 0x03)
-#define SECO_MU_IOCTL_SHE_GENERATE_MAC   _IOWR(SECO_MU_IOCTL, 0x04, struct seco_ioctl_she_generate_mac)
-#define SECO_MU_IOCTL_SHE_VERIFY_MAC     _IOWR(SECO_MU_IOCTL, 0x05, struct seco_ioctl_she_verify_mac)
-#define SECO_MU_IOCTL_SHE_ENC_CBC        _IOWR(SECO_MU_IOCTL, 0x06, struct seco_ioctl_she_enc_cbc)
-#define SECO_MU_IOCTL_SHE_DEC_CBC        _IOWR(SECO_MU_IOCTL, 0x07, struct seco_ioctl_she_dec_cbc)
-#define SECO_MU_IOCTL_SHE_ENC_ECB        _IOWR(SECO_MU_IOCTL, 0x08, struct seco_ioctl_she_enc_ecb)
-#define SECO_MU_IOCTL_SHE_DEC_ECB        _IOWR(SECO_MU_IOCTL, 0x09, struct seco_ioctl_she_dec_ecb)
-#define SECO_MU_IOCTL_SHE_LOAD_KEY       _IOWR(SECO_MU_IOCTL, 0x0A, struct seco_ioctl_she_load_key)
-#define SECO_MU_IOCTL_SHE_LOAD_PLAIN_KEY _IOWR(SECO_MU_IOCTL, 0x0B, struct seco_ioctl_she_load_plain_key)
-#define SECO_MU_IOCTL_SHE_EXPORT_RAM_KEY _IOWR(SECO_MU_IOCTL, 0x0C, struct seco_ioctl_she_export_ram_key)
-#define SECO_MU_IOCTL_SHE_INIT_RNG       _IOR(SECO_MU_IOCTL, 0x0D, struct seco_ioctl_she_init_rng)
-#define SECO_MU_IOCTL_SHE_EXTEND_SEED    _IOWR(SECO_MU_IOCTL, 0x0E, struct seco_ioctl_she_extend_seed)
-#define SECO_MU_IOCTL_SHE_GENERATE_RND   _IOWR(SECO_MU_IOCTL, 0x0F, struct seco_ioctl_she_generate_rnd)
-#define SECO_MU_IOCTL_SHE_GET_STATUS     _IOR(SECO_MU_IOCTL, 0x10, struct seco_ioctl_she_get_status)
-#define SECO_MU_IOCTL_SHE_GET_ID         _IOWR(SECO_MU_IOCTL, 0x11, struct seco_ioctl_she_get_id)
-#define SECO_MU_IOCTL_SHE_CANCEL         _IOR(SECO_MU_IOCTL, 0x12, struct seco_ioctl_she_get_id)
+#define SECO_MU_IOCTL_SHE_GENERATE_MAC   _IOWR(SECO_MU_IOCTL, 0x04, \
+			struct seco_ioctl_she_generate_mac)
+#define SECO_MU_IOCTL_SHE_VERIFY_MAC     _IOWR(SECO_MU_IOCTL, 0x05, \
+			struct seco_ioctl_she_verify_mac)
+#define SECO_MU_IOCTL_SHE_ENC_CBC        _IOWR(SECO_MU_IOCTL, 0x06, \
+			struct seco_ioctl_she_enc_cbc)
+#define SECO_MU_IOCTL_SHE_DEC_CBC        _IOWR(SECO_MU_IOCTL, 0x07, \
+			struct seco_ioctl_she_dec_cbc)
+#define SECO_MU_IOCTL_SHE_ENC_ECB        _IOWR(SECO_MU_IOCTL, 0x08, \
+			struct seco_ioctl_she_enc_ecb)
+#define SECO_MU_IOCTL_SHE_DEC_ECB        _IOWR(SECO_MU_IOCTL, 0x09, \
+			struct seco_ioctl_she_dec_ecb)
+#define SECO_MU_IOCTL_SHE_LOAD_KEY       _IOWR(SECO_MU_IOCTL, 0x0A, \
+			struct seco_ioctl_she_load_key)
+#define SECO_MU_IOCTL_SHE_LOAD_PLAIN_KEY _IOWR(SECO_MU_IOCTL, 0x0B, \
+			struct seco_ioctl_she_load_plain_key)
+#define SECO_MU_IOCTL_SHE_EXPORT_RAM_KEY _IOWR(SECO_MU_IOCTL, 0x0C, \
+			struct seco_ioctl_she_export_ram_key)
+#define SECO_MU_IOCTL_SHE_INIT_RNG       _IOR(SECO_MU_IOCTL, 0x0D,  \
+			struct seco_ioctl_she_init_rng)
+#define SECO_MU_IOCTL_SHE_EXTEND_SEED    _IOWR(SECO_MU_IOCTL, 0x0E, \
+			struct seco_ioctl_she_extend_seed)
+#define SECO_MU_IOCTL_SHE_GENERATE_RND   _IOWR(SECO_MU_IOCTL, 0x0F, \
+			struct seco_ioctl_she_generate_rnd)
+#define SECO_MU_IOCTL_SHE_GET_STATUS     _IOR(SECO_MU_IOCTL, 0x10,  \
+			struct seco_ioctl_she_get_status)
+#define SECO_MU_IOCTL_SHE_GET_ID         _IOWR(SECO_MU_IOCTL, 0x11, \
+			struct seco_ioctl_she_get_id)
+#define SECO_MU_IOCTL_SHE_CANCEL         _IOR(SECO_MU_IOCTL, 0x12,  \
+			struct seco_ioctl_she_get_id)
 
-#define SECO_MU_IOCTL_NVM_OPEN_SESSION   _IOWR(SECO_MU_IOCTL, 0x20, struct seco_ioctl_she_get_id)
-#define SECO_MU_IOCTL_NVM_CLOSE_SESSION  _IOW(SECO_MU_IOCTL, 0x21)
-#define SECO_MU_IOCTL_NVM_GET_DATA_LEN   _IOR(SECO_MU_IOCTL, 0x22, struct seco_ioctl_nvm_get_data_len)
-#define SECO_MU_IOCTL_NVM_GET_DATA       _IOWR(SECO_MU_IOCTL, 0x23, struct seco_ioctl_nvm_get_data)
-#define SECO_MU_IOCTL_NVM_WRITE_STATUS   _IOWR(SECO_MU_IOCTL, 0x24, struct seco_ioctl_nvm_write_status)
+#define SECO_MU_IOCTL_NVM_OPEN_SESSION   _IOWR(SECO_MU_IOCTL, 0x20, \
+			struct seco_ioctl_she_get_id)
+#define SECO_MU_IOCTL_NVM_CLOSE_SESSION  _IO(SECO_MU_IOCTL, 0x21)
+#define SECO_MU_IOCTL_NVM_GET_DATA_LEN   _IOR(SECO_MU_IOCTL, 0x22,  \
+			struct seco_ioctl_nvm_get_data_len)
+#define SECO_MU_IOCTL_NVM_GET_DATA       _IOWR(SECO_MU_IOCTL, 0x23, \
+			struct seco_ioctl_nvm_get_data)
+#define SECO_MU_IOCTL_NVM_WRITE_STATUS   _IOWR(SECO_MU_IOCTL, 0x24, \
+			struct seco_ioctl_nvm_write_status)
 
 #endif

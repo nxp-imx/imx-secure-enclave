@@ -67,7 +67,11 @@ struct seco_nvm_hdl *seco_nvm_open_session(uint32_t flags, uint8_t *data, uint32
 
 void seco_nvm_close_session(struct seco_nvm_hdl *nvm_hdl)
 {
-
+    if (nvm_hdl) {
+        ioctl(nvm_hdl->fd, SECO_MU_IOCTL_NVM_CLOSE_SESSION, NULL);
+        close(nvm_hdl->fd);
+        free(nvm_hdl);
+    }
 }
 
 uint32_t seco_nvm_get_data_len(struct seco_nvm_hdl *nvm_hdl)
