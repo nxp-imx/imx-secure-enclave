@@ -68,6 +68,10 @@ void read_buffer(FILE *fp, uint8_t *dst, uint32_t size) {
     uint32_t idx = 0;
     uint32_t data;
 
+    if (0 == size) {  // Always read one byte ... we have to support NULL for zero-length
+        size = 1;
+    }
+
     while (idx < size) {
         read = getline(&line, &len, fp);
         if (read<0) {
