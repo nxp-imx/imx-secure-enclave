@@ -171,6 +171,11 @@ uint32_t she_test_start_storage_manager(test_struct_t *testCtx, FILE *fp)
     return 0;
 }
 
+/*
+    if (storage_ctx != NULL) {
+        (void)she_storage_terminate(storage_ctx);
+    }
+*/
 
 struct test_entry_t she_tests[] = {
     {"SHE_TEST_CBC_ENC", she_test_cbc_enc},
@@ -236,10 +241,6 @@ int main(int argc, char *argv[])
         free(line);
 
     } while(false);
-
-    if (storage_ctx != NULL) {
-        (void)she_storage_terminate(storage_ctx);
-    }
 
     if (fp != NULL) {
         (void)fclose(fp);
