@@ -1,5 +1,14 @@
 #!/bin/bash
 
+containsElement () {
+  local e match="$1"
+  shift
+  echo "$match"
+  echo "$@"
+  for e; do [[ "$e" == "$match" ]] && return 0; done
+  return 1
+}
+
 if [ "2" != $# ]
 then
     echo "Usage: $0 <artifactUrl> <submitter>"
@@ -25,7 +34,10 @@ export DTB_PATH=${artifactUrl}/fsl-imx8qm-lpddr4-arm2.dtb/fsl-imx8qm-lpddr4-arm2
 export RAMDISK_PATH=${artifactUrl}/rootfs.cpio.gz/rootfs.cpio.gz
 
 ## Read the contents of the test package to obtain the list of tests to run
+files=(`wget -q -O - ${TEST_PACKAGE_PATH} | tar tjf - | sort`)
 tests=(`wget -q -O - ${TEST_PACKAGE_PATH} | tar tjf - | grep '\.shx$' | sort`)
+
+#echo "wget -q -O - ${TEST_PACKAGE_PATH} | tar tjf - | grep '\.shx$' | sort"
 
 # Make a directory for lava files
 mkdir -p lava
@@ -60,7 +72,7 @@ do
     then
         if [ ! -z "${lavafile}" ]
         then
-            if [ -f "${targetdir}/teardown.sh" ]
+            if containsElement "${targetdir}/teardown.sh" "${files[@]}"
             then
                 export RUN_TEST="${RUN_TEST} ; ${targetdir}/teardown.sh"
             fi
@@ -74,7 +86,7 @@ do
         export JOB_NAME="STEC SECO FW Test - SHE - ${thisdirname} (${submitter})"
         export RUN_TEST="wget --no-check-certificate -O - ${TEST_PACKAGE_PATH} | bunzip2 -c | tar xvf - "
 
-        if [ -f "${targetdir}/setup.sh" ]
+        if containsElement "${targetdir}/setup.sh" "${files[@]}"
         then
             export RUN_TEST="${RUN_TEST} ; ${targetdir}/setup.sh"
         fi
