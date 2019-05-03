@@ -7,6 +7,7 @@ SHE_TEST_OPEN_SESSION
 
 
 <requirement>R9.1, SECO shall provide APIs to initialize a random number generator CMD_INIT_RNG, Feature</requirement>
+<description>Call she_cmd_init_rng() to initialize the RNG</description>
 
 SHE_TEST_RNG_INIT
 0 # index to a list of session pointers
@@ -14,6 +15,7 @@ SHE_TEST_RNG_INIT
 
 
 <requirement>R9.2, SECO shall provide APIs to seed a random number generator CMD_EXTEND_SEED, Feature</requirement>
+<description>Call she_cmd_extend_seed() to seed the RNG</description>
 
 SHE_TEST_EXTEND_SEED
 0 # index to a list of session pointers
@@ -22,11 +24,30 @@ SHE_TEST_EXTEND_SEED
 
 
 <requirement>R9.3, SECO shall provide an API to generate random number CMD_RND, Feature</requirement>
+<description>Call she_cmd_rnd() to retrieve 128 bits of random data</description>
 
 SHE_TEST_RND
 0 # index to a list of session pointers
 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0    # rnd buffer = 16 bytes
 0 # expected return value (ERC_NO_ERROR)
+
+
+<requirement>R9.2, SECO shall provide APIs to seed a random number generator CMD_EXTEND_SEED, Feature</requirement>
+<description>Call she_cmd_extend_seed() to seed the RNG</description>
+
+SHE_TEST_EXTEND_SEED
+0 # index to a list of session pointers
+NULL # null pointer
+3 # expected return value (ERROR)
+
+
+<requirement>R9.3, SECO shall provide an API to generate random number CMD_RND, Feature</requirement>
+<description>Call she_cmd_rnd() with a NULL pointer</description>
+
+SHE_TEST_RND
+0 # index to a list of session pointers
+NULL # null pointer
+3 # expected return value (ERROR)
 
 
 SHE_TEST_CLOSE_SESSION
