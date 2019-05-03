@@ -3,8 +3,6 @@
 containsElement () {
   local e match="$1"
   shift
-  echo "$match"
-  echo "$@"
   for e; do [[ "$e" == "$match" ]] && return 0; done
   return 1
 }
