@@ -129,7 +129,8 @@ SHE_TEST_CBC_ENC perf measurement
 0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15 #output buffer
 0 # expected return value (ERC_NO_ERROR)
 0x76, 0x49, 0xab, 0xac, 0x81, 0x19, 0xb2, 0x46, 0xce, 0xe9, 0x8e, 0x9b, 0x12, 0xe9, 0x19, 0x7d #ref output
-0, 0 # Min, Max time in microseconds per operation
+0 # Min time in microseconds per operation
+0 # Max time in microseconds per operation
 
 
 SHE_TEST_CBC_DEC perf measurement
@@ -143,7 +144,8 @@ SHE_TEST_CBC_DEC perf measurement
 0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15 #output buffer
 0 # expected return value (ERC_NO_ERROR)
 0x6b, 0xc1, 0xbe, 0xe2, 0x2e, 0x40, 0x9f, 0x96, 0xe9, 0x3d, 0x7e, 0x11, 0x73, 0x93, 0x17, 0x2a #ref output
-0, 0 # Min, Max time in microseconds per operation
+0 # Min time in microseconds per operation
+0 # Max time in microseconds per operation
 
 
 SHE_TEST_CLOSE_SESSION
