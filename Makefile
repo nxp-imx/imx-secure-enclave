@@ -1,6 +1,5 @@
-all: she_test
 
-all: she_test
+all: she_test she_start_storage_manager
 
 CFLAGS = -Werror
 
@@ -22,12 +21,18 @@ TEST_OBJ=$(patsubst %.c,%.o,$(wildcard test/src/*.c))
 test/src/%.o: test/src/%.c 
 	$(CC) $^  -c -o $@ -I include -I test/src $(CFLAGS) $(DEFINES)
 
+test/she_start_storage_manager/%.o: test/she_start_storage_manager/%.c
+	$(CC) $^  -c -o $@ -I include -I test/src $(CFLAGS) $(DEFINES)
+
 #SHE test app
 she_test: she_lib.o she_storage.o $(TEST_OBJ) include/she_api.h
 	$(CC) $^  -o $@ -I include $(CFLAGS) -lpthread -lz $(DEFINES)
 
+she_start_storage_manager: she_lib.o she_storage.o test/she_start_storage_manager/she_start_storage_manager.o include/she_api.h
+	$(CC) $^  -o $@ -I include $(CFLAGS) -lpthread -lz $(DEFINES)
+
 clean:
-	rm -rf she_test she_lib.o $(TEST_OBJ)
+	rm -rf she_test she_lib.o she_storage.o she_start_storage_manager $(TEST_OBJ)
 
 she_doc: include/she_api.h include/she_storage.h
 	rm -rf doc/latex/
