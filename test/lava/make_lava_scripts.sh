@@ -72,7 +72,7 @@ do
         fi
 
         export JOB_NAME="STEC SECO FW Test - SHE - ${thisdirname} (${submitter})"
-        export RUN_TEST="wget --no-check-certificate -O - ${TEST_PACKAGE_PATH} | bunzip2 -c | tar xvf -"
+        export RUN_TEST="wget --no-check-certificate -O - ${TEST_PACKAGE_PATH} | bunzip2 -c | tar xvf - ; ./she_test"
 
         if [ -f "${targetdir}/setup.sh" ]
         then
@@ -86,7 +86,7 @@ do
 
     testdir=${targetdir}
 
-    RUN_TEST="${RUN_TEST} ; ./she_test ${testfile} || true"
+    RUN_TEST="${RUN_TEST} ${testfile}"
 
 done
 

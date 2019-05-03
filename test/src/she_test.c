@@ -217,41 +217,47 @@ int main(int argc, char *argv[])
 
     test_struct_t testCtx = { 0 };
 
-    do {
-        fp = fopen(argv[1], "r");
-        if (fp == NULL) {
-            break;
-        }
+    uint32_t idx = 1;
 
-        /* Indicate the start of a test */
-        printf("\n<test>\n");
+    while (idx < argc) {
 
-        printf("<filename>%s</filename>\n", argv[1]);
+        do {
 
-        while( (read = getline(&line, &len, fp)) != -1) {
-            if (line[0] == '<') {
-                (void)printf("%s", line);
+            fp = fopen(argv[idx], "r");
+            if (fp == NULL) {
+                break;
             }
-            else {
-                for (i=0; i < (sizeof(she_tests)/sizeof(struct test_entry_t)); i++) {
-                    if (memcmp(line, she_tests[i].name, strlen(she_tests[i].name)) == 0) {
-                        (void)printf("test: %s", line);
-                        fails += she_tests[i].func(&testCtx, fp);
-                        (void)printf("\n");
+
+            /* Indicate the start of a test */
+            printf("\n<test>\n");
+
+            printf("<filename>%s</filename>\n", argv[idx]);
+
+            while( (read = getline(&line, &len, fp)) != -1) {
+                if (line[0] == '<') {
+                    (void)printf("%s", line);
+                }
+                else {
+                    for (i=0; i < (sizeof(she_tests)/sizeof(struct test_entry_t)); i++) {
+                        if (memcmp(line, she_tests[i].name, strlen(she_tests[i].name)) == 0) {
+                            (void)printf("test: %s", line);
+                            fails += she_tests[i].func(&testCtx, fp);
+                            (void)printf("\n");
+                        }
                     }
                 }
             }
+            free(line);
+
+        } while(false);
+
+        if (fp != NULL) {
+            (void)fclose(fp);
+
+            /* Indicate the end of a test */
+            printf("\n</test>\n");
         }
-        free(line);
-
-    } while(false);
-
-    if (fp != NULL) {
-        (void)fclose(fp);
     }
-
-    /* Indicate the end of a test */
-    printf("\n</test>\n");
 
     return fails;
 }
