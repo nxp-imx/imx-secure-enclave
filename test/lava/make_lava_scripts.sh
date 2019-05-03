@@ -72,7 +72,7 @@ do
         then
             if containsElement "${targetdir}/teardown.sh" "${files[@]}"
             then
-                export RUN_TEST="${RUN_TEST} ; ${targetdir}/teardown.sh"
+                export RUN_TEST="${RUN_TEST} ; cat ${targetdir}/teardown.sh ; source ${targetdir}/teardown.sh"
             fi
             # Build a lava file for each test, replacing variables with values from the environment
             cat ${thisDir}/l_rd_runtest.json | envsubst > ${lavafile} || exit -2
@@ -86,7 +86,7 @@ do
 
         if containsElement "${targetdir}/setup.sh" "${files[@]}"
         then
-            export RUN_TEST="${RUN_TEST} ; ${targetdir}/setup.sh"
+            export RUN_TEST="${RUN_TEST} ; cat ${targetdir}/setup.sh ; source ${targetdir}/setup.sh"
         fi
 
 	export RUN_TEST="${RUN_TEST} ; ./she_test"
