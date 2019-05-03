@@ -62,7 +62,7 @@ do
         then
             if [ -f "${targetdir}/teardown.sh" ]
             then
-                RUN_TEST="${RUN_TEST} ; ${targetdir}/teardown.sh"
+                export RUN_TEST="${RUN_TEST} ; ${targetdir}/teardown.sh"
             fi
             # Build a lava file for each test, replacing variables with values from the environment
             cat ${thisDir}/l_rd_runtest.json | envsubst > ${lavafile} || exit -2
@@ -72,12 +72,14 @@ do
         fi
 
         export JOB_NAME="STEC SECO FW Test - SHE - ${thisdirname} (${submitter})"
-        export RUN_TEST="wget --no-check-certificate -O - ${TEST_PACKAGE_PATH} | bunzip2 -c | tar xvf - ; ./she_test"
+        export RUN_TEST="wget --no-check-certificate -O - ${TEST_PACKAGE_PATH} | bunzip2 -c | tar xvf - "
 
         if [ -f "${targetdir}/setup.sh" ]
         then
-            RUN_TEST="${RUN_TEST} ; ${targetdir}/setup.sh"
+            export RUN_TEST="${RUN_TEST} ; ${targetdir}/setup.sh"
         fi
+
+	export RUN_TEST="${RUN_TEST} ; ./she_test"
 
         mkdir -p ${targetdir}
 
