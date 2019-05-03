@@ -69,7 +69,8 @@ uint32_t she_test_cbc_enc(test_struct_t *testCtx, FILE *fp)
     READ_CHECK_BUFFER(fp, output, input_size);
 
     if (nb_iter > 1u) {
-        print_perf(&ts1, &ts2, nb_iter);
+        uint32_t avg_time_us = print_perf(&ts1, &ts2, nb_iter);
+        READ_CHECK_RANGE(fp, avg_time_us);
     }
 
     return fails;
@@ -108,7 +109,8 @@ uint32_t she_test_cbc_dec(test_struct_t *testCtx, FILE *fp)
     READ_CHECK_BUFFER(fp, output, input_size);
 
     if (nb_iter > 1u) {
-        print_perf(&ts1, &ts2, nb_iter);
+        uint32_t avg_time_us = print_perf(&ts1, &ts2, nb_iter);
+        READ_CHECK_RANGE(fp, avg_time_us);
     }
 
     return fails;

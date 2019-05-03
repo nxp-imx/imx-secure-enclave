@@ -98,6 +98,15 @@
         printf("--> PASS\n"); \
     }
 
+#define CHECK_RANGE(VAL, EXP_MIN, EXP_MAX) \
+    if ((VAL < EXP_MIN) || (VAL > EXP_MAX)) { \
+        printf("--> FAIL value out of range: %d  (%d - %d)\n", VAL, EXP_MIN, EXP_MAX); \
+        fails++; \
+    } \
+    else { \
+        printf("--> PASS\n"); \
+    }
+
 #define CHECK_BUFFER(BUF, EXP, SIZE) \
     if (NULL != EXP) { \
         if (NULL == BUF) { \
@@ -128,6 +137,13 @@
 #define READ_CHECK_BUFFER(FP, NAME, SIZE) \
     READ_INPUT_BUFFER(FP, EXP_##NAME, SIZE) \
     CHECK_BUFFER(NAME, EXP_##NAME, SIZE)
+
+#define READ_CHECK_RANGE(FP, NAME) \
+    typeof(NAME) EXP_MIN_##NAME = READ_VALUE(FP, typeof(NAME)) \
+    typeof(NAME) EXP_MAX_##NAME = READ_VALUE(FP, typeof(NAME)) \
+    if (EXP_MAX_##NAME > EXP_MIN_##NAME) { \
+        CHECK_RANGE(NAME, EXP_MIN_##NAME, EXP_MAX_##NAME); \
+    }
 
 #endif // __SHE_TEST_MACROS_H__
 

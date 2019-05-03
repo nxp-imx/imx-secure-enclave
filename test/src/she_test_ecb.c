@@ -64,7 +64,8 @@ uint32_t she_test_ecb_enc(test_struct_t *testCtx, FILE *fp)
     READ_CHECK_BUFFER(fp, output, SHE_AES_BLOCK_SIZE_128);
 
     if (nb_iter > 1u) {
-        print_perf(&ts1, &ts2, nb_iter);
+        uint32_t avg_time_us = print_perf(&ts1, &ts2, nb_iter);
+        READ_CHECK_RANGE(fp, avg_time_us);
     }
 
     return fails;
@@ -98,7 +99,8 @@ uint32_t she_test_ecb_dec(test_struct_t *testCtx, FILE *fp)
     READ_CHECK_BUFFER(fp, output, SHE_AES_BLOCK_SIZE_128);
 
     if (nb_iter > 1u) {
-        print_perf(&ts1, &ts2, nb_iter);
+        uint32_t avg_time_us = print_perf(&ts1, &ts2, nb_iter);
+        READ_CHECK_RANGE(fp, avg_time_us);
     }
 
     return fails;
