@@ -11,6 +11,13 @@
  * activate or otherwise use the software.
  */
 
+/** 
+ * \mainpage
+ * \defgroup she_storage
+ * \brief SHE NVM storage API
+ * \{
+ */
+
 /**
  * Initialize SHE storage manager.
  *

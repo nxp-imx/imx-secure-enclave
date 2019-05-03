@@ -69,11 +69,13 @@ typedef enum {
 
 
 /**
- * Creates an empty SHE storage
+ * Creates an empty SHE storage.
  *
- * Must be called before opening any SHE session.
+ * Must be called at least once on every device before using any other SHE API.
  * A signed message can be provided to authorize the operation. This message is not necessary under some conditions related to chip's lifecycle.
  *
+ * Note that the signed message is not yet supported. should be forced to NULL.
+ * 
  * \param key_storage_identifier key store identifier
  * \param password new password to be associated with the created key store
  * \param max_updates_number maximum number of updates authorized on this new storage. Cannot be higher than 300.
@@ -94,9 +96,8 @@ uint32_t she_storage_create(uint32_t key_storage_identifier, uint32_t password, 
  * The returned session handle pointer is typed with the struct "she_hdl_s".
  * The user doesn't need to know or to access the fields of this struct.
  * It only needs to store this pointer and pass it to every calls to other APIs within the same SHE session.
- * If a callback is provided then the SHE APIs will return immediately with an error code indicating if the operation was subitted succesfully.
- * Then the callback will be called on completion of the operation by SECO with the resulting error code passed as a parameter.
- * If the callback pointer is NULL then all SHE API will be synchronous.
+ *
+ * Note that asynchronous API is currently not supported. async_cb and priv pointers must be set to NULL.
  *
  * \param key_storage_identifier key store identifier
  * \param password password for accesing the key storage
@@ -229,7 +230,7 @@ she_err_t she_cmd_load_key(struct she_hdl_s *hdl, uint8_t *m1, uint8_t *m2, uint
 
 
 /**
- * Load a key as plaintext to the RAM_REY slot without encryption and verification.
+ * Load a key as plaintext to the RAM_KEY slot without encryption and verification.
  *
  * \param hdl pointer to the SHE session handler
  * \param key pointer to the plaintext key to be loaded - 128bits
