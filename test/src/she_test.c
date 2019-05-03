@@ -253,6 +253,8 @@ int main(int argc, char *argv[])
                 line = NULL;
             }
 
+            idx++;
+
         } while(false);
 
         if (fp != NULL) {
