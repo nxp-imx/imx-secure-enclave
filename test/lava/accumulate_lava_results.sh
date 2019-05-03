@@ -28,7 +28,7 @@ do
     else
 
         # For a test, print just the portions bounded by <test> ... </test>
-        echo "${test}" | awk '{print $0; if (/<\/test>|Segmentation fault|Cleaning after the job/) { print ""; print "TEST RESULT: "fail" F "pass" P"; print ""; pass=0; fail=0} else if (/PASS/) {pass++} else if (/FAIL/) {fail++} }'
+        echo "${test}" | awk 'BEGIN { fail=0; pass=0; } {print $0; if (/<\/test>|Segmentation fault|Cleaning after the job/) { print ""; print "TEST RESULT: "fail" F "pass" P"; print ""; pass=0; fail=0} else if (/PASS/) {pass++} else if (/FAIL/) {fail++} }'
 
         # Count PASS and FAIL markers
         fails=`echo "${test}" | grep -c '> FAIL'`
