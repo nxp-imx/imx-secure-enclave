@@ -55,6 +55,8 @@ uint32_t she_storage_create(uint32_t key_storage_identifier, uint32_t password, 
         ioctl(fd, SECO_MU_IOCTL_SHE_STORAGE_CREATE, &ioctl_msg);
 
         ret = ioctl_msg.error_code;
+
+        close(fd);
     } while(0);
 
     return ret;
