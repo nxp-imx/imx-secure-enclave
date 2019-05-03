@@ -12,7 +12,7 @@ do
     echo "-----------------------------------------------------------------"
 
     # Fetch the log for this job
-    if [ ! -f ${jobid}.log ]
+    if [ ! -f ${jobid}.log ] || [ ${OVERWRITE} ]
     then
         lavacli --identity $1 jobs logs ${jobid} > ${jobid}.log
     fi
