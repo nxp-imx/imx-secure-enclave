@@ -247,7 +247,11 @@ int main(int argc, char *argv[])
                     }
                 }
             }
-            free(line);
+
+            if (NULL != line) {
+                free(line);
+                line = NULL;
+            }
 
         } while(false);
 
