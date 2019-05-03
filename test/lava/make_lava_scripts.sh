@@ -79,9 +79,6 @@ do
             RUN_TEST="${RUN_TEST} ; ${targetdir}/setup.sh"
         fi
 
-        # Reprovision
-        RUN_TEST="${RUN_TEST} ; ./she_test"
-
         mkdir -p ${targetdir}
 
         lavafile="${targetdir}/runtests.json"
