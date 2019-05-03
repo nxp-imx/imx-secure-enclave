@@ -1,4 +1,3 @@
-<requirement>R100.1 The firmware can use CBC</requirement>
 
 SHE_TEST_OPEN_SESSION
 0 # index to a list of session pointers
@@ -6,6 +5,9 @@ SHE_TEST_OPEN_SESSION
 0xBEC00001 # password
 1 # expect a pointer of any value other than 0
 
+<requirement>R7.3, SHE has to support the cipher block chaining mode (CBC) for processing larger amount of data see [NIST800_38A], Feature</requirement>
+
+<requirement>R7.1, SECO shall provide an API to encrypt data through AES CBC, Feature</requirement>
 
 SHE_TEST_CBC_ENC pattern 1 (16 bytes)
 1 #iteration
@@ -59,6 +61,8 @@ SHE_TEST_CBC_ENC wrong key
 0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15
 3 # expected return value (ERC_KEY_INVALID)
 NULL
+
+<requirement>R7.2, SECO shall provide an API to decrypt data through AES CBC, Feature</requirement>
 
 SHE_TEST_CBC_DEC pattern 1 (16 bytes)
 1 #iteration

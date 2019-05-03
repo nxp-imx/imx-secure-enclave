@@ -1,0 +1,27 @@
+SHE_TEST_OPEN_SESSION
+0 # index to a list of session pointers
+0 # id
+0xBEC00001 # password
+1 # expect a pointer of any value other than 0
+
+
+<requirement>R3.2, "SHE or the microcontroller must contain a unique identification item, i.e. a serial number, of at most 120 bits. If the identification item is smaller than 120 bits it has to be padded with zero bits on the MSB side, Feature</requirement>
+<requirement>R11.1, SHE or the microcontroller must contain a unique identification item, i.e. a serial number, of at most 120 bits, Feature</requirement>
+<requirement>R11.2, If the identification item is smaller than 120 bits it has to be padded with zero bits on the MSB side before feeding it into SHE., Feature</requirement>
+<requirement>R11.4, SECO shall support an API to return the identity (UID) and the value of the status register protected by a MAC over a challenge and the data. (CMD_GET_ID), Feature</requirement>
+
+SHE_TEST_GET_ID
+0 # index to a list of session pointers
+0x40, 0xab, 0xde, 0xab, 0x16, 0xde, 0x77, 0xb9, 0x59, 0x99, 0x64, 0xb3, 0xd2, 0xdd, 0x72, 0x61 # challenge
+0,1,2,3,4,5,6,7,8,9,10,11,12,13,14 # id (output)
+0x00 # status (output)
+0,1,2,3,4,5,6,7,8,9,10,11,12,13,14,15 # mac (output)
+0 # expected return value (ERC_NO_ERROR)
+0x47, 0x48, 0x96, 0x82, 0x0e, 0x30, 0x6e, 0x69, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00 # ID
+0x01 # expected status (bit 1) BUSY BIT set
+0xcf, 0xbd, 0x2f, 0x46, 0xc1, 0xc3, 0x70, 0xa2, 0x67, 0x27, 0x45, 0xb8, 0x2b, 0xb7, 0xe4, 0x56 # MAC
+
+
+SHE_TEST_CLOSE_SESSION
+0 # index to a list of session pointers
+

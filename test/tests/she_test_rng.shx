@@ -1,4 +1,3 @@
-<requirement>R100.1 The firmware can initialize the RNG</requirement>
 
 SHE_TEST_OPEN_SESSION
 0 # index to a list of session pointers
@@ -6,19 +5,29 @@ SHE_TEST_OPEN_SESSION
 0xBEC00001 # password
 1 # expect a pointer of any value other than 0
 
+
+<requirement>R9.1, SECO shall provide APIs to initialize a random number generator CMD_INIT_RNG, Feature</requirement>
+
 SHE_TEST_RNG_INIT
 0 # index to a list of session pointers
 0 # expected return value (ERC_NO_ERROR)
+
+
+<requirement>R9.2, SECO shall provide APIs to seed a random number generator CMD_EXTEND_SEED, Feature</requirement>
 
 SHE_TEST_EXTEND_SEED
 0 # index to a list of session pointers
 0xae, 0x2d, 0x8a, 0x57, 0x1e, 0x03, 0xac, 0x9c, 0x9e, 0xb7, 0x6f, 0xac, 0x45, 0xaf, 0x8e, 0x51 #entropy
 0 # expected return value (ERC_NO_ERROR)
 
+
+<requirement>R9.3, SECO shall provide an API to generate random number CMD_RND, Feature</requirement>
+
 SHE_TEST_RND
 0 # index to a list of session pointers
 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0    # rnd buffer = 16 bytes
 0 # expected return value (ERC_NO_ERROR)
+
 
 SHE_TEST_CLOSE_SESSION
 0 # index to a list of session pointers

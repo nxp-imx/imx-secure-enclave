@@ -1,4 +1,3 @@
-<requirement>R100.1 The firmware can use MAC</requirement>
 
 SHE_TEST_OPEN_SESSION
 0 # index to a list of session pointers
@@ -95,6 +94,9 @@ SHE_TEST_MAC_VERIF invalid key
 3 # expected return value (ERC_KEY_INVALID)
 1 # expected verification status
 
+
+<requirement>R20.2, A MAC calculated on 16 bytes of data shall be provided within 45us from receipt of the MAC generation request on the message unit interface., KPI, Measurement: average</requirement>
+
 SHE_TEST_MAC_GEN perf measurement
 100 #nb iter
 0 # index to a list of session pointers
@@ -106,6 +108,9 @@ SHE_TEST_MAC_GEN perf measurement
 0 # expected return value (ERC_NO_ERROR)
 0x07, 0x0a, 0x16, 0xb4, 0x6b, 0x4d, 0x41, 0x44, 0xf7, 0x9b, 0xdd, 0x9d, 0xd0, 0x4a, 0x28, 0x7c # expected output
 0, 45 # Min, Max time in microseconds per operation
+
+
+<requirement>R20.3, A MAC Verification Status based on 16 bytes of data shall be provided within 46us from receipt of the MAC verification request on the message unit interface., KPI, Measurement: average</requirement>
 
 SHE_TEST_MAC_VERIF perf measurement
 100 #iteration
@@ -120,6 +125,7 @@ SHE_TEST_MAC_VERIF perf measurement
 0 # expected return value (ERC_NO_ERROR)
 0 # expected verification status
 0, 46 # Min, Max time in microseconds per operation
+
 
 SHE_TEST_CLOSE_SESSION
 0 # index to a list of session pointers

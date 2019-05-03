@@ -1,4 +1,3 @@
-<requirement>The firmware can load a key for SHE.</requirement>
 
 # CLose a NULL session
 SHE_TEST_CLOSE_SESSION

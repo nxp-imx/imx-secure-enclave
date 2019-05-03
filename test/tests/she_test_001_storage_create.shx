@@ -1,4 +1,6 @@
-<requirement>R100.1 The firmware can create a storage for SHE</requirement>
+
+<requirement>R4.1, A storage provisioning method allowing to provision the keys initial value must be provided, Feature</requirement>
+
 
 SHE_TEST_STORAGE_CREATE
 0  # key storage identifier
