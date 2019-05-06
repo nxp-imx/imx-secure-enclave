@@ -9,5 +9,5 @@ SHE_TEST_STORAGE_CREATE
 300  # max number of updates
 0 # signed message length
 NULL  # signed message
-0 # expected return value (NO_ERROR)
+1 # expected return value (WARNING_STORAGE_CREATED)
 
