@@ -16,7 +16,7 @@ SHE_TEST_LOAD_PLAIN_KEY
 0 # expected return value (ERC_NO_ERROR)
 
 
-<description>Attempt to pass a NULL pointer using she_cmd_load_plain_key(), expecting a fail</description>
+<description>Attempt to pass a NULL pointer using she_cmd_load_plain_key(), should fail</description>
 
 SHE_TEST_LOAD_PLAIN_KEY
 0 # index to a list of session pointers
