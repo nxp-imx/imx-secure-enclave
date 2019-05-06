@@ -38,7 +38,7 @@ SHE_TEST_RND
 SHE_TEST_EXTEND_SEED
 0 # index to a list of session pointers
 NULL # null pointer
-3 # expected return value (ERROR)
+0xc # expected return value (ERROR)
 
 
 <requirement>R9.3, SECO shall provide an API to generate random number CMD_RND, Feature</requirement>
@@ -47,7 +47,7 @@ NULL # null pointer
 SHE_TEST_RND
 0 # index to a list of session pointers
 NULL # null pointer
-3 # expected return value (ERROR)
+0xc # expected return value (ERROR)
 
 
 SHE_TEST_CLOSE_SESSION

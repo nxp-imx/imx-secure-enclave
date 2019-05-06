@@ -91,12 +91,7 @@ uint32_t she_test_rnd(test_struct_t *testCtx, FILE *fp) {
     READ_CHECK_VALUE(fp, err);
 
     /* Print the generated number. */
-    for (uint32_t i=0; i<SHE_RND_SIZE; i++) {
-        printf("0x%x ", rnd[i]);
-        if (i%4 == 3) {
-            printf("\n");
-        }
-    }
+    dump_buffer(rnd, SHE_RND_SIZE);
 
     return fails;
 }
