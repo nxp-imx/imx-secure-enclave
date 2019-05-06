@@ -98,7 +98,7 @@ SHE_TEST_MAC_VERIF invalid key
 <requirement>R20.2, A MAC calculated on 16 bytes of data shall be provided within 45us from receipt of the MAC generation request on the message unit interface., KPI, Measurement: average</requirement>
 
 SHE_TEST_MAC_GEN perf measurement
-100 #nb iter
+500 #nb iter
 0 # index to a list of session pointers
 0x10 #SHE_KEY_N_EXT_1
 0x04 #SHE_KEY_1
@@ -114,7 +114,7 @@ SHE_TEST_MAC_GEN perf measurement
 <requirement>R20.3, A MAC Verification Status based on 16 bytes of data shall be provided within 46us from receipt of the MAC verification request on the message unit interface., KPI, Measurement: average</requirement>
 
 SHE_TEST_MAC_VERIF perf measurement
-100 #iteration
+500 #iteration
 0 # index to a list of session pointers
 0x10 #SHE_KEY_N_EXT_1
 0x04 #SHE_KEY_1
