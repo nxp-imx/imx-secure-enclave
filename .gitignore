@@ -1,5 +1,7 @@
 *.o
 *.swp
 *.swo
+*.a
+*.gcno
 she_test
 she_start_storage_manager
