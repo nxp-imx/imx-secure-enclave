@@ -1,0 +1,13 @@
+
+<requirement>R4.1, A storage provisioning method allowing to provision the keys initial value must be provided, Feature</requirement>
+
+<description>Create a new secure storage with an id and password</description>
+
+SHE_TEST_STORAGE_CREATE
+0  # key storage identifier
+0xbec00001  # password
+300  # max number of updates
+0 # signed message length
+NULL  # signed message
+1 # expected return value (WARNING_STORAGE_CREATED)
+

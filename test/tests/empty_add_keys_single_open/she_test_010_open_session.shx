@@ -1,0 +1,8 @@
+<requirement>The firmware can load a key for SHE.</requirement>
+
+SHE_TEST_OPEN_SESSION
+0 # index to a list of session pointers
+0 # id
+0xBEC00001 # password
+1 # expect a pointer of any value other than 0
+
