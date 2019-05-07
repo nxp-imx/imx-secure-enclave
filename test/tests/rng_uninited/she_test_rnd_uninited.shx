@@ -8,6 +8,7 @@ SHE_TEST_OPEN_SESSION
 
 <requirement>R9.3, SECO shall provide an API to generate random number CMD_RND, Feature</requirement>
 <description>Call she_cmd_rnd() without initing the RNG to retrieve 128 bits of random data, expect fail</description>
+<description>The output buffer will be unchanged</description>
 
 SHE_TEST_RND
 0 # index to a list of session pointers
