@@ -61,6 +61,12 @@ struct seco_nvm_hdl *seco_nvm_open_session(uint32_t flags, uint8_t *data, uint32
         ioctl_msg.len = len;
 
         ioctl(nvm_hdl->fd, SECO_MU_IOCTL_NVM_OPEN_SESSION, &ioctl_msg);
+
+        if (ioctl_msg.error_code != 0) {
+            close(nvm_hdl->fd);
+            free(nvm_hdl);
+            nvm_hdl = NULL;
+        }
     } while(0);
     return nvm_hdl;
 }
