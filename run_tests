@@ -1,5 +1,17 @@
 #!/bin/bash
 
+if [ "0" != $# ] && [ "-l" == $1 ]
+then
+    find ${appdir} -name '*shx' | sort | xargs dirname | uniq
+    exit -1
+fi
+
+if [ "0" != $# ] && [ "-s" == $1 ]
+then
+    export SETUP=1
+    shift
+fi
+
 testdir=$1
 appdir=`dirname $0 | xargs realpath`
 
@@ -10,7 +22,11 @@ fi
 
 if [ ! -d ${testdir} ]
 then
-    echo "Usage: $0 <directory>"
+    echo "Usage: $0 [-s] [-l] <directory>"
+    echo ""
+    echo "  -s - run setup.sh / teardown.sh scripts"
+    echo "  -l - list test suites (by scanning directories)"
+    echo ""
     exit -1
 fi
 
@@ -42,7 +58,8 @@ echo "------------------------------------------------------"
 echo "Running tests:"
 echo "------------------------------------------------------"
 echo $run_test
-#$run_test
+echo ""
+$run_test
 
 # Execute the teardown.sh script, if it exists
 if [ ${PERFORM_SETUP} ]
