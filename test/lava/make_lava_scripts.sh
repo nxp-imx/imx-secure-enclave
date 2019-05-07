@@ -32,10 +32,7 @@ export DTB_PATH=${artifactUrl}/fsl-imx8qm-lpddr4-arm2.dtb/fsl-imx8qm-lpddr4-arm2
 export RAMDISK_PATH=${artifactUrl}/rootfs.cpio.gz/rootfs.cpio.gz
 
 ## Read the contents of the test package to obtain the list of tests to run
-files=(`wget -q -O - ${TEST_PACKAGE_PATH} | tar tjf - | sort`)
 tests=(`wget -q -O - ${TEST_PACKAGE_PATH} | tar tjf - | grep '\.shx$' | sort`)
-
-#echo "wget -q -O - ${TEST_PACKAGE_PATH} | tar tjf - | grep '\.shx$' | sort"
 
 # Make a directory for lava files
 mkdir -p lava
@@ -56,60 +53,25 @@ echo 'lavacli --identity $1'" jobs submit deploy_bootimg.json | tee -a LAVA_JOBS
 testdir=""
 lavafile=""
 
-# Run all tests in one lava job
-while (( ${#tests[@]} ))
+# Get the list of test suites to execute (one suite per lava job)
+testsuites=`dirname ${tests[@]} | uniq`
+
+for testsuite in ${testsuites}
 do
-    testfile=${tests[0]}
-    tests=( "${tests[@]:1}" )
+    echo "Creating lava file for: ${testsuite}"
 
-    testname=`basename ${testfile}`
-    targetdir=`dirname ${testfile}`
-    thisdirname=`basename ${targetdir}`
+    export JOB_NAME="STEC SECO FW Test - SHE - ${thisdirname} (${submitter})"
+    export RUN_TEST="wget --no-check-certificate -O - ${TEST_PACKAGE_PATH} | bunzip2 -c | tar xvf - "
+    export RUN_TEST="${RUN_TEST} && ./run_tests ${testsuite}"
 
-    if [ "${targetdir}" != "${testdir}" ]
-    then
-        if [ ! -z "${lavafile}" ]
-        then
-            if containsElement "${targetdir}/teardown.sh" "${files[@]}"
-            then
-                export RUN_TEST="${RUN_TEST} ; cat ${targetdir}/teardown.sh ; source ${targetdir}/teardown.sh"
-            fi
-            # Build a lava file for each test, replacing variables with values from the environment
-            cat ${thisDir}/l_rd_runtest.json | envsubst > ${lavafile} || exit -2
-
-            # Add this file to the lava launch script
-            echo 'lavacli --identity $1'" jobs submit ${lavafile} | tee -a LAVA_JOBS" >> launch_tests
-        fi
-
-        export JOB_NAME="STEC SECO FW Test - SHE - ${thisdirname} (${submitter})"
-        export RUN_TEST="wget --no-check-certificate -O - ${TEST_PACKAGE_PATH} | bunzip2 -c | tar xvf - "
-
-        if containsElement "${targetdir}/setup.sh" "${files[@]}"
-        then
-            export RUN_TEST="${RUN_TEST} ; cat ${targetdir}/setup.sh ; source ${targetdir}/setup.sh"
-        fi
-
-	export RUN_TEST="${RUN_TEST} ; ./she_test"
-
-        mkdir -p ${targetdir}
-
-        lavafile="${targetdir}/runtests.json"
-    fi
-
-    testdir=${targetdir}
-
-    RUN_TEST="${RUN_TEST} ${testfile}"
-
-done
-
-if [ ! -z "${lavafile}" ]
-then
     # Build a lava file for each test, replacing variables with values from the environment
+    mkdir -p ${testsuite}
+    lavafile="${testsuite}/runtests.json"
     cat ${thisDir}/l_rd_runtest.json | envsubst > ${lavafile} || exit -2
 
     # Add this file to the lava launch script
     echo 'lavacli --identity $1'" jobs submit ${lavafile} | tee -a LAVA_JOBS" >> launch_tests
-fi
+done
 
 # Copy status scripts to the output directory
 cp $thisDir/*sh .
