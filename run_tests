@@ -3,6 +3,11 @@
 testdir=$1
 appdir=`dirname $0 | xargs realpath`
 
+if [ "0" == $# ]
+then
+    testdir=${appdir}/test/tests
+fi
+
 if [ ! -d ${testdir} ]
 then
     echo "Usage: $0 <directory>"
@@ -25,8 +30,8 @@ then
     fi
 fi
 
-# Execute all of the tests
-tests=`find ${testdir} -name '*.shx' | sort`
+# Execute all of the tests  (note: ls sorts alphanumerically)
+tests=`ls -1 ${testdir} | grep '.shx$'`
 run_test="${appdir}/she_test"
 for test in ${tests}
 do
