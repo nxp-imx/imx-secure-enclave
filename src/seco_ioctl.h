@@ -157,6 +157,18 @@ struct seco_ioctl_nvm_write_status {
 	uint32_t error;
 };
 
+struct seco_ioctl_hsm_open_session {
+	uint8_t session_priority;
+	uint8_t operating_mode;
+	uint32_t session_hdl;
+	uint32_t error;
+};
+
+struct seco_ioctl_hsm_close_session {
+	uint32_t session_hdl;
+	uint32_t error;
+};
+
 #define SECO_MU_IOCTL			0x0A /* like MISC_MAJOR. */
 
 #define SECO_MU_IOCTL_SHE_STORAGE_CREATE _IOWR(SECO_MU_IOCTL, 0x01, \
@@ -204,5 +216,11 @@ struct seco_ioctl_nvm_write_status {
 			struct seco_ioctl_nvm_get_data)
 #define SECO_MU_IOCTL_NVM_WRITE_STATUS   _IOWR(SECO_MU_IOCTL, 0x24, \
 			struct seco_ioctl_nvm_write_status)
+
+
+#define SECO_MU_IOCTL_HSM_OPEN_SESSION   _IOWR(SECO_MU_IOCTL, 0x30, \
+			struct seco_ioctl_hsm_open_session)
+#define SECO_MU_IOCTL_HSM_CLOSE_SESSION  _IOR(SECO_MU_IOCTL, 0x31,  \
+			struct seco_ioctl_hsm_close_session)
 
 #endif

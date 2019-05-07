@@ -1,5 +1,5 @@
 
-all: she_test she_start_storage_manager she_lib.a she_storage.a
+all: she_test she_start_storage_manager she_lib.a she_storage.a hsm_lib.a
 
 CFLAGS = -Werror
 
@@ -11,12 +11,24 @@ endif
 she_lib.o: src/she_lib.c
 	$(CC) $^  -c -o $@ -I include $(CFLAGS) $(GCOV_FLAGS)
 
+# HSM
+hsm_lib.o: src/hsm_lib.c
+	$(CC) $^  -c -o $@ -I include -I include/hsm $(CFLAGS) $(GCOV_FLAGS)
+
 # SHE storage implementation
 she_storage.o: src/she_storage.c
 	$(CC) $^  -c -o $@ -I include $(CFLAGS) $(GCOV_FLAGS)
 
+# HSM storage implementation
+hsm_storage.o: src/hsm_storage.c
+	$(CC) $^  -c -o $@ -I include -I include/hsm $(CFLAGS) $(GCOV_FLAGS)
+
 # SHE lib
 she_lib.a: she_lib.o
+	$(AR) rcs $@ $^
+
+# HSM lib
+hsm_lib.a: hsm_lib.o
 	$(AR) rcs $@ $^
 
 # SHE storage lib
@@ -27,6 +39,9 @@ she_storage.a: she_storage.o
 ifdef DEBUG
 DEFINES=-DDEBUG
 endif
+
+hsm_test: hsm_lib.o hsm_storage.o test/hsm/hsm_test.c
+	$(CC) $^  -o $@ -I include -I include/hsm $(CFLAGS) -lpthread -lz $(DEFINES) $(GCOV_FLAGS)
 
 TEST_OBJ=$(patsubst %.c,%.o,$(wildcard test/src/*.c))
 
