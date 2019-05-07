@@ -1,13 +1,55 @@
 #!/bin/bash
 
-tests=`find . -name '*shx'`
+testdir=$1
+appdir=`dirname $0 | xargs realpath`
+
+if [ ! -d ${testdir} ]
+then
+    echo "Usage: $0 <directory>"
+    exit -1
+fi
 
 set +e
 
+# Execute the setup.sh script, if it exists
+if [ ${SETUP} ]
+then
+    setup=${testdir}/setup.sh
+
+    if [ -f ${setup} ]
+    then
+        echo "------------------------------------------------------"
+        echo "Executing ${setup}"
+        echo "------------------------------------------------------"
+        source ${setup}
+    fi
+fi
+
+# Execute all of the tests
+tests=`find ${testdir} -name '*.shx' | sort`
+run_test="${appdir}/she_test"
 for test in ${tests}
 do
-    echo "---------------------------------------------------------------"
-    echo ${test}
-    echo "---------------------------------------------------------------"
-    ./she_test ${test}
+    run_test="$run_test ${test}"
 done
+
+echo "------------------------------------------------------"
+echo "Running tests:"
+echo "------------------------------------------------------"
+echo $run_test
+#$run_test
+
+# Execute the teardown.sh script, if it exists
+if [ ${PERFORM_SETUP} ]
+then
+    teardown=${testdir}/teardown.sh
+
+    if [ -f ${teardown} ]
+    then
+        echo "------------------------------------------------------"
+        echo "Executing ${teardown}"
+        echo "------------------------------------------------------"
+        source ${teardown}
+    fi
+fi
+
