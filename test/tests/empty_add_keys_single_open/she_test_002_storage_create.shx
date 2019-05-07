@@ -5,7 +5,7 @@
 
 SHE_TEST_STORAGE_CREATE
 0  # key storage identifier
-0xbec00001  # password
+0x11111111  # password
 300  # max number of updates
 0 # signed message length
 NULL  # signed message
