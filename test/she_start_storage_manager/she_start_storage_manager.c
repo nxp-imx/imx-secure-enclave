@@ -76,5 +76,7 @@ int main(int argc, char *argv[])
         sleep(1);
     }
 
+    she_stop_storage_manager();
+
     return 0;
 }
