@@ -124,6 +124,10 @@
         else { \
             printf("--> PASS\n"); \
         } \
+    } \
+    else { \
+        printf("Received buffer (%s):\n", #BUF); \
+        dump_buffer(BUF, SIZE); \
     }
 
 /*----------------------------------------------*/
