@@ -62,7 +62,7 @@ do
 
     export JOB_NAME="STEC SECO FW Test - SHE - ${thisdirname} (${submitter})"
     export RUN_TEST="wget --no-check-certificate -O - ${TEST_PACKAGE_PATH} | bunzip2 -c | tar xvf - "
-    export RUN_TEST="${RUN_TEST} && ./run_tests ${testsuite}"
+    export RUN_TEST="${RUN_TEST} && ./run_tests -s ${testsuite}"
 
     # Build a lava file for each test, replacing variables with values from the environment
     mkdir -p ${testsuite}
