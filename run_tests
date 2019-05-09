@@ -51,7 +51,7 @@ tests=`ls -1 ${testdir} | grep '.shx$'`
 run_test="${appdir}/she_test"
 for test in ${tests}
 do
-    run_test="$run_test ${test}"
+    run_test="$run_test ${testdir}/${test}"
 done
 
 echo "----------------------------------------------------------------------"
