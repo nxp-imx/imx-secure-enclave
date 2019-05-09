@@ -225,6 +225,7 @@ int main(int argc, char *argv[])
 
             fp = fopen(argv[idx], "r");
             if (fp == NULL) {
+                printf("Can't open file: %s  --> FAIL\n", argv[idx]);
                 break;
             }
 
@@ -253,9 +254,9 @@ int main(int argc, char *argv[])
                 line = NULL;
             }
 
-            idx++;
-
         } while(false);
+
+        idx++;
 
         if (fp != NULL) {
             (void)fclose(fp);
