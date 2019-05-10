@@ -12,7 +12,10 @@ then
     shift
 fi
 
-testdir=$1
+cd `realpath $1 | xargs dirname`
+
+testdir=`basename $1`
+
 appdir=`dirname $0 | xargs realpath`
 
 if [ "0" == $# ]
