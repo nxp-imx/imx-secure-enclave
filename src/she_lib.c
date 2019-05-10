@@ -241,12 +241,14 @@ she_err_t she_cmd_dec_ecb(struct she_hdl_s *hdl, uint8_t key_ext, uint8_t key_id
 }
 
 /* Load key command processing. */
-she_err_t she_cmd_load_key(struct she_hdl_s *hdl, uint8_t *m1, uint8_t *m2, uint8_t *m3, uint8_t *m4, uint8_t *m5)
+she_err_t she_cmd_load_key(struct she_hdl_s *hdl, uint8_t key_ext, uint8_t key_id, uint8_t *m1, uint8_t *m2, uint8_t *m3, uint8_t *m4, uint8_t *m5)
 {
     struct seco_ioctl_she_load_key ioctl_msg;
     she_err_t ret = ERC_GENERAL_ERROR;
 
     if (hdl != NULL) {
+        ioctl_msg.key_ext = key_ext;
+        ioctl_msg.key_id = key_id;
         ioctl_msg.m1 = m1;
         ioctl_msg.m2 = m2;
         ioctl_msg.m3 = m3;

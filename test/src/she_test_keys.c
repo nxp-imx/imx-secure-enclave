@@ -50,13 +50,15 @@ uint32_t she_test_load_key(test_struct_t *testCtx, FILE *fp)
 
     // These macros define buffers and use pointers so that
     // we can replace them with values, if specified
+    uint8_t key_ext = READ_VALUE(fp, uint8_t);
+    uint8_t key_id = READ_VALUE(fp, uint8_t);
     READ_INPUT_BUFFER(fp, m1, 16u);  // input: 128 bits
     READ_INPUT_BUFFER(fp, m2, 32u);  // input: 256 bits
     READ_INPUT_BUFFER(fp, m3, 16u);  // input: 128 bits
     READ_OUTPUT_BUFFER(fp, m4, 32u);  // output: 256 bits
     READ_OUTPUT_BUFFER(fp, m5, 16u);  // output: 128 bits
 
-    err = she_cmd_load_key(testCtx->hdl[index], m1, m2, m3, m4, m5);
+    err = she_cmd_load_key(testCtx->hdl[index], key_ext, key_id, m1, m2, m3, m4, m5);
 
     /* read the expected error code and check it. */
     READ_CHECK_VALUE(fp, err);

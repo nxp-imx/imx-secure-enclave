@@ -81,6 +81,8 @@ struct seco_ioctl_she_dec_ecb {
 };
 
 struct seco_ioctl_she_load_key {
+	uint8_t key_ext;
+	uint8_t key_id;
 	uint8_t *m1;
 	uint8_t *m2;
 	uint8_t *m3;
