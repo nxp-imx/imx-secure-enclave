@@ -1,5 +1,7 @@
 #!/bin/bash
 
+appdir=`realpath $0 | xargs dirname`
+
 if [ "0" != $# ] && [ "-l" == $1 ]
 then
     find ${appdir} -name '*shx' | sort | xargs dirname | uniq
@@ -12,15 +14,11 @@ then
     shift
 fi
 
-cd `realpath $1 | xargs dirname`
-
-testdir=`basename $1`
-
-appdir=`dirname $0 | xargs realpath`
-
 if [ "0" == $# ]
 then
     testdir=${appdir}/test/tests
+else
+    testdir=$1
 fi
 
 if [ ! -d ${testdir} ]
@@ -34,6 +32,9 @@ then
 fi
 
 set +e
+
+cd `realpath $testdir | xargs dirname`
+testdir=`basename $testdir`
 
 # Execute the setup.sh script, if it exists
 if [ ${SETUP} ]
