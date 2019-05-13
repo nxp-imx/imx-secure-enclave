@@ -1,5 +1,3 @@
-<requirement>The firmware can load a key for SHE.</requirement>
-
 
 SHE_TEST_LOAD_KEY
 0 # index to a list of session pointers

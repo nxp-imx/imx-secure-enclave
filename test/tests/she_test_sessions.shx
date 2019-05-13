@@ -1,7 +1,11 @@
 
+<description>Call close session with a NULL pointer</description>
+
 # CLose a NULL session
 SHE_TEST_CLOSE_SESSION
 0 # index to a list of session pointers
+
+<description>Attempt to open a session with an incorrect password</description>
 
 SHE_TEST_OPEN_SESSION
 0 # index to a list of session pointers
@@ -9,11 +13,15 @@ SHE_TEST_OPEN_SESSION
 0xBEC00000 # password (incorrect password)
 0 # expect to fail (NULL)
 
+<description>Call open_session with the correct password</description>
+
 SHE_TEST_OPEN_SESSION
 0 # index to a list of session pointers
 0 # id
 0xBEC00001 # password
 1 # expect a pointer of any value other than 0
+
+<description>Call open_session for a session that is already open</description>
 
 SHE_TEST_OPEN_SESSION
 1 # index to a list of session pointers
@@ -21,8 +29,12 @@ SHE_TEST_OPEN_SESSION
 0xBEC00001 # password
 0 # expect to fail (NULL)
 
+<description>Call close_session for a session that is open</description>
+
 SHE_TEST_CLOSE_SESSION
 0 # index to a list of session pointers
+
+<description>Call close_session for a session that was not sucessfully opened earlier</description>
 
 SHE_TEST_CLOSE_SESSION
 1 # index to a list of session pointers -- this should be NULL, since the open failed earlier
