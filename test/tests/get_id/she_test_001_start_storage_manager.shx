@@ -1,5 +1,0 @@
-
-SHE_TEST_START_STORAGE_MANAGER
-1 # expect a non-zero pointer (1)
-0 # expected return value
-
