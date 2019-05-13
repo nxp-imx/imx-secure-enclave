@@ -26,24 +26,44 @@
  * (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
  * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
+#include <stdbool.h>
+#include <stdio.h>
+#include <stdlib.h>
+#include <string.h>
+#include <time.h>
+#include "she_api.h"
+#include "she_storage.h"
+#include "she_test.h"
+#include "she_test_storage_manager.h"
+#include "she_test_macros.h"
 
-#ifndef __she_test_h__
-#define __she_test_h__
-
-typedef struct
+/* Start the storage manager.*/
+uint32_t she_test_start_storage_manager(test_struct_t *testCtx, FILE *fp)
 {
-    struct she_storage_context *storage_ctx;
-    struct she_hdl_s *hdl[16];
-} test_struct_t;
+    uint32_t fails = 0;
 
-uint32_t read_single_data(FILE *fp);
+    testCtx->storage_ctx = she_storage_init();
 
-void read_buffer(FILE *fp, uint8_t *dst, uint32_t size);
+    she_err_t ptrOk;
+    if (testCtx->storage_ctx != NULL) {
+        ptrOk = 1;
+    }
+    else {
+        ptrOk = 0;
+    }
 
-void read_buffer_ptr(FILE *fp, uint8_t **dst, uint32_t size);
+    /* Check there is no error reported. */
+    READ_CHECK_VALUE(fp, ptrOk);
 
-uint32_t print_result(she_err_t err, she_err_t expected_err, uint8_t *output, uint8_t *expected_output, uint32_t output_size);
+    return fails;
+}
 
-uint32_t print_perf(struct timespec *ts1, struct timespec *ts2, uint32_t nb_iter);
 
-#endif  // __she_test_h__
+/* Test close session */
+uint32_t she_test_stop_storage_manager(test_struct_t *testCtx, FILE *fp)
+{
+    if (testCtx->storage_ctx != NULL) {
+        (void)she_storage_terminate(testCtx->storage_ctx);
+    }
+}
+

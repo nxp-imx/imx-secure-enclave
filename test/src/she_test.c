@@ -42,6 +42,7 @@
 #include "she_test_keys.h"
 #include "she_test_sessions.h"
 #include "she_test_storage_create.h"
+#include "she_test_storage_manager.h"
 
 uint32_t read_single_data(FILE *fp)
 {
@@ -160,26 +161,6 @@ struct test_entry_t {
 };
 
 
-struct she_storage_context *storage_ctx = NULL;
-
-uint32_t she_test_start_storage_manager(test_struct_t *testCtx, FILE *fp)
-{
-    /* Start the storage manager.*/
-    storage_ctx = she_storage_init();
-    if (storage_ctx == NULL) {
-        printf("she_storage_init() --> FAIL\n");
-        return 1;
-    }
-    return 0;
-}
-
-uint32_t she_test_stop_storage_manager(test_struct_t *testCtx, FILE *fp)
-{
-    if (storage_ctx != NULL) {
-        (void)she_storage_terminate(storage_ctx);
-    }
-}
-
 struct test_entry_t she_tests[] = {
     {"SHE_TEST_CBC_ENC", she_test_cbc_enc},
     {"SHE_TEST_CBC_DEC", she_test_cbc_dec},
@@ -203,6 +184,8 @@ struct test_entry_t she_tests[] = {
 };
 
 
+test_struct_t testCtx = { 0 };
+
 /* Test entry function. */
 int main(int argc, char *argv[])
 {
@@ -214,8 +197,6 @@ int main(int argc, char *argv[])
     uint16_t i;
 
     FILE *fp = NULL;
-
-    test_struct_t testCtx = { 0 };
 
     uint32_t idx = 1;
 
