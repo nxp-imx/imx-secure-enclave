@@ -5,10 +5,10 @@ SHE_TEST_OPEN_SESSION
 1 # expect a pointer of any value other than 0
 
 
-<requirement>R3.2, "SHE or the microcontroller must contain a unique identification item, i.e. a serial number, of at most 120 bits. If the identification item is smaller than 120 bits it has to be padded with zero bits on the MSB side, Feature</requirement>
-<requirement>R11.1, SHE or the microcontroller must contain a unique identification item, i.e. a serial number, of at most 120 bits, Feature</requirement>
-<requirement>R11.2, If the identification item is smaller than 120 bits it has to be padded with zero bits on the MSB side before feeding it into SHE., Feature</requirement>
-<requirement>R11.4, SECO shall support an API to return the identity (UID) and the value of the status register protected by a MAC over a challenge and the data. (CMD_GET_ID), Feature</requirement>
+<requirement>R3.2</requirement>
+<requirement>R11.1</requirement>
+<requirement>R11.2</requirement>
+<requirement>R11.4</requirement>
 
 SHE_TEST_GET_ID
 0 # index to a list of session pointers

@@ -6,7 +6,7 @@ SHE_TEST_OPEN_SESSION
 1 # expect a pointer of any value other than 0
 
 
-<requirement>R9.2, SECO shall provide APIs to seed a random number generator CMD_EXTEND_SEED, Feature</requirement>
+<requirement>R9.2</requirement>
 <description>Call she_cmd_extend_seed() to seed the RNG before initing the RNG, expect fail</description>
 
 SHE_TEST_EXTEND_SEED

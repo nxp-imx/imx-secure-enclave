@@ -5,9 +5,9 @@ SHE_TEST_OPEN_SESSION
 0xBEC00001 # password
 1 # expect a pointer of any value other than 0
 
-<requirement>R6.3, SHE has to support the electronic cipher book mode (ECB) for processing single blocks of data, Feature</requirement>
+<requirement>R6.3</requirement>
 
-<requirement>R6.1, SECO shall provide an API to encrypt data through AES ECB, Feature</requirement>
+<requirement>R6.1</requirement>
 
 SHE_TEST_ECB_ENC
 1 #iteration
@@ -19,7 +19,7 @@ SHE_TEST_ECB_ENC
 0 # expected return value (ERC_NO_ERROR)
 0x69, 0xc4, 0xe0, 0xd8, 0x6a, 0x7b, 0x04, 0x30, 0xd8, 0xcd, 0xb7, 0x80, 0x70, 0xb4, 0xc5, 0x5a # ref
 
-<requirement>R6.2, SECO shall provide an API to decrypt data through AES ECB, Feature</requirement>
+<requirement>R6.2</requirement>
 
 SHE_TEST_ECB_DEC
 1 #iteration

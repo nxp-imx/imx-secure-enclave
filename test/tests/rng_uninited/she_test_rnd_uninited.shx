@@ -6,7 +6,7 @@ SHE_TEST_OPEN_SESSION
 1 # expect a pointer of any value other than 0
 
 
-<requirement>R9.3, SECO shall provide an API to generate random number CMD_RND, Feature</requirement>
+<requirement>R9.3</requirement>
 <description>Call she_cmd_rnd() without initing the RNG to retrieve 128 bits of random data, expect fail</description>
 <description>The output buffer will be unchanged</description>
 

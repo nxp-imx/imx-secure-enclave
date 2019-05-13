@@ -5,9 +5,9 @@ SHE_TEST_OPEN_SESSION
 0xBEC00001 # password
 1 # expect a pointer of any value other than 0
 
-<requirement>R1.2, A status register (8bits) containing the internal state of SHE must be provided, Feature</requirement>
-<requirement>R10.1, SECO shall maintain a 8 bit SHE status register , Feature</requirement>
-<requirement>R10.2, SECO shall provide an API to return the content of the status register (CMD_GET_STATUS). This command may be called while another function is processed, Feature</requirement>
+<requirement>R1.2</requirement>
+<requirement>R10.1</requirement>
+<requirement>R10.2</requirement>
 
 SHE_TEST_GET_STATUS
 0 # index to a list of session pointers

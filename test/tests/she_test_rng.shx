@@ -6,7 +6,7 @@ SHE_TEST_OPEN_SESSION
 1 # expect a pointer of any value other than 0
 
 
-<requirement>R9.1, SECO shall provide APIs to initialize a random number generator CMD_INIT_RNG, Feature</requirement>
+<requirement>R9.1</requirement>
 <description>Call she_cmd_init_rng() to initialize the RNG</description>
 
 SHE_TEST_RNG_INIT
@@ -14,7 +14,7 @@ SHE_TEST_RNG_INIT
 0 # expected return value (ERC_NO_ERROR)
 
 
-<requirement>R9.2, SECO shall provide APIs to seed a random number generator CMD_EXTEND_SEED, Feature</requirement>
+<requirement>R9.2</requirement>
 <description>Call she_cmd_extend_seed() to seed the RNG</description>
 
 SHE_TEST_EXTEND_SEED
@@ -23,7 +23,7 @@ SHE_TEST_EXTEND_SEED
 0 # expected return value (ERC_NO_ERROR)
 
 
-<requirement>R9.3, SECO shall provide an API to generate random number CMD_RND, Feature</requirement>
+<requirement>R9.3</requirement>
 <description>Call she_cmd_rnd() to retrieve 128 bits of random data</description>
 
 SHE_TEST_RND
@@ -32,7 +32,7 @@ SHE_TEST_RND
 0 # expected return value (ERC_NO_ERROR)
 
 
-<requirement>R9.2, SECO shall provide APIs to seed a random number generator CMD_EXTEND_SEED, Feature</requirement>
+<requirement>R9.2</requirement>
 <description>Call she_cmd_extend_seed() to seed the RNG</description>
 
 SHE_TEST_EXTEND_SEED
@@ -41,7 +41,7 @@ NULL # null pointer
 0xc # expected return value (ERROR)
 
 
-<requirement>R9.3, SECO shall provide an API to generate random number CMD_RND, Feature</requirement>
+<requirement>R9.3</requirement>
 <description>Call she_cmd_rnd() with a NULL pointer</description>
 
 SHE_TEST_RND

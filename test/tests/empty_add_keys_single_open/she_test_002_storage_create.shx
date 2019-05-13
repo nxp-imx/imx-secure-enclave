@@ -1,5 +1,5 @@
 
-<requirement>R4.1, A storage provisioning method allowing to provision the keys initial value must be provided, Feature</requirement>
+<requirement>R4.1</requirement>
 
 <description>Create a new secure storage with an id and password</description>
 

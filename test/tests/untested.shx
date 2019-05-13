@@ -1,66 +1,66 @@
-<requirement>R1.1, The persistent memory of SHE is separated into logical blocks called memory slots. Each has a width of 128 bits plus up to five security bits:, Feature</requirement>
-<requirement>R1.3, The memory of SHE should only be accessible by the SHE control logic., Feature</requirement>
-<requirement>R1.4, an additional status bit for every memory slot must be introduced to allow for the empty slot detection. , Feature</requirement>
-<requirement>R1.5, All memory slots being accessible by user-functions must be addressable by a four-bit value., Feature</requirement>
-<requirement>R1.7, In case of an existing storage is lost, a storage re-provisioning method must be provided, Feature</requirement>
-<requirement>R1.9, At init, SECO must check the storage counter against the monotonic counter, Feature</requirement>
-<requirement>R1.10, At init the user can optionally specify the maximum number of available update, Feature</requirement>
-<requirement>R1.11, Storage must contain the owner identity: DID ;  TZ ; MU ID ; password, Feature</requirement>
-<requirement>R1.12, Before handle a request SECO must check the requester identity against the storage owner identity, Feature</requirement>
+<requirement>R1.1</requirement>
+<requirement>R1.3</requirement>
+<requirement>R1.4</requirement>
+<requirement>R1.5</requirement>
+<requirement>R1.7</requirement>
+<requirement>R1.9</requirement>
+<requirement>R1.10</requirement>
+<requirement>R1.11</requirement>
+<requirement>R1.12</requirement>
 , https://nxp1.sharepoint.com/:b:/t/32_2/MICR_STEC/HSM/EWwUKfbToedOlAM8UjcdxpIB-Wy6Ml9KjbTpJlR0VBEyfQ?e=yV0Fm6, Feature</requirement>
-<requirement>R2.1, The initial value of the memory slots must be 0, Feature</requirement>
-<requirement>R2.2, the key storage shall support additional 40 keys, Feature</requirement>
-<requirement>R2.3, "The security peripheral API used to provision general purpose keys shall have a means of signifying</requirement>
+<requirement>R2.1</requirement>
+<requirement>R2.2</requirement>
+<requirement>R2.3</requirement>
 the request is intended for general purpose keys 1-10, or 11-20, or 21-30, or 31-40, or 41-50.", Feature</requirement>
-<requirement>R3.3, Storage must contain a counter to beupdated for every storage update, Feature</requirement>
-<requirement>R3.4, OTP monotonic counter must be update for every storage update , Feature</requirement>
-<requirement>R3.5, an API that allows multiple key updates before fuse the monotonic counter must be provided, Feature</requirement>
-<requirement>R3.6, For each update SECO must check the storage counter against the max number of available updates before fuse the monotonic counter, Feature</requirement>
-<requirement>R3.7, A write operation must be treated as an atomic operation, in any case the memory must contain either the old value or the new value but no corrupted areas, Feature</requirement>
-<requirement>R3.8, As default behaviour, SECO should aknowledge a key update only when the new key is updated in the external NVM, Feature</requirement>
-<requirement>R3.9, Keys are derived using the Miyaguchi-Preneel compression algorithm based on [NIST800_108]., Feature</requirement>
-<requirement>R3.10, The Miyaguchi-Preneel construction (see [HAC] Algorithm 9.43) with the AES as block cipher is used as compression function within SHE., Feature</requirement>
-<requirement>R5.1, Data must be encrypted in a blob before be exported in external NVM, Feature</requirement>
-<requirement>R5.2, SECO shall support MU commands  to import the SHE storage in form of blob, Feature</requirement>
-<requirement>R8.1, SECO shall provide an API to generate CMAC AES-128 MAC , </requirement>
-<requirement>R8.2, SECO shall provide an API to verify  CMAC AES-128 MAC  , </requirement>
-<requirement>R8.3, The MAC generation and verification has to be implemented as a CMAC using the AES-128 as specified by [NIST800_38B]., Feature</requirement>
-<requirement>R8.4, The MAC length for CMAC verification shall be at minimum of 4 bytes, </requirement>
+<requirement>R3.3</requirement>
+<requirement>R3.4</requirement>
+<requirement>R3.5</requirement>
+<requirement>R3.6</requirement>
+<requirement>R3.7</requirement>
+<requirement>R3.8</requirement>
+<requirement>R3.9</requirement>
+<requirement>R3.10</requirement>
+<requirement>R5.1</requirement>
+<requirement>R5.2</requirement>
+<requirement>R8.1</requirement>
+<requirement>R8.2</requirement>
+<requirement>R8.3</requirement>
+<requirement>R8.4</requirement>
 , , </requirement>
-<requirement>R9.4, The TRNG must at least fulfill the requirement “P1 medium” as described in [AIS31] in all operating conditions according to the rating of the chip., Feature</requirement>
-<requirement>R10.3, The CMD_GET_STATUS may be called while another function is processed, Feature</requirement>
-<requirement>R11.3, The UID has to be inserted during chip fabrication by the semiconductor manufacturer., Feature</requirement>
-<requirement>R12.1, SECO shall support an API to interrupt any given function and discard all calculations and results. (CMD_CANCEL).  This command may be called while another function is processed, Feature</requirement>
-<requirement>R12.2, The CMD_CANCEL may be called while another function is processed, Feature</requirement>
+<requirement>R9.4</requirement>
+<requirement>R10.3</requirement>
+<requirement>R11.3</requirement>
+<requirement>R12.1</requirement>
+<requirement>R12.2</requirement>
 , , </requirement>
-<requirement>R13.1, SECO shall support an API to enable an internal debugging facilities of SHE, Feature</requirement>
-<requirement>R.2, Activating the internal debugger implies the deletion of all keys except SECRET_KEY, UID and PRNG_SEED and will only work, if no key is write-protected., Feature</requirement>
+<requirement>R13.1</requirement>
+<requirement>R.2</requirement>
 , , </requirement>
-<requirement>R14.1, Error codes must be defined as per SHE Functional Specificaton 01.04.2009, Feature</requirement>
-<requirement>R15.1, SECO must implement a "best-effort" mode of operation where SCU request have priority over all the other requests, Feature</requirement>
-<requirement>R15.2, SECO must restrict the attestation service when in "best-effort" mode only, Feature</requirement>
-<requirement>R15.3, SECO must implement a "real-time" mode of operation where SHE MAC geration/verification requests have priority over all the other requests, Feature</requirement>
+<requirement>R14.1</requirement>
+<requirement>R15.1</requirement>
+<requirement>R15.2</requirement>
+<requirement>R15.3</requirement>
 , , </requirement>
-<requirement>R6.1, SHE can only process multiples of the block length of the AES, i.e. all necessary padding has to be done by an application., Feature</requirement>
-<requirement>R17.1, SECO must know the DID and TZ of the user to an MU incoming message , Feature</requirement>
-<requirement>R17.2, SECO provide and API to SCU to maintain a database of the DID and TZ associated with the 4 Mus, Feature</requirement>
+<requirement>R6.1</requirement>
+<requirement>R17.1</requirement>
+<requirement>R17.2</requirement>
 , , </requirement>
-<requirement>R18.1, A SHE driver conveying SHE request on MU messaging to SECO must be provided., Feature</requirement>
-<requirement>R18.2, The SHE driver shall be provided OS agnostic, Feature</requirement>
-<requirement>R18.2, The SHE driver shall provide one or more API for each SHE message supported by SECO, Feature</requirement>
-<requirement>R18.3, The SHE driver shall provide SHE specification compliant API to the user, Feature</requirement>
-<requirement>R19.1, As part of its initialization the SHE storage manager shall provide the SHE blob to SECO, Feature</requirement>
-<requirement>R19.3, On each SECO request, the SHE storage manager shall write the SHE blob into the NVM and provide acknowledge to SECO, Feature</requirement>
-<requirement>R19.4, The SHE storage manager shall verify the content of the NVM after each write operation (e.g CRC), Feature</requirement>
-<requirement>R19.5, A fall back mechanism should be provided , Feature</requirement>
+<requirement>R18.1</requirement>
+<requirement>R18.2</requirement>
+<requirement>R18.2</requirement>
+<requirement>R18.3</requirement>
+<requirement>R19.1</requirement>
+<requirement>R19.3</requirement>
+<requirement>R19.4</requirement>
+<requirement>R19.5</requirement>
 , , </requirement>
-<requirement>R20.1, SECO must offer SHE services within 50ms from cold boot, </requirement>
-<requirement>R21.1, A SHE architecture document shall be provided, </requirement>
-<requirement>R21.2, A SHE design document shall be provided, </requirement>
-<requirement>R21.3, An SHE driver API document shall be provided., </requirement>
-<requirement>R21.4, A user manual document shall be provided, </requirement>
-<requirement>R21.5, A reference manual document shall be provided, </requirement>
-<requirement>R22.1, SECO FW and external SHE drivers C code shall be compliant with the ISO C99, or C11 specification., </requirement>
-<requirement>R22.2, SECO FW and external SHE drivers C code shall comply with the MISRA C:2012 “mandatory” rules, including MISRA C 2012 amendment 1 rules., </requirement>
-<requirement>R22.3, SECO FW and external SHE drivers C code shall comply with the SEI CERT C (2016 Edition) Coding Standard: target is 100% of L1 rules, plus some selected L2, L3 rules and recommendations), </requirement>
+<requirement>R20.1</requirement>
+<requirement>R21.1</requirement>
+<requirement>R21.2</requirement>
+<requirement>R21.3</requirement>
+<requirement>R21.4</requirement>
+<requirement>R21.5</requirement>
+<requirement>R22.1</requirement>
+<requirement>R22.2</requirement>
+<requirement>R22.3</requirement>
 </requirement>

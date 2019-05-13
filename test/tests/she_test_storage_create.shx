@@ -1,4 +1,4 @@
-<requirement>R4.1, A storage provisioning method allowing to provision the keys initial value must be provided, Feature</requirement>
+<requirement>R4.1</requirement>
 
 SHE_TEST_STORAGE_CREATE
 1234  # key storage identifier
