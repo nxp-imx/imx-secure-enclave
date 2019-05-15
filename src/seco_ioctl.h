@@ -149,6 +149,7 @@ struct seco_ioctl_nvm_get_data_len {
 
 struct seco_ioctl_nvm_get_data {
 	uint8_t *dst;
+	uint32_t export_status;
 	uint32_t error;
 };
 

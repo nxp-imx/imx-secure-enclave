@@ -30,6 +30,7 @@
 
 #define SECO_SHE_NVM_PATH "/dev/seco_she_nvm"
 
+#define SAB_KEY_STORE_EXPORT_STATUS_SUCCEEDED 0xBA2CC2AB
 
 struct seco_nvm_hdl {
     int32_t fd;
@@ -89,13 +90,14 @@ uint32_t seco_nvm_get_data_len(struct seco_nvm_hdl *nvm_hdl)
     return ioctl_msg.data_len;
 }
 
-uint32_t seco_nvm_get_data(struct seco_nvm_hdl *nvm_hdl, uint8_t *dst)
+uint32_t seco_nvm_get_data(struct seco_nvm_hdl *nvm_hdl, uint8_t *dst, uint32_t *export_status)
 {
     struct seco_ioctl_nvm_get_data ioctl_msg;
 
     ioctl_msg.dst = dst;
 
     ioctl(nvm_hdl->fd, SECO_MU_IOCTL_NVM_GET_DATA, &ioctl_msg);
+    *export_status = ioctl_msg.export_status;
 
     return ioctl_msg.error;
 }
@@ -131,6 +133,8 @@ void *seco_nvm_manager_thread(void *arg)
     uint32_t data_len = 0;
     uint32_t err = 1;
     int32_t fd = -1;
+    uint32_t export_status;
+
 
     do {
         data_len = seco_nvm_get_data_len(ctx->nvm_hdl);
@@ -141,8 +145,8 @@ void *seco_nvm_manager_thread(void *arg)
             break;
         }
 
-        err = seco_nvm_get_data(ctx->nvm_hdl, data);
-        if (err != 0) {
+        err = seco_nvm_get_data(ctx->nvm_hdl, data, &export_status);
+        if ((err != 0)||(export_status != SAB_KEY_STORE_EXPORT_STATUS_SUCCEEDED)) {
             break;
         }
 
