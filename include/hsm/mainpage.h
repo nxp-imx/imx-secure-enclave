@@ -6,6 +6,7 @@
 /*! \page History Revision History
  *
  * Revision 0.1: 29/03/2019 Savari preliminary draft - subject to change
+ * Revision 0.8: 20/05/2019 Adding butterfly key expansion operation; adding signature, rng, hash services.
  */
 
 /*! \page General General concepts related to the API
