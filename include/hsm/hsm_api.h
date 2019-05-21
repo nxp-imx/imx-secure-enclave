@@ -71,6 +71,8 @@ typedef uint8_t hsm_signature_scheme_id_t;
 typedef uint8_t hsm_hash_algo_t;
 typedef uint32_t hsm_verification_status_t;
 
+typedef uint32_t hsm_addr_msb_t;
+typedef uint32_t hsm_addr_lsb_t;
 
 /**
  * Initiate a HSM session.\n
@@ -111,7 +113,8 @@ struct hsm_hdl_s *hsm_open_session(uint8_t session_priority, uint8_t operating_m
  * to know or to access the fields of this struct, but it needs to store and pass the pointer
  * to the subsequent services/operaton calls.
  */
-struct hsm_hdl_s *hsm_open_key_store_service(struct hsm_hdl_s *session_hdl, uint32_t key_store_identifier, uint32_t authentication_nonce, uint16_t max_updates_number, hsm_svc_key_store_flags_t flags, hsm_err_t *error_code);
+
+struct hsm_hdl_s *hsm_open_key_store_service(struct hsm_hdl_s *session_hdl, struct hsm_hdl_s **key_store_hdl, uint32_t key_store_identifier, uint32_t authentication_nonce, uint16_t max_updates_number, hsm_svc_key_store_flags_t flags, hsm_err_t *error_code);
 
 /**
  * It must be specified to create a new key storage
@@ -144,7 +147,7 @@ hsm_err_t hsm_close_key_store_service(struct hsm_hdl_s *key_store_hdl);
  * to know or to access the fields of this struct, but it needs to store and pass the pointer
  * to the subsequent services/operaton calls.
  */
-struct hsm_hdl_s *hsm_open_key_management_service(struct hsm_hdl_s *key_store_hdl, uint32_t input_address_ext, uint32_t output_address_ext, hsm_err_t *error_code);
+struct hsm_hdl_s *hsm_open_key_management_service(struct hsm_hdl_s *key_store_hdl, hsm_addr_msb_t input_address_ext, hsm_addr_msb_t output_address_ext, hsm_err_t *error_code);
 
 
 /**
@@ -163,7 +166,7 @@ struct hsm_hdl_s *hsm_open_key_management_service(struct hsm_hdl_s *key_store_hd
  * \return error code
  */
 
-hsm_err_t hsm_generate_key(struct hsm_hdl_s *key_management_hdl, uint32_t key_identifier, uint32_t output, uint16_t output_size, hsm_key_type_t key_type, hsm_key_info_t key_info, hsm_op_key_gen_flags_t flags);
+hsm_err_t hsm_generate_key(struct hsm_hdl_s *key_management_hdl, uint32_t key_identifier, hsm_addr_lsb_t output, uint16_t output_size, hsm_key_type_t key_type, hsm_key_info_t key_info, hsm_op_key_gen_flags_t flags);
 
 #define HSM_KEY_TYPE_ECDSA_NIST_P224            ((hsm_key_type_t)0x01)
 #define HSM_KEY_TYPE_ECDSA_NIST_P256            ((hsm_key_type_t)0x02)
@@ -214,7 +217,7 @@ hsm_err_t hsm_generate_key(struct hsm_hdl_s *key_management_hdl, uint32_t key_id
  * 
  * \return error code
  */
-hsm_err_t hsm_manage_key(struct hsm_hdl_s *key_management_hdl, uint32_t key_identifier, uint32_t key_address, uint16_t key_size, hsm_key_type_t key_type, hsm_key_info_t key_info, hsm_op_manage_key_flags_t flags);
+hsm_err_t hsm_manage_key(struct hsm_hdl_s *key_management_hdl, uint32_t key_identifier, hsm_addr_lsb_t key, uint16_t key_size, hsm_key_type_t key_type, hsm_key_info_t key_info, hsm_op_manage_key_flags_t flags);
 #define HSM_OP_MANGE_KEY_FLAGS_UPDATE                   ((hsm_op_manage_key_flags_t)(1 << 0))
 #define HSM_OP_MANGE_KEY_FLAGS_DELETE                   ((hsm_op_manage_key_flags_t)(1 << 1))
 /**
@@ -245,7 +248,7 @@ hsm_err_t hsm_manage_key(struct hsm_hdl_s *key_management_hdl, uint32_t key_iden
  * 
  * \return error code
 */
-hsm_err_t hsm_butterfly_key_expansion(struct hsm_hdl_s *key_management_hdl, uint32_t key_identifier, uint32_t *add_data_1, uint32_t add_data_2, uint32_t multiply_data, uint16_t data_1_size, uint16_t data_2_size, uint16_t multiply_data_size, uint32_t dest_key_identifier, uint32_t output, uint32_t output_size, hsm_op_but_key_exp_flags_t flags);
+hsm_err_t hsm_butterfly_key_expansion(struct hsm_hdl_s *key_management_hdl, uint32_t key_identifier, hsm_addr_lsb_t add_data_1, hsm_addr_lsb_t add_data_2, hsm_addr_lsb_t multiply_data, uint16_t data_1_size, uint16_t data_2_size, uint16_t multiply_data_size, uint32_t dest_key_identifier, hsm_addr_lsb_t output, uint32_t output_size, hsm_op_but_key_exp_flags_t flags);
 
 
 /**
@@ -274,7 +277,7 @@ hsm_err_t hsm_close_key_management_service(struct hsm_hdl_s * key_management_hdl
  * to know or to access the fields of this struct, but it needs to store and pass the pointer
  * to the subsequent services/operaton calls.
  */
-struct hsm_hdl_s *hsm_open_cipher_service(struct hsm_hdl_s *key_store_hdl, uint32_t input_address_ext, uint32_t output_address_ext, hsm_svc_cipher_flags_t flags,  hsm_err_t *error_code);
+struct hsm_hdl_s *hsm_open_cipher_service(struct hsm_hdl_s *key_store_hdl, hsm_addr_msb_t input_address_ext, hsm_addr_msb_t output_address_ext, hsm_svc_cipher_flags_t flags,  hsm_err_t *error_code);
 
 
 /**
@@ -293,7 +296,7 @@ struct hsm_hdl_s *hsm_open_cipher_service(struct hsm_hdl_s *key_store_hdl, uint3
  *
  * \return error code
  */
-hsm_err_t hsm_cipher_one_go(struct hsm_hdl_s *chiper_hdl, uint32_t key_identifier, uint32_t input, uint32_t output, uint32_t iv, uint32_t input_size, uint32_t output_size, uint32_t iv_size, hsm_op_cipher_one_go_algo_t cipher_algo, hsm_op_cipher_one_go_flags_t flags);
+hsm_err_t hsm_cipher_one_go(struct hsm_hdl_s *chiper_hdl, uint32_t key_identifier, hsm_addr_lsb_t input, hsm_addr_lsb_t output, hsm_addr_lsb_t iv, uint32_t input_size, uint32_t output_size, uint32_t iv_size, hsm_op_cipher_one_go_algo_t cipher_algo, hsm_op_cipher_one_go_flags_t flags);
 #define HSM_CIPHER_ONE_GO_ALGO_AES_ECB              ((hsm_op_cipher_one_go_algo_t)(0x00))
 #define HSM_CIPHER_ONE_GO_ALGO_AES_CBC              ((hsm_op_cipher_one_go_algo_t)(0x01))
 /**
@@ -330,7 +333,7 @@ hsm_err_t hsm_close_cipher_service(struct hsm_hdl_s *chiper_hdl);
  * to know or to access the fields of this struct, but it needs to store and pass the pointer
  * to the subsequent services/operaton calls.
  */
-struct hsm_hdl_s *hsm_open_signature_service(struct hsm_hdl_s *key_store_hdl, uint32_t input_address_ext, uint32_t output_address_ext, hsm_svc_signature_flags_t flags,  hsm_err_t *error_code);
+struct hsm_hdl_s *hsm_open_signature_service(struct hsm_hdl_s *key_store_hdl, hsm_addr_msb_t input_address_ext, hsm_addr_msb_t output_address_ext, hsm_svc_signature_flags_t flags,  hsm_err_t *error_code);
 
 
 /**
@@ -348,7 +351,7 @@ struct hsm_hdl_s *hsm_open_signature_service(struct hsm_hdl_s *key_store_hdl, ui
  *
  * \return error code
  */
-hsm_err_t hsm_signature_generation(struct hsm_hdl_s *signature_hdl, uint32_t key_identifier, hsm_signature_scheme_id_t scheme_id, uint32_t message, uint32_t signature, uint32_t message_size, uint32_t signature_size, hsm_op_signature_gen_flags_t flags);
+hsm_err_t hsm_signature_generation(struct hsm_hdl_s *signature_hdl, uint32_t key_identifier, hsm_signature_scheme_id_t scheme_id, hsm_addr_lsb_t message, hsm_addr_lsb_t signature, uint32_t message_size, uint32_t signature_size, hsm_op_signature_gen_flags_t flags);
 #define HSM_OP_SIGNATURE_GENERATION_INPUT_DIGEST        ((hsm_op_signature_gen_flags_t)(0 << 0))
 #define HSM_OP_SIGNATURE_GENERATION_INPUT_MESSAGE       ((hsm_op_signature_gen_flags_t)(1 << 1))
 #define HSM_OP_SIGNATURE_GENERATION_COMPRESSED_POINT    ((hsm_op_signature_gen_flags_t)(2 << 1))
@@ -381,7 +384,7 @@ hsm_err_t hsm_signature_generation(struct hsm_hdl_s *signature_hdl, uint32_t key
  *
  * \return error code
  */
-hsm_err_t hsm_signature_verification(struct hsm_hdl_s *signature_hdl, uint8_t *key_address, hsm_signature_scheme_id_t scheme_id, uint32_t message, uint32_t signature, uint32_t message_size, uint32_t signature_size, hsm_verification_status_t *status, hsm_op_signature_ver_flags_t flags);
+hsm_err_t hsm_signature_verification(struct hsm_hdl_s *signature_hdl, hsm_addr_lsb_t key_address, hsm_signature_scheme_id_t scheme_id, hsm_addr_lsb_t message, hsm_addr_lsb_t signature, uint32_t message_size, uint32_t signature_size, hsm_verification_status_t *status, hsm_op_signature_ver_flags_t flags);
 #define HSM_OP_SIGNATURE_VERIFICATION_INPUT_DIGEST    ((hsm_op_signature_ver_flags_t)(0 << 0))
 #define HSM_OP_SIGNATURE_VERIFICATION_INPUT_MESSAGE   ((hsm_op_signature_ver_flags_t)(1 << 1))
 #define HSM_VERIFICATION_STATUS_SUCCESS   ((hsm_verification_status_t)(0x5A3CC3A5))
@@ -414,7 +417,7 @@ hsm_err_t hsm_close_signature_service(struct hsm_hdl_s *signature_hdl);
  * to know or to access the fields of this struct, but it needs to store and pass the pointer
  * to the subsequent services/operaton calls.
  */
-struct hsm_hdl_s *hsm_open_fast_signature_generation_service(struct hsm_hdl_s *key_store_hdl, uint32_t input_address_ext, uint32_t output_address_ext, uint32_t key_identifier, hsm_signature_scheme_id_t scheme_id, hsm_svc_fast_signature_generation_flags_t flags,  hsm_err_t *error_code);
+struct hsm_hdl_s *hsm_open_fast_signature_generation_service(struct hsm_hdl_s *key_store_hdl, hsm_addr_msb_t input_address_ext, hsm_addr_msb_t output_address_ext, uint32_t key_identifier, hsm_signature_scheme_id_t scheme_id, hsm_svc_fast_signature_generation_flags_t flags,  hsm_err_t *error_code);
 
 
 /**
@@ -431,7 +434,7 @@ struct hsm_hdl_s *hsm_open_fast_signature_generation_service(struct hsm_hdl_s *k
  *
  * \return error code
  */
-hsm_err_t hsm_fast_signature_generation(struct hsm_hdl_s *fast_signature_gen_hdl, uint32_t message, uint32_t signature, uint32_t message_size, uint32_t signature_size, hsm_op_fast_signature_gen_flags_t flags);
+hsm_err_t hsm_fast_signature_generation(struct hsm_hdl_s *fast_signature_gen_hdl, hsm_addr_lsb_t message, hsm_addr_lsb_t signature, uint32_t message_size, uint32_t signature_size, hsm_op_fast_signature_gen_flags_t flags);
 #define HSM_OP_FAST_SIGNATURE_GENERATION_INPUT_DIGEST        ((hsm_op_fast_signature_gen_flags_t)(0 << 0))
 #define HSM_OP_FAST_SIGNATURE_GENERATION_INPUT_MESSAGE       ((hsm_op_fast_signature_gen_flags_t)(1 << 1))
 #define HSM_OP_FAST_SIGNATURE_GENERATION_COMPRESSED_POINT    ((hsm_op_fast_signature_gen_flags_t)(2 << 1))
@@ -463,7 +466,7 @@ hsm_err_t hsm_close_fast_signature_generation_service(struct hsm_hdl_s *fast_sig
  * to know or to access the fields of this struct, but it needs to store and pass the pointer
  * to the subsequent services/operaton calls.
  */
-struct hsm_hdl_s *hsm_open_fast_signature_verification_service(struct hsm_hdl_s *key_store_hdl, uint32_t input_address_ext, uint32_t output_address_ext, uint32_t key_address, uint32_t key_address_ext, hsm_svc_fast_signature_verification_flags_t flags, hsm_signature_scheme_id_t scheme_id, hsm_err_t *error_code);
+struct hsm_hdl_s *hsm_open_fast_signature_verification_service(struct hsm_hdl_s *key_store_hdl, hsm_addr_msb_t input_address_ext, hsm_addr_msb_t output_address_ext, hsm_addr_msb_t key_address_ext, hsm_addr_lsb_t key_address, hsm_svc_fast_signature_verification_flags_t flags, hsm_signature_scheme_id_t scheme_id, hsm_err_t *error_code);
 
 /**
  * Verify a digital signature according to the signature scheme\n
@@ -482,7 +485,7 @@ struct hsm_hdl_s *hsm_open_fast_signature_verification_service(struct hsm_hdl_s 
  *
  * \return error code
  */
-hsm_err_t hsm_fast_signature_verification(struct hsm_hdl_s *fast_signature_ver_hdl, uint32_t message, uint32_t signature, uint32_t message_size, uint32_t signature_size, hsm_verification_status_t *status, hsm_op_fast_signature_ver_flags_t flags);
+hsm_err_t hsm_fast_signature_verification(struct hsm_hdl_s *fast_signature_ver_hdl, hsm_addr_lsb_t message, hsm_addr_lsb_t signature, uint32_t message_size, uint32_t signature_size, hsm_verification_status_t *status, hsm_op_fast_signature_ver_flags_t flags);
 #define HSM_OP_FAST_SIGNATURE_VERIFICATION_INPUT_DIGEST    ((hsm_op_fast_signature_ver_flags_t)(0 << 0))
 #define HSM_OP_FAST_SIGNATURE_VERIFICATION_INPUT_MESSAGE   ((hsm_op_fast_signature_ver_flags_t)(1 << 1))
 
@@ -512,7 +515,7 @@ hsm_err_t hsm_close_fast_signature_verification_service(struct hsm_hdl_s *fast_s
  * to know or to access the fields of this struct, but it needs to store and pass the pointer
  * to the subsequent services/operaton calls.
  */
-struct hsm_hdl_s *hsm_open_rng_service(struct hsm_hdl_s * session_hdl, uint32_t input_address_ext, uint32_t output_address_ext, hsm_svc_rng_flags_t flags, hsm_err_t *error_code);
+struct hsm_hdl_s *hsm_open_rng_service(struct hsm_hdl_s * session_hdl, hsm_addr_msb_t input_address_ext, hsm_addr_msb_t output_address_ext, hsm_svc_rng_flags_t flags, hsm_err_t *error_code);
 
 /**
  * Get a freshly generated random number\n
@@ -524,7 +527,7 @@ struct hsm_hdl_s *hsm_open_rng_service(struct hsm_hdl_s * session_hdl, uint32_t 
  *
  * \return error code
  */
-hsm_err_t hsm_rng_get_random(uint32_t rng_hdl, uint32_t output, uint32_t output_size);
+hsm_err_t hsm_rng_get_random(uint32_t rng_hdl, hsm_addr_lsb_t output, uint32_t output_size);
 
 /**
  * Terminate a previously opened rng service flow
@@ -552,7 +555,7 @@ hsm_err_t hsm_close_rng_service(struct hsm_hdl_s *rng_hdl);
  * to know or to access the fields of this struct, but it needs to store and pass the pointer
  * to the subsequent services/operaton calls.
  */
-struct hsm_hdl_s * hsm_open_hash_service(struct hsm_hdl_s *session_hdl, uint32_t *hash_hdl, uint32_t input_address_ext, uint32_t output_address_ext, hsm_svc_hash_flags_t flags, hsm_err_t *error_code);
+struct hsm_hdl_s * hsm_open_hash_service(struct hsm_hdl_s *session_hdl, hsm_addr_msb_t input_address_ext, hsm_addr_msb_t output_address_ext, hsm_svc_hash_flags_t flags, hsm_err_t *error_code);
 
 /**
  * Perform the hash operation on a given input\n
@@ -567,7 +570,7 @@ struct hsm_hdl_s * hsm_open_hash_service(struct hsm_hdl_s *session_hdl, uint32_t
  *
  * \return error code
  */
-hsm_err_t hsm_hash_one_go(struct hsm_hdl_s *hash_hdl, uint32_t input, uint32_t output, uint32_t input_size, uint32_t output_size, hsm_hash_algo_t algo);
+hsm_err_t hsm_hash_one_go(struct hsm_hdl_s *hash_hdl, hsm_addr_lsb_t input, hsm_addr_lsb_t output, uint32_t input_size, uint32_t output_size, hsm_hash_algo_t algo);
 #define HSM_HASH_ALGO_SHA2_224      ((hsm_hash_algo_t)(0x0))
 #define HSM_HASH_ALGO_SHA2_256      ((hsm_hash_algo_t)(0x1))
 #define HSM_HASH_ALGO_SHA2_384      ((hsm_hash_algo_t)(0x2))
