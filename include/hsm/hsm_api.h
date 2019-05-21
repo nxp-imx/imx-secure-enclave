@@ -76,8 +76,8 @@ typedef uint32_t hsm_addr_msb_t;
 typedef uint32_t hsm_addr_lsb_t;
 
 typedef struct {
-    uint8_t session_priority;   /**< not supported in current release, any value accepted. */
-    uint8_t operating_mode;     /**< not supported in current release, any value accepted. */
+    uint8_t session_priority;   //!< not supported in current release, any value accepted. */
+    uint8_t operating_mode;     //!< not supported in current release, any value accepted. */
     uint16_t rsv;
 } open_session_args_t;
 
@@ -103,10 +103,10 @@ hsm_err_t hsm_close_session(hsm_hdl_t session_hdl);
 
 
 typedef struct {
-    uint32_t key_store_identifier;      /**< user defined id identifying the key store.*/
-    uint32_t authentication_nonce;      /**< user defined nonce used as authentication proof for accesing the key storage. */
-    uint16_t max_updates_number;        /**< maximum number of updates authorized for the storage. Valid only for create operation. */
-    hsm_svc_key_store_flags_t flags;    /**< bitmap specifying the services properties. */
+    uint32_t key_store_identifier;      //!< user defined id identifying the key store.*/
+    uint32_t authentication_nonce;      //!< user defined nonce used as authentication proof for accesing the key storage. */
+    uint16_t max_updates_number;        //!< maximum number of updates authorized for the storage. Valid only for create operation. */
+    hsm_svc_key_store_flags_t flags;    //!< bitmap specifying the services properties. */
     uint8_t rsv;
 } open_svc_key_store_args_t;
 
@@ -140,9 +140,9 @@ hsm_err_t hsm_close_key_store_service(hsm_hdl_t key_store_hdl);
 
 
 typedef struct {
-    hsm_addr_msb_t input_address_ext; /**< most significant 32 bits address to be used by HSM for input memory transactions in the requester address space for the commands handled by the service flow. */
-    hsm_addr_msb_t output_address_ext; /**< most significant 32 bits address to be used by HSM for output memory transactions in the requester address space for the commands handled by the service flow. */
-    hsm_svc_key_management_flags_t flags; /**< bitmap specifying the services properties */
+    hsm_addr_msb_t input_address_ext;       //!< most significant 32 bits address to be used by HSM for input memory transactions in the requester address space for the commands handled by the service flow.
+    hsm_addr_msb_t output_address_ext;      //!< most significant 32 bits address to be used by HSM for output memory transactions in the requester address space for the commands handled by the service flow.
+    hsm_svc_key_management_flags_t flags;   //!< bitmap specifying the services properties.
     uint8_t rsv[3];
 } open_svc_key_management_args_t;
 
@@ -160,11 +160,11 @@ hsm_err_t hsm_open_key_management_service(hsm_hdl_t key_store_hdl, open_svc_key_
 
 
 typedef struct {
-    uint32_t key_identifier;        /**< pointer to the identifier of the key to be used for the operation. In case of create operation the new key identifier will be stored in this location. */
-    uint16_t output_size;           /**< lenght in bytes of the output area, if the size is 0, no key is copied in the output. */
-    hsm_op_key_gen_flags_t flags;   /**< bitmap specifying the operation properties */
-    hsm_key_type_t key_type;        /**< indicates which type of key must be generated */
-    hsm_key_info_t key_info;        /**< bitmap specifying the properties of the key */
+    uint32_t key_identifier;        //!< pointer to the identifier of the key to be used for the operation. In case of create operation the new key identifier will be stored in this location.
+    uint16_t output_size;           //!< lenght in bytes of the output area, if the size is 0, no key is copied in the output.
+    hsm_op_key_gen_flags_t flags;   //!< bitmap specifying the operation properties.
+    hsm_key_type_t key_type;        //!< indicates which type of key must be generated.
+    hsm_key_info_t key_info;        //!< bitmap specifying the properties of the key.
 } op_generate_key_args_t;
 
 /**
