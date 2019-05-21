@@ -75,17 +75,22 @@ typedef uint32_t hsm_verification_status_t;
 typedef uint32_t hsm_addr_msb_t;
 typedef uint32_t hsm_addr_lsb_t;
 
+typedef struct {
+    uint8_t session_priority;   /**< not supported in current release, any value accepted. */
+    uint8_t operating_mode;     /**< not supported in current release, any value accepted. */
+    uint16_t rsv;
+} open_session_args_t;
 
 /**
  * Initiate a HSM session.\n
  *
- * \param session_priority not supported in current release, any value accepted.
- * \param operating_mode not supported in current release, any value accepted.
+ * \param args pointer to the structure containing the specific function arugments.
  * \param session_hdl pointer to where the session handle must be written.
  * 
  * \return error_code error code.
  */
-hsm_err_t hsm_open_session(uint8_t session_priority, uint8_t operating_mode, hsm_hdl_t *session_hdl);
+hsm_err_t hsm_open_session(open_session_args_t *args, hsm_hdl_t *session_hdl);
+
 
 /**
  * Terminate a previously opened HSM session
@@ -97,20 +102,24 @@ hsm_err_t hsm_open_session(uint8_t session_priority, uint8_t operating_mode, hsm
 hsm_err_t hsm_close_session(hsm_hdl_t session_hdl);
 
 
+typedef struct {
+    uint32_t key_store_identifier;      /**< user defined id identifying the key store.*/
+    uint32_t authentication_nonce;      /**< user defined nonce used as authentication proof for accesing the key storage. */
+    uint16_t max_updates_number;        /**< maximum number of updates authorized for the storage. Valid only for create operation. */
+    hsm_svc_key_store_flags_t flags;    /**< bitmap specifying the services properties. */
+    uint8_t rsv;
+} open_svc_key_store_args_t;
+
 /**
  * Open a service flow on the specified key store.\n
  * 
  * \param session_hdl pointer to the handle indentifing the current session.
- * \param key_store_identifier user defined id identifying the key store.
- * \param authentication_nonce user defined nonce used as authentication proof for accesing the key storage.
- * \param max_updates_number maximum number of updates authorized for the storage. Valid only for create operation.
- * \param access_flags bitmap indicating the requested access to the key store.
+ * \param args pointer to the structure containing the specific function arugments.
  * \param key_store_hdl pointer to where the key store service flow handle must be written.
  *
  * \return error_code error code.
  */
-
-hsm_err_t hsm_open_key_store_service(hsm_hdl_t session_hdl, uint32_t key_store_identifier, uint32_t authentication_nonce, uint16_t max_updates_number, hsm_svc_key_store_flags_t flags, hsm_hdl_t *key_store_hdl);
+hsm_err_t hsm_open_key_store_service(hsm_hdl_t session_hdl, open_svc_key_store_args_t *args, hsm_hdl_t *key_store_hdl);
 
 /**
  * It must be specified to create a new key storage
@@ -118,6 +127,7 @@ hsm_err_t hsm_open_key_store_service(hsm_hdl_t session_hdl, uint32_t key_store_i
 #define HSM_SVC_KEY_STORE_FLAGS_CREATE ((hsm_svc_key_store_flags_t)(1 << 0))
 #define HSM_SVC_KEY_STORE_FLAGS_UPDATE ((hsm_svc_key_store_flags_t)(1 << 1))
 #define HSM_SVC_KEY_STORE_FLAGS_DELETE ((hsm_svc_key_store_flags_t)(1 << 3))
+
 
 /**
  * Close a previously opened key store service flow.\n
@@ -129,19 +139,33 @@ hsm_err_t hsm_open_key_store_service(hsm_hdl_t session_hdl, uint32_t key_store_i
 hsm_err_t hsm_close_key_store_service(hsm_hdl_t key_store_hdl);
 
 
+typedef struct {
+    hsm_addr_msb_t input_address_ext; /**< most significant 32 bits address to be used by HSM for input memory transactions in the requester address space for the commands handled by the service flow. */
+    hsm_addr_msb_t output_address_ext; /**< most significant 32 bits address to be used by HSM for output memory transactions in the requester address space for the commands handled by the service flow. */
+    hsm_svc_key_management_flags_t flags; /**< bitmap specifying the services properties */
+    uint8_t rsv[3];
+} open_svc_key_management_args_t;
+
 /**
  * Open a key management service flow\n
  * User must open this service in order to perform operation on the key store content: key generate, delete, update
  *
  * \param key_store_hdl handle indentifing the key store service flow.
- * \param input_address_ext most significant 32 bits address to be used by HSM for input memory transactions in the requester address space for the commands handled by the service flow.
- * \param output_address_ext most significant 32 bits address to be used by HSM for output memory transactions in the requester address space for the commands handled by the service flow.
+ * \param args pointer to the structure containing the specific function arugments.
  * \param key_management_hdl pointer to where the key management service flow handle must be written.
  *
  * \return error_code error code.
  */
-hsm_err_t hsm_open_key_management_service(hsm_hdl_t key_store_hdl, hsm_addr_msb_t input_address_ext, hsm_addr_msb_t output_address_ext, hsm_hdl_t *key_management_hdl);
+hsm_err_t hsm_open_key_management_service(hsm_hdl_t key_store_hdl, open_svc_key_management_args_t *args, hsm_hdl_t *key_management_hdl);
 
+
+typedef struct {
+    uint32_t key_identifier;        /**< pointer to the identifier of the key to be used for the operation. In case of create operation the new key identifier will be stored in this location. */
+    uint16_t output_size;           /**< lenght in bytes of the output area, if the size is 0, no key is copied in the output. */
+    hsm_op_key_gen_flags_t flags;   /**< bitmap specifying the operation properties */
+    hsm_key_type_t key_type;        /**< indicates which type of key must be generated */
+    hsm_key_info_t key_info;        /**< bitmap specifying the properties of the key */
+} op_generate_key_args_t;
 
 /**
  * Generate a key or a key pair in the key store. In case of asymetic keys, the public key can optionally be exported. The generated key can be stored in a new or in an existing key slot
@@ -149,17 +173,11 @@ hsm_err_t hsm_open_key_management_service(hsm_hdl_t key_store_hdl, hsm_addr_msb_
  * User can call this function only after having opened a key management service flow
  *
  * \param key_management_hdl handle identifying the key management service flow.
- * \param key_identifier pointer to the identifier of the key to be used for the operation. In case of create operation the new key identifier will be stored in this location.
- * \param output LSB of the address in the requester space where the public key must be written.
- * \param output_size lenght in bytes of the output area, if the size is 0, no key is copied in the output.
- * \param key_type indicates which type of key must be generated
- * \param key_info bitmap specifying the properties of the key
- * \param flags bitmap specifying the operation properties
+ * \param args pointer to the structure containing the specific function arugments.
  * 
  * \return error code
  */
-
-hsm_err_t hsm_generate_key(hsm_hdl_t key_management_hdl, uint32_t key_identifier, hsm_addr_lsb_t output, uint16_t output_size, hsm_key_type_t key_type, hsm_key_info_t key_info, hsm_op_key_gen_flags_t flags);
+hsm_err_t hsm_generate_key(hsm_hdl_t key_management_hdl, op_generate_key_args_t args);
 
 #define HSM_KEY_TYPE_ECDSA_NIST_P224            ((hsm_key_type_t)0x01)
 #define HSM_KEY_TYPE_ECDSA_NIST_P256            ((hsm_key_type_t)0x02)
@@ -170,26 +188,30 @@ hsm_err_t hsm_generate_key(hsm_hdl_t key_management_hdl, uint32_t key_identifier
 #define HSM_KEY_TYPE_ECDSA_BRAINPOOL_T1_224     ((hsm_key_type_t)0x22)        
 #define HSM_KEY_TYPE_ECDSA_BRAINPOOL_T1_256     ((hsm_key_type_t)0x23)
 #define HSM_KEY_TYPE_ECDSA_BRAINPOOL_T1_384     ((hsm_key_type_t)0x25)
-
 #define HSM_KEY_TYPE_AES_128                    ((hsm_key_type_t)0x30)
 #define HSM_KEY_TYPE_AES_192                    ((hsm_key_type_t)0x31)
 #define HSM_KEY_TYPE_AES_256                    ((hsm_key_type_t)0x32)
+
 /**
  * When set, the key is permanent. Once created, it will not be possible to update or delete the key anymore. This bit can never be reset.
  */
 #define HSM_KEY_INFO_PERMANENT                              ((hsm_key_info_t)(1 << 0))
+
 /**
  * User can replace an existing key only by generating a key with the same type of the original one.
  */
 #define HSM_OP_KEY_GENERATION_FLAGS_UPDATE                  ((hsm_op_key_gen_flags_t)(1 << 0))
+
 /**
  * Persistent keys are saved in the non volatile memory.
  */
 #define HSM_OP_KEY_GENERATION_FLAGS_CREATE_PERSISTENT       ((hsm_op_key_gen_flags_t)(1 << 1))
+
 /**
  * Transient keys are deleted when the corresponding key store service flow is closed.
  */
 #define HSM_OP_KEY_GENERATION_FLAGS_CREATE_TRANSIENT        ((hsm_op_key_gen_flags_t)(1 << 2))
+
 /**
  * The request is completed only when the new key has been written in the NVM. This applicable for persistent key only.
  */
@@ -211,6 +233,7 @@ hsm_err_t hsm_generate_key(hsm_hdl_t key_management_hdl, uint32_t key_identifier
  * \return error code
  */
 hsm_err_t hsm_manage_key(hsm_hdl_t key_management_hdl, uint32_t key_identifier, hsm_addr_lsb_t key, uint16_t key_size, hsm_key_type_t key_type, hsm_key_info_t key_info, hsm_op_manage_key_flags_t flags);
+
 #define HSM_OP_MANAGE_KEY_FLAGS_UPDATE                   ((hsm_op_manage_key_flags_t)(1 << 0))
 #define HSM_OP_MANAGE_KEY_FLAGS_DELETE                   ((hsm_op_manage_key_flags_t)(1 << 1))
 /**
