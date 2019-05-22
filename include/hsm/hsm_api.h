@@ -50,9 +50,9 @@ typedef uint32_t hsm_hdl_t;
 typedef uint8_t hsm_svc_key_store_flags_t;
 typedef uint8_t hsm_svc_key_management_flags_t;
 typedef uint8_t hsm_svc_cipher_flags_t;
-typedef uint8_t hsm_svc_signature_flags_t;
+typedef uint8_t hsm_svc_signature_generation_flags_t;
+typedef uint8_t hsm_svc_signature_verification_flags_t;
 typedef uint8_t hsm_svc_fast_signature_verification_flags_t;
-typedef uint8_t hsm_svc_fast_signature_generation_flags_t;
 typedef uint8_t hsm_svc_rng_flags_t;
 typedef uint8_t hsm_svc_hash_flags_t;
 
@@ -61,19 +61,22 @@ typedef uint8_t hsm_op_manage_key_flags_t;
 typedef uint8_t hsm_op_but_key_exp_flags_t;
 typedef uint8_t hsm_op_cipher_one_go_algo_t;
 typedef uint8_t hsm_op_cipher_one_go_flags_t;
-typedef uint8_t hsm_op_signature_gen_flags_t;
-typedef uint8_t hsm_op_signature_ver_flags_t;
+typedef uint8_t hsm_op_generate_sign_flags_t;
+typedef uint8_t hsm_op_prepare_signature_flags_t;
+typedef uint8_t hsm_op_finalize_sign_flags_t;
+typedef uint8_t hsm_op_verify_sign_flags_t;
 typedef uint8_t hsm_op_fast_signature_gen_flags_t;
 typedef uint8_t hsm_op_fast_signature_ver_flags_t;
+typedef uint8_t hsm_op_hash_one_go_flags_t;
 
-typedef uint16_t hsm_key_type_t;
-typedef uint16_t hsm_key_info_t;
+
 typedef uint8_t hsm_signature_scheme_id_t;
 typedef uint8_t hsm_hash_algo_t;
-typedef uint32_t hsm_verification_status_t;
-
+typedef uint16_t hsm_key_type_t;
+typedef uint16_t hsm_key_info_t;
 typedef uint32_t hsm_addr_msb_t;
 typedef uint32_t hsm_addr_lsb_t;
+typedef uint32_t hsm_verification_status_t;
 
 typedef struct {
     uint8_t session_priority;   //!< not supported in current release, any value accepted. */
@@ -84,7 +87,8 @@ typedef struct {
 /**
  * Initiate a HSM session.\n
  *
- * \param args pointer to the structure containing the specific function arugments.
+ * \param args pointer to the structure containing the function arugments.
+
  * \param session_hdl pointer to where the session handle must be written.
  * 
  * \return error_code error code.
@@ -114,7 +118,8 @@ typedef struct {
  * Open a service flow on the specified key store.\n
  * 
  * \param session_hdl pointer to the handle indentifing the current session.
- * \param args pointer to the structure containing the specific function arugments.
+ * \param args pointer to the structure containing the function arugments.
+
  * \param key_store_hdl pointer to where the key store service flow handle must be written.
  *
  * \return error_code error code.
@@ -151,7 +156,8 @@ typedef struct {
  * User must open this service in order to perform operation on the key store content: key generate, delete, update
  *
  * \param key_store_hdl handle indentifing the key store service flow.
- * \param args pointer to the structure containing the specific function arugments.
+ * \param args pointer to the structure containing the function arugments.
+
  * \param key_management_hdl pointer to where the key management service flow handle must be written.
  *
  * \return error_code error code.
@@ -160,11 +166,13 @@ hsm_err_t hsm_open_key_management_service(hsm_hdl_t key_store_hdl, open_svc_key_
 
 
 typedef struct {
-    uint32_t key_identifier;        //!< pointer to the identifier of the key to be used for the operation. In case of create operation the new key identifier will be stored in this location.
-    uint16_t output_size;           //!< lenght in bytes of the output area, if the size is 0, no key is copied in the output.
+    uint32_t *key_identifier;       //!< pointer to the identifier of the key to be used for the operation.\n In case of create operation the new key identifier will be stored in this location.
+    uint16_t out_size;              //!< length in bytes of the output area, if the size is 0, no key is copied in the output.
     hsm_op_key_gen_flags_t flags;   //!< bitmap specifying the operation properties.
+    uint8_t rsv;
     hsm_key_type_t key_type;        //!< indicates which type of key must be generated.
     hsm_key_info_t key_info;        //!< bitmap specifying the properties of the key.
+    hsm_addr_lsb_t out_key;         //!< LSB of the address in the requester space where to store the public key
 } op_generate_key_args_t;
 
 /**
@@ -173,7 +181,7 @@ typedef struct {
  * User can call this function only after having opened a key management service flow
  *
  * \param key_management_hdl handle identifying the key management service flow.
- * \param args pointer to the structure containing the specific function arugments.
+ * \param args pointer to the structure containing the function arugments.
  * 
  * \return error code
  */
@@ -218,53 +226,95 @@ hsm_err_t hsm_generate_key(hsm_hdl_t key_management_hdl, op_generate_key_args_t 
 #define HSM_OP_KEY_GENERATION_FLAGS_STRICT_OPERATION        ((hsm_op_key_gen_flags_t)(1 << 7))
 
 
+typedef struct {
+    uint32_t *key_identifier;           //!< pointer to the identifier of the key to be used for the operation.\n In case of create operation the new key identifier will be stored in this location.
+    uint16_t input_size;                //!< length in bytes of the input key area. Not checked in case of delete operation.
+    hsm_op_manage_key_flags_t flags;    //!< bitmap specifying the operation properties.
+    uint16_t rsv;
+    hsm_key_type_t key_type;            //!< indicates the type of the key to be managed.
+    hsm_key_info_t key_info;            //!< bitmap specifying the properties of the key, it will replace the existing value. Not checked in case of delete operation.
+    hsm_addr_lsb_t input_key;           //!< LSB of the address in the requester space where the new key value can be found. Not checked in case of delete operation.
+} op_manage_key_args_t;
+
 /**
  * This command is designed to perform operation on an existing key.\n
  * User can call this function only after having opened a key management service flow
  *
  * \param key_management_hdl handle identifying the key management service flow.
- * \param key_identifier identifier of the key to be used for the operation.
- * \param key_address LSB of the address in the requester space where the new key value can be found. Not checked in case of delete operation.
- * \param key_size lenght in bytes of the input key area. Not checked in case of delete operation.
- * \param key_type indicates the type of the key to be managed.
- * \param key_info bitmap specifying the properties of the key, it will replace the existing value. Not checked in case of delete operation..
- * \param flags bitmap specifying the operation properties
+ * \param args pointer to the structure containing the function arugments.
  * 
  * \return error code
  */
-hsm_err_t hsm_manage_key(hsm_hdl_t key_management_hdl, uint32_t key_identifier, hsm_addr_lsb_t key, uint16_t key_size, hsm_key_type_t key_type, hsm_key_info_t key_info, hsm_op_manage_key_flags_t flags);
+hsm_err_t hsm_manage_key(hsm_hdl_t key_management_hdl, op_manage_key_args_t *args);
 
-#define HSM_OP_MANAGE_KEY_FLAGS_UPDATE                   ((hsm_op_manage_key_flags_t)(1 << 0))
-#define HSM_OP_MANAGE_KEY_FLAGS_DELETE                   ((hsm_op_manage_key_flags_t)(1 << 1))
 /**
- * The request is completed only when the modification has been written in the NVM. This applicable for persistent key only.
+ * User can replace an existing key only by importing a key with the same type of the original one.
  */
-#define HSM_OP_MANAGE_KEY_FLAGS_STRICT_OPERATION         ((hsm_op_manage_key_flags_t)(1 << 7))
+#define HSM_OP_MANAGE_KEY_FLAGS_UPDATE                  ((hsm_op_manage_key_flags_t)(1 << 0))
 
 /**
- * 
- * 
+ * Persistent keys are saved in the non volatile memory.
+ */
+#define HSM_OP_MANAGE_KEY_FLAGS_CREATE_PERSISTENT       ((hsm_op_manage_key_flags_t)(1 << 1))
+
+/**
+ * Transient keys are deleted when the corresponding key store service flow is closed.
+ */
+#define HSM_OP_MANAGE_KEY_FLAGS_CREATE_TRANSIENT        ((hsm_op_manage_key_flags_t)(1 << 2))
+/**
+ * delete an existing key
+ */
+#define HSM_OP_MANAGE_KEY_FLAGS_DELETE                  ((hsm_op_manage_key_flags_t)(1 << 3))
+/**
+ * The request is completed only when the new key has been written in the NVM. This applicable for persistent key only.
+ */
+#define HSM_OP_MANAGE_KEY_FLAGS_STRICT_OPERATION        ((hsm_op_manage_key_flags_t)(1 << 7))
+
+
+
+typedef struct {
+    uint32_t key_identifier;            //!< identifier of the key to be expanded
+    hsm_addr_lsb_t add_data_1;          //!< LSB of the address in the requester space where the add_data_1 input can be found
+    hsm_addr_lsb_t add_data_2;          //!< LSB of the address in the requester space where the add_data_2 input can be found
+    hsm_addr_lsb_t multiply_data;       //!< LSB of the address in the requester space where the multiply_data input can be found
+    uint8_t data_1_size;                //!< length in bytes of the add_data_1 input
+    uint8_t data_2_size;                //!< length in bytes of the add_data_2 input
+    uint8_t multiply_data_size;         //!< length in bytes of the multiply_data input
+    hsm_op_but_key_exp_flags_t flags;   //!< bitmap specifying the operation properties
+    uint32_t dest_key_identifier;       //!< identifier of the derived key
+    hsm_addr_lsb_t out_key;             //!< LSB of the address in the requester space where the public key must be written.
+    uint16_t out_size;                  //!< length in bytes of the output area, if the size is 0, no key is copied in the output.
+    uint16_t rsv;
+} op_butt_key_exp_args_t;
+
+/**
  * This command is designed to perform the butterfly key expansion operation on an ECC private key in case of implicit certificate. Optionally the resulting public key is exported.\n
- * User can call this function only after having opened a key management service flow
+ * The result of the key expansion function is calculated outside the HSM and passed as input.\n
+ * User can call this function only after having opened a key management service flow.\n\n
+ * 
+ * The following operation is performed:\n
+ * ButKey = (Key + AddData1) * MultiplyData + AddData2 (mod n)\n\n
  *
- * The following operation is performed:
- * ButKey = (Key + AddData1) * MultiplyData + AddData2 (mod n)
+ * Explicit certificates:
+ *  add_data_1 = 0,
+ *  add_data_2 = f1/f2(k, i, j),
+ *  multiply_data = 1\n
+ *
+ * ButKey = Key  + f1/f2(k, i, j) (mod n)\n\n
+ *
+ * Implicit certificates:
+ *  add_data_1 = f1(k, i, j),
+ *  add_data_2 = private reconstruction value pij,
+ *  multiply_data = hash value used to in the derivation of the pseudonym ECC key\n
+ * 
+ * ButKey = (Key  + f1(k, i, j))*Hash + pij\n\n
  * 
  * \param key_management_hdl handle identifying the key store management service flow.
- * \param key_identifier identifier of the key to be used for the operation.
- * \param add_data_1 LSB of the address in the requester space where the add_data_1 input can be found\n value 0 in case of explicit certificate\n expansion function f1(k, i, j) result value in case of implicit certificate.
- * \param add_data_2 LSB of the address in the requester space where the add_data_2 input can be found\n expansion function f1/f2(k, i, j) result value in case of explicit certificate\n the private reconstruction value used in the derivation of the pseudonym ECC key in case of implicit certificate 
- * \param multiply_data LSB of the address in the requester space where the multiply_data input can be found\n value 1 in case of explicit certificate\n the hash value used to in the derivation of the pseudonym ECC key 
- * \param data_1_size lenght in bytes of the add_data_1 input
- * \param data_2_size lenght in bytes of the add_data_2 input
- * \param multiply_date_size lenght in bytes of the multiply_data input
- * \param output LSB of the address in the requester space where the public key must be written.
- * \param output_size lenght in bytes of the output area, if the size is 0, no key is copied in the output.
- * \param flags bitmap specifying the operation properties
+ * \param args pointer to the structure containing the function arugments.
  * 
  * \return error code
 */
-hsm_err_t hsm_butterfly_key_expansion(hsm_hdl_t key_management_hdl, uint32_t key_identifier, hsm_addr_lsb_t add_data_1, hsm_addr_lsb_t add_data_2, hsm_addr_lsb_t multiply_data, uint16_t data_1_size, uint16_t data_2_size, uint16_t multiply_data_size, uint32_t dest_key_identifier, hsm_addr_lsb_t output, uint32_t output_size, hsm_op_but_key_exp_flags_t flags);
+hsm_err_t hsm_butterfly_key_expansion(hsm_hdl_t key_management_hdl, op_butt_key_exp_args_t *args);
 
 
 /**
@@ -277,48 +327,56 @@ hsm_err_t hsm_butterfly_key_expansion(hsm_hdl_t key_management_hdl, uint32_t key
 hsm_err_t hsm_close_key_management_service(hsm_hdl_t key_management_hdl);
 
 
+typedef struct {
+    hsm_addr_msb_t input_address_ext;       //!< most significant 32 bits address to be used by HSM for input memory transactions in the requester address space for the commands handled by the service flow.
+    hsm_addr_msb_t output_address_ext;      //!< most significant 32 bits address to be used by HSM for output memory transactions in the requester address space for the commands handled by the service flow.
+    hsm_svc_cipher_flags_t flags;           //!< bitmap specifying the services properties.
+    uint8_t rsv[3];
+} open_svc_cipher_args_t;
+
 /**
  * Open a cipher service flow\n
  * User can call this function only after having opened a key store service flow. 
  * User must open this service in order to perform cipher operations.
  *
  * \param key_store_hdl handle indentifing the key store service flow.
- * \param input_address_ext most significant 32 bits address to be used by HSM for input memory transactions in the requester address space for the operations handled by the service flow.
- * \param output_address_ext most significant 32 bits address to be used by HSM for output memory transactions in the requester address space for the opeartion handled by the service flow.
- * \param flags bitmap indicating the service flow properties - not supported in current release, any value accepted.
- * \param error_code pointer to where the error code should be written.
+ * \param args pointer to the structure containing the function arugments.
  * \param chiper_hdl pointer to where the cipher service flow handle must be written.
  * 
  * \return error code
  */
-hsm_err_t hsm_open_cipher_service(hsm_hdl_t key_store_hdl, hsm_addr_msb_t input_address_ext, hsm_addr_msb_t output_address_ext, hsm_svc_cipher_flags_t flags,  hsm_hdl_t *chiper_hdl);
+hsm_err_t hsm_open_cipher_service(hsm_hdl_t key_store_hdl, open_svc_cipher_args_t *args, hsm_hdl_t *chiper_hdl);
 
+typedef struct {
+    uint32_t key_identifier;                    //!< identifier of the key to be used for the operation
+    hsm_addr_lsb_t iv;                          //!< LSB of the address in the requester space where the initialization vector can be found
+    uint16_t iv_size;                           //!< length in bytes of the initialization vector\n it must be 0 for algorithms not using the initialization vector.\n It must be 12 for AES in CCM mode
+    hsm_op_cipher_one_go_algo_t cipher_algo;    //!< algorithm to be used for the operation
+    hsm_op_cipher_one_go_flags_t flags;         //!< bitmap specifying the operation attributes
+    hsm_addr_lsb_t input;                       //!< LSB of the address in the requester space where the input to be processed can be found\n plaintext for encryption\n ciphertext for decryption (tag is concatenated for CCM)
+    hsm_addr_lsb_t output;                      //!< LSB of the address in the requester space where the output must be stored\n ciphertext for encryption (tag is concatenated for CCM)\n plaintext for decryption
+    uint32_t input_size;                        //!< length in bytes of the input
+    uint32_t output_size;                       //!< length in bytes of the output
+} op_cipher_one_go_args_t;
 
 /**
  * Perform ciphering operation\n
  * User can call this function only after having opened a cipher service flow
  *
  * \param chiper_hdl handle identifying the cipher service flow.
- * \param key_identifier identifier of the key to be used for the operation
- * \param input LSB of the address in the requester space where the input to be processed can be found\n plaintext for encryption\n ciphertext for decryption (tag is concatenated for CCM)
- * \param output LSB of the address in the requester space where the output must be stored\n ciphertext for encryption (tag is concatenated for CCM)\n plaintext for decryption
- * \param iv LSB of the address in the requester space where the initialization vector can be found
- * \param input_size lenght in bytes of the input
- * \param iv_size lenght in bytes of the initialization vector\n it must be 0 for algorithms not using the initialization vector.\n It must be 12 for AES in CCM mode 
- * \param cipher_algo algorithm to be used for the operation
- * \param flags bitmap specifying the operation attributes
+ * \param args pointer to the structure containing the function arugments.
  *
  * \return error code
  */
-hsm_err_t hsm_cipher_one_go(hsm_hdl_t chiper_hdl, uint32_t key_identifier, hsm_addr_lsb_t input, hsm_addr_lsb_t output, hsm_addr_lsb_t iv, uint32_t input_size, uint32_t output_size, uint32_t iv_size, hsm_op_cipher_one_go_algo_t cipher_algo, hsm_op_cipher_one_go_flags_t flags);
+hsm_err_t hsm_cipher_one_go(hsm_hdl_t chiper_hdl, op_cipher_one_go_args_t* args);
 #define HSM_CIPHER_ONE_GO_ALGO_AES_ECB              ((hsm_op_cipher_one_go_algo_t)(0x00))
 #define HSM_CIPHER_ONE_GO_ALGO_AES_CBC              ((hsm_op_cipher_one_go_algo_t)(0x01))
 /**
- * Perform AES CCM with following prerequisites:\n
- * - Adata = 0 - There is no associated data\n
- * - Tlen = 16 bytes\n
+ * Perform AES CCM with following prerequisites:
+ * - Adata = 0 - There is no associated data
+ * - Tlen = 16 bytes
  */
-#define HSM_CIPHER_ONE_GO_ALGO_AES_CCM              ((hsm_op_cipher_one_go_algo_t)(0x02))
+#define HSM_CIPHER_ONE_GO_ALGO_AES_CCM              ((hsm_op_cipher_one_go_algo_t)(0x04)) //!< AES CCM where Adata = 0, Tlen = 16 bytes
 #define HSM_CIPHER_ONE_GO_FLAGS_ENCRYPT             ((hsm_op_cipher_one_go_flags_t)(1 << 0))
 #define HSM_CIPHER_ONE_GO_FLAGS_DECRYPT             ((hsm_op_cipher_one_go_flags_t)(1 << 1))
 
@@ -331,21 +389,45 @@ hsm_err_t hsm_cipher_one_go(hsm_hdl_t chiper_hdl, uint32_t key_identifier, hsm_a
  */
 hsm_err_t hsm_close_cipher_service(hsm_hdl_t chiper_hdl);
 
+typedef struct {
+    hsm_addr_msb_t input_address_ext;       //!< most significant 32 bits address to be used by HSM for input memory transactions in the requester address space for the commands handled by the service flow.
+    hsm_addr_msb_t output_address_ext;      //!< most significant 32 bits address to be used by HSM for output memory transactions in the requester address space for the commands handled by the service flow.
+    hsm_svc_signature_generation_flags_t flags;        //!< bitmap specifying the services properties.
+    uint8_t rsv[3];
+} open_svc_sign_gen_args_t;
+
 /**
  * Open a signature generation service flow\n
  * User can call this function only after having opened a key store service flow. 
  * User must open this service in order to perform signature generation operations.
  *
  * \param key_store_hdl handle indentifing the key store service flow.
- * \param input_address_ext most significant 32 bits address to be used by HSM for input memory transactions in the requester address space for the operations handled by the service flow.
- * \param output_address_ext most significant 32 bits address to be used by HSM for output memory transactions in the requester address space for the opeartion handled by the service flow.
- * \param flags bitmap indicating the service flow properties - not supported in current release, any value accepted.
- * \param error_code pointer to where the error code should be written.
+ * \param args pointer to the structure containing the function arugments.
  * \param signature_gen_hdl pointer to where the signature generation service flow handle must be written.
  * 
  * \return error code
  */
-hsm_err_t hsm_open_signature_generation_service(hsm_hdl_t key_store_hdl, hsm_addr_msb_t input_address_ext, hsm_addr_msb_t output_address_ext, hsm_svc_signature_flags_t flags,  hsm_hdl_t *signature_gen_hdl);
+hsm_err_t hsm_open_signature_generation_service(hsm_hdl_t key_store_hdl, open_svc_sign_gen_args_t *args,  hsm_hdl_t *signature_gen_hdl);
+
+
+/**
+ * Terminate a previously opened signature generation service flow
+ *
+ * \param signature_gen_hdl handle identifying the signature generation service flow to be closed.
+ *
+ * \return error code
+ */
+hsm_err_t hsm_close_signature_generation_service(hsm_hdl_t signature_gen_hdl);
+
+typedef struct {
+    uint32_t key_identifier;                //!< identifier of the key to be used for the operation
+    hsm_addr_lsb_t message;                 //!< LSB of the address in the requester space where the input (message or message digest) to be processed can be found
+    hsm_addr_lsb_t signature;               //!< LSB of the address in the requester space where the signature must be stored. The signature S=(c,d) is stored as TBD in case of compressed point signature, c||d otherwhise.
+    uint32_t message_size;                  //!< length in bytes of the input
+    uint16_t signature_size;                //!< length in bytes of the output - it must contains additional 32bits where to store the Ry last significant bit
+    hsm_signature_scheme_id_t scheme_id;    //!< identifier of the digital signature scheme to be used for the operation
+    hsm_op_generate_sign_flags_t flags;     //!< bitmap specifying the operation attributes
+} op_generate_sign_args_t;
 
 
 /**
@@ -353,20 +435,15 @@ hsm_err_t hsm_open_signature_generation_service(hsm_hdl_t key_store_hdl, hsm_add
  * User can call this function only after having opened a signature generation service flow
  *
  * \param signature_gen_hdl handle identifying the signature generation service flow
- * \param key_identifier identifier of the key to be used for the operation
- * \param scheme_id identifier of the digital signature scheme to be used for the operation
- * \param message LSB of the address in the requester space where the input (message or message digest) to be processed can be found\n
- * \param signature LSB of the address in the requester space where the signature must be stored\n the signature S=(c,d) is stored as c||d||lsb_y in case of compressed point signature, c||d otherwhise.
- * \param message_size lenght in bytes of the input
- * \param signature_size lenght in bytes of the output - it must contains additional 32bits where to store the Ry last significant bit
- * \param flags bitmap specifying the operation attributes
+  * \param args pointer to the structure containing the function arugments.
  *
  * \return error code
  */
-hsm_err_t hsm_signature_generation(hsm_hdl_t signature_gen_hdl, uint32_t key_identifier, hsm_signature_scheme_id_t scheme_id, hsm_addr_lsb_t message, hsm_addr_lsb_t signature, uint32_t message_size, uint32_t signature_size, hsm_op_signature_gen_flags_t flags);
-#define HSM_OP_SIGNATURE_GENERATION_INPUT_DIGEST        ((hsm_op_signature_gen_flags_t)(0 << 0))
-#define HSM_OP_SIGNATURE_GENERATION_INPUT_MESSAGE       ((hsm_op_signature_gen_flags_t)(1 << 1))
-#define HSM_OP_SIGNATURE_GENERATION_COMPRESSED_POINT    ((hsm_op_signature_gen_flags_t)(2 << 1))
+hsm_err_t hsm_generate_signature(hsm_hdl_t signature_gen_hdl, op_generate_sign_args_t *args);
+
+#define HSM_OP_GENERATE_SIGN_INPUT_DIGEST        ((hsm_op_generate_sign_flags_t)(1 << 0))
+#define HSM_OP_GENERATE_SIGN_INPUT_MESSAGE       ((hsm_op_generate_sign_flags_t)(1 << 1))
+#define HSM_OP_GENERATE_SIGN_COMPRESSED_POINT    ((hsm_op_generate_sign_flags_t)(1 << 2))
 
 #define HSM_SIGNATURE_SCHEME_ECDSA_NIST_P224_SHA_256            ((hsm_signature_scheme_id_t)0x01)
 #define HSM_SIGNATURE_SCHEME_ECDSA_NIST_P256_SHA_256            ((hsm_signature_scheme_id_t)0x02)
@@ -374,105 +451,102 @@ hsm_err_t hsm_signature_generation(hsm_hdl_t signature_gen_hdl, uint32_t key_ide
 #define HSM_SIGNATURE_SCHEME_ECDSA_BRAINPOOL_R1_224_SHA_256     ((hsm_signature_scheme_id_t)0x12)
 #define HSM_SIGNATURE_SCHEME_ECDSA_BRAINPOOL_R1_256_SHA_256     ((hsm_signature_scheme_id_t)0x13)
 #define HSM_SIGNATURE_SCHEME_ECDSA_BRAINPOOL_R1_384_SHA_384     ((hsm_signature_scheme_id_t)0x15)
-#define HSM_SIGNATURE_SCHEME_ECDSA_BRAINPOOL_T1_224_SHA_256     ((hsm_signature_scheme_id_t)0x22)        
+#define HSM_SIGNATURE_SCHEME_ECDSA_BRAINPOOL_T1_224_SHA_256     ((hsm_signature_scheme_id_t)0x22)
 #define HSM_SIGNATURE_SCHEME_ECDSA_BRAINPOOL_T1_256_SHA_256     ((hsm_signature_scheme_id_t)0x23)
 #define HSM_SIGNATURE_SCHEME_ECDSA_BRAINPOOL_T1_384_SHA_384     ((hsm_signature_scheme_id_t)0x25)
 
 
-/**
- * Terminate a previously opened signature generation service flow
- *
- * \param signature_gen_hdl handle identifying the signature generation service flow to be closed.
- * 
- * \return error code
- */
-hsm_err_t hsm_close_signature_generation_service(hsm_hdl_t signature_gen_hdl);
-
-/**
- * Open a fast signature generation service flow\n
- * User can call this function only after having opened a key store service flow. 
- * User must open this service in order to perform several signature generation by using the same private key.
- *
- * \param key_store_hdl handle indentifing the key store service flow.
- * \param input_address_ext most significant 32 bits address to be used by HSM for input memory transactions in the requester address space for the operations handled by the service flow.
- * \param output_address_ext most significant 32 bits address to be used by HSM for output memory transactions in the requester address space for the opeartion handled by the service flow.
- * \param key_identifier identifier of the private key to be used for the subsequent operations
- * \param flags bitmap indicating the service flow properties - not supported in current release, any value accepted.
- * \param fast_signature_gen_hdl pointer to where the fast signature generation service flow handle must be written.
- * 
- * \return error code
- */
-hsm_err_t hsm_open_fast_signature_generation_service(hsm_hdl_t key_store_hdl, hsm_addr_msb_t input_address_ext, hsm_addr_msb_t output_address_ext, uint32_t key_identifier, hsm_signature_scheme_id_t scheme_id, hsm_svc_fast_signature_generation_flags_t flags, hsm_hdl_t *fast_signature_gen_hdl);
+typedef struct {
+    hsm_signature_scheme_id_t scheme_id;        //!< identifier of the digital signature scheme to be used for the operation
+    hsm_op_prepare_signature_flags_t flags;     //!< bitmap specifying the operation attributes
+    uint16_t rsv;
+} op_prepare_sign_args_t;
 
 
 /**
- * Generate a digital signature according to the signature scheme\n
- * User can call this function only after having opened a fast signature generation service flow (key_identifier is omitted in the command)
+ * Prepare the creation of a signature by pre-calculating the operations having not dependencies on the input message.
+ * The pre-calculated value will be stored internally and used to the next call of hsm_generate_signature_finalize \n
+ * User can call this function only after having opened a signature generation service flow
  *
- * \param fast_signature_gen_hdl handle identifying the fast signature generation service flow
- * \param scheme_id identifier of the digital signature scheme to be used for the operation
- * \param message LSB of the address in the requester space where the input to be processed (message or message digest) can be found.
- * \param signature LSB of the address in the requester space where the signature must be stored\n the signature S=(c,d) is stored as c||d|lsb_y in case of compressed point signature, c||d otherwhise.
- * \param message_size lenght in bytes of the input
- * \param signature_size lenght in bytes of the output - In case of compressed point signature additional 32bit must be provided.
- * \param flags bitmap specifying the operation attributes
+ * \param signature_gen_hdl handle identifying the signature generation service flow
+ * \param args pointer to the structure containing the function arugments.
  *
  * \return error code
  */
-hsm_err_t hsm_fast_signature_generation(hsm_hdl_t fast_signature_gen_hdl, hsm_addr_lsb_t message, hsm_addr_lsb_t signature, uint32_t message_size, uint32_t signature_size, hsm_op_fast_signature_gen_flags_t flags);
-#define HSM_OP_FAST_SIGNATURE_GENERATION_INPUT_DIGEST        ((hsm_op_fast_signature_gen_flags_t)(0 << 0))
-#define HSM_OP_FAST_SIGNATURE_GENERATION_INPUT_MESSAGE       ((hsm_op_fast_signature_gen_flags_t)(1 << 1))
-#define HSM_OP_FAST_SIGNATURE_GENERATION_COMPRESSED_POINT    ((hsm_op_fast_signature_gen_flags_t)(2 << 1))
+hsm_err_t hsm_prepare_signature(hsm_hdl_t signature_gen_hdl, op_prepare_sign_args_t *args);
+
+typedef struct {
+    uint32_t key_identifier;                    //!< identifier of the key to be used for the operation
+    hsm_addr_lsb_t message;                     //!< LSB of the address in the requester space where the input (message or message digest) to be processed can be found
+    hsm_addr_lsb_t signature;                   //!< LSB of the address in the requester space where the signature must be stored. In case of compressed point the signature S=(c,d) is stored in format TBD, c||d otherwhise.
+    uint32_t message_size;                      //!< length in bytes of the input
+    uint16_t signature_size;                    //!< length in bytes of the output - TBD size in case of compressed point signature
+    hsm_op_finalize_sign_flags_t flags;         //!< bitmap specifying the operation attributes
+    uint8_t rsv;
+} op_finalize_sign_args_t;
 
 
 /**
- * Terminate a previously opened fast signature generation service flow
+ * Finalize the computation of a digital signature\n
+ * User can call this function only after having called the hsm_prepare_signature API.
  *
- * \param fast_signature_gen_hdl  handle identifying the signature service flow to be closed.
- * 
+ * \param signature_gen_hdl handle identifying the signature generation service flow
+ * \param args pointer to the structure containing the function arugments.
+ *
  * \return error code
  */
-hsm_err_t hsm_close_fast_signature_generation_service(hsm_hdl_t fast_signature_gen_hdl);
+hsm_err_t hsm_finalize_signature(hsm_hdl_t signature_gen_hdl, op_finalize_sign_args_t *args);
 
+#define HSM_OP_FINALIZE_SIGN_INPUT_DIGEST        ((hsm_op_finalize_sign_flags_t)(1 << 0))
+#define HSM_OP_FINALIZE_SIGN_INPUT_MESSAGE       ((hsm_op_finalize_sign_flags_t)(1 << 1))
+#define HSM_OP_FINALIZE_SIGN_COMPRESSED_POINT    ((hsm_op_finalize_sign_flags_t)(1 << 2))
+
+
+typedef struct {
+    hsm_addr_msb_t input_address_ext;               //!< most significant 32 bits address to be used by HSM for input memory transactions in the requester address space for the commands handled by the service flow.
+    hsm_addr_msb_t output_address_ext;              //!< most significant 32 bits address to be used by HSM for output memory transactions in the requester address space for the commands handled by the service flow.
+    hsm_svc_signature_verification_flags_t flags;   //!< bitmap indicating the service flow properties
+    uint8_t rsv[3];
+} open_svc_sign_ver_args_t;
 /**
- * Open a signature verification service flow\n
+ * User must open this service in order to perform signature verification operations.\n
  * User can call this function only after having opened a session.
- * User must open this service in order to perform signature verification operations.
  *
  * \param session_hdl handle indentifing the current session.
- * \param input_address_ext most significant 32 bits address to be used by HSM for input memory transactions in the requester address space for the operations handled by the service flow.
- * \param output_address_ext most significant 32 bits address to be used by HSM for output memory transactions in the requester address space for the opeartion handled by the service flow.
- * \param flags bitmap indicating the service flow properties - not supported in current release, any value accepted.
- * \param error_code pointer to where the error code should be written.
+ * \param args pointer to the structure containing the function arugments.
  * \param signature_ver_hdl pointer to where the signature verification service flow handle must be written.
  *
  * \return error code
  */
-hsm_err_t hsm_open_signature_verification_service(hsm_hdl_t session_hdl, hsm_addr_msb_t input_address_ext, hsm_addr_msb_t output_address_ext, hsm_svc_signature_flags_t flags,  hsm_hdl_t *signature_ver_hdl);
+hsm_err_t hsm_open_signature_verification_service(hsm_hdl_t session_hdl, open_svc_sign_ver_args_t *args, hsm_hdl_t *signature_ver_hdl);
 
+typedef struct {
+    hsm_addr_lsb_t key;                     //!< LSB of the address in the requester space where the public key to be used for the verification can be found
+    hsm_addr_lsb_t message;                 //!< LSB of the address in the requester space where the input (message or message digest) to be processed can be found
+    hsm_addr_lsb_t signature;               //!< LSB of the address in the requester space where the signature can be found. In case of compressed point the expected signature input is TBD
+    uint32_t message_size;                  //!< length in bytes of the input message
+    uint16_t signature_size;                //!< length in bytes of the input signature
+    hsm_signature_scheme_id_t scheme_id;    //!< identifier of the digital signature scheme to be used for the operation
+    hsm_op_verify_sign_flags_t flags;       //!< bitmap specifying the operation attributes
+} op_verify_sign_args_t;
 
 /**
  * Verify a digital signature according to the signature scheme\n
  * User can call this function only after having opened a signature verification service flow
  *
  * \param signature_ver_hdl handle identifying the signature verification service flow.
- * \param key_address pointer to the key to be used for the operation
- * \param key_identifier identifier of the key to be used for the operation
- * \param ecc_domain_id identifier of the supported ECC domains to be used for the operation
- * \param message LSB of the address in the requester space where the input (message or message digest) to be processed can be found
- * \param signature LSB of the address in the requester space where the signature can be found\n the signature S=(c,d) must be in the format c||d.
- * \param message_size lenght in bytes of the input
- * \param signature_size lenght in bytes of the output - it must contains additional 32bits where to store the Ry last significant bit
- * \param status pointer to where the verification status must be stored\n if the verification suceed the value HSM_OP_SIGNATURE_VERIFICATION_STATUS_SUCCESS is returned.
- * \param flags bitmap specifying the operation attributes
+ * \param args pointer to the structure containing the function arugments.
+ * \param status pointer to where the verification status must be stored\n if the verification suceed the value HSM_VERIFICATION_STATUS_SUCCESS is returned.
  *
  * \return error code
  */
-hsm_err_t hsm_signature_verification(hsm_hdl_t signature_ver_hdl, hsm_addr_lsb_t key_address, hsm_signature_scheme_id_t scheme_id, hsm_addr_lsb_t message, hsm_addr_lsb_t signature, uint32_t message_size, uint32_t signature_size, hsm_verification_status_t *status, hsm_op_signature_ver_flags_t flags);
-#define HSM_OP_SIGNATURE_VERIFICATION_INPUT_DIGEST    ((hsm_op_signature_ver_flags_t)(0 << 0))
-#define HSM_OP_SIGNATURE_VERIFICATION_INPUT_MESSAGE   ((hsm_op_signature_ver_flags_t)(1 << 1))
+hsm_err_t hsm_verify_signature(hsm_hdl_t signature_ver_hdl, op_verify_sign_args_t *args, hsm_verification_status_t *status);
+
+#define HSM_OP_VERIFY_SIGN_INPUT_DIGEST         ((hsm_op_verify_sign_flags_t)(1 << 0))
+#define HSM_OP_VERIFY_SIGN_INPUT_MESSAGE        ((hsm_op_verify_sign_flags_t)(1 << 1))
+#define HSM_OP_VERIFY_SIGN_COMPRESSED_POINT     ((hsm_op_verify_sign_flags_t)(1 << 2))
+
 #define HSM_VERIFICATION_STATUS_SUCCESS   ((hsm_verification_status_t)(0x5A3CC3A5))
-#define HSM_VERIFICATION_STATUS_FAILURE   ((hsm_verification_status_t)(0xA5C33C5A))
 
 
 /**
@@ -484,52 +558,13 @@ hsm_err_t hsm_signature_verification(hsm_hdl_t signature_ver_hdl, hsm_addr_lsb_t
  */
 hsm_err_t hsm_close_signature_verification_service(hsm_hdl_t signature_ver_hdl);
 
-/**
- * Open a fast signature verification service flow\n
- * User can call this function only after having opened a session.
- * User must open this service in order to perform several signature verification by using the same oublic key.
- *
- * \param session_hdl handle indentifing the current session.
- * \param input_address_ext most significant 32 bits address to be used by HSM for input memory transactions in the requester address space for the operations handled by the service flow.
- * \param output_address_ext most significant 32 bits address to be used by HSM for output memory transactions in the requester address space for the opeartion handled by the service flow.
- * \param key_identifier identifier of the private key to be used for the subsequent operations
- * \param flags bitmap indicating the service flow properties - not supported in current release, any value accepted.
- * \param fast_signature_ver_hdl pointer to where the fast signature verification service flow handle must be written.
- *
- * \return error code
- */
-hsm_err_t hsm_open_fast_signature_verification_service(hsm_hdl_t session_hdl, hsm_addr_msb_t input_address_ext, hsm_addr_msb_t output_address_ext, hsm_addr_msb_t key_address_ext, hsm_addr_lsb_t key_address, hsm_svc_fast_signature_verification_flags_t flags, hsm_signature_scheme_id_t scheme_id, hsm_hdl_t *fast_signature_ver_hdl);
 
-/**
- * Verify a digital signature according to the signature scheme\n
- * User can call this function only after having opened a signature service flow
- *
- * \param signature_hdl handle identifying the signature service flow.
- * \param key_address pointer to the key to be used for the operation
- * \param key_identifier identifier of the key to be used for the operation
- * \param ecc_domain_id identifier of the supported ECC domains to be used for the operation
- * \param message LSB of the address in the requester space where the input to be processed (message or message digest) can be found.
- * \param signature message LSB of the address in the requester space where the signature can be foundmust be stored\n the signature S=(c,d) must be in the c||d format.
- * \param message_size lenght in bytes of the input
- * \param signature_size lenght in bytes of the signature.
- * \param status pointer to where the verification status must be stored\n if the verification suceed the value HSM_OP_SIGNATURE_VERIFICATION_STATUS_SUCCESS is returned.
- * \param flags bitmap specifying the operation attributes.
- *
- * \return error code
- */
-hsm_err_t hsm_fast_signature_verification(hsm_hdl_t fast_signature_ver_hdl, hsm_addr_lsb_t message, hsm_addr_lsb_t signature, uint32_t message_size, uint32_t signature_size, hsm_verification_status_t *status, hsm_op_fast_signature_ver_flags_t flags);
-#define HSM_OP_FAST_SIGNATURE_VERIFICATION_INPUT_DIGEST    ((hsm_op_fast_signature_ver_flags_t)(0 << 0))
-#define HSM_OP_FAST_SIGNATURE_VERIFICATION_INPUT_MESSAGE   ((hsm_op_fast_signature_ver_flags_t)(1 << 1))
-
-/**
- * Terminate a previously opened fast signature verification service flow
- *
- * \param fast_signature_ver_hdl handle identifying the fast signature verification service flow to be closed.
- * 
- * \return error code
- */
-hsm_err_t hsm_close_fast_signature_verification_service(hsm_hdl_t fast_signature_ver_hdl);
-
+typedef struct {
+    hsm_addr_msb_t input_address_ext;               //!< most significant 32 bits address to be used by HSM for input memory transactions in the requester address space for the commands handled by the service flow.
+    hsm_addr_msb_t output_address_ext;              //!< most significant 32 bits address to be used by HSM for output memory transactions in the requester address space for the commands handled by the service flow.
+    hsm_svc_rng_flags_t flags;                      //!< bitmap indicating the service flow properties
+    uint8_t rsv[3]; 
+} open_svc_rng_args_t;
 
 /**
  * Open a random number generation service flow\n
@@ -537,26 +572,13 @@ hsm_err_t hsm_close_fast_signature_verification_service(hsm_hdl_t fast_signature
  * User must open this service in order to perform rng operations.
  *
  * \param session_hdl handle indentifing the current session.
- * \param input_address_ext most significant 32 bits address to be used by HSM for input memory transactions in the requester address space for the operations handled by the service flow.
- * \param output_address_ext most significant 32 bits address to be used by HSM for output memory transactions in the requester address space for the opeartion handled by the service flow.
- * \param flags bitmap indicating the service flow properties
+ * \param args pointer to the structure containing the function arugments.
  * \param rng_hdl pointer to where the rng service flow handle must be written.
  * 
  * \return error code
  */
-hsm_err_t hsm_open_rng_service(hsm_hdl_t session_hdl, hsm_addr_msb_t input_address_ext, hsm_addr_msb_t output_address_ext, hsm_svc_rng_flags_t flags, hsm_hdl_t *rng_hdl);
+hsm_err_t hsm_open_rng_service(hsm_hdl_t session_hdl, open_svc_rng_args_t *args, hsm_hdl_t *rng_hdl);
 
-/**
- * Get a freshly generated random number\n
- * User can call this function only after having opened a rng service flow
- *
- * \param rng_hdl handle identifying the rng service flow.
- * \param output LSB of the address in the requester space where random number must be stored.
- * \param output_size length of the random number in bytes
- *
- * \return error code
- */
-hsm_err_t hsm_rng_get_random(hsm_hdl_t rng_hdl, hsm_addr_lsb_t output, uint32_t output_size);
 
 /**
  * Terminate a previously opened rng service flow
@@ -568,38 +590,43 @@ hsm_err_t hsm_rng_get_random(hsm_hdl_t rng_hdl, hsm_addr_lsb_t output, uint32_t 
 hsm_err_t hsm_close_rng_service(hsm_hdl_t rng_hdl);
 
 
+typedef struct {
+    hsm_addr_lsb_t output;                  //!< LSB of the address in the requester space where the out random number must be written
+    uint32_t random_size;                   //!< length in bytes of the random number to be provided.
+} op_get_random_args_t;
+
+/**
+ * Get a freshly generated random number\n
+ * User can call this function only after having opened a rng service flow
+ *
+ * \param rng_hdl handle identifying the rng service flow.
+ * \param args pointer to the structure containing the function arugments.
+ *
+ * \return error code
+ */
+hsm_err_t hsm_get_random(hsm_hdl_t rng_hdl, op_get_random_args_t *args);
+
+
+typedef struct {
+    hsm_addr_msb_t input_address_ext;               //!< most significant 32 bits address to be used by HSM for input memory transactions in the requester address space for the commands handled by the service flow.
+    hsm_addr_msb_t output_address_ext;              //!< most significant 32 bits address to be used by HSM for output memory transactions in the requester address space for the commands handled by the service flow.
+    hsm_svc_rng_flags_t flags;                      //!< bitmap indicating the service flow properties
+    uint8_t rsv[3]; 
+} open_svc_hash_args_t;
+
 /**
  * Open an hash service flow\n
  * User can call this function only after having opened a session. 
  * User must open this service in order to perform an hash operations.
  *
  * \param session_hdl handle indentifing the current session.
- * \param input_address_ext most significant 32 bits address to be used by HSM for input memory transactions in the requester address space for the operations handled by the service flow.
- * \param output_address_ext most significant 32 bits address to be used by HSM for output memory transactions in the requester address space for the opeartion handled by the service flow.
- * \param flags bitmap indicating the service flow properties
+ * \param args pointer to the structure containing the function arugments.
  * \param hash_hdl pointer to where the hash service flow handle must be written.
  * 
  * \return error code
  */
-hsm_err_t hsm_open_hash_service(hsm_hdl_t session_hdl, hsm_addr_msb_t input_address_ext, hsm_addr_msb_t output_address_ext, hsm_svc_hash_flags_t flags, hsm_hdl_t *hash_hdl);
+hsm_err_t hsm_open_hash_service(hsm_hdl_t session_hdl, open_svc_hash_args_t *args, hsm_hdl_t *hash_hdl);
 
-/**
- * Perform the hash operation on a given input\n
- * User can call this function only after having opened a hash service flow
- *
- * \param hash_hdl handle identifying the hash service flow.
- * \param input LSB of the address in the requester space where message to be hashed can be found.
- * \param output LSB of the address in the requester space where the resulting hash must be stored.
- * \param input_size lenght in bytes of the input
- * \param output_size lenght in bytes of the output.
- * \param algo algorithm to be used for the operation
- *
- * \return error code
- */
-hsm_err_t hsm_hash_one_go(hsm_hdl_t hash_hdl, hsm_addr_lsb_t input, hsm_addr_lsb_t output, uint32_t input_size, uint32_t output_size, hsm_hash_algo_t algo);
-#define HSM_HASH_ALGO_SHA2_224      ((hsm_hash_algo_t)(0x0))
-#define HSM_HASH_ALGO_SHA2_256      ((hsm_hash_algo_t)(0x1))
-#define HSM_HASH_ALGO_SHA2_384      ((hsm_hash_algo_t)(0x2))
 
 /**
  * Terminate a previously opened hash service flow
@@ -609,6 +636,33 @@ hsm_err_t hsm_hash_one_go(hsm_hdl_t hash_hdl, hsm_addr_lsb_t input, hsm_addr_lsb
  * \return error code
  */
 hsm_err_t hsm_close_hash_service(hsm_hdl_t hash_hdl);
+
+
+typedef struct {
+    hsm_addr_lsb_t input;               //!< LSB of the address in the requester space where the input payload can be found
+    hsm_addr_lsb_t output;              //!< LSB of the address in the requester space where the output digest must be written 
+    uint32_t input_size;                //!< length in bytes of the input
+    uint32_t output_size;               //!< length in bytes of the output
+    hsm_hash_algo_t algo;               //!< hash algorithm to be used for the operation
+    hsm_op_hash_one_go_flags_t flags;       //!< flags bitmap specifying the operation attributes.
+    uint16_t rsv;
+} op_hash_one_go_args_t;
+
+/**
+ * Perform the hash operation on a given input\n
+ * User can call this function only after having opened a hash service flow
+ *
+ * \param hash_hdl handle identifying the hash service flow.
+ * \param args pointer to the structure containing the function arugments.
+ *
+ * \return error code
+ */
+hsm_err_t hsm_hash_one_go(hsm_hdl_t hash_hdl, op_hash_one_go_args_t *args);
+#define HSM_HASH_ALGO_SHA2_224      ((hsm_hash_algo_t)(0x0))
+#define HSM_HASH_ALGO_SHA2_256      ((hsm_hash_algo_t)(0x1))
+#define HSM_HASH_ALGO_SHA2_384      ((hsm_hash_algo_t)(0x2))
+
+
 
 /** \}*/
 #endif
