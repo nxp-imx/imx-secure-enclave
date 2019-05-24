@@ -65,8 +65,6 @@ typedef uint8_t hsm_op_generate_sign_flags_t;
 typedef uint8_t hsm_op_prepare_signature_flags_t;
 typedef uint8_t hsm_op_finalize_sign_flags_t;
 typedef uint8_t hsm_op_verify_sign_flags_t;
-typedef uint8_t hsm_op_fast_signature_gen_flags_t;
-typedef uint8_t hsm_op_fast_signature_ver_flags_t;
 typedef uint8_t hsm_op_hash_one_go_flags_t;
 typedef uint8_t hsm_op_pub_key_rec_flags_t;
 typedef uint8_t hsm_op_pub_key_dec_flags_t;
@@ -280,41 +278,45 @@ hsm_err_t hsm_manage_key(hsm_hdl_t key_management_hdl, op_manage_key_args_t *arg
 
 typedef struct {
     uint32_t key_identifier;            //!< identifier of the key to be expanded
-    hsm_addr_lsb_t add_data_1;          //!< LSB of the address in the requester space where the add_data_1 input can be found
-    hsm_addr_lsb_t add_data_2;          //!< LSB of the address in the requester space where the add_data_2 input can be found
-    hsm_addr_lsb_t multiply_data;       //!< LSB of the address in the requester space where the multiply_data input can be found
-    uint8_t data_1_size;                //!< length in bytes of the add_data_1 input
-    uint8_t data_2_size;                //!< length in bytes of the add_data_2 input
-    uint8_t multiply_data_size;         //!< length in bytes of the multiply_data input
+    hsm_addr_lsb_t data1;               //!< LSB of the address in the requester space where the data1 input can be found
+    hsm_addr_lsb_t data2;               //!< LSB of the address in the requester space where the data2 input can be found
+    hsm_addr_lsb_t data3;               //!< LSB of the address in the requester space where the data3 input can be found
+    uint8_t data1_size;                 //!< length in bytes of the add_data1 input
+    uint8_t data2_size;                 //!< length in bytes of the add_data2 input
+    uint8_t data3_size;                 //!< length in bytes of the data3 input
     hsm_op_but_key_exp_flags_t flags;   //!< bitmap specifying the operation properties
     uint32_t dest_key_identifier;       //!< identifier of the derived key
-    hsm_addr_lsb_t out_key;             //!< LSB of the address in the requester space where the public key must be written.
-    uint16_t out_size;                  //!< length in bytes of the output area, if the size is 0, no key is copied in the output.
-    hsm_key_type_t key_type;                   //!< indicates the type of the key to be managed.
+    hsm_addr_lsb_t output;              //!< LSB of the address in the requester space where the public key must be written.
+    uint16_t output_size;               //!< length in bytes of the output area, if the size is 0, no key is copied in the output.
+    hsm_key_type_t key_type;            //!< indicates the type of the key to be managed.
     uint8_t rsv;
 } op_butt_key_exp_args_t;
 
 /**
  * This command is designed to perform the butterfly key expansion operation on an ECC private key in case of implicit certificate. Optionally the resulting public key is exported.\n
- * The result of the key expansion function is calculated outside the HSM and passed as input.\n
- * User can call this function only after having opened a key management service flow.\n\n
+ * The result of the key expansion function is calculated outside the HSM and passed as input. \n
+ * User can call this function only after having opened a key management service flow. \n\n
  * 
  * The following operation is performed:\n
- * out_key = (Key + add_data_1) * multiply_data + add_data_2 (mod n)\n\n
+ * out_key = (Key + data1) * data2 + data3 (mod n)
+ * \n\n
  *
  * Explicit certificates:
- *  add_data_1 = 0,
- *  add_data_2 = f1/f2(k, i, j),
- *  multiply_data = 1\n
+ *  data1 = 0,
+ *  data2 = 1
+ *  data3 = f1/f2(k, i, j),
+ * \n
  *
- * out_key = Key  + f1/f2(k, i, j) (mod n)\n\n
+ * out_key = Key  + f1/f2(k, i, j) (mod n)
+ * \n\n
  *
  * Implicit certificates:
- *  add_data_1 = f1(k, i, j),
- *  add_data_2 = private reconstruction value pij,
- *  multiply_data = hash value used to in the derivation of the pseudonym ECC key\n
+ *  data1 = f1(k, i, j),
+ *  data2 = hash value used to in the derivation of the pseudonym ECC key \n
+ *  data3 = private reconstruction value pij,
  * 
- * out_key = (Key  + f1(k, i, j))*Hash + pij\n\n
+ * out_key = (Key  + f1(k, i, j))*Hash + pij
+ * \n\n
  * 
  * \param key_management_hdl handle identifying the key store management service flow.
  * \param args pointer to the structure containing the function arugments.
@@ -386,6 +388,33 @@ hsm_err_t hsm_cipher_one_go(hsm_hdl_t chiper_hdl, op_cipher_one_go_args_t* args)
 #define HSM_CIPHER_ONE_GO_ALGO_AES_CCM              ((hsm_op_cipher_one_go_algo_t)(0x04)) //!< AES CCM where Adata = 0, Tlen = 16 bytes
 #define HSM_CIPHER_ONE_GO_FLAGS_ENCRYPT             ((hsm_op_cipher_one_go_flags_t)(1 << 0))
 #define HSM_CIPHER_ONE_GO_FLAGS_DECRYPT             ((hsm_op_cipher_one_go_flags_t)(1 << 1))
+
+
+typedef struct {
+    uint32_t key_identifier;                //!< identifier of the private key to be used for the operation
+    hsm_addr_lsb_t input;                   //!< LSB of the address in the requester space where the input VCT can be found
+    hsm_addr_lsb_t p1;                      //!< LSB of the address in the requester space where the KDF P1 parameter can be found
+    hsm_addr_lsb_t p2;                      //!< LSB of the address in the requester space where the MAC P2 parameter can be found
+    hsm_addr_lsb_t output;                  //!< LSB of the address in the requester space where the output plaintext must be written 
+    uint32_t input_size;                    //!< length in bytes of the input VCT
+    uint32_t output_size;                   //!< length in bytes of the output plaintext
+    uint16_t p1_size;                       //!< length in bytes of the KDF P1 parameter
+    uint16_t p2_size;                       //!< length in bytes of the MAC P2 parameter
+    uint16_t mac_size;                      //!< length in bytes of the requested message authentication code
+    hsm_key_type_t key_type;                //!< indicates the type of the used key
+    hsm_op_ecies_dec_flags_t flags;         //!< bitmap specifying the operation attributes.
+} hsm_op_ecies_dec_args_t;
+
+/**
+ * Decrypt data usign ECIES \n
+ * User can call this function only after having opened a cipher  store service flow 
+ *
+ * \param session_hdl handle identifying the current session.
+ * \param args pointer to the structure containing the function arugments.
+ *
+ * \return error code
+ */
+hsm_err_t hsm_ecies_decryption(hsm_hdl_t cipher_hdl, hsm_op_ecies_dec_args_t *args);
 
 /**
  * Terminate a previously opened cipher service flow
@@ -649,7 +678,7 @@ hsm_err_t hsm_get_random(hsm_hdl_t rng_hdl, op_get_random_args_t *args);
 typedef struct {
     hsm_addr_msb_t input_address_ext;               //!< most significant 32 bits address to be used by HSM for input memory transactions in the requester address space for the commands handled by the service flow.
     hsm_addr_msb_t output_address_ext;              //!< most significant 32 bits address to be used by HSM for output memory transactions in the requester address space for the commands handled by the service flow.
-    hsm_svc_rng_flags_t flags;                      //!< bitmap indicating the service flow properties
+    hsm_svc_hash_flags_t flags;                      //!< bitmap indicating the service flow properties
     uint8_t rsv[3];
 } open_svc_hash_args_t;
 
@@ -736,6 +765,7 @@ hsm_err_t hsm_pub_key_reconstruction(hsm_hdl_t session_hdl,  hsm_op_pub_key_rec_
 
 /**
  * Decompress an ECC public key \n
+ * The expected key format is x||lsb_y where lsb_y is 1 byte having value 1 if the least-significant bit of the original (uncompressed) y coordinate is set, and 0 otherwise.
  * User can call this function only after having opened a session 
  *
  * \param session_hdl handle identifying the current session.
@@ -744,10 +774,12 @@ hsm_err_t hsm_pub_key_reconstruction(hsm_hdl_t session_hdl,  hsm_op_pub_key_rec_
  * \return error code
  */
 typedef struct {
-    hsm_addr_msb_t pub_key_ext;             //!< MSB of the address in the requester space where the compressed ECC public key can be found. The expected key format is x||lsb_y where lsb_y is 1 byte having value 1 if the least-significant bit of the original (uncompressed) y coordinate is set, and 0 otherwise.
-    hsm_addr_lsb_t pub_key;                 //!< MSB of the address in the requester space where the compressed ECC public key can be found. The expected key format is x||lsb_y where lsb_y is 1 byte having value 1 if the least-significant bit of the original (uncompressed) y coordinate is set, and 0 otherwise.
+    hsm_addr_msb_t key_ext;                 //!< MSB of the address in the requester space where the compressed ECC public key can be found. The expected key format is x||lsb_y where lsb_y is 1 byte having value 1 if the least-significant bit of the original (uncompressed) y coordinate is set, and 0 otherwise.
+    hsm_addr_lsb_t key;                     //!< LSB of the address in the requester space where the compressed ECC public key can be found. The expected key format is x||lsb_y where lsb_y is 1 byte having value 1 if the least-significant bit of the original (uncompressed) y coordinate is set, and 0 otherwise.
     hsm_addr_msb_t out_key_ext;             //!< MSB of the address in the requester space where the output resulting key must be written.
     hsm_addr_lsb_t out_key;                 //!< LSB of the address in the requester space where the output resulting key must be written.
+    uint16_t key_size;                      //!< length in bytes of the input compressed public key
+    uint16_t out_key_size;                  //!< length in bytes of the resulting public key
     hsm_key_type_t key_type;                //!< indicates the type of the manged keys.
     hsm_op_pub_key_dec_flags_t flags;       //!< bitmap specifying the operation attributes.
     uint16_t rsv;
@@ -755,21 +787,21 @@ typedef struct {
 hsm_err_t hsm_pub_key_decompression(hsm_hdl_t session_hdl,  hsm_op_pub_key_dec_args_t *args);
 
 typedef struct {
-    hsm_addr_msb_t pub_key_ext;             //!< MSB of the address in the requester space where the recipient public key can be found.
-    hsm_addr_lsb_t pub_key;                 //!< LSB of the address in the requester space where the recipient public key can be found.
     hsm_addr_msb_t input_ext;               //!< MSB of the address in the requester space where the plaintext can be found.
     hsm_addr_lsb_t input;                   //!< LSB of the address in the requester space where the plaintext can be found.
+    hsm_addr_msb_t pub_key_ext;             //!< MSB of the address in the requester space where the recipient public key can be found.
+    hsm_addr_lsb_t pub_key;                 //!< LSB of the address in the requester space where the recipient public key can be found.
     hsm_addr_msb_t p1_ext;                  //!< MSB of the address in the requester space where the KDF P1 parameter can be found
     hsm_addr_lsb_t p1;                      //!< LSB of the address in the requester space where the KDF P1 parameter can be found
     hsm_addr_msb_t p2_ext;                  //!< MSB of the address in the requester space where the MAC P2 parameter can be found
     hsm_addr_lsb_t p2;                      //!< LSB of the address in the requester space where the MAC P2 parameter can be found
+    hsm_addr_msb_t output_ext;              //!< MSB of the address in the requester space where the output VCT must be written 
+    hsm_addr_lsb_t output;                  //!< LSB of the address in the requester space where the output VCT must be written 
+    uint32_t input_size;                    //!< length in bytes of the input plaintext
     uint16_t p1_size;                       //!< length in bytes of the KDF P1 parameter
     uint16_t p2_size;                       //!< length in bytes of the MAC P2 parameter
     uint16_t pub_key_size;                  //!< length in bytes of the recipient public key
     uint16_t mac_size;                      //!< length in bytes of the requested message authentication code
-    uint32_t input_size;                    //!< length in bytes of the input plaintext
-    hsm_addr_msb_t output_ext;              //!< MSB of the address in the requester space where the output VCT must be written 
-    hsm_addr_lsb_t output;                  //!< LSB of the address in the requester space where the output VCT must be written 
     uint32_t out_size;                      //!< length in bytes of the output VCT
     hsm_key_type_t key_type;                //!< indicates the type of the recipient public key
     hsm_op_ecies_enc_flags_t flags;         //!< bitmap specifying the operation attributes.
@@ -786,38 +818,6 @@ typedef struct {
  * \return error code
  */
 hsm_err_t hsm_ecies_encryption(hsm_hdl_t session_hdl, hsm_op_ecies_enc_args_t *args);
-
-
-typedef struct {
-    uint32_t key_identifier;                //!< identifier of the private key to be used for the operation
-    hsm_addr_msb_t input_ext;               //!< MSB of the address in the requester space where the input VCT can be found 
-    hsm_addr_lsb_t input;                   //!< LSB of the address in the requester space where the input VCT can be found
-    hsm_addr_msb_t p1_ext;                  //!< MSB of the address in the requester space where the KDF P1 parameter can be found
-    hsm_addr_lsb_t p1;                      //!< LSB of the address in the requester space where the KDF P1 parameter can be found
-    hsm_addr_msb_t p2_ext;                  //!< MSB of the address in the requester space where the MAC P2 parameter can be found
-    hsm_addr_lsb_t p2;                      //!< LSB of the address in the requester space where the MAC P2 parameter can be found
-    uint16_t p1_size;                       //!< length in bytes of the KDF P1 parameter
-    uint16_t p2_size;                       //!< length in bytes of the MAC P2 parameter
-    uint32_t input_size;                    //!< length in bytes of the input VCT
-    hsm_addr_msb_t output_ext;              //!< MSB of the address in the requester space where the output plaintext must be written
-    hsm_addr_lsb_t output;                  //!< LSB of the address in the requester space where the output plaintext must be written 
-    uint32_t out_size;                      //!< length in bytes of the ouptu plaintext
-    uint16_t mac_size;                      //!< length in bytes of the requested message authentication code
-    hsm_key_type_t key_type;                //!< indicates the type of the used key
-    hsm_op_ecies_dec_flags_t flags;         //!< bitmap specifying the operation attributes.
-} hsm_op_ecies_dec_args_t;
-
-/**
- * Decrypt data usign ECIES \n
- * User can call this function only after having opened a key store service flow 
- *
- * \param session_hdl handle identifying the current session.
- * \param args pointer to the structure containing the function arugments.
- *
- * \return error code
- */
-hsm_err_t hsm_ecies_decryption(hsm_hdl_t key_store_hdl, hsm_op_ecies_dec_args_t *args);
-
 
 /** \}*/
 #endif
