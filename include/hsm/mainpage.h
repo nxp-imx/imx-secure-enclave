@@ -6,7 +6,7 @@
 /*! \page  History Revision History
  * 
  * Revision 0.1: 29/03/2019 Savari preliminary draft - subject to change \n
- * Revision 0.8: 25/05/2019 Secondary draft - subject to change. It adds following APIs:
+ * Revision 0.8: 24/05/2019 Secondary draft - subject to change. It adds following APIs:
  *  - Signature generation, signature verification, rng, hash service flows and operations. 
  *  - Butterfly key expansion, ECIES enc/dec, public key reconstruction, public key decompression operations.
  * 
