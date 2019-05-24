@@ -68,11 +68,15 @@ typedef uint8_t hsm_op_verify_sign_flags_t;
 typedef uint8_t hsm_op_fast_signature_gen_flags_t;
 typedef uint8_t hsm_op_fast_signature_ver_flags_t;
 typedef uint8_t hsm_op_hash_one_go_flags_t;
-
+typedef uint8_t hsm_op_pub_key_rec_flags_t;
+typedef uint8_t hsm_op_pub_key_dec_flags_t;
+typedef uint8_t hsm_op_ecies_enc_flags_t;
+typedef uint8_t hsm_op_ecies_dec_flags_t;
 
 typedef uint8_t hsm_signature_scheme_id_t;
 typedef uint8_t hsm_hash_algo_t;
-typedef uint16_t hsm_key_type_t;
+typedef uint8_t hsm_key_type_t;
+typedef uint8_t hsm_key_type_ext_t;
 typedef uint16_t hsm_key_info_t;
 typedef uint32_t hsm_addr_msb_t;
 typedef uint32_t hsm_addr_lsb_t;
@@ -171,6 +175,7 @@ typedef struct {
     hsm_op_key_gen_flags_t flags;   //!< bitmap specifying the operation properties.
     uint8_t rsv;
     hsm_key_type_t key_type;        //!< indicates which type of key must be generated.
+    hsm_key_type_ext_t key_type_ext;
     hsm_key_info_t key_info;        //!< bitmap specifying the properties of the key.
     hsm_addr_lsb_t out_key;         //!< LSB of the address in the requester space where to store the public key
 } op_generate_key_args_t;
@@ -232,6 +237,7 @@ typedef struct {
     hsm_op_manage_key_flags_t flags;    //!< bitmap specifying the operation properties.
     uint16_t rsv;
     hsm_key_type_t key_type;            //!< indicates the type of the key to be managed.
+    hsm_key_type_ext_t key_type_ext;
     hsm_key_info_t key_info;            //!< bitmap specifying the properties of the key, it will replace the existing value. Not checked in case of delete operation.
     hsm_addr_lsb_t input_key;           //!< LSB of the address in the requester space where the new key value can be found. Not checked in case of delete operation.
 } op_manage_key_args_t;
@@ -284,7 +290,8 @@ typedef struct {
     uint32_t dest_key_identifier;       //!< identifier of the derived key
     hsm_addr_lsb_t out_key;             //!< LSB of the address in the requester space where the public key must be written.
     uint16_t out_size;                  //!< length in bytes of the output area, if the size is 0, no key is copied in the output.
-    uint16_t rsv;
+    hsm_key_type_t key_type;                   //!< indicates the type of the key to be managed.
+    uint8_t rsv;
 } op_butt_key_exp_args_t;
 
 /**
@@ -293,21 +300,21 @@ typedef struct {
  * User can call this function only after having opened a key management service flow.\n\n
  * 
  * The following operation is performed:\n
- * ButKey = (Key + AddData1) * MultiplyData + AddData2 (mod n)\n\n
+ * out_key = (Key + add_data_1) * multiply_data + add_data_2 (mod n)\n\n
  *
  * Explicit certificates:
  *  add_data_1 = 0,
  *  add_data_2 = f1/f2(k, i, j),
  *  multiply_data = 1\n
  *
- * ButKey = Key  + f1/f2(k, i, j) (mod n)\n\n
+ * out_key = Key  + f1/f2(k, i, j) (mod n)\n\n
  *
  * Implicit certificates:
  *  add_data_1 = f1(k, i, j),
  *  add_data_2 = private reconstruction value pij,
  *  multiply_data = hash value used to in the derivation of the pseudonym ECC key\n
  * 
- * ButKey = (Key  + f1(k, i, j))*Hash + pij\n\n
+ * out_key = (Key  + f1(k, i, j))*Hash + pij\n\n
  * 
  * \param key_management_hdl handle identifying the key store management service flow.
  * \param args pointer to the structure containing the function arugments.
@@ -372,7 +379,7 @@ hsm_err_t hsm_cipher_one_go(hsm_hdl_t chiper_hdl, op_cipher_one_go_args_t* args)
 #define HSM_CIPHER_ONE_GO_ALGO_AES_ECB              ((hsm_op_cipher_one_go_algo_t)(0x00))
 #define HSM_CIPHER_ONE_GO_ALGO_AES_CBC              ((hsm_op_cipher_one_go_algo_t)(0x01))
 /**
- * Perform AES CCM with following prerequisites:
+ * Perform AES CCM with following constraints:
  * - Adata = 0 - There is no associated data
  * - Tlen = 16 bytes
  */
@@ -422,9 +429,9 @@ hsm_err_t hsm_close_signature_generation_service(hsm_hdl_t signature_gen_hdl);
 typedef struct {
     uint32_t key_identifier;                //!< identifier of the key to be used for the operation
     hsm_addr_lsb_t message;                 //!< LSB of the address in the requester space where the input (message or message digest) to be processed can be found
-    hsm_addr_lsb_t signature;               //!< LSB of the address in the requester space where the signature must be stored. The signature S=(c,d) is stored as TBD in case of compressed point signature, c||d otherwhise.
+    hsm_addr_lsb_t signature;               //!< LSB of the address in the requester space where the signature must be stored. The signature S=(r,s) is always stored in format r||s||Ry where Ry is an additional byte containing the lsb of y. The Ry validity is based on the “compressed point” flag.
     uint32_t message_size;                  //!< length in bytes of the input
-    uint16_t signature_size;                //!< length in bytes of the output - it must contains additional 32bits where to store the Ry last significant bit
+    uint16_t signature_size;                //!< length in bytes of the output 
     hsm_signature_scheme_id_t scheme_id;    //!< identifier of the digital signature scheme to be used for the operation
     hsm_op_generate_sign_flags_t flags;     //!< bitmap specifying the operation attributes
 } op_generate_sign_args_t;
@@ -433,17 +440,18 @@ typedef struct {
 /**
  * Generate a digital signature according to the signature scheme\n
  * User can call this function only after having opened a signature generation service flow
+ * The signature S=(r,s) is always stored in format r||s||Ry where Ry is an additional byte containing the lsb of y. The Ry validity is based on the “compressed point” flag.
  *
  * \param signature_gen_hdl handle identifying the signature generation service flow
-  * \param args pointer to the structure containing the function arugments.
+ * \param args pointer to the structure containing the function arugments.
  *
  * \return error code
  */
 hsm_err_t hsm_generate_signature(hsm_hdl_t signature_gen_hdl, op_generate_sign_args_t *args);
 
-#define HSM_OP_GENERATE_SIGN_INPUT_DIGEST        ((hsm_op_generate_sign_flags_t)(1 << 0))
-#define HSM_OP_GENERATE_SIGN_INPUT_MESSAGE       ((hsm_op_generate_sign_flags_t)(1 << 1))
-#define HSM_OP_GENERATE_SIGN_COMPRESSED_POINT    ((hsm_op_generate_sign_flags_t)(1 << 2))
+#define HSM_OP_GENERATE_SIGN_INPUT_DIGEST           ((hsm_op_generate_sign_flags_t)(1 << 0))
+#define HSM_OP_GENERATE_SIGN_INPUT_MESSAGE          ((hsm_op_generate_sign_flags_t)(1 << 1))
+#define HSM_OP_GENERATE_SIGN_COMPRESSED_POINT       ((hsm_op_generate_sign_flags_t)(1 << 2))
 
 #define HSM_SIGNATURE_SCHEME_ECDSA_NIST_P224_SHA_256            ((hsm_signature_scheme_id_t)0x01)
 #define HSM_SIGNATURE_SCHEME_ECDSA_NIST_P256_SHA_256            ((hsm_signature_scheme_id_t)0x02)
@@ -467,6 +475,7 @@ typedef struct {
  * Prepare the creation of a signature by pre-calculating the operations having not dependencies on the input message.
  * The pre-calculated value will be stored internally and used to the next call of hsm_generate_signature_finalize \n
  * User can call this function only after having opened a signature generation service flow
+ * The signature S=(r,s) is stored in format r||s||Ry where Ry is an additional byte containing the lsb of y, the validity of the Ry parameter is based on the “compressed point” flag.
  *
  * \param signature_gen_hdl handle identifying the signature generation service flow
  * \param args pointer to the structure containing the function arugments.
@@ -478,9 +487,9 @@ hsm_err_t hsm_prepare_signature(hsm_hdl_t signature_gen_hdl, op_prepare_sign_arg
 typedef struct {
     uint32_t key_identifier;                    //!< identifier of the key to be used for the operation
     hsm_addr_lsb_t message;                     //!< LSB of the address in the requester space where the input (message or message digest) to be processed can be found
-    hsm_addr_lsb_t signature;                   //!< LSB of the address in the requester space where the signature must be stored. In case of compressed point the signature S=(c,d) is stored in format TBD, c||d otherwhise.
+    hsm_addr_lsb_t signature;                   //!< LSB of the address in the requester space where the signature must be stored. The signature S=(r,s) is stored in format r||s||Ry where Ry is an additional byte containing the lsb of y, the validity of the Ry parameter is based on the “compressed point” flag.
     uint32_t message_size;                      //!< length in bytes of the input
-    uint16_t signature_size;                    //!< length in bytes of the output - TBD size in case of compressed point signature
+    uint16_t signature_size;                    //!< length in bytes of the output
     hsm_op_finalize_sign_flags_t flags;         //!< bitmap specifying the operation attributes
     uint8_t rsv;
 } op_finalize_sign_args_t;
@@ -497,9 +506,9 @@ typedef struct {
  */
 hsm_err_t hsm_finalize_signature(hsm_hdl_t signature_gen_hdl, op_finalize_sign_args_t *args);
 
-#define HSM_OP_FINALIZE_SIGN_INPUT_DIGEST        ((hsm_op_finalize_sign_flags_t)(1 << 0))
-#define HSM_OP_FINALIZE_SIGN_INPUT_MESSAGE       ((hsm_op_finalize_sign_flags_t)(1 << 1))
-#define HSM_OP_FINALIZE_SIGN_COMPRESSED_POINT    ((hsm_op_finalize_sign_flags_t)(1 << 2))
+#define HSM_OP_FINALIZE_SIGN_INPUT_DIGEST           ((hsm_op_finalize_sign_flags_t)(1 << 0))
+#define HSM_OP_FINALIZE_SIGN_INPUT_MESSAGE          ((hsm_op_finalize_sign_flags_t)(1 << 1))
+#define HSM_OP_FINALIZE_SIGN_COMPRESSED_POINT       ((hsm_op_finalize_sign_flags_t)(1 << 2))
 
 
 typedef struct {
@@ -521,19 +530,23 @@ typedef struct {
 hsm_err_t hsm_open_signature_verification_service(hsm_hdl_t session_hdl, open_svc_sign_ver_args_t *args, hsm_hdl_t *signature_ver_hdl);
 
 typedef struct {
-    hsm_addr_lsb_t key;                     //!< LSB of the address in the requester space where the public key to be used for the verification can be found
+    hsm_addr_lsb_t key;                     //!< LSB of the address in the requester space where the public key to be used for the verification can be found.
     hsm_addr_lsb_t message;                 //!< LSB of the address in the requester space where the input (message or message digest) to be processed can be found
-    hsm_addr_lsb_t signature;               //!< LSB of the address in the requester space where the signature can be found. In case of compressed point the expected signature input is TBD
+    hsm_addr_lsb_t signature;               //!< LSB of the address in the requester space where the signature can be found. The signature S=(r,s) is expected to be in format r||s||Ry where Ry is an additional byte containing the lsb of y, the validity of the Ry parameter is based on the “compressed point” flag.
+    uint16_t key_size;                      //!< length in bytes of the input key
+    uint16_t signature_size;                //!< length in bytes of the output - it must contains one additional byte where to store the Ry.
     uint32_t message_size;                  //!< length in bytes of the input message
-    uint16_t signature_size;                //!< length in bytes of the input signature
     hsm_signature_scheme_id_t scheme_id;    //!< identifier of the digital signature scheme to be used for the operation
     hsm_op_verify_sign_flags_t flags;       //!< bitmap specifying the operation attributes
+    uint16_t rsv;
 } op_verify_sign_args_t;
 
 /**
  * Verify a digital signature according to the signature scheme\n
  * User can call this function only after having opened a signature verification service flow
- *
+ * The signature S=(r,s) is expected to be in format r||s||Ry where Ry is an additional byte containing the lsb of y, the validity of the Ry parameters is based on the “compressed point” flag.
+ * Only not-compressed keys (x,y) can be used by this command. Compressed keys can be decompressed by using the dedicated API.
+ * 
  * \param signature_ver_hdl handle identifying the signature verification service flow.
  * \param args pointer to the structure containing the function arugments.
  * \param status pointer to where the verification status must be stored\n if the verification suceed the value HSM_VERIFICATION_STATUS_SUCCESS is returned.
@@ -542,11 +555,37 @@ typedef struct {
  */
 hsm_err_t hsm_verify_signature(hsm_hdl_t signature_ver_hdl, op_verify_sign_args_t *args, hsm_verification_status_t *status);
 
-#define HSM_OP_VERIFY_SIGN_INPUT_DIGEST         ((hsm_op_verify_sign_flags_t)(1 << 0))
-#define HSM_OP_VERIFY_SIGN_INPUT_MESSAGE        ((hsm_op_verify_sign_flags_t)(1 << 1))
-#define HSM_OP_VERIFY_SIGN_COMPRESSED_POINT     ((hsm_op_verify_sign_flags_t)(1 << 2))
+#define HSM_OP_VERIFY_SIGN_INPUT_DIGEST             ((hsm_op_verify_sign_flags_t)(1 << 0))
+#define HSM_OP_VERIFY_SIGN_INPUT_MESSAGE            ((hsm_op_verify_sign_flags_t)(1 << 1))
+#define HSM_OP_VERIFY_SIGN_COMPRESSED_POINT         ((hsm_op_verify_sign_flags_t)(1 << 2))
+/**
+ * when set the value passed by the key argument is considered as the internal reference of a key imported throught the hsm__import_pub_key API.
+ */
+#define HSM_OP_VERIFY_SIGN_KEY_INTERNAL             ((hsm_op_verify_sign_flags_t)(1 << 4))
+
 
 #define HSM_VERIFICATION_STATUS_SUCCESS   ((hsm_verification_status_t)(0x5A3CC3A5))
+
+
+typedef struct {
+    hsm_addr_lsb_t key;                     //!< LSB of the address in the requester space where the public key to be imported can be found.
+    uint16_t key_size;                      //!< length in bytes of the input key
+    hsm_key_type_t key_type;                //!< indicates the type of the key to be imported.
+    hsm_op_verify_sign_flags_t flags;       //!< bitmap specifying the operation attributes
+} op_import_public_key_args_t;
+
+/**
+ * Import a public key to be used for several verification operations\n
+ * User can call this function only after having opened a signature verification service flow.
+ * Only not-compressed keys (x,y) can be imprted by this command. Compressed keys can be decompressed by using the dedicated API.
+ * 
+ * \param signature_ver_hdl handle identifying the signature verification service flow.
+ * \param args pointer to the structure containing the function arugments.
+ * \param int_key pointer to where the key reference to be used as key in the hsm_verify_signature will be stored\n
+ *
+ * \return error code
+ */
+hsm_err_t hsm_import_public_key(hsm_hdl_t signature_ver_hdl, op_import_public_key_args_t *args, hsm_addr_lsb_t *int_key);
 
 
 /**
@@ -563,7 +602,7 @@ typedef struct {
     hsm_addr_msb_t input_address_ext;               //!< most significant 32 bits address to be used by HSM for input memory transactions in the requester address space for the commands handled by the service flow.
     hsm_addr_msb_t output_address_ext;              //!< most significant 32 bits address to be used by HSM for output memory transactions in the requester address space for the commands handled by the service flow.
     hsm_svc_rng_flags_t flags;                      //!< bitmap indicating the service flow properties
-    uint8_t rsv[3]; 
+    uint8_t rsv[3];
 } open_svc_rng_args_t;
 
 /**
@@ -611,7 +650,7 @@ typedef struct {
     hsm_addr_msb_t input_address_ext;               //!< most significant 32 bits address to be used by HSM for input memory transactions in the requester address space for the commands handled by the service flow.
     hsm_addr_msb_t output_address_ext;              //!< most significant 32 bits address to be used by HSM for output memory transactions in the requester address space for the commands handled by the service flow.
     hsm_svc_rng_flags_t flags;                      //!< bitmap indicating the service flow properties
-    uint8_t rsv[3]; 
+    uint8_t rsv[3];
 } open_svc_hash_args_t;
 
 /**
@@ -658,10 +697,126 @@ typedef struct {
  * \return error code
  */
 hsm_err_t hsm_hash_one_go(hsm_hdl_t hash_hdl, op_hash_one_go_args_t *args);
-#define HSM_HASH_ALGO_SHA2_224      ((hsm_hash_algo_t)(0x0))
-#define HSM_HASH_ALGO_SHA2_256      ((hsm_hash_algo_t)(0x1))
-#define HSM_HASH_ALGO_SHA2_384      ((hsm_hash_algo_t)(0x2))
+#define HSM_HASH_ALGO_SHA_224      ((hsm_hash_algo_t)(0x0))
+#define HSM_HASH_ALGO_SHA_256      ((hsm_hash_algo_t)(0x1))
+#define HSM_HASH_ALGO_SHA_384      ((hsm_hash_algo_t)(0x2))
 
+typedef struct {
+    hsm_addr_msb_t pub_rec_ext;             //!< MSB of the address in the requester space where the public reconstruction value extracted from the implicit certificate can be found.
+    hsm_addr_msb_t pub_rec;                 //!< LSB of the address in the requester space where the public reconstruction value extracted from the implicit certificate can be found.
+    hsm_addr_msb_t hash_ext;                //!< MSB of the address in the requester space where the hash value can be found. In the butterfly scheme it corresponds to the hash value calculated over PCA certificate and, concatenated, the implicit certificat.
+    hsm_addr_lsb_t hash;                    //!< LSB of the address in the requester space where the hash value can be found. In the butterfly scheme it corresponds to the hash value calculated over PCA certificate and, concatenated, the implicit certificat.
+    hsm_addr_msb_t ca_key_ext;              //!< MSB of the address in the requester space where the CA public key can be found.
+    hsm_addr_lsb_t ca_key;                  //!< LSB of the address in the requester space where the CA public key can be found.
+    hsm_addr_msb_t out_key_ext;             //!< MSB of the address in the requester space where the output resulting key must be written.
+    hsm_addr_lsb_t out_key;                 //!< LSB of the address in the requester space where the output resulting key must be written.
+    uint16_t pub_rec_size;                  //!< length in bytes of the public reconstruction value
+    uint16_t hash_size;                     //!< length in bytes of the input hash
+    uint16_t ca_key_size;                   //!< length in bytes of the input  CA public key
+    uint16_t out_key_size;                  //!< length in bytes of the output key
+    hsm_key_type_t key_type;                //!< indicates the type of the manged keys.
+    hsm_op_pub_key_rec_flags_t flags;       //!< flags bitmap specifying the operation attributes.
+    uint16_t rsv;
+} hsm_op_pub_key_rec_args_t;
+
+
+/**
+ * Reconstruct an ECC public key provided by an implicit certificate\n
+ * User can call this function only after having opened a session\n
+ * This API implements the followign formula: 
+ * out_key = (pub_rec * hash) + ca_key
+ *
+ * \param session_hdl handle identifying the current session.
+ * \param args pointer to the structure containing the function arugments.
+ *
+ * \return error code
+ */
+hsm_err_t hsm_pub_key_reconstruction(hsm_hdl_t session_hdl,  hsm_op_pub_key_rec_args_t *args);
+
+
+/**
+ * Decompress an ECC public key \n
+ * User can call this function only after having opened a session 
+ *
+ * \param session_hdl handle identifying the current session.
+ * \param args pointer to the structure containing the function arugments.
+ *
+ * \return error code
+ */
+typedef struct {
+    hsm_addr_msb_t pub_key_ext;             //!< MSB of the address in the requester space where the compressed ECC public key can be found. The expected key format is x||lsb_y where lsb_y is 1 byte having value 1 if the least-significant bit of the original (uncompressed) y coordinate is set, and 0 otherwise.
+    hsm_addr_lsb_t pub_key;                 //!< MSB of the address in the requester space where the compressed ECC public key can be found. The expected key format is x||lsb_y where lsb_y is 1 byte having value 1 if the least-significant bit of the original (uncompressed) y coordinate is set, and 0 otherwise.
+    hsm_addr_msb_t out_key_ext;             //!< MSB of the address in the requester space where the output resulting key must be written.
+    hsm_addr_lsb_t out_key;                 //!< LSB of the address in the requester space where the output resulting key must be written.
+    hsm_key_type_t key_type;                //!< indicates the type of the manged keys.
+    hsm_op_pub_key_dec_flags_t flags;       //!< bitmap specifying the operation attributes.
+    uint16_t rsv;
+} hsm_op_pub_key_dec_args_t;
+hsm_err_t hsm_pub_key_decompression(hsm_hdl_t session_hdl,  hsm_op_pub_key_dec_args_t *args);
+
+typedef struct {
+    hsm_addr_msb_t pub_key_ext;             //!< MSB of the address in the requester space where the recipient public key can be found.
+    hsm_addr_lsb_t pub_key;                 //!< LSB of the address in the requester space where the recipient public key can be found.
+    hsm_addr_msb_t input_ext;               //!< MSB of the address in the requester space where the plaintext can be found.
+    hsm_addr_lsb_t input;                   //!< LSB of the address in the requester space where the plaintext can be found.
+    hsm_addr_msb_t p1_ext;                  //!< MSB of the address in the requester space where the KDF P1 parameter can be found
+    hsm_addr_lsb_t p1;                      //!< LSB of the address in the requester space where the KDF P1 parameter can be found
+    hsm_addr_msb_t p2_ext;                  //!< MSB of the address in the requester space where the MAC P2 parameter can be found
+    hsm_addr_lsb_t p2;                      //!< LSB of the address in the requester space where the MAC P2 parameter can be found
+    uint16_t p1_size;                       //!< length in bytes of the KDF P1 parameter
+    uint16_t p2_size;                       //!< length in bytes of the MAC P2 parameter
+    uint16_t pub_key_size;                  //!< length in bytes of the recipient public key
+    uint16_t mac_size;                      //!< length in bytes of the requested message authentication code
+    uint32_t input_size;                    //!< length in bytes of the input plaintext
+    hsm_addr_msb_t output_ext;              //!< MSB of the address in the requester space where the output VCT must be written 
+    hsm_addr_lsb_t output;                  //!< LSB of the address in the requester space where the output VCT must be written 
+    uint32_t out_size;                      //!< length in bytes of the output VCT
+    hsm_key_type_t key_type;                //!< indicates the type of the recipient public key
+    hsm_op_ecies_enc_flags_t flags;         //!< bitmap specifying the operation attributes.
+    uint16_t rsv;
+} hsm_op_ecies_enc_args_t;
+
+/**
+ * Encrypt data usign ECIES \n
+ * User can call this function only after having opened a session 
+ *
+ * \param session_hdl handle identifying the current session.
+ * \param args pointer to the structure containing the function arugments.
+ *
+ * \return error code
+ */
+hsm_err_t hsm_ecies_encryption(hsm_hdl_t session_hdl, hsm_op_ecies_enc_args_t *args);
+
+
+typedef struct {
+    uint32_t key_identifier;                //!< identifier of the private key to be used for the operation
+    hsm_addr_msb_t input_ext;               //!< MSB of the address in the requester space where the input VCT can be found 
+    hsm_addr_lsb_t input;                   //!< LSB of the address in the requester space where the input VCT can be found
+    hsm_addr_msb_t p1_ext;                  //!< MSB of the address in the requester space where the KDF P1 parameter can be found
+    hsm_addr_lsb_t p1;                      //!< LSB of the address in the requester space where the KDF P1 parameter can be found
+    hsm_addr_msb_t p2_ext;                  //!< MSB of the address in the requester space where the MAC P2 parameter can be found
+    hsm_addr_lsb_t p2;                      //!< LSB of the address in the requester space where the MAC P2 parameter can be found
+    uint16_t p1_size;                       //!< length in bytes of the KDF P1 parameter
+    uint16_t p2_size;                       //!< length in bytes of the MAC P2 parameter
+    uint32_t input_size;                    //!< length in bytes of the input VCT
+    hsm_addr_msb_t output_ext;              //!< MSB of the address in the requester space where the output plaintext must be written
+    hsm_addr_lsb_t output;                  //!< LSB of the address in the requester space where the output plaintext must be written 
+    uint32_t out_size;                      //!< length in bytes of the ouptu plaintext
+    uint16_t mac_size;                      //!< length in bytes of the requested message authentication code
+    hsm_key_type_t key_type;                //!< indicates the type of the used key
+    hsm_op_ecies_dec_flags_t flags;         //!< bitmap specifying the operation attributes.
+} hsm_op_ecies_dec_args_t;
+
+/**
+ * Decrypt data usign ECIES \n
+ * User can call this function only after having opened a key store service flow 
+ *
+ * \param session_hdl handle identifying the current session.
+ * \param args pointer to the structure containing the function arugments.
+ *
+ * \return error code
+ */
+hsm_err_t hsm_ecies_decryption(hsm_hdl_t key_store_hdl, hsm_op_ecies_dec_args_t *args);
 
 
 /** \}*/
