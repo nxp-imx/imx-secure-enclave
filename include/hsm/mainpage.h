@@ -5,11 +5,11 @@
 
 /*! \page  History Revision History
  * 
- * Revision 0.1: 29/03/2019 Savari preliminary draft - subject to change \n
- * Revision 0.8: 24/05/2019 Secondary draft - subject to change. It adds following APIs:
- *  - Signature generation, signature verification, rng, hash service flows and operations. 
- *  - Butterfly key expansion, ECIES enc/dec, public key reconstruction, public key decompression operations.
- * 
+ * Revision       | date           | description
+ * :------------: | :-------------:| :------------
+ * 0.1 - subject to change | Mar 29 2019  | Savari preliminary draf
+ * 0.8 - subject to change | May 24 2019  | It adds the following API: \n-signature generation \n-signature verification \n-rng \n-hash \n-butterfly key expansion \n-ECIES enc/dec \n-public key reconstruction \n-public key decompression
+ * 0.9 - subject to change | May 28 2019  | Explicit addresses are replaced by pointers. 
  */
 
 /*! \page General General concepts related to the API

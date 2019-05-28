@@ -87,6 +87,7 @@ hsm_err_t hsm_close_session(hsm_hdl_t session_hdl);
  *  - update an existing key store
  *  - delete an existing key store
  *  - perform operations involving keys stored in the key store (ciphering, signature generation...)
+ * 
  * The authentication is based on the user domain ID and messaging unit, additionaly an authentication nonce is provided.
  * @{
  */
@@ -208,9 +209,10 @@ typedef struct {
 
 /**
  * This command is designed to perform the following operations:
- * - import a key creating a new key identifier
- * - import a key using an existing key identifie
- * - delete an existing key
+ *  - import a key creating a new key identifier
+ *  - import a key using an existing key identifie
+ *  - delete an existing key
+ * 
  * User can call this function only after having opened a key management service flow
  *
  * \param key_management_hdl handle identifying the key management service flow.
@@ -253,22 +255,19 @@ typedef struct {
  * \n\n
  *
  * Explicit certificates:
- *  data1 = 0,
- *  data2 = 1
- *  data3 = f1/f2(k, i, j)
- * \n
+ *  - data1 = 0,
+ *  - data2 = 1
+ *  - data3 = f1/f2(k, i, j)
  *
  * out_key = Key  + f1/f2(k, i, j) (mod n)
  * \n\n
  *
  * Implicit certificates:
- *  data1 = f1(k, i, j),
- *  data2 = hash value used to in the derivation of the pseudonym ECC key,
- *  data3 = private reconstruction value pij
- * \n
+ *  - data1 = f1(k, i, j),
+ *  - data2 = hash value used to in the derivation of the pseudonym ECC key,
+ *  - data3 = private reconstruction value pij
  * 
  * out_key = (Key  + f1(k, i, j))*Hash + pij
- * \n\n
  * 
  * \param key_management_hdl handle identifying the key store management service flow.
  * \param args pointer to the structure containing the function arugments.
