@@ -123,7 +123,7 @@ she_err_t she_cmd_generate_mac(struct she_hdl_s *hdl, uint8_t key_ext, uint8_t k
         ioctl_msg.message = message;
         ioctl_msg.mac = mac;
 
-        if (ioctl(hdl->fd, SECO_MU_IOCTL_SHE_GENERATE_MAC, &ioctl_msg) < 0) {
+        if (ioctl(hdl->fd, SECO_MU_IOCTL_SHE_GENERATE_MAC, &ioctl_msg) == 0) {
             ret = (she_err_t)ioctl_msg.err;
         }
     }
@@ -147,7 +147,7 @@ she_err_t she_cmd_verify_mac(struct she_hdl_s *hdl, uint8_t key_ext, uint8_t key
         ioctl_msg.mac = mac;
         ioctl_msg.mac_length = mac_length;
 
-        if (ioctl(hdl->fd, SECO_MU_IOCTL_SHE_VERIFY_MAC, &ioctl_msg) < 0) {
+        if (ioctl(hdl->fd, SECO_MU_IOCTL_SHE_VERIFY_MAC, &ioctl_msg) == 0) {
             *verification_status = ioctl_msg.verification_status;
             ret = (she_err_t)ioctl_msg.err;
         }
@@ -170,7 +170,7 @@ she_err_t she_cmd_enc_cbc(struct she_hdl_s *hdl, uint8_t key_ext, uint8_t key_id
         ioctl_msg.plaintext = plaintext;
         ioctl_msg.ciphertext = ciphertext;
 
-        if (ioctl(hdl->fd, SECO_MU_IOCTL_SHE_ENC_CBC, &ioctl_msg) < 0){
+        if (ioctl(hdl->fd, SECO_MU_IOCTL_SHE_ENC_CBC, &ioctl_msg) == 0){
             ret = (she_err_t)ioctl_msg.err;
         }
     }
@@ -192,7 +192,7 @@ she_err_t she_cmd_dec_cbc(struct she_hdl_s *hdl, uint8_t key_ext, uint8_t key_id
         ioctl_msg.ciphertext = ciphertext;
         ioctl_msg.plaintext = plaintext;
 
-        if (ioctl(hdl->fd, SECO_MU_IOCTL_SHE_DEC_CBC, &ioctl_msg) < 0) {
+        if (ioctl(hdl->fd, SECO_MU_IOCTL_SHE_DEC_CBC, &ioctl_msg) == 0) {
             ret = (she_err_t)ioctl_msg.err;
         }
     }
@@ -212,7 +212,7 @@ she_err_t she_cmd_enc_ecb(struct she_hdl_s *hdl, uint8_t key_ext, uint8_t key_id
         ioctl_msg.plaintext = plaintext;
         ioctl_msg.ciphertext = ciphertext;
 
-        if (ioctl(hdl->fd, SECO_MU_IOCTL_SHE_ENC_ECB, &ioctl_msg) < 0) {
+        if (ioctl(hdl->fd, SECO_MU_IOCTL_SHE_ENC_ECB, &ioctl_msg) == 0) {
             ret = (she_err_t)ioctl_msg.err;
         }
     }
@@ -232,7 +232,7 @@ she_err_t she_cmd_dec_ecb(struct she_hdl_s *hdl, uint8_t key_ext, uint8_t key_id
         ioctl_msg.ciphertext = ciphertext;
         ioctl_msg.plaintext = plaintext;
 
-        if (ioctl(hdl->fd, SECO_MU_IOCTL_SHE_DEC_ECB, &ioctl_msg) < 0) {
+        if (ioctl(hdl->fd, SECO_MU_IOCTL_SHE_DEC_ECB, &ioctl_msg) == 0) {
             ret = (she_err_t)ioctl_msg.err;
         }
     }
@@ -255,7 +255,7 @@ she_err_t she_cmd_load_key(struct she_hdl_s *hdl, uint8_t key_ext, uint8_t key_i
         ioctl_msg.m4 = m4;
         ioctl_msg.m5 = m5;
 
-        if (ioctl(hdl->fd, SECO_MU_IOCTL_SHE_LOAD_KEY, &ioctl_msg) < 0) {
+        if (ioctl(hdl->fd, SECO_MU_IOCTL_SHE_LOAD_KEY, &ioctl_msg) == 0) {
             ret = (she_err_t)ioctl_msg.err;
         }
     }
@@ -271,7 +271,7 @@ she_err_t she_cmd_load_plain_key(struct she_hdl_s *hdl, uint8_t *key)
     if (hdl != NULL) {
         ioctl_msg.key = key;
 
-        if (ioctl(hdl->fd, SECO_MU_IOCTL_SHE_LOAD_PLAIN_KEY, &ioctl_msg) < 0) {
+        if (ioctl(hdl->fd, SECO_MU_IOCTL_SHE_LOAD_PLAIN_KEY, &ioctl_msg) == 0) {
             ret = (she_err_t)ioctl_msg.err;
         }
     }
@@ -292,7 +292,7 @@ she_err_t she_cmd_export_ram_key(struct she_hdl_s *hdl, uint8_t *m1, uint8_t *m2
         ioctl_msg.m4 = m4;
         ioctl_msg.m5 = m5;
 
-        if (ioctl(hdl->fd, SECO_MU_IOCTL_SHE_EXPORT_RAM_KEY, &ioctl_msg) < 0) {
+        if (ioctl(hdl->fd, SECO_MU_IOCTL_SHE_EXPORT_RAM_KEY, &ioctl_msg) == 0) {
             ret = (she_err_t)ioctl_msg.err;
         }
     }
@@ -306,7 +306,7 @@ she_err_t she_cmd_init_rng(struct she_hdl_s *hdl)
     she_err_t ret = ERC_GENERAL_ERROR;
 
     if (hdl != NULL) {
-        if (ioctl(hdl->fd, SECO_MU_IOCTL_SHE_INIT_RNG, &ioctl_msg) < 0) {
+        if (ioctl(hdl->fd, SECO_MU_IOCTL_SHE_INIT_RNG, &ioctl_msg) == 0) {
             ret = (she_err_t)ioctl_msg.err;
         }
     }
@@ -323,7 +323,7 @@ she_err_t she_cmd_extend_seed(struct she_hdl_s *hdl, uint8_t *entropy)
     if (hdl != NULL) {
         ioctl_msg.entropy = entropy;
 
-        if (ioctl(hdl->fd, SECO_MU_IOCTL_SHE_EXTEND_SEED, &ioctl_msg) < 0) {
+        if (ioctl(hdl->fd, SECO_MU_IOCTL_SHE_EXTEND_SEED, &ioctl_msg) == 0) {
             ret = (she_err_t)ioctl_msg.err;
         }
     }
@@ -340,7 +340,7 @@ she_err_t she_cmd_rnd(struct she_hdl_s *hdl, uint8_t *rnd)
     if (hdl != NULL) {
         ioctl_msg.rnd = rnd;
 
-        if (ioctl(hdl->fd, SECO_MU_IOCTL_SHE_GENERATE_RND, &ioctl_msg) < 0) {
+        if (ioctl(hdl->fd, SECO_MU_IOCTL_SHE_GENERATE_RND, &ioctl_msg) == 0) {
             ret = (she_err_t)ioctl_msg.err;
         }
     }
@@ -356,7 +356,7 @@ she_err_t she_cmd_get_status(struct she_hdl_s *hdl, uint8_t *sreg)
 
     if ((hdl != NULL) && (sreg != NULL)) {
         *sreg = 0;
-        if (ioctl(hdl->fd, SECO_MU_IOCTL_SHE_GET_STATUS, &ioctl_msg) < 0) {
+        if (ioctl(hdl->fd, SECO_MU_IOCTL_SHE_GET_STATUS, &ioctl_msg) == 0) {
             *sreg = ioctl_msg.sreg;
             ret = (she_err_t)ioctl_msg.err;
         }
@@ -376,7 +376,7 @@ she_err_t she_cmd_get_id(struct she_hdl_s *hdl, uint8_t *challenge, uint8_t *id,
         ioctl_msg.id = id;
         ioctl_msg.mac = mac;
 
-        if (ioctl(hdl->fd, SECO_MU_IOCTL_SHE_GET_ID, &ioctl_msg) < 0) {
+        if (ioctl(hdl->fd, SECO_MU_IOCTL_SHE_GET_ID, &ioctl_msg) == 0) {
             *sreg = ioctl_msg.sreg;
             ret = (she_err_t)ioctl_msg.err;
         }
@@ -392,7 +392,7 @@ she_err_t she_cmd_cancel(struct she_hdl_s *hdl)
     she_err_t ret = ERC_GENERAL_ERROR;
 
     if (hdl != NULL) {
-        if (ioctl(hdl->fd, SECO_MU_IOCTL_SHE_CANCEL, &ioctl_msg) < 0) {
+        if (ioctl(hdl->fd, SECO_MU_IOCTL_SHE_CANCEL, &ioctl_msg) == 0) {
             ret = (she_err_t)ioctl_msg.err;
         }
     }
