@@ -9,7 +9,8 @@
  * :------------: | :-------------:| :------------
  * 0.1 - subject to change | Mar 29 2019  | Savari preliminary draf
  * 0.8 - subject to change | May 24 2019  | It adds the following API: \n-signature generation \n-signature verification \n-rng \n-hash \n-butterfly key expansion \n-ECIES enc/dec \n-public key reconstruction \n-public key decompression
- * 0.9 - subject to change | May 28 2019  | Explicit addresses are replaced by pointers. 
+ * 0.9 - subject to change | May 28 2019  | Explicit addresses are replaced by pointers.
+ * 1.0 - subject to change | May 29 2019  | 
  */
 
 /*! \page General General concepts related to the API

@@ -175,7 +175,7 @@ typedef struct {
  * 
  * \return error code
  */
-hsm_err_t hsm_generate_key(hsm_hdl_t key_management_hdl, op_generate_key_args_t args);
+hsm_err_t hsm_generate_key(hsm_hdl_t key_management_hdl, op_generate_key_args_t *args);
 #define HSM_KEY_TYPE_ECDSA_NIST_P224                        ((hsm_key_type_t)0x01)
 #define HSM_KEY_TYPE_ECDSA_NIST_P256                        ((hsm_key_type_t)0x02)
 #define HSM_KEY_TYPE_ECDSA_NIST_P384                        ((hsm_key_type_t)0x03)
@@ -304,11 +304,11 @@ typedef struct {
  *
  * \param key_store_hdl handle indentifing the key store service flow.
  * \param args pointer to the structure containing the function arugments.
- * \param chiper_hdl pointer to where the cipher service flow handle must be written.
+ * \param cipher_hdl pointer to where the cipher service flow handle must be written.
  * 
  * \return error code
  */
-hsm_err_t hsm_open_cipher_service(hsm_hdl_t key_store_hdl, open_svc_cipher_args_t *args, hsm_hdl_t *chiper_hdl);
+hsm_err_t hsm_open_cipher_service(hsm_hdl_t key_store_hdl, open_svc_cipher_args_t *args, hsm_hdl_t *cipher_hdl);
 
 
 typedef uint8_t hsm_op_cipher_one_go_algo_t;
@@ -329,12 +329,12 @@ typedef struct {
  * Perform ciphering operation\n
  * User can call this function only after having opened a cipher service flow
  *
- * \param chiper_hdl handle identifying the cipher service flow.
+ * \param cipher_hdl handle identifying the cipher service flow.
  * \param args pointer to the structure containing the function arugments.
  *
  * \return error code
  */
-hsm_err_t hsm_cipher_one_go(hsm_hdl_t chiper_hdl, op_cipher_one_go_args_t* args);
+hsm_err_t hsm_cipher_one_go(hsm_hdl_t cipher_hdl, op_cipher_one_go_args_t* args);
 #define HSM_CIPHER_ONE_GO_ALGO_AES_ECB              ((hsm_op_cipher_one_go_algo_t)(0x00))
 #define HSM_CIPHER_ONE_GO_ALGO_AES_CBC              ((hsm_op_cipher_one_go_algo_t)(0x01))
 #define HSM_CIPHER_ONE_GO_ALGO_AES_CCM              ((hsm_op_cipher_one_go_algo_t)(0x04))       //!< Perform AES CCM with following constraints: AES CCM where Adata = 0, Tlen = 16 bytes, nonce size = 12 bytes
@@ -372,11 +372,11 @@ hsm_err_t hsm_ecies_decryption(hsm_hdl_t cipher_hdl, hsm_op_ecies_dec_args_t *ar
 /**
  * Terminate a previously opened cipher service flow
  *
- * \param chiper_hdl pointer to handle identifying the cipher service flow to be closed.
+ * \param cipher_hdl pointer to handle identifying the cipher service flow to be closed.
  * 
  * \return error code
  */
-hsm_err_t hsm_close_cipher_service(hsm_hdl_t chiper_hdl);
+hsm_err_t hsm_close_cipher_service(hsm_hdl_t cipher_hdl);
 /** @} end of cipher service flow */
 
 /**
