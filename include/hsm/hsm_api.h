@@ -113,7 +113,7 @@ typedef struct {
  */
 hsm_err_t hsm_open_key_store_service(hsm_hdl_t session_hdl, open_svc_key_store_args_t *args, hsm_hdl_t *key_store_hdl);
 #define HSM_SVC_KEY_STORE_FLAGS_CREATE ((hsm_svc_key_store_flags_t)(1 << 0)) //!< It must be specified to create a new key store
-#define HSM_SVC_KEY_STORE_FLAGS_UPDATE ((hsm_svc_key_store_flags_t)(1 << 1)) //!< It must be specified in order to open a key management service flow
+#define HSM_SVC_KEY_STORE_FLAGS_UPDATE ((hsm_svc_key_store_flags_t)(1 << 2)) //!< It must be specified in order to open a key management service flow
 #define HSM_SVC_KEY_STORE_FLAGS_DELETE ((hsm_svc_key_store_flags_t)(1 << 3)) //!< It must be specified to delete an existing key store
 /**
  * Close a previously opened key store service flow.\n
