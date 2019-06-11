@@ -338,8 +338,8 @@ hsm_err_t hsm_cipher_one_go(hsm_hdl_t cipher_hdl, op_cipher_one_go_args_t* args)
 #define HSM_CIPHER_ONE_GO_ALGO_AES_ECB              ((hsm_op_cipher_one_go_algo_t)(0x00))
 #define HSM_CIPHER_ONE_GO_ALGO_AES_CBC              ((hsm_op_cipher_one_go_algo_t)(0x01))
 #define HSM_CIPHER_ONE_GO_ALGO_AES_CCM              ((hsm_op_cipher_one_go_algo_t)(0x04))       //!< Perform AES CCM with following constraints: AES CCM where Adata = 0, Tlen = 16 bytes, nonce size = 12 bytes
+#define HSM_CIPHER_ONE_GO_FLAGS_DECRYPT             ((hsm_op_cipher_one_go_flags_t)(0 << 0))
 #define HSM_CIPHER_ONE_GO_FLAGS_ENCRYPT             ((hsm_op_cipher_one_go_flags_t)(1 << 0))
-#define HSM_CIPHER_ONE_GO_FLAGS_DECRYPT             ((hsm_op_cipher_one_go_flags_t)(1 << 1))
 
 
 typedef uint8_t hsm_op_ecies_dec_flags_t;
@@ -445,9 +445,9 @@ hsm_err_t hsm_generate_signature(hsm_hdl_t signature_gen_hdl, op_generate_sign_a
 #define HSM_SIGNATURE_SCHEME_ECDSA_BRAINPOOL_T1_224_SHA_256     ((hsm_signature_scheme_id_t)0x22)
 #define HSM_SIGNATURE_SCHEME_ECDSA_BRAINPOOL_T1_256_SHA_256     ((hsm_signature_scheme_id_t)0x23)
 #define HSM_SIGNATURE_SCHEME_ECDSA_BRAINPOOL_T1_384_SHA_384     ((hsm_signature_scheme_id_t)0x25)
-#define HSM_OP_GENERATE_SIGN_FLAGS_INPUT_DIGEST                 ((hsm_op_generate_sign_flags_t)(1 << 0))
-#define HSM_OP_GENERATE_SIGN_FLAGS_INPUT_MESSAGE                ((hsm_op_generate_sign_flags_t)(1 << 1))
-#define HSM_OP_GENERATE_SIGN_FLAGS_COMPRESSED_POINT             ((hsm_op_generate_sign_flags_t)(1 << 2))
+#define HSM_OP_GENERATE_SIGN_FLAGS_INPUT_DIGEST                 ((hsm_op_generate_sign_flags_t)(0 << 0))
+#define HSM_OP_GENERATE_SIGN_FLAGS_INPUT_MESSAGE                ((hsm_op_generate_sign_flags_t)(1 << 0))
+#define HSM_OP_GENERATE_SIGN_FLAGS_COMPRESSED_POINT             ((hsm_op_generate_sign_flags_t)(1 << 1))
 
 
 typedef uint8_t hsm_op_prepare_signature_flags_t;
@@ -492,9 +492,9 @@ typedef struct {
  * \return error code
  */
 hsm_err_t hsm_finalize_signature(hsm_hdl_t signature_gen_hdl, op_finalize_sign_args_t *args);
-#define HSM_OP_FINALIZE_SIGN_INPUT_DIGEST           ((hsm_op_finalize_sign_flags_t)(1 << 0))
-#define HSM_OP_FINALIZE_SIGN_INPUT_MESSAGE          ((hsm_op_finalize_sign_flags_t)(1 << 1))
-#define HSM_OP_FINALIZE_SIGN_COMPRESSED_POINT       ((hsm_op_finalize_sign_flags_t)(1 << 2))
+#define HSM_OP_FINALIZE_SIGN_INPUT_DIGEST           ((hsm_op_finalize_sign_flags_t)(0 << 0))
+#define HSM_OP_FINALIZE_SIGN_INPUT_MESSAGE          ((hsm_op_finalize_sign_flags_t)(1 << 0))
+#define HSM_OP_FINALIZE_SIGN_COMPRESSED_POINT       ((hsm_op_finalize_sign_flags_t)(1 << 1))
 /** @} end of signature generation service flow */
 
 /**
@@ -548,10 +548,10 @@ typedef uint32_t hsm_verification_status_t;
  */
 hsm_err_t hsm_verify_signature(hsm_hdl_t signature_ver_hdl, op_verify_sign_args_t *args, hsm_verification_status_t *status);
 
-#define HSM_OP_VERIFY_SIGN_FLAGS_INPUT_DIGEST               ((hsm_op_verify_sign_flags_t)(1 << 0))
-#define HSM_OP_VERIFY_SIGN_FLAGS_INPUT_MESSAGE              ((hsm_op_verify_sign_flags_t)(1 << 1))
-#define HSM_OP_VERIFY_SIGN_FLAGS_COMPRESSED_POINT           ((hsm_op_verify_sign_flags_t)(1 << 2))
-#define HSM_OP_VERIFY_SIGN_FLAGS_KEY_INTERNAL               ((hsm_op_verify_sign_flags_t)(1 << 3)) //!< when set the value passed by the key argument is considered as the internal reference of a key imported throught the hsm_import_pub_key API.
+#define HSM_OP_VERIFY_SIGN_FLAGS_INPUT_DIGEST               ((hsm_op_verify_sign_flags_t)(0 << 0))
+#define HSM_OP_VERIFY_SIGN_FLAGS_INPUT_MESSAGE              ((hsm_op_verify_sign_flags_t)(1 << 0))
+#define HSM_OP_VERIFY_SIGN_FLAGS_COMPRESSED_POINT           ((hsm_op_verify_sign_flags_t)(1 << 1))
+#define HSM_OP_VERIFY_SIGN_FLAGS_KEY_INTERNAL               ((hsm_op_verify_sign_flags_t)(1 << 2)) //!< when set the value passed by the key argument is considered as the internal reference of a key imported throught the hsm_import_pub_key API.
 #define HSM_VERIFICATION_STATUS_SUCCESS                     ((hsm_verification_status_t)(0x5A3CC3A5))
 
 
