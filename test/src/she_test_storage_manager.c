@@ -10,34 +10,48 @@
  * bound by the applicable license terms, then you may not retain, install,
  * activate or otherwise use the software.
  */
+
+#include <pthread.h>
 #include <stdbool.h>
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
 #include <time.h>
-#include "she_api.h"
-#include "she_storage.h"
+#include <unistd.h>
+#include "seco_nvm.h"
 #include "she_test.h"
 #include "she_test_storage_manager.h"
 #include "she_test_macros.h"
+
+static uint32_t nvm_status;
+
+static void *she_storage_thread(void *arg)
+{
+    seco_nvm_manager(NVM_FLAGS_SHE, &nvm_status);
+}
+
 
 /* Start the storage manager.*/
 uint32_t she_test_start_storage_manager(test_struct_t *testCtx, FILE *fp)
 {
     uint32_t fails = 0;
+    
+    nvm_status = NVM_STATUS_UNDEF;
 
-    testCtx->storage_ctx = she_storage_init();
-
-    she_err_t ptrOk;
-    if (testCtx->storage_ctx != NULL) {
-        ptrOk = 1;
-    }
-    else {
-        ptrOk = 0;
+    if (pthread_create(&(testCtx->tid), NULL, she_storage_thread, NULL) != 0) {
+        fails = 1;
     }
 
-    /* Check there is no error reported. */
-    READ_CHECK_VALUE(fp, ptrOk);
+    if (fails == 0) {
+        /* Wait for the storage manager to be ready to receive commands from SECO. */
+        while (nvm_status <= NVM_STATUS_STARTING) {
+            usleep(1000);
+        }
+        /* Check if it ended because of an error. */
+        if (nvm_status == NVM_STATUS_STOPPED) {
+            fails = 1;
+        }
+    }
 
     return fails;
 }
@@ -46,8 +60,14 @@ uint32_t she_test_start_storage_manager(test_struct_t *testCtx, FILE *fp)
 /* Test close session */
 uint32_t she_test_stop_storage_manager(test_struct_t *testCtx, FILE *fp)
 {
-    if (testCtx->storage_ctx != NULL) {
-        (void)she_storage_terminate(testCtx->storage_ctx);
+    uint32_t fails = 0;
+
+    if (nvm_status != NVM_STATUS_STOPPED) {
+        if (pthread_cancel(testCtx->tid) != 0) {
+            fails = 1;
+        }
     }
+
+    return fails;
 }
 

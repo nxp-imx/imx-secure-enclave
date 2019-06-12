@@ -16,7 +16,6 @@
 #include <string.h>
 #include <time.h>
 #include "she_api.h"
-#include "she_storage.h"
 #include "she_test.h"
 #include "she_test_macros.h"
 

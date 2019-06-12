@@ -11,26 +11,19 @@
  * activate or otherwise use the software.
  */
 
-/** 
- * \mainpage
- * \defgroup hsm_storage
- * \brief HSM NVM storage API
- * \{
- */
 
-/**
- * Initialize HSM storage manager.
- *
- * \return pointer to the storage context 
- */
-struct hsm_storage_context *hsm_storage_init(void);
+#ifndef SECO_UTILS_H
+#define SECO_UTILS_H
 
+#include "seco_sab_msg_def.h"
+#include "seco_os_abs.h"
 
-/**
- * terminates the HSM storage manager.
- *
- * \param ctx pointer to the context of the storage manager  to be closed.
- *
- * \return 0 on success. other value on failure.
- */
-int32_t hsm_storage_terminate(struct hsm_storage_context *nvm_ctx);
+void seco_fill_cmd_msg_hdr(struct she_mu_hdr *hdr, uint8_t cmd, uint32_t len);
+
+void seco_fill_rsp_msg_hdr(struct she_mu_hdr *hdr, uint8_t cmd, uint32_t len);
+
+int32_t seco_send_msg_and_get_resp(struct seco_os_abs_hdl *phdl, uint32_t *cmd, uint32_t cmd_len, uint32_t *rsp, uint32_t rsp_len);
+
+uint32_t seco_compute_msg_crc(uint32_t *msg, uint32_t msg_len);
+
+#endif

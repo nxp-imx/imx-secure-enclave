@@ -15,8 +15,8 @@
 #include <stdlib.h>
 #include <string.h>
 #include <time.h>
+#include "seco_nvm.h"
 #include "she_api.h"
-#include "she_storage.h"
 #include "she_test.h"
 #include "she_test_mac.h"
 #include "she_test_cbc.h"

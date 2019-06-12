@@ -1,4 +1,3 @@
-
 /*
  * Copyright 2019 NXP
  *
@@ -11,137 +10,150 @@
  * bound by the applicable license terms, then you may not retain, install,
  * activate or otherwise use the software.
  */
-#include <stdio.h>
-#include <errno.h>
-#include <stdlib.h>
-#include <string.h>
-#include <sys/ioctl.h>
-#include <sys/mman.h>
-#include <sys/types.h>
-#include <sys/stat.h>
-#include <fcntl.h>
-#include <pthread.h>
-#include <unistd.h>
-#include <zlib.h>
 
 #include "hsm_api.h"
-#include "seco_ioctl.h"
-
-
-#define SECO_HSM_PATH "/dev/seco_hsm"
+#include "seco_os_abs.h"
+#include "seco_sab_msg_def.h"
+#include "seco_sab_messaging.h"
+#include "seco_utils.h"
 
 struct hsm_session_hdl_s {
-    int32_t fd;
-    hsm_hdl_t session_hdl;
+	struct seco_os_abs_hdl *phdl;
+	uint32_t session_hdl;
 };
 
 struct hsm_service_hdl_s {
-    struct hsm_session_hdl_s *session;
-    uint32_t service_hdl;
+	struct hsm_session_hdl_s *session;
+	uint32_t service_hdl;
 };
 
-#define HSM_MAX_SESSIONS    (8u)
-#define HSM_MAX_SERVICES    (32u)
+#define HSM_MAX_SESSIONS	(8u)
+#define HSM_MAX_SERVICES	(32u)
 
 static struct hsm_session_hdl_s hsm_sessions[HSM_MAX_SESSIONS] = {};
 static struct hsm_service_hdl_s hsm_services[HSM_MAX_SERVICES] = {};
 
-
-static struct hsm_session_hdl_s *session_hdl_to_ptr(hsm_hdl_t hdl)
+static struct hsm_session_hdl_s *session_hdl_to_ptr(uint32_t hdl)
 {
-    uint32_t i;
-    struct hsm_session_hdl_s *ret;
+	uint32_t i;
+	struct hsm_session_hdl_s *ret;
 
-    ret = NULL;
-    for (i=0u; i<HSM_MAX_SESSIONS; i++) {
-        if (hdl == hsm_sessions[i].session_hdl) {
-            ret = &hsm_sessions[i];
-            break;
-        }
-    }
-    return ret;
+	ret = NULL;
+	for (i=0u; i<HSM_MAX_SESSIONS; i++) {
+		if (hdl == hsm_sessions[i].session_hdl) {
+			if (hsm_sessions[i].phdl != NULL) {
+				ret = &hsm_sessions[i];
+			}
+			break;
+		}
+	}
+	return ret;
 }
 
 static struct hsm_session_hdl_s *add_session(void)
 {
-    uint32_t i;
-    struct hsm_session_hdl_s *s_ptr = NULL;
+	uint32_t i;
+	struct hsm_session_hdl_s *s_ptr = NULL;
 
-    for (i=0u; i<HSM_MAX_SESSIONS; i++) {
-        if (hsm_sessions[i].session_hdl == 0u) {
-            /* Found an empty slot. */
-            s_ptr = &hsm_sessions[i];
-            break;
-        }
-    }
-    return s_ptr;
+	for (i=0u; i<HSM_MAX_SESSIONS; i++) {
+		if ((hsm_sessions[i].phdl == NULL)
+			&& (hsm_sessions[i].session_hdl == 0u)) {
+			/* Found an empty slot. */
+			s_ptr = &hsm_sessions[i];
+			break;
+		}
+	}
+	return s_ptr;
 }
 
 static void delete_session(struct hsm_session_hdl_s *s_ptr)
 {
-    if (s_ptr != NULL) {
-        s_ptr->session_hdl = 0u;
-    }
+	if (s_ptr != NULL) {
+		s_ptr->phdl = NULL;
+		s_ptr->session_hdl = 0u;
+	}
 }
 
-/* Open a HSM user session and return a pointer to the session handle. */
+hsm_err_t hsm_close_session(uint32_t session_hdl)
+{
+	struct hsm_session_hdl_s *s_ptr;
+	hsm_err_t err = HSM_GENERAL_ERROR;
+
+	do {
+		s_ptr = session_hdl_to_ptr(session_hdl);
+		if (s_ptr == NULL) {
+			err = HSM_UNKNOWN_HANDLE;
+			break;
+		}
+		//TODO: report error code from SECO if failure
+		(void)sab_close_session_command(s_ptr->phdl,
+						session_hdl);
+
+		seco_os_abs_close_session(s_ptr->phdl);
+
+		delete_session(s_ptr);
+
+		err = HSM_NO_ERROR;
+
+		// TODO: should we close all associated services here ?
+		// or sanity check that all services have been closed ?
+	} while (false);
+
+	return err;
+}
+
 hsm_err_t hsm_open_session(open_session_args_t *args, hsm_hdl_t *session_hdl)
 {
-    struct seco_ioctl_hsm_open_session ioctl_msg;
-    struct hsm_session_hdl_s *s_ptr;
-    hsm_err_t err = HSM_GENERAL_ERROR;
+	struct hsm_session_hdl_s *s_ptr = NULL;
+	struct seco_mu_params mu_params;
+	hsm_err_t err = HSM_GENERAL_ERROR;
+	uint32_t sab_err;
 
-    do {
-        s_ptr = add_session();
-        if (s_ptr == NULL) {
-            break;
-        }
+	do {
+		if ((args == NULL) || (session_hdl == NULL)) {
+			break;
+		}
 
-        s_ptr->fd = open(SECO_HSM_PATH, O_RDWR);
-        if (s_ptr->fd < 0) {
-            break;
-        }
+		s_ptr = add_session();
+		if (s_ptr == NULL) {
+			break;
+		}
 
-        ioctl_msg.session_priority = args->session_priority;
-        ioctl_msg.operating_mode = args->operating_mode;
-        if (ioctl(s_ptr->fd, SECO_MU_IOCTL_HSM_OPEN_SESSION, &ioctl_msg) == 0) {
-            err = ioctl_msg.error;
-            *session_hdl = ioctl_msg.session_hdl;
-            s_ptr->session_hdl = ioctl_msg.session_hdl;
-        }
-    } while(0);
+		s_ptr->phdl = seco_os_abs_open_mu_channel(MU_CHANNEL_HSM, &mu_params);
+		if (s_ptr->phdl == NULL) {
+			break;
+		}
 
-    if (err != HSM_NO_ERROR) {
-        if (s_ptr != NULL) {
-            close(s_ptr->fd);
-            delete_session(s_ptr);
-        }
-    }
+		sab_err = sab_open_session_command(s_ptr->phdl,
+						&s_ptr->session_hdl,
+						mu_params.mu_id,
+						mu_params.interrupt_idx,
+						mu_params.tz,
+						mu_params.did,
+						args->session_priority,
+						args->operating_mode);
+		if (sab_err != SAB_SUCCESS_STATUS) {
+			break;
+		}
 
-    return err;
-};
+		/* Get a SECURE RAM partition to be used as shared buffer */
+		sab_err = sab_get_shared_buffer(s_ptr->phdl,
+						s_ptr->session_hdl);
+		if (sab_err != SAB_SUCCESS_STATUS) {
+			break;
+		}
 
-/* Close a previously opened HSM session. */
-hsm_err_t hsm_close_session(hsm_hdl_t session_hdl)
-{
-    struct seco_ioctl_hsm_close_session ioctl_msg;
-    struct hsm_session_hdl_s *s_ptr;
-    hsm_err_t err = HSM_GENERAL_ERROR;
+		*session_hdl = s_ptr->session_hdl;
+		err = HSM_NO_ERROR;
 
-    do {
-        s_ptr = session_hdl_to_ptr(session_hdl);
-        if (s_ptr == NULL) {
-            break;
-        }
+	} while (false);
 
-        ioctl_msg.session_hdl = session_hdl;
-        if (ioctl(s_ptr->fd, SECO_MU_IOCTL_HSM_CLOSE_SESSION, &ioctl_msg) == 0) {
-            err = ioctl_msg.error;
-        };
+	if (err != HSM_NO_ERROR) {
+		if (s_ptr != NULL) {
+			(void)hsm_close_session(s_ptr->session_hdl);
+		}
+		*session_hdl = 0u; /* force an invalid value.*/
+	}
 
-        close(s_ptr->fd);
-        delete_session(s_ptr);
-    } while(0);
-
-    return err;
+	return err;
 }

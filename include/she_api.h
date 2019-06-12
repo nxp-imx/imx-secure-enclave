@@ -67,7 +67,6 @@ typedef enum {
 #define SHE_KEY_N_EXT_3 (0x30)      /**< keys 31 to 40. */
 #define SHE_KEY_N_EXT_4 (0x40)      /**< keys 41 to 50. */
 
-
 /**
  * Creates an empty SHE storage.
  *

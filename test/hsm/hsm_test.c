@@ -1,56 +1,49 @@
-
 /*
  * Copyright 2019 NXP
  *
- * Redistribution and use in source and binary forms, with or without modification,
- * are permitted provided that the following conditions are met:
- *
- * o Redistributions of source code must retain the above copyright notice, this list
- *   of conditions and the following disclaimer.
- *
- * o Redistributions in binary form must reproduce the above copyright notice, this
- *   list of conditions and the following disclaimer in the documentation and/or
- *   other materials provided with the distribution.
- *
- * o Neither the name of the copyright holder nor the names of its
- *   contributors may be used to endorse or promote products derived from this
- *   software without specific prior written permission.
- *
- * THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND
- * ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED
- * WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE
- * DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT HOLDER OR CONTRIBUTORS BE LIABLE FOR
- * ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES
- * (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES;
- * LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON
- * ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
- * (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
- * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+ * NXP Confidential.
+ * This software is owned or controlled by NXP and may only be used strictly
+ * in accordance with the applicable license terms.  By expressly accepting
+ * such terms or by downloading, installing, activating and/or otherwise using
+ * the software, you are agreeing that you have read, and that you agree to
+ * comply with and are bound by, such license terms.  If you do not agree to be
+ * bound by the applicable license terms, then you may not retain, install,
+ * activate or otherwise use the software.
  */
+
 #include <stdbool.h>
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
 #include <time.h>
+#include <unistd.h>
+
 #include "hsm_api.h"
-#include "hsm_storage.h"
+#include "seco_nvm.h"
 
 /* Test entry function. */
 int main(int argc, char *argv[])
 {
-    uint32_t fails = 0;
-    struct hsm_storage_context *nvm_ctx;
-
     uint32_t hsm_session_hdl;
     open_session_args_t open_session_args;
+
+    uint32_t nvm_status;
 
     hsm_err_t err;
 
     do {
-        nvm_ctx = hsm_storage_init();
-        if (!nvm_ctx) {
-            printf("hsm_storage_init failed\n");
-            //break;
+        nvm_status = NVM_STATUS_UNDEF;
+        seco_nvm_manager(NVM_FLAGS_HSM, &nvm_status);
+
+        /* Wait for the storage manager to be ready to receive commands from SECO. */
+        while (nvm_status <= NVM_STATUS_STARTING) {
+            usleep(1000);
+        }
+        /* Check if it ended because of an error. */
+        if (nvm_status == NVM_STATUS_STOPPED) {
+            printf("nvm manager failed to start\n");
+            /* Currently tolerate this error since not supported by SECO and not absolutely needed by APIs tested below. */
+            // break;
         }
 
         open_session_args.session_priority = 0;
@@ -68,10 +61,6 @@ int main(int argc, char *argv[])
 
         printf("hsm_close_session ret:0x%x\n", err);
 
-        if (nvm_ctx) {
-            hsm_storage_terminate(nvm_ctx);
-            printf("HSM storage manager closed\n");
-        }
     } while (0);
-    return fails;
+    return 0;
 }

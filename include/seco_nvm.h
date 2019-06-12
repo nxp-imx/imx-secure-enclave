@@ -18,19 +18,18 @@
  * \{
  */
 
-/**
- * Initialize SHE storage manager.
- *
- * \return pointer to the storage context 
- */
-struct she_storage_context *she_storage_init(void);
+#ifndef SECO_NVM_H
+#define SECO_NVM_H
 
+#include <stdint.h>
 
-/**
- * terminates the SHE storage manager.
- *
- * \param ctx pointer to the context of the storage manager  to be closed.
- *
- * \return 0 on success. other value on failure.
- */
-int32_t she_storage_terminate(struct she_storage_context *nvm_ctx);
+void seco_nvm_manager(uint32_t flags, uint32_t *status);
+#define NVM_FLAGS_SHE    (0x01u)
+#define NVM_FLAGS_HSM    (0x02u)
+
+#define NVM_STATUS_UNDEF    (0x00u)
+#define NVM_STATUS_STARTING (0x01u)
+#define NVM_STATUS_RUNNING  (0x02u)
+#define NVM_STATUS_STOPPED  (0x03u)
+
+#endif
