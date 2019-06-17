@@ -115,6 +115,46 @@ static void public_key_test(hsm_hdl_t hsm_session_hdl)
 
 }
 
+static void signature_tests(hsm_hdl_t hsm_session_hdl)
+{
+    hsm_hdl_t sig_verif_hdl;
+    open_svc_sign_ver_args_t open_svc_sign_ver_args;
+    op_verify_sign_args_t op_verify_sign_args;
+    op_import_public_key_args_t op_import_public_key_args;
+    uint8_t out[32];
+    hsm_verification_status_t verif_status;
+    uint32_t key_ref;
+    hsm_err_t err;
+
+    open_svc_sign_ver_args.flags = 0;
+    err = hsm_open_signature_verification_service(hsm_session_hdl, &open_svc_sign_ver_args, &sig_verif_hdl);
+    printf("hsm_open_signature_verification_service ret:0x%x\n", err);
+
+    op_verify_sign_args.key = out;
+    op_verify_sign_args.message = out;
+    op_verify_sign_args.signature = out;
+    op_verify_sign_args.key_size = 32;
+    op_verify_sign_args.signature_size = 32;
+    op_verify_sign_args.message_size = 32;
+    op_verify_sign_args.scheme_id = 0u;
+    op_verify_sign_args.flags = 0u;
+
+    err = hsm_verify_signature(sig_verif_hdl, &op_verify_sign_args, &verif_status);
+    printf("hsm_verify_signature ret:0x%x status:0x%x\n", err, verif_status);
+
+
+    op_import_public_key_args.key = out;
+    op_import_public_key_args.key_size = 32;
+    op_import_public_key_args.key_type = 0;
+    op_import_public_key_args.flags = 0;
+
+    err = hsm_import_public_key(sig_verif_hdl, &op_import_public_key_args, &key_ref);
+    printf("hsm_import_public_key ret:0x%x key_ref:0x%x\n", err, key_ref);
+
+    err = hsm_close_signature_verification_service(sig_verif_hdl);
+    printf("hsm_close_signature_verification_service ret:0x%x\n", err);
+}
+
 
 /* Test entry function. */
 int main(int argc, char *argv[])
@@ -166,6 +206,8 @@ int main(int argc, char *argv[])
         printf("hsm_close_key_store_service ret:0x%x\n", err);
 
         public_key_test(hsm_session_hdl);
+
+        signature_tests(hsm_session_hdl);
 
 
         err = hsm_close_session(hsm_session_hdl);

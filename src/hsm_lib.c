@@ -292,6 +292,218 @@ hsm_err_t hsm_close_key_store_service(hsm_hdl_t key_store_hdl)
 	return err;
 }
 
+hsm_err_t hsm_open_signature_verification_service(hsm_hdl_t session_hdl,
+						open_svc_sign_ver_args_t *args,
+						hsm_hdl_t *signature_ver_hdl)
+{
+	struct sab_signature_verif_open_msg cmd;
+	struct sab_signature_verif_open_rsp rsp;
+	struct hsm_session_hdl_s *sess_ptr;
+	struct hsm_service_hdl_s *serv_ptr;
+	int32_t error = 1;
+	hsm_err_t err = HSM_GENERAL_ERROR;
+
+	do {
+		if ((args == NULL) || (signature_ver_hdl == NULL)) {
+			break;
+		}
+		sess_ptr = session_hdl_to_ptr(session_hdl);
+		if (sess_ptr == NULL) {
+			err = HSM_UNKNOWN_HANDLE;
+			break;
+		}
+
+		serv_ptr = add_service(sess_ptr);
+		if (serv_ptr == NULL) {
+			break;
+		}
+
+		seco_fill_cmd_msg_hdr(&cmd.hdr,
+			SAB_SIGNATURE_VERIFICATION_OPEN_REQ,
+			(uint32_t)sizeof(struct sab_signature_verif_open_msg));
+		cmd.session_handle = session_hdl;
+		cmd.input_address_ext = 0u;
+		cmd.output_address_ext = 0u;
+		cmd.flags = args->flags;
+		cmd.reserved[0] = 0u;
+		cmd.reserved[1] = 0u;
+		cmd.reserved[2] = 0u;
+		cmd.crc = 0u;
+		cmd.crc = seco_compute_msg_crc((uint32_t*)&cmd,
+				(uint32_t)(sizeof(cmd) - sizeof(uint32_t)));
+
+		error = seco_send_msg_and_get_resp(sess_ptr->phdl,
+			(uint32_t *)&cmd,
+			(uint32_t)sizeof(struct sab_signature_verif_open_msg),
+			(uint32_t *)&rsp,
+			(uint32_t)sizeof(struct sab_signature_verif_open_rsp));
+		if (error != 0) {
+			delete_service(serv_ptr);
+			break;
+		}
+
+		err = sab_rating_to_hsm_err(rsp.rsp_code);
+		if (err != HSM_NO_ERROR) {
+			delete_service(serv_ptr);
+			break;
+		}
+		serv_ptr->service_hdl = rsp.sig_ver_hdl;
+		*signature_ver_hdl = rsp.sig_ver_hdl;
+	} while (false);
+
+	return err;
+}
+
+hsm_err_t hsm_close_signature_verification_service(hsm_hdl_t signature_ver_hdl)
+{
+	struct sab_signature_verif_close_msg cmd;
+	struct sab_signature_verif_close_rsp rsp;
+	struct hsm_service_hdl_s *serv_ptr;
+	int32_t error = 1;
+	hsm_err_t err = HSM_GENERAL_ERROR;
+
+	do {
+		serv_ptr = service_hdl_to_ptr(signature_ver_hdl);
+		if (serv_ptr == NULL) {
+			err = HSM_UNKNOWN_HANDLE;
+			break;
+		}
+
+		seco_fill_cmd_msg_hdr(&cmd.hdr,
+			SAB_SIGNATURE_VERIFICATION_CLOSE_REQ,
+			(uint32_t)sizeof(struct sab_signature_verif_close_msg));
+		cmd.sig_ver_hdl = signature_ver_hdl;
+
+		error = seco_send_msg_and_get_resp(serv_ptr->session->phdl,
+			(uint32_t *)&cmd,
+			(uint32_t)sizeof(struct sab_signature_verif_close_msg),
+			(uint32_t *)&rsp,
+			(uint32_t)sizeof(struct sab_signature_verif_close_rsp));
+		if (error == 0) {
+			err = sab_rating_to_hsm_err(rsp.rsp_code);
+		}
+		delete_service(serv_ptr);
+	} while (false);
+
+	return err;
+}
+
+hsm_err_t hsm_verify_signature(hsm_hdl_t signature_ver_hdl,
+				op_verify_sign_args_t *args,
+				hsm_verification_status_t *status)
+{
+	struct sab_signature_verify_msg cmd;
+	struct sab_signature_verify_rsp rsp;
+	int32_t error = 1;
+	struct hsm_service_hdl_s *serv_ptr;
+	hsm_err_t err = HSM_GENERAL_ERROR;
+
+	do {
+		if ((args == NULL) || (status == NULL)) {
+			break;
+		}
+		serv_ptr = service_hdl_to_ptr(signature_ver_hdl);
+		if (serv_ptr == NULL) {
+			err = HSM_UNKNOWN_HANDLE;
+			break;
+		}
+
+		/* Send the keys store open command to Seco. */
+		seco_fill_cmd_msg_hdr(&cmd.hdr,
+			SAB_SIGNATURE_VERIFY_REQ,
+			(uint32_t)sizeof(struct sab_signature_verify_msg));
+		cmd.sig_ver_hdl = signature_ver_hdl;
+		cmd.key_addr = (uint32_t)seco_os_abs_data_buf(serv_ptr->session->phdl,
+					args->key,
+					args->key_size,
+					DATA_BUF_IS_INPUT);
+		cmd.msg_addr = (uint32_t)seco_os_abs_data_buf(serv_ptr->session->phdl,
+					args->message,
+					args->message_size,
+					DATA_BUF_IS_INPUT);
+		cmd.sig_addr = (uint32_t)seco_os_abs_data_buf(serv_ptr->session->phdl,
+					args->signature,
+					args->signature_size,
+					DATA_BUF_IS_INPUT);
+		cmd.key_size = args->key_size;
+		cmd.sig_size = args->signature_size;
+		cmd.message_size = args->message_size;
+		cmd.sig_scheme = args->scheme_id;
+		cmd.flags = args->flags;
+		cmd.reserved = 0u;
+		cmd.crc = 0u;
+		cmd.crc = seco_compute_msg_crc((uint32_t*)&cmd,
+				(uint32_t)(sizeof(cmd) - sizeof(uint32_t)));
+
+		/* Send the message to Seco. */
+		error = seco_send_msg_and_get_resp(serv_ptr->session->phdl,
+			(uint32_t *)&cmd,
+			(uint32_t)sizeof(struct sab_signature_verify_msg),
+			(uint32_t *)&rsp,
+			(uint32_t)sizeof(struct sab_signature_verify_rsp));
+		if (error != 0) {
+			break;
+		}
+
+		err = sab_rating_to_hsm_err(rsp.rsp_code);
+		*status = rsp.verification_status;
+	} while(false);
+
+	return err;
+}
+
+hsm_err_t hsm_import_public_key(hsm_hdl_t signature_ver_hdl,
+				op_import_public_key_args_t *args,
+				uint32_t *key_ref)
+{
+	struct sab_import_pub_key_msg cmd;
+	struct sab_import_pub_key_rsp rsp;
+	int32_t error = 1;
+	struct hsm_service_hdl_s *serv_ptr;
+	hsm_err_t err = HSM_GENERAL_ERROR;
+
+	do {
+		if ((args == NULL) || (key_ref == NULL)) {
+			break;
+		}
+
+		serv_ptr = service_hdl_to_ptr(signature_ver_hdl);
+		if (serv_ptr == NULL) {
+			err = HSM_UNKNOWN_HANDLE;
+			break;
+		}
+
+		/* Send the keys store open command to Seco. */
+		seco_fill_cmd_msg_hdr(&cmd.hdr,
+			SAB_IMPORT_PUB_KEY,
+			(uint32_t)sizeof(struct sab_import_pub_key_msg));
+		cmd.sig_ver_hdl = signature_ver_hdl;
+		cmd.key_addr = (uint32_t)seco_os_abs_data_buf(serv_ptr->session->phdl,
+					args->key,
+					args->key_size,
+					DATA_BUF_IS_INPUT);
+		cmd.key_size = args->key_size;
+		cmd.key_type = args->key_type;
+		cmd.flags = args->flags;
+
+		/* Send the message to Seco. */
+		error = seco_send_msg_and_get_resp(serv_ptr->session->phdl,
+			(uint32_t *)&cmd,
+			(uint32_t)sizeof(struct sab_import_pub_key_msg),
+			(uint32_t *)&rsp,
+			(uint32_t)sizeof(struct sab_import_pub_key_rsp));
+		if (error != 0) {
+			break;
+		}
+
+		err = sab_rating_to_hsm_err(rsp.rsp_code);
+		*key_ref = rsp.key_ref;
+	} while(false);
+
+	return err;
+}
+
+
 hsm_err_t hsm_pub_key_reconstruction(hsm_hdl_t session_hdl,
 					hsm_op_pub_key_rec_args_t *args)
 {

@@ -51,6 +51,11 @@
 #define SAB_CIPHER_CLOSE_REQ                    0x61u
 #define SAB_CIPHER_ONE_GO_REQ                   0x62u
 
+#define SAB_SIGNATURE_VERIFICATION_OPEN_REQ     0x80u
+#define SAB_SIGNATURE_VERIFICATION_CLOSE_REQ    0x81u
+#define SAB_SIGNATURE_VERIFY_REQ                0x82u
+#define SAB_IMPORT_PUB_KEY                      0x83u
+
 #define SAB_STORAGE_OPEN_REQ                    0xE0u
 #define SAB_STORAGE_CLOSE_REQ                   0xE1u
 #define SAB_STORAGE_IMPORT_REQ                  0xE2u
@@ -469,6 +474,68 @@ struct sab_cmd_cipher_one_go_rsp {
     struct she_mu_hdr hdr;
     uint32_t rsp_code;
 } ;
+
+struct sab_signature_verif_open_msg {
+    struct she_mu_hdr hdr;
+    uint32_t session_handle;
+    uint32_t input_address_ext;
+    uint32_t output_address_ext;
+    uint8_t flags;
+    uint8_t reserved[3];
+    uint32_t crc;
+};
+
+struct sab_signature_verif_open_rsp {
+    struct she_mu_hdr hdr;
+    uint32_t rsp_code;
+    uint32_t sig_ver_hdl;
+};
+
+struct sab_signature_verif_close_msg {
+    struct she_mu_hdr hdr;
+    uint32_t sig_ver_hdl;
+};
+
+struct sab_signature_verif_close_rsp {
+    struct she_mu_hdr hdr;
+    uint32_t rsp_code;
+};
+
+struct sab_signature_verify_msg {
+    struct she_mu_hdr hdr;
+    uint32_t sig_ver_hdl;
+    uint32_t key_addr;
+    uint32_t msg_addr;
+    uint32_t sig_addr;
+    uint16_t key_size;
+    uint16_t sig_size;
+    uint32_t message_size;
+    uint8_t sig_scheme;
+    uint8_t flags;
+    uint16_t reserved;
+    uint32_t crc;
+};
+
+struct sab_signature_verify_rsp {
+    struct she_mu_hdr hdr;
+    uint32_t rsp_code;
+    uint32_t verification_status;
+};
+
+struct sab_import_pub_key_msg {
+    struct she_mu_hdr hdr;
+    uint32_t sig_ver_hdl;
+    uint32_t key_addr;
+    uint16_t key_size;
+    uint8_t key_type;
+    uint8_t flags;
+};
+
+struct sab_import_pub_key_rsp {
+    struct she_mu_hdr hdr;
+    uint32_t rsp_code;
+    uint32_t key_ref;
+};
 
 struct sab_public_key_reconstruct_msg {
     struct she_mu_hdr hdr;
