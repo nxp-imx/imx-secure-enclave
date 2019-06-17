@@ -11,12 +11,10 @@
  * activate or otherwise use the software.
  */
 
-
-#include <stdint.h>
-
-
 #ifndef HSM_API_H
 #define HSM_API_H
+
+#include <stdint.h>
 
 /**
  *  @defgroup group0 Error codes

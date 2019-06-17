@@ -15,7 +15,6 @@
 #include "seco_os_abs.h"
 #include "seco_sab_msg_def.h"
 #include "seco_sab_messaging.h"
-#include "seco_utils.h"
 
 struct hsm_session_hdl_s {
 	struct seco_os_abs_hdl *phdl;
@@ -50,6 +49,23 @@ static struct hsm_session_hdl_s *session_hdl_to_ptr(uint32_t hdl)
 	return ret;
 }
 
+static struct hsm_service_hdl_s *service_hdl_to_ptr(uint32_t hdl)
+{
+	uint32_t i;
+	struct hsm_service_hdl_s *ret;
+
+	ret = NULL;
+	for (i=0u; i<HSM_MAX_SERVICES; i++) {
+		if (hdl == hsm_services[i].service_hdl) {
+			if (hsm_services[i].session != NULL) {
+				ret = &hsm_services[i];
+				break;
+			}
+		}
+	}
+	return ret;
+}
+
 static struct hsm_session_hdl_s *add_session(void)
 {
 	uint32_t i;
@@ -66,6 +82,23 @@ static struct hsm_session_hdl_s *add_session(void)
 	return s_ptr;
 }
 
+static struct hsm_service_hdl_s *add_service(struct hsm_session_hdl_s *session)
+{
+	uint32_t i;
+	struct hsm_service_hdl_s *s_ptr = NULL;
+
+	for (i=0u; i<HSM_MAX_SERVICES; i++) {
+		if ((hsm_services[i].session == NULL)
+			&& (hsm_services[i].service_hdl == 0u)) {
+			/* Found an empty slot. */
+			s_ptr = &hsm_services[i];
+			s_ptr->session = session;
+			break;
+		}
+	}
+	return s_ptr;
+}
+
 static void delete_session(struct hsm_session_hdl_s *s_ptr)
 {
 	if (s_ptr != NULL) {
@@ -74,10 +107,32 @@ static void delete_session(struct hsm_session_hdl_s *s_ptr)
 	}
 }
 
+static void delete_service(struct hsm_service_hdl_s *s_ptr)
+{
+	if (s_ptr != NULL) {
+		s_ptr->session = NULL;
+		s_ptr->service_hdl = 0u;
+	}
+}
+
+static hsm_err_t sab_rating_to_hsm_err(uint32_t sab_err)
+{
+	hsm_err_t hsm_err;
+
+	if (GET_STATUS_CODE(sab_err) == SAB_SUCCESS_STATUS) {
+		hsm_err = HSM_NO_ERROR;
+	} else {
+		hsm_err = (hsm_err_t)GET_RATING_CODE(sab_err);
+	}
+
+	return hsm_err;
+}
+
 hsm_err_t hsm_close_session(uint32_t session_hdl)
 {
 	struct hsm_session_hdl_s *s_ptr;
 	hsm_err_t err = HSM_GENERAL_ERROR;
+	uint32_t sab_err;
 
 	do {
 		s_ptr = session_hdl_to_ptr(session_hdl);
@@ -85,15 +140,14 @@ hsm_err_t hsm_close_session(uint32_t session_hdl)
 			err = HSM_UNKNOWN_HANDLE;
 			break;
 		}
-		//TODO: report error code from SECO if failure
-		(void)sab_close_session_command(s_ptr->phdl,
+
+		sab_err = sab_close_session_command(s_ptr->phdl,
 						session_hdl);
+		err = sab_rating_to_hsm_err(sab_err);
 
 		seco_os_abs_close_session(s_ptr->phdl);
 
 		delete_session(s_ptr);
-
-		err = HSM_NO_ERROR;
 
 		// TODO: should we close all associated services here ?
 		// or sanity check that all services have been closed ?
@@ -132,28 +186,107 @@ hsm_err_t hsm_open_session(open_session_args_t *args, hsm_hdl_t *session_hdl)
 						mu_params.did,
 						args->session_priority,
 						args->operating_mode);
-		if (sab_err != SAB_SUCCESS_STATUS) {
+		err = sab_rating_to_hsm_err(sab_err);
+		if (err != HSM_NO_ERROR) {
 			break;
 		}
 
 		/* Get a SECURE RAM partition to be used as shared buffer */
 		sab_err = sab_get_shared_buffer(s_ptr->phdl,
 						s_ptr->session_hdl);
-		if (sab_err != SAB_SUCCESS_STATUS) {
+		err = sab_rating_to_hsm_err(sab_err);
+		if (err != HSM_NO_ERROR) {
 			break;
 		}
 
 		*session_hdl = s_ptr->session_hdl;
-		err = HSM_NO_ERROR;
 
 	} while (false);
 
 	if (err != HSM_NO_ERROR) {
 		if (s_ptr != NULL) {
-			(void)hsm_close_session(s_ptr->session_hdl);
+			if (s_ptr->session_hdl != 0u) {
+				(void)hsm_close_session(s_ptr->session_hdl);
+			} else if (s_ptr->phdl != NULL) {
+				seco_os_abs_close_session(s_ptr->phdl);
+				delete_session(s_ptr);
+			} else {
+				delete_session(s_ptr);
+			}
 		}
-		*session_hdl = 0u; /* force an invalid value.*/
+		if (session_hdl != NULL) {
+			*session_hdl = 0u; /* force an invalid value.*/
+		}
 	}
+
+	return err;
+}
+
+hsm_err_t hsm_open_key_store_service(hsm_hdl_t session_hdl,
+					open_svc_key_store_args_t *args,
+					hsm_hdl_t *key_store_hdl)
+{
+	struct hsm_session_hdl_s *sess_ptr;
+	struct hsm_service_hdl_s *serv_ptr;
+	hsm_err_t err = HSM_GENERAL_ERROR;
+	uint32_t sab_err;
+
+	do {
+		if ((args == NULL) || (key_store_hdl == NULL)) {
+			break;
+		}
+
+		sess_ptr = session_hdl_to_ptr(session_hdl);
+		if (sess_ptr == NULL) {
+			err = HSM_UNKNOWN_HANDLE;
+			break;
+		}
+
+		serv_ptr = add_service(sess_ptr);
+		if (serv_ptr == NULL) {
+			break;
+		}
+
+		sab_err = sab_open_key_store_command(sess_ptr->phdl,
+						session_hdl,
+						&serv_ptr->service_hdl,
+						args->key_store_identifier,
+						args->authentication_nonce,
+						args->max_updates_number,
+						args->flags);
+		err = sab_rating_to_hsm_err(sab_err);
+		if (err != HSM_NO_ERROR) {
+			delete_service(serv_ptr);
+			break;
+		}
+
+		*key_store_hdl = serv_ptr->service_hdl;
+	} while (false);
+
+	return err;
+}
+
+hsm_err_t hsm_close_key_store_service(hsm_hdl_t key_store_hdl)
+{
+	struct hsm_service_hdl_s *serv_ptr;
+	hsm_err_t err = HSM_GENERAL_ERROR;
+	uint32_t sab_err;
+
+	do {
+		serv_ptr = service_hdl_to_ptr(key_store_hdl);
+		if (serv_ptr == NULL) {
+			err = HSM_UNKNOWN_HANDLE;
+			break;
+		}
+
+		sab_err = sab_close_key_store(serv_ptr->session->phdl,
+						key_store_hdl);
+		err = sab_rating_to_hsm_err(sab_err);
+
+		// TODO: delete even in case of error from SECO ?
+		delete_service(serv_ptr);
+
+	} while (false);
 
 	return err;
 }

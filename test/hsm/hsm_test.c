@@ -25,7 +25,10 @@
 int main(int argc, char *argv[])
 {
     uint32_t hsm_session_hdl;
+    uint32_t key_store_hdl;
+
     open_session_args_t open_session_args;
+    open_svc_key_store_args_t open_svc_key_store_args;
 
     uint32_t nvm_status;
 
@@ -54,8 +57,19 @@ int main(int argc, char *argv[])
             printf("hsm_open_session failed err:0x%x\n", err);
             break;
         }
-
         printf("hsm_open_session PASS\n");
+
+        open_svc_key_store_args.key_store_identifier = 0xABCD;
+        open_svc_key_store_args.authentication_nonce = 0x1234;
+        open_svc_key_store_args.max_updates_number   = 100;
+        open_svc_key_store_args.flags                = 0;
+        err = hsm_open_key_store_service(hsm_session_hdl, &open_svc_key_store_args, &key_store_hdl);
+        printf("hsm_open_key_store_service ret:0x%x\n", err);
+
+
+        err = hsm_close_key_store_service(key_store_hdl);
+        printf("hsm_close_key_store_service ret:0x%x\n", err);
+
 
         err = hsm_close_session(hsm_session_hdl);
 
