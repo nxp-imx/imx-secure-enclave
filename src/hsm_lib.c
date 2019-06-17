@@ -1153,6 +1153,160 @@ hsm_err_t hsm_get_random(hsm_hdl_t rng_hdl, op_get_random_args_t *args)
 	return err;
 }
 
+hsm_err_t hsm_open_hash_service(hsm_hdl_t session_hdl,
+				open_svc_hash_args_t *args,
+				hsm_hdl_t *hash_hdl)
+{
+	struct sab_hash_open_msg cmd;
+	struct sab_hash_open_rsp rsp;
+	struct hsm_session_hdl_s *sess_ptr;
+	struct hsm_service_hdl_s *serv_ptr;
+	int32_t error = 1;
+	hsm_err_t err = HSM_GENERAL_ERROR;
+
+	do {
+		if ((args == NULL) || (hash_hdl == NULL)) {
+			break;
+		}
+		sess_ptr = session_hdl_to_ptr(session_hdl);
+		if (sess_ptr == NULL) {
+			err = HSM_UNKNOWN_HANDLE;
+			break;
+		}
+
+		serv_ptr = add_service(sess_ptr);
+		if (serv_ptr == NULL) {
+			break;
+		}
+
+		seco_fill_cmd_msg_hdr(&cmd.hdr,
+			SAB_HASH_OPEN_REQ,
+			(uint32_t)sizeof(struct sab_hash_open_msg));
+		cmd.session_handle = session_hdl;
+		cmd.input_address_ext = 0u;
+		cmd.output_address_ext = 0u;
+		cmd.flags = args->flags;
+		cmd.reserved[0] = 0u;
+		cmd.reserved[1] = 0u;
+		cmd.reserved[2] = 0u;
+		cmd.crc = 0u;
+		cmd.crc = seco_compute_msg_crc((uint32_t*)&cmd,
+				(uint32_t)(sizeof(cmd) - sizeof(uint32_t)));
+
+		error = seco_send_msg_and_get_resp(sess_ptr->phdl,
+			(uint32_t *)&cmd,
+			(uint32_t)sizeof(struct sab_hash_open_msg),
+			(uint32_t *)&rsp,
+			(uint32_t)sizeof(struct sab_hash_open_rsp));
+		if (error != 0) {
+			delete_service(serv_ptr);
+			break;
+		}
+
+		err = sab_rating_to_hsm_err(rsp.rsp_code);
+		if (err != HSM_NO_ERROR) {
+			delete_service(serv_ptr);
+			break;
+		}
+		serv_ptr->service_hdl = rsp.hash_hdl;
+		*hash_hdl = rsp.hash_hdl;
+	} while (false);
+
+	return err;
+}
+
+hsm_err_t hsm_close_hash_service(hsm_hdl_t hash_hdl)
+{
+	struct sab_hash_close_msg cmd;
+	struct sab_hash_close_rsp rsp;
+	struct hsm_service_hdl_s *serv_ptr;
+	int32_t error = 1;
+	hsm_err_t err = HSM_GENERAL_ERROR;
+
+	do {
+		serv_ptr = service_hdl_to_ptr(hash_hdl);
+		if (serv_ptr == NULL) {
+			err = HSM_UNKNOWN_HANDLE;
+			break;
+		}
+
+		seco_fill_cmd_msg_hdr(&cmd.hdr,
+			SAB_HASH_CLOSE_REQ,
+			(uint32_t)sizeof(struct sab_hash_close_msg));
+		cmd.hash_hdl = hash_hdl;
+
+
+		error = seco_send_msg_and_get_resp(serv_ptr->session->phdl,
+			(uint32_t *)&cmd,
+			(uint32_t)sizeof(struct sab_hash_close_msg),
+			(uint32_t *)&rsp,
+			(uint32_t)sizeof(struct sab_hash_close_rsp));
+		if (error == 0) {
+			err = sab_rating_to_hsm_err(rsp.rsp_code);
+		}
+		delete_service(serv_ptr);
+	} while (false);
+
+	return err;
+}
+
+hsm_err_t hsm_hash_one_go(hsm_hdl_t hash_hdl, op_hash_one_go_args_t *args)
+{
+	struct sab_hash_one_go_msg cmd;
+	struct sab_hash_one_go_rsp rsp;
+	int32_t error = 1;
+	struct hsm_service_hdl_s *serv_ptr;
+	hsm_err_t err = HSM_GENERAL_ERROR;
+
+	do {
+		if (args == NULL) {
+			break;
+		}
+
+		serv_ptr = service_hdl_to_ptr(hash_hdl);
+		if (serv_ptr == NULL) {
+			err = HSM_UNKNOWN_HANDLE;
+			break;
+		}
+
+		/* Send the keys store open command to Seco. */
+		seco_fill_cmd_msg_hdr(&cmd.hdr,
+			SAB_HASH_ONE_GO_REQ,
+			(uint32_t)sizeof(struct sab_hash_one_go_msg));
+
+		cmd.hash_hdl = hash_hdl;
+		cmd.input_addr = (uint32_t)seco_os_abs_data_buf(serv_ptr->session->phdl,
+					args->input,
+					args->input_size,
+					DATA_BUF_IS_INPUT);
+		cmd.output_addr = (uint32_t)seco_os_abs_data_buf(serv_ptr->session->phdl,
+					args->output,
+					args->output_size,
+					0u);
+		cmd.input_size = args->input_size;
+		cmd.output_size = args->output_size;
+		cmd.algo = args->algo;
+		cmd.flags = args->flags;
+		cmd.reserved = 0u;
+		cmd.crc = 0u;
+		cmd.crc = seco_compute_msg_crc((uint32_t*)&cmd,
+				(uint32_t)(sizeof(cmd) - sizeof(uint32_t)));
+		/* Send the message to Seco. */
+		error = seco_send_msg_and_get_resp(serv_ptr->session->phdl,
+			(uint32_t *)&cmd,
+			(uint32_t)sizeof(struct sab_hash_one_go_msg),
+			(uint32_t *)&rsp,
+			(uint32_t)sizeof(struct sab_hash_one_go_rsp));
+		if (error != 0) {
+			break;
+		}
+
+		err = sab_rating_to_hsm_err(rsp.rsp_code);
+	} while(false);
+
+	return err;
+}
+
 hsm_err_t hsm_pub_key_reconstruction(hsm_hdl_t session_hdl,
 					hsm_op_pub_key_rec_args_t *args)
 {

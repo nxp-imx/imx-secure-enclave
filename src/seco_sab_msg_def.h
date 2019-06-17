@@ -62,6 +62,10 @@
 #define SAB_SIGNATURE_VERIFY_REQ                0x82u
 #define SAB_IMPORT_PUB_KEY                      0x83u
 
+#define SAB_HASH_OPEN_REQ                       0x90u
+#define SAB_HASH_CLOSE_REQ                      0x91u
+#define SAB_HASH_ONE_GO_REQ                     0x92u
+
 #define SAB_STORAGE_OPEN_REQ                    0xE0u
 #define SAB_STORAGE_CLOSE_REQ                   0xE1u
 #define SAB_STORAGE_IMPORT_REQ                  0xE2u
@@ -709,6 +713,51 @@ struct sab_import_pub_key_rsp {
     struct she_mu_hdr hdr;
     uint32_t rsp_code;
     uint32_t key_ref;
+};
+
+
+struct sab_hash_open_msg {
+    struct she_mu_hdr hdr;
+    uint32_t session_handle;
+    uint32_t input_address_ext;
+    uint32_t output_address_ext;
+    uint8_t flags;
+    uint8_t reserved[3];
+    uint32_t crc;
+};
+
+struct sab_hash_open_rsp {
+    struct she_mu_hdr hdr;
+    uint32_t rsp_code;
+    uint32_t hash_hdl;
+};
+
+struct sab_hash_close_msg {
+    struct she_mu_hdr hdr;
+    uint32_t hash_hdl;
+};
+
+struct sab_hash_close_rsp {
+    struct she_mu_hdr hdr;
+    uint32_t rsp_code;
+};
+
+struct sab_hash_one_go_msg {
+    struct she_mu_hdr hdr;
+    uint32_t hash_hdl;
+    uint32_t input_addr;
+    uint32_t output_addr;
+    uint32_t input_size;
+    uint32_t output_size;
+    uint8_t algo;
+    uint8_t flags;
+    uint16_t reserved;
+    uint32_t crc;
+};
+
+struct sab_hash_one_go_rsp {
+    struct she_mu_hdr hdr;
+    uint32_t rsp_code;
 };
 
 struct sab_public_key_reconstruct_msg {
