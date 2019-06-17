@@ -358,3 +358,57 @@ uint32_t sab_get_info(struct seco_os_abs_hdl *phdl, uint32_t session_handle, uin
 
     return ret;
 }
+
+/* Generic function for encryption and decryption. */
+uint32_t sab_cmd_cipher_one_go(struct seco_os_abs_hdl *phdl,
+                                uint32_t cipher_handle,
+                                uint32_t key_id,
+                                uint8_t *iv,
+                                uint16_t iv_size,
+                                uint8_t algo,
+                                uint8_t flags,
+                                uint8_t *input,
+                                uint8_t *output,
+                                uint32_t input_size,
+                                uint32_t output_size)
+{
+    struct sab_cmd_cipher_one_go_msg cmd;
+    struct sab_cmd_cipher_one_go_rsp rsp;
+    int32_t error;
+    uint32_t ret = SAB_FAILURE_STATUS;
+
+    do {
+        if ((phdl == NULL) || (input == NULL) || (output == NULL)) {
+            break;
+        }
+        /* Build command message. */
+        seco_fill_cmd_msg_hdr(&cmd.hdr, SAB_CIPHER_ONE_GO_REQ, (uint32_t)sizeof(struct sab_cmd_cipher_one_go_msg));
+        cmd.cipher_handle = cipher_handle;
+        cmd.key_id = key_id;
+        if (iv == NULL) {
+            cmd.iv_address = 0;
+        } else {
+            cmd.iv_address = seco_os_abs_data_buf(phdl, iv, iv_size, DATA_BUF_IS_INPUT | DATA_BUF_USE_SEC_MEM);
+        }
+        cmd.iv_size = iv_size;
+        cmd.algo = algo;
+        cmd.flags = flags;
+        cmd.input_address = seco_os_abs_data_buf(phdl, input, input_size, DATA_BUF_IS_INPUT | DATA_BUF_USE_SEC_MEM);
+        cmd.output_address = seco_os_abs_data_buf(phdl, output, output_size, DATA_BUF_USE_SEC_MEM);
+        cmd.input_size = input_size;
+        cmd.output_size = output_size;
+        cmd.crc = seco_compute_msg_crc((uint32_t*)&cmd, (uint32_t)(sizeof(cmd) - sizeof(uint32_t)));
+
+        /* Send the message to Seco. */
+        error = seco_send_msg_and_get_resp(phdl,
+                    (uint32_t *)&cmd, (uint32_t)sizeof(struct sab_cmd_cipher_one_go_msg),
+                    (uint32_t *)&rsp, (uint32_t)sizeof(struct sab_cmd_cipher_one_go_rsp));
+        if (error != 0) {
+            break;
+        }
+
+        ret = rsp.rsp_code;
+    } while (false);
+
+    return ret;
+}

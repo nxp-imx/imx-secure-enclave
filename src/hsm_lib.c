@@ -579,6 +579,170 @@ hsm_err_t hsm_close_key_management_service(hsm_hdl_t key_management_hdl)
 	return err;
 }
 
+hsm_err_t hsm_open_cipher_service(hsm_hdl_t key_store_hdl,
+					open_svc_cipher_args_t *args,
+					hsm_hdl_t *cipher_hdl)
+{
+	struct hsm_service_hdl_s *key_store_serv_ptr;
+	struct hsm_service_hdl_s *cipher_serv_ptr;
+	hsm_err_t err = HSM_GENERAL_ERROR;
+	uint32_t sab_err;
+
+	do {
+		if ((args == NULL) || (cipher_hdl == NULL)) {
+			break;
+		}
+		key_store_serv_ptr = service_hdl_to_ptr(key_store_hdl);
+		if (key_store_serv_ptr == NULL) {
+			err = HSM_UNKNOWN_HANDLE;
+			break;
+		}
+
+		cipher_serv_ptr = add_service(key_store_serv_ptr->session);
+		if (cipher_serv_ptr == NULL) {
+			break;
+		}
+
+		sab_err = sab_open_cipher(key_store_serv_ptr->session->phdl,
+					key_store_hdl,
+					&(cipher_serv_ptr->service_hdl),
+					args->flags);
+		err = sab_rating_to_hsm_err(sab_err);
+		if (err != HSM_NO_ERROR) {
+			delete_service(cipher_serv_ptr);
+			break;
+		}
+		*cipher_hdl = cipher_serv_ptr->service_hdl;
+	} while (false);
+
+	return err;
+}
+
+
+hsm_err_t hsm_close_cipher_service(hsm_hdl_t cipher_hdl)
+{
+	struct hsm_service_hdl_s *serv_ptr;
+
+	hsm_err_t err = HSM_GENERAL_ERROR;
+	uint32_t sab_err;
+
+	do {
+		serv_ptr = service_hdl_to_ptr(cipher_hdl);
+		if (serv_ptr == NULL) {
+			err = HSM_UNKNOWN_HANDLE;
+			break;
+		}
+
+		sab_err = sab_close_cipher(serv_ptr->session->phdl, cipher_hdl);
+		err = sab_rating_to_hsm_err(sab_err);
+
+		delete_service(serv_ptr);
+	} while (false);
+
+	return err;
+
+}
+
+hsm_err_t hsm_cipher_one_go(hsm_hdl_t cipher_hdl, op_cipher_one_go_args_t* args)
+{
+	struct hsm_service_hdl_s *serv_ptr;
+
+	hsm_err_t err = HSM_GENERAL_ERROR;
+	uint32_t sab_err;
+
+	do {
+		serv_ptr = service_hdl_to_ptr(cipher_hdl);
+		if (serv_ptr == NULL) {
+			err = HSM_UNKNOWN_HANDLE;
+			break;
+		}
+
+		sab_err = sab_cmd_cipher_one_go(serv_ptr->session->phdl,
+						cipher_hdl,
+						args->key_identifier,
+						args->iv,
+						args->iv_size,
+						args->cipher_algo,
+						args->flags,
+						args->input,
+						args->output,
+						args->input_size,
+						args->output_size);
+		err = sab_rating_to_hsm_err(sab_err);
+
+	} while (false);
+
+	return err;
+}
+
+hsm_err_t hsm_ecies_decryption(hsm_hdl_t cipher_hdl, hsm_op_ecies_dec_args_t *args)
+{
+	struct sab_cmd_ecies_decrypt_msg cmd;
+	struct sab_cmd_ecies_decrypt_rsp rsp;
+	int32_t error = 1;
+	struct hsm_service_hdl_s *serv_ptr;
+	hsm_err_t err = HSM_GENERAL_ERROR;
+
+	do {
+		if (args == NULL) {
+			break;
+		}
+		serv_ptr = service_hdl_to_ptr(cipher_hdl);
+		if (serv_ptr == NULL) {
+			err = HSM_UNKNOWN_HANDLE;
+			break;
+		}
+
+		/* Send the keys store open command to Seco. */
+		seco_fill_cmd_msg_hdr(&cmd.hdr,
+			SAB_CIPHER_ECIES_DECRYPT_REQ,
+			(uint32_t)sizeof(struct sab_cmd_ecies_decrypt_msg));
+		cmd.cipher_handle = cipher_hdl;
+		cmd.key_id = args->key_identifier;
+		cmd.input_address = (uint32_t)seco_os_abs_data_buf(serv_ptr->session->phdl,
+				args->input,
+				args->input_size,
+				DATA_BUF_IS_INPUT | DATA_BUF_USE_SEC_MEM);
+		cmd.p1_addr = (uint32_t)seco_os_abs_data_buf(serv_ptr->session->phdl,
+				args->p1,
+				args->p1_size,
+				DATA_BUF_IS_INPUT | DATA_BUF_USE_SEC_MEM);
+		cmd.p2_addr = (uint32_t)seco_os_abs_data_buf(serv_ptr->session->phdl,
+				args->p2,
+				args->p2_size,
+				DATA_BUF_IS_INPUT | DATA_BUF_USE_SEC_MEM);
+		cmd.output_address = (uint32_t)seco_os_abs_data_buf(serv_ptr->session->phdl,
+				args->output,
+				args->output_size,
+				DATA_BUF_USE_SEC_MEM);
+		cmd.input_size = args->input_size;
+		cmd.output_size = args->output_size;
+		cmd.p1_size = args->p1_size;
+		cmd.p2_size = args->p2_size;
+		cmd.mac_size = args->mac_size;
+		cmd.key_type = args->key_type;
+		cmd.flags = args->flags;
+		cmd.crc = 0u;
+		cmd.crc = seco_compute_msg_crc((uint32_t*)&cmd,
+				(uint32_t)(sizeof(cmd) - sizeof(uint32_t)));
+
+		/* Send the message to Seco. */
+		error = seco_send_msg_and_get_resp(serv_ptr->session->phdl,
+			(uint32_t *)&cmd,
+			(uint32_t)sizeof(struct sab_cmd_ecies_decrypt_msg),
+			(uint32_t *)&rsp,
+			(uint32_t)sizeof(struct sab_cmd_ecies_decrypt_rsp));
+		if (error != 0) {
+			break;
+		}
+
+		err = sab_rating_to_hsm_err(rsp.rsp_code);
+
+	} while(false);
+
+	return err;
+}
+
 hsm_err_t hsm_open_signature_generation_service(hsm_hdl_t key_store_hdl,
 						open_svc_sign_gen_args_t *args,
 						hsm_hdl_t *signature_gen_hdl)

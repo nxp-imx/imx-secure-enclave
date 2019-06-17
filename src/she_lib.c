@@ -429,98 +429,118 @@ she_err_t she_cmd_verify_mac(struct she_hdl_s *hdl, uint8_t key_ext, uint8_t key
     return ret;
 }
 
-/* Generic function for encryption and decryption. */
-static she_err_t she_cmd_cipher_one_go(struct she_hdl_s *hdl, uint8_t key_ext, uint8_t key_id, uint32_t input_length, uint32_t output_length, uint8_t *iv, uint8_t *input, uint8_t *output, uint8_t flags, uint8_t algo)
-{
-    struct sab_cmd_cipher_one_go_msg cmd;
-    struct sab_cmd_cipher_one_go_rsp rsp;
-    int32_t error;
-    uint64_t seco_iv_addr, seco_input_addr, seco_output_addr;
-    uint16_t iv_size;
-    she_err_t ret = ERC_GENERAL_ERROR;
-
-    do {
-        if ((hdl == NULL) || (input == NULL) || (output == NULL)) {
-            break;
-        }
-        /* Build command message. */
-        seco_fill_cmd_msg_hdr(&cmd.hdr, SAB_CIPHER_ONE_GO_REQ, (uint32_t)sizeof(struct sab_cmd_cipher_one_go_msg));
-        cmd.cipher_handle = hdl->cipher_handle;
-        cmd.key_id = (uint32_t)key_ext | (uint32_t)key_id;
-        cmd.algo = algo;
-        cmd.flags = flags;
-
-        if (algo == AHAB_CIPHER_ONE_GO_ALGO_ECB) {
-            seco_iv_addr = 0;
-            iv_size = 0;
-        }
-        else if (algo == AHAB_CIPHER_ONE_GO_ALGO_CBC) {
-            if (iv == NULL) {
-                break;
-            }
-            seco_iv_addr = seco_os_abs_data_buf(hdl->phdl, iv, SHE_AES_BLOCK_SIZE_128, DATA_BUF_IS_INPUT);
-            iv_size = SHE_AES_BLOCK_SIZE_128;
-        } else {
-            break;
-        }
-
-        seco_input_addr = seco_os_abs_data_buf(hdl->phdl, input, input_length, DATA_BUF_IS_INPUT);
-        seco_output_addr = seco_os_abs_data_buf(hdl->phdl, output, output_length, 0u);
-
-        /* Keep same layout in secure ram even for algos not using IV to simplify code here. */
-        cmd.iv_address = (uint32_t)(seco_iv_addr & 0xFFFFFFFFu);
-        cmd.input_address = (uint32_t)(seco_input_addr & 0xFFFFFFFFu);
-        cmd.output_address = (uint32_t)(seco_output_addr & 0xFFFFFFFFu);
-        cmd.input_length = input_length;
-        cmd.output_length = output_length;
-        cmd.iv_size = iv_size;
-        cmd.crc = seco_compute_msg_crc((uint32_t*)&cmd, (uint32_t)(sizeof(cmd) - sizeof(uint32_t)));
-
-
-        /* Send the message to Seco. */
-        error = seco_send_msg_and_get_resp(hdl->phdl,
-                    (uint32_t *)&cmd, (uint32_t)sizeof(struct sab_cmd_cipher_one_go_msg),
-                    (uint32_t *)&rsp, (uint32_t)sizeof(struct sab_cmd_cipher_one_go_rsp));
-        if (error != 0) {
-            break;
-        }
-
-        hdl->last_rating = rsp.rsp_code;
-        if ((hdl->cancel != 0u) || (GET_STATUS_CODE(rsp.rsp_code) != SAB_SUCCESS_STATUS)) {
-            ret = she_seco_ind_to_she_err_t(rsp.rsp_code);
-            seco_os_abs_memset(output, 0u, output_length);
-            hdl->cancel = 0u;
-            break;
-        }
-
-        ret = ERC_NO_ERROR;
-    } while (false);
-
-    return ret;
-}
-
 /* CBC encrypt command. */
 she_err_t she_cmd_enc_cbc(struct she_hdl_s *hdl, uint8_t key_ext, uint8_t key_id, uint32_t data_length, uint8_t *iv, uint8_t *plaintext, uint8_t *ciphertext)
 {
-    return she_cmd_cipher_one_go(hdl, key_ext, key_id, data_length, data_length, iv, plaintext, ciphertext, AHAB_CIPHER_ONE_GO_FLAGS_ENCRYPT, AHAB_CIPHER_ONE_GO_ALGO_CBC);
+    uint32_t sab_error;
+    she_err_t ret = ERC_GENERAL_ERROR;
+
+    sab_error =  sab_cmd_cipher_one_go(hdl->phdl,
+                                        hdl->cipher_handle,
+                                        (uint32_t)key_ext | (uint32_t)key_id,
+                                        iv,
+                                        SHE_AES_BLOCK_SIZE_128,
+                                        AHAB_CIPHER_ONE_GO_ALGO_CBC,
+                                        AHAB_CIPHER_ONE_GO_FLAGS_ENCRYPT,
+                                        plaintext,
+                                        ciphertext,
+                                        data_length,
+                                        data_length);
+    hdl->last_rating = sab_error;
+    if ((hdl->cancel != 0u) || (GET_STATUS_CODE(sab_error) != SAB_SUCCESS_STATUS)) {
+        seco_os_abs_memset(ciphertext, 0u, data_length);
+        hdl->cancel = 0u;
+    }
+
+    ret = she_seco_ind_to_she_err_t(sab_error);
+
+    return ret;
 }
 
 /* CBC decrypt command. */
 she_err_t she_cmd_dec_cbc(struct she_hdl_s *hdl, uint8_t key_ext, uint8_t key_id, uint32_t data_length, uint8_t *iv, uint8_t *ciphertext, uint8_t *plaintext)
 {
-    return she_cmd_cipher_one_go(hdl, key_ext, key_id, data_length, data_length, iv, ciphertext, plaintext, AHAB_CIPHER_ONE_GO_FLAGS_DECRYPT, AHAB_CIPHER_ONE_GO_ALGO_CBC);
+    uint32_t sab_error;
+    she_err_t ret = ERC_GENERAL_ERROR;
+
+    sab_error =  sab_cmd_cipher_one_go(hdl->phdl,
+                                        hdl->cipher_handle,
+                                        (uint32_t)key_ext | (uint32_t)key_id,
+                                        iv,
+                                        SHE_AES_BLOCK_SIZE_128,
+                                        AHAB_CIPHER_ONE_GO_ALGO_CBC,
+                                        AHAB_CIPHER_ONE_GO_FLAGS_DECRYPT,
+                                        ciphertext,
+                                        plaintext,
+                                        data_length,
+                                        data_length);
+
+    hdl->last_rating = sab_error;
+    if ((hdl->cancel != 0u) || (GET_STATUS_CODE(sab_error) != SAB_SUCCESS_STATUS)) {
+        seco_os_abs_memset(plaintext, 0u, data_length);
+        hdl->cancel = 0u;
+    }
+
+    ret = she_seco_ind_to_she_err_t(sab_error);
+
+    return ret;
 }
 
 /* ECB encrypt command. */
 she_err_t she_cmd_enc_ecb(struct she_hdl_s *hdl, uint8_t key_ext, uint8_t key_id, uint8_t *plaintext, uint8_t *ciphertext)
 {
-    return she_cmd_cipher_one_go(hdl, key_ext, key_id, SHE_AES_BLOCK_SIZE_128, SHE_AES_BLOCK_SIZE_128, NULL, plaintext, ciphertext, AHAB_CIPHER_ONE_GO_FLAGS_ENCRYPT, AHAB_CIPHER_ONE_GO_ALGO_ECB);
+    uint32_t sab_error;
+    she_err_t ret = ERC_GENERAL_ERROR;
+
+    sab_error =  sab_cmd_cipher_one_go(hdl->phdl,
+                                        hdl->cipher_handle,
+                                        (uint32_t)key_ext | (uint32_t)key_id,
+                                        NULL,
+                                        0u,
+                                        AHAB_CIPHER_ONE_GO_ALGO_ECB,
+                                        AHAB_CIPHER_ONE_GO_FLAGS_ENCRYPT,
+                                        plaintext,
+                                        ciphertext,
+                                        SHE_AES_BLOCK_SIZE_128,
+                                        SHE_AES_BLOCK_SIZE_128);
+
+    hdl->last_rating = sab_error;
+    if ((hdl->cancel != 0u) || (GET_STATUS_CODE(sab_error) != SAB_SUCCESS_STATUS)) {
+        seco_os_abs_memset(ciphertext, 0u, SHE_AES_BLOCK_SIZE_128);
+        hdl->cancel = 0u;
+    }
+
+    ret = she_seco_ind_to_she_err_t(sab_error);
+
+    return ret;
 }
 
 /* ECB decrypt command. */
 she_err_t she_cmd_dec_ecb(struct she_hdl_s *hdl, uint8_t key_ext, uint8_t key_id, uint8_t *ciphertext, uint8_t *plaintext)
 {
-    return she_cmd_cipher_one_go(hdl, key_ext, key_id, SHE_AES_BLOCK_SIZE_128, SHE_AES_BLOCK_SIZE_128, NULL, ciphertext, plaintext, AHAB_CIPHER_ONE_GO_FLAGS_DECRYPT, AHAB_CIPHER_ONE_GO_ALGO_ECB);
+    uint32_t sab_error;
+    she_err_t ret = ERC_GENERAL_ERROR;
+
+    sab_error =  sab_cmd_cipher_one_go(hdl->phdl,
+                                        hdl->cipher_handle,
+                                        (uint32_t)key_ext | (uint32_t)key_id,
+                                        NULL,
+                                        0u,
+                                        AHAB_CIPHER_ONE_GO_ALGO_ECB,
+                                        AHAB_CIPHER_ONE_GO_FLAGS_DECRYPT,
+                                        ciphertext,
+                                        plaintext,
+                                        SHE_AES_BLOCK_SIZE_128,
+                                        SHE_AES_BLOCK_SIZE_128);
+
+    hdl->last_rating = sab_error;
+    if ((hdl->cancel != 0u) || (GET_STATUS_CODE(sab_error) != SAB_SUCCESS_STATUS)) {
+        seco_os_abs_memset(plaintext, 0u, SHE_AES_BLOCK_SIZE_128);
+        hdl->cancel = 0u;
+    }
+
+    ret = she_seco_ind_to_she_err_t(sab_error);
+    return ret;
 }
 
 /* Load key command processing. */
