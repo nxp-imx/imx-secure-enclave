@@ -51,6 +51,12 @@
 #define SAB_CIPHER_CLOSE_REQ                    0x61u
 #define SAB_CIPHER_ONE_GO_REQ                   0x62u
 
+#define SAB_SIGNATURE_GENERATION_OPEN_REQ       0x70u
+#define SAB_SIGNATURE_GENERATION_CLOSE_REQ      0x71u
+#define SAB_SIGNATURE_GENERATE_REQ              0x72u
+#define SAB_SIGNATURE_PREPARE_REQ               0x73u
+#define SAB_SIGNATURE_FINALIZE_REQ              0x74u
+
 #define SAB_SIGNATURE_VERIFICATION_OPEN_REQ     0x80u
 #define SAB_SIGNATURE_VERIFICATION_CLOSE_REQ    0x81u
 #define SAB_SIGNATURE_VERIFY_REQ                0x82u
@@ -567,6 +573,81 @@ struct sab_cmd_cipher_one_go_rsp {
     struct she_mu_hdr hdr;
     uint32_t rsp_code;
 } ;
+
+struct sab_signature_gen_open_msg {
+    struct she_mu_hdr hdr;
+    uint32_t key_store_hdl;
+    uint32_t input_address_ext;
+    uint32_t output_address_ext;
+    uint8_t flags;
+    uint8_t reserved[3];
+    uint32_t crc;
+};
+
+struct sab_signature_gen_open_rsp {
+    struct she_mu_hdr hdr;
+    uint32_t rsp_code;
+    uint32_t sig_gen_hdl;
+};
+
+struct sab_signature_gen_close_msg {
+    struct she_mu_hdr hdr;
+    uint32_t sig_gen_hdl;
+};
+
+struct sab_signature_gen_close_rsp {
+    struct she_mu_hdr hdr;
+    uint32_t rsp_code;
+};
+
+struct sab_signature_generate_msg {
+    struct she_mu_hdr hdr;
+    uint32_t sig_gen_hdl;
+    uint32_t key_identifier;
+    uint32_t message_addr;
+    uint32_t signature_addr;
+    uint32_t message_size;
+    uint16_t signature_size;
+    uint8_t scheme_id;
+    uint8_t flags;
+    uint32_t crc;
+};
+
+struct sab_signature_generate_rsp {
+    struct she_mu_hdr hdr;
+    uint32_t rsp_code;
+};
+
+struct sab_prepare_signature_msg {
+    struct she_mu_hdr hdr;
+    uint32_t sig_gen_hdl;
+    uint8_t scheme_id;
+    uint8_t flags;
+    uint16_t reserved;
+};
+
+struct sab_prepare_signature_rsp {
+    struct she_mu_hdr hdr;
+    uint32_t rsp_code;
+};
+
+struct sab_finalize_signature_msg {
+    struct she_mu_hdr hdr;
+    uint32_t sig_gen_hdl;
+    uint32_t key_identifier;
+    uint32_t message_addr;
+    uint32_t signature_addr;
+    uint32_t message_size;
+    uint16_t signature_size;
+    uint8_t flags;
+    uint8_t reserved;
+    uint32_t crc;
+};
+
+struct sab_finalize_signature_rsp {
+    struct she_mu_hdr hdr;
+    uint32_t rsp_code;
+};
 
 struct sab_signature_verif_open_msg {
     struct she_mu_hdr hdr;
