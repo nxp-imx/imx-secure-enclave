@@ -25,6 +25,8 @@
 #define SAB_SESSION_OPEN_REQ                    0x10u
 #define SAB_SESSION_CLOSE_REQ                   0x11u
 #define SAB_SHARED_BUF_REQ                      0x12u
+#define SAB_PUB_KEY_RECONSTRUCTION_REQ          0x13u
+#define SAB_PUB_KEY_DECOMPRESSION_REQ           0x14u
 #define SAB_GET_INFO_REQ                        0x16u
 
 #define SAB_RNG_OPEN_REQ                        0x20u
@@ -467,6 +469,53 @@ struct sab_cmd_cipher_one_go_rsp {
     struct she_mu_hdr hdr;
     uint32_t rsp_code;
 } ;
+
+struct sab_public_key_reconstruct_msg {
+    struct she_mu_hdr hdr;
+    uint32_t sesssion_handle;
+    uint32_t pu_address_ext;
+    uint32_t pu_address;
+    uint32_t hash_address_ext;
+    uint32_t hash_address;
+    uint32_t ca_key_address_ext;
+    uint32_t ca_key_address;
+    uint32_t out_key_address_ext;
+    uint32_t out_key_address;
+    uint16_t pu_size;
+    uint16_t hash_size;
+    uint16_t ca_key_size;
+    uint16_t out_key_size;
+    uint8_t key_type;
+    uint8_t flags;
+    uint16_t rsv;
+    uint32_t crc;
+};
+
+struct sab_public_key_reconstruct_rsp {
+    struct she_mu_hdr hdr;
+    uint32_t rsp_code;
+};
+
+struct sab_public_key_decompression_msg {
+    struct she_mu_hdr hdr;
+    uint32_t sesssion_handle;
+    uint32_t input_address_ext;
+    uint32_t input_address;
+    uint32_t output_address_ext;
+    uint32_t output_address;
+    uint16_t input_size;
+    uint16_t out_size;
+    uint8_t key_type;
+    uint8_t flags;
+    uint16_t rsv;
+    uint32_t crc;
+};
+
+struct sab_public_key_decompression_rsp {
+    struct she_mu_hdr hdr;
+    uint32_t rsp_code;
+};
+
 
 struct sab_cmd_get_info_msg {
     struct she_mu_hdr hdr;

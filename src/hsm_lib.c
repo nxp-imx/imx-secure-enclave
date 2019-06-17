@@ -15,6 +15,7 @@
 #include "seco_os_abs.h"
 #include "seco_sab_msg_def.h"
 #include "seco_sab_messaging.h"
+#include "seco_utils.h"
 
 struct hsm_session_hdl_s {
 	struct seco_os_abs_hdl *phdl;
@@ -222,7 +223,7 @@ hsm_err_t hsm_open_session(open_session_args_t *args, hsm_hdl_t *session_hdl)
 	return err;
 }
 
-hsm_err_t hsm_open_key_store_service(hsm_hdl_t session_hdl,
+hsm_err_t hsm_open_key_store_service(hsm_hdl_t session_hdl, 
 					open_svc_key_store_args_t *args,
 					hsm_hdl_t *key_store_hdl)
 {
@@ -287,6 +288,130 @@ hsm_err_t hsm_close_key_store_service(hsm_hdl_t key_store_hdl)
 		delete_service(serv_ptr);
 
 	} while (false);
+
+	return err;
+}
+
+hsm_err_t hsm_pub_key_reconstruction(hsm_hdl_t session_hdl,
+					hsm_op_pub_key_rec_args_t *args)
+{
+	struct sab_public_key_reconstruct_msg cmd;
+	struct sab_public_key_reconstruct_rsp rsp;
+	int32_t error = 1;
+	struct hsm_session_hdl_s *sess_ptr;
+	hsm_err_t err = HSM_GENERAL_ERROR;
+
+	do {
+		sess_ptr = session_hdl_to_ptr(session_hdl);
+		if (sess_ptr == NULL) {
+			err = HSM_UNKNOWN_HANDLE;
+			break;
+		}
+
+		/* Send the keys store open command to Seco. */
+		seco_fill_cmd_msg_hdr(&cmd.hdr,
+			SAB_PUB_KEY_RECONSTRUCTION_REQ,
+			(uint32_t)sizeof(struct sab_public_key_reconstruct_msg));
+		cmd.sesssion_handle = session_hdl;
+		cmd.pu_address_ext = 0u;
+		cmd.pu_address = (uint32_t)seco_os_abs_data_buf(sess_ptr->phdl,
+					args->pub_rec,
+					args->pub_rec_size,
+					DATA_BUF_IS_INPUT);
+		cmd.hash_address_ext = 0u;
+		cmd.hash_address = (uint32_t)seco_os_abs_data_buf(sess_ptr->phdl,
+					args->hash,
+					args->hash_size,
+					DATA_BUF_IS_INPUT);
+		cmd.ca_key_address_ext = 0u;
+		cmd.ca_key_address = (uint32_t)seco_os_abs_data_buf(sess_ptr->phdl,
+					args->ca_key,
+					args->ca_key_size,
+					DATA_BUF_IS_INPUT);
+		cmd.out_key_address_ext = 0u;
+		cmd.out_key_address = (uint32_t)seco_os_abs_data_buf(sess_ptr->phdl,
+					args->out_key,
+					args->out_key_size,
+					0u);
+		cmd.pu_size = args->pub_rec_size;
+		cmd.hash_size = args->hash_size;
+		cmd.ca_key_size = args->ca_key_size;
+		cmd.out_key_size = args->out_key_size;
+		cmd.key_type = args->key_type;
+		cmd.flags = args->flags;
+		cmd.rsv = 0u;
+		cmd.crc = 0u;
+		cmd.crc = seco_compute_msg_crc((uint32_t*)&cmd,
+				(uint32_t)(sizeof(cmd) - sizeof(uint32_t)));
+
+		/* Send the message to Seco. */
+		error = seco_send_msg_and_get_resp(sess_ptr->phdl,
+			(uint32_t *)&cmd,
+			(uint32_t)sizeof(struct sab_public_key_reconstruct_msg),
+			(uint32_t *)&rsp,
+			(uint32_t)sizeof(struct sab_public_key_reconstruct_rsp));
+		if (error != 0) {
+			break;
+		}
+
+		err = sab_rating_to_hsm_err(rsp.rsp_code);
+	} while(false);
+
+	return err;
+}
+
+hsm_err_t hsm_pub_key_decompression(hsm_hdl_t session_hdl,
+					hsm_op_pub_key_dec_args_t *args)
+{
+	struct sab_public_key_decompression_msg cmd;
+	struct sab_public_key_decompression_rsp rsp;
+	int32_t error = 1;
+	struct hsm_session_hdl_s *sess_ptr;
+	hsm_err_t err = HSM_GENERAL_ERROR;
+
+	do {
+		sess_ptr = session_hdl_to_ptr(session_hdl);
+		if (sess_ptr == NULL) {
+			err = HSM_UNKNOWN_HANDLE;
+			break;
+		}
+
+		/* Send the keys store open command to Seco. */
+		seco_fill_cmd_msg_hdr(&cmd.hdr,
+			SAB_PUB_KEY_DECOMPRESSION_REQ,
+			(uint32_t)sizeof(struct sab_public_key_decompression_msg));
+		cmd.sesssion_handle = session_hdl;
+		cmd.input_address_ext = 0u;
+		cmd.input_address = (uint32_t)seco_os_abs_data_buf(sess_ptr->phdl,
+					args->key,
+					args->key_size,
+					DATA_BUF_IS_INPUT);
+		cmd.output_address_ext = 0u;
+		cmd.output_address = (uint32_t)seco_os_abs_data_buf(sess_ptr->phdl,
+					args->out_key,
+					args->out_key_size,
+					0u);
+		cmd.input_size = args->key_size;
+		cmd.out_size = args->out_key_size;
+		cmd.key_type = args->key_type;
+		cmd.flags = args->flags;
+		cmd.rsv = 0u;
+		cmd.crc = 0u;
+		cmd.crc = seco_compute_msg_crc((uint32_t*)&cmd,
+				(uint32_t)(sizeof(cmd) - sizeof(uint32_t)));
+
+		/* Send the message to Seco. */
+		error = seco_send_msg_and_get_resp(sess_ptr->phdl,
+			(uint32_t *)&cmd,
+			(uint32_t)sizeof(struct sab_public_key_decompression_msg),
+			(uint32_t *)&rsp,
+			(uint32_t)sizeof(struct sab_public_key_decompression_rsp));
+		if (error != 0) {
+			break;
+		}
+
+		err = sab_rating_to_hsm_err(rsp.rsp_code);
+	} while(false);
 
 	return err;
 }

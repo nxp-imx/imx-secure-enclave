@@ -21,11 +21,106 @@
 #include "hsm_api.h"
 #include "seco_nvm.h"
 
+// input  Qx||lsb_Qy
+static uint8_t ECC_P256_Qx[32+1] =
+{ 0xCE, 0x4D, 0xCF, 0xA7, 0x38, 0x4C, 0x83, 0x44, 0x3A, 0xCE, 0x0F, 0xB8, 0x2C, 0x4A, 0xC1, 0xAD,
+  0xFA, 0x10, 0x0A, 0x9B, 0x2C, 0x7B, 0xF0, 0x9F, 0x09, 0x3F, 0x8B, 0x6D, 0x08, 0x4E, 0x50, 0xC2, 0x00};
+
+static uint8_t ECC_BRAINPOOL_R1_256_Qx[32+1] =
+{ 0x7D, 0x91, 0x41, 0xD7, 0x4A, 0xCB, 0x3F, 0xD8, 0x65, 0xF0, 0xB4, 0xE2, 0x92, 0x16, 0x67, 0x37,
+  0x96, 0x04, 0xAB, 0xE6, 0x6E, 0x25, 0x5A, 0x37, 0x71, 0x63, 0x99, 0xE4, 0x5A, 0x51, 0xB9, 0xCB, 0x00};
+
+static uint8_t ECC_BRAINPOOL_T1_256_Qx[32+1] =
+{ 0x9F, 0xAB, 0x97, 0xD2, 0x7E, 0x84, 0x9C, 0x64, 0xD7, 0xC0, 0x20, 0xC6, 0xAE, 0xDD, 0x90, 0x8B,
+  0x47, 0xF6, 0x5F, 0x86, 0xCA, 0x32, 0xB1, 0x66, 0x26, 0x71, 0xDB, 0x45, 0x59, 0x6A, 0x8F, 0xB5 , 0x00};
+
+
+static void public_key_test(hsm_hdl_t hsm_session_hdl)
+{
+    hsm_op_pub_key_rec_args_t hsm_op_pub_key_rec_args;
+    hsm_op_pub_key_dec_args_t hsm_op_pub_key_dec_args;
+    uint8_t out[32];
+    uint32_t i;
+    hsm_err_t err;
+
+    // Dummy values just to test API call
+    hsm_op_pub_key_rec_args.pub_rec = out;
+    hsm_op_pub_key_rec_args.hash = out;
+    hsm_op_pub_key_rec_args.ca_key = out;
+    hsm_op_pub_key_rec_args.out_key = out;
+    hsm_op_pub_key_rec_args.pub_rec_size = 32;
+    hsm_op_pub_key_rec_args.hash_size = 32;
+    hsm_op_pub_key_rec_args.ca_key_size = 32;
+    hsm_op_pub_key_rec_args.out_key_size =32;
+    hsm_op_pub_key_rec_args.key_type = HSM_KEY_TYPE_ECDSA_NIST_P256;
+    hsm_op_pub_key_rec_args.flags = 0u;
+    hsm_op_pub_key_rec_args.reserved = 0u;
+
+    err = hsm_pub_key_reconstruction(hsm_session_hdl, &hsm_op_pub_key_rec_args);
+
+    printf("hsm_pub_key_reconstruction ret:0x%x\noutput:\n", err);
+    /* P256 */
+    hsm_op_pub_key_dec_args.key = ECC_P256_Qx;
+    hsm_op_pub_key_dec_args.out_key = out;
+    hsm_op_pub_key_dec_args.key_size = 33;
+    hsm_op_pub_key_dec_args.out_key_size = 32;
+    hsm_op_pub_key_dec_args.key_type = HSM_KEY_TYPE_ECDSA_NIST_P256;
+    hsm_op_pub_key_dec_args.flags = 0u;
+
+    err = hsm_pub_key_decompression(hsm_session_hdl, &hsm_op_pub_key_dec_args);
+
+    printf("hsm_pub_key_decompression ret:0x%x\noutput:\n", err);
+    for (i=0; i<32; i++) {
+        printf("0x%x ", out[i]);
+        if (i%8 == 7) {
+            printf("\n");
+        }
+    }
+
+    /* Brainpool R1 256 */
+    hsm_op_pub_key_dec_args.key = ECC_BRAINPOOL_R1_256_Qx;
+    hsm_op_pub_key_dec_args.out_key = out;
+    hsm_op_pub_key_dec_args.key_size = 33;
+    hsm_op_pub_key_dec_args.out_key_size = 32;
+    hsm_op_pub_key_dec_args.key_type = HSM_KEY_TYPE_ECDSA_BRAINPOOL_R1_256;
+    hsm_op_pub_key_dec_args.flags = 0u;
+
+    err = hsm_pub_key_decompression(hsm_session_hdl, &hsm_op_pub_key_dec_args);
+
+    printf("hsm_pub_key_decompression ret:0x%x\noutput:\n", err);
+    for (i=0; i<32; i++) {
+        printf("0x%x ", out[i]);
+        if (i%8 == 7) {
+            printf("\n");
+        }
+    }
+
+    /* Brainpool T1 256 */
+    hsm_op_pub_key_dec_args.key = ECC_BRAINPOOL_T1_256_Qx;
+    hsm_op_pub_key_dec_args.out_key = out;
+    hsm_op_pub_key_dec_args.key_size = 33;
+    hsm_op_pub_key_dec_args.out_key_size = 32;
+    hsm_op_pub_key_dec_args.key_type = HSM_KEY_TYPE_ECDSA_BRAINPOOL_T1_256;
+    hsm_op_pub_key_dec_args.flags = 0u;
+
+    err = hsm_pub_key_decompression(hsm_session_hdl, &hsm_op_pub_key_dec_args);
+
+    printf("hsm_pub_key_decompression ret:0x%x\noutput:\n", err);
+    for (i=0; i<32; i++) {
+        printf("0x%x ", out[i]);
+        if (i%8 == 7) {
+            printf("\n");
+        }
+    }
+
+}
+
+
 /* Test entry function. */
 int main(int argc, char *argv[])
 {
-    uint32_t hsm_session_hdl;
-    uint32_t key_store_hdl;
+    hsm_hdl_t hsm_session_hdl;
+    hsm_hdl_t key_store_hdl;
 
     open_session_args_t open_session_args;
     open_svc_key_store_args_t open_svc_key_store_args;
@@ -50,7 +145,7 @@ int main(int argc, char *argv[])
         }
 
         open_session_args.session_priority = 0;
-        open_session_args.operating_mode = 0;   
+        open_session_args.operating_mode = 0;
         err = hsm_open_session(&open_session_args,
                                     &hsm_session_hdl);
         if (err != HSM_NO_ERROR) {
@@ -69,6 +164,8 @@ int main(int argc, char *argv[])
 
         err = hsm_close_key_store_service(key_store_hdl);
         printf("hsm_close_key_store_service ret:0x%x\n", err);
+
+        public_key_test(hsm_session_hdl);
 
 
         err = hsm_close_session(hsm_session_hdl);
