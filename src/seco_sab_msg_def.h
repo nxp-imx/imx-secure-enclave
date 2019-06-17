@@ -40,8 +40,8 @@
 #define SAB_KEY_MANAGEMENT_OPEN_REQ             0x40u
 #define SAB_KEY_MANAGEMENT_CLOSE_REQ            0x41u
 #define SAB_KEY_GENERATE_REQ                    0x42u
-#define SAB_KEY_UPDATE_REQ                      0x43u
-#define SAB_MANAGE_KEY_REQ                      0x44u
+#define SAB_MANAGE_KEY_REQ                      0x43u
+#define SAB_BUT_KEY_EXP_REQ                     0x44u
 
 #define SAB_MAC_OPEN_REQ                        0x50u
 #define SAB_MAC_CLOSE_REQ                       0x51u
@@ -400,6 +400,99 @@ struct sab_cmd_key_store_close_rsp {
     struct she_mu_hdr hdr;
     uint32_t rsp_code;
 } ;
+
+struct sab_cmd_key_management_open_msg{
+    struct she_mu_hdr hdr;
+    uint32_t key_store_handle;
+    uint32_t input_address_ext;
+    uint32_t output_address_ext;
+    uint8_t flags;
+    uint8_t rsv[3];
+    uint32_t crc;
+};
+
+struct sab_cmd_key_management_open_rsp {
+    struct she_mu_hdr hdr;
+    uint32_t rsp_code;
+    uint32_t key_management_handle;
+};
+
+struct sab_cmd_generate_key_msg {
+    struct she_mu_hdr hdr;
+    uint32_t key_management_handle;
+    uint32_t key_identifier;
+    uint16_t out_size;
+    uint8_t flags;
+    uint8_t rsv;
+    uint8_t key_type;
+    uint8_t key_type_ext;
+    uint16_t key_info;
+    uint32_t out_key_addr;
+    uint32_t crc;
+};
+
+struct sab_cmd_generate_key_rsp {
+    struct she_mu_hdr hdr;
+    uint32_t rsp_code;
+    uint32_t key_identifier;
+    uint16_t out_size;
+    uint16_t rsv;
+};
+
+struct sab_cmd_manage_key_msg {
+    struct she_mu_hdr hdr;
+    uint32_t key_management_handle;
+    uint32_t key_identifier;
+    uint16_t input_size;
+    uint8_t flags;
+    uint8_t rsv;
+    uint8_t key_type;
+    uint8_t key_type_ext;
+    uint16_t key_info;
+    uint32_t input_key_addr;
+    uint32_t crc;
+};
+
+struct sab_cmd_manage_key_rsp {
+    struct she_mu_hdr hdr;
+    uint32_t rsp_code;
+    uint32_t key_identifier;
+};
+
+struct sab_cmd_butterfly_key_exp_msg {
+    struct she_mu_hdr hdr;
+    uint32_t key_management_handle;
+    uint32_t key_identifier;
+    uint32_t data1_addr;
+    uint32_t data2_addr;
+    uint32_t data3_addr;
+    uint8_t data1_size;
+    uint8_t data2_size;
+    uint8_t data3_size;
+    uint8_t flags;
+    uint32_t dest_key_identifier;
+    uint32_t output_address;
+    uint16_t output_size;
+    uint8_t key_type;
+    uint8_t rsv;
+    uint32_t crc;
+};
+
+struct sab_cmd_butterfly_key_exp_rsp {
+    struct she_mu_hdr hdr;
+    uint32_t rsp_code;
+};
+
+
+struct sab_cmd_key_management_close_msg{
+    struct she_mu_hdr hdr;
+    uint32_t key_management_handle;
+};
+
+struct sab_cmd_key_management_close_rsp {
+    struct she_mu_hdr hdr;
+    uint32_t rsp_code;
+};
 
 struct sab_cmd_cipher_open_msg{
     struct she_mu_hdr hdr;
