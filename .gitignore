@@ -4,4 +4,4 @@
 *.a
 *.gcno
 she_test
-she_start_storage_manager
+hsm_test

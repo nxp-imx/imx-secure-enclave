@@ -1,13 +1,19 @@
+SHE_TEST_START_STORAGE_MANAGER
+0x01  # expected return value (ERC_SEQUENCE_ERROR)
+
+SHE_TEST_STORAGE_CREATE
+0  # KEY Storage Identifier
+0xbec00001  # password
+300  # Max number of updates
+0  # signed message length
+NULL  # signed message
+0x01  # expected return value (SHE_STORAGE_CREATE_WARNING)
 
 SHE_TEST_OPEN_SESSION
-0 # index to a list of session pointers
-0 # id
-0xBEC00001 # password
-1 # expect a pointer of any value other than 0
-
-<requirement>R1.2</requirement>
-<requirement>R10.1</requirement>
-<requirement>R10.2</requirement>
+0  # index to a list of session pointers
+0  # id
+0xbec00001  # password
+0x01  # expected return value (SHE_SESSION_OPEN_SUCCESS)
 
 SHE_TEST_GET_STATUS
 0 # index to a list of session pointers
