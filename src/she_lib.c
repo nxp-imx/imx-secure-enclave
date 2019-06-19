@@ -671,7 +671,10 @@ she_err_t she_cmd_init_rng(struct she_hdl_s *hdl) {
         if (hdl == NULL) {
             break;
         }
+        /* Start the RNG at system level. */
+        seco_os_abs_start_system_rng(hdl->phdl);
 
+        /* Then send the command to SECO so it can perform its own RNG inits. */
         seco_rsp_code = sab_open_rng(hdl->phdl, hdl->session_handle, &hdl->rng_handle, RNG_OPEN_FLAGS_SHE);
 
         if ((hdl->cancel != 0u) || (GET_STATUS_CODE(seco_rsp_code)!= SAB_SUCCESS_STATUS)) {

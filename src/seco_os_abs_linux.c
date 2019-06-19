@@ -247,3 +247,10 @@ void seco_os_abs_free(void *ptr)
     free(ptr);
 }
 
+void seco_os_abs_start_system_rng(struct seco_os_abs_hdl *phdl)
+{
+    /*
+     * Nothing to do on Linux. The SCU RPC is automatically called at boot time.
+     * No need to call it again from here.
+     */
+}

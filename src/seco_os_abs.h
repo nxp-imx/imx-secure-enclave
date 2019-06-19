@@ -214,4 +214,14 @@ int32_t seco_os_abs_storage_write(struct seco_os_abs_hdl *phdl, uint8_t *src, ui
 int32_t seco_os_abs_storage_read(struct seco_os_abs_hdl *phdl, uint8_t *dst, uint32_t size);
 
 
+/**
+ * Start the RNG from a system point of view.
+ *
+ * Start the RNG HW through a SCU RPC: sc_seco_start_rng()
+ *
+ * \param phdl pointer to the session handle for which this data buffer is used.
+ */
+void seco_os_abs_start_system_rng(struct seco_os_abs_hdl *phdl);
+
+
 #endif
