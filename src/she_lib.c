@@ -425,7 +425,7 @@ she_err_t she_cmd_verify_mac(struct she_hdl_s *hdl, uint8_t key_ext, uint8_t key
 }
 
 /* Generic function for encryption and decryption. */
-static she_err_t she_cmd_cipher_one_go(struct she_hdl_s *hdl, uint8_t key_ext, uint8_t key_id, uint32_t data_length, uint8_t *iv, uint8_t *input, uint8_t *output, uint8_t flags, uint8_t algo)
+static she_err_t she_cmd_cipher_one_go(struct she_hdl_s *hdl, uint8_t key_ext, uint8_t key_id, uint32_t input_length, uint32_t output_length, uint8_t *iv, uint8_t *input, uint8_t *output, uint8_t flags, uint8_t algo)
 {
     struct sab_cmd_cipher_one_go_msg cmd;
     struct sab_cmd_cipher_one_go_rsp rsp;
@@ -459,14 +459,15 @@ static she_err_t she_cmd_cipher_one_go(struct she_hdl_s *hdl, uint8_t key_ext, u
             break;
         }
 
-        seco_input_addr = seco_os_abs_data_buf(hdl->phdl, input, data_length, DATA_BUF_IS_INPUT | DATA_BUF_USE_SEC_MEM);
-        seco_output_addr = seco_os_abs_data_buf(hdl->phdl, output, data_length, DATA_BUF_USE_SEC_MEM);
+        seco_input_addr = seco_os_abs_data_buf(hdl->phdl, input, input_length, DATA_BUF_IS_INPUT | DATA_BUF_USE_SEC_MEM);
+        seco_output_addr = seco_os_abs_data_buf(hdl->phdl, output, output_length, DATA_BUF_USE_SEC_MEM);
 
         /* Keep same layout in secure ram even for algos not using IV to simplify code here. */
         cmd.iv_address = (uint32_t)(seco_iv_addr & 0xFFFFFFFFu);
         cmd.input_address = (uint32_t)(seco_input_addr & 0xFFFFFFFFu);
         cmd.output_address = (uint32_t)(seco_output_addr & 0xFFFFFFFFu);
-        cmd.data_length = data_length;
+        cmd.input_length = input_length;
+        cmd.output_length = output_length;
         cmd.iv_size = iv_size;
         cmd.crc = seco_compute_msg_crc((uint32_t*)&cmd, (uint32_t)(sizeof(cmd) - sizeof(uint32_t)));
 
@@ -481,7 +482,7 @@ static she_err_t she_cmd_cipher_one_go(struct she_hdl_s *hdl, uint8_t key_ext, u
 
         if ((hdl->cancel != 0u) || (GET_STATUS_CODE(rsp.rsp_code) != SAB_SUCCESS_STATUS)) {
             ret = she_seco_ind_to_she_err_t(rsp.rsp_code);
-            seco_os_abs_memset(output, 0u, data_length);
+            seco_os_abs_memset(output, 0u, output_length);
             hdl->cancel = 0u;
             break;
         }
@@ -495,25 +496,25 @@ static she_err_t she_cmd_cipher_one_go(struct she_hdl_s *hdl, uint8_t key_ext, u
 /* CBC encrypt command. */
 she_err_t she_cmd_enc_cbc(struct she_hdl_s *hdl, uint8_t key_ext, uint8_t key_id, uint32_t data_length, uint8_t *iv, uint8_t *plaintext, uint8_t *ciphertext)
 {
-    return she_cmd_cipher_one_go(hdl, key_ext, key_id, data_length, iv, plaintext, ciphertext, AHAB_CIPHER_ONE_GO_FLAGS_ENCRYPT, AHAB_CIPHER_ONE_GO_ALGO_CBC);
+    return she_cmd_cipher_one_go(hdl, key_ext, key_id, data_length, data_length, iv, plaintext, ciphertext, AHAB_CIPHER_ONE_GO_FLAGS_ENCRYPT, AHAB_CIPHER_ONE_GO_ALGO_CBC);
 }
 
 /* CBC decrypt command. */
 she_err_t she_cmd_dec_cbc(struct she_hdl_s *hdl, uint8_t key_ext, uint8_t key_id, uint32_t data_length, uint8_t *iv, uint8_t *ciphertext, uint8_t *plaintext)
 {
-    return she_cmd_cipher_one_go(hdl, key_ext, key_id, data_length, iv, ciphertext, plaintext, AHAB_CIPHER_ONE_GO_FLAGS_DECRYPT, AHAB_CIPHER_ONE_GO_ALGO_CBC);
+    return she_cmd_cipher_one_go(hdl, key_ext, key_id, data_length, data_length, iv, ciphertext, plaintext, AHAB_CIPHER_ONE_GO_FLAGS_DECRYPT, AHAB_CIPHER_ONE_GO_ALGO_CBC);
 }
 
 /* ECB encrypt command. */
 she_err_t she_cmd_enc_ecb(struct she_hdl_s *hdl, uint8_t key_ext, uint8_t key_id, uint8_t *plaintext, uint8_t *ciphertext)
 {
-    return she_cmd_cipher_one_go(hdl, key_ext, key_id, SHE_AES_BLOCK_SIZE_128, NULL, plaintext, ciphertext, AHAB_CIPHER_ONE_GO_FLAGS_ENCRYPT, AHAB_CIPHER_ONE_GO_ALGO_ECB);
+    return she_cmd_cipher_one_go(hdl, key_ext, key_id, SHE_AES_BLOCK_SIZE_128, SHE_AES_BLOCK_SIZE_128, NULL, plaintext, ciphertext, AHAB_CIPHER_ONE_GO_FLAGS_ENCRYPT, AHAB_CIPHER_ONE_GO_ALGO_ECB);
 }
 
 /* ECB decrypt command. */
 she_err_t she_cmd_dec_ecb(struct she_hdl_s *hdl, uint8_t key_ext, uint8_t key_id, uint8_t *ciphertext, uint8_t *plaintext)
 {
-    return she_cmd_cipher_one_go(hdl, key_ext, key_id, SHE_AES_BLOCK_SIZE_128, NULL, ciphertext, plaintext, AHAB_CIPHER_ONE_GO_FLAGS_DECRYPT, AHAB_CIPHER_ONE_GO_ALGO_ECB);
+    return she_cmd_cipher_one_go(hdl, key_ext, key_id, SHE_AES_BLOCK_SIZE_128, SHE_AES_BLOCK_SIZE_128, NULL, ciphertext, plaintext, AHAB_CIPHER_ONE_GO_FLAGS_DECRYPT, AHAB_CIPHER_ONE_GO_ALGO_ECB);
 }
 
 /* Load key command processing. */

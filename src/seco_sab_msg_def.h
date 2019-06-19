@@ -457,7 +457,8 @@ struct sab_cmd_cipher_one_go_msg {
     uint8_t  flags;
     uint32_t input_address;
     uint32_t output_address;
-    uint32_t data_length;
+    uint32_t input_length;
+    uint32_t output_length;
     uint32_t crc;
 } ;
 
