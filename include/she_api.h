@@ -12,20 +12,15 @@
  * activate or otherwise use the software.
  */
 
-/** 
- * \mainpage
- * \defgroup she_api
- * \brief SHE feature API
- * \{
- */
-
 #ifndef SHE_API_H
 #define SHE_API_H
 
 #include <stdint.h>
 
 /**
- * \brief Error codes returned by SHE functions.
+ *  @defgroup group0 Error codes
+ * Error codes returned by SHE functions.
+ *  @{
  */
 typedef enum {
     ERC_NO_ERROR            = 0x0,      /**< Success. */
@@ -42,9 +37,13 @@ typedef enum {
     ERC_MEMORY_FAILURE      = 0xB,      /**< Memory error (e.g. flipped bits) */
     ERC_GENERAL_ERROR       = 0xC,      /**< Error not covered by other codes occured. */
 } she_err_t;
+/** @} end of error code group */
+
 
 /**
- * \brief Identifiers for SHE keys.
+ *  @defgroup group1 SHE keys
+ * Identifiers for SHE keys.
+ *  @{
  */
 #define SHE_KEY_1    (0x04)
 #define SHE_KEY_2    (0x05)
@@ -57,26 +56,36 @@ typedef enum {
 #define SHE_KEY_9    (0x0c)
 #define SHE_KEY_10   (0x0d)
 #define SHE_RAM_KEY  (0x0e)
+/** @} end of keys group */
+
 
 /**
- * \brief Identifiers for SHE keys extensions
+ *  @defgroup group2 SHE+ key extension
+ * Identifiers for the SHE key extension.
+ *  @{
  */
 #define SHE_KEY_DEFAULT (0x00)      /**< no key extension: keys from 0 to 10 as defined in SHE specification. */
 #define SHE_KEY_N_EXT_1 (0x10)      /**< keys 11 to 20. */
 #define SHE_KEY_N_EXT_2 (0x20)      /**< keys 21 to 30. */
 #define SHE_KEY_N_EXT_3 (0x30)      /**< keys 31 to 40. */
 #define SHE_KEY_N_EXT_4 (0x40)      /**< keys 41 to 50. */
+/** @} end of keys ext group */
 
+
+/**
+ *  @defgroup group3 Key store provisioning
+ *  @{
+ */
 /**
  * Creates an empty SHE storage.
  *
- * Must be called at least once on every device before using any other SHE API.
- * A signed message can be provided to authorize the operation. This message is not necessary under some conditions related to chip's lifecycle.
+ * Must be called at least once on every device before using any other SHE API.\n
+ * A signed message must be provided to replace an existing key store. This message is not necessary under some conditions related to chip's lifecycle.
  *
  * Note that the signed message is not yet supported. should be forced to NULL.
  * 
  * \param key_storage_identifier key store identifier
- * \param password new password to be associated with the created key store
+ * \param authentication_nonce user defined nonce to be used as authentication proof for accesing the key store.
  * \param max_updates_number maximum number of updates authorized on this new storage.\n
  * This parameter has the goal to limit the occupation of the monotonic counter used as anti-rollback protection.\n
  * If the maximum number of updates is reached, SHE still allows key store updates but without updating the monotonic counter giving the opportunity for rollback attacks.\n
@@ -86,30 +95,35 @@ typedef enum {
  *
  * \return error code
  */
-uint32_t she_storage_create(uint32_t key_storage_identifier, uint32_t password, uint16_t max_updates_number, uint8_t *signed_message, uint32_t msg_len);
+uint32_t she_storage_create(uint32_t key_storage_identifier, uint32_t authentication_nonce, uint16_t max_updates_number, uint8_t *signed_message, uint32_t msg_len);
 #define SHE_STORAGE_CREATE_SUCCESS          0u     /**< New storage created succesfully. */
 #define SHE_STORAGE_CREATE_WARNING          1u     /**< New storage created but its usage is restricted to a limited security state of the chip. */
 #define SHE_STORAGE_CREATE_UNAUTHORIZED     2u     /**< Creation of the storage is not authorized. */
 #define SHE_STORAGE_CREATE_FAIL             3u     /**< Creation of the storage failed for any other reason. */
 #define SHE_STORAGE_NUMBER_UPDATES_DEFAULT  300u   /**< default number of maximum number of updated for SHE storage. */
+/** @} end of provisioning group */
+
 
 /**
+ *  @defgroup group4 Session
+ *  @{
+ */
+/**
  * Initiate a SHE session.
- * The returned session handle pointer is typed with the struct "she_hdl_s".
- * The user doesn't need to know or to access the fields of this struct.
+ * The returned session handle pointer is typed with the struct "she_hdl_s".\n
+ * The user doesn't need to know or to access the fields of this struct.\n
  * It only needs to store this pointer and pass it to every calls to other APIs within the same SHE session.
  *
  * Note that asynchronous API is currently not supported. async_cb and priv pointers must be set to NULL.
  *
  * \param key_storage_identifier key store identifier
- * \param password password for accesing the key storage
+ * \param authentication_nonce user defined nonce used as authentication proof for accesing the key store..
  * \param async_cb user callback to be called on completion of a SHE operation
  * \param priv user pointer to be passed to the callback
  *
  * \return pointer to the session handle.
  */
-struct she_hdl_s *she_open_session(uint32_t key_storage_identifier, uint32_t password, void (*async_cb)(void *priv, she_err_t err), void *priv);
-
+struct she_hdl_s *she_open_session(uint32_t key_storage_identifier, uint32_t authentication_nonce, void (*async_cb)(void *priv, she_err_t err), void *priv);
 
 /**
  * Terminate a previously opened SHE session
@@ -117,8 +131,13 @@ struct she_hdl_s *she_open_session(uint32_t key_storage_identifier, uint32_t pas
  * \param hdl pointer to the session handler to be closed.
  */
 void she_close_session(struct she_hdl_s *hdl);
+/** @} end of session group */
 
 
+/**
+ *  @defgroup group5 MAC
+ *  @{
+ */
 /**
  *
  * Generates a MAC of a given message with the help of a key identified by key_id.
@@ -153,8 +172,13 @@ she_err_t she_cmd_generate_mac(struct she_hdl_s *hdl, uint8_t key_ext, uint8_t k
 she_err_t she_cmd_verify_mac(struct she_hdl_s *hdl, uint8_t key_ext, uint8_t key_id, uint16_t message_length, uint8_t *message, uint8_t *mac, uint8_t mac_length, uint8_t *verification_status);
 #define SHE_MAC_VERIFICATION_SUCCESS 0u /**< indication of mac verification success  */
 #define SHE_MAC_VERIFICATION_FAILED  1u /**< indication of mac verification failure */
+/** @} end of MAC group */
 
 
+/**
+ *  @defgroup group6 AES-CBC
+ *  @{
+ */
 /**
  * CBC encryption of a given plaintext with the key identified by key_id.
  *
@@ -169,8 +193,7 @@ she_err_t she_cmd_verify_mac(struct she_hdl_s *hdl, uint8_t key_ext, uint8_t key
  * \return error code
  */
 she_err_t she_cmd_enc_cbc(struct she_hdl_s *hdl, uint8_t key_ext, uint8_t key_id, uint32_t data_length, uint8_t *iv, uint8_t *plaintext, uint8_t *ciphertext);
-#define SHE_AES_BLOCK_SIZE_128       16u /**< size in bytes of a 128bits CBC bloc */
-
+#define SHE_AES_BLOCK_SIZE_128       16u /**< size in bytes of a 128bits CBC block */
 
 /**
  * CBC decryption of a given ciphertext with the key identified by key_id.
@@ -186,8 +209,13 @@ she_err_t she_cmd_enc_cbc(struct she_hdl_s *hdl, uint8_t key_ext, uint8_t key_id
  * \return error code
  */
 she_err_t she_cmd_dec_cbc(struct she_hdl_s *hdl, uint8_t key_ext, uint8_t key_id, uint32_t data_length, uint8_t *iv, uint8_t *ciphertext, uint8_t *plaintext);
+/** @} end of AES CBC group */
 
 
+/**
+ *  @defgroup group7 AES-ECB
+ *  @{
+ */
 /**
  * ECB encryption of a given plaintext with the key identified by key_id.
  *
@@ -201,7 +229,6 @@ she_err_t she_cmd_dec_cbc(struct she_hdl_s *hdl, uint8_t key_ext, uint8_t key_id
  */
 she_err_t she_cmd_enc_ecb(struct she_hdl_s *hdl, uint8_t key_ext, uint8_t key_id, uint8_t *plaintext, uint8_t *ciphertext);
 
-
 /**
  * ECB decryption of a given ciphertext with the key identified by key_id.
  *
@@ -214,8 +241,13 @@ she_err_t she_cmd_enc_ecb(struct she_hdl_s *hdl, uint8_t key_ext, uint8_t key_id
  * \return error code
  */
 she_err_t she_cmd_dec_ecb(struct she_hdl_s *hdl, uint8_t key_ext, uint8_t key_id, uint8_t *ciphertext, uint8_t *plaintext);
+/** @} end of AES ECB group */
 
 
+/**
+ *  @defgroup group7 Key update
+ *  @{
+ */
 /**
  * Update an internal key of SHE with the protocol specified by SHE.
  *
@@ -233,7 +265,6 @@ she_err_t she_cmd_dec_ecb(struct she_hdl_s *hdl, uint8_t key_ext, uint8_t key_id
 she_err_t she_cmd_load_key(struct she_hdl_s *hdl, uint8_t key_ext, uint8_t key_id, uint8_t *m1, uint8_t *m2, uint8_t *m3, uint8_t *m4, uint8_t *m5);
 #define SHE_KEY_SIZE 16u /** SHE keys are 128 bits (16 bytes) long. */
 
-
 /**
  * Load a key as plaintext to the RAM_KEY slot without encryption and verification.
  *
@@ -243,8 +274,13 @@ she_err_t she_cmd_load_key(struct she_hdl_s *hdl, uint8_t key_ext, uint8_t key_i
  * \return error code
  */
 she_err_t she_cmd_load_plain_key(struct she_hdl_s *hdl, uint8_t *key);
+/** @} end of key update group */
 
 
+/**
+ *  @defgroup group8 Key export
+ *  @{
+ */
 /**
  * exports the RAM_KEY into a format protected by SECRET_KEY.
  *
@@ -258,8 +294,13 @@ she_err_t she_cmd_load_plain_key(struct she_hdl_s *hdl, uint8_t *key);
  * \return error code
  */
 she_err_t she_cmd_export_ram_key(struct she_hdl_s *hdl, uint8_t *m1, uint8_t *m2, uint8_t *m3, uint8_t *m4, uint8_t *m5);
+/** @} end of key export group */
 
 
+/**
+ *  @defgroup group9 RNG
+ *  @{
+ */
 /**
  * initializes the seed and derives a key for the PRNG.
  * The function must be called before CMD_RND after every power cycle/reset.
@@ -269,7 +310,6 @@ she_err_t she_cmd_export_ram_key(struct she_hdl_s *hdl, uint8_t *m1, uint8_t *m2
  * \return error code
  */
 she_err_t she_cmd_init_rng(struct she_hdl_s *hdl);
-
 
 /**
  * extends the seed of the PRNG by compressing the former seed value and the
@@ -298,7 +338,13 @@ she_err_t she_cmd_extend_seed(struct she_hdl_s *hdl, uint8_t *entropy);
  */
 she_err_t she_cmd_rnd(struct she_hdl_s *hdl, uint8_t *rnd);
 #define SHE_RND_SIZE 16u
+/** @} end of RNG group */
 
+
+/**
+ *  @defgroup group10 Status Register
+ *  @{
+ */
 /**
  * returns the content of the status register
  *
@@ -308,8 +354,12 @@ she_err_t she_cmd_rnd(struct she_hdl_s *hdl, uint8_t *rnd);
  * \return error code
  */
 she_err_t she_cmd_get_status(struct she_hdl_s *hdl, uint8_t *sreg);
+/** @} end of Status register group */
 
-
+/**
+ *  @defgroup group11 UID
+ *  @{
+ */
 /**
  * returns the identity (UID) and the value of the status register protected by a
  * MAC over a challenge and the data.
@@ -325,7 +375,13 @@ she_err_t she_cmd_get_status(struct she_hdl_s *hdl, uint8_t *sreg);
 she_err_t she_cmd_get_id(struct she_hdl_s *hdl, uint8_t *challenge, uint8_t *id, uint8_t *sreg, uint8_t *mac);
 #define SHE_CHALLENGE_SIZE 16u /* 128 bits */
 #define SHE_ID_SIZE 15u /* 120 bits */
+/** @} end of UID group */
 
+
+/**
+ *  @defgroup group12 Cancel
+ *  @{
+ */
 /**
  * interrupt any given function and discard all calculations and results.
  *
@@ -334,5 +390,6 @@ she_err_t she_cmd_get_id(struct she_hdl_s *hdl, uint8_t *challenge, uint8_t *id,
  * \return error code
  */
 she_err_t she_cmd_cancel(struct she_hdl_s *hdl);
-/** \}*/
+/** @} end of CANCEL group */
+
 #endif
