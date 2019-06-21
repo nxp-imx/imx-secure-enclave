@@ -25,6 +25,7 @@ struct she_hdl_s {
     uint32_t rng_handle;
     uint32_t utils_handle;
     uint32_t cancel;
+    uint32_t last_rating;
 };
 
 
@@ -105,6 +106,7 @@ static she_err_t she_open_utils(struct she_hdl_s *hdl)
             break;
         }
 
+        hdl->last_rating = rsp.rsp_code;
         if (GET_STATUS_CODE(rsp.rsp_code) != SAB_SUCCESS_STATUS) {
             ret = she_seco_ind_to_she_err_t(rsp.rsp_code);
             break;
@@ -138,6 +140,7 @@ static she_err_t she_close_utils(struct she_hdl_s *hdl)
             break;
         }
 
+        hdl->last_rating = rsp.rsp_code;
         if (GET_STATUS_CODE(rsp.rsp_code) != SAB_SUCCESS_STATUS) {
             ret = she_seco_ind_to_she_err_t(rsp.rsp_code);
             break;
@@ -360,6 +363,7 @@ she_err_t she_cmd_generate_mac(struct she_hdl_s *hdl, uint8_t key_ext, uint8_t k
             break;
         }
 
+        hdl->last_rating = rsp.rsp_code;
         if ((hdl->cancel != 0u) || (GET_STATUS_CODE(rsp.rsp_code) != SAB_SUCCESS_STATUS)) {
             ret = she_seco_ind_to_she_err_t(rsp.rsp_code);
             seco_os_abs_memset(mac, 0u, SHE_MAC_SIZE);
@@ -410,6 +414,7 @@ she_err_t she_cmd_verify_mac(struct she_hdl_s *hdl, uint8_t key_ext, uint8_t key
             break;
         }
 
+        hdl->last_rating = rsp.rsp_code;
         if ((hdl->cancel != 0u) || (GET_STATUS_CODE(rsp.rsp_code) != SAB_SUCCESS_STATUS)) {
             ret = she_seco_ind_to_she_err_t(rsp.rsp_code);
             *verification_status = SHE_MAC_VERIFICATION_FAILED;
@@ -480,6 +485,7 @@ static she_err_t she_cmd_cipher_one_go(struct she_hdl_s *hdl, uint8_t key_ext, u
             break;
         }
 
+        hdl->last_rating = rsp.rsp_code;
         if ((hdl->cancel != 0u) || (GET_STATUS_CODE(rsp.rsp_code) != SAB_SUCCESS_STATUS)) {
             ret = she_seco_ind_to_she_err_t(rsp.rsp_code);
             seco_os_abs_memset(output, 0u, output_length);
@@ -550,6 +556,7 @@ she_err_t she_cmd_load_key(struct she_hdl_s *hdl, uint8_t key_ext, uint8_t key_i
             break;
         }
 
+        hdl->last_rating = rsp.rsp_code;
         if ((hdl->cancel != 0u)
             || (GET_STATUS_CODE(rsp.rsp_code)!= SAB_SUCCESS_STATUS)
             || (rsp.crc != seco_compute_msg_crc((uint32_t*)&rsp, (uint32_t)(sizeof(rsp) - sizeof(uint32_t))))) {
@@ -597,6 +604,7 @@ she_err_t she_cmd_load_plain_key(struct she_hdl_s *hdl, uint8_t *key)
             break;
         }
 
+        hdl->last_rating = rsp.rsp_code;
         if ((hdl->cancel != 0u) || (GET_STATUS_CODE(rsp.rsp_code)!= SAB_SUCCESS_STATUS)) {
             ret = she_seco_ind_to_she_err_t(rsp.rsp_code);
             hdl->cancel = 0u;
@@ -637,6 +645,7 @@ she_err_t she_cmd_export_ram_key(struct she_hdl_s *hdl, uint8_t *m1, uint8_t *m2
             break;
         }
 
+        hdl->last_rating = rsp.rsp_code;
         if ((hdl->cancel != 0u)
             || (GET_STATUS_CODE(rsp.rsp_code)!= SAB_SUCCESS_STATUS)
             || (rsp.crc != seco_compute_msg_crc((uint32_t*)&rsp, (uint32_t)(sizeof(rsp) - sizeof(uint32_t))))) {
@@ -719,6 +728,7 @@ she_err_t she_cmd_extend_seed(struct she_hdl_s *hdl, uint8_t *entropy) {
             break;
         }
 
+        hdl->last_rating = rsp.rsp_code;
         if ((hdl->cancel != 0u) || (GET_STATUS_CODE(rsp.rsp_code)!= SAB_SUCCESS_STATUS)) {
             ret = she_seco_ind_to_she_err_t(rsp.rsp_code);
             hdl->cancel = 0u;
@@ -765,6 +775,7 @@ she_err_t she_cmd_rnd(struct she_hdl_s *hdl, uint8_t *rnd)
             break;
         }
 
+        hdl->last_rating = rsp.rsp_code;
         if ((hdl->cancel != 0u) || (GET_STATUS_CODE(rsp.rsp_code)!= SAB_SUCCESS_STATUS)) {
             ret = she_seco_ind_to_she_err_t(rsp.rsp_code);
             seco_os_abs_memset(rnd, 0u, SHE_RND_SIZE);
@@ -802,6 +813,7 @@ she_err_t she_cmd_get_status(struct she_hdl_s *hdl, uint8_t *sreg) {
             break;
         }
 
+        hdl->last_rating = rsp.rsp_code;
         if ((hdl->cancel != 0u) || (GET_STATUS_CODE(rsp.rsp_code)!= SAB_SUCCESS_STATUS)) {
             ret = she_seco_ind_to_she_err_t(rsp.rsp_code);
             *sreg = 0;
@@ -844,6 +856,7 @@ she_err_t she_cmd_get_id(struct she_hdl_s *hdl, uint8_t *challenge, uint8_t *id,
             break;
         }
 
+        hdl->last_rating = rsp.rsp_code;
         if ((hdl->cancel != 0u)
             || (GET_STATUS_CODE(rsp.rsp_code)!= SAB_SUCCESS_STATUS)
             || (rsp.crc != seco_compute_msg_crc((uint32_t*)&rsp, (uint32_t)(sizeof(rsp) - sizeof(uint32_t))))) {
@@ -878,3 +891,13 @@ she_err_t she_cmd_cancel(struct she_hdl_s *hdl) {
     return ret;
 }
 
+uint32_t she_get_last_rating_code(struct she_hdl_s *hdl)
+{
+    uint32_t ret = 0xFFFFFFFFu;
+
+    if (hdl != NULL) {
+        ret = hdl->last_rating;
+    }
+
+    return ret;
+}

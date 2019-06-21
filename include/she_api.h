@@ -440,6 +440,28 @@ she_err_t she_cmd_get_id(struct she_hdl_s *hdl, uint8_t *challenge, uint8_t *id,
  */
 she_err_t she_cmd_cancel(struct she_hdl_s *hdl);
 /** @} end of CANCEL group */
+
+/**
+ *  @defgroup group616 last rating code
+ *  \ingroup group600
+ *  @{
+ */
+/**
+ * Report rating code from last command
+ * 
+ * SHE API defines standard errors that should be returned by API calls.
+ * Error code reported by SECO are "translated" to these SHE error codes.
+ * This API allow user to get the error code reported by SECO for the last
+ * command before its translation to SHE error codes. This shoudl be used
+ * for debug purpose only.
+ *
+ * \param hdl pointer to the SHE session handler
+ *
+ * \return rating code reported by last command
+ */
+uint32_t she_get_last_rating_code(struct she_hdl_s *hdl);
+/** @} end of last rating code group */
+
 /** @} end of Commands group */
 
 #endif
