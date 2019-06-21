@@ -339,7 +339,7 @@ she_err_t she_cmd_generate_mac(struct she_hdl_s *hdl, uint8_t key_ext, uint8_t k
     she_err_t ret = ERC_GENERAL_ERROR;
 
     do {
-        if ((hdl == NULL) || (message == NULL) || (mac == NULL)) {
+        if ((hdl == NULL) || ((message == NULL) && (message_length != 0)) || (mac == NULL)) {
             break;
         }
         /* Build command message. */
@@ -389,7 +389,7 @@ she_err_t she_cmd_verify_mac(struct she_hdl_s *hdl, uint8_t key_ext, uint8_t key
         /* Force the status to fail in case of processing error. */
         *verification_status = SHE_MAC_VERIFICATION_FAILED;
 
-        if ((hdl == NULL) || (message == NULL) || (mac == NULL)) {
+        if ((hdl == NULL) || ((message == NULL) && (message_length != 0)) || (mac == NULL)) {
             break;
         }
         /* Build command message. */
