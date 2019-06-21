@@ -77,7 +77,10 @@ typedef enum {
  * 
  * \param key_storage_identifier key store identifier
  * \param password new password to be associated with the created key store
- * \param max_updates_number maximum number of updates authorized on this new storage. Cannot be higher than 300.
+ * \param max_updates_number maximum number of updates authorized on this new storage.\n
+ * This parameter has the goal to limit the occupation of the monotonic counter used as anti-rollback protection.\n
+ * If the maximum number of updates is reached, SHE still allows key store updates but without updating the monotonic counter giving the opportunity for rollback attacks.\n
+ * Always forced to 300 in the current release.
  * \param signed_message pointer to a signed message authorizing the operation (NULL if no signed message to be used)
  * \param msg_len length in bytes of the signed message
  *
@@ -123,7 +126,7 @@ void she_close_session(struct she_hdl_s *hdl);
  * \param hdl pointer to the SHE session handler
  * \param key_ext identifier of the key extension to be used for the operation
  * \param key_id identifier of the key to be used for the operation
- * \param message_length lenght in bytes of the input message
+ * \param message_length lenght in bytes of the input message. The message is padded to be a multiple of 128 bits by SHE.
  * \param message pointer to the message to be processed
  * \param mac pointer to where the output MAC should be written (128bits should be allocated there)
  *
@@ -139,7 +142,7 @@ she_err_t she_cmd_generate_mac(struct she_hdl_s *hdl, uint8_t key_ext, uint8_t k
  * \param hdl pointer to the SHE session handler
  * \param key_ext identifier of the key extension to be used for the operation
  * \param key_id identifier of the key to be used for the operation
- * \param message_length lenght in bytes of the input message
+ * \param message_length lenght in bytes of the input message.  The message is padded to be a multiple of 128 bits by SHE.
  * \param message pointer to the message to be processed
  * \param mac pointer to the MAC to be compared (implicitely 128 bits)
  * \param mac_length number of bytes to compare (must be at least 4)
