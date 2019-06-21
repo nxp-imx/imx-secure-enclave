@@ -19,7 +19,7 @@
  * The API must be initialized by a potential requestor by opening a session.\n
  * The session establishes a route (MU, DomainID...) between the requester and the SHE module, and grants the usage of a
  * specified key store.
- * When a session is opened, the SHE modulereturns a handle identifying the session to the requester.
+ * When a session is opened, the SHE module returns a handle identifying the session to the requester.
  * 
  */
 
