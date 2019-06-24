@@ -224,4 +224,14 @@ int32_t seco_os_abs_storage_read(struct seco_os_abs_hdl *phdl, uint8_t *dst, uin
 void seco_os_abs_start_system_rng(struct seco_os_abs_hdl *phdl);
 
 
+/**
+ * Send a signed message to SECO through dedicated SCU RPC
+ *
+ * Purpose is to unlock the creation of a storage in some specific cases.
+ *
+ * \param signed_message pointer to the signed message.
+ * \param msg_len length of the signed message
+ */
+int32_t seco_os_abs_send_signed_message(struct seco_os_abs_hdl *phdl, uint8_t *signed_message, uint32_t msg_len);
+
 #endif

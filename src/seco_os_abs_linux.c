@@ -266,3 +266,20 @@ void seco_os_abs_start_system_rng(struct seco_os_abs_hdl *phdl)
      * No need to call it again from here.
      */
 }
+
+int32_t seco_os_abs_send_signed_message(struct seco_os_abs_hdl *phdl, uint8_t *signed_message, uint32_t msg_len)
+{
+    /* Send the message to the kernel that will forward to SCU.*/
+    struct seco_mu_ioctl_signed_message msg;
+    int32_t err = 0;
+
+    msg.message = signed_message;
+    msg.msg_size = msg_len;
+    err = ioctl(phdl->fd, SECO_MU_IOCTL_SIGNED_MESSAGE, &msg);
+
+    if (err == 0) {
+        err = (int32_t)msg.error_code;
+    }
+
+    return err;
+}

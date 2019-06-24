@@ -188,11 +188,6 @@ uint32_t she_storage_create(uint32_t key_storage_identifier, uint32_t authentica
     struct seco_mu_params mu_params;
 
     do {
-        /* TODO: send the signed message to SECO if provided here. */
-        if ((signed_message != NULL) || (msg_len != 0u)) {
-            break;
-        }
-
         /* allocate the handle (free when closing the session). */
         hdl = (struct she_hdl_s *)seco_os_abs_malloc((uint32_t)sizeof(struct she_hdl_s));
         if (hdl == NULL) {
@@ -204,6 +199,11 @@ uint32_t she_storage_create(uint32_t key_storage_identifier, uint32_t authentica
         hdl->phdl = seco_os_abs_open_mu_channel(MU_CHANNEL_SHE, &mu_params);
         if (hdl->phdl == NULL) {
             break;
+        }
+
+        /* Send the signed message to SECO if provided here. */
+        if (signed_message != NULL) {
+            (void)seco_os_abs_send_signed_message(hdl->phdl, signed_message, msg_len);
         }
 
         /* Open the SHE session on SECO side */

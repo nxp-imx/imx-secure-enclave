@@ -25,6 +25,12 @@ struct seco_mu_ioctl_get_mu_info {
 	uint32_t did;
 };
 
+struct seco_mu_ioctl_signed_message {
+	uint8_t *message;
+	uint32_t msg_size;
+	uint32_t error_code;
+};
+
 #define SECO_MU_IO_FLAGS_IS_INTPUT	0x01
 #define SECO_MU_IO_FLAGS_USE_SEC_MEM	0x02
 #define SECO_MU_IO_FLAGS_USE_SHORT_ADDR	0x04
@@ -37,5 +43,7 @@ struct seco_mu_ioctl_get_mu_info {
 			struct seco_mu_ioctl_setup_iobuf)
 #define SECO_MU_IOCTL_GET_MU_INFO	_IOR(SECO_MU_IOCTL, 0x04, \
 			struct seco_mu_ioctl_get_mu_info)
+#define SECO_MU_IOCTL_SIGNED_MESSAGE	_IOWR(SECO_MU_IOCTL, 0x05, \
+			struct seco_mu_ioctl_signed_message)
 
 #endif
