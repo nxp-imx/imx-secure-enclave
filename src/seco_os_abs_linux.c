@@ -35,12 +35,12 @@
 #define SECO_NVM_SHE_STORAGE_FILE "/etc/seco_she_nvm"
 #define SECO_NVM_HSM_STORAGE_FILE "/etc/seco_hsm_nvm"
 
-#define SHE_STORAGE_DEFAULT_DID             0x0u
-#define SHE_STORAGE_DEFAULT_TZ              0x0u
-#define SHE_STORAGE_DEFAULT_MU              0x1u
-#define SHE_STORAGE_DEFAULT_INTERRUPT_IDX   0x0u
-#define SHE_STORAGE_DEFAULT_PRIORITY        0x0u
-#define SHE_STORAGE_DEFAULT_OPERATING_MODE  0x0u
+#define SHE_DEFAULT_DID             0x0u
+#define SHE_DEFAULT_TZ              0x0u
+#define SHE_DEFAULT_MU              0x1u
+#define SHE_DEFAULT_INTERRUPT_IDX   0x0u
+#define SHE_DEFAULT_PRIORITY        0x0u
+#define SHE_DEFAULT_OPERATING_MODE  0x0u
 
 
 struct seco_os_abs_hdl {
@@ -56,6 +56,9 @@ struct seco_os_abs_hdl *seco_os_abs_open_mu_channel(uint32_t type, struct seco_m
 {
     char *device_path;
     struct seco_os_abs_hdl *phdl = malloc(sizeof(struct seco_os_abs_hdl));
+    uint32_t did;
+    struct seco_mu_ioctl_get_mu_info info_ioctl;
+    int32_t error;
 
     switch (type) {
     case MU_CHANNEL_SHE:
@@ -83,12 +86,21 @@ struct seco_os_abs_hdl *seco_os_abs_open_mu_channel(uint32_t type, struct seco_m
             phdl = NULL;
         } else {
             phdl->type = type;
-            mu_params->mu_id = SHE_STORAGE_DEFAULT_MU;
-            mu_params->interrupt_idx = SHE_STORAGE_DEFAULT_INTERRUPT_IDX;
-            mu_params->tz = SHE_STORAGE_DEFAULT_TZ;
-            mu_params->did = SHE_STORAGE_DEFAULT_DID;
-            mu_params->priority = SHE_STORAGE_DEFAULT_PRIORITY;
-            mu_params->operating_mode = SHE_STORAGE_DEFAULT_OPERATING_MODE;
+
+            error = ioctl(phdl->fd, SECO_MU_IOCTL_GET_MU_INFO, &info_ioctl);
+            if (error == 0) {
+                mu_params->mu_id = info_ioctl.seco_mu_idx;
+                mu_params->interrupt_idx = info_ioctl.interrupt_idx;
+                mu_params->tz = info_ioctl.tz;
+                mu_params->did = info_ioctl.did;
+            } else {
+                mu_params->mu_id = SHE_DEFAULT_MU;
+                mu_params->interrupt_idx = SHE_DEFAULT_INTERRUPT_IDX;
+                mu_params->tz = SHE_DEFAULT_TZ;
+                mu_params->did = SHE_DEFAULT_DID;
+            }
+            mu_params->priority = SHE_DEFAULT_PRIORITY;
+            mu_params->operating_mode = SHE_DEFAULT_OPERATING_MODE;
 
             if ((device_path == SECO_MU_SHE_NVM_PATH)
                 || (device_path == SECO_MU_HSM_NVM_PATH)) {
