@@ -26,11 +26,11 @@
 #include "seco_os_abs.h"
 #include "seco_mu_ioctl.h"
 
-#define SECO_MU_SHE_PATH "/dev/seco_mu_0"
-#define SECO_MU_SHE_NVM_PATH "/dev/seco_mu_1"
+#define SECO_MU_SHE_PATH "/dev/seco_mu1_ch0"
+#define SECO_MU_SHE_NVM_PATH "/dev/seco_mu1_ch1"
 /* For now use same MU for SHE or HSM - both not supported simulteaneously */
-#define SECO_MU_HSM_PATH "/dev/seco_mu_0"
-#define SECO_MU_HSM_NVM_PATH "/dev/seco_mu_1"
+#define SECO_MU_HSM_PATH "/dev/seco_mu1_ch0"
+#define SECO_MU_HSM_NVM_PATH "/dev/seco_mu1_ch1"
 
 #define SECO_NVM_SHE_STORAGE_FILE "/etc/seco_she_nvm"
 #define SECO_NVM_HSM_STORAGE_FILE "/etc/seco_hsm_nvm"
