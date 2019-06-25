@@ -23,7 +23,7 @@
 
 #include <stdint.h>
 
-void seco_nvm_manager(uint32_t flags, uint32_t *status);
+void seco_nvm_manager(uint8_t flags, uint32_t *status);
 #define NVM_FLAGS_SHE    (0x01u)
 #define NVM_FLAGS_HSM    (0x02u)
 

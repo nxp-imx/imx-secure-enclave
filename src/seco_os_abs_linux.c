@@ -26,14 +26,6 @@
 #include "seco_os_abs.h"
 #include "seco_mu_ioctl.h"
 
-#define SECO_MU_SHE_PATH "/dev/seco_mu1_ch0"
-#define SECO_MU_SHE_NVM_PATH "/dev/seco_mu1_ch1"
-/* For now use same MU for SHE or HSM - both not supported simulteaneously */
-#define SECO_MU_HSM_PATH "/dev/seco_mu1_ch0"
-#define SECO_MU_HSM_NVM_PATH "/dev/seco_mu1_ch1"
-
-#define SECO_NVM_SHE_STORAGE_FILE "/etc/seco_she_nvm"
-#define SECO_NVM_HSM_STORAGE_FILE "/etc/seco_hsm_nvm"
 
 #define SHE_DEFAULT_DID             0x0u
 #define SHE_DEFAULT_TZ              0x0u
@@ -42,12 +34,19 @@
 #define SHE_DEFAULT_PRIORITY        0x0u
 #define SHE_DEFAULT_OPERATING_MODE  0x0u
 
-
 struct seco_os_abs_hdl {
     int32_t fd;
     uint32_t type;
 };
 
+static char SECO_MU_SHE_PATH[] = "/dev/seco_mu1_ch0";
+static char SECO_MU_SHE_NVM_PATH[] = "/dev/seco_mu1_ch1";
+/* For now use same MU for SHE or HSM - both not supported simulteaneously */
+static char SECO_MU_HSM_PATH[] = "/dev/seco_mu1_ch0";
+static char SECO_MU_HSM_NVM_PATH[] = "/dev/seco_mu1_ch1";
+
+static char SECO_NVM_SHE_STORAGE_FILE[] = "/etc/seco_she_nvm";
+static char SECO_NVM_HSM_STORAGE_FILE[] = "/etc/seco_hsm_nvm";
 
 /* Open a SHE session and returns a pointer to the handle or NULL in case of error.
  * Here it consists in opening the decicated seco MU device file.
@@ -56,9 +55,9 @@ struct seco_os_abs_hdl *seco_os_abs_open_mu_channel(uint32_t type, struct seco_m
 {
     char *device_path;
     struct seco_os_abs_hdl *phdl = malloc(sizeof(struct seco_os_abs_hdl));
-    uint32_t did;
     struct seco_mu_ioctl_get_mu_info info_ioctl;
     int32_t error;
+    uint8_t is_nvm = 0u;
 
     switch (type) {
     case MU_CHANNEL_SHE:
@@ -66,12 +65,14 @@ struct seco_os_abs_hdl *seco_os_abs_open_mu_channel(uint32_t type, struct seco_m
         break;
     case MU_CHANNEL_SHE_NVM:
         device_path = SECO_MU_SHE_NVM_PATH;
+        is_nvm = 1u;
         break;
     case MU_CHANNEL_HSM:
         device_path = SECO_MU_HSM_PATH;
         break;
     case MU_CHANNEL_HSM_NVM:
         device_path = SECO_MU_HSM_NVM_PATH;
+        is_nvm = 1u;
         break;
     default:
         device_path = NULL;
@@ -89,10 +90,10 @@ struct seco_os_abs_hdl *seco_os_abs_open_mu_channel(uint32_t type, struct seco_m
 
             error = ioctl(phdl->fd, SECO_MU_IOCTL_GET_MU_INFO, &info_ioctl);
             if (error == 0) {
-                mu_params->mu_id = info_ioctl.seco_mu_idx;
-                mu_params->interrupt_idx = info_ioctl.interrupt_idx;
-                mu_params->tz = info_ioctl.tz;
-                mu_params->did = info_ioctl.did;
+                mu_params->mu_id = (uint8_t)info_ioctl.seco_mu_idx;
+                mu_params->interrupt_idx = (uint8_t)info_ioctl.interrupt_idx;
+                mu_params->tz = (uint8_t)info_ioctl.tz;
+                mu_params->did = (uint8_t)info_ioctl.did;
             } else {
                 mu_params->mu_id = SHE_DEFAULT_MU;
                 mu_params->interrupt_idx = SHE_DEFAULT_INTERRUPT_IDX;
@@ -102,8 +103,7 @@ struct seco_os_abs_hdl *seco_os_abs_open_mu_channel(uint32_t type, struct seco_m
             mu_params->priority = SHE_DEFAULT_PRIORITY;
             mu_params->operating_mode = SHE_DEFAULT_OPERATING_MODE;
 
-            if ((device_path == SECO_MU_SHE_NVM_PATH)
-                || (device_path == SECO_MU_HSM_NVM_PATH)) {
+            if (is_nvm != 0u) {
                 /* for NVM: configure the device to accept incoming commands. */
                 if (ioctl(phdl->fd, SECO_MU_IOCTL_ENABLE_CMD_RCV)) {
                     free(phdl);
@@ -171,7 +171,7 @@ uint64_t seco_os_abs_data_buf(struct seco_os_abs_hdl *phdl, uint8_t *src, uint32
 
 uint32_t seco_os_abs_crc(uint8_t *data, uint32_t size)
 {
-    return ((uint32_t)crc32(0xFFFFFFFF, data, size) ^ 0xFFFFFFFF);
+    return ((uint32_t)crc32(0xFFFFFFFFu, data, size) ^ 0xFFFFFFFFu);
 }
 
 /* Write data in a file located in NVM. Return the size of the written data. */

@@ -180,7 +180,7 @@ void she_close_session(struct she_hdl_s *hdl)
     }
 }
 
-uint32_t she_storage_create(uint32_t key_storage_identifier, uint32_t password, uint16_t max_updates_number, uint8_t *signed_message, uint32_t msg_len)
+uint32_t she_storage_create(uint32_t key_storage_identifier, uint32_t authentication_nonce, uint16_t max_updates_number, uint8_t *signed_message, uint32_t msg_len)
 {
     struct she_hdl_s *hdl = NULL;
     uint32_t ret = SHE_STORAGE_CREATE_FAIL;
@@ -225,7 +225,7 @@ uint32_t she_storage_create(uint32_t key_storage_identifier, uint32_t password, 
                                          hdl->session_handle,
                                          &hdl->key_store_handle,
                                          key_storage_identifier,
-                                         password,
+                                         authentication_nonce,
                                          max_updates_number,
                                          KEY_STORE_OPEN_FLAGS_CREATE | KEY_STORE_OPEN_FLAGS_SHE);
 
@@ -253,7 +253,7 @@ uint32_t she_storage_create(uint32_t key_storage_identifier, uint32_t password, 
 }
 
 /* Open a SHE user session and return a pointer to the session handle. */
-struct she_hdl_s *she_open_session(uint32_t key_storage_identifier, uint32_t password, void (*async_cb)(void *priv, she_err_t err), void *priv)
+struct she_hdl_s *she_open_session(uint32_t key_storage_identifier, uint32_t authentication_nonce, void (*async_cb)(void *priv, she_err_t err), void *priv)
 {
     struct she_hdl_s *hdl = NULL;
     uint32_t err = SAB_FAILURE_STATUS;
@@ -301,7 +301,7 @@ struct she_hdl_s *she_open_session(uint32_t key_storage_identifier, uint32_t pas
                                          hdl->session_handle,
                                          &hdl->key_store_handle,
                                          key_storage_identifier,
-                                         password,
+                                         authentication_nonce,
                                          0u,
                                          KEY_STORE_OPEN_FLAGS_SHE);
         if (err != SAB_SUCCESS_STATUS) {
@@ -342,7 +342,7 @@ she_err_t she_cmd_generate_mac(struct she_hdl_s *hdl, uint8_t key_ext, uint8_t k
     she_err_t ret = ERC_GENERAL_ERROR;
 
     do {
-        if ((hdl == NULL) || ((message == NULL) && (message_length != 0)) || (mac == NULL)) {
+        if ((hdl == NULL) || ((message == NULL) && (message_length != 0u)) || (mac == NULL)) {
             break;
         }
         /* Build command message. */
@@ -393,7 +393,7 @@ she_err_t she_cmd_verify_mac(struct she_hdl_s *hdl, uint8_t key_ext, uint8_t key
         /* Force the status to fail in case of processing error. */
         *verification_status = SHE_MAC_VERIFICATION_FAILED;
 
-        if ((hdl == NULL) || ((message == NULL) && (message_length != 0)) || (mac == NULL)) {
+        if ((hdl == NULL) || ((message == NULL) && (message_length != 0u)) || (mac == NULL)) {
             break;
         }
         /* Build command message. */

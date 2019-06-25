@@ -94,7 +94,7 @@ static void seco_nvm_close_session(struct seco_nvm_ctx *nvm_ctx)
     }
 }
 
-static struct seco_nvm_ctx *seco_nvm_open_session(uint32_t flags)
+static struct seco_nvm_ctx *seco_nvm_open_session(uint8_t flags)
 {
     struct seco_nvm_ctx *nvm_ctx = NULL;
     uint32_t err = SAB_FAILURE_STATUS;
@@ -110,11 +110,12 @@ static struct seco_nvm_ctx *seco_nvm_open_session(uint32_t flags)
         seco_os_abs_memset((uint8_t *)nvm_ctx, 0u, (uint32_t)sizeof(struct seco_nvm_ctx));
 
         /* Open the Storage session on the MU*/
-        nvm_ctx->phdl = NULL;
         if ((flags & NVM_FLAGS_SHE) != 0u) {
             nvm_ctx->phdl = seco_os_abs_open_mu_channel(MU_CHANNEL_SHE_NVM, &mu_params);
         } else if ((flags & NVM_FLAGS_HSM) != 0u) {
             nvm_ctx->phdl = seco_os_abs_open_mu_channel(MU_CHANNEL_HSM_NVM, &mu_params);
+        } else {
+            nvm_ctx->phdl = NULL;
         }
         if (nvm_ctx->phdl == NULL) {
             break;
@@ -219,23 +220,25 @@ static uint32_t seco_nvm_get_data(struct seco_nvm_ctx *nvm_ctx, uint8_t *dst)
             break;
         }
 
-        /* Wait for the message from SECO indicating that the data are available at the specified destination. */
-        len = seco_os_abs_read_mu_message(nvm_ctx->phdl, (uint32_t *)&msg, (uint32_t)sizeof(struct sab_cmd_key_store_export_finish_msg));
-        if ((msg.hdr.command != SAB_STORAGE_FINISH_REQ) 
-            || (len != (int32_t)sizeof(struct sab_cmd_key_store_export_finish_msg))) {
-            break;
-        }
+        if (dst != NULL) {
+            /* Wait for the message from SECO indicating that the data are available at the specified destination. */
+            len = seco_os_abs_read_mu_message(nvm_ctx->phdl, (uint32_t *)&msg, (uint32_t)sizeof(struct sab_cmd_key_store_export_finish_msg));
+            if ((msg.hdr.command != SAB_STORAGE_FINISH_REQ) 
+                || (len != (int32_t)sizeof(struct sab_cmd_key_store_export_finish_msg))) {
+                break;
+            }
 
-        if (msg.export_status != SAB_EXPORT_STATUS_SUCCESS) {
-            break;
-        }
+            if (msg.export_status != SAB_EXPORT_STATUS_SUCCESS) {
+                break;
+            }
 
-        /* fill header for sanity check when re-loading */
-        blob_hdr = (struct seco_nvm_header_s *)dst;
-        blob_hdr->size = nvm_ctx->blob_size;
-        blob_hdr->crc = seco_os_abs_crc(dst + sizeof(struct seco_nvm_header_s),  nvm_ctx->blob_size);
-        nvm_ctx->blob_size = 0u;
-        /* success. */
+            /* fill header for sanity check when re-loading */
+            blob_hdr = (struct seco_nvm_header_s *)dst;
+            blob_hdr->size = nvm_ctx->blob_size;
+            blob_hdr->crc = seco_os_abs_crc(dst + sizeof(struct seco_nvm_header_s),  nvm_ctx->blob_size);
+            nvm_ctx->blob_size = 0u;
+            /* success. */
+        }
 
         ret = SAB_SUCCESS_STATUS;
     } while (false);
@@ -244,7 +247,7 @@ static uint32_t seco_nvm_get_data(struct seco_nvm_ctx *nvm_ctx, uint8_t *dst)
 }
 
 
-uint32_t seco_nvm_write_status(struct seco_nvm_ctx *nvm_ctx, uint32_t error)
+static uint32_t seco_nvm_write_status(struct seco_nvm_ctx *nvm_ctx, uint32_t error)
 {
     struct sab_cmd_key_store_export_finish_rsp resp;
     uint32_t ret = SAB_FAILURE_STATUS;
@@ -272,7 +275,7 @@ uint32_t seco_nvm_write_status(struct seco_nvm_ctx *nvm_ctx, uint32_t error)
     return ret;
 }
 
-void seco_nvm_manager(uint32_t flags, uint32_t *status)
+void seco_nvm_manager(uint8_t flags, uint32_t *status)
 {
     struct seco_nvm_ctx *nvm_ctx;
     uint32_t len = 0u;
@@ -293,11 +296,11 @@ void seco_nvm_manager(uint32_t flags, uint32_t *status)
          * Try to read the storage header which length is known.
          * Then if successful extract the full length and read the whole storage into an allocated buffer.
          */
-        if (seco_os_abs_storage_read(nvm_ctx->phdl, (uint8_t *)&nvm_hdr, sizeof(nvm_hdr)) == sizeof(nvm_hdr)) {
-            len = nvm_hdr.size + sizeof(nvm_hdr);
+        if (seco_os_abs_storage_read(nvm_ctx->phdl, (uint8_t *)&nvm_hdr, (uint32_t)sizeof(nvm_hdr)) == (int32_t)sizeof(nvm_hdr)) {
+            len = (uint32_t)(nvm_hdr.size + sizeof(nvm_hdr));
             data = seco_os_abs_malloc(len);
             if (data != NULL) {
-                if (seco_os_abs_storage_read(nvm_ctx->phdl, data, len) == len) {
+                if (seco_os_abs_storage_read(nvm_ctx->phdl, data, len) == (int32_t)len) {
                     /* In case of error then start anyway the storage manager process so SECO can create
                      * and export a storage.
                      */
@@ -317,7 +320,8 @@ void seco_nvm_manager(uint32_t flags, uint32_t *status)
         while (true)
         {
             len = seco_nvm_get_data_len(nvm_ctx);
-            if (len == 0u) {
+            if ((len == 0u) || (len > 16u*1024u)) {
+                /* Fixing arbitrary maximum storage size to 16k for sanity checks.*/
                 break;
             }
 
@@ -330,12 +334,12 @@ void seco_nvm_manager(uint32_t flags, uint32_t *status)
                 break;
             }
 
-            if (seco_os_abs_storage_write(nvm_ctx->phdl, data, len) == len) {
+            if (seco_os_abs_storage_write(nvm_ctx->phdl, data, len) == (int32_t)len) {
                 /* Success. */
-                seco_nvm_write_status(nvm_ctx, 0u);
+                (void)seco_nvm_write_status(nvm_ctx, 0u);
             } else {
                 /* Notify SECO of an error during write to NVM. */
-                seco_nvm_write_status(nvm_ctx, 1u);
+                (void)seco_nvm_write_status(nvm_ctx, 1u);
             }
 
             seco_os_abs_free(data);
@@ -350,5 +354,9 @@ void seco_nvm_manager(uint32_t flags, uint32_t *status)
     if (data != NULL) {
         seco_os_abs_free(data);
         data = NULL;
+    }
+
+    if (nvm_ctx != NULL) {
+        seco_nvm_close_session(nvm_ctx);
     }
 }
