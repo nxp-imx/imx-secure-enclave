@@ -330,6 +330,7 @@ uint32_t sab_get_info(struct seco_os_abs_hdl *phdl, uint32_t session_handle, uin
     uint32_t ret = SAB_FAILURE_STATUS;
 
     do {
+
         /* Send the keys store open command to Seco. */
         seco_fill_cmd_msg_hdr(&cmd.hdr, SAB_GET_INFO_REQ, (uint32_t)sizeof(struct sab_cmd_get_info_msg));
         cmd.session_handle = session_handle;
@@ -338,7 +339,9 @@ uint32_t sab_get_info(struct seco_os_abs_hdl *phdl, uint32_t session_handle, uin
         error = seco_send_msg_and_get_resp(phdl,
                     (uint32_t *)&cmd, (uint32_t)sizeof(struct sab_cmd_get_info_msg),
                     (uint32_t *)&rsp, (uint32_t)sizeof(struct sab_cmd_get_info_rsp));
-        if (error != 0) {
+
+        if ((error != 0)
+            || (rsp.crc != seco_compute_msg_crc((uint32_t*)&rsp, (uint32_t)(sizeof(rsp) - sizeof(uint32_t))))) {
             break;
         }
 
