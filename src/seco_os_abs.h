@@ -12,8 +12,8 @@
  */
 
 
-#ifndef seco_os_abs_H
-#define seco_os_abs_H
+#ifndef SECO_OS_ABS_H
+#define SECO_OS_ABS_H
 
 /* standard types definitions. */
 #if defined(__KERNEL__)
@@ -26,9 +26,17 @@
 #endif
 
 /**
+ *  @defgroup group800 OS porting guide
+ * seco_libs code itseld is independent from any OS or platform.
+ * This abstraction layer defines the functions that should be implemented on
+ * a specific OS or platform when porting seco_libs on it.
+ *  @{
+ */
+
+/**
  * Opens a MU channel
- * Purpose of this function is to setup a communication channel
- * using a messaging unit (MU) between the caller of this function and SECO.
+ * Purpose of this function is to setup a communication channel using a messaging unit (MU)
+ * between the caller of this function and SECO.
  * This session is uniquely identified by a platform handle.
  * The pointer to this handle is returned here and has to be provided by the user
  * on each call to platform dependent functions.
@@ -53,12 +61,12 @@
  */
 
 struct seco_mu_params {
-    uint8_t mu_id;
-    uint8_t interrupt_idx;
-    uint8_t tz;
-    uint8_t did;
-    uint8_t priority;
-    uint8_t operating_mode;
+    uint8_t mu_id;				/**< index of the MU as per SECO point of view. */
+    uint8_t interrupt_idx;		/**< Interrupt number of the MU used to indicate data availability. */
+    uint8_t tz;					/**< indicate if current partition has TZ enabled. */
+    uint8_t did;				/**< DID of the calling partition. */
+    uint8_t priority;			/**< SECO priority associated to this MU. */
+    uint8_t operating_mode;		/**< SECO operating mode associated to this MU. */
 };
 
 #define MU_CHANNEL_UNDEF     (0x00u)
@@ -75,6 +83,7 @@ struct seco_os_abs_hdl *seco_os_abs_open_mu_channel(uint32_t type, struct seco_m
  *\param phdl pointer to the session handle to be closed.
  */
 void seco_os_abs_close_session(struct seco_os_abs_hdl *phdl);
+
 
 /**
  * Send a message to Seco over a messaging unit.
@@ -197,22 +206,60 @@ uint32_t seco_os_abs_crc(uint8_t *data, uint32_t size);
 /**
  * Force all bytes of a buffer to a given value.
  *
+ * \param dst address of the buffer to be overwriten
+ * \param val value to be written in every bytes of the buffer
+ * \param len number of bytes to be written
+ *
  */
 void seco_os_abs_memset(uint8_t *dst, uint8_t val, uint32_t len);
 
 /**
  * Copy the content of a buffer to another location.
+ *
+ * \param dst pointer to the destination buffer where data should be copied
+ * \param src pointer to the source buffer from where data should be copied
+ * \param len number of bytes to be copied
  */
 void seco_os_abs_memcpy(uint8_t *dst, uint8_t *src, uint32_t len);
 
-
+/**
+ * Dynamically allocate memory.
+ *
+ * \param size number of bytes to be allocated
+ *
+ * \return pointer to the allocated buffer or NULL in case of error.
+ */
 uint8_t *seco_os_abs_malloc(uint32_t size);
 
+/**
+ * Free a previously allocated buffer.
+ *
+ * \param ptr pointer to the buffer to free
+ *
+ */
 void seco_os_abs_free(void *ptr);
 
+/**
+ * Write data to the non volatile storage.
+ *
+ * \param phdl pointer to the session handle for which this data buffer is used.
+ * \param src pointer to the data to be written to storage.
+ * \param size number of bytes to be written.
+ *
+ * \return number of bytes written.
+ */
 int32_t seco_os_abs_storage_write(struct seco_os_abs_hdl *phdl, uint8_t *src, uint32_t size);
-int32_t seco_os_abs_storage_read(struct seco_os_abs_hdl *phdl, uint8_t *dst, uint32_t size);
 
+/**
+ * Read data from the non volatile storage.
+ *
+ * \param phdl pointer to the session handle for which this data buffer is used.
+ * \param dst pointer to the data where data read from the storage should be copied.
+ * \param size number of bytes to be read.
+ *
+ * \return number of bytes read.
+ */
+int32_t seco_os_abs_storage_read(struct seco_os_abs_hdl *phdl, uint8_t *dst, uint32_t size);
 
 /**
  * Start the RNG from a system point of view.
@@ -222,7 +269,6 @@ int32_t seco_os_abs_storage_read(struct seco_os_abs_hdl *phdl, uint8_t *dst, uin
  * \param phdl pointer to the session handle for which this data buffer is used.
  */
 void seco_os_abs_start_system_rng(struct seco_os_abs_hdl *phdl);
-
 
 /**
  * Send a signed message to SECO through dedicated SCU RPC
@@ -234,4 +280,5 @@ void seco_os_abs_start_system_rng(struct seco_os_abs_hdl *phdl);
  */
 int32_t seco_os_abs_send_signed_message(struct seco_os_abs_hdl *phdl, uint8_t *signed_message, uint32_t msg_len);
 
+/** @} end of porting guide */
 #endif

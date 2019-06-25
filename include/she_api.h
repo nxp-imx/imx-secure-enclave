@@ -82,8 +82,6 @@ typedef enum {
  *
  * Must be called at least once on every device before using any other SHE API.\n
  * A signed message must be provided to replace an existing key store. This message is not necessary under some conditions related to chip's lifecycle.
- *
- * Note that the signed message is not yet supported. should be forced to NULL.
  * 
  * \param key_storage_identifier key store identifier
  * \param authentication_nonce user defined nonce to be used as authentication proof for accesing the key store.
