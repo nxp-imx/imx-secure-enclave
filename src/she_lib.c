@@ -458,14 +458,14 @@ static she_err_t she_cmd_cipher_one_go(struct she_hdl_s *hdl, uint8_t key_ext, u
             if (iv == NULL) {
                 break;
             }
-            seco_iv_addr = seco_os_abs_data_buf(hdl->phdl, iv, SHE_AES_BLOCK_SIZE_128, DATA_BUF_IS_INPUT | DATA_BUF_USE_SEC_MEM);
+            seco_iv_addr = seco_os_abs_data_buf(hdl->phdl, iv, SHE_AES_BLOCK_SIZE_128, DATA_BUF_IS_INPUT);
             iv_size = SHE_AES_BLOCK_SIZE_128;
         } else {
             break;
         }
 
-        seco_input_addr = seco_os_abs_data_buf(hdl->phdl, input, input_length, DATA_BUF_IS_INPUT | DATA_BUF_USE_SEC_MEM);
-        seco_output_addr = seco_os_abs_data_buf(hdl->phdl, output, output_length, DATA_BUF_USE_SEC_MEM);
+        seco_input_addr = seco_os_abs_data_buf(hdl->phdl, input, input_length, DATA_BUF_IS_INPUT);
+        seco_output_addr = seco_os_abs_data_buf(hdl->phdl, output, output_length, 0u);
 
         /* Keep same layout in secure ram even for algos not using IV to simplify code here. */
         cmd.iv_address = (uint32_t)(seco_iv_addr & 0xFFFFFFFFu);
@@ -762,7 +762,7 @@ she_err_t she_cmd_rnd(struct she_hdl_s *hdl, uint8_t *rnd)
 
         /* Build command message. */
         seco_fill_cmd_msg_hdr(&cmd.hdr, SAB_RNG_GET_RANDOM, (uint32_t)sizeof(struct sab_cmd_get_rnd_msg));
-        seco_rnd_addr = seco_os_abs_data_buf(hdl->phdl, rnd, SHE_RND_SIZE, DATA_BUF_USE_SEC_MEM);
+        seco_rnd_addr = seco_os_abs_data_buf(hdl->phdl, rnd, SHE_RND_SIZE, 0u);
         cmd.rng_handle = hdl->rng_handle;
         cmd.rnd_addr = (uint32_t)(seco_rnd_addr & 0xFFFFFFFFu);
         cmd.rnd_size = SHE_RND_SIZE;

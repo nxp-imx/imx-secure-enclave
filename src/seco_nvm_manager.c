@@ -55,7 +55,7 @@ static uint32_t seco_nvm_storage_import(struct seco_nvm_ctx *nvm_ctx, uint8_t *d
             break;
         }
       
-        seco_addr = seco_os_abs_data_buf(nvm_ctx->phdl, data + sizeof(struct seco_nvm_header_s), blob_hdr->size, DATA_BUF_IS_INPUT | DATA_BUF_USE_SEC_MEM);
+        seco_addr = seco_os_abs_data_buf(nvm_ctx->phdl, data + sizeof(struct seco_nvm_header_s), blob_hdr->size, DATA_BUF_IS_INPUT);
   
         /* Prepare command message. */
         seco_fill_cmd_msg_hdr(&msg.hdr, SAB_STORAGE_IMPORT_REQ, (uint32_t)sizeof(struct sab_cmd_key_store_import_msg));
@@ -204,7 +204,7 @@ static uint32_t seco_nvm_get_data(struct seco_nvm_ctx *nvm_ctx, uint8_t *dst)
             seco_addr = seco_os_abs_data_buf(nvm_ctx->phdl,
                                             dst + (uint32_t)sizeof(struct seco_nvm_header_s),
                                             nvm_ctx->blob_size,
-                                            DATA_BUF_USE_SEC_MEM);
+                                            0u);
             resp.key_store_export_address = (uint32_t)(seco_addr & 0xFFFFFFFFu);
             resp.rsp_code = SAB_SUCCESS_STATUS;
         } else {

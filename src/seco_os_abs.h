@@ -156,8 +156,8 @@ int32_t seco_os_abs_configure_shared_buf(struct seco_os_abs_hdl *phdl, uint32_t 
  * DATA_BUF_USE_SEC_MEM: the data should be copied to the shared buffer in secure memory or the output will
  * be stored by Seco in it. It is expected that the buffers will be allocated in a contiguous manner in this
  * shared memory since some optimizations depend on this (fast MAC).
- * If not set Seco will access directly the pointer provided in this API. In this case this API should take
- * care of cache coherency before Seco access the physical memory.
+ * If not set any other memory can be used (e.g. DDR). In this case this API should take care of cache coherency
+ * and access rights before Seco tries access the physical memory.
  * when using secure mem.
  * DATA_BUF_SHORT_ADDR: (only possible when using secure memory) returns the offset in secure memory (16bits)
  * instead of full 64bits address (used to reduce the size of some Seco messages).
