@@ -25,6 +25,7 @@
 #define SAB_SESSION_OPEN_REQ                    0x10u
 #define SAB_SESSION_CLOSE_REQ                   0x11u
 #define SAB_SHARED_BUF_REQ                      0x12u
+#define SAB_GET_INFO_REQ                        0x16u
 
 #define SAB_RNG_OPEN_REQ                        0x20u
 #define SAB_RNG_CLOSE_REQ                       0x21u
@@ -466,4 +467,25 @@ struct sab_cmd_cipher_one_go_rsp {
     struct she_mu_hdr hdr;
     uint32_t rsp_code;
 } ;
+
+struct sab_cmd_get_info_msg {
+    struct she_mu_hdr hdr;
+    uint32_t session_handle;
+};
+
+struct sab_cmd_get_info_rsp {
+    struct she_mu_hdr hdr;
+    uint32_t rsp_code;
+    uint32_t user_sab_id;
+    uint32_t uid_lower;
+    uint32_t uid_upper;
+    uint16_t monotonic_counter;
+    uint16_t lifecycle;
+    uint32_t version;
+    uint32_t version_ext;
+    uint8_t  fips_mode;
+    uint8_t  rsv[3];
+    uint32_t crc;
+};
+
 #endif

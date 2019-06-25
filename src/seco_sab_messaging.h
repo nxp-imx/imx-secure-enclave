@@ -47,7 +47,7 @@ uint32_t sab_close_rng(struct seco_os_abs_hdl *phdl, uint32_t rng_handle);
 /* NVM storage */
 uint32_t sab_open_storage_command(struct seco_os_abs_hdl *phdl, uint32_t session_handle, uint32_t *storage_handle, uint8_t flags);
 uint32_t sab_close_storage_command(struct seco_os_abs_hdl *phdl, uint32_t storage_handle);
-
+uint32_t sab_get_info(struct seco_os_abs_hdl *phdl, uint32_t session_handle, uint32_t *user_sab_id, uint8_t *chip_unique_id, uint16_t *chip_monotonic_counter, uint16_t *chip_life_cycle, uint32_t *version, uint32_t *version_ext, uint8_t *fips_mode);
 
 
 #endif

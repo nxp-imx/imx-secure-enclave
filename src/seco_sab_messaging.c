@@ -321,3 +321,37 @@ uint32_t sab_close_storage_command(struct seco_os_abs_hdl *phdl, uint32_t storag
     } while(false);
     return ret;
 }
+
+uint32_t sab_get_info(struct seco_os_abs_hdl *phdl, uint32_t session_handle, uint32_t *user_sab_id, uint8_t *chip_unique_id, uint16_t *chip_monotonic_counter, uint16_t *chip_life_cycle, uint32_t *version, uint32_t *version_ext, uint8_t *fips_mode)
+{
+    struct sab_cmd_get_info_msg cmd;
+    struct sab_cmd_get_info_rsp rsp;
+    int32_t error = 1;
+    uint32_t ret = SAB_FAILURE_STATUS;
+
+    do {
+        /* Send the keys store open command to Seco. */
+        seco_fill_cmd_msg_hdr(&cmd.hdr, SAB_GET_INFO_REQ, (uint32_t)sizeof(struct sab_cmd_get_info_msg));
+        cmd.session_handle = session_handle;
+
+        /* Send the message to Seco. */
+        error = seco_send_msg_and_get_resp(phdl,
+                    (uint32_t *)&cmd, (uint32_t)sizeof(struct sab_cmd_get_info_msg),
+                    (uint32_t *)&rsp, (uint32_t)sizeof(struct sab_cmd_get_info_rsp));
+        if (error != 0) {
+            break;
+        }
+
+        ret = rsp.rsp_code;
+        *user_sab_id = rsp.user_sab_id;
+        seco_os_abs_memcpy(chip_unique_id, (uint8_t *)&rsp.uid_lower, sizeof(rsp.uid_lower));
+        seco_os_abs_memcpy(chip_unique_id + sizeof(rsp.uid_lower), (uint8_t *)&rsp.uid_upper, sizeof(rsp.uid_upper));
+        *chip_monotonic_counter = rsp.monotonic_counter;
+        *chip_life_cycle = rsp.lifecycle;
+        *version = rsp.version;
+        *version_ext = rsp.version_ext;
+        *fips_mode = rsp.fips_mode;
+    } while(false);
+
+    return ret;
+}

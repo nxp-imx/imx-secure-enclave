@@ -898,6 +898,32 @@ uint32_t she_get_last_rating_code(struct she_hdl_s *hdl)
     if (hdl != NULL) {
         ret = hdl->last_rating;
     }
+    return ret;
+}
+
+
+she_err_t she_get_info(struct she_hdl_s *hdl, uint32_t *user_sab_id, uint8_t *chip_unique_id, uint16_t *chip_monotonic_counter, uint16_t *chip_life_cycle, uint32_t *she_version) {
+    struct she_cmd_get_id_msg cmd;
+    struct she_cmd_get_id_rsp rsp;
+    uint32_t seco_rsp_code;
+    she_err_t ret = ERC_GENERAL_ERROR;
+    uint32_t version_ext;
+    uint8_t fips_mode;
+
+    do {
+        if ((hdl == NULL) || (user_sab_id == NULL) || (chip_unique_id == NULL) || (chip_monotonic_counter == NULL) || (chip_life_cycle == NULL) || (she_version == NULL)) {
+            break;
+        }
+        seco_rsp_code = sab_get_info(hdl->phdl, hdl->session_handle, user_sab_id, chip_unique_id, chip_monotonic_counter, chip_life_cycle, she_version, &version_ext, &fips_mode);
+
+        if (GET_STATUS_CODE(seco_rsp_code) != SAB_SUCCESS_STATUS) {
+            ret = she_seco_ind_to_she_err_t(seco_rsp_code);
+            break;
+        }
+
+        /* Success. */
+        ret = ERC_NO_ERROR;
+    } while (false);
 
     return ret;
 }

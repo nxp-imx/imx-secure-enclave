@@ -134,7 +134,6 @@ struct she_hdl_s *she_open_session(uint32_t key_storage_identifier, uint32_t aut
 void she_close_session(struct she_hdl_s *hdl);
 /** @} end of session group */
 
-
 /**
  *  @defgroup group600 SHE commands
  *  @{
@@ -463,5 +462,24 @@ uint32_t she_get_last_rating_code(struct she_hdl_s *hdl);
 /** @} end of last rating code group */
 
 /** @} end of Commands group */
+
+/**
+ *  @defgroup group700 Get info
+ *  Get miscellaneous information. This function return, among others, all the information needed to build a valid signed message.
+ *  @{
+ */
+/**
+ *
+ * \param hdl pointer to the SHE session handler
+ * \param user_sab_id pointer to the output address for the user identity (32bits)
+ * \param chip_unique_id pointer to the output address for the chip unique identifier (64bits)
+ * \param chip_monotonic_counter pointer to the output address for the chip monotonic counter value (16bits)
+ * \param chip_life_cycle pointer to the output address for the chip current life cycle (16bits)
+ * \param she_version pointer to the output address for the SHE module version (32bits)
+ *
+ * \return error code
+ */
+she_err_t she_get_info(struct she_hdl_s *hdl, uint32_t *user_sab_id, uint8_t *chip_unique_id, uint16_t *chip_monotonic_counter, uint16_t *chip_life_cycle, uint32_t *she_version);
+/** @} end of get info group */
 
 #endif
