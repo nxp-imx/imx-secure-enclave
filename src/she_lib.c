@@ -903,8 +903,6 @@ uint32_t she_get_last_rating_code(struct she_hdl_s *hdl)
 
 
 she_err_t she_get_info(struct she_hdl_s *hdl, uint32_t *user_sab_id, uint8_t *chip_unique_id, uint16_t *chip_monotonic_counter, uint16_t *chip_life_cycle, uint32_t *she_version) {
-    struct she_cmd_get_id_msg cmd;
-    struct she_cmd_get_id_rsp rsp;
     uint32_t seco_rsp_code;
     she_err_t ret = ERC_GENERAL_ERROR;
     uint32_t version_ext;

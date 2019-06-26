@@ -347,8 +347,8 @@ uint32_t sab_get_info(struct seco_os_abs_hdl *phdl, uint32_t session_handle, uin
 
         ret = rsp.rsp_code;
         *user_sab_id = rsp.user_sab_id;
-        seco_os_abs_memcpy(chip_unique_id, (uint8_t *)&rsp.uid_lower, sizeof(rsp.uid_lower));
-        seco_os_abs_memcpy(chip_unique_id + sizeof(rsp.uid_lower), (uint8_t *)&rsp.uid_upper, sizeof(rsp.uid_upper));
+        seco_os_abs_memcpy(chip_unique_id, (uint8_t *)&rsp.uid_lower, (uint32_t)sizeof(rsp.uid_lower));
+        seco_os_abs_memcpy(chip_unique_id + sizeof(rsp.uid_lower), (uint8_t *)&rsp.uid_upper, (uint32_t)sizeof(rsp.uid_upper));
         *chip_monotonic_counter = rsp.monotonic_counter;
         *chip_life_cycle = rsp.lifecycle;
         *version = rsp.version;
