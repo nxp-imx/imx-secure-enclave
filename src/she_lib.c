@@ -914,6 +914,7 @@ she_err_t she_get_info(struct she_hdl_s *hdl, uint32_t *user_sab_id, uint8_t *ch
         }
         seco_rsp_code = sab_get_info(hdl->phdl, hdl->session_handle, user_sab_id, chip_unique_id, chip_monotonic_counter, chip_life_cycle, she_version, &version_ext, &fips_mode);
 
+        hdl->last_rating = seco_rsp_code;
         if (GET_STATUS_CODE(seco_rsp_code) != SAB_SUCCESS_STATUS) {
             ret = she_seco_ind_to_she_err_t(seco_rsp_code);
             break;
