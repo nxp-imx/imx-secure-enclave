@@ -26,8 +26,8 @@
 #endif
 
 /**
- *  @defgroup group800 OS porting guide
- * seco_libs code itseld is independent from any OS or platform.
+ *  @defgroup group800 Abstraction layer
+ * seco_libs code itself is independent from any OS or platform.
  * This abstraction layer defines the functions that should be implemented on
  * a specific OS or platform when porting seco_libs on it.
  *  @{
