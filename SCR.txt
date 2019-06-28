@@ -1,0 +1,10 @@
+NXP Software Content Register
+--------------------------------------------
+Package:                     seco_libs.git
+Outgoing License:            LA_OPT_NXP_Software_License v7 April 2019 - Production Use - Section 2.3 applies
+License File:                COPYING
+Package Category:            BSP
+Type of Content:             source
+Description and comments:    User library with APIs to use SHE feature
+Release Location:            https://bitbucket.sw.nxp.com/projects/MCUSEC/repos/seco_libs/browse
+Origin:                      NXP (proprietary)
