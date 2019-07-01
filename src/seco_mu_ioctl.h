@@ -27,10 +27,10 @@ struct seco_mu_ioctl_shared_mem_cfg {
 };
 
 struct seco_mu_ioctl_get_mu_info {
-	uint32_t seco_mu_idx;
-	uint32_t interrupt_idx;
-	uint32_t tz;
-	uint32_t did;
+	uint8_t seco_mu_idx;
+	uint8_t interrupt_idx;
+	uint8_t tz;
+	uint8_t did;
 };
 
 struct seco_mu_ioctl_signed_message {
@@ -39,9 +39,9 @@ struct seco_mu_ioctl_signed_message {
 	uint32_t error_code;
 };
 
-#define SECO_MU_IO_FLAGS_IS_INTPUT	0x01
-#define SECO_MU_IO_FLAGS_USE_SEC_MEM	0x02
-#define SECO_MU_IO_FLAGS_USE_SHORT_ADDR	0x04
+#define SECO_MU_IO_FLAGS_IS_INTPUT	(0x01u)
+#define SECO_MU_IO_FLAGS_USE_SEC_MEM	(0x02u)
+#define SECO_MU_IO_FLAGS_USE_SHORT_ADDR	(0x04u)
 
 #define SECO_MU_IOCTL			0x0A /* like MISC_MAJOR. */
 #define SECO_MU_IOCTL_ENABLE_CMD_RCV	_IO(SECO_MU_IOCTL, 0x01)

@@ -90,10 +90,10 @@ struct seco_os_abs_hdl *seco_os_abs_open_mu_channel(uint32_t type, struct seco_m
 
             error = ioctl(phdl->fd, SECO_MU_IOCTL_GET_MU_INFO, &info_ioctl);
             if (error == 0) {
-                mu_params->mu_id = (uint8_t)info_ioctl.seco_mu_idx;
-                mu_params->interrupt_idx = (uint8_t)info_ioctl.interrupt_idx;
-                mu_params->tz = (uint8_t)info_ioctl.tz;
-                mu_params->did = (uint8_t)info_ioctl.did;
+                mu_params->mu_id = info_ioctl.seco_mu_idx;
+                mu_params->interrupt_idx = info_ioctl.interrupt_idx;
+                mu_params->tz = info_ioctl.tz;
+                mu_params->did = info_ioctl.did;
             } else {
                 mu_params->mu_id = SHE_DEFAULT_MU;
                 mu_params->interrupt_idx = SHE_DEFAULT_INTERRUPT_IDX;
