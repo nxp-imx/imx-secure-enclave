@@ -27,6 +27,7 @@
 #define SAB_SHARED_BUF_REQ                      0x12u
 #define SAB_PUB_KEY_RECONSTRUCTION_REQ          0x13u
 #define SAB_PUB_KEY_DECOMPRESSION_REQ           0x14u
+#define SAB_ECIES_ENC_REQ                       0x15u
 #define SAB_GET_INFO_REQ                        0x16u
 
 #define SAB_RNG_OPEN_REQ                        0x20u
@@ -831,6 +832,35 @@ struct sab_public_key_decompression_rsp {
     uint32_t rsp_code;
 };
 
+struct sab_cmd_ecies_encrypt_msg {
+    struct she_mu_hdr hdr;
+    uint32_t sesssion_handle;
+    uint32_t input_addr_ext;
+    uint32_t input_addr;
+    uint32_t key_addr_ext;
+    uint32_t key_addr;
+    uint32_t p1_addr_ext;
+    uint32_t p1_addr;
+    uint32_t p2_addr_ext;
+    uint32_t p2_addr;
+    uint32_t output_addr_ext;
+    uint32_t output_addr;
+    uint32_t input_size;
+    uint16_t p1_size;
+    uint16_t p2_size;
+    uint16_t key_size;
+    uint16_t mac_size;
+    uint32_t output_size;
+    uint8_t key_type;
+    uint8_t flags;
+    uint16_t reserved;
+    uint32_t crc;
+};
+
+struct sab_cmd_ecies_encrypt_rsp {
+    struct she_mu_hdr hdr;
+    uint32_t rsp_code;
+};
 
 struct sab_cmd_get_info_msg {
     struct she_mu_hdr hdr;
