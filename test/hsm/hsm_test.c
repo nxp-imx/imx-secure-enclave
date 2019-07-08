@@ -24,22 +24,24 @@
 // input  Qx||lsb_Qy
 static uint8_t ECC_P256_Qx[32+1] =
 { 0xCE, 0x4D, 0xCF, 0xA7, 0x38, 0x4C, 0x83, 0x44, 0x3A, 0xCE, 0x0F, 0xB8, 0x2C, 0x4A, 0xC1, 0xAD,
-  0xFA, 0x10, 0x0A, 0x9B, 0x2C, 0x7B, 0xF0, 0x9F, 0x09, 0x3F, 0x8B, 0x6D, 0x08, 0x4E, 0x50, 0xC2, 0x00};
+  0xFA, 0x10, 0x0A, 0x9B, 0x2C, 0x7B, 0xF0, 0x9F, 0x09, 0x3F, 0x8B, 0x6D, 0x08, 0x4E, 0x50, 0xC2, 0x01};
 
 static uint8_t ECC_BRAINPOOL_R1_256_Qx[32+1] =
 { 0x7D, 0x91, 0x41, 0xD7, 0x4A, 0xCB, 0x3F, 0xD8, 0x65, 0xF0, 0xB4, 0xE2, 0x92, 0x16, 0x67, 0x37,
-  0x96, 0x04, 0xAB, 0xE6, 0x6E, 0x25, 0x5A, 0x37, 0x71, 0x63, 0x99, 0xE4, 0x5A, 0x51, 0xB9, 0xCB, 0x00};
+  0x96, 0x04, 0xAB, 0xE6, 0x6E, 0x25, 0x5A, 0x37, 0x71, 0x63, 0x99, 0xE4, 0x5A, 0x51, 0xB9, 0xCB, 0x01};
 
-static uint8_t ECC_BRAINPOOL_T1_256_Qx[32+1] =
-{ 0x9F, 0xAB, 0x97, 0xD2, 0x7E, 0x84, 0x9C, 0x64, 0xD7, 0xC0, 0x20, 0xC6, 0xAE, 0xDD, 0x90, 0x8B,
-  0x47, 0xF6, 0x5F, 0x86, 0xCA, 0x32, 0xB1, 0x66, 0x26, 0x71, 0xDB, 0x45, 0x59, 0x6A, 0x8F, 0xB5 , 0x00};
+static uint8_t ECC_P384_Qx[48+1] =
+{ 0xCB, 0x90, 0x8B, 0x1F, 0xD5, 0x16, 0xA5, 0x7B, 0x8E, 0xE1, 0xE1, 0x43, 0x83, 0x57, 0x9B, 0x33,
+  0xCB, 0x15, 0x4F, 0xEC, 0xE2, 0x0C, 0x50, 0x35, 0xE2, 0xB3, 0x76, 0x51, 0x95, 0xD1, 0x95, 0x1D,
+  0x75, 0xBD, 0x78, 0xFB, 0x23, 0xE0, 0x0F, 0xEF, 0x37, 0xD7, 0xD0, 0x64, 0xFD, 0x9A, 0xF1, 0x44,0x01 };
 
 
 static void public_key_test(hsm_hdl_t hsm_session_hdl)
 {
     hsm_op_pub_key_rec_args_t hsm_op_pub_key_rec_args;
     hsm_op_pub_key_dec_args_t hsm_op_pub_key_dec_args;
-    uint8_t out[32];
+    uint8_t out[64];
+    uint8_t out_384[96];
     uint32_t i;
     hsm_err_t err;
 
@@ -59,18 +61,19 @@ static void public_key_test(hsm_hdl_t hsm_session_hdl)
     err = hsm_pub_key_reconstruction(hsm_session_hdl, &hsm_op_pub_key_rec_args);
 
     printf("hsm_pub_key_reconstruction ret:0x%x\noutput:\n", err);
+
     /* P256 */
     hsm_op_pub_key_dec_args.key = ECC_P256_Qx;
     hsm_op_pub_key_dec_args.out_key = out;
     hsm_op_pub_key_dec_args.key_size = 33;
-    hsm_op_pub_key_dec_args.out_key_size = 32;
+    hsm_op_pub_key_dec_args.out_key_size = 2*32;
     hsm_op_pub_key_dec_args.key_type = HSM_KEY_TYPE_ECDSA_NIST_P256;
     hsm_op_pub_key_dec_args.flags = 0u;
 
     err = hsm_pub_key_decompression(hsm_session_hdl, &hsm_op_pub_key_dec_args);
 
     printf("hsm_pub_key_decompression ret:0x%x\noutput:\n", err);
-    for (i=0; i<32; i++) {
+    for (i=0; i<64; i++) {
         printf("0x%x ", out[i]);
         if (i%8 == 7) {
             printf("\n");
@@ -81,38 +84,37 @@ static void public_key_test(hsm_hdl_t hsm_session_hdl)
     hsm_op_pub_key_dec_args.key = ECC_BRAINPOOL_R1_256_Qx;
     hsm_op_pub_key_dec_args.out_key = out;
     hsm_op_pub_key_dec_args.key_size = 33;
-    hsm_op_pub_key_dec_args.out_key_size = 32;
+    hsm_op_pub_key_dec_args.out_key_size = 2*32;
     hsm_op_pub_key_dec_args.key_type = HSM_KEY_TYPE_ECDSA_BRAINPOOL_R1_256;
     hsm_op_pub_key_dec_args.flags = 0u;
 
     err = hsm_pub_key_decompression(hsm_session_hdl, &hsm_op_pub_key_dec_args);
 
     printf("hsm_pub_key_decompression ret:0x%x\noutput:\n", err);
-    for (i=0; i<32; i++) {
+    for (i=0; i<64; i++) {
         printf("0x%x ", out[i]);
         if (i%8 == 7) {
             printf("\n");
         }
     }
 
-    /* Brainpool T1 256 */
-    hsm_op_pub_key_dec_args.key = ECC_BRAINPOOL_T1_256_Qx;
-    hsm_op_pub_key_dec_args.out_key = out;
-    hsm_op_pub_key_dec_args.key_size = 33;
-    hsm_op_pub_key_dec_args.out_key_size = 32;
-    hsm_op_pub_key_dec_args.key_type = HSM_KEY_TYPE_ECDSA_BRAINPOOL_T1_256;
+    /* P384 */
+    hsm_op_pub_key_dec_args.key = ECC_P384_Qx;
+    hsm_op_pub_key_dec_args.out_key = out_384;
+    hsm_op_pub_key_dec_args.key_size = 49;
+    hsm_op_pub_key_dec_args.out_key_size = 96;
+    hsm_op_pub_key_dec_args.key_type = HSM_KEY_TYPE_ECDSA_NIST_P384;
     hsm_op_pub_key_dec_args.flags = 0u;
 
     err = hsm_pub_key_decompression(hsm_session_hdl, &hsm_op_pub_key_dec_args);
 
     printf("hsm_pub_key_decompression ret:0x%x\noutput:\n", err);
-    for (i=0; i<32; i++) {
-        printf("0x%x ", out[i]);
+    for (i=0; i<96; i++) {
+        printf("0x%x ", out_384[i]);
         if (i%8 == 7) {
             printf("\n");
         }
     }
-
 }
 
 static void signature_tests(hsm_hdl_t hsm_session_hdl)
