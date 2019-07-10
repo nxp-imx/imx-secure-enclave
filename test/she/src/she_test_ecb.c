@@ -39,6 +39,7 @@ uint32_t she_test_ecb_enc(test_struct_t *testCtx, FILE *fp)
     for (uint32_t i=0; i<nb_iter; i++) {
         /* Call the API to be tested. */
         err = she_cmd_enc_ecb(testCtx->hdl[index], key_ext, key_id, input, output);
+        printf("SECO rating: 0x%x\n", she_get_last_rating_code(testCtx->hdl[index]));
     }
 
     (void)clock_gettime(CLOCK_MONOTONIC_RAW, &ts2);
@@ -74,6 +75,7 @@ uint32_t she_test_ecb_dec(test_struct_t *testCtx, FILE *fp)
     for (uint32_t i=0; i<nb_iter; i++) {
         /* Call the API to be tested. */
         err = she_cmd_dec_ecb(testCtx->hdl[index], key_ext, key_id, input, output);
+        printf("SECO rating: 0x%x\n", she_get_last_rating_code(testCtx->hdl[index]));
     }
 
     (void)clock_gettime(CLOCK_MONOTONIC_RAW, &ts2);

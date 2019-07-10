@@ -33,48 +33,52 @@ struct she_hdl_s {
 static she_err_t she_seco_ind_to_she_err_t (uint32_t rsp_code)
 {
     she_err_t err = ERC_GENERAL_ERROR;
-    switch (GET_RATING_CODE(rsp_code)) {
-    /* 1 to 1 mapping for all SHE specific error codes. */
-    case SAB_SHE_SEQUENCE_ERROR_RATING :
-        err = ERC_SEQUENCE_ERROR;
-        break;
-    case SAB_SHE_KEY_NOT_AVAILABLE_RATING :
-        err = ERC_KEY_NOT_AVAILABLE;
-        break;
-    case  SAB_SHE_KEY_INVALID_RATING :
-        err = ERC_KEY_INVALID;
-        break;
-    case SAB_SHE_KEY_EMPTY_RATING :
-        err = ERC_KEY_EMPTY;
-        break;
-    case SAB_SHE_NO_SECURE_BOOT_RATING :
-        err = ERC_NO_SECURE_BOOT;
-        break;
-    case SAB_SHE_KEY_WRITE_PROTECTED_RATING :
-        err = ERC_KEY_WRITE_PROTECTED;
-        break;
-    case SAB_SHE_KEY_UPDATE_ERROR_RATING :
-        err = ERC_KEY_UPDATE_ERROR;
-        break;
-    case SAB_SHE_RNG_SEED_RATING :
-        err = ERC_RNG_SEED;
-        break;
-    case SAB_SHE_NO_DEBUGGING_RATING :
-        err = ERC_NO_DEBUGGING;
-        break;
-    case SAB_SHE_BUSY_RATING :
-        err = ERC_BUSY;
-        break;
-    case SAB_SHE_MEMORY_FAILURE_RATING :
-        err = ERC_MEMORY_FAILURE;
-        break;
-    case SAB_SHE_GENERAL_ERROR_RATING :
-        err = ERC_GENERAL_ERROR;
-        break;
-    /* All other SECO error codes. */
-    default:
-        err = ERC_GENERAL_ERROR;
-        break;
+    if (GET_STATUS_CODE(rsp_code) == SAB_SUCCESS_STATUS) {
+        err = ERC_NO_ERROR;
+    } else {
+        switch (GET_RATING_CODE(rsp_code)) {
+        /* 1 to 1 mapping for all SHE specific error codes. */
+        case SAB_SHE_SEQUENCE_ERROR_RATING :
+            err = ERC_SEQUENCE_ERROR;
+            break;
+        case SAB_SHE_KEY_NOT_AVAILABLE_RATING :
+            err = ERC_KEY_NOT_AVAILABLE;
+            break;
+        case  SAB_SHE_KEY_INVALID_RATING :
+            err = ERC_KEY_INVALID;
+            break;
+        case SAB_SHE_KEY_EMPTY_RATING :
+            err = ERC_KEY_EMPTY;
+            break;
+        case SAB_SHE_NO_SECURE_BOOT_RATING :
+            err = ERC_NO_SECURE_BOOT;
+            break;
+        case SAB_SHE_KEY_WRITE_PROTECTED_RATING :
+            err = ERC_KEY_WRITE_PROTECTED;
+            break;
+        case SAB_SHE_KEY_UPDATE_ERROR_RATING :
+            err = ERC_KEY_UPDATE_ERROR;
+            break;
+        case SAB_SHE_RNG_SEED_RATING :
+            err = ERC_RNG_SEED;
+            break;
+        case SAB_SHE_NO_DEBUGGING_RATING :
+            err = ERC_NO_DEBUGGING;
+            break;
+        case SAB_SHE_BUSY_RATING :
+            err = ERC_BUSY;
+            break;
+        case SAB_SHE_MEMORY_FAILURE_RATING :
+            err = ERC_MEMORY_FAILURE;
+            break;
+        case SAB_SHE_GENERAL_ERROR_RATING :
+            err = ERC_GENERAL_ERROR;
+            break;
+        /* All other SECO error codes. */
+        default:
+            err = ERC_GENERAL_ERROR;
+            break;
+        }
     }
     return err;
 }
