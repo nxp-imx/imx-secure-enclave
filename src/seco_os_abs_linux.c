@@ -39,11 +39,16 @@ struct seco_os_abs_hdl {
     uint32_t type;
 };
 
+/*
+ * MU1: SHE user + SHE storage
+ * MU2: HSM user + HSM storage
+ * MU3: unused
+ */
+
 static char SECO_MU_SHE_PATH[] = "/dev/seco_mu1_ch0";
 static char SECO_MU_SHE_NVM_PATH[] = "/dev/seco_mu1_ch1";
-/* For now use same MU for SHE or HSM - both not supported simulteaneously */
-static char SECO_MU_HSM_PATH[] = "/dev/seco_mu1_ch0";
-static char SECO_MU_HSM_NVM_PATH[] = "/dev/seco_mu1_ch1";
+static char SECO_MU_HSM_PATH[] = "/dev/seco_mu2_ch0";
+static char SECO_MU_HSM_NVM_PATH[] = "/dev/seco_mu2_ch1";
 
 static char SECO_NVM_SHE_STORAGE_FILE[] = "/etc/seco_she_nvm";
 static char SECO_NVM_HSM_STORAGE_FILE[] = "/etc/seco_hsm_nvm";
