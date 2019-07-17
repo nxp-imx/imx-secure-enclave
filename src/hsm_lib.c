@@ -1633,8 +1633,8 @@ hsm_err_t hsm_ecies_encryption(hsm_hdl_t session_hdl, hsm_op_ecies_enc_args_t *a
 					DATA_BUF_IS_INPUT);
 		cmd.output_addr_ext = 0u;
 		cmd.output_addr = (uint32_t)seco_os_abs_data_buf(sess_ptr->phdl,
-					args->p2,
-					args->p2_size,
+					args->output,
+					args->out_size,
 					0u);
 		cmd.input_size = args->input_size;
 		cmd.p1_size = args->p1_size;

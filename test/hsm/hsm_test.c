@@ -35,6 +35,21 @@ static uint8_t ECC_P384_Qx[48+1] =
   0xCB, 0x15, 0x4F, 0xEC, 0xE2, 0x0C, 0x50, 0x35, 0xE2, 0xB3, 0x76, 0x51, 0x95, 0xD1, 0x95, 0x1D,
   0x75, 0xBD, 0x78, 0xFB, 0x23, 0xE0, 0x0F, 0xEF, 0x37, 0xD7, 0xD0, 0x64, 0xFD, 0x9A, 0xF1, 0x44,0x01 };
 
+/* ECIES test vectors */
+static uint8_t ecies_input[16] = {0x91, 0x69, 0x15, 0x5B, 0x08, 0xB0, 0x76, 0x74,
+                            0xCB, 0xAD, 0xF7, 0x5F, 0xB4, 0x6A, 0x7B, 0x0D};
+
+static uint8_t ecies_p1[32] = {0xA6, 0xB7, 0xB5, 0x25, 0x54, 0xB4, 0x20, 0x3F,
+                               0x7E, 0x3A, 0xCF, 0xDB, 0x3A, 0x3E, 0xD8, 0x67,
+                               0x4E, 0xE0, 0x86, 0xCE, 0x59, 0x06, 0xA7, 0xCA,
+                               0xC2, 0xF8, 0xA3, 0x98, 0x30, 0x6D, 0x3B, 0xE9 };
+
+static uint8_t ecies_pubk[2*32] = {
+    0x1c, 0xcb, 0xe9, 0x1c, 0x07, 0x5f, 0xc7, 0xf4, 0xf0, 0x33, 0xbf, 0xa2, 0x48, 0xdb, 0x8f, 0xcc,
+    0xd3, 0x56, 0x5d, 0xe9, 0x4b, 0xbf, 0xb1, 0x2f, 0x3c, 0x59, 0xff, 0x46, 0xc2, 0x71, 0xbf, 0x83,
+    0xce, 0x40, 0x14, 0xc6, 0x88, 0x11, 0xf9, 0xa2, 0x1a, 0x1f, 0xdb, 0x2c, 0x0e, 0x61, 0x13, 0xe0,
+    0x6d, 0xb7, 0xca, 0x93, 0xb7, 0x40, 0x4e, 0x78, 0xdc, 0x7c, 0xcd, 0x5c, 0xa8, 0x9a, 0x4c, 0xa9
+};
 
 static void public_key_test(hsm_hdl_t hsm_session_hdl)
 {
@@ -157,6 +172,65 @@ static void signature_tests(hsm_hdl_t hsm_session_hdl)
     printf("hsm_close_signature_verification_service ret:0x%x\n", err);
 }
 
+static void ecies_tests(hsm_hdl_t hsm_session_hdl,  hsm_hdl_t key_store_hdl)
+{
+    hsm_op_ecies_enc_args_t op_ecies_enc_args;
+    hsm_op_ecies_dec_args_t op_ecies_dec_args;
+    uint8_t out[3*32]; //VCT
+    uint8_t key_plain[16];
+    hsm_err_t err;
+
+    op_ecies_enc_args.input = ecies_input;
+    op_ecies_enc_args.pub_key = ecies_pubk;
+    op_ecies_enc_args.p1 = ecies_p1;
+    op_ecies_enc_args.p2 = NULL;
+    op_ecies_enc_args.output = out;
+    op_ecies_enc_args.input_size = 16;
+    op_ecies_enc_args.p1_size = 32;
+    op_ecies_enc_args.p2_size = 0;
+    op_ecies_enc_args.pub_key_size = 2*32;
+    op_ecies_enc_args.mac_size = 16;
+    op_ecies_enc_args.out_size = 3*32;
+    op_ecies_enc_args.key_type = HSM_KEY_TYPE_ECDSA_NIST_P256;
+    op_ecies_enc_args.flags = 0u;
+    op_ecies_enc_args.reserved= 0u;
+
+    err = hsm_ecies_encryption(hsm_session_hdl, &op_ecies_enc_args);
+    printf("hsm_ecies_encrypt ret:0x%x \n", err);
+
+    printf("hsm_ecies_encrypt output:\n");
+    for (uint32_t i=0; i<96; i++) {
+        printf("0x%x ", out[i]);
+        if (i%8 == 7) {
+            printf("\n");
+        }
+    }
+
+    op_ecies_dec_args.key_identifier = 0;  // to be modified when the HSM stroage is in place
+    op_ecies_dec_args.input = out;
+    op_ecies_dec_args.p1 = ecies_p1;
+    op_ecies_dec_args.p2 = NULL;
+    op_ecies_dec_args.output = key_plain;
+    op_ecies_dec_args.input_size = 3*32;
+    op_ecies_dec_args.output_size = 16;
+    op_ecies_dec_args.p1_size = 32;
+    op_ecies_dec_args.p2_size = 0;
+    op_ecies_dec_args.mac_size = 16;
+    op_ecies_dec_args.key_type = HSM_KEY_TYPE_ECDSA_NIST_P256;
+    op_ecies_dec_args.flags = 0u;
+
+    err = hsm_ecies_decryption(key_store_hdl, &op_ecies_dec_args);
+    printf("hsm_ecies_decrypt ret:0x%x \n", err);
+
+    printf("hsm_ecies_dec output:\n");
+    for (uint32_t i=0; i<16; i++) {
+        printf("0x%x ", key_plain[i]);  // key_plain should be the same as ecies_input
+        if (i%8 == 7) {
+            printf("\n");
+        }
+    }
+
+}
 
 /* Test entry function. */
 int main(int argc, char *argv[])
@@ -203,14 +277,14 @@ int main(int argc, char *argv[])
         err = hsm_open_key_store_service(hsm_session_hdl, &open_svc_key_store_args, &key_store_hdl);
         printf("hsm_open_key_store_service ret:0x%x\n", err);
 
-
-        err = hsm_close_key_store_service(key_store_hdl);
-        printf("hsm_close_key_store_service ret:0x%x\n", err);
-
         public_key_test(hsm_session_hdl);
 
         signature_tests(hsm_session_hdl);
 
+        ecies_tests(hsm_session_hdl, key_store_hdl);
+
+        err = hsm_close_key_store_service(key_store_hdl);
+        printf("hsm_close_key_store_service ret:0x%x\n", err);
 
         err = hsm_close_session(hsm_session_hdl);
 
