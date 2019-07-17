@@ -63,7 +63,7 @@ typedef struct {
  * \param args pointer to the structure containing the function arugments.
 
  * \param session_hdl pointer to where the session handle must be written.
- * 
+ *
  * \return error_code error code.
  */
 hsm_err_t hsm_open_session(open_session_args_t *args, hsm_hdl_t *session_hdl);
@@ -85,7 +85,7 @@ hsm_err_t hsm_close_session(hsm_hdl_t session_hdl);
  *  - update an existing key store
  *  - delete an existing key store
  *  - perform operations involving keys stored in the key store (ciphering, signature generation...)
- * 
+ *
  * The authentication is based on the user domain ID and messaging unit, additionaly an authentication nonce is provided.
  * @{
  */
@@ -101,7 +101,7 @@ typedef struct {
 
 /**
  * Open a service flow on the specified key store.
- * 
+ *
  * \param session_hdl pointer to the handle indentifing the current session.
  * \param args pointer to the structure containing the function arugments.
 
@@ -115,7 +115,7 @@ hsm_err_t hsm_open_key_store_service(hsm_hdl_t session_hdl, open_svc_key_store_a
 #define HSM_SVC_KEY_STORE_FLAGS_DELETE ((hsm_svc_key_store_flags_t)(1 << 3)) //!< It must be specified to delete an existing key store
 /**
  * Close a previously opened key store service flow.\n
- * 
+ *
  * \param handle indentifing the key store service flow to be closed.
  *
  * \return error_code error code.
@@ -170,7 +170,7 @@ typedef struct {
  *
  * \param key_management_hdl handle identifying the key management service flow.
  * \param args pointer to the structure containing the function arugments.
- * 
+ *
  * \return error code
  */
 hsm_err_t hsm_generate_key(hsm_hdl_t key_management_hdl, op_generate_key_args_t *args);
@@ -210,12 +210,12 @@ typedef struct {
  *  - import a key creating a new key identifier
  *  - import a key using an existing key identifie
  *  - delete an existing key
- * 
+ *
  * User can call this function only after having opened a key management service flow
  *
  * \param key_management_hdl handle identifying the key management service flow.
  * \param args pointer to the structure containing the function arugments.
- * 
+ *
  * \return error code
  */
 hsm_err_t hsm_manage_key(hsm_hdl_t key_management_hdl, op_manage_key_args_t *args);
@@ -247,7 +247,7 @@ typedef struct {
  * This command is designed to perform the butterfly key expansion operation on an ECC private key in case of implicit certificate. Optionally the resulting public key is exported.\n
  * The result of the key expansion function f1/f2 is calculated outside the HSM and passed as input. \n
  * User can call this function only after having opened a key management service flow. \n\n
- * 
+ *
  * The following operation is performed:\n
  * out_key = (Key + data1) * data2 + data3 (mod n)
  * \n\n
@@ -264,12 +264,12 @@ typedef struct {
  *  - data1 = f1(k, i, j),
  *  - data2 = hash value used to in the derivation of the pseudonym ECC key,
  *  - data3 = private reconstruction value pij
- * 
+ *
  * out_key = (Key  + f1(k, i, j))*Hash + pij
- * 
+ *
  * \param key_management_hdl handle identifying the key store management service flow.
  * \param args pointer to the structure containing the function arugments.
- * 
+ *
  * \return error code
 */
 hsm_err_t hsm_butterfly_key_expansion(hsm_hdl_t key_management_hdl, op_butt_key_exp_args_t *args);
@@ -278,7 +278,7 @@ hsm_err_t hsm_butterfly_key_expansion(hsm_hdl_t key_management_hdl, op_butt_key_
  * Terminate a previously opened key management service flow
  *
  * \param key_management_hdl handle identifying the key management service flow.
- * 
+ *
  * \return error code
  */
 hsm_err_t hsm_close_key_management_service(hsm_hdl_t key_management_hdl);
@@ -303,7 +303,7 @@ typedef struct {
  * \param key_store_hdl handle indentifing the key store service flow.
  * \param args pointer to the structure containing the function arugments.
  * \param cipher_hdl pointer to where the cipher service flow handle must be written.
- * 
+ *
  * \return error code
  */
 hsm_err_t hsm_open_cipher_service(hsm_hdl_t key_store_hdl, open_svc_cipher_args_t *args, hsm_hdl_t *cipher_hdl);
@@ -345,20 +345,20 @@ typedef struct {
     uint32_t key_identifier;                //!< identifier of the private key to be used for the operation
     uint8_t *input;                         //!< pointer to the VCT input
     uint8_t *p1;                            //!< pointer to the KDF P1 input parameter
-    uint8_t *p2;                            //!< pointer to the MAC P2 input parameter
-    uint8_t *output;                        //!< pointer to the output area where the plaintext must be written 
-    uint32_t input_size;                    //!< length in bytes of the input VCT
-    uint32_t output_size;                   //!< length in bytes of the output plaintext
-    uint16_t p1_size;                       //!< length in bytes of the KDF P1 parameter
-    uint16_t p2_size;                       //!< length in bytes of the MAC P2 parameter
-    uint16_t mac_size;                      //!< length in bytes of the requested message authentication code
-    hsm_key_type_t key_type;                //!< indicates the type of the used key
+    uint8_t *p2;                            //!< pointer to the MAC P2 input parameter should be NULL
+    uint8_t *output;                        //!< pointer to the output area where the plaintext must be written
+    uint32_t input_size;                    //!< length in bytes of the input VCT should be equal to 96 bytes
+    uint32_t output_size;                   //!< length in bytes of the output plaintext should be equal to 16 bytes
+    uint16_t p1_size;                       //!< length in bytes of the KDF P1 parameter should be equal to 32 bytes
+    uint16_t p2_size;                       //!< length in bytes of the MAC P2 parameter should be zero reserved for generic use cases
+    uint16_t mac_size;                      //!< length in bytes of the requested message authentication code should be equal to 16 bytes
+    hsm_key_type_t key_type;                //!< indicates the type of the used key (only NIST P256 and Br256r1 are supported)
     hsm_op_ecies_dec_flags_t flags;         //!< bitmap specifying the operation attributes.
 } hsm_op_ecies_dec_args_t;
 
 /**
  * Decrypt data usign ECIES \n
- * User can call this function only after having opened a cipher  store service flow 
+ * User can call this function only after having opened a cipher  store service flow
  *
  * \param session_hdl handle identifying the current session.
  * \param args pointer to the structure containing the function arugments.
@@ -371,7 +371,7 @@ hsm_err_t hsm_ecies_decryption(hsm_hdl_t cipher_hdl, hsm_op_ecies_dec_args_t *ar
  * Terminate a previously opened cipher service flow
  *
  * \param cipher_hdl pointer to handle identifying the cipher service flow to be closed.
- * 
+ *
  * \return error code
  */
 hsm_err_t hsm_close_cipher_service(hsm_hdl_t cipher_hdl);
@@ -395,7 +395,7 @@ typedef struct {
  * \param key_store_hdl handle indentifing the key store service flow.
  * \param args pointer to the structure containing the function arugments.
  * \param signature_gen_hdl pointer to where the signature generation service flow handle must be written.
- * 
+ *
  * \return error code
  */
 hsm_err_t hsm_open_signature_generation_service(hsm_hdl_t key_store_hdl, open_svc_sign_gen_args_t *args,  hsm_hdl_t *signature_gen_hdl);
@@ -417,7 +417,7 @@ typedef struct {
     uint8_t *message;                       //!< pointer to the input (message or message digest) to be signed
     uint8_t *signature;                     //!< pointer to the output area where the signature must be stored. The signature S=(r,s) is stored in format r||s||Ry where Ry is an additional byte containing the lsb of y. Ry has to be considered valid only if the HSM_OP_GENERATE_SIGN_FLAGS_COMPRESSED_POINT is set.
     uint32_t message_size;                  //!< length in bytes of the input
-    uint16_t signature_size;                //!< length in bytes of the output 
+    uint16_t signature_size;                //!< length in bytes of the output
     hsm_signature_scheme_id_t scheme_id;    //!< identifier of the digital signature scheme to be used for the operation
     hsm_op_generate_sign_flags_t flags;     //!< bitmap specifying the operation attributes
 } op_generate_sign_args_t;
@@ -537,7 +537,7 @@ typedef uint32_t hsm_verification_status_t;
  * User can call this function only after having opened a signature verification service flow\n
  * The signature S=(r,s) is expected to be in format r||s||Ry where Ry is an additional byte containing the lsb of y. Ry will be considered as valid only if the HSM_OP_VERIFY_SIGN_FLAGS_COMPRESSED_POINT is set.\n
  * Only not-compressed keys (x,y) can be used by this command. Compressed keys can be decompressed by using the dedicated API.
- * 
+ *
  * \param signature_ver_hdl handle identifying the signature verification service flow.
  * \param args pointer to the structure containing the function arugments.
  * \param status pointer to where the verification status must be stored\n if the verification suceed the value HSM_VERIFICATION_STATUS_SUCCESS is returned.
@@ -566,7 +566,7 @@ typedef struct {
  * User can use the returned reference in the hsm_verify_signature API by setting the HSM_OP_VERIFY_SIGN_FLAGS_KEY_INTERNAL flag \n
  * Only not-compressed keys (x,y) can be imprted by this command. Compressed keys can be decompressed by using the dedicated API.
  * User can call this function only after having opened a signature verification service flow.\n
- * 
+ *
  * \param signature_ver_hdl handle identifying the signature verification service flow.
  * \param args pointer to the structure containing the function arugments.
  * \param key_ref pointer to where the 4 bytes key reference to be used as key in the hsm_verify_signature will be stored\n
@@ -604,7 +604,7 @@ typedef struct {
  * \param session_hdl handle indentifing the current session.
  * \param args pointer to the structure containing the function arugments.
  * \param rng_hdl pointer to where the rng service flow handle must be written.
- * 
+ *
  * \return error code
  */
 hsm_err_t hsm_open_rng_service(hsm_hdl_t session_hdl, open_svc_rng_args_t *args, hsm_hdl_t *rng_hdl);
@@ -613,7 +613,7 @@ hsm_err_t hsm_open_rng_service(hsm_hdl_t session_hdl, open_svc_rng_args_t *args,
  * Terminate a previously opened rng service flow
  *
  * \param rng_hdl handle identifying the rng service flow to be closed.
- * 
+ *
  * \return error code
  */
 hsm_err_t hsm_close_rng_service(hsm_hdl_t rng_hdl);
@@ -654,7 +654,7 @@ typedef struct {
  * \param session_hdl handle indentifing the current session.
  * \param args pointer to the structure containing the function arugments.
  * \param hash_hdl pointer to where the hash service flow handle must be written.
- * 
+ *
  * \return error code
  */
 hsm_err_t hsm_open_hash_service(hsm_hdl_t session_hdl, open_svc_hash_args_t *args, hsm_hdl_t *hash_hdl);
@@ -663,7 +663,7 @@ hsm_err_t hsm_open_hash_service(hsm_hdl_t session_hdl, open_svc_hash_args_t *arg
  * Terminate a previously opened hash service flow
  *
  * \param hash_hdl handle identifying the hash service flow to be closed.
- * 
+ *
  * \return error code
  */
 hsm_err_t hsm_close_hash_service(hsm_hdl_t hash_hdl);
@@ -672,7 +672,7 @@ typedef uint8_t hsm_hash_algo_t;
 typedef uint8_t hsm_op_hash_one_go_flags_t;
 typedef struct {
     uint8_t *input;                     //!< pointer to the input data to be hashed
-    uint8_t *output;                    //!< pointer to the output area where the resulting digest must be written 
+    uint8_t *output;                    //!< pointer to the output area where the resulting digest must be written
     uint32_t input_size;                //!< length in bytes of the input
     uint32_t output_size;               //!< length in bytes of the output
     hsm_hash_algo_t algo;               //!< hash algorithm to be used for the operation
@@ -746,7 +746,7 @@ typedef struct {
 /**
  * Decompress an ECC public key \n
  * The expected key format is x||lsb_y where lsb_y is 1 byte having value 1 if the least-significant bit of the original (uncompressed) y coordinate is set, and 0 otherwise.\n
- * User can call this function only after having opened a session 
+ * User can call this function only after having opened a session
  *
  * \param session_hdl handle identifying the current session.
  * \param args pointer to the structure containing the function arugments.
@@ -765,22 +765,22 @@ typedef struct {
     uint8_t *input;                         //!< pointer to the input plaintext
     uint8_t *pub_key;                       //!< pointer to the input recipient public key
     uint8_t *p1;                            //!< pointer to the KDF P1 input parameter
-    uint8_t *p2;                            //!< pointer to the MAC P2 input parameter
-    uint8_t *output;                        //!< pointer to the output area where the VCT must be written 
-    uint32_t input_size;                    //!< length in bytes of the input plaintext
-    uint16_t p1_size;                       //!< length in bytes of the KDF P1 parameter
-    uint16_t p2_size;                       //!< length in bytes of the MAC P2 parameter
-    uint16_t pub_key_size;                  //!< length in bytes of the recipient public key
-    uint16_t mac_size;                      //!< length in bytes of the requested message authentication code
-    uint32_t out_size;                      //!< length in bytes of the output VCT
-    hsm_key_type_t key_type;                //!< indicates the type of the recipient public key
+    uint8_t *p2;                            //!< pointer to the MAC P2 input parameter should be NULL
+    uint8_t *output;                        //!< pointer to the output area where the VCT must be written
+    uint32_t input_size;                    //!< length in bytes of the input plaintext should be equal to 16 bytes
+    uint16_t p1_size;                       //!< length in bytes of the KDF P1 parameter should be equal to 32 bytes
+    uint16_t p2_size;                       //!< length in bytes of the MAC P2 parameter should be zero reserved for generic use cases
+    uint16_t pub_key_size;                  //!< length in bytes of the recipient public key should be equal to 64 bytes
+    uint16_t mac_size;                      //!< length in bytes of the requested message authentication code should be equal to 16 bytes
+    uint32_t out_size;                      //!< length in bytes of the output VCT should be equal to 96 bytes
+    hsm_key_type_t key_type;                //!< indicates the type of the recipient public key (only NIST P256 and Br256r1 are supported)
     hsm_op_ecies_enc_flags_t flags;         //!< bitmap specifying the operation attributes.
     uint16_t reserved;
 } hsm_op_ecies_enc_args_t;
 
 /**
  * Encrypt data usign ECIES \n
- * User can call this function only after having opened a session 
+ * User can call this function only after having opened a session
  *
  * \param session_hdl handle identifying the current session.
  * \param args pointer to the structure containing the function arugments.
