@@ -403,10 +403,6 @@ hsm_err_t hsm_generate_key(hsm_hdl_t key_management_hdl,
 		if (error != 0) {
 			break;
 		}
-		/* Check that SECO copied exacly the required key length. */
-		if (rsp.out_size != args->out_size) {
-			break;
-		}
 
 		err = sab_rating_to_hsm_err(rsp.rsp_code);
 		*(args->key_identifier) = rsp.key_identifier;

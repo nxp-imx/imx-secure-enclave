@@ -447,8 +447,6 @@ struct sab_cmd_generate_key_rsp {
     struct she_mu_hdr hdr;
     uint32_t rsp_code;
     uint32_t key_identifier;
-    uint16_t out_size;
-    uint16_t rsv;
 };
 
 struct sab_cmd_manage_key_msg {
