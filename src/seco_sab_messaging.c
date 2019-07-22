@@ -388,13 +388,13 @@ uint32_t sab_cmd_cipher_one_go(struct seco_os_abs_hdl *phdl,
         if (iv == NULL) {
             cmd.iv_address = 0;
         } else {
-            cmd.iv_address = seco_os_abs_data_buf(phdl, iv, iv_size, DATA_BUF_IS_INPUT | DATA_BUF_USE_SEC_MEM);
+            cmd.iv_address = seco_os_abs_data_buf(phdl, iv, iv_size, DATA_BUF_IS_INPUT);
         }
         cmd.iv_size = iv_size;
         cmd.algo = algo;
         cmd.flags = flags;
-        cmd.input_address = seco_os_abs_data_buf(phdl, input, input_size, DATA_BUF_IS_INPUT | DATA_BUF_USE_SEC_MEM);
-        cmd.output_address = seco_os_abs_data_buf(phdl, output, output_size, DATA_BUF_USE_SEC_MEM);
+        cmd.input_address = seco_os_abs_data_buf(phdl, input, input_size, DATA_BUF_IS_INPUT);
+        cmd.output_address = seco_os_abs_data_buf(phdl, output, output_size, 0u);
         cmd.input_size = input_size;
         cmd.output_size = output_size;
         cmd.crc = seco_compute_msg_crc((uint32_t*)&cmd, (uint32_t)(sizeof(cmd) - sizeof(uint32_t)));

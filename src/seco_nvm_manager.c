@@ -135,12 +135,6 @@ static struct seco_nvm_ctx *seco_nvm_open_session(uint8_t flags)
             break;
         }
 
-        /* Get a SECURE RAM partition to be used as shared buffer */
-        err = sab_get_shared_buffer(nvm_ctx->phdl, nvm_ctx->session_handle);
-        if (err != SAB_SUCCESS_STATUS) {
-            break;
-        }
-
         /* Open the SHE NVM STORAGE session on SECO side */
         err = sab_open_storage_command(nvm_ctx->phdl,
                                         nvm_ctx->session_handle,

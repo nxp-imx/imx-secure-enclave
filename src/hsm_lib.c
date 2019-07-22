@@ -192,16 +192,7 @@ hsm_err_t hsm_open_session(open_session_args_t *args, hsm_hdl_t *session_hdl)
 			break;
 		}
 
-		/* Get a SECURE RAM partition to be used as shared buffer */
-		sab_err = sab_get_shared_buffer(s_ptr->phdl,
-						s_ptr->session_hdl);
-		err = sab_rating_to_hsm_err(sab_err);
-		if (err != HSM_NO_ERROR) {
-			break;
-		}
-
 		*session_hdl = s_ptr->session_hdl;
-
 	} while (false);
 
 	if (err != HSM_NO_ERROR) {
@@ -698,19 +689,19 @@ hsm_err_t hsm_ecies_decryption(hsm_hdl_t cipher_hdl, hsm_op_ecies_dec_args_t *ar
 		cmd.input_address = (uint32_t)seco_os_abs_data_buf(serv_ptr->session->phdl,
 				args->input,
 				args->input_size,
-				DATA_BUF_IS_INPUT | DATA_BUF_USE_SEC_MEM);
+				DATA_BUF_IS_INPUT);
 		cmd.p1_addr = (uint32_t)seco_os_abs_data_buf(serv_ptr->session->phdl,
 				args->p1,
 				args->p1_size,
-				DATA_BUF_IS_INPUT | DATA_BUF_USE_SEC_MEM);
+				DATA_BUF_IS_INPUT);
 		cmd.p2_addr = (uint32_t)seco_os_abs_data_buf(serv_ptr->session->phdl,
 				args->p2,
 				args->p2_size,
-				DATA_BUF_IS_INPUT | DATA_BUF_USE_SEC_MEM);
+				DATA_BUF_IS_INPUT);
 		cmd.output_address = (uint32_t)seco_os_abs_data_buf(serv_ptr->session->phdl,
 				args->output,
 				args->output_size,
-				DATA_BUF_USE_SEC_MEM);
+				0u);
 		cmd.input_size = args->input_size;
 		cmd.output_size = args->output_size;
 		cmd.p1_size = args->p1_size;
