@@ -71,9 +71,12 @@
 
 #define SAB_STORAGE_OPEN_REQ                    0xE0u
 #define SAB_STORAGE_CLOSE_REQ                   0xE1u
-#define SAB_STORAGE_IMPORT_REQ                  0xE2u
-#define SAB_STORAGE_START_REQ                   0xE3u
-#define SAB_STORAGE_FINISH_REQ                  0xE4u
+#define SAB_STORAGE_MASTER_IMPORT_REQ           0xE2u
+#define SAB_STORAGE_MASTER_EXPORT_REQ           0xE3u
+#define SAB_STORAGE_EXPORT_FINISH_REQ           0xE4u
+#define SAB_STORAGE_CHUNK_EXPORT_REQ            0xE5u
+#define SAB_STORAGE_CHUNK_GET_REQ               0xE6u
+#define SAB_STORAGE_CHUNK_GET_DONE_REQ          0xE7u
 
 #define SAB_SHE_UTILS_OPEN                      0xF0u
 #define SAB_SHE_UTILS_CLOSE                     0xF1u
@@ -331,6 +334,44 @@ struct sab_cmd_key_store_export_finish_rsp {
     uint32_t rsp_code;
 };
 
+struct sab_cmd_key_store_chunk_export_msg {
+    struct she_mu_hdr hdr;
+    uint32_t storage_handle;
+    uint32_t chunk_size;
+    uint32_t blob_id;
+    uint32_t blob_id_ext;
+    uint32_t crc;
+};
+
+struct sab_cmd_key_store_chunk_export_rsp {
+    struct she_mu_hdr hdr;
+    uint32_t rsp_code;
+    uint32_t chunk_export_address;
+};
+
+struct sab_cmd_key_store_chunk_get_msg {
+    struct she_mu_hdr hdr;
+    uint32_t storage_handle;
+    uint32_t blob_id;
+    uint32_t blob_id_ext;
+};
+
+struct sab_cmd_key_store_chunk_get_rsp {
+    struct she_mu_hdr hdr;
+    uint32_t chunk_size;
+    uint32_t chunk_addr;
+    uint32_t rsp_code;
+};
+
+struct sab_cmd_key_store_chunk_get_done_msg {
+    struct she_mu_hdr hdr;
+    uint32_t storage_handle;
+};
+
+struct sab_cmd_key_store_chunk_get_done_rsp {
+    struct she_mu_hdr hdr;
+    uint32_t rsp_code;
+};
 
 struct she_cmd_get_status_msg {
        struct she_mu_hdr hdr;

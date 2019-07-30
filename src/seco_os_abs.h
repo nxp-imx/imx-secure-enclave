@@ -262,6 +262,38 @@ int32_t seco_os_abs_storage_write(struct seco_os_abs_hdl *phdl, uint8_t *src, ui
 int32_t seco_os_abs_storage_read(struct seco_os_abs_hdl *phdl, uint8_t *dst, uint32_t size);
 
 /**
+ * Write a subset of data to the non volatile storage.
+ *
+ * In case of large storage SECO will split it in "chunks" that will be encrypted in blobs.
+ * A unique identifier within the system allow the storage manager to store and read it without
+ * ambiguity.
+ *
+ * \param phdl pointer to the session handle for which this data buffer is used.
+ * \param src pointer to the data to be written to storage.
+ * \param size number of bytes to be written.
+ * \patam blob_id unique identifier of the blob corresponding to the storage chunk to be written
+ *
+ * \return number of bytes written.
+ */
+int32_t seco_os_abs_storage_write_chunk(struct seco_os_abs_hdl *phdl, uint8_t *src, uint32_t size, uint64_t blob_id);
+
+/**
+ * Read a subset of data from the non volatile storage.
+ *
+ * In case of large storage SECO will split it in "chunks" that will be encrypted in blobs.
+ * A unique identifier within the system allow the storage manager to store and read it without
+ * ambiguity.
+ *
+ * \param phdl pointer to the session handle for which this data buffer is used.
+ * \param dst pointer to the data where data read from the storage should be copied.
+ * \param size number of bytes to be read.
+ * \patam blob_id unique identifier of the blob corresponding to the storage chunk to be read
+ *
+ * \return number of bytes read.
+ */
+int32_t seco_os_abs_storage_read_chunk(struct seco_os_abs_hdl *phdl, uint8_t *dst, uint32_t size, uint64_t blob_id);
+
+/**
  * Start the RNG from a system point of view.
  *
  * Start the RNG HW through a SCU RPC: sc_seco_start_rng()
