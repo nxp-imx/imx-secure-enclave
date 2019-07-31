@@ -11,6 +11,7 @@
  * activate or otherwise use the software.
  */
 
+#include <pthread.h>
 #include <stdbool.h>
 #include <stdio.h>
 #include <stdlib.h>
@@ -60,23 +61,6 @@ static void public_key_test(hsm_hdl_t hsm_session_hdl)
     uint32_t i;
     hsm_err_t err;
 
-    // Dummy values just to test API call
-    hsm_op_pub_key_rec_args.pub_rec = out;
-    hsm_op_pub_key_rec_args.hash = out;
-    hsm_op_pub_key_rec_args.ca_key = out;
-    hsm_op_pub_key_rec_args.out_key = out;
-    hsm_op_pub_key_rec_args.pub_rec_size = 32;
-    hsm_op_pub_key_rec_args.hash_size = 32;
-    hsm_op_pub_key_rec_args.ca_key_size = 32;
-    hsm_op_pub_key_rec_args.out_key_size =32;
-    hsm_op_pub_key_rec_args.key_type = HSM_KEY_TYPE_ECDSA_NIST_P256;
-    hsm_op_pub_key_rec_args.flags = 0u;
-    hsm_op_pub_key_rec_args.reserved = 0u;
-
-    err = hsm_pub_key_reconstruction(hsm_session_hdl, &hsm_op_pub_key_rec_args);
-
-    printf("hsm_pub_key_reconstruction ret:0x%x\noutput:\n", err);
-
     /* P256 */
     hsm_op_pub_key_dec_args.key = ECC_P256_Qx;
     hsm_op_pub_key_dec_args.out_key = out;
@@ -87,13 +71,16 @@ static void public_key_test(hsm_hdl_t hsm_session_hdl)
 
     err = hsm_pub_key_decompression(hsm_session_hdl, &hsm_op_pub_key_dec_args);
 
-    printf("hsm_pub_key_decompression ret:0x%x\noutput:\n", err);
+    printf("hsm_pub_key_decompression ret:0x%x\n", err);
+#ifdef DEBUG
+    printf("output:\n");
     for (i=0; i<64; i++) {
         printf("0x%x ", out[i]);
         if (i%8 == 7) {
             printf("\n");
         }
     }
+#endif
 
     /* Brainpool R1 256 */
     hsm_op_pub_key_dec_args.key = ECC_BRAINPOOL_R1_256_Qx;
@@ -105,13 +92,16 @@ static void public_key_test(hsm_hdl_t hsm_session_hdl)
 
     err = hsm_pub_key_decompression(hsm_session_hdl, &hsm_op_pub_key_dec_args);
 
-    printf("hsm_pub_key_decompression ret:0x%x\noutput:\n", err);
+    printf("hsm_pub_key_decompression ret:0x%x\n", err);
+#ifdef DEBUG
+    printf("output:\n");
     for (i=0; i<64; i++) {
         printf("0x%x ", out[i]);
         if (i%8 == 7) {
             printf("\n");
         }
     }
+#endif
 
     /* P384 */
     hsm_op_pub_key_dec_args.key = ECC_P384_Qx;
@@ -123,56 +113,19 @@ static void public_key_test(hsm_hdl_t hsm_session_hdl)
 
     err = hsm_pub_key_decompression(hsm_session_hdl, &hsm_op_pub_key_dec_args);
 
-    printf("hsm_pub_key_decompression ret:0x%x\noutput:\n", err);
+    printf("hsm_pub_key_decompression ret:0x%x\n", err);
+#ifdef DEBUG
+    printf("output:\n");
     for (i=0; i<96; i++) {
         printf("0x%x ", out_384[i]);
         if (i%8 == 7) {
             printf("\n");
         }
     }
+#endif
 }
 
-static void signature_tests(hsm_hdl_t hsm_session_hdl)
-{
-    hsm_hdl_t sig_verif_hdl;
-    open_svc_sign_ver_args_t open_svc_sign_ver_args;
-    op_verify_sign_args_t op_verify_sign_args;
-    op_import_public_key_args_t op_import_public_key_args;
-    uint8_t out[32];
-    hsm_verification_status_t verif_status;
-    uint32_t key_ref;
-    hsm_err_t err;
-
-    open_svc_sign_ver_args.flags = 0;
-    err = hsm_open_signature_verification_service(hsm_session_hdl, &open_svc_sign_ver_args, &sig_verif_hdl);
-    printf("hsm_open_signature_verification_service ret:0x%x\n", err);
-
-    op_verify_sign_args.key = out;
-    op_verify_sign_args.message = out;
-    op_verify_sign_args.signature = out;
-    op_verify_sign_args.key_size = 32;
-    op_verify_sign_args.signature_size = 32;
-    op_verify_sign_args.message_size = 32;
-    op_verify_sign_args.scheme_id = 0u;
-    op_verify_sign_args.flags = 0u;
-
-    err = hsm_verify_signature(sig_verif_hdl, &op_verify_sign_args, &verif_status);
-    printf("hsm_verify_signature ret:0x%x status:0x%x\n", err, verif_status);
-
-
-    op_import_public_key_args.key = out;
-    op_import_public_key_args.key_size = 32;
-    op_import_public_key_args.key_type = 0;
-    op_import_public_key_args.flags = 0;
-
-    err = hsm_import_public_key(sig_verif_hdl, &op_import_public_key_args, &key_ref);
-    printf("hsm_import_public_key ret:0x%x key_ref:0x%x\n", err, key_ref);
-
-    err = hsm_close_signature_verification_service(sig_verif_hdl);
-    printf("hsm_close_signature_verification_service ret:0x%x\n", err);
-}
-
-static void ecies_tests(hsm_hdl_t hsm_session_hdl,  hsm_hdl_t key_store_hdl)
+static void ecies_tests(hsm_hdl_t hsm_session_hdl)
 {
     hsm_op_ecies_enc_args_t op_ecies_enc_args;
     hsm_op_ecies_dec_args_t op_ecies_dec_args;
@@ -197,7 +150,7 @@ static void ecies_tests(hsm_hdl_t hsm_session_hdl,  hsm_hdl_t key_store_hdl)
 
     err = hsm_ecies_encryption(hsm_session_hdl, &op_ecies_enc_args);
     printf("hsm_ecies_encrypt ret:0x%x \n", err);
-
+#if DEBUG
     printf("hsm_ecies_encrypt output:\n");
     for (uint32_t i=0; i<96; i++) {
         printf("0x%x ", out[i]);
@@ -205,32 +158,17 @@ static void ecies_tests(hsm_hdl_t hsm_session_hdl,  hsm_hdl_t key_store_hdl)
             printf("\n");
         }
     }
-
-    op_ecies_dec_args.key_identifier = 0;  // to be modified when the HSM stroage is in place
-    op_ecies_dec_args.input = out;
-    op_ecies_dec_args.p1 = ecies_p1;
-    op_ecies_dec_args.p2 = NULL;
-    op_ecies_dec_args.output = key_plain;
-    op_ecies_dec_args.input_size = 3*32;
-    op_ecies_dec_args.output_size = 16;
-    op_ecies_dec_args.p1_size = 32;
-    op_ecies_dec_args.p2_size = 0;
-    op_ecies_dec_args.mac_size = 16;
-    op_ecies_dec_args.key_type = HSM_KEY_TYPE_ECDSA_NIST_P256;
-    op_ecies_dec_args.flags = 0u;
-
-    err = hsm_ecies_decryption(key_store_hdl, &op_ecies_dec_args);
-    printf("hsm_ecies_decrypt ret:0x%x \n", err);
-
-    printf("hsm_ecies_dec output:\n");
-    for (uint32_t i=0; i<16; i++) {
-        printf("0x%x ", key_plain[i]);  // key_plain should be the same as ecies_input
-        if (i%8 == 7) {
-            printf("\n");
-        }
-    }
+#endif
 
 }
+
+static uint32_t nvm_status;
+
+static void *hsm_storage_thread(void *arg)
+{
+    seco_nvm_manager(NVM_FLAGS_HSM, &nvm_status);
+}
+
 
 /* Test entry function. */
 int main(int argc, char *argv[])
@@ -241,13 +179,14 @@ int main(int argc, char *argv[])
     open_session_args_t open_session_args;
     open_svc_key_store_args_t open_svc_key_store_args;
 
-    uint32_t nvm_status;
+    pthread_t tid;
 
     hsm_err_t err;
 
     do {
         nvm_status = NVM_STATUS_UNDEF;
-        seco_nvm_manager(NVM_FLAGS_HSM, &nvm_status);
+
+        (void)pthread_create(&tid, NULL, hsm_storage_thread, NULL);
 
         /* Wait for the storage manager to be ready to receive commands from SECO. */
         while (nvm_status <= NVM_STATUS_STARTING) {
@@ -256,8 +195,7 @@ int main(int argc, char *argv[])
         /* Check if it ended because of an error. */
         if (nvm_status == NVM_STATUS_STOPPED) {
             printf("nvm manager failed to start\n");
-            /* Currently tolerate this error since not supported by SECO and not absolutely needed by APIs tested below. */
-            // break;
+            break;
         }
 
         open_session_args.session_priority = 0;
@@ -273,15 +211,13 @@ int main(int argc, char *argv[])
         open_svc_key_store_args.key_store_identifier = 0xABCD;
         open_svc_key_store_args.authentication_nonce = 0x1234;
         open_svc_key_store_args.max_updates_number   = 100;
-        open_svc_key_store_args.flags                = 0;
+        open_svc_key_store_args.flags                = 1;
         err = hsm_open_key_store_service(hsm_session_hdl, &open_svc_key_store_args, &key_store_hdl);
         printf("hsm_open_key_store_service ret:0x%x\n", err);
 
         public_key_test(hsm_session_hdl);
 
-        signature_tests(hsm_session_hdl);
-
-        ecies_tests(hsm_session_hdl, key_store_hdl);
+        ecies_tests(hsm_session_hdl);
 
         err = hsm_close_key_store_service(key_store_hdl);
         printf("hsm_close_key_store_service ret:0x%x\n", err);
@@ -289,6 +225,8 @@ int main(int argc, char *argv[])
         err = hsm_close_session(hsm_session_hdl);
 
         printf("hsm_close_session ret:0x%x\n", err);
+
+        (void)pthread_cancel(tid);
 
     } while (0);
     return 0;
