@@ -40,6 +40,8 @@ typedef enum {
     HSM_CMD_NOT_SUPPORTED               = 0xD,      /**< 	The functionality is not supported for the current session/service/key store configuration. */
     HSM_INVALID_LIFECYCLE               = 0xE,      /**< 	Invalid lifecycle for requested operation. */
     HSM_KEY_STORE_CONFLICT              = 0xF,      /**< 	A key store with the same attributes already exists. */
+    HSM_KEY_STORE_COUNTER               = 0x10,     /**<    The current key store reaches the max number of monotonic counter updates, updates are still allowed but monotonic counter will not be blown. */
+    HSM_FEATURE_NOT_SUPPORTED           = 0x11,     /**<    The requested feature is not supported by the firwmare. */
     HSM_GENERAL_ERROR                   = 0xFF,     /**<    Error not covered by other codes occured. */
 } hsm_err_t;
 /** @} end of error code group */
@@ -154,7 +156,7 @@ typedef uint8_t hsm_key_type_t;
 typedef uint16_t hsm_key_info_t;
 typedef struct {
     uint32_t *key_identifier;           //!< pointer to the identifier of the key to be used for the operation.\n In case of create operation the new key identifier will be stored in this location.
-    uint16_t out_size;                  //!< length in bytes of the output area where the generated public key will be copied. If must be 0 in case of symetric keys.
+    uint16_t out_size;                  //!< length in bytes of the generated key. It must be 0 in case of symetric keys.
     hsm_op_key_gen_flags_t flags;       //!< bitmap specifying the operation properties.
     uint8_t reserved;
     hsm_key_type_t key_type;            //!< indicates which type of key must be generated.
@@ -238,7 +240,7 @@ typedef struct {
     hsm_op_but_key_exp_flags_t flags;   //!< bitmap specifying the operation properties
     uint32_t dest_key_identifier;       //!< identifier of the derived key
     uint8_t *output;                    //!< pointer to the output area where the public key must be written.
-    uint16_t output_size;               //!< length in bytes of the output area, if the size is 0, no key is copied in the output.
+    uint16_t output_size;               //!< length in bytes of the generated key, if the size is 0, no key is copied in the output.
     hsm_key_type_t key_type;            //!< indicates the type of the key to be managed.
     uint8_t reserved;
 } op_butt_key_exp_args_t;
