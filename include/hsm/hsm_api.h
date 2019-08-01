@@ -238,7 +238,7 @@ typedef struct {
     uint8_t data2_size;                 //!< length in bytes of the add_data2 input
     uint8_t data3_size;                 //!< length in bytes of the data3 input
     hsm_op_but_key_exp_flags_t flags;   //!< bitmap specifying the operation properties
-    uint32_t dest_key_identifier;       //!< identifier of the derived key
+    uint32_t *dest_key_identifier;       //!< pointer to identifier of the derived key to be used for the operation.\n In case of create operation the new destination key identifier will be stored in this location.
     uint8_t *output;                    //!< pointer to the output area where the public key must be written.
     uint16_t output_size;               //!< length in bytes of the generated key, if the size is 0, no key is copied in the output.
     hsm_key_type_t key_type;            //!< indicates the type of the key to be managed.

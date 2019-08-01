@@ -491,6 +491,7 @@ struct sab_cmd_butterfly_key_exp_msg {
 struct sab_cmd_butterfly_key_exp_rsp {
     struct she_mu_hdr hdr;
     uint32_t rsp_code;
+    uint32_t dest_key_identifier;
 };
 
 

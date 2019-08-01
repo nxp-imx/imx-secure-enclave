@@ -504,7 +504,7 @@ hsm_err_t hsm_butterfly_key_expansion(hsm_hdl_t key_management_hdl,
 		cmd.data2_size = args->data2_size;
 		cmd.data3_size = args->data3_size;
 		cmd.flags = args->flags;
-		cmd.dest_key_identifier = args->dest_key_identifier;
+		cmd.dest_key_identifier = *(args->dest_key_identifier);
 		cmd.output_address = (uint32_t)seco_os_abs_data_buf(serv_ptr->session->phdl,
 				args->output,
 				args->output_size,
@@ -527,6 +527,7 @@ hsm_err_t hsm_butterfly_key_expansion(hsm_hdl_t key_management_hdl,
 		}
 
 		err = sab_rating_to_hsm_err(rsp.rsp_code);
+		*(args->dest_key_identifier) = rsp.dest_key_identifier;
 
 	} while(false);
 
