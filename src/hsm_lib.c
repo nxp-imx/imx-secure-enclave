@@ -473,7 +473,7 @@ hsm_err_t hsm_butterfly_key_expansion(hsm_hdl_t key_management_hdl,
 	hsm_err_t err = HSM_GENERAL_ERROR;
 
 	do {
-		if (args == NULL) {
+		if ((args == NULL)||(args->dest_key_identifier == NULL)) {
 			break;
 		}
 		serv_ptr = service_hdl_to_ptr(key_management_hdl);
