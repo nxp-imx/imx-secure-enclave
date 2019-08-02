@@ -200,7 +200,7 @@ typedef struct {
     uint32_t *key_identifier;           //!< pointer to the identifier of the key to be used for the operation.\n In case of create operation the new key identifier will be stored in this location.
     uint16_t input_size;                //!< length in bytes of the input key area. Not checked in case of delete operation.
     hsm_op_manage_key_flags_t flags;    //!< bitmap specifying the operation properties.
-    uint16_t reserved;
+    uint8_t reserved;
     hsm_key_type_t key_type;            //!< indicates the type of the key to be managed.
     hsm_key_type_ext_t key_type_ext;
     hsm_key_info_t key_info;            //!< bitmap specifying the properties of the key, in case of update operation it it will replace the existing value. Not checked in case of delete operation.
