@@ -11,6 +11,7 @@
  * 0.8 - subject to change | May 24 2019  | It adds the following API: \n-signature generation \n-signature verification \n-rng \n-hash \n-butterfly key expansion \n-ECIES enc/dec \n-public key reconstruction \n-public key decompression
  * 0.9 - subject to change | May 28 2019  | Explicit addresses are replaced by pointers.
  * 1.0 - subject to change | May 29 2019  | -bug/typos fix. \n-Change HSM_SVC_KEY_STORE_FLAGS definition
+ * 1.1 - subject to change | July 31 2019 | -hsm_butterfly_key_expansion argument definition: dest_key_identifier is now a pointer. \n-Add error code definition. \n-improve argument comments clarity
  */
 
 /*! \page General General concepts related to the API

@@ -360,7 +360,8 @@ typedef struct {
 
 /**
  * Decrypt data usign ECIES \n
- * User can call this function only after having opened a cipher  store service flow
+ * User can call this function only after having opened a cipher  store service flow.\n
+ * ECIES is supported with the constraints specified in 1609.2-2016.
  *
  * \param session_hdl handle identifying the current session.
  * \param args pointer to the structure containing the function arugments.
@@ -782,7 +783,8 @@ typedef struct {
 
 /**
  * Encrypt data usign ECIES \n
- * User can call this function only after having opened a session
+ * User can call this function only after having opened a session.\n
+ * ECIES is supported with the constraints specified in 1609.2-2016.
  *
  * \param session_hdl handle identifying the current session.
  * \param args pointer to the structure containing the function arugments.
