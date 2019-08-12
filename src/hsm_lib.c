@@ -1659,3 +1659,51 @@ hsm_err_t hsm_ecies_encryption(hsm_hdl_t session_hdl, hsm_op_ecies_enc_args_t *a
 
 	return err;
 }
+
+hsm_err_t hsm_pub_key_recovery(hsm_hdl_t key_store_hdl, hsm_op_pub_key_recovery_args_t *args)
+{
+	struct sab_cmd_pub_key_recovery_msg cmd;
+	struct sab_cmd_pub_key_recovery_rsp rsp;
+	int32_t error = 1;
+	struct hsm_service_hdl_s *key_store_serv_ptr;
+	hsm_err_t err = HSM_GENERAL_ERROR;
+
+	do {
+		key_store_serv_ptr = service_hdl_to_ptr(key_store_hdl);
+		if (key_store_serv_ptr == NULL) {
+			err = HSM_UNKNOWN_HANDLE;
+			break;
+		}
+
+		/* Send the keys store open command to Seco. */
+		seco_fill_cmd_msg_hdr(&cmd.hdr,
+			SAB_PUB_KEY_RECOVERY_REQ,
+			(uint32_t)sizeof(struct sab_cmd_pub_key_recovery_msg));
+		cmd.key_store_handle = key_store_hdl;
+		cmd.key_identifier = args->key_identifier;
+		cmd.out_key_addr = (uint32_t)seco_os_abs_data_buf(key_store_serv_ptr->session->phdl,
+					args->out_key,
+					args->out_key_size,
+					0u);
+		cmd.out_key_size = args->out_key_size;
+		cmd.key_type = args->key_type;
+		cmd.flags = args->flags;
+		cmd.crc = 0u;
+		cmd.crc = seco_compute_msg_crc((uint32_t*)&cmd,
+				(uint32_t)(sizeof(cmd) - sizeof(uint32_t)));
+
+		/* Send the message to Seco. */
+		error = seco_send_msg_and_get_resp(key_store_serv_ptr->session->phdl,
+			(uint32_t *)&cmd,
+			(uint32_t)sizeof(struct sab_cmd_pub_key_recovery_msg),
+			(uint32_t *)&rsp,
+			(uint32_t)sizeof(struct sab_cmd_pub_key_recovery_rsp));
+		if (error != 0) {
+			break;
+		}
+
+		err = sab_rating_to_hsm_err(rsp.rsp_code);
+	} while(false);
+
+	return err;
+}

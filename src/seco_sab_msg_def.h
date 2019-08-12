@@ -37,6 +37,7 @@
 
 #define SAB_KEY_STORE_OPEN_REQ                  0x30u
 #define SAB_KEY_STORE_CLOSE_REQ                 0x31u
+#define SAB_PUB_KEY_RECOVERY_REQ                0x32u
 
 #define SAB_KEY_MANAGEMENT_OPEN_REQ             0x40u
 #define SAB_KEY_MANAGEMENT_CLOSE_REQ            0x41u
@@ -879,6 +880,22 @@ struct sab_cmd_get_info_rsp {
     uint8_t  fips_mode;
     uint8_t  rsv[3];
     uint32_t crc;
+};
+
+struct sab_cmd_pub_key_recovery_msg {
+    struct she_mu_hdr hdr;
+    uint32_t key_store_handle;
+    uint32_t key_identifier;    
+    uint32_t out_key_addr;
+    uint16_t out_key_size;
+    uint8_t key_type;
+    uint8_t flags;
+    uint32_t crc;
+};
+
+struct sab_cmd_pub_key_recovery_rsp {
+    struct she_mu_hdr hdr;
+    uint32_t rsp_code;
 };
 
 #endif
