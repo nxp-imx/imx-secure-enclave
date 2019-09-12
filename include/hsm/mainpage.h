@@ -12,8 +12,8 @@
  * 0.9 - subject to change | May 28 2019  | Explicit addresses are replaced by pointers.
  * 1.0 - subject to change | May 29 2019  | -bug/typos fix. \n-Change HSM_SVC_KEY_STORE_FLAGS definition
  * 1.1 - subject to change | July 31 2019 | -hsm_butterfly_key_expansion argument definition: dest_key_identifier is now a pointer. \n-Add error code definition. \n-improve argument comments clarity
- * 1.5 - subject to change | August 2 2019| - manage key argument: fix padding size
- */
+ * 1.5 - subject to change | Sept 13 2019 | - manage key argument: fix padding size\n - butterfly key expansion: change argument definition\n- introduce public key recovery API
+ * */
 
 /*! \page General General concepts related to the API
  */
