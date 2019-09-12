@@ -474,12 +474,12 @@ struct sab_cmd_butterfly_key_exp_msg {
     struct she_mu_hdr hdr;
     uint32_t key_management_handle;
     uint32_t key_identifier;
-    uint32_t data1_addr;
-    uint32_t data2_addr;
-    uint32_t data3_addr;
-    uint8_t data1_size;
-    uint8_t data2_size;
-    uint8_t data3_size;
+    uint32_t expansion_function_value_addr;
+    uint32_t hash_value_addr;
+    uint32_t pr_reconstruction_value_addr;
+    uint8_t expansion_function_value_size;
+    uint8_t hash_value_size;
+    uint8_t pr_reconstruction_value_size;
     uint8_t flags;
     uint32_t dest_key_identifier;
     uint32_t output_address;

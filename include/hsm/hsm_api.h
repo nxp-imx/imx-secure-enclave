@@ -231,12 +231,12 @@ hsm_err_t hsm_manage_key(hsm_hdl_t key_management_hdl, op_manage_key_args_t *arg
 typedef uint8_t hsm_op_but_key_exp_flags_t;
 typedef struct {
     uint32_t key_identifier;            //!< identifier of the key to be expanded
-    uint8_t *data1;                     //!< pointer to the data1 input
-    uint8_t *data2;                     //!< pointer to the data2 input
-    uint8_t *data3;                     //!< pointer to the data3 input
-    uint8_t data1_size;                 //!< length in bytes of the add_data1 input
-    uint8_t data2_size;                 //!< length in bytes of the add_data2 input
-    uint8_t data3_size;                 //!< length in bytes of the data3 input
+    uint8_t *expansion_function_value;  //!< pointer to the expansion function value input
+    uint8_t *hash_value;                //!< pointer to the hash value input
+    uint8_t *pr_reconstruction_value;   //!< pointer to the private reconstruction value input
+    uint8_t expansion_function_value_size;  //!< length in bytes of the  expansion function input
+    uint8_t hash_value_size;            //!< length in bytes of the hash value input
+    uint8_t pr_reconstruction_value_size;   //!< length in bytes of the private reconstruction value input
     hsm_op_but_key_exp_flags_t flags;   //!< bitmap specifying the operation properties
     uint32_t *dest_key_identifier;       //!< pointer to identifier of the derived key to be used for the operation.\n In case of create operation the new destination key identifier will be stored in this location.
     uint8_t *output;                    //!< pointer to the output area where the public key must be written.
@@ -246,28 +246,21 @@ typedef struct {
 } op_butt_key_exp_args_t;
 
 /**
- * This command is designed to perform the butterfly key expansion operation on an ECC private key in case of implicit certificate. Optionally the resulting public key is exported.\n
- * The result of the key expansion function f1/f2 is calculated outside the HSM and passed as input. \n
+ * This command is designed to perform the butterfly key expansion operation on an ECC private key in case of implicit and explicit certificates. Optionally the resulting public key is exported.\n
+ * The result of the key expansion function f_k is calculated outside the HSM and passed as input. The expansion function is defined as f_k = f_k_int mod l \n
  * User can call this function only after having opened a key management service flow. \n\n
  *
- * The following operation is performed:\n
- * out_key = (Key + data1) * data2 + data3 (mod n)
- * \n\n
- *
  * Explicit certificates:
- *  - data1 = 0,
- *  - data2 = 1
- *  - data3 = f1/f2(k, i, j)
- *
- * out_key = Key  + f1/f2(k, i, j) (mod n)
+ *  - f_k = expansion function value 
+ * out_key = Key  + f_k
  * \n\n
  *
  * Implicit certificates:
- *  - data1 = f1(k, i, j),
- *  - data2 = hash value used to in the derivation of the pseudonym ECC key,
- *  - data3 = private reconstruction value pij
+ *  - f_k = expansion function value,
+ *  - hash = hash value used to in the derivation of the pseudonym ECC key,
+ *  - pr_v = private reconstruction value
  *
- * out_key = (Key  + f1(k, i, j))*Hash + pij
+ * out_key = (Key  + f_k)*hash + pr_v
  *
  * \param key_management_hdl handle identifying the key store management service flow.
  * \param args pointer to the structure containing the function arugments.
@@ -275,6 +268,8 @@ typedef struct {
  * \return error code
 */
 hsm_err_t hsm_butterfly_key_expansion(hsm_hdl_t key_management_hdl, op_butt_key_exp_args_t *args);
+#define HSM_OP_BUTTERFLY_KEY_FLAGS_IMPLICIT_CERTIF       ((hsm_op_but_key_exp_flags_t)(0 << 2))   //!< butterfly key expansion using implicit certificate.
+#define HSM_OP_BUTTERFLY_KEY_FLAGS_EXPLICIT_CERTIF       ((hsm_op_but_key_exp_flags_t)(1 << 2))   //!< butterfly key expansion using explicit certificate.
 
 /**
  * Terminate a previously opened key management service flow

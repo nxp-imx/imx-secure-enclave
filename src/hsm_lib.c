@@ -488,21 +488,21 @@ hsm_err_t hsm_butterfly_key_expansion(hsm_hdl_t key_management_hdl,
 			(uint32_t)sizeof(struct sab_cmd_butterfly_key_exp_msg));
 		cmd.key_management_handle = key_management_hdl;
 		cmd.key_identifier = args->key_identifier;
-		cmd.data1_addr = (uint32_t)seco_os_abs_data_buf(serv_ptr->session->phdl,
-				args->data1,
-				args->data1_size,
+		cmd.expansion_function_value_addr = (uint32_t)seco_os_abs_data_buf(serv_ptr->session->phdl,
+				args->expansion_function_value,
+				args->expansion_function_value_size,
 				DATA_BUF_IS_INPUT);
-		cmd.data2_addr = (uint32_t)seco_os_abs_data_buf(serv_ptr->session->phdl,
-				args->data2,
-				args->data2_size,
+		cmd.hash_value_addr = (uint32_t)seco_os_abs_data_buf(serv_ptr->session->phdl,
+				args->hash_value,
+				args->hash_value_size,
 				DATA_BUF_IS_INPUT);
-		cmd.data3_addr = (uint32_t)seco_os_abs_data_buf(serv_ptr->session->phdl,
-				args->data3,
-				args->data3_size,
+		cmd.pr_reconstruction_value_addr = (uint32_t)seco_os_abs_data_buf(serv_ptr->session->phdl,
+				args->pr_reconstruction_value,
+				args->pr_reconstruction_value_size,
 				DATA_BUF_IS_INPUT);
-		cmd.data1_size = args->data1_size;
-		cmd.data2_size = args->data2_size;
-		cmd.data3_size = args->data3_size;
+		cmd.expansion_function_value_size = args->expansion_function_value_size;
+		cmd.hash_value_size = args->hash_value_size;
+		cmd.pr_reconstruction_value_size = args->pr_reconstruction_value_size;
 		cmd.flags = args->flags;
 		cmd.dest_key_identifier = *(args->dest_key_identifier);
 		cmd.output_address = (uint32_t)seco_os_abs_data_buf(serv_ptr->session->phdl,
