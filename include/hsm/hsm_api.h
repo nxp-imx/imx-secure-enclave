@@ -232,11 +232,11 @@ typedef uint8_t hsm_op_but_key_exp_flags_t;
 typedef struct {
     uint32_t key_identifier;            //!< identifier of the key to be expanded
     uint8_t *expansion_function_value;  //!< pointer to the expansion function value input
-    uint8_t *hash_value;                //!< pointer to the hash value input
-    uint8_t *pr_reconstruction_value;   //!< pointer to the private reconstruction value input
+    uint8_t *hash_value;                //!< pointer to the hash value input.\n In case of explicit certificate, the hash value address must be set to 0.
+    uint8_t *pr_reconstruction_value;   //!< pointer to the private reconstruction value input.\n In case of explicit certificate, the pr_reconstruction_value address must be set to 0.
     uint8_t expansion_function_value_size;  //!< length in bytes of the  expansion function input
-    uint8_t hash_value_size;            //!< length in bytes of the hash value input
-    uint8_t pr_reconstruction_value_size;   //!< length in bytes of the private reconstruction value input
+    uint8_t hash_value_size;            //!< length in bytes of the hash value input.\n In case of explicit certificate, the hash_value_size parameter must be set to 0.
+    uint8_t pr_reconstruction_value_size;   //!< length in bytes of the private reconstruction value input.\n In case of explicit certificate, the pr_reconstruction_value_size parameter must be set to 0.
     hsm_op_but_key_exp_flags_t flags;   //!< bitmap specifying the operation properties
     uint32_t *dest_key_identifier;       //!< pointer to identifier of the derived key to be used for the operation.\n In case of create operation the new destination key identifier will be stored in this location.
     uint8_t *output;                    //!< pointer to the output area where the public key must be written.
