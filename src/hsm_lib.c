@@ -1675,7 +1675,6 @@ hsm_err_t hsm_pub_key_recovery(hsm_hdl_t key_store_hdl, hsm_op_pub_key_recovery_
 			break;
 		}
 
-		/* Send the keys store open command to Seco. */
 		seco_fill_cmd_msg_hdr(&cmd.hdr,
 			SAB_PUB_KEY_RECOVERY_REQ,
 			(uint32_t)sizeof(struct sab_cmd_pub_key_recovery_msg));
