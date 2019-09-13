@@ -929,7 +929,8 @@ struct sab_cmd_get_info_rsp {
 struct sab_cmd_pub_key_recovery_msg {
     struct she_mu_hdr hdr;
     uint32_t key_store_handle;
-    uint32_t key_identifier;    
+    uint32_t key_identifier;
+    uint32_t out_key_addr_ext;    
     uint32_t out_key_addr;
     uint16_t out_key_size;
     uint8_t key_type;

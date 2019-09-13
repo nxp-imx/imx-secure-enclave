@@ -252,6 +252,7 @@ typedef struct {
  *
  * Explicit certificates:
  *  - f_k = expansion function value 
+ * 
  * out_key = Key  + f_k
  * \n\n
  *

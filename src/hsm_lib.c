@@ -1680,6 +1680,7 @@ hsm_err_t hsm_pub_key_recovery(hsm_hdl_t key_store_hdl, hsm_op_pub_key_recovery_
 			(uint32_t)sizeof(struct sab_cmd_pub_key_recovery_msg));
 		cmd.key_store_handle = key_store_hdl;
 		cmd.key_identifier = args->key_identifier;
+		cmd.out_key_addr_ext = 0u;
 		cmd.out_key_addr = (uint32_t)seco_os_abs_data_buf(key_store_serv_ptr->session->phdl,
 					args->out_key,
 					args->out_key_size,
