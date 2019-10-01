@@ -255,7 +255,7 @@ int32_t seco_os_abs_storage_write_chunk(struct seco_os_abs_hdl *phdl, uint8_t *s
     if ((path != NULL) && (phdl->type == MU_CHANNEL_HSM_NVM)) {
         (void)mkdir(SECO_NVM_HSM_STORAGE_CHUNK_PATH, S_IRUSR|S_IWUSR);
         n = snprintf(path, sizeof(SECO_NVM_HSM_STORAGE_CHUNK_PATH)+16u,
-                        "%s%016llx", SECO_NVM_HSM_STORAGE_CHUNK_PATH, blob_id);
+                        "%s%016lx", SECO_NVM_HSM_STORAGE_CHUNK_PATH, blob_id);
     }
 
     if (n > 0) {
@@ -282,7 +282,7 @@ int32_t seco_os_abs_storage_read_chunk(struct seco_os_abs_hdl *phdl, uint8_t *ds
 
     if ((path != NULL) && (phdl->type == MU_CHANNEL_HSM_NVM)) {
         n = snprintf(path, sizeof(SECO_NVM_HSM_STORAGE_CHUNK_PATH)+16u,
-                        "%s%016llx",SECO_NVM_HSM_STORAGE_CHUNK_PATH, blob_id);
+                        "%s%016lx",SECO_NVM_HSM_STORAGE_CHUNK_PATH, blob_id);
     }
 
     if (n > 0) {

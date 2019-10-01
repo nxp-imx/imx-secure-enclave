@@ -118,7 +118,7 @@ static struct seco_nvm_ctx *seco_nvm_open_session(uint8_t flags)
 
         seco_os_abs_memset((uint8_t *)nvm_ctx, 0u, (uint32_t)sizeof(struct seco_nvm_ctx));
 
-        /* Open the Storage session on the MU*/
+        /* Open the Storage session on the MU */
         if ((flags & NVM_FLAGS_SHE) != 0u) {
             nvm_ctx->phdl = seco_os_abs_open_mu_channel(MU_CHANNEL_SHE_NVM, &mu_params);
         } else if ((flags & NVM_FLAGS_HSM) != 0u) {
@@ -446,8 +446,10 @@ static uint32_t seco_nvm_manager_get_chunk(struct seco_nvm_ctx *nvm_ctx, struct 
 
         /* Wait for the message from SECO indicating that the data are no more in use. */
         len = seco_os_abs_read_mu_message(nvm_ctx->phdl, (uint32_t *)&finish_msg, (uint32_t)sizeof(struct sab_cmd_key_store_chunk_get_done_msg));
-        if ((finish_msg.hdr.command != SAB_STORAGE_CHUNK_GET_DONE_REQ)
-            || (len != (int32_t)sizeof(struct sab_cmd_key_store_chunk_get_done_msg))) {
+        if (
+            (finish_msg.hdr.command != SAB_STORAGE_CHUNK_GET_DONE_REQ) || 
+            (len != (int32_t)sizeof(struct sab_cmd_key_store_chunk_get_done_msg))
+            ) {
             break;
         }
 
@@ -459,6 +461,11 @@ static uint32_t seco_nvm_manager_get_chunk(struct seco_nvm_ctx *nvm_ctx, struct 
         if (len != (int32_t)sizeof(struct sab_cmd_key_store_chunk_get_done_rsp)) {
             break;
         }
+
+        if (finish_msg.get_status != SAB_CHUNK_GET_STATUS_SUCCEEDED) {
+            break;
+        }
+        
         err = 0u;
 
     } while (false);
