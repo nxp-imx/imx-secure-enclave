@@ -932,63 +932,6 @@ hsm_err_t hsm_prepare_signature(hsm_hdl_t signature_gen_hdl,
 	return err;
 }
 
-hsm_err_t hsm_finalize_signature(hsm_hdl_t signature_gen_hdl,
-					op_finalize_sign_args_t *args)
-{
-	struct sab_finalize_signature_msg cmd;
-	struct sab_finalize_signature_rsp rsp;
-	int32_t error = 1;
-	struct hsm_service_hdl_s *serv_ptr;
-	hsm_err_t err = HSM_GENERAL_ERROR;
-
-	do {
-		if (args == NULL) {
-			break;
-		}
-		serv_ptr = service_hdl_to_ptr(signature_gen_hdl);
-		if (serv_ptr == NULL) {
-			err = HSM_UNKNOWN_HANDLE;
-			break;
-		}
-
-		/* Send the keys store open command to Seco. */
-		seco_fill_cmd_msg_hdr(&cmd.hdr,
-			SAB_SIGNATURE_FINALIZE_REQ,
-			(uint32_t)sizeof(struct sab_finalize_signature_msg));
-		cmd.sig_gen_hdl = signature_gen_hdl;
-		cmd.key_identifier = args->key_identifier;
-		cmd.message_addr = (uint32_t)seco_os_abs_data_buf(serv_ptr->session->phdl,
-					args->message,
-					args->message_size,
-					DATA_BUF_IS_INPUT);
-		cmd.signature_addr = (uint32_t)seco_os_abs_data_buf(serv_ptr->session->phdl,
-					args->signature,
-					args->signature_size,
-					0u);
-		cmd.message_size = args->message_size;
-		cmd.signature_size = args->signature_size;
-		cmd.flags = args->flags;
-		cmd.reserved = 0u;
-		cmd.crc = 0u;
-		cmd.crc = seco_compute_msg_crc((uint32_t*)&cmd,
-				(uint32_t)(sizeof(cmd) - sizeof(uint32_t)));
-
-		/* Send the message to Seco. */
-		error = seco_send_msg_and_get_resp(serv_ptr->session->phdl,
-			(uint32_t *)&cmd,
-			(uint32_t)sizeof(struct sab_finalize_signature_msg),
-			(uint32_t *)&rsp,
-			(uint32_t)sizeof(struct sab_finalize_signature_rsp));
-		if (error != 0) {
-			break;
-		}
-
-		err = sab_rating_to_hsm_err(rsp.rsp_code);
-	} while(false);
-
-	return err;
-}
-
 hsm_err_t hsm_open_signature_verification_service(hsm_hdl_t session_hdl,
 						open_svc_sign_ver_args_t *args,
 						hsm_hdl_t *signature_ver_hdl)

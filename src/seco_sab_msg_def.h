@@ -58,7 +58,6 @@
 #define SAB_SIGNATURE_GENERATION_CLOSE_REQ      0x71u
 #define SAB_SIGNATURE_GENERATE_REQ              0x72u
 #define SAB_SIGNATURE_PREPARE_REQ               0x73u
-#define SAB_SIGNATURE_FINALIZE_REQ              0x74u
 
 #define SAB_SIGNATURE_VERIFICATION_OPEN_REQ     0x80u
 #define SAB_SIGNATURE_VERIFICATION_CLOSE_REQ    0x81u
@@ -701,24 +700,6 @@ struct sab_prepare_signature_msg {
 };
 
 struct sab_prepare_signature_rsp {
-    struct she_mu_hdr hdr;
-    uint32_t rsp_code;
-};
-
-struct sab_finalize_signature_msg {
-    struct she_mu_hdr hdr;
-    uint32_t sig_gen_hdl;
-    uint32_t key_identifier;
-    uint32_t message_addr;
-    uint32_t signature_addr;
-    uint32_t message_size;
-    uint16_t signature_size;
-    uint8_t flags;
-    uint8_t reserved;
-    uint32_t crc;
-};
-
-struct sab_finalize_signature_rsp {
     struct she_mu_hdr hdr;
     uint32_t rsp_code;
 };

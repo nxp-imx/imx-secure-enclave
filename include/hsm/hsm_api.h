@@ -247,7 +247,7 @@ typedef struct {
 
 /**
  * This command is designed to perform the butterfly key expansion operation on an ECC private key in case of implicit and explicit certificates. Optionally the resulting public key is exported.\n
- * The result of the key expansion function f_k is calculated outside the HSM and passed as input. The expansion function is defined as f_k = f_k_int mod l \n
+ * The result of the key expansion function f_k is calculated outside the HSM and passed as input. The expansion function is defined as f_k = f_k_int mod l , where where l is the order of the group of points on the curve.\n
  * User can call this function only after having opened a key management service flow. \n\n
  *
  * Explicit certificates:
@@ -456,9 +456,9 @@ typedef struct {
 
 /**
  * Prepare the creation of a signature by pre-calculating the operations having not dependencies on the input message.\n
- * The pre-calculated value will be stored internally and used to the next call of hsm_generate_signature_finalize \n
+ * The pre-calculated value will be stored internally and used once call hsm_generate_signature \n
  * User can call this function only after having opened a signature generation service flow\n
- * The signature S=(r,s) is stored in the format r||s||Ry where Ry is an additional byte containing the lsb of y, Ry has to be considered valid only if the HSM_OP_FINALIZE_SIGN_COMPRESSED_POINT is set.
+ * The signature S=(r,s) is stored in the format r||s||Ry where Ry is an additional byte containing the lsb of y, Ry has to be considered valid only if the HSM_OP_PREPARE_SIGN_COMPRESSED_POINT is set.
  *
  * \param signature_gen_hdl handle identifying the signature generation service flow
  * \param args pointer to the structure containing the function arugments.
@@ -466,32 +466,9 @@ typedef struct {
  * \return error code
  */
 hsm_err_t hsm_prepare_signature(hsm_hdl_t signature_gen_hdl, op_prepare_sign_args_t *args);
-
-
-typedef uint8_t hsm_op_finalize_sign_flags_t;
-typedef struct {
-    uint32_t key_identifier;                    //!< identifier of the key to be used for the operation
-    uint8_t *message;                           //!< pointer to the input (message or message digest) to be signed
-    uint8_t *signature;                         //!< pointer to the output area where the signature must be stored. The signature S=(r,s) is stored in the format r||s||Ry where Ry is an additional byte containing the lsb of y, Ry has to be considered valid only if the HSM_OP_FINALIZE_SIGN_COMPRESSED_POINT is set.
-    uint32_t message_size;                      //!< length in bytes of the input
-    uint16_t signature_size;                    //!< length in bytes of the output
-    hsm_op_finalize_sign_flags_t flags;         //!< bitmap specifying the operation attributes
-    uint8_t reserved;
-} op_finalize_sign_args_t;
-
-/**
- * Finalize the computation of a digital signature\n
- * User can call this function only after having called the hsm_prepare_signature API.
- *
- * \param signature_gen_hdl handle identifying the signature generation service flow
- * \param args pointer to the structure containing the function arugments.
- *
- * \return error code
- */
-hsm_err_t hsm_finalize_signature(hsm_hdl_t signature_gen_hdl, op_finalize_sign_args_t *args);
-#define HSM_OP_FINALIZE_SIGN_INPUT_DIGEST           ((hsm_op_finalize_sign_flags_t)(0 << 0))
-#define HSM_OP_FINALIZE_SIGN_INPUT_MESSAGE          ((hsm_op_finalize_sign_flags_t)(1 << 0))
-#define HSM_OP_FINALIZE_SIGN_COMPRESSED_POINT       ((hsm_op_finalize_sign_flags_t)(1 << 1))
+#define HSM_OP_PREPARE_SIGN_INPUT_DIGEST           ((hsm_op_prepare_signature_flags_t)(0 << 0))
+#define HSM_OP_PREPARE_SIGN_INPUT_MESSAGE          ((hsm_op_prepare_signature_flags_t)(1 << 0))
+#define HSM_OP_PREPARE_SIGN_COMPRESSED_POINT       ((hsm_op_prepare_signature_flags_t)(1 << 1))
 /** @} end of signature generation service flow */
 
 /**
