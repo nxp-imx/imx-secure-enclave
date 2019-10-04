@@ -114,7 +114,6 @@ typedef struct {
 hsm_err_t hsm_open_key_store_service(hsm_hdl_t session_hdl, open_svc_key_store_args_t *args, hsm_hdl_t *key_store_hdl);
 #define HSM_SVC_KEY_STORE_FLAGS_CREATE ((hsm_svc_key_store_flags_t)(1 << 0)) //!< It must be specified to create a new key store
 #define HSM_SVC_KEY_STORE_FLAGS_UPDATE ((hsm_svc_key_store_flags_t)(1 << 2)) //!< It must be specified in order to open a key management service flow
-#define HSM_SVC_KEY_STORE_FLAGS_DELETE ((hsm_svc_key_store_flags_t)(1 << 3)) //!< It must be specified to delete an existing key store
 /**
  * Close a previously opened key store service flow.\n
  *
@@ -151,16 +150,16 @@ typedef struct {
 hsm_err_t hsm_open_key_management_service(hsm_hdl_t key_store_hdl, open_svc_key_management_args_t *args, hsm_hdl_t *key_management_hdl);
 
 typedef uint8_t hsm_op_key_gen_flags_t;
-typedef uint8_t hsm_key_type_ext_t;
 typedef uint8_t hsm_key_type_t;
 typedef uint16_t hsm_key_info_t;
+typedef uint16_t hsm_key_group_t;
+
 typedef struct {
     uint32_t *key_identifier;           //!< pointer to the identifier of the key to be used for the operation.\n In case of create operation the new key identifier will be stored in this location.
     uint16_t out_size;                  //!< length in bytes of the generated key. It must be 0 in case of symetric keys.
     hsm_op_key_gen_flags_t flags;       //!< bitmap specifying the operation properties.
-    uint8_t reserved;
     hsm_key_type_t key_type;            //!< indicates which type of key must be generated.
-    hsm_key_type_ext_t key_type_ext;    //!< it must be 0
+    hsm_key_group_t key_group;          //!< it must a value in the range 0-1023
     hsm_key_info_t key_info;            //!< bitmap specifying the properties of the key.
     uint8_t *out_key;                   //!< pointer to the output area where the generated public key must be written
 } op_generate_key_args_t;
@@ -189,12 +188,13 @@ hsm_err_t hsm_generate_key(hsm_hdl_t key_management_hdl, op_generate_key_args_t 
 #define HSM_KEY_TYPE_AES_192                                ((hsm_key_type_t)0x31)
 #define HSM_KEY_TYPE_AES_256                                ((hsm_key_type_t)0x32)
 #define HSM_OP_KEY_GENERATION_FLAGS_UPDATE                  ((hsm_op_key_gen_flags_t)(1 << 0))  //!< User can replace an existing key only by generating a key with the same type of the original one.
-#define HSM_OP_KEY_GENERATION_FLAGS_CREATE_PERSISTENT       ((hsm_op_key_gen_flags_t)(1 << 1))  //!< Persistent keys are saved in the non volatile memory.
-#define HSM_OP_KEY_GENERATION_FLAGS_CREATE_TRANSIENT        ((hsm_op_key_gen_flags_t)(1 << 2))  //!< Transient keys are deleted when the corresponding key store service flow is closed.
+#define HSM_OP_KEY_GENERATION_FLAGS_CREATE                  ((hsm_op_key_gen_flags_t)(1 << 1))  //!< Create a new key.
+#define HSM_OP_KEY_GENERATION_FLAGS_KEY_GROUP_LOCK          ((hsm_op_key_gen_flags_t)(1 << 2))  //!< Lock the key_group. The keys being part of the key group will be cached in the HSM local memory.
 #define HSM_OP_KEY_GENERATION_FLAGS_STRICT_OPERATION        ((hsm_op_key_gen_flags_t)(1 << 7))  //!< The request is completed only when the new key has been written in the NVM. This applicable for persistent key only.
-#define HSM_KEY_INFO_PERMANENT                              ((hsm_key_info_t)(1 << 0))          //!< When set, the key is permanent. Once created, it will not be possible to update or delete the key anymore. This bit can never be reset.
 
-
+#define HSM_KEY_INFO_PERMANENT                              ((hsm_key_info_t)(1 << 0))          //!< When set, the key is permanent. Once created, it will not be possible to update or delete the key anymore. Transient keys will be anyway delated each PoR or when the corresponding key store service flow is closed. This bit can never be reset.
+#define HSM_KEY_INFO_TRANSIENT                              ((hsm_key_info_t)(1 << 1))          //!< Transient keys are deleted when the corresponding key store service flow is closed. Transient key cannot be in the same key group than persistent keys.
+#define HSM_KEY_INFO_MASTER                                 ((hsm_key_info_t)(1 << 2))          //!< When set, the key is considered as a master key. Only master keys can be used as input of key derivation functions (i.e butterfly key expansion)
 typedef uint8_t hsm_op_manage_key_flags_t;
 typedef struct {
     uint32_t *key_identifier;           //!< pointer to the identifier of the key to be used for the operation.\n In case of create operation the new key identifier will be stored in this location.
@@ -202,7 +202,7 @@ typedef struct {
     hsm_op_manage_key_flags_t flags;    //!< bitmap specifying the operation properties.
     uint8_t reserved;
     hsm_key_type_t key_type;            //!< indicates the type of the key to be managed.
-    hsm_key_type_ext_t key_type_ext;
+    uint8_t reserved_1;
     hsm_key_info_t key_info;            //!< bitmap specifying the properties of the key, in case of update operation it it will replace the existing value. Not checked in case of delete operation.
     uint8_t *input_key;                 //!< pointer to the key to be imported. Not checked in case of delete operation.
 } op_manage_key_args_t;
@@ -271,6 +271,7 @@ typedef struct {
 hsm_err_t hsm_butterfly_key_expansion(hsm_hdl_t key_management_hdl, op_butt_key_exp_args_t *args);
 #define HSM_OP_BUTTERFLY_KEY_FLAGS_IMPLICIT_CERTIF       ((hsm_op_but_key_exp_flags_t)(0 << 2))   //!< butterfly key expansion using implicit certificate.
 #define HSM_OP_BUTTERFLY_KEY_FLAGS_EXPLICIT_CERTIF       ((hsm_op_but_key_exp_flags_t)(1 << 2))   //!< butterfly key expansion using explicit certificate.
+#define HSM_OP_BUTTERFLY_KEY_FLAGS_STRICT_OPERATION      ((hsm_op_but_key_exp_flags_t)(1 << 7))   //!< The request is completed only when the new key has been written in the NVM. This applicable for persistent key only.
 
 /**
  * Terminate a previously opened key management service flow

@@ -376,9 +376,8 @@ hsm_err_t hsm_generate_key(hsm_hdl_t key_management_hdl,
 		cmd.key_identifier = *(args->key_identifier);
 		cmd.out_size = args->out_size;
 		cmd.flags = args->flags;
-		cmd.rsv = 0u;
 		cmd.key_type = args->key_type;
-		cmd.key_type_ext = args->key_type_ext;
+		cmd.key_group = args->key_group;
  		cmd.key_info = args->key_info;
  		cmd.out_key_addr = (uint32_t)seco_os_abs_data_buf(serv_ptr->session->phdl,
 				args->out_key,
@@ -433,11 +432,11 @@ hsm_err_t hsm_manage_key(hsm_hdl_t key_management_hdl,
 		cmd.key_identifier = *(args->key_identifier);
 		cmd.input_size = args->input_size;
 		cmd.flags = args->flags;
-		cmd.rsv = 0u;
+		cmd.rsv = 0;
 		cmd.key_type = args->key_type;
-		cmd.key_type_ext = args->key_type_ext;
+		cmd.rsv_1 = 0;
  		cmd.key_info = args->key_info;
- 		cmd.input_key_addr = (uint32_t)seco_os_abs_data_buf(serv_ptr->session->phdl,
+		cmd.input_key_addr = (uint32_t)seco_os_abs_data_buf(serv_ptr->session->phdl,
 				args->input_key,
 				args->input_size,
 				DATA_BUF_IS_INPUT);

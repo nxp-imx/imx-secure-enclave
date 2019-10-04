@@ -479,9 +479,8 @@ struct sab_cmd_generate_key_msg {
     uint32_t key_identifier;
     uint16_t out_size;
     uint8_t flags;
-    uint8_t rsv;
     uint8_t key_type;
-    uint8_t key_type_ext;
+    uint16_t key_group;
     uint16_t key_info;
     uint32_t out_key_addr;
     uint32_t crc;
@@ -501,7 +500,7 @@ struct sab_cmd_manage_key_msg {
     uint8_t flags;
     uint8_t rsv;
     uint8_t key_type;
-    uint8_t key_type_ext;
+    uint8_t rsv_1;
     uint16_t key_info;
     uint32_t input_key_addr;
     uint32_t crc;
