@@ -51,8 +51,8 @@ static char SECO_MU_HSM_PATH[] = "/dev/seco_mu2_ch0";
 static char SECO_MU_HSM_NVM_PATH[] = "/dev/seco_mu2_ch1";
 
 static char SECO_NVM_SHE_STORAGE_FILE[] = "/etc/seco_she_nvm";
-static char SECO_NVM_HSM_STORAGE_FILE[] = "/etc/seco_hsm_nvm_master";
-static char SECO_NVM_HSM_STORAGE_CHUNK_PATH[] = "/etc/seco_hsm_nvm_chunks/";
+static char SECO_NVM_HSM_STORAGE_FILE[] = "/etc/seco_hsm/seco_nvm_master";
+static char SECO_NVM_HSM_STORAGE_CHUNK_PATH[] = "/etc/seco_hsm/";
 
 /* Open a SHE session and returns a pointer to the handle or NULL in case of error.
  * Here it consists in opening the decicated seco MU device file.
@@ -198,7 +198,6 @@ int32_t seco_os_abs_storage_write(struct seco_os_abs_hdl *phdl, uint8_t *src, ui
         path = NULL;
         break;
     }
-
     if (path != NULL) {
         /* Open or create the file with access reserved to the current user. */
         fd = open(path, O_CREAT|O_WRONLY|O_SYNC, S_IRUSR|S_IWUSR);
@@ -257,7 +256,6 @@ int32_t seco_os_abs_storage_write_chunk(struct seco_os_abs_hdl *phdl, uint8_t *s
         n = snprintf(path, sizeof(SECO_NVM_HSM_STORAGE_CHUNK_PATH)+16u,
                         "%s%016lx", SECO_NVM_HSM_STORAGE_CHUNK_PATH, blob_id);
     }
-
     if (n > 0) {
         /* Open or create the file with access reserved to the current user. */
         fd = open(path, O_CREAT|O_WRONLY|O_SYNC, S_IRUSR|S_IWUSR);
@@ -284,6 +282,7 @@ int32_t seco_os_abs_storage_read_chunk(struct seco_os_abs_hdl *phdl, uint8_t *ds
         n = snprintf(path, sizeof(SECO_NVM_HSM_STORAGE_CHUNK_PATH)+16u,
                         "%s%016lx",SECO_NVM_HSM_STORAGE_CHUNK_PATH, blob_id);
     }
+
 
     if (n > 0) {
         /* Open the file as read only. */
