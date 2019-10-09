@@ -113,6 +113,8 @@ typedef struct {
  */
 hsm_err_t hsm_open_key_store_service(hsm_hdl_t session_hdl, open_svc_key_store_args_t *args, hsm_hdl_t *key_store_hdl);
 #define HSM_SVC_KEY_STORE_FLAGS_CREATE ((hsm_svc_key_store_flags_t)(1 << 0)) //!< It must be specified to create a new key store
+#define HSM_SVC_KEY_STORE_FLAGS_UPDATE ((hsm_svc_key_store_flags_t)(1 << 2)) //!< Not supported - It must be specified in order to open a key management service flow
+#define HSM_SVC_KEY_STORE_FLAGS_DELETE ((hsm_svc_key_store_flags_t)(1 << 3)) //!< Not supported - It must be specified to delete an existing key store
 /**
  * Close a previously opened key store service flow.\n
  *
@@ -158,7 +160,7 @@ typedef struct {
     uint16_t out_size;                  //!< length in bytes of the generated key. It must be 0 in case of symetric keys.
     hsm_op_key_gen_flags_t flags;       //!< bitmap specifying the operation properties.
     hsm_key_type_t key_type;            //!< indicates which type of key must be generated.
-    hsm_key_group_t key_group;          //!< it must be a value in the range 0-1023
+    hsm_key_group_t key_group;          //!< Key group of the generated key, only needed in case of create operation. it must be a value in the range 0-1023. Keys belonging to the same group can be cached in the HSM local memory throug the ham_manage_key_group API
     hsm_key_info_t key_info;            //!< bitmap specifying the properties of the key.
     uint8_t *out_key;                   //!< pointer to the output area where the generated public key must be written
 } op_generate_key_args_t;
@@ -174,18 +176,18 @@ typedef struct {
  * \return error code
  */
 hsm_err_t hsm_generate_key(hsm_hdl_t key_management_hdl, op_generate_key_args_t *args);
-#define HSM_KEY_TYPE_ECDSA_NIST_P224                        ((hsm_key_type_t)0x01)
+#define HSM_KEY_TYPE_ECDSA_NIST_P224                        ((hsm_key_type_t)0x01)              //!< not supported
 #define HSM_KEY_TYPE_ECDSA_NIST_P256                        ((hsm_key_type_t)0x02)
 #define HSM_KEY_TYPE_ECDSA_NIST_P384                        ((hsm_key_type_t)0x03)
-#define HSM_KEY_TYPE_ECDSA_BRAINPOOL_R1_224                 ((hsm_key_type_t)0x12)
+#define HSM_KEY_TYPE_ECDSA_BRAINPOOL_R1_224                 ((hsm_key_type_t)0x12)              //!< not supported
 #define HSM_KEY_TYPE_ECDSA_BRAINPOOL_R1_256                 ((hsm_key_type_t)0x13)
 #define HSM_KEY_TYPE_ECDSA_BRAINPOOL_R1_384                 ((hsm_key_type_t)0x15)
-#define HSM_KEY_TYPE_ECDSA_BRAINPOOL_T1_224                 ((hsm_key_type_t)0x22)
-#define HSM_KEY_TYPE_ECDSA_BRAINPOOL_T1_256                 ((hsm_key_type_t)0x23)
-#define HSM_KEY_TYPE_ECDSA_BRAINPOOL_T1_384                 ((hsm_key_type_t)0x25)
+#define HSM_KEY_TYPE_ECDSA_BRAINPOOL_T1_224                 ((hsm_key_type_t)0x22)              //!< not supported
+#define HSM_KEY_TYPE_ECDSA_BRAINPOOL_T1_256                 ((hsm_key_type_t)0x23)              //!< not supported
+#define HSM_KEY_TYPE_ECDSA_BRAINPOOL_T1_384                 ((hsm_key_type_t)0x25)              //!< not supported
 #define HSM_KEY_TYPE_AES_128                                ((hsm_key_type_t)0x30)
-#define HSM_KEY_TYPE_AES_192                                ((hsm_key_type_t)0x31)
-#define HSM_KEY_TYPE_AES_256                                ((hsm_key_type_t)0x32)
+#define HSM_KEY_TYPE_AES_192                                ((hsm_key_type_t)0x31)              //!< not supported
+#define HSM_KEY_TYPE_AES_256                                ((hsm_key_type_t)0x32)              //!< not supported
 #define HSM_OP_KEY_GENERATION_FLAGS_UPDATE                  ((hsm_op_key_gen_flags_t)(1 << 0))  //!< User can replace an existing key only by generating a key with the same type of the original one.
 #define HSM_OP_KEY_GENERATION_FLAGS_CREATE                  ((hsm_op_key_gen_flags_t)(1 << 1))  //!< Create a new key.
 #define HSM_OP_KEY_GENERATION_FLAGS_STRICT_OPERATION        ((hsm_op_key_gen_flags_t)(1 << 7))  //!< The request is completed only when the new key has been written in the NVM. This applicable for persistent key only.
@@ -196,12 +198,12 @@ hsm_err_t hsm_generate_key(hsm_hdl_t key_management_hdl, op_generate_key_args_t 
 typedef uint8_t hsm_op_manage_key_flags_t;
 typedef struct {
     uint32_t *key_identifier;           //!< pointer to the identifier of the key to be used for the operation.\n In case of create operation the new key identifier will be stored in this location.
+    uint32_t kek_identifier;            //!< identifier of the key to be used to decrypt the imported key (key encryption key)
     uint16_t input_size;                //!< length in bytes of the input key area. Not checked in case of delete operation.
     hsm_op_manage_key_flags_t flags;    //!< bitmap specifying the operation properties.
-    uint8_t reserved;
     hsm_key_type_t key_type;            //!< indicates the type of the key to be managed.
-    uint8_t reserved_1;
-    hsm_key_info_t key_info;            //!< bitmap specifying the properties of the key, in case of update operation it it will replace the existing value. Not checked in case of delete operation.
+    hsm_key_group_t key_group;          //!< key group of the imported key, only relevant in case of create operation (it must be 0 otherwise). It must be a value in the range 0-1023. Keys belonging to the same group can be cached in the HSM local memory throug the ham_manage_key_group API
+    hsm_key_info_t key_info;            //!< bitmap specifying the properties of the key, in case of update operation it will replace the existing value. It must be 0 in case of delete operation.
     uint8_t *input_key;                 //!< pointer to the key to be imported. Not checked in case of delete operation.
 } op_manage_key_args_t;
 
@@ -220,10 +222,36 @@ typedef struct {
  */
 hsm_err_t hsm_manage_key(hsm_hdl_t key_management_hdl, op_manage_key_args_t *args);
 #define HSM_OP_MANAGE_KEY_FLAGS_UPDATE                  ((hsm_op_manage_key_flags_t)(1 << 0))   //!< User can replace an existing key only by importing a key with the same type of the original one.
-#define HSM_OP_MANAGE_KEY_FLAGS_CREATE_PERSISTENT       ((hsm_op_manage_key_flags_t)(1 << 1))   //!< Persistent keys are saved in the non volatile memory.
-#define HSM_OP_MANAGE_KEY_FLAGS_CREATE_TRANSIENT        ((hsm_op_manage_key_flags_t)(1 << 2))   //!< Transient keys are deleted when the corresponding key store service flow is closed.
-#define HSM_OP_MANAGE_KEY_FLAGS_DELETE                  ((hsm_op_manage_key_flags_t)(1 << 3))   //!< delete an existing key
+#define HSM_OP_MANAGE_KEY_FLAGS_CREATE                  ((hsm_op_manage_key_flags_t)(1 << 1))   //!< Create a new key id.
+#define HSM_OP_MANAGE_KEY_FLAGS_DELETE                  ((hsm_op_manage_key_flags_t)(1 << 2))   //!< delete an existing key
 #define HSM_OP_MANAGE_KEY_FLAGS_STRICT_OPERATION        ((hsm_op_manage_key_flags_t)(1 << 7))   //!< The request is completed only when the new key has been written in the NVM. This applicable for persistent key only.
+
+
+typedef uint8_t hsm_op_manage_key_group_flags_t;
+typedef struct {
+    hsm_key_group_t key_group;          //!< it must be a value in the range 0-1023. Keys belonging to the same group can be cached in the HSM local memory throug the ham_manage_key_group API
+    hsm_op_manage_key_flags_t flags;    //!< bitmap specifying the operation properties.
+    uint8_t reserved;
+} op_manage_key_group_args_t;
+
+/**
+ * This command is designed to perform the following operations:
+ *  - lock down a key group in the HSM local memory so that the keys are available to the HSM without additional latency
+ *  - un-lock a key group. HSM may export the key group into the external NVM to free up local memory as needed
+ *  - delete an existing key group
+ *
+ * User can call this function only after having opened a key management service flow
+ *
+ * \param key_management_hdl handle identifying the key management service flow.
+ * \param args pointer to the structure containing the function arugments.
+ *
+ * \return error code
+ */
+hsm_err_t hsm_manage_key_group(hsm_hdl_t key_management_hdl, op_manage_key_group_args_t *args);
+#define HSM_OP_MANAGE_KEY_GROUP_FLAGS_CACHE_LOCKDOWN          ((hsm_op_manage_key_group_flags_t)(1 << 0))   //!< The entire key group will be cached in the HSM local memory.
+#define HSM_OP_MANAGE_KEY_GROUP_FLAGS_CACHE_UNLOCK            ((hsm_op_manage_key_group_flags_t)(1 << 1))   //!< HSM may export the key group in the external NVM to free up the local memory. HSM will copy the key group in the local memory again in case of key group usage/update.
+#define HSM_OP_MANAGE_KEY_GROUP_FLAGS_DELETE                  ((hsm_op_manage_key_group_flags_t)(1 << 2))   //!< delete an existing key group
+#define HSM_OP_MANAGE_KEY_GROUP_FLAGS_STRICT_OPERATION        ((hsm_op_manage_key_group_flags_t)(1 << 7))   //!< The request is completed only when the update has been written in the NVM.
 
 
 typedef uint8_t hsm_op_but_key_exp_flags_t;
@@ -241,13 +269,13 @@ typedef struct {
     uint16_t output_size;               //!< length in bytes of the generated key, if the size is 0, no key is copied in the output.
     hsm_key_type_t key_type;            //!< indicates the type of the key to be managed.
     uint8_t reserved;
-    hsm_key_group_t key_group;          //!< Key group of the derived key. it must a value in the range 0-1023
+    hsm_key_group_t key_group;          //!< it must be a value in the range 0-1023. Keys belonging to the same group can be cached in the HSM local memory throug the ham_manage_key_group API
     hsm_key_info_t key_info;            //!< bitmap specifying the properties of the derived key.
 } op_butt_key_exp_args_t;
 
 /**
  * This command is designed to perform the butterfly key expansion operation on an ECC private key in case of implicit and explicit certificates. Optionally the resulting public key is exported.\n
- * The result of the key expansion function f_k is calculated outside the HSM and passed as input. The expansion function is defined as f_k = f_k_int mod l , where where l is the order of the group of points on the curve.\n
+ * The result of the key expansion function f_k is calculated outside the HSM and passed as input. The expansion function is defined as f_k = f_k_int mod l , where l is the order of the group of points on the curve.\n
  * User can call this function only after having opened a key management service flow. \n\n
  *
  * Explicit certificates:
@@ -436,18 +464,19 @@ typedef struct {
  * \return error code
  */
 hsm_err_t hsm_generate_signature(hsm_hdl_t signature_gen_hdl, op_generate_sign_args_t *args);
-#define HSM_SIGNATURE_SCHEME_ECDSA_NIST_P224_SHA_256            ((hsm_signature_scheme_id_t)0x01)
+#define HSM_SIGNATURE_SCHEME_ECDSA_NIST_P224_SHA_256            ((hsm_signature_scheme_id_t)0x01)              //!< not supported
 #define HSM_SIGNATURE_SCHEME_ECDSA_NIST_P256_SHA_256            ((hsm_signature_scheme_id_t)0x02)
 #define HSM_SIGNATURE_SCHEME_ECDSA_NIST_P384_SHA_384            ((hsm_signature_scheme_id_t)0x03)
-#define HSM_SIGNATURE_SCHEME_ECDSA_BRAINPOOL_R1_224_SHA_256     ((hsm_signature_scheme_id_t)0x12)
+#define HSM_SIGNATURE_SCHEME_ECDSA_BRAINPOOL_R1_224_SHA_256     ((hsm_signature_scheme_id_t)0x12)              //!< not supported
 #define HSM_SIGNATURE_SCHEME_ECDSA_BRAINPOOL_R1_256_SHA_256     ((hsm_signature_scheme_id_t)0x13)
 #define HSM_SIGNATURE_SCHEME_ECDSA_BRAINPOOL_R1_384_SHA_384     ((hsm_signature_scheme_id_t)0x15)
-#define HSM_SIGNATURE_SCHEME_ECDSA_BRAINPOOL_T1_224_SHA_256     ((hsm_signature_scheme_id_t)0x22)
-#define HSM_SIGNATURE_SCHEME_ECDSA_BRAINPOOL_T1_256_SHA_256     ((hsm_signature_scheme_id_t)0x23)
-#define HSM_SIGNATURE_SCHEME_ECDSA_BRAINPOOL_T1_384_SHA_384     ((hsm_signature_scheme_id_t)0x25)
+#define HSM_SIGNATURE_SCHEME_ECDSA_BRAINPOOL_T1_224_SHA_256     ((hsm_signature_scheme_id_t)0x22)              //!< not supported
+#define HSM_SIGNATURE_SCHEME_ECDSA_BRAINPOOL_T1_256_SHA_256     ((hsm_signature_scheme_id_t)0x23)              //!< not supported
+#define HSM_SIGNATURE_SCHEME_ECDSA_BRAINPOOL_T1_384_SHA_384     ((hsm_signature_scheme_id_t)0x25)              //!< not supported
 #define HSM_OP_GENERATE_SIGN_FLAGS_INPUT_DIGEST                 ((hsm_op_generate_sign_flags_t)(0 << 0))
 #define HSM_OP_GENERATE_SIGN_FLAGS_INPUT_MESSAGE                ((hsm_op_generate_sign_flags_t)(1 << 0))
 #define HSM_OP_GENERATE_SIGN_FLAGS_COMPRESSED_POINT             ((hsm_op_generate_sign_flags_t)(1 << 1))
+#define HSM_OP_GENERATE_SIGN_FLAGS_LOW_LATENCY_SIGNATURE        ((hsm_op_generate_sign_flags_t)(1 << 2))        //! HSM finalizes the signature by using the artifacts of the previously executed hsm_prepare_signature API. A complete signature generation is performed if no artifacts are available
 
 
 typedef uint8_t hsm_op_prepare_signature_flags_t;
@@ -669,7 +698,7 @@ typedef struct {
  * \return error code
  */
 hsm_err_t hsm_hash_one_go(hsm_hdl_t hash_hdl, op_hash_one_go_args_t *args);
-#define HSM_HASH_ALGO_SHA_224      ((hsm_hash_algo_t)(0x0))
+#define HSM_HASH_ALGO_SHA_224      ((hsm_hash_algo_t)(0x0))              //!< not supported
 #define HSM_HASH_ALGO_SHA_256      ((hsm_hash_algo_t)(0x1))
 #define HSM_HASH_ALGO_SHA_384      ((hsm_hash_algo_t)(0x2))
 /** @} end of hash service flow */
