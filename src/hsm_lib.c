@@ -511,6 +511,8 @@ hsm_err_t hsm_butterfly_key_expansion(hsm_hdl_t key_management_hdl,
 		cmd.output_size = args->output_size;
 		cmd.key_type = args->key_type;
 		cmd.rsv = 0u;
+		cmd.key_group = args->key_group;
+		cmd.key_info = args->key_info;
 		cmd.crc = 0u;
 		cmd.crc = seco_compute_msg_crc((uint32_t*)&cmd,
 				(uint32_t)(sizeof(cmd) - sizeof(uint32_t)));

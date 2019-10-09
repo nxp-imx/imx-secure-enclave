@@ -528,6 +528,8 @@ struct sab_cmd_butterfly_key_exp_msg {
     uint16_t output_size;
     uint8_t key_type;
     uint8_t rsv;
+    uint16_t key_group;
+    uint16_t key_info;
     uint32_t crc;
 };
 
