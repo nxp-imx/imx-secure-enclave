@@ -429,12 +429,12 @@ hsm_err_t hsm_manage_key(hsm_hdl_t key_management_hdl,
 			SAB_MANAGE_KEY_REQ,
 			(uint32_t)sizeof(struct sab_cmd_manage_key_msg));
 		cmd.key_management_handle = key_management_hdl;
-		cmd.key_identifier = *(args->key_identifier);
+		cmd.dest_key_identifier = *(args->key_identifier);
+		cmd.kek_id = args->kek_identifier;
 		cmd.input_size = args->input_size;
 		cmd.flags = args->flags;
-		cmd.rsv = 0;
 		cmd.key_type = args->key_type;
-		cmd.rsv_1 = 0;
+		cmd.key_group = args->key_group;
  		cmd.key_info = args->key_info;
 		cmd.input_key_addr = (uint32_t)seco_os_abs_data_buf(serv_ptr->session->phdl,
 				args->input_key,
