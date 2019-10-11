@@ -44,6 +44,8 @@
 #define SAB_KEY_GENERATE_REQ                    0x42u
 #define SAB_MANAGE_KEY_REQ                      0x43u
 #define SAB_BUT_KEY_EXP_REQ                     0x44u
+#define SAB_MANAGE_KEY_GROUP_REQ                0x45u
+
 
 #define SAB_MAC_OPEN_REQ                        0x50u
 #define SAB_MAC_CLOSE_REQ                       0x51u
@@ -511,6 +513,20 @@ struct sab_cmd_manage_key_rsp {
     uint32_t rsp_code;
     uint32_t key_identifier;
 };
+
+struct sab_cmd_manage_key_group_msg {
+    struct she_mu_hdr hdr;
+    uint32_t key_management_handle;
+    uint16_t key_group;
+    uint8_t flags;
+    uint8_t rsv;
+};
+
+struct sab_cmd_manage_key_group_rsp {
+    struct she_mu_hdr hdr;
+    uint32_t rsp_code;
+};
+
 
 struct sab_cmd_butterfly_key_exp_msg {
     struct she_mu_hdr hdr;

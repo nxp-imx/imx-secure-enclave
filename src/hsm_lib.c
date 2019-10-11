@@ -462,6 +462,53 @@ hsm_err_t hsm_manage_key(hsm_hdl_t key_management_hdl,
 	return err;
 }
 
+
+hsm_err_t hsm_manage_key_group(hsm_hdl_t key_management_hdl,
+				op_manage_key_group_args_t *args)
+{
+	struct sab_cmd_manage_key_group_msg cmd;
+	struct sab_cmd_manage_key_group_rsp rsp;
+	int32_t error = 1;
+	struct hsm_service_hdl_s *serv_ptr;
+	hsm_err_t err = HSM_GENERAL_ERROR;
+
+	do {
+		if (args == NULL) {
+			break;
+		}
+		serv_ptr = service_hdl_to_ptr(key_management_hdl);
+		if (serv_ptr == NULL) {
+			err = HSM_UNKNOWN_HANDLE;
+			break;
+		}
+
+		/* Send the keys store open command to Seco. */
+		seco_fill_cmd_msg_hdr(&cmd.hdr,
+			SAB_MANAGE_KEY_GROUP_REQ,
+			(uint32_t)sizeof(struct sab_cmd_manage_key_group_msg));
+		cmd.key_management_handle = key_management_hdl;
+		cmd.key_group = args->key_group;
+		cmd.flags = args->flags;
+		cmd.rsv = 0;
+
+		/* Send the message to Seco. */
+		error = seco_send_msg_and_get_resp(serv_ptr->session->phdl,
+			(uint32_t *)&cmd,
+			(uint32_t)sizeof(struct sab_cmd_manage_key_group_msg),
+			(uint32_t *)&rsp,
+			(uint32_t)sizeof(struct sab_cmd_manage_key_group_rsp));
+		if (error != 0) {
+			break;
+		}
+
+		err = sab_rating_to_hsm_err(rsp.rsp_code);
+
+	} while(false);
+
+	return err;
+}
+
+
 hsm_err_t hsm_butterfly_key_expansion(hsm_hdl_t key_management_hdl,
 					op_butt_key_exp_args_t *args)
 {
