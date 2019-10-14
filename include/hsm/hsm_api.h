@@ -230,13 +230,13 @@ hsm_err_t hsm_manage_key(hsm_hdl_t key_management_hdl, op_manage_key_args_t *arg
 typedef uint8_t hsm_op_manage_key_group_flags_t;
 typedef struct {
     hsm_key_group_t key_group;          //!< it must be a value in the range 0-1023. Keys belonging to the same group can be cached in the HSM local memory throug the ham_manage_key_group API
-    hsm_op_manage_key_flags_t flags;    //!< bitmap specifying the operation properties.
+    hsm_op_manage_key_group_flags_t flags;    //!< bitmap specifying the operation properties.
     uint8_t reserved;
 } op_manage_key_group_args_t;
 
 /**
  * This command is designed to perform the following operations:
- *  - lock down a key group in the HSM local memory so that the keys are available to the HSM without additional latency
+ *  - lock/unlock down a key group in the HSM local memory so that the keys are available to the HSM without additional latency
  *  - un-lock a key group. HSM may export the key group into the external NVM to free up local memory as needed
  *  - delete an existing key group
  *
