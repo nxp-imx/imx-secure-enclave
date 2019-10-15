@@ -192,8 +192,9 @@ hsm_err_t hsm_generate_key(hsm_hdl_t key_management_hdl, op_generate_key_args_t 
 #define HSM_OP_KEY_GENERATION_FLAGS_CREATE                  ((hsm_op_key_gen_flags_t)(1 << 1))  //!< Create a new key.
 #define HSM_OP_KEY_GENERATION_FLAGS_STRICT_OPERATION        ((hsm_op_key_gen_flags_t)(1 << 7))  //!< The request is completed only when the new key has been written in the NVM. This applicable for persistent key only.
 
-#define HSM_KEY_INFO_PERMANENT                              ((hsm_key_info_t)(1 << 0))          //!< When set, the key is permanent. Once created, it will not be possible to update or delete the key anymore. Transient keys will be anyway delated each PoR or when the corresponding key store service flow is closed. This bit can never be reset.
-#define HSM_KEY_INFO_TRANSIENT                              ((hsm_key_info_t)(1 << 1))          //!< Transient keys are deleted when the corresponding key store service flow is closed. Transient key cannot be in the same key group than persistent keys.
+#define HSM_KEY_INFO_PERMANENT                              ((hsm_key_info_t)(1 << 0))          //!< When set, the key is permanent (write locked). Once created, it will not be possible to update or delete the key anymore. Transient keys will be anyway deleted after a PoR or when the corresponding key store service flow is closed. This bit can never be reset.
+#define HSM_KEY_INFO_TRANSIENT                              ((hsm_key_info_t)(1 << 1))          //!< not supported - Transient keys are deleted when the corresponding key store service flow is closed or after a PoR. Transient keys cannot be in the same key group than persistent keys.
+#define HSM_KEY_INFO_PERSISTENT                             ((hsm_key_info_t)(0 << 1))          //!< Persistent keys are stored in the external NVM. The entire key group is written in the NVM at the next STRICT operation.
 #define HSM_KEY_INFO_MASTER                                 ((hsm_key_info_t)(1 << 2))          //!< When set, the key is considered as a master key. Only master keys can be used as input of key derivation functions (i.e butterfly key expansion)
 typedef uint8_t hsm_op_manage_key_flags_t;
 typedef struct {
