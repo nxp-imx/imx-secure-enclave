@@ -28,8 +28,9 @@
   Upon reception of the open request, the HSM allocates a context in which the session handle, as well as the provided control parameters are stored and return a handle identifying the service flow.\n
   The context is preserved until the service flow, or the session, are closed by the user and it is used by the HSM to proceed with the sub-sequent operations requested by the user on the service flow.
   \section sec3 Key store
-  The HSM handles only symmetric and private keys into the key store, the public, optionally exported during the key pair generation operation, can be recalculated through the ref group12 API.\n
-  Secret keys cannot be exported under any circumstances, while a way to import keys in encrypted form is privided.\n
+  A key store can be created by specifying the CREATE flag in the hsm_open_key_store_service API. Please note that the created key store will be not stored in the NVM till a key is generated/imported specyfing the STRICT OPERATION flag.\n
+  Only symmetric and private keys are stored into the key store. Public keys can be exported during the key pair generation operation or recalculated through the hsm_pub_key_recovery API.\n
+  Secret keys cannot be exported under any circumstances, while they can be imported in encrypted form.\n
   \subsection subsec2 Key management
   Keys are divided in groups, keys belonging to the same group are written/read from the NVM as a monolitic block.\n
   Up to 3 key groups can be handled in the HSM local memory (those immediatly available to perform crypto operation), while up to 1024 key groups can be handled in the external NVM and imported in the local memory as needed.\n
