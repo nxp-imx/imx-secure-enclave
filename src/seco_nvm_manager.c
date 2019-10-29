@@ -22,7 +22,6 @@ struct seco_nvm_ctx {
     uint32_t session_handle;
     uint32_t storage_handle;
     uint32_t blob_size;
-    struct nvm_chunk_hdr *pending_chunks;
 };
 
 struct seco_nvm_header_s {
@@ -35,7 +34,6 @@ struct nvm_chunk_hdr {
     uint64_t blob_id;
     uint32_t len;
     uint8_t *data;
-    struct nvm_chunk_hdr *next;
 };
 
 /* Storage import processing. Return 0 on success.  */
@@ -129,8 +127,6 @@ static struct seco_nvm_ctx *seco_nvm_open_session(uint8_t flags)
         if (nvm_ctx->phdl == NULL) {
             break;
         }
-        /*No pending chunks to be processed for now. */
-        nvm_ctx->pending_chunks = NULL;
 
         /* Open the SHE session on SECO side */
         err = sab_open_session_command(nvm_ctx->phdl,
@@ -262,26 +258,6 @@ static uint32_t seco_nvm_manager_export_master(struct seco_nvm_ctx *nvm_ctx, str
         }
         err = 0;
 
-        while((nvm_ctx->pending_chunks != NULL) && (err == 0u)) {
-            chunk = nvm_ctx->pending_chunks;
-            blob_hdr = (struct seco_nvm_header_s *)chunk->data;
-            blob_hdr->size = chunk->len;
-            blob_hdr->crc = seco_os_abs_crc(chunk->data + sizeof(struct seco_nvm_header_s), chunk->len);
-            blob_hdr->blob_id = chunk->blob_id;
-
-            if (seco_os_abs_storage_write_chunk(nvm_ctx->phdl, chunk->data, chunk->len , chunk->blob_id) != (int32_t)(chunk->len)) {
-                err = 1u;
-            }
-
-            nvm_ctx->pending_chunks = chunk->next;
-            seco_os_abs_free(chunk->data);
-            seco_os_abs_free(chunk);
-        }
-        if (err == 1u) {
-            /* Write failed. Notify SECO. */
-            (void)seco_nvm_export_finish_rsp(nvm_ctx, 1u);
-            break;
-        }
         /* fill header for sanity check when it will be re-loaded. */
         blob_hdr = (struct seco_nvm_header_s *)data;
         blob_hdr->size = nvm_ctx->blob_size;
@@ -312,6 +288,7 @@ static uint32_t seco_nvm_manager_export_chunk(struct seco_nvm_ctx *nvm_ctx, stru
     struct sab_cmd_key_store_chunk_export_rsp resp;
     struct sab_cmd_key_store_export_finish_msg finish_msg;
     uint64_t seco_addr;
+    struct seco_nvm_header_s *blob_hdr;
 
     do {
         /* Consistency check of message length. */
@@ -366,16 +343,18 @@ static uint32_t seco_nvm_manager_export_chunk(struct seco_nvm_ctx *nvm_ctx, stru
         }
 
         if (finish_msg.export_status == SAB_EXPORT_STATUS_SUCCESS) {
-            /*
-             * Chunk is ready for NVM write.
-             * It will be written only when SECO asks for a master blob write.
-             */
-            chunk->next = nvm_ctx->pending_chunks;
-            nvm_ctx->pending_chunks = chunk;
-        } else {
-            seco_os_abs_free(chunk->data);
-            seco_os_abs_free(chunk);
+
+            blob_hdr = (struct seco_nvm_header_s *)chunk->data;
+            blob_hdr->size = chunk->len;
+            blob_hdr->crc = seco_os_abs_crc(chunk->data + sizeof(struct seco_nvm_header_s), chunk->len);
+            blob_hdr->blob_id = chunk->blob_id;
+
+            if (seco_os_abs_storage_write_chunk(nvm_ctx->phdl, chunk->data, chunk->len , chunk->blob_id) != (int32_t)(chunk->len)) {
+                err = 1u;
+            }
         }
+        seco_os_abs_free(chunk->data);
+        seco_os_abs_free(chunk);
 
         /* Send success to SECO. */
         (void)seco_nvm_export_finish_rsp(nvm_ctx, 0);
