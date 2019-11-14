@@ -398,7 +398,9 @@ hsm_err_t hsm_generate_key(hsm_hdl_t key_management_hdl,
 		}
 
 		err = sab_rating_to_hsm_err(rsp.rsp_code);
-		*(args->key_identifier) = rsp.key_identifier;
+		if (cmd.flags & HSM_OP_KEY_GENERATION_FLAGS_CREATE) {
+			*(args->key_identifier) = rsp.key_identifier;
+		}
 
 	} while(false);
 
@@ -455,7 +457,9 @@ hsm_err_t hsm_manage_key(hsm_hdl_t key_management_hdl,
 		}
 
 		err = sab_rating_to_hsm_err(rsp.rsp_code);
-		*(args->key_identifier) = rsp.key_identifier;
+		if (cmd.flags & HSM_OP_MANAGE_KEY_FLAGS_CREATE) {
+			*(args->key_identifier) = rsp.key_identifier;
+		}
 
 	} while(false);
 
