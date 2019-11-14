@@ -477,7 +477,7 @@ hsm_err_t hsm_generate_signature(hsm_hdl_t signature_gen_hdl, op_generate_sign_a
 #define HSM_OP_GENERATE_SIGN_FLAGS_INPUT_DIGEST                 ((hsm_op_generate_sign_flags_t)(0 << 0))
 #define HSM_OP_GENERATE_SIGN_FLAGS_INPUT_MESSAGE                ((hsm_op_generate_sign_flags_t)(1 << 0))
 #define HSM_OP_GENERATE_SIGN_FLAGS_COMPRESSED_POINT             ((hsm_op_generate_sign_flags_t)(1 << 1))
-#define HSM_OP_GENERATE_SIGN_FLAGS_LOW_LATENCY_SIGNATURE        ((hsm_op_generate_sign_flags_t)(1 << 2))        //! HSM finalizes the signature by using the artifacts of the previously executed hsm_prepare_signature API. The API fails if no artifacts are available
+#define HSM_OP_GENERATE_SIGN_FLAGS_LOW_LATENCY_SIGNATURE        ((hsm_op_generate_sign_flags_t)(1 << 2))        //! HSM finalizes the signature by using the artifacts of the previously executed hsm_prepare_signature API. The API fails if no artifacts related to the requested scheme id are available
 
 
 typedef uint8_t hsm_op_prepare_signature_flags_t;
