@@ -70,6 +70,10 @@
 #define SAB_HASH_CLOSE_REQ                      0x91u
 #define SAB_HASH_ONE_GO_REQ                     0x92u
 
+#define SAB_DATA_STORAGE_OPEN_REQ               0xA0u
+#define SAB_DATA_STORAGE_CLOSE_REQ              0xA1u
+#define SAB_DATA_STORAGE_REQ                    0xA2u
+
 #define SAB_STORAGE_OPEN_REQ                    0xE0u
 #define SAB_STORAGE_CLOSE_REQ                   0xE1u
 #define SAB_STORAGE_MASTER_IMPORT_REQ           0xE2u
@@ -937,6 +941,48 @@ struct sab_cmd_pub_key_recovery_msg {
 };
 
 struct sab_cmd_pub_key_recovery_rsp {
+    struct she_mu_hdr hdr;
+    uint32_t rsp_code;
+};
+
+struct sab_cmd_data_storage_open_msg{
+    struct she_mu_hdr hdr;
+    uint32_t key_store_handle;
+    uint32_t input_address_ext;
+    uint32_t output_address_ext;
+    uint8_t flags;
+    uint8_t rsv[3];
+    uint32_t crc;
+};
+
+struct sab_cmd_data_storage_open_rsp {
+    struct she_mu_hdr hdr;
+    uint32_t rsp_code;
+    uint32_t data_storage_handle;
+};
+
+struct sab_cmd_data_storage_close_msg{
+    struct she_mu_hdr hdr;
+    uint32_t data_storage_handle;
+};
+
+struct sab_cmd_data_storage_close_rsp {
+    struct she_mu_hdr hdr;
+    uint32_t rsp_code;
+};
+
+struct sab_cmd_data_storage_msg {
+    struct she_mu_hdr hdr;
+    uint32_t data_storage_handle;
+    uint32_t data_address;
+    uint32_t data_size;
+    uint16_t data_id;
+    uint8_t flags;
+    uint8_t rsv;
+    uint32_t crc;
+};
+
+struct sab_cmd_data_storage_rsp {
     struct she_mu_hdr hdr;
     uint32_t rsp_code;
 };

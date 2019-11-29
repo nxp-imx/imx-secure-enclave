@@ -1702,3 +1702,155 @@ hsm_err_t hsm_pub_key_recovery(hsm_hdl_t key_store_hdl, hsm_op_pub_key_recovery_
 
 	return err;
 }
+
+hsm_err_t hsm_open_data_storage_service(hsm_hdl_t key_store_hdl,
+					open_svc_data_storage_args_t *args,
+					hsm_hdl_t *data_storage_hdl)
+{
+	struct sab_cmd_data_storage_open_msg cmd;
+	struct sab_cmd_data_storage_open_rsp rsp;
+	struct hsm_service_hdl_s *key_store_serv_ptr;
+	struct hsm_service_hdl_s *data_storage_serv_ptr;
+	int32_t error = 1;
+	hsm_err_t err = HSM_GENERAL_ERROR;
+
+	do {
+		if ((args == NULL) || (data_storage_hdl == NULL)) {
+			break;
+		}
+		key_store_serv_ptr = service_hdl_to_ptr(key_store_hdl);
+		if (key_store_serv_ptr == NULL) {
+			err = HSM_UNKNOWN_HANDLE;
+			break;
+		}
+
+		data_storage_serv_ptr = add_service(key_store_serv_ptr->session);
+		if (data_storage_serv_ptr == NULL) {
+			break;
+		}
+
+		seco_fill_cmd_msg_hdr(&cmd.hdr,
+			SAB_DATA_STORAGE_OPEN_REQ,
+			(uint32_t)sizeof(struct sab_cmd_data_storage_open_msg));
+		cmd.key_store_handle = key_store_hdl;
+		cmd.input_address_ext = 0u;
+		cmd.output_address_ext = 0u;
+		cmd.flags = args->flags;
+		cmd.rsv[0] = 0u;
+		cmd.rsv[1] = 0u;
+		cmd.rsv[2] = 0u;
+		cmd.crc = 0u;
+		cmd.crc = seco_compute_msg_crc((uint32_t*)&cmd,
+				(uint32_t)(sizeof(cmd) - sizeof(uint32_t)));
+
+		error = seco_send_msg_and_get_resp(data_storage_serv_ptr->session->phdl,
+			(uint32_t *)&cmd,
+			(uint32_t)sizeof(struct sab_cmd_data_storage_open_msg),
+			(uint32_t *)&rsp,
+			(uint32_t)sizeof(struct sab_cmd_data_storage_open_rsp));
+		if (error != 0) {
+			delete_service(data_storage_serv_ptr);
+			break;
+		}
+
+		err = sab_rating_to_hsm_err(rsp.rsp_code);
+		if (err != HSM_NO_ERROR) {
+			delete_service(data_storage_serv_ptr);
+			break;
+		}
+
+		data_storage_serv_ptr->service_hdl = rsp.data_storage_handle;
+		*data_storage_hdl = rsp.data_storage_handle;
+	} while (false);
+
+	return err;
+}
+
+hsm_err_t hsm_close_data_storage_service(hsm_hdl_t data_storage_hdl)
+{
+	struct sab_cmd_data_storage_close_msg cmd;
+	struct sab_cmd_data_storage_close_rsp rsp;
+	struct hsm_service_hdl_s *serv_ptr;
+	int32_t error = 1;
+	hsm_err_t err = HSM_GENERAL_ERROR;
+
+	do {
+		serv_ptr = service_hdl_to_ptr(data_storage_hdl);
+		if (serv_ptr == NULL) {
+			err = HSM_UNKNOWN_HANDLE;
+			break;
+		}
+
+		seco_fill_cmd_msg_hdr(&cmd.hdr,
+			SAB_DATA_STORAGE_CLOSE_REQ,
+			(uint32_t)sizeof(struct sab_cmd_data_storage_close_msg));
+		cmd.data_storage_handle = data_storage_hdl;
+
+
+		error = seco_send_msg_and_get_resp(serv_ptr->session->phdl,
+			(uint32_t *)&cmd,
+			(uint32_t)sizeof(struct sab_cmd_data_storage_close_msg),
+			(uint32_t *)&rsp,
+			(uint32_t)sizeof(struct sab_cmd_data_storage_close_rsp));
+		if (error == 0) {
+			err = sab_rating_to_hsm_err(rsp.rsp_code);
+		}
+
+		delete_service(serv_ptr);
+	} while (false);
+
+	return err;
+}
+
+hsm_err_t hsm_data_storage(hsm_hdl_t data_storage_hdl,
+				op_data_storage_args_t *args)
+{
+	struct sab_cmd_data_storage_msg cmd;
+	struct sab_cmd_data_storage_rsp rsp;
+	int32_t error = 1;
+	struct hsm_service_hdl_s *serv_ptr;
+	hsm_err_t err = HSM_GENERAL_ERROR;
+
+	do {
+		if (args == NULL) {
+			break;
+		}
+		serv_ptr = service_hdl_to_ptr(data_storage_hdl);
+		if (serv_ptr == NULL) {
+			err = HSM_UNKNOWN_HANDLE;
+			break;
+		}
+
+		/* Send the data storage command to Seco. */
+		seco_fill_cmd_msg_hdr(&cmd.hdr,
+			SAB_DATA_STORAGE_REQ,
+			(uint32_t)sizeof(struct sab_cmd_data_storage_msg));
+		cmd.data_storage_handle = data_storage_hdl;
+		cmd.data_address = (uint32_t)seco_os_abs_data_buf(serv_ptr->session->phdl,
+					args->data,
+					args->data_size,
+					((args->flags & HSM_OP_DATA_STORAGE_FLAGS_STORE)? DATA_BUF_IS_INPUT : 0));
+		cmd.data_size = args->data_size;
+		cmd.data_id = args->data_id;
+		cmd.flags = args->flags;
+		cmd.rsv = 0u;
+ 		cmd.crc = 0u;
+		cmd.crc = seco_compute_msg_crc((uint32_t*)&cmd,
+				(uint32_t)(sizeof(cmd) - sizeof(uint32_t)));
+
+		/* Send the message to Seco. */
+		error = seco_send_msg_and_get_resp(serv_ptr->session->phdl,
+			(uint32_t *)&cmd,
+			(uint32_t)sizeof(struct sab_cmd_data_storage_msg),
+			(uint32_t *)&rsp,
+			(uint32_t)sizeof(struct sab_cmd_data_storage_rsp));
+		if (error != 0) {
+			break;
+		}
+
+		err = sab_rating_to_hsm_err(rsp.rsp_code);
+
+	} while(false);
+
+	return err;
+}

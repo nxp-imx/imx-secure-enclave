@@ -825,6 +825,60 @@ typedef struct {
 hsm_err_t hsm_pub_key_recovery(hsm_hdl_t key_store_hdl, hsm_op_pub_key_recovery_args_t *args);
 /** @} end of Public key recovery operation */
 
+/**
+ *  @defgroup group13 Data storage
+ * @{
+ */
+
+typedef uint8_t hsm_svc_data_storage_flags_t;
+typedef struct {
+    hsm_svc_data_storage_flags_t flags;   //!< bitmap specifying the services properties.
+    uint8_t reserved[3];
+} open_svc_data_storage_args_t;
+
+/**
+ * Open a data storage service flow\n
+ * User must open this service flow in order to perform operation on the data storage (store, retrieve)
+ *
+ * \param key_store_hdl handle indentifing the key store service flow.
+ * \param args pointer to the structure containing the function arugments.
+
+ * \param data_storage_hdl pointer to where the data storage service flow handle must be written.
+ *
+ * \return error_code error code.
+ */
+hsm_err_t hsm_open_data_storage_service(hsm_hdl_t key_store_hdl, open_svc_data_storage_args_t *args, hsm_hdl_t *data_storage_hdl);
+
+typedef uint8_t hsm_op_data_storage_flags_t;
+typedef struct {
+    uint8_t *data;                       //!< pointer to the data. In case of store request, it will be the input data to store. In case of retrieve, it will be the the pointer where to load data.
+    uint32_t data_size;                  //!< length in bytes of the data
+    uint16_t data_id;                    //!< id of the data
+    hsm_op_data_storage_flags_t flags;   //!< flags bitmap specifying the operation attributes.
+    uint8_t reserved;
+} op_data_storage_args_t;
+
+/**
+ * Store or Retrieve data storage defined by a data_id in the key store. \n
+ *
+ * \param data_storage_hdl handle identifying the data storage service flow.
+ * \param args pointer to the structure containing the function arugments.
+ *
+ * \return error code
+ */
+hsm_err_t hsm_data_storage(hsm_hdl_t data_storage_hdl, op_data_storage_args_t *args);
+#define HSM_OP_DATA_STORAGE_FLAGS_STORE                  ((hsm_op_data_storage_flags_t)(1 << 0))  //!< Store data.
+#define HSM_OP_DATA_STORAGE_FLAGS_RETRIEVE               ((hsm_op_data_storage_flags_t)(1 << 1))  //!< Retrieve data.
+
+/**
+ * Terminate a previously opened data storage service flow
+ *
+ * \param data_storage_hdl handle identifying the data storage service flow.
+ *
+ * \return error code
+ */
+hsm_err_t hsm_close_data_storage_service(hsm_hdl_t data_storage_hdl);
+/** @} end of data storage service flow */
 
 /** \}*/
 #endif
