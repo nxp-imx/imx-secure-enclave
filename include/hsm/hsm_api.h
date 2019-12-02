@@ -868,7 +868,7 @@ typedef struct {
  */
 hsm_err_t hsm_data_storage(hsm_hdl_t data_storage_hdl, op_data_storage_args_t *args);
 #define HSM_OP_DATA_STORAGE_FLAGS_STORE                  ((hsm_op_data_storage_flags_t)(1 << 0))  //!< Store data.
-#define HSM_OP_DATA_STORAGE_FLAGS_RETRIEVE               ((hsm_op_data_storage_flags_t)(1 << 1))  //!< Retrieve data.
+#define HSM_OP_DATA_STORAGE_FLAGS_RETRIEVE               ((hsm_op_data_storage_flags_t)(0 << 0))  //!< Retrieve data.
 
 /**
  * Terminate a previously opened data storage service flow

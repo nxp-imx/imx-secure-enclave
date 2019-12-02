@@ -24,7 +24,7 @@ uint32_t sab_open_session_command (struct seco_os_abs_hdl *phdl, uint32_t *sessi
 
     do {
         /* Send the session open command to Seco. */
-        seco_fill_cmd_msg_hdr((struct she_mu_hdr *)&cmd, SAB_SESSION_OPEN_REQ, (uint32_t)sizeof(struct sab_cmd_session_open_msg));
+        seco_fill_cmd_msg_hdr((struct sab_mu_hdr *)&cmd, SAB_SESSION_OPEN_REQ, (uint32_t)sizeof(struct sab_cmd_session_open_msg));
         cmd.mu_id = mu_id;
         cmd.interrupt_idx = interrupt_idx;
         cmd.tz = tz;

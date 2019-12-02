@@ -129,7 +129,7 @@
 #define SAB_SHE_MEMORY_FAILURE_RATING           (0xDBu)     /**< Memory error (e.g. flipped bits) */
 #define SAB_SHE_GENERAL_ERROR_RATING            (0xDCu)     /**< Error not covered by other codes occured. */
 
-struct she_mu_hdr {
+struct sab_mu_hdr {
     uint8_t ver;
     uint8_t size;
     uint8_t command;
@@ -139,7 +139,7 @@ struct she_mu_hdr {
 /* MAC generation / verify */
 
 struct sab_she_fast_mac_msg {
-    struct she_mu_hdr hdr;
+    struct sab_mu_hdr hdr;
     uint32_t she_utils_handle;
     uint16_t key_id;
     uint16_t data_length;
@@ -150,7 +150,7 @@ struct sab_she_fast_mac_msg {
 #define SAB_SHE_FAST_MAC_FLAGS_VERIFICATION    (1u)
 
 struct sab_she_fast_mac_rsp {
-    struct she_mu_hdr hdr;
+    struct sab_mu_hdr hdr;
     uint32_t rsp_code;
     uint32_t verification_status;
 };
@@ -160,7 +160,7 @@ struct sab_she_fast_mac_rsp {
 /* Update key */
 
 struct sab_she_key_update_msg {
-    struct she_mu_hdr hdr;
+    struct sab_mu_hdr hdr;
     uint32_t utils_handle;
     uint32_t key_id;
     uint32_t m1[4];
@@ -170,7 +170,7 @@ struct sab_she_key_update_msg {
 };
 
 struct sab_she_key_update_rsp {
-    struct she_mu_hdr hdr;
+    struct sab_mu_hdr hdr;
     uint32_t rsp_code;
     uint32_t m4[8];
     uint32_t m5[4];
@@ -179,12 +179,12 @@ struct sab_she_key_update_rsp {
 
 /* SHE export plain key (Ram key) */
 struct sab_she_plain_key_export_msg {
-    struct she_mu_hdr hdr;
+    struct sab_mu_hdr hdr;
     uint32_t utils_handle;
 } ;
 
 struct sab_she_plain_key_export_rsp {
-    struct she_mu_hdr hdr;
+    struct sab_mu_hdr hdr;
     uint32_t rsp_code;
     uint32_t m1[4];
     uint32_t m2[8];
@@ -197,26 +197,26 @@ struct sab_she_plain_key_export_rsp {
 /* Load Plain key */
 
 struct she_cmd_load_plain_key_msg {
-    struct she_mu_hdr hdr;
+    struct sab_mu_hdr hdr;
     uint32_t she_utils_handle;
     uint8_t key[16];
     uint32_t crc;
 };
 
 struct she_cmd_load_plain_key_rsp {
-    struct she_mu_hdr hdr;
+    struct sab_mu_hdr hdr;
     uint32_t rsp_code;
 };
 
 /* SHE inititalization */
 
 struct sab_cmd_shared_buffer_msg {
-    struct she_mu_hdr hdr;
+    struct sab_mu_hdr hdr;
     uint32_t session_handle;
 };
 
 struct sab_cmd_shared_buffer_rsp {
-    struct she_mu_hdr hdr;
+    struct sab_mu_hdr hdr;
     uint32_t rsp_code;
     uint16_t shared_buf_offset;
     uint16_t shared_buf_size;
@@ -225,7 +225,7 @@ struct sab_cmd_shared_buffer_rsp {
 
 /* SHE random generation */
 struct sab_cmd_rng_open_msg{
-    struct she_mu_hdr hdr;
+    struct sab_mu_hdr hdr;
     uint32_t session_handle;
     uint32_t input_address_ext;
     uint32_t output_address_ext;
@@ -235,48 +235,48 @@ struct sab_cmd_rng_open_msg{
 };
 
 struct sab_cmd_rng_open_rsp{
-    struct she_mu_hdr hdr;
+    struct sab_mu_hdr hdr;
     uint32_t rsp_code;
     uint32_t rng_handle;
 };
 
 struct sab_cmd_rng_close_msg {
-    struct she_mu_hdr hdr;
+    struct sab_mu_hdr hdr;
     uint32_t rng_handle;
 };
 
 struct sab_cmd_rng_close_rsp {
-    struct she_mu_hdr hdr;
+    struct sab_mu_hdr hdr;
     uint32_t rsp_code;
 };
 
 struct sab_cmd_extend_seed_msg {
-    struct she_mu_hdr hdr;
+    struct sab_mu_hdr hdr;
     uint32_t rng_handle;
     uint32_t entropy[4];
     uint32_t crc;
 };
 
 struct sab_cmd_extend_seed_rsp {
-    struct she_mu_hdr hdr;
+    struct sab_mu_hdr hdr;
     uint32_t rsp_code;
 };
 
 struct sab_cmd_get_rnd_msg {
-    struct she_mu_hdr hdr;
+    struct sab_mu_hdr hdr;
     uint32_t rng_handle;
     uint32_t rnd_addr;
     uint32_t rnd_size;
 };
 
 struct sab_cmd_get_rnd_rsp {
-    struct she_mu_hdr hdr;
+    struct sab_mu_hdr hdr;
     uint32_t rsp_code;
 };
 
 /* SHE Storage */
 struct sab_cmd_storage_open_msg{
-    struct she_mu_hdr hdr;
+    struct sab_mu_hdr hdr;
     uint32_t session_handle;
     uint32_t input_address_ext;
     uint32_t output_address_ext;
@@ -286,61 +286,61 @@ struct sab_cmd_storage_open_msg{
 };
 
 struct sab_cmd_storage_open_rsp{
-    struct she_mu_hdr hdr;
+    struct sab_mu_hdr hdr;
     uint32_t rsp_code;
     uint32_t storage_handle;
 };
 
 struct sab_cmd_storage_close_msg {
-    struct she_mu_hdr hdr;
+    struct sab_mu_hdr hdr;
     uint32_t storage_handle;
 };
 
 struct sab_cmd_storage_close_rsp {
-    struct she_mu_hdr hdr;
+    struct sab_mu_hdr hdr;
     uint32_t rsp_code;
 };
 
 struct sab_cmd_key_store_import_msg {
-    struct she_mu_hdr hdr;
+    struct sab_mu_hdr hdr;
     uint32_t storage_handle;
     uint32_t key_store_address;
     uint32_t key_store_size;
 };
 
 struct sab_cmd_key_store_import_rsp {
-    struct she_mu_hdr hdr;
+    struct sab_mu_hdr hdr;
     uint32_t rsp_code;
 };
 
 struct sab_cmd_key_store_export_start_msg {
-    struct she_mu_hdr hdr;
+    struct sab_mu_hdr hdr;
     uint32_t storage_handle;
     uint32_t key_store_size;
 };
 
 struct sab_cmd_key_store_export_start_rsp {
-    struct she_mu_hdr hdr;
+    struct sab_mu_hdr hdr;
     uint32_t storage_handle;
     uint32_t rsp_code;
     uint32_t key_store_export_address;
 };
 
 struct sab_cmd_key_store_export_finish_msg {
-    struct she_mu_hdr hdr;
+    struct sab_mu_hdr hdr;
     uint32_t storage_handle;
     uint32_t export_status;    
 };
 #define SAB_EXPORT_STATUS_SUCCESS (0xBA2CC2ABu)
 
 struct sab_cmd_key_store_export_finish_rsp {
-    struct she_mu_hdr hdr;
+    struct sab_mu_hdr hdr;
     uint32_t storage_handle;
     uint32_t rsp_code;
 };
 
 struct sab_cmd_key_store_chunk_export_msg {
-    struct she_mu_hdr hdr;
+    struct sab_mu_hdr hdr;
     uint32_t storage_handle;
     uint32_t chunk_size;
     uint32_t blob_id;
@@ -349,20 +349,20 @@ struct sab_cmd_key_store_chunk_export_msg {
 };
 
 struct sab_cmd_key_store_chunk_export_rsp {
-    struct she_mu_hdr hdr;
+    struct sab_mu_hdr hdr;
     uint32_t rsp_code;
     uint32_t chunk_export_address;
 };
 
 struct sab_cmd_key_store_chunk_get_msg {
-    struct she_mu_hdr hdr;
+    struct sab_mu_hdr hdr;
     uint32_t storage_handle;
     uint32_t blob_id;
     uint32_t blob_id_ext;
 };
 
 struct sab_cmd_key_store_chunk_get_rsp {
-    struct she_mu_hdr hdr;
+    struct sab_mu_hdr hdr;
     uint32_t chunk_size;
     uint32_t chunk_addr;
     uint32_t rsp_code;
@@ -371,37 +371,37 @@ struct sab_cmd_key_store_chunk_get_rsp {
 #define SAB_CHUNK_GET_STATUS_SUCCEEDED 0xCA3BB3AC
 
 struct sab_cmd_key_store_chunk_get_done_msg {
-    struct she_mu_hdr hdr;
+    struct sab_mu_hdr hdr;
     uint32_t storage_handle;
     uint32_t get_status;
 };
 
 struct sab_cmd_key_store_chunk_get_done_rsp {
-    struct she_mu_hdr hdr;
+    struct sab_mu_hdr hdr;
     uint32_t rsp_code;
 };
 
 struct she_cmd_get_status_msg {
-       struct she_mu_hdr hdr;
+       struct sab_mu_hdr hdr;
        uint32_t she_utils_handle;
 };
 
 struct she_cmd_get_status_rsp {
-       struct she_mu_hdr hdr;
+       struct sab_mu_hdr hdr;
        uint32_t rsp_code;
        uint8_t sreg;
        uint8_t pad[3];
 };
 
 struct she_cmd_get_id_msg {
-    struct she_mu_hdr hdr;
+    struct sab_mu_hdr hdr;
     uint32_t she_utils_handle;
     uint8_t challenge[16];
     uint32_t crc;
 };
 
 struct she_cmd_get_id_rsp {
-       struct she_mu_hdr hdr;
+       struct sab_mu_hdr hdr;
        uint32_t rsp_code;
        uint8_t id[15];
        uint8_t sreg;
@@ -410,7 +410,7 @@ struct she_cmd_get_id_rsp {
 };
 
 struct sab_cmd_session_open_msg {
-    struct she_mu_hdr hdr;
+    struct sab_mu_hdr hdr;
     uint8_t mu_id;
     uint8_t interrupt_idx;
     uint8_t tz;
@@ -421,23 +421,23 @@ struct sab_cmd_session_open_msg {
 };
 
 struct sab_cmd_session_open_rsp {
-    struct she_mu_hdr hdr;
+    struct sab_mu_hdr hdr;
     uint32_t rsp_code;
     uint32_t session_handle;
 };
 
 struct sab_cmd_session_close_msg {
-    struct she_mu_hdr hdr;
+    struct sab_mu_hdr hdr;
     uint32_t session_handle;
 };
 
 struct sab_cmd_session_close_rsp {
-    struct she_mu_hdr hdr;
+    struct sab_mu_hdr hdr;
     uint32_t rsp_code;
 };
 
 struct sab_cmd_key_store_open_msg{
-    struct she_mu_hdr hdr;
+    struct sab_mu_hdr hdr;
     uint32_t session_handle;
     uint32_t key_store_id;
     uint32_t password;
@@ -448,23 +448,23 @@ struct sab_cmd_key_store_open_msg{
 } ;
 
 struct sab_cmd_key_store_open_rsp {
-    struct she_mu_hdr hdr;
+    struct sab_mu_hdr hdr;
     uint32_t rsp_code;
     uint32_t key_store_handle;
 } ;
 
 struct sab_cmd_key_store_close_msg{
-    struct she_mu_hdr hdr;
+    struct sab_mu_hdr hdr;
     uint32_t key_store_handle;
 } ;
 
 struct sab_cmd_key_store_close_rsp {
-    struct she_mu_hdr hdr;
+    struct sab_mu_hdr hdr;
     uint32_t rsp_code;
 } ;
 
 struct sab_cmd_key_management_open_msg{
-    struct she_mu_hdr hdr;
+    struct sab_mu_hdr hdr;
     uint32_t key_store_handle;
     uint32_t input_address_ext;
     uint32_t output_address_ext;
@@ -474,13 +474,13 @@ struct sab_cmd_key_management_open_msg{
 };
 
 struct sab_cmd_key_management_open_rsp {
-    struct she_mu_hdr hdr;
+    struct sab_mu_hdr hdr;
     uint32_t rsp_code;
     uint32_t key_management_handle;
 };
 
 struct sab_cmd_generate_key_msg {
-    struct she_mu_hdr hdr;
+    struct sab_mu_hdr hdr;
     uint32_t key_management_handle;
     uint32_t key_identifier;
     uint16_t out_size;
@@ -493,13 +493,13 @@ struct sab_cmd_generate_key_msg {
 };
 
 struct sab_cmd_generate_key_rsp {
-    struct she_mu_hdr hdr;
+    struct sab_mu_hdr hdr;
     uint32_t rsp_code;
     uint32_t key_identifier;
 };
 
 struct sab_cmd_manage_key_msg {
-    struct she_mu_hdr hdr;
+    struct sab_mu_hdr hdr;
     uint32_t key_management_handle;
     uint32_t dest_key_identifier;
     uint32_t kek_id;
@@ -513,13 +513,13 @@ struct sab_cmd_manage_key_msg {
 };
 
 struct sab_cmd_manage_key_rsp {
-    struct she_mu_hdr hdr;
+    struct sab_mu_hdr hdr;
     uint32_t rsp_code;
     uint32_t key_identifier;
 };
 
 struct sab_cmd_manage_key_group_msg {
-    struct she_mu_hdr hdr;
+    struct sab_mu_hdr hdr;
     uint32_t key_management_handle;
     uint16_t key_group;
     uint8_t flags;
@@ -527,13 +527,13 @@ struct sab_cmd_manage_key_group_msg {
 };
 
 struct sab_cmd_manage_key_group_rsp {
-    struct she_mu_hdr hdr;
+    struct sab_mu_hdr hdr;
     uint32_t rsp_code;
 };
 
 
 struct sab_cmd_butterfly_key_exp_msg {
-    struct she_mu_hdr hdr;
+    struct sab_mu_hdr hdr;
     uint32_t key_management_handle;
     uint32_t key_identifier;
     uint32_t expansion_function_value_addr;
@@ -554,24 +554,24 @@ struct sab_cmd_butterfly_key_exp_msg {
 };
 
 struct sab_cmd_butterfly_key_exp_rsp {
-    struct she_mu_hdr hdr;
+    struct sab_mu_hdr hdr;
     uint32_t rsp_code;
     uint32_t dest_key_identifier;
 };
 
 
 struct sab_cmd_key_management_close_msg{
-    struct she_mu_hdr hdr;
+    struct sab_mu_hdr hdr;
     uint32_t key_management_handle;
 };
 
 struct sab_cmd_key_management_close_rsp {
-    struct she_mu_hdr hdr;
+    struct sab_mu_hdr hdr;
     uint32_t rsp_code;
 };
 
 struct sab_cmd_cipher_open_msg{
-    struct she_mu_hdr hdr;
+    struct sab_mu_hdr hdr;
     uint32_t key_store_handle;
     uint32_t input_address_ext;
     uint32_t output_address_ext;
@@ -582,18 +582,18 @@ struct sab_cmd_cipher_open_msg{
 } ;
 
 struct sab_cmd_cipher_open_rsp{
-    struct she_mu_hdr hdr;
+    struct sab_mu_hdr hdr;
     uint32_t rsp_code;
     uint32_t cipher_handle;
 } ;
 
 struct sab_cmd_cipher_close_msg {
-    struct she_mu_hdr hdr;
+    struct sab_mu_hdr hdr;
     uint32_t cipher_handle;
 } ;
 
 struct sab_cmd_cipher_close_rsp {
-    struct she_mu_hdr hdr;
+    struct sab_mu_hdr hdr;
     uint32_t rsp_code;
 } ;
 
@@ -603,7 +603,7 @@ struct sab_cmd_cipher_close_rsp {
 #define AHAB_CIPHER_ONE_GO_FLAGS_DECRYPT (0x00u)
 
 struct sab_cmd_cipher_one_go_msg {
-    struct she_mu_hdr hdr;
+    struct sab_mu_hdr hdr;
     uint32_t cipher_handle;
     uint32_t key_id;
     uint32_t iv_address;
@@ -618,12 +618,12 @@ struct sab_cmd_cipher_one_go_msg {
 };
 
 struct sab_cmd_cipher_one_go_rsp {
-    struct she_mu_hdr hdr;
+    struct sab_mu_hdr hdr;
     uint32_t rsp_code;
 };
 
 struct sab_cmd_ecies_decrypt_msg {
-    struct she_mu_hdr hdr;
+    struct sab_mu_hdr hdr;
     uint32_t cipher_handle;
     uint32_t key_id;
     uint32_t input_address;
@@ -641,35 +641,35 @@ struct sab_cmd_ecies_decrypt_msg {
 };
 
 struct sab_cmd_ecies_decrypt_rsp {
-    struct she_mu_hdr hdr;
+    struct sab_mu_hdr hdr;
     uint32_t rsp_code;
 };
 
 struct sab_cmd_she_utils_open_msg{
-    struct she_mu_hdr hdr;
+    struct sab_mu_hdr hdr;
     uint32_t key_store_handle;
     uint32_t input_address_ext;
     uint32_t output_address_ext;
 } ;
 
 struct sab_cmd_she_utils_open_rsp{
-    struct she_mu_hdr hdr;
+    struct sab_mu_hdr hdr;
     uint32_t rsp_code;
     uint32_t utils_handle;
 } ;
 
 struct sab_cmd_she_utils_close_msg {
-    struct she_mu_hdr hdr;
+    struct sab_mu_hdr hdr;
     uint32_t utils_handle;
 } ;
 
 struct sab_cmd_she_utils_close_rsp {
-    struct she_mu_hdr hdr;
+    struct sab_mu_hdr hdr;
     uint32_t rsp_code;
 } ;
 
 struct sab_signature_gen_open_msg {
-    struct she_mu_hdr hdr;
+    struct sab_mu_hdr hdr;
     uint32_t key_store_hdl;
     uint32_t input_address_ext;
     uint32_t output_address_ext;
@@ -679,23 +679,23 @@ struct sab_signature_gen_open_msg {
 };
 
 struct sab_signature_gen_open_rsp {
-    struct she_mu_hdr hdr;
+    struct sab_mu_hdr hdr;
     uint32_t rsp_code;
     uint32_t sig_gen_hdl;
 };
 
 struct sab_signature_gen_close_msg {
-    struct she_mu_hdr hdr;
+    struct sab_mu_hdr hdr;
     uint32_t sig_gen_hdl;
 };
 
 struct sab_signature_gen_close_rsp {
-    struct she_mu_hdr hdr;
+    struct sab_mu_hdr hdr;
     uint32_t rsp_code;
 };
 
 struct sab_signature_generate_msg {
-    struct she_mu_hdr hdr;
+    struct sab_mu_hdr hdr;
     uint32_t sig_gen_hdl;
     uint32_t key_identifier;
     uint32_t message_addr;
@@ -708,12 +708,12 @@ struct sab_signature_generate_msg {
 };
 
 struct sab_signature_generate_rsp {
-    struct she_mu_hdr hdr;
+    struct sab_mu_hdr hdr;
     uint32_t rsp_code;
 };
 
 struct sab_prepare_signature_msg {
-    struct she_mu_hdr hdr;
+    struct sab_mu_hdr hdr;
     uint32_t sig_gen_hdl;
     uint8_t scheme_id;
     uint8_t flags;
@@ -721,12 +721,12 @@ struct sab_prepare_signature_msg {
 };
 
 struct sab_prepare_signature_rsp {
-    struct she_mu_hdr hdr;
+    struct sab_mu_hdr hdr;
     uint32_t rsp_code;
 };
 
 struct sab_signature_verif_open_msg {
-    struct she_mu_hdr hdr;
+    struct sab_mu_hdr hdr;
     uint32_t session_handle;
     uint32_t input_address_ext;
     uint32_t output_address_ext;
@@ -736,23 +736,23 @@ struct sab_signature_verif_open_msg {
 };
 
 struct sab_signature_verif_open_rsp {
-    struct she_mu_hdr hdr;
+    struct sab_mu_hdr hdr;
     uint32_t rsp_code;
     uint32_t sig_ver_hdl;
 };
 
 struct sab_signature_verif_close_msg {
-    struct she_mu_hdr hdr;
+    struct sab_mu_hdr hdr;
     uint32_t sig_ver_hdl;
 };
 
 struct sab_signature_verif_close_rsp {
-    struct she_mu_hdr hdr;
+    struct sab_mu_hdr hdr;
     uint32_t rsp_code;
 };
 
 struct sab_signature_verify_msg {
-    struct she_mu_hdr hdr;
+    struct sab_mu_hdr hdr;
     uint32_t sig_ver_hdl;
     uint32_t key_addr;
     uint32_t msg_addr;
@@ -767,13 +767,13 @@ struct sab_signature_verify_msg {
 };
 
 struct sab_signature_verify_rsp {
-    struct she_mu_hdr hdr;
+    struct sab_mu_hdr hdr;
     uint32_t rsp_code;
     uint32_t verification_status;
 };
 
 struct sab_import_pub_key_msg {
-    struct she_mu_hdr hdr;
+    struct sab_mu_hdr hdr;
     uint32_t sig_ver_hdl;
     uint32_t key_addr;
     uint16_t key_size;
@@ -782,14 +782,14 @@ struct sab_import_pub_key_msg {
 };
 
 struct sab_import_pub_key_rsp {
-    struct she_mu_hdr hdr;
+    struct sab_mu_hdr hdr;
     uint32_t rsp_code;
     uint32_t key_ref;
 };
 
 
 struct sab_hash_open_msg {
-    struct she_mu_hdr hdr;
+    struct sab_mu_hdr hdr;
     uint32_t session_handle;
     uint32_t input_address_ext;
     uint32_t output_address_ext;
@@ -799,23 +799,23 @@ struct sab_hash_open_msg {
 };
 
 struct sab_hash_open_rsp {
-    struct she_mu_hdr hdr;
+    struct sab_mu_hdr hdr;
     uint32_t rsp_code;
     uint32_t hash_hdl;
 };
 
 struct sab_hash_close_msg {
-    struct she_mu_hdr hdr;
+    struct sab_mu_hdr hdr;
     uint32_t hash_hdl;
 };
 
 struct sab_hash_close_rsp {
-    struct she_mu_hdr hdr;
+    struct sab_mu_hdr hdr;
     uint32_t rsp_code;
 };
 
 struct sab_hash_one_go_msg {
-    struct she_mu_hdr hdr;
+    struct sab_mu_hdr hdr;
     uint32_t hash_hdl;
     uint32_t input_addr;
     uint32_t output_addr;
@@ -828,12 +828,12 @@ struct sab_hash_one_go_msg {
 };
 
 struct sab_hash_one_go_rsp {
-    struct she_mu_hdr hdr;
+    struct sab_mu_hdr hdr;
     uint32_t rsp_code;
 };
 
 struct sab_public_key_reconstruct_msg {
-    struct she_mu_hdr hdr;
+    struct sab_mu_hdr hdr;
     uint32_t sesssion_handle;
     uint32_t pu_address_ext;
     uint32_t pu_address;
@@ -854,12 +854,12 @@ struct sab_public_key_reconstruct_msg {
 };
 
 struct sab_public_key_reconstruct_rsp {
-    struct she_mu_hdr hdr;
+    struct sab_mu_hdr hdr;
     uint32_t rsp_code;
 };
 
 struct sab_public_key_decompression_msg {
-    struct she_mu_hdr hdr;
+    struct sab_mu_hdr hdr;
     uint32_t sesssion_handle;
     uint32_t input_address_ext;
     uint32_t input_address;
@@ -874,12 +874,12 @@ struct sab_public_key_decompression_msg {
 };
 
 struct sab_public_key_decompression_rsp {
-    struct she_mu_hdr hdr;
+    struct sab_mu_hdr hdr;
     uint32_t rsp_code;
 };
 
 struct sab_cmd_ecies_encrypt_msg {
-    struct she_mu_hdr hdr;
+    struct sab_mu_hdr hdr;
     uint32_t sesssion_handle;
     uint32_t input_addr_ext;
     uint32_t input_addr;
@@ -904,17 +904,17 @@ struct sab_cmd_ecies_encrypt_msg {
 };
 
 struct sab_cmd_ecies_encrypt_rsp {
-    struct she_mu_hdr hdr;
+    struct sab_mu_hdr hdr;
     uint32_t rsp_code;
 };
 
 struct sab_cmd_get_info_msg {
-    struct she_mu_hdr hdr;
+    struct sab_mu_hdr hdr;
     uint32_t session_handle;
 };
 
 struct sab_cmd_get_info_rsp {
-    struct she_mu_hdr hdr;
+    struct sab_mu_hdr hdr;
     uint32_t rsp_code;
     uint32_t user_sab_id;
     uint32_t uid_lower;
@@ -929,7 +929,7 @@ struct sab_cmd_get_info_rsp {
 };
 
 struct sab_cmd_pub_key_recovery_msg {
-    struct she_mu_hdr hdr;
+    struct sab_mu_hdr hdr;
     uint32_t key_store_handle;
     uint32_t key_identifier;
     uint32_t out_key_addr_ext;    
@@ -941,12 +941,12 @@ struct sab_cmd_pub_key_recovery_msg {
 };
 
 struct sab_cmd_pub_key_recovery_rsp {
-    struct she_mu_hdr hdr;
+    struct sab_mu_hdr hdr;
     uint32_t rsp_code;
 };
 
 struct sab_cmd_data_storage_open_msg{
-    struct she_mu_hdr hdr;
+    struct sab_mu_hdr hdr;
     uint32_t key_store_handle;
     uint32_t input_address_ext;
     uint32_t output_address_ext;
@@ -956,23 +956,23 @@ struct sab_cmd_data_storage_open_msg{
 };
 
 struct sab_cmd_data_storage_open_rsp {
-    struct she_mu_hdr hdr;
+    struct sab_mu_hdr hdr;
     uint32_t rsp_code;
     uint32_t data_storage_handle;
 };
 
 struct sab_cmd_data_storage_close_msg{
-    struct she_mu_hdr hdr;
+    struct sab_mu_hdr hdr;
     uint32_t data_storage_handle;
 };
 
 struct sab_cmd_data_storage_close_rsp {
-    struct she_mu_hdr hdr;
+    struct sab_mu_hdr hdr;
     uint32_t rsp_code;
 };
 
 struct sab_cmd_data_storage_msg {
-    struct she_mu_hdr hdr;
+    struct sab_mu_hdr hdr;
     uint32_t data_storage_handle;
     uint32_t data_address;
     uint32_t data_size;
@@ -983,7 +983,7 @@ struct sab_cmd_data_storage_msg {
 };
 
 struct sab_cmd_data_storage_rsp {
-    struct she_mu_hdr hdr;
+    struct sab_mu_hdr hdr;
     uint32_t rsp_code;
 };
 

@@ -463,7 +463,7 @@ void seco_nvm_manager(uint8_t flags, uint32_t *status)
     uint32_t data_len = 0u;
     struct seco_nvm_header_s nvm_hdr;
     uint32_t recv_msg[MAX_RCV_MSG_SIZE / sizeof(uint32_t)];
-    struct she_mu_hdr *hdr = (struct she_mu_hdr *)recv_msg;
+    struct sab_mu_hdr *hdr = (struct sab_mu_hdr *)recv_msg;
     uint32_t err = 0u;
     uint8_t *data = NULL;
 
