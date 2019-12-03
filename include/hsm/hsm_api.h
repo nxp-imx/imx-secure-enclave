@@ -186,8 +186,8 @@ hsm_err_t hsm_generate_key(hsm_hdl_t key_management_hdl, op_generate_key_args_t 
 #define HSM_KEY_TYPE_ECDSA_BRAINPOOL_T1_256                 ((hsm_key_type_t)0x23)              //!< not supported
 #define HSM_KEY_TYPE_ECDSA_BRAINPOOL_T1_384                 ((hsm_key_type_t)0x25)              //!< not supported
 #define HSM_KEY_TYPE_AES_128                                ((hsm_key_type_t)0x30)
-#define HSM_KEY_TYPE_AES_192                                ((hsm_key_type_t)0x31)              //!< not supported
-#define HSM_KEY_TYPE_AES_256                                ((hsm_key_type_t)0x32)              //!< not supported
+#define HSM_KEY_TYPE_AES_192                                ((hsm_key_type_t)0x31)              
+#define HSM_KEY_TYPE_AES_256                                ((hsm_key_type_t)0x32)              
 #define HSM_OP_KEY_GENERATION_FLAGS_UPDATE                  ((hsm_op_key_gen_flags_t)(1 << 0))  //!< User can replace an existing key only by generating a key with the same type of the original one.
 #define HSM_OP_KEY_GENERATION_FLAGS_CREATE                  ((hsm_op_key_gen_flags_t)(1 << 1))  //!< Create a new key.
 #define HSM_OP_KEY_GENERATION_FLAGS_STRICT_OPERATION        ((hsm_op_key_gen_flags_t)(1 << 7))  //!< The request is completed only when the new key has been written in the NVM. This applicable for persistent key only.
@@ -699,9 +699,11 @@ typedef struct {
  * \return error code
  */
 hsm_err_t hsm_hash_one_go(hsm_hdl_t hash_hdl, op_hash_one_go_args_t *args);
-#define HSM_HASH_ALGO_SHA_224      ((hsm_hash_algo_t)(0x0))              //!< not supported
+#define HSM_HASH_ALGO_SHA_224      ((hsm_hash_algo_t)(0x0))       
 #define HSM_HASH_ALGO_SHA_256      ((hsm_hash_algo_t)(0x1))
 #define HSM_HASH_ALGO_SHA_384      ((hsm_hash_algo_t)(0x2))
+#define HSM_HASH_ALGO_SHA_512      ((hsm_hash_algo_t)(0x3))
+
 /** @} end of hash service flow */
 
 /**
