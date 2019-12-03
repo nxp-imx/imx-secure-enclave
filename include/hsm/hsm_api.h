@@ -71,7 +71,7 @@ typedef struct {
 hsm_err_t hsm_open_session(open_session_args_t *args, hsm_hdl_t *session_hdl);
 
 /**
- * Terminate a previously opened session.\n
+ * Terminate a previously opened session. All the services opened under this session are closed as well \n
  *
  * \param session_hdl pointer to the handle identifying the session to be closed.
  *
@@ -116,7 +116,7 @@ hsm_err_t hsm_open_key_store_service(hsm_hdl_t session_hdl, open_svc_key_store_a
 #define HSM_SVC_KEY_STORE_FLAGS_UPDATE ((hsm_svc_key_store_flags_t)(1 << 2)) //!< Not supported - It must be specified in order to open a key management service flow
 #define HSM_SVC_KEY_STORE_FLAGS_DELETE ((hsm_svc_key_store_flags_t)(1 << 3)) //!< Not supported - It must be specified to delete an existing key store
 /**
- * Close a previously opened key store service flow.\n
+ * Close a previously opened key store service flow. The key store is deleted from the HSM local memory, any update not written in the NVM is lost \n
  *
  * \param handle indentifing the key store service flow to be closed.
  *
@@ -160,7 +160,7 @@ typedef struct {
     uint16_t out_size;                  //!< length in bytes of the generated key. It must be 0 in case of symetric keys.
     hsm_op_key_gen_flags_t flags;       //!< bitmap specifying the operation properties.
     hsm_key_type_t key_type;            //!< indicates which type of key must be generated.
-    hsm_key_group_t key_group;          //!< Key group of the generated key, only needed in case of create operation. it must be a value in the range 0-1023. Keys belonging to the same group can be cached in the HSM local memory throug the ham_manage_key_group API
+    hsm_key_group_t key_group;          //!< Key group of the generated key, relevant only in case of create operation. it must be a value in the range 0-1023. Keys belonging to the same group can be cached in the HSM local memory throug the ham_manage_key_group API
     hsm_key_info_t key_info;            //!< bitmap specifying the properties of the key.
     uint8_t *out_key;                   //!< pointer to the output area where the generated public key must be written
 } op_generate_key_args_t;
@@ -199,11 +199,11 @@ hsm_err_t hsm_generate_key(hsm_hdl_t key_management_hdl, op_generate_key_args_t 
 typedef uint8_t hsm_op_manage_key_flags_t;
 typedef struct {
     uint32_t *key_identifier;           //!< pointer to the identifier of the key to be used for the operation.\n In case of create operation the new key identifier will be stored in this location.
-    uint32_t kek_identifier;            //!< identifier of the key to be used to decrypt the imported key (key encryption key)
+    uint32_t kek_identifier;            //!< identifier of the key to be used to decrypt the imported key (key encryption key). Not relevant in case of delete operation.
     uint16_t input_size;                //!< length in bytes of the input key area. It must be 0 in case of delete operation.
     hsm_op_manage_key_flags_t flags;    //!< bitmap specifying the operation properties.
-    hsm_key_type_t key_type;            //!< indicates the type of the key to be managed.
-    hsm_key_group_t key_group;          //!< key group of the imported key, only relevant in case of create operation (it must be 0 otherwise). It must be a value in the range 0-1023. Keys belonging to the same group can be cached in the HSM local memory throug the ham_manage_key_group API
+    hsm_key_type_t key_type;            //!< indicates the type of the key to be managed. It must be 0 in case of delete operation.
+    hsm_key_group_t key_group;          //!< key group of the imported key, only relevant in case of create operation. It must be a value in the range 0-1023. Keys belonging to the same group can be cached in the HSM local memory throug the ham_manage_key_group API
     hsm_key_info_t key_info;            //!< bitmap specifying the properties of the key, in case of update operation it will replace the existing value. It must be 0 in case of delete operation.
     uint8_t *input_key;                 //!< pointer to the key to be imported. It must be 0 in case of delete operation.
 } op_manage_key_args_t;
@@ -261,14 +261,14 @@ typedef struct {
     uint8_t *expansion_function_value;  //!< pointer to the expansion function value input
     uint8_t *hash_value;                //!< pointer to the hash value input.\n In case of explicit certificate, the hash value address must be set to 0.
     uint8_t *pr_reconstruction_value;   //!< pointer to the private reconstruction value input.\n In case of explicit certificate, the pr_reconstruction_value address must be set to 0.
-    uint8_t expansion_function_value_size;  //!< length in bytes of the  expansion function input
+    uint8_t expansion_function_value_size;  //!< length in bytes of the expansion function input
     uint8_t hash_value_size;            //!< length in bytes of the hash value input.\n In case of explicit certificate, the hash_value_size parameter must be set to 0.
     uint8_t pr_reconstruction_value_size;   //!< length in bytes of the private reconstruction value input.\n In case of explicit certificate, the pr_reconstruction_value_size parameter must be set to 0.
     hsm_op_but_key_exp_flags_t flags;   //!< bitmap specifying the operation properties
     uint32_t *dest_key_identifier;       //!< pointer to identifier of the derived key to be used for the operation.\n In case of create operation the new destination key identifier will be stored in this location.
     uint8_t *output;                    //!< pointer to the output area where the public key must be written.
     uint16_t output_size;               //!< length in bytes of the generated key, if the size is 0, no key is copied in the output.
-    hsm_key_type_t key_type;            //!< indicates the type of the key to be managed.
+    hsm_key_type_t key_type;            //!< indicates the type of the key to be derived.
     uint8_t reserved;
     hsm_key_group_t key_group;          //!< it must be a value in the range 0-1023. Keys belonging to the same group can be cached in the HSM local memory throug the ham_manage_key_group API
     hsm_key_info_t key_info;            //!< bitmap specifying the properties of the derived key.
@@ -840,7 +840,7 @@ typedef struct {
 
 /**
  * Open a data storage service flow\n
- * User must open this service flow in order to perform operation on the data storage (store, retrieve)
+ * User must open this service flow in order to store retreive generic data in the HSM.
  *
  * \param key_store_hdl handle indentifing the key store service flow.
  * \param args pointer to the structure containing the function arugments.
@@ -861,7 +861,7 @@ typedef struct {
 } op_data_storage_args_t;
 
 /**
- * Store or Retrieve data storage defined by a data_id in the key store. \n
+ * Store or Retrieve generic data defined by a data_id. \n
  *
  * \param data_storage_hdl handle identifying the data storage service flow.
  * \param args pointer to the structure containing the function arugments.
