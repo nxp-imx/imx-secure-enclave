@@ -273,7 +273,7 @@ she_err_t she_cmd_dec_ecb(struct she_hdl_s *hdl, uint8_t key_ext, uint8_t key_id
  *  @{
  */
 /**
- * Update an internal key of SHE with the protocol specified by SHE.
+ * Update an internal key of SHE with the protocol specified by SHE. The request is completed only when the new key has been written in the NVM. The monotonic counter is incremented for aach successful update.
  *
  * \param hdl pointer to the SHE session handler
  * \param key_ext identifier of the key extension to be used for the operation
@@ -287,6 +287,26 @@ she_err_t she_cmd_dec_ecb(struct she_hdl_s *hdl, uint8_t key_ext, uint8_t key_id
  * \return error code
  */
 she_err_t she_cmd_load_key(struct she_hdl_s *hdl, uint8_t key_ext, uint8_t key_id, uint8_t *m1, uint8_t *m2, uint8_t *m3, uint8_t *m4, uint8_t *m5);
+typedef uint8_t she_cmd_load_key_ext_flags_t;
+/**
+ * This is an extension of the she_cmd_load_key API.
+ * The functionality of the she_cmd_load_key API is extended by adding a flag argument.
+ * STRICT OPERATION flag: User can use this flag to perform multiple updates before writing the key store into the NVM and incrementing the monotonic counter. The updates to the key store must be considered as effective only after an operation specifing the flag "STRICT OPERATION" is aknowledged by SHE.
+ *
+ * \param hdl pointer to the SHE session handler
+ * \param key_ext identifier of the key extension to be used for the operation
+ * \param key_id identifier of the key to be used for the operation
+ * \param m1 pointer to M1 message - 128 bits
+ * \param m2 pointer to M2 message - 256 bits
+ * \param m3 pointer to M3 message - 128 bits
+ * \param m4 pointer to the output address for M4 message - 256 bits
+ * \param m5 pointer to the output address for M5 message - 128 bits
+ * \param flags bitmap specifying the operation properties.
+ *
+ * \return error code
+ */
+she_err_t she_cmd_load_key_ext(struct she_hdl_s *hdl, uint8_t key_ext, uint8_t key_id, uint8_t *m1, uint8_t *m2, uint8_t *m3, uint8_t *m4, uint8_t *m5, she_cmd_load_key_ext_flags_t flags);
+#define SHE_LOAD_KEY_EXT_FLAGS_STRICT_OPERATION        ((she_cmd_load_key_ext_flags_t)(1 << 7))  //!< The request is completed only when the key store is written in the NVM and the monotonic counter is incremented.
 #define SHE_KEY_SIZE 16u //!< SHE keys are 128 bits (16 bytes) long.
 /** @} end of CMD_LOAD_KEY group */
 

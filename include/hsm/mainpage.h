@@ -38,8 +38,8 @@
   A control of which key group should be kept in the local memory (cached) is provide through the manage_key_group API lock/unlock mechanism.\n
   As general concept, frequently used keys should be kept, when possible, in the same key group and locked in the local memory for performance optimization.\n
   \subsection subsec3 NVM writing
-  All the APIs modyfing the content of the key store (key generation/management) provide a "STRICT UPDATE" flag. If the flag is set, the HSM triggers and export of the encrypted key group into the external NVM and blows one bit of the OTP monotonic counter.\n
-  Any update to the key store must be considered as effective only after an operation specifing the flag "STRICT UPDATE" is aknowledged by the HSM. All the operations not specifying the "STRICT UPDATE" flags impact the HSM local memory only and will be lost in case of system reset\n
-  Due to the limited monotonic counter size (QXPB0 up to 1620 update available), the user should, when possible, perform multiple udates before setting the "STRICT UPDATE" flag.\n
+  All the APIs modyfing the content of the key store (key generation/management) provide a "STRICT OPERATION" flag. If the flag is set, the HSM triggers and export of the encrypted key group into the external NVM and blows one bit of the OTP monotonic counter.\n
+  Any update to the key store must be considered as effective only after an operation specifing the flag "STRICT OPERATION" is aknowledged by the HSM. All the operations not specifying the "STRICT OPERATION" flags impact the HSM local memory only and will be lost in case of system reset\n
+  Due to the limited monotonic counter size (QXPB0 up to 1620 update available), the user should, when possible, perform multiple udates before setting the "STRICT OPERATION" flag.\n
   Once the monotonic counter is completely blown a warning is returned on each update operation to inform the user that the new updates are not roll-back protected.
  */

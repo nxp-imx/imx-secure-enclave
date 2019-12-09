@@ -9,6 +9,7 @@
  * :------------ | :-------------:| :------------
  * 0.5 | Mai 03 2019  | first draf
  * 1.0 | June 28 2019  | complete functions definition
+ * 1.1 | December 20 2019 | add she_cmd_load_key_ext
  */
 
 /*! \page General General concepts related to the API
