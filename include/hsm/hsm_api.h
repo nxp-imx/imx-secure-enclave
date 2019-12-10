@@ -369,6 +369,35 @@ hsm_err_t hsm_cipher_one_go(hsm_hdl_t cipher_hdl, op_cipher_one_go_args_t* args)
 #define HSM_CIPHER_ONE_GO_FLAGS_DECRYPT             ((hsm_op_cipher_one_go_flags_t)(0 << 0))
 #define HSM_CIPHER_ONE_GO_FLAGS_ENCRYPT             ((hsm_op_cipher_one_go_flags_t)(1 << 0))
 
+typedef uint8_t hsm_op_auth_enc_algo_t;
+typedef uint8_t hsm_op_auth_enc_flags_t;
+typedef struct {
+    uint32_t key_identifier;                    //!< identifier of the key to be used for the operation
+    uint8_t *iv;                                //!< pointer to the initialization vector or nonce
+    uint16_t iv_size;                           //!< length in bytes of the initialization vector\n It must be 12.
+    uint8_t *aad;                               //!< pointer to the additional authentication data
+    uint16_t aad_size;                          //!< length in bytes of the additional authentication data
+    hsm_op_auth_enc_algo_t ae_algo;             //!< algorithm to be used for the operation
+    hsm_op_auth_enc_flags_t flags;              //!< bitmap specifying the operation attributes
+    uint8_t *input;                             //!< pointer to the input area\n plaintext for encryption\n (ciphertext + tag) for decryption
+    uint8_t *output;                            //!< pointer to the output area\n (ciphertext + tag) for encryption \n plaintext for decryption if the tag is verified
+    uint32_t input_size;                        //!< length in bytes of the input
+    uint32_t output_size;                       //!< length in bytes of the output
+} op_auth_enc_args_t;
+
+/**
+ * Perform authenticated encryption and precisely AES GCM  \n
+ * User can call this function only after having opened a cipher service flow
+ *
+ * \param cipher_hdl handle identifying the cipher service flow.
+ * \param args pointer to the structure containing the function arugments.
+ *
+ * \return error code
+ */
+hsm_err_t hsm_auth_enc(hsm_hdl_t cipher_hdl, op_auth_enc_args_t* args);
+#define HSM_AUTH_ENC_ALGO_AES_GCM              ((hsm_op_auth_enc_algo_t)(0x00))       //!< Perform AES GCM with following constraints: AES GCM where AAD supported, Tag len = 16 bytes, IV len = 12 bytes
+#define HSM_AUTH_ENC_FLAGS_DECRYPT             ((hsm_op_auth_enc_flags_t)(0 << 0))
+#define HSM_AUTH_ENC_FLAGS_ENCRYPT             ((hsm_op_auth_enc_flags_t)(1 << 0))
 
 typedef uint8_t hsm_op_ecies_dec_flags_t;
 typedef struct {
@@ -699,7 +728,7 @@ typedef struct {
  * \return error code
  */
 hsm_err_t hsm_hash_one_go(hsm_hdl_t hash_hdl, op_hash_one_go_args_t *args);
-#define HSM_HASH_ALGO_SHA_224      ((hsm_hash_algo_t)(0x0))       
+#define HSM_HASH_ALGO_SHA_224      ((hsm_hash_algo_t)(0x0))
 #define HSM_HASH_ALGO_SHA_256      ((hsm_hash_algo_t)(0x1))
 #define HSM_HASH_ALGO_SHA_384      ((hsm_hash_algo_t)(0x2))
 #define HSM_HASH_ALGO_SHA_512      ((hsm_hash_algo_t)(0x3))

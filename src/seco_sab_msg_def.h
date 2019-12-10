@@ -55,6 +55,7 @@
 #define SAB_CIPHER_CLOSE_REQ                    0x61u
 #define SAB_CIPHER_ONE_GO_REQ                   0x62u
 #define SAB_CIPHER_ECIES_DECRYPT_REQ            0x63u
+#define SAB_AUTH_ENC_REQ                        0x64u
 
 #define SAB_SIGNATURE_GENERATION_OPEN_REQ       0x70u
 #define SAB_SIGNATURE_GENERATION_CLOSE_REQ      0x71u
@@ -618,6 +619,33 @@ struct sab_cmd_cipher_one_go_msg {
 };
 
 struct sab_cmd_cipher_one_go_rsp {
+    struct sab_mu_hdr hdr;
+    uint32_t rsp_code;
+};
+
+#define SAB_AUTH_ENC_ALGO_GCM 0x00
+#define SAB_AUTH_ENC_FLAGS_ENCRYPT (0x01u)
+#define SAB_AUTH_ENC_FLAGS_DECRYPT (0x00u)
+
+struct sab_cmd_auth_enc_msg {
+    struct sab_mu_hdr hdr;
+    uint32_t cipher_handle;
+    uint32_t key_id;
+    uint32_t iv_address;
+    uint16_t iv_size;
+    uint8_t  ae_algo;
+    uint8_t  flags;
+    uint32_t aad_address;
+    uint16_t aad_size;
+    uint16_t rsv;
+    uint32_t input_address;
+    uint32_t output_address;
+    uint32_t input_length;
+    uint32_t output_length;
+    uint32_t crc;
+};
+
+struct sab_cmd_auth_enc_rsp {
     struct sab_mu_hdr hdr;
     uint32_t rsp_code;
 };

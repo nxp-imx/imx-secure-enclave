@@ -1854,3 +1854,70 @@ hsm_err_t hsm_data_storage(hsm_hdl_t data_storage_hdl,
 
 	return err;
 }
+
+hsm_err_t hsm_auth_enc(hsm_hdl_t cipher_hdl, op_auth_enc_args_t* args)
+{
+	struct sab_cmd_auth_enc_msg cmd;
+	struct sab_cmd_auth_enc_rsp rsp;
+	struct hsm_service_hdl_s *serv_ptr;
+	hsm_err_t err = HSM_GENERAL_ERROR;
+	uint32_t sab_err = 1;
+
+	do {
+		if (args == NULL) {
+			break;
+		}
+
+		serv_ptr = service_hdl_to_ptr(cipher_hdl);
+		if (serv_ptr == NULL) {
+			err = HSM_UNKNOWN_HANDLE;
+			break;
+		}
+
+		/* Fill the authenticated encryption command */
+		seco_fill_cmd_msg_hdr(&cmd.hdr,
+			SAB_AUTH_ENC_REQ,
+			(uint32_t)sizeof(struct sab_cmd_auth_enc_msg));
+
+		cmd.cipher_handle = cipher_hdl;
+		cmd.key_id = args->key_identifier;
+		cmd.iv_address = (uint32_t)seco_os_abs_data_buf(serv_ptr->session->phdl,
+								args->iv, args->iv_size, DATA_BUF_IS_INPUT);
+		cmd.iv_size = args->iv_size;
+		cmd.aad_address = (uint32_t)seco_os_abs_data_buf(serv_ptr->session->phdl,
+							args->aad,
+							args->aad_size,
+							DATA_BUF_IS_INPUT);
+		cmd.aad_size = args->aad_size;
+		cmd.rsv = 0;
+		cmd.ae_algo = args->ae_algo;
+		cmd.flags = args->flags;
+		cmd.input_address = (uint32_t)seco_os_abs_data_buf(serv_ptr->session->phdl,
+							args->input,
+							args->input_size,
+							DATA_BUF_IS_INPUT);
+		cmd.output_address = (uint32_t)seco_os_abs_data_buf(serv_ptr->session->phdl,
+							args->output,
+							args->output_size,
+							0u);
+		cmd.input_length = args->input_size;
+		cmd.output_length = args->output_size;
+		cmd.crc = seco_compute_msg_crc((uint32_t*)&cmd,
+				(uint32_t)(sizeof(cmd) - sizeof(uint32_t)));
+
+		/* Send the message to Seco. */
+		err = seco_send_msg_and_get_resp(serv_ptr->session->phdl,
+			(uint32_t *)&cmd,
+			(uint32_t)sizeof(struct sab_cmd_auth_enc_msg),
+			(uint32_t *)&rsp,
+			(uint32_t)sizeof(struct sab_cmd_auth_enc_rsp));
+		if (err != 0) {
+			break;
+		}
+
+		err = sab_rating_to_hsm_err(rsp.rsp_code);
+
+	} while (false);
+
+	return err;
+}
