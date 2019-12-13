@@ -504,12 +504,12 @@ struct sab_cmd_manage_key_msg {
     uint32_t key_management_handle;
     uint32_t dest_key_identifier;
     uint32_t kek_id;
-    uint16_t input_size;
+    uint16_t input_data_size;
     uint8_t flags;
     uint8_t key_type;
     uint16_t key_group;
     uint16_t key_info;
-    uint32_t input_key_addr;
+    uint32_t input_data_addr;
     uint32_t crc;
 };
 

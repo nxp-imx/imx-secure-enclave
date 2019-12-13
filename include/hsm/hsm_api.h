@@ -197,22 +197,28 @@ hsm_err_t hsm_generate_key(hsm_hdl_t key_management_hdl, op_generate_key_args_t 
 #define HSM_KEY_INFO_PERSISTENT                             ((hsm_key_info_t)(0 << 1))          //!< Persistent keys are stored in the external NVM. The entire key group is written in the NVM at the next STRICT operation.
 #define HSM_KEY_INFO_MASTER                                 ((hsm_key_info_t)(1 << 2))          //!< When set, the key is considered as a master key. Only master keys can be used as input of key derivation functions (i.e butterfly key expansion)
 typedef uint8_t hsm_op_manage_key_flags_t;
+typedef uint8_t hsm_op_manage_key_flags_t;
 typedef struct {
     uint32_t *key_identifier;           //!< pointer to the identifier of the key to be used for the operation.\n In case of create operation the new key identifier will be stored in this location.
-    uint32_t kek_identifier;            //!< identifier of the key to be used to decrypt the imported key (key encryption key). Not relevant in case of delete operation.
-    uint16_t input_size;                //!< length in bytes of the input key area. It must be 0 in case of delete operation.
+    uint32_t kek_identifier;            //!< identifier of the key to be used to decrypt the imported key (key encryption key). Only AES-256 key can be uses as KEK.
+    uint16_t input_size;                //!< length in bytes of the input key area. It must be eqaul to the length of the IV (12 bytes) + ciphertext + Tag (16 bytes). It must be 0 in case of delete operation.
     hsm_op_manage_key_flags_t flags;    //!< bitmap specifying the operation properties.
-    hsm_key_type_t key_type;            //!< indicates the type of the key to be managed. It must be 0 in case of delete operation.
-    hsm_key_group_t key_group;          //!< key group of the imported key, only relevant in case of create operation. It must be a value in the range 0-1023. Keys belonging to the same group can be cached in the HSM local memory throug the ham_manage_key_group API
+    hsm_key_type_t key_type;            //!< indicates the type of the key to be managed.
+    hsm_key_group_t key_group;          //!< key group of the imported key, only relevant in case of create operation (it must be 0 otherwise). It must be a value in the range 0-1023. Keys belonging to the same group can be cached in the HSM local memory throug the ham_manage_key_group API
     hsm_key_info_t key_info;            //!< bitmap specifying the properties of the key, in case of update operation it will replace the existing value. It must be 0 in case of delete operation.
-    uint8_t *input_key;                 //!< pointer to the key to be imported. It must be 0 in case of delete operation.
+    uint8_t *input_data;              //!< pointer to the input buffer to decrypted in order to get tkey to be imported. The input buffer is the concatenation of the IV, the ciphertext and the Tag. It must be 0 in case of delete operation.
 } op_manage_key_args_t;
 
 /**
  * This command is designed to perform the following operations:
  *  - import a key creating a new key identifier
- *  - import a key using an existing key identifie
+ *  - import a key using an existing key identifier
  *  - delete an existing key
+ *
+ * The key encryption key (KEK) can be prevsilouy pre-shared or stored in the key store.
+ *
+ * In order to import a key into the key store, the user must encrypt it with KEK.
+ * \ The encryption algorithm is AES GCM (AAD = 0, IV = 12 bytes, Tag = 16 bytes).
  *
  * User can call this function only after having opened a key management service flow
  *
@@ -222,10 +228,11 @@ typedef struct {
  * \return error code
  */
 hsm_err_t hsm_manage_key(hsm_hdl_t key_management_hdl, op_manage_key_args_t *args);
-#define HSM_OP_MANAGE_KEY_FLAGS_UPDATE                  ((hsm_op_manage_key_flags_t)(1 << 0))   //!< not supported - User can replace an existing key only by importing a key with the same type of the original one.
-#define HSM_OP_MANAGE_KEY_FLAGS_CREATE                  ((hsm_op_manage_key_flags_t)(1 << 1))   //!< not supported - Create a new key id.
-#define HSM_OP_MANAGE_KEY_FLAGS_DELETE                  ((hsm_op_manage_key_flags_t)(1 << 2))   //!< delete an existing key
-#define HSM_OP_MANAGE_KEY_FLAGS_STRICT_OPERATION        ((hsm_op_manage_key_flags_t)(1 << 7))   //!< The request is completed only when the new key has been written in the NVM. This applicable for persistent key only.
+#define HSM_OP_MANAGE_KEY_FLAGS_IMPORT_UPDATE               ((hsm_op_manage_key_flags_t)(1 << 0))   //!< User can replace an existing key only by importing a key with the same type of the original one.
+#define HSM_OP_MANAGE_KEY_FLAGS_IMPORT_CREATE               ((hsm_op_manage_key_flags_t)(1 << 1))   //!< User can create a new key id by importing an encrypted key
+#define HSM_OP_MANAGE_KEY_FLAGS_DELETE                      ((hsm_op_manage_key_flags_t)(1 << 2))   //!< Delete an existing key
+#define HSM_OP_KEY_MANAGE_FLAGS_IMPORT_PRE_SHARED_KEK       ((hsm_op_manage_key_flags_t)(1 << 3))   //!< Use the pre-shared kek
+#define HSM_OP_MANAGE_KEY_FLAGS_STRICT_OPERATION            ((hsm_op_manage_key_flags_t)(1 << 7))   //!< The request is completed only when the new key has been written in the NVM. This applicable for persistent key only.
 
 
 typedef uint8_t hsm_op_manage_key_group_flags_t;

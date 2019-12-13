@@ -433,13 +433,13 @@ hsm_err_t hsm_manage_key(hsm_hdl_t key_management_hdl,
 		cmd.key_management_handle = key_management_hdl;
 		cmd.dest_key_identifier = *(args->key_identifier);
 		cmd.kek_id = args->kek_identifier;
-		cmd.input_size = args->input_size;
+		cmd.input_data_size = args->input_size;
 		cmd.flags = args->flags;
 		cmd.key_type = args->key_type;
 		cmd.key_group = args->key_group;
  		cmd.key_info = args->key_info;
-		cmd.input_key_addr = (uint32_t)seco_os_abs_data_buf(serv_ptr->session->phdl,
-				args->input_key,
+		cmd.input_data_addr = (uint32_t)seco_os_abs_data_buf(serv_ptr->session->phdl,
+				args->input_data,
 				args->input_size,
 				DATA_BUF_IS_INPUT);
  		cmd.crc = 0u;
@@ -457,7 +457,7 @@ hsm_err_t hsm_manage_key(hsm_hdl_t key_management_hdl,
 		}
 
 		err = sab_rating_to_hsm_err(rsp.rsp_code);
-		if (cmd.flags & HSM_OP_MANAGE_KEY_FLAGS_CREATE) {
+		if (cmd.flags & HSM_OP_MANAGE_KEY_FLAGS_IMPORT_CREATE) {
 			*(args->key_identifier) = rsp.key_identifier;
 		}
 
