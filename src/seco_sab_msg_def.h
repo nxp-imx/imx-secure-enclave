@@ -92,6 +92,7 @@
 #define SAB_SHE_GET_ID                          0xF5u
 #define SAB_SHE_GET_STATUS                      0xF6u
 #define SAB_FAST_MAC_REQ                        0xF7u
+#define SAB_SHE_KEY_UPDATE_EXT                  0xF8u
 
 #define GET_STATUS_CODE(rsp_code)               ((uint8_t)((rsp_code) & 0xFFu))
 #define GET_RATING_CODE(rsp_code)               ((uint8_t)((rsp_code) >> 8))
@@ -171,6 +172,28 @@ struct sab_she_key_update_msg {
 };
 
 struct sab_she_key_update_rsp {
+    struct sab_mu_hdr hdr;
+    uint32_t rsp_code;
+    uint32_t m4[8];
+    uint32_t m5[4];
+    uint32_t crc;
+};
+
+/* Update key extension */
+
+struct sab_she_key_update_ext_msg {
+    struct sab_mu_hdr hdr;
+    uint32_t utils_handle;
+    uint32_t key_id;
+    uint32_t m1[4];
+    uint32_t m2[8];
+    uint32_t m3[4];
+    uint8_t  flags;
+    uint8_t  pad[3];
+    uint32_t crc;
+};
+
+struct sab_she_key_update_ext_rsp {
     struct sab_mu_hdr hdr;
     uint32_t rsp_code;
     uint32_t m4[8];

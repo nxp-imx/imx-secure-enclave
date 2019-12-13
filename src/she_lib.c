@@ -602,6 +602,62 @@ she_err_t she_cmd_load_key(struct she_hdl_s *hdl, uint8_t key_ext, uint8_t key_i
     return ret;
 }
 
+/* Load key ext command processing. */
+she_err_t she_cmd_load_key_ext(struct she_hdl_s *hdl, uint8_t key_ext, uint8_t key_id, uint8_t *m1, uint8_t *m2, uint8_t *m3, uint8_t *m4, uint8_t *m5, she_cmd_load_key_ext_flags_t flags)
+{
+    struct sab_she_key_update_ext_msg cmd;
+    struct sab_she_key_update_ext_rsp rsp;
+    int32_t error;
+    she_err_t ret = ERC_GENERAL_ERROR;
+
+    do {
+        if ((hdl == NULL) || (m1 == NULL) || (m2 == NULL) || (m3 == NULL) || (m4 == NULL) || (m5 == NULL)) {
+            break;
+        }
+        if (hdl->utils_handle == 0u) {
+            ret = ERC_SEQUENCE_ERROR;
+            break;
+        }
+        /* Build command message. */
+        seco_fill_cmd_msg_hdr(&cmd.hdr, SAB_SHE_KEY_UPDATE_EXT, (uint32_t)sizeof(struct sab_she_key_update_ext_msg));
+        cmd.utils_handle = hdl->utils_handle;
+        cmd.key_id = (uint32_t)key_ext | (uint32_t)key_id;
+        seco_os_abs_memcpy((uint8_t *)cmd.m1, m1, SHE_KEY_SIZE);
+        seco_os_abs_memcpy((uint8_t *)cmd.m2, m2, 2u * SHE_KEY_SIZE);
+        seco_os_abs_memcpy((uint8_t *)cmd.m3, m3, SHE_KEY_SIZE);
+        cmd.flags = flags;
+        cmd.crc = seco_compute_msg_crc((uint32_t*)&cmd, (uint32_t)(sizeof(cmd) - sizeof(uint32_t)));
+
+        /* Send the message to Seco. */
+        error = seco_send_msg_and_get_resp(hdl->phdl,
+                    (uint32_t *)&cmd, (uint32_t)sizeof(struct sab_she_key_update_ext_msg),
+                    (uint32_t *)&rsp, (uint32_t)sizeof(struct sab_she_key_update_ext_rsp));
+        if (error != 0) {
+            break;
+        }
+
+        hdl->last_rating = rsp.rsp_code;
+        if ((hdl->cancel != 0u)
+            || (GET_STATUS_CODE(rsp.rsp_code)!= SAB_SUCCESS_STATUS)
+            || (rsp.crc != seco_compute_msg_crc((uint32_t*)&rsp, (uint32_t)(sizeof(rsp) - sizeof(uint32_t))))) {
+            ret = she_seco_ind_to_she_err_t(rsp.rsp_code);
+            seco_os_abs_memset(m4, 0u, 2u * SHE_KEY_SIZE);
+            seco_os_abs_memset(m5, 0u, SHE_KEY_SIZE);
+            hdl->cancel = 0u;
+            break;
+        }
+
+        /* Success: copy m4 and m5 reported by SECO to output.*/
+        seco_os_abs_memcpy(m4, (uint8_t *)rsp.m4, 2u * SHE_KEY_SIZE);
+        seco_os_abs_memcpy(m5, (uint8_t *)rsp.m5, SHE_KEY_SIZE);
+
+        /* Success. */
+        ret = ERC_NO_ERROR;
+    } while (false);
+
+    return ret;
+}
+
 she_err_t she_cmd_load_plain_key(struct she_hdl_s *hdl, uint8_t *key) 
 {
     struct she_cmd_load_plain_key_msg cmd;
