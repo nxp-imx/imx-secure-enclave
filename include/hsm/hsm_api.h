@@ -918,5 +918,32 @@ hsm_err_t hsm_data_storage(hsm_hdl_t data_storage_hdl, op_data_storage_args_t *a
 hsm_err_t hsm_close_data_storage_service(hsm_hdl_t data_storage_hdl);
 /** @} end of data storage service flow */
 
+/**
+ *  @defgroup group14
+ * @{
+ */
+typedef uint8_t hsm_op_kik_export_flags_t;
+typedef struct {
+    uint8_t *signed_message;               //!< pointer to signed_message authorizing the operation
+    uint16_t signed_msg_size;              //!< size of the signed_message authorizing the operation
+    uint16_t kik_size;                     //!< length in bytes of the kik. Must be 32 bytes.
+    uint8_t *out_kik;                      //!< pointer to the kik address where the derived kik (key import key) must be written
+    hsm_op_kik_export_flags_t flags;       //!< flags bitmap specifying the operation attributes.
+    uint8_t reserved[3];
+} hsm_op_kik_export_args_t;
+
+/**
+ * Export the derived key import key.
+ *
+ * \param session_hdl handle identifying the current session.
+ * \param args pointer to the structure containing the function arugments.
+ *
+ * \return error code
+ */
+hsm_err_t hsm_kik_export(hsm_hdl_t session_hdl,  hsm_op_kik_export_args_t *args);
+
+/** @} end of key import key export operation */
+
+
 /** \}*/
 #endif

@@ -1921,3 +1921,57 @@ hsm_err_t hsm_auth_enc(hsm_hdl_t cipher_hdl, op_auth_enc_args_t* args)
 
 	return err;
 }
+
+
+hsm_err_t hsm_kik_export(hsm_hdl_t session_hdl,
+						 hsm_op_kik_export_args_t *args)
+{
+	struct sab_kik_export_msg cmd;
+	struct sab_kik_export_rsp rsp;
+	struct hsm_session_hdl_s *sess_ptr;
+	hsm_err_t err = HSM_GENERAL_ERROR;
+
+	do {
+		if (args == NULL) {
+			break;
+		}
+		sess_ptr = session_hdl_to_ptr(session_hdl);
+		if (sess_ptr == NULL) {
+			err = HSM_UNKNOWN_HANDLE;
+			break;
+		}
+
+		/* Send the signed message to SECO if provided here. */
+        if (args->signed_message != NULL) {
+            (void)seco_os_abs_send_signed_message(sess_ptr->phdl, args->signed_message, args->signed_msg_size);
+        }
+
+		seco_fill_cmd_msg_hdr(&cmd.hdr,
+			SAB_KIK_EXPORT_REQ,
+			(uint32_t)sizeof(struct sab_kik_export_msg));
+		cmd.session_handle = session_hdl;
+		cmd.kik_address = (uint32_t)seco_os_abs_data_buf(sess_ptr->phdl,
+							args->out_kik,
+							args->kik_size,
+							0u);
+		cmd.flags = args->flags;
+		cmd.kik_size = args->kik_size;
+		cmd.reserved = 0u;
+
+
+		err = seco_send_msg_and_get_resp(sess_ptr->phdl,
+			(uint32_t *)&cmd,
+			(uint32_t)sizeof(struct sab_kik_export_msg),
+			(uint32_t *)&rsp,
+			(uint32_t)sizeof(struct sab_kik_export_rsp));
+
+		if (err != 0) {
+			break;
+		}
+
+		err = sab_rating_to_hsm_err(rsp.rsp_code);
+
+	} while (false);
+
+	return err;
+}

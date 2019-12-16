@@ -45,7 +45,7 @@
 #define SAB_MANAGE_KEY_REQ                      0x43u
 #define SAB_BUT_KEY_EXP_REQ                     0x44u
 #define SAB_MANAGE_KEY_GROUP_REQ                0x45u
-
+#define SAB_KIK_EXPORT_REQ                      0x46u
 
 #define SAB_MAC_OPEN_REQ                        0x50u
 #define SAB_MAC_CLOSE_REQ                       0x51u
@@ -1034,6 +1034,20 @@ struct sab_cmd_data_storage_msg {
 };
 
 struct sab_cmd_data_storage_rsp {
+    struct sab_mu_hdr hdr;
+    uint32_t rsp_code;
+};
+
+struct sab_kik_export_msg {
+    struct sab_mu_hdr hdr;
+    uint32_t session_handle;
+    uint32_t kik_address;
+    uint8_t kik_size;
+    uint8_t flags;
+    uint16_t reserved;
+};
+
+struct sab_kik_export_rsp {
     struct sab_mu_hdr hdr;
     uint32_t rsp_code;
 };
