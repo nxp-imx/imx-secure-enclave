@@ -196,11 +196,13 @@ hsm_err_t hsm_generate_key(hsm_hdl_t key_management_hdl, op_generate_key_args_t 
 #define HSM_KEY_INFO_TRANSIENT                              ((hsm_key_info_t)(1 << 1))          //!< not supported - Transient keys are deleted when the corresponding key store service flow is closed or after a PoR. Transient keys cannot be in the same key group than persistent keys.
 #define HSM_KEY_INFO_PERSISTENT                             ((hsm_key_info_t)(0 << 1))          //!< Persistent keys are stored in the external NVM. The entire key group is written in the NVM at the next STRICT operation.
 #define HSM_KEY_INFO_MASTER                                 ((hsm_key_info_t)(1 << 2))          //!< When set, the key is considered as a master key. Only master keys can be used as input of key derivation functions (i.e butterfly key expansion)
+
+
 typedef uint8_t hsm_op_manage_key_flags_t;
 typedef uint8_t hsm_op_manage_key_flags_t;
 typedef struct {
     uint32_t *key_identifier;           //!< pointer to the identifier of the key to be used for the operation.\n In case of create operation the new key identifier will be stored in this location.
-    uint32_t kek_identifier;            //!< identifier of the key to be used to decrypt the imported key (key encryption key). Only AES-256 key can be uses as KEK.
+    uint32_t kek_identifier;            //!< identifier of the key to be used to decrypt the imported key (key encryption key), only AES-256 key can be uses as KEK. It must be 0 if the HSM_OP_MANAGE_KEY_FLAGS_PRE_SHARED_PART_UNIQUE_KEK or HSM_OP_MANAGE_KEY_FLAGS_PRE_SHARED_COMMON_KEK flags are set.
     uint16_t input_size;                //!< length in bytes of the input key area. It must be eqaul to the length of the IV (12 bytes) + ciphertext + Tag (16 bytes). It must be 0 in case of delete operation.
     hsm_op_manage_key_flags_t flags;    //!< bitmap specifying the operation properties.
     hsm_key_type_t key_type;            //!< indicates the type of the key to be managed.
@@ -228,11 +230,12 @@ typedef struct {
  * \return error code
  */
 hsm_err_t hsm_manage_key(hsm_hdl_t key_management_hdl, op_manage_key_args_t *args);
-#define HSM_OP_MANAGE_KEY_FLAGS_IMPORT_UPDATE               ((hsm_op_manage_key_flags_t)(1 << 0))   //!< User can replace an existing key only by importing a key with the same type of the original one.
-#define HSM_OP_MANAGE_KEY_FLAGS_IMPORT_CREATE               ((hsm_op_manage_key_flags_t)(1 << 1))   //!< User can create a new key id by importing an encrypted key
-#define HSM_OP_MANAGE_KEY_FLAGS_DELETE                      ((hsm_op_manage_key_flags_t)(1 << 2))   //!< Delete an existing key
-#define HSM_OP_KEY_MANAGE_FLAGS_IMPORT_PRE_SHARED_KEK       ((hsm_op_manage_key_flags_t)(1 << 3))   //!< Use the pre-shared kek
-#define HSM_OP_MANAGE_KEY_FLAGS_STRICT_OPERATION            ((hsm_op_manage_key_flags_t)(1 << 7))   //!< The request is completed only when the new key has been written in the NVM. This applicable for persistent key only.
+#define HSM_OP_MANAGE_KEY_FLAGS_IMPORT_UPDATE                           ((hsm_op_manage_key_flags_t)(1 << 0))   //!< User can replace an existing key only by importing a key with the same type of the original one.
+#define HSM_OP_MANAGE_KEY_FLAGS_IMPORT_CREATE                           ((hsm_op_manage_key_flags_t)(1 << 1))   //!< User can create a new key id by importing an encrypted key
+#define HSM_OP_MANAGE_KEY_FLAGS_DELETE                                  ((hsm_op_manage_key_flags_t)(1 << 2))   //!< Delete an existing key
+#define HSM_OP_MANAGE_KEY_FLAGS_PRE_SHARED_PART_UNIQUE_KEK              ((hsm_op_manage_key_flags_t)(1 << 3))   //!< The key to be imported is encrypted using the pre-shared part-unique kek
+#define HSM_OP_MANAGE_KEY_FLAGS_PRE_SHARED_COMMON_KEK                   ((hsm_op_manage_key_flags_t)(1 << 4))   //!< The key to be imported is encrypted using the pre-shared common kek
+#define HSM_OP_MANAGE_KEY_FLAGS_STRICT_OPERATION                        ((hsm_op_manage_key_flags_t)(1 << 7))   //!< The request is completed only when the new key has been written in the NVM. This applicable for persistent key only.
 
 
 typedef uint8_t hsm_op_manage_key_group_flags_t;
@@ -925,9 +928,9 @@ hsm_err_t hsm_close_data_storage_service(hsm_hdl_t data_storage_hdl);
 typedef uint8_t hsm_op_kik_export_flags_t;
 typedef struct {
     uint8_t *signed_message;               //!< pointer to signed_message authorizing the operation
+    uint8_t *out_kik;                      //!< pointer to the kik address where the derived kik (key import key) must be written
     uint16_t signed_msg_size;              //!< size of the signed_message authorizing the operation
     uint16_t kik_size;                     //!< length in bytes of the kik. Must be 32 bytes.
-    uint8_t *out_kik;                      //!< pointer to the kik address where the derived kik (key import key) must be written
     hsm_op_kik_export_flags_t flags;       //!< flags bitmap specifying the operation attributes.
     uint8_t reserved[3];
 } hsm_op_kik_export_args_t;
