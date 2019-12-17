@@ -11,9 +11,10 @@
  * 0.8 - subject to change | May 24 2019  | It adds the following API: \n-signature generation \n-signature verification \n-rng \n-hash \n-butterfly key expansion \n-ECIES enc/dec \n-public key reconstruction \n-public key decompression
  * 0.9 - subject to change | May 28 2019  | Explicit addresses are replaced by pointers.
  * 1.0 - subject to change | May 29 2019  | - bug/typos fix. \n- Change HSM_SVC_KEY_STORE_FLAGS definition
- * 1.1 - subject to change | July 31 2019 | - hsm_butterfly_key_expansion argument definition: dest_key_identifier is now a pointer. \n- Add error code definition. \n- improve argument comments clarity
+ * 1.1 - subject to change | July 31 2019 | - hsm_butterfly_key_expansion argument definition: dest_key_identifier is now a pointer. \n- add error code definition. \n- improve argument comments clarity
  * 1.5 - subject to change | Sept 13 2019 | - manage key argument: fix padding size\n - butterfly key expansion: change argument definition\n- introduce public key recovery API
  * 1.6 - subject to change | Oct 14 2019  | - add Key store section in chapter 3\n- change key_info and flags definition, substitute key_type_ext with group_id\n- hsm_generate_key, hsm_manage_key, hsm_butterfly_key_expansion: change argument definition\n- hsm_manage_key: change argument definition\n- add hsm_manage_key_group API
+ * 1.7 - subject to change | Dec 20 2019  | - add generic data storage API \n- add GCM and CMAC support\n- add support for AES 192/256 key size for all cipher algorithms\n - add root KEK export API\n - add key import functionality\n- add get info API
  * */
 
 /*! \page page1 General concepts related to the API

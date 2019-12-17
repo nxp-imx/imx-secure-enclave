@@ -196,31 +196,33 @@ hsm_err_t hsm_generate_key(hsm_hdl_t key_management_hdl, op_generate_key_args_t 
 #define HSM_KEY_INFO_PERMANENT                              ((hsm_key_info_t)(1 << 0))          //!< When set, the key is permanent (write locked). Once created, it will not be possible to update or delete the key anymore. Transient keys will be anyway deleted after a PoR or when the corresponding key store service flow is closed. This bit can never be reset.
 #define HSM_KEY_INFO_TRANSIENT                              ((hsm_key_info_t)(1 << 1))          //!< not supported - Transient keys are deleted when the corresponding key store service flow is closed or after a PoR. Transient keys cannot be in the same key group than persistent keys.
 #define HSM_KEY_INFO_MASTER                                 ((hsm_key_info_t)(1 << 2))          //!< When set, the key is considered as a master key. Only master keys can be used as input of key derivation functions (i.e butterfly key expansion)
-#define HSM_KEY_INFO_KEK                                    ((hsm_key_info_t)(1 << 3))          //!< When set, the key is considered as a key encryption key. It can only be used to import keys in the key store. Not supported.
+#define HSM_KEY_INFO_KEK                                    ((hsm_key_info_t)(1 << 3))          //!< not supported - When set, the key is considered as a key encryption key. It can only be used to import keys in the key store.
 
-typedef uint8_t hsm_op_manage_key_flags_t;
 typedef uint8_t hsm_op_manage_key_flags_t;
 typedef struct {
     uint32_t *key_identifier;           //!< pointer to the identifier of the key to be used for the operation.\n In case of create operation the new key identifier will be stored in this location.
-    uint32_t kek_identifier;            //!< identifier of the key to be used to decrypt the imported key (key encryption key), only AES-256 key can be uses as KEK. It must be 0 if the HSM_OP_MANAGE_KEY_FLAGS_PRE_SHARED_PART_UNIQUE_KEK or HSM_OP_MANAGE_KEY_FLAGS_PRE_SHARED_COMMON_KEK flags are set.
+    uint32_t kek_identifier;            //!< not supported - identifier of the key to be used to decrypt the key to be imported (Key Encryption Key), only AES-256 key can be uses as KEK. It must be 0 if the HSM_OP_MANAGE_KEY_FLAGS_PART_UNIQUE_ROOT_KEK or HSM_OP_MANAGE_KEY_FLAGS_COMMON_ROOT_KEK flags are set.
     uint16_t input_size;                //!< length in bytes of the input key area. It must be eqaul to the length of the IV (12 bytes) + ciphertext + Tag (16 bytes). It must be 0 in case of delete operation.
     hsm_op_manage_key_flags_t flags;    //!< bitmap specifying the operation properties.
     hsm_key_type_t key_type;            //!< indicates the type of the key to be managed.
     hsm_key_group_t key_group;          //!< key group of the imported key, only relevant in case of create operation (it must be 0 otherwise). It must be a value in the range 0-1023. Keys belonging to the same group can be cached in the HSM local memory throug the ham_manage_key_group API
     hsm_key_info_t key_info;            //!< bitmap specifying the properties of the key, in case of update operation it will replace the existing value. It must be 0 in case of delete operation.
-    uint8_t *input_data;              //!< pointer to the input buffer to decrypted in order to get tkey to be imported. The input buffer is the concatenation of the IV, the ciphertext and the Tag. It must be 0 in case of delete operation.
+    uint8_t *input_data;                //!< pointer to the input buffer. The input buffer is the concatenation of the IV, the encrypted key to be imported and the Tag. It must be 0 in case of delete operation.
 } op_manage_key_args_t;
 
 /**
  * This command is designed to perform the following operations:
- *  - import a key creating a new key identifier
- *  - import a key using an existing key identifier
+ *  - import a key creating a new key identifier (import and create)
+ *  - import a key using an existing key identifier (import and update)
  *  - delete an existing key
  *
- * The key encryption key (KEK) can be prevsilouy pre-shared or stored in the key store.
+ * The key encryption key (KEK) can be previosly pre-shared or stored in the key store.
  *
- * In order to import a key into the key store, the user must encrypt it with KEK.
- * \ The encryption algorithm is AES GCM (AAD = 0, IV = 12 bytes, Tag = 16 bytes).
+ * The key to be imported must be encrypted by using the KEK as following:
+ *  - Algorithm: AES GCM
+ *  - AAD = 0
+ *  - IV = 12 bytes
+ *  - Tag = 16 bytes
  *
  * User can call this function only after having opened a key management service flow
  *
@@ -231,17 +233,17 @@ typedef struct {
  */
 hsm_err_t hsm_manage_key(hsm_hdl_t key_management_hdl, op_manage_key_args_t *args);
 #define HSM_OP_MANAGE_KEY_FLAGS_IMPORT_UPDATE                           ((hsm_op_manage_key_flags_t)(1 << 0))   //!< User can replace an existing key only by importing a key with the same type of the original one.
-#define HSM_OP_MANAGE_KEY_FLAGS_IMPORT_CREATE                           ((hsm_op_manage_key_flags_t)(1 << 1))   //!< User can create a new key id by importing an encrypted key
+#define HSM_OP_MANAGE_KEY_FLAGS_IMPORT_CREATE                           ((hsm_op_manage_key_flags_t)(1 << 1))   //!< Import a key and create a new identifier
 #define HSM_OP_MANAGE_KEY_FLAGS_DELETE                                  ((hsm_op_manage_key_flags_t)(1 << 2))   //!< Delete an existing key
-#define HSM_OP_MANAGE_KEY_FLAGS_PRE_SHARED_PART_UNIQUE_KEK              ((hsm_op_manage_key_flags_t)(1 << 3))   //!< The key to be imported is encrypted using the pre-shared part-unique kek
-#define HSM_OP_MANAGE_KEY_FLAGS_PRE_SHARED_COMMON_KEK                   ((hsm_op_manage_key_flags_t)(1 << 4))   //!< The key to be imported is encrypted using the pre-shared common kek
+#define HSM_OP_MANAGE_KEY_FLAGS_PART_UNIQUE_ROOT_KEK                    ((hsm_op_manage_key_flags_t)(1 << 3))   //!< The key to be imported is encrypted using the part-unique root kek
+#define HSM_OP_MANAGE_KEY_FLAGS_COMMON_ROOT_KEK                         ((hsm_op_manage_key_flags_t)(1 << 4))   //!< The key to be imported is encrypted using the common root kek
 #define HSM_OP_MANAGE_KEY_FLAGS_STRICT_OPERATION                        ((hsm_op_manage_key_flags_t)(1 << 7))   //!< The request is completed only when the new key has been written in the NVM. This applicable for persistent key only.
 
 
 typedef uint8_t hsm_op_manage_key_group_flags_t;
 typedef struct {
-    hsm_key_group_t key_group;          //!< it must be a value in the range 0-1023. Keys belonging to the same group can be cached in the HSM local memory throug the ham_manage_key_group API
-    hsm_op_manage_key_group_flags_t flags;    //!< bitmap specifying the operation properties.
+    hsm_key_group_t key_group;                  //!< it must be a value in the range 0-1023. Keys belonging to the same group can be cached in the HSM local memory throug the ham_manage_key_group API
+    hsm_op_manage_key_group_flags_t flags;      //!< bitmap specifying the operation properties.
     uint8_t reserved;
 } op_manage_key_group_args_t;
 
@@ -267,21 +269,21 @@ hsm_err_t hsm_manage_key_group(hsm_hdl_t key_management_hdl, op_manage_key_group
 
 typedef uint8_t hsm_op_but_key_exp_flags_t;
 typedef struct {
-    uint32_t key_identifier;            //!< identifier of the key to be expanded
-    uint8_t *expansion_function_value;  //!< pointer to the expansion function value input
-    uint8_t *hash_value;                //!< pointer to the hash value input.\n In case of explicit certificate, the hash value address must be set to 0.
-    uint8_t *pr_reconstruction_value;   //!< pointer to the private reconstruction value input.\n In case of explicit certificate, the pr_reconstruction_value address must be set to 0.
+    uint32_t key_identifier;                //!< identifier of the key to be expanded
+    uint8_t *expansion_function_value;      //!< pointer to the expansion function value input
+    uint8_t *hash_value;                    //!< pointer to the hash value input.\n In case of explicit certificate, the hash value address must be set to 0.
+    uint8_t *pr_reconstruction_value;       //!< pointer to the private reconstruction value input.\n In case of explicit certificate, the pr_reconstruction_value address must be set to 0.
     uint8_t expansion_function_value_size;  //!< length in bytes of the expansion function input
-    uint8_t hash_value_size;            //!< length in bytes of the hash value input.\n In case of explicit certificate, the hash_value_size parameter must be set to 0.
+    uint8_t hash_value_size;                //!< length in bytes of the hash value input.\n In case of explicit certificate, the hash_value_size parameter must be set to 0.
     uint8_t pr_reconstruction_value_size;   //!< length in bytes of the private reconstruction value input.\n In case of explicit certificate, the pr_reconstruction_value_size parameter must be set to 0.
-    hsm_op_but_key_exp_flags_t flags;   //!< bitmap specifying the operation properties
-    uint32_t *dest_key_identifier;       //!< pointer to identifier of the derived key to be used for the operation.\n In case of create operation the new destination key identifier will be stored in this location.
-    uint8_t *output;                    //!< pointer to the output area where the public key must be written.
-    uint16_t output_size;               //!< length in bytes of the generated key, if the size is 0, no key is copied in the output.
-    hsm_key_type_t key_type;            //!< indicates the type of the key to be derived.
+    hsm_op_but_key_exp_flags_t flags;       //!< bitmap specifying the operation properties
+    uint32_t *dest_key_identifier;          //!< pointer to identifier of the derived key to be used for the operation.\n In case of create operation the new destination key identifier will be stored in this location.
+    uint8_t *output;                        //!< pointer to the output area where the public key must be written.
+    uint16_t output_size;                   //!< length in bytes of the generated key, if the size is 0, no key is copied in the output.
+    hsm_key_type_t key_type;                //!< indicates the type of the key to be derived.
     uint8_t reserved;
-    hsm_key_group_t key_group;          //!< it must be a value in the range 0-1023. Keys belonging to the same group can be cached in the HSM local memory throug the ham_manage_key_group API
-    hsm_key_info_t key_info;            //!< bitmap specifying the properties of the derived key.
+    hsm_key_group_t key_group;              //!< it must be a value in the range 0-1023. Keys belonging to the same group can be cached in the HSM local memory throug the ham_manage_key_group API
+    hsm_key_info_t key_info;                //!< bitmap specifying the properties of the derived key.
 } op_butt_key_exp_args_t;
 
 /**
@@ -396,7 +398,7 @@ typedef struct {
 } op_auth_enc_args_t;
 
 /**
- * Perform authenticated encryption and precisely AES GCM  \n
+ * Perform authenticated encryption operation\n
  * User can call this function only after having opened a cipher service flow
  *
  * \param cipher_hdl handle identifying the cipher service flow.
@@ -879,7 +881,7 @@ typedef struct {
 
 /**
  * Open a data storage service flow\n
- * User must open this service flow in order to store retreive generic data in the HSM.
+ * User must open this service flow in order to store/retreive generic data in/from the HSM.
  *
  * \param key_store_hdl handle indentifing the key store service flow.
  * \param args pointer to the structure containing the function arugments.
@@ -900,7 +902,7 @@ typedef struct {
 } op_data_storage_args_t;
 
 /**
- * Store or Retrieve generic data defined by a data_id. \n
+ * Store or retrieve generic data identified by a data_id. \n
  *
  * \param data_storage_hdl handle identifying the data storage service flow.
  * \param args pointer to the structure containing the function arugments.
@@ -922,13 +924,13 @@ hsm_err_t hsm_close_data_storage_service(hsm_hdl_t data_storage_hdl);
 /** @} end of data storage service flow */
 
 /**
- *  @defgroup group14
+ *  @defgroup group14 Root KEK export
  * @{
  */
 typedef uint8_t hsm_op_export_root_kek_flags_t;
 typedef struct {
     uint8_t *signed_message;                    //!< pointer to signed_message authorizing the operation
-    uint8_t *out_root_kek;                      //!< pointer to the root kek address where the derived root kek (key encryption key) must be written
+    uint8_t *out_root_kek;                      //!< pointer to the output area where the derived root kek (key encryption key) must be written
     uint16_t signed_msg_size;                   //!< size of the signed_message authorizing the operation
     uint16_t root_kek_size;                     //!< length in bytes of the root kek. Must be 32 bytes.
     hsm_op_export_root_kek_flags_t flags;       //!< flags bitmap specifying the operation attributes.
@@ -945,7 +947,8 @@ typedef struct {
  * \return error code
  */
 hsm_err_t hsm_export_root_key_encryption_key (hsm_hdl_t session_hdl,  hsm_op_export_root_kek_args_t *args);
-#define HSM_OP_EXPORT_ROOT_KEK_FLAGS_COMMON_KEY   ((hsm_op_export_root_kek_flags_t)(1 << 0))
+#define HSM_OP_EXPORT_ROOT_KEK_FLAGS_COMMON_KEK   ((hsm_op_export_root_kek_flags_t)(1 << 0))
+#define HSM_OP_EXPORT_ROOT_KEK_FLAGS_UNIQUE_KEK   ((hsm_op_export_root_kek_flags_t)(0 << 0))
 /** @} end of export root key encryption key operation */
 
 /**

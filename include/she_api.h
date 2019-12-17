@@ -291,7 +291,7 @@ typedef uint8_t she_cmd_load_key_ext_flags_t;
 /**
  * This is an extension of the she_cmd_load_key API.
  * The functionality of the she_cmd_load_key API is extended by adding a flag argument.
- * STRICT OPERATION flag: User can use this flag to perform multiple updates before writing the key store into the NVM and incrementing the monotonic counter. The updates to the key store must be considered as effective only after an operation specifing the flag "STRICT OPERATION" is aknowledged by SHE.
+ *  - STRICT OPERATION flag: User can use this flag to perform multiple updates before writing the key store into the NVM and incrementing the monotonic counter. The updates to the key store must be considered as effective only after an operation specifying the flag "STRICT OPERATION" is aknowledged by SHE.
  *
  * \param hdl pointer to the SHE session handler
  * \param key_ext identifier of the key extension to be used for the operation
