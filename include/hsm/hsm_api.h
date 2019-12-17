@@ -944,6 +944,8 @@ typedef struct {
  * \return error code
  */
 hsm_err_t hsm_kik_export(hsm_hdl_t session_hdl,  hsm_op_kik_export_args_t *args);
+#define HSM_OP_KIK_EXPORT_FLAGS_COMMON_KEY  ((hsm_op_kik_export_flags_t)(1 << 0))
+
 
 /** @} end of key import key export operation */
 
