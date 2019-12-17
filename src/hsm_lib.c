@@ -1922,7 +1922,6 @@ hsm_err_t hsm_auth_enc(hsm_hdl_t cipher_hdl, op_auth_enc_args_t* args)
 	return err;
 }
 
-
 hsm_err_t hsm_kik_export(hsm_hdl_t session_hdl,
 						 hsm_op_kik_export_args_t *args)
 {
@@ -1975,3 +1974,32 @@ hsm_err_t hsm_kik_export(hsm_hdl_t session_hdl,
 
 	return err;
 }
+
+hsm_err_t hsm_get_info(hsm_hdl_t session_hdl, hsm_op_get_info_args_t *args) {
+	struct hsm_session_hdl_s *sess_ptr;
+	hsm_err_t err = HSM_GENERAL_ERROR;
+	
+    do {
+
+		sess_ptr = session_hdl_to_ptr(session_hdl);
+		if (sess_ptr == NULL) {
+			err = HSM_UNKNOWN_HANDLE;
+			break;
+		}
+
+        if ((args == NULL) || (args->user_sab_id == NULL) || (args->chip_unique_id == NULL) || (args->chip_monotonic_counter == NULL) || (args->chip_life_cycle == NULL) || (args->version == NULL) || (args->version_ext == NULL) || (args->fips_mode == NULL)) {
+            break;
+        }
+
+        err = sab_get_info(sess_ptr->phdl, session_hdl, args->user_sab_id, args->chip_unique_id, args->chip_monotonic_counter, args->chip_life_cycle, args->version, args->version_ext, args->fips_mode);
+
+		if (err != 0) {
+			break;
+		}
+
+    } while (false);
+
+	return err;
+}
+
+

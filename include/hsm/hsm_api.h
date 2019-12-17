@@ -945,10 +945,32 @@ typedef struct {
  */
 hsm_err_t hsm_kik_export(hsm_hdl_t session_hdl,  hsm_op_kik_export_args_t *args);
 #define HSM_OP_KIK_EXPORT_FLAGS_COMMON_KEY  ((hsm_op_kik_export_flags_t)(1 << 0))
-
-
 /** @} end of key import key export operation */
 
+/**
+ *  @defgroup group15 Get info
+ * @{
+ */
+typedef struct {
+    uint32_t *user_sab_id;              //!< pointer to the output area where the user identifier (32bits) must be written
+    uint8_t  *chip_unique_id;           //!< pointer to the output area where the chip unique identifier (64bits) must be written
+    uint16_t *chip_monotonic_counter;   //!< pointer to the output are where the chip monotonic counter value (16bits) must be written
+    uint16_t *chip_life_cycle;          //!< pointer to the output area where the chip current life cycle (16bits) must be written
+    uint32_t *version;                  //!< pointer to the output area where the module version (32bits) must be written
+    uint32_t *version_ext;              //!< pointer to the output area where module extended version (32bits) must be written
+    uint8_t  *fips_mode;                //!< pointer to the output area where the FIPS mode of operation (8bits) must be written
+} hsm_op_get_info_args_t;
+/**
+ *
+ * \param session_hdl handle identifying the current session.
+ * \param args pointer to the structure containing the function arugments.
+ *
+ * \return error code
+ */
+
+hsm_err_t hsm_get_info(hsm_hdl_t session_hdl, hsm_op_get_info_args_t *args);
+
+/** @} end of Get info operation */
 
 /** \}*/
 #endif
