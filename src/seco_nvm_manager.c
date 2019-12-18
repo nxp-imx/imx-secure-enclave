@@ -424,8 +424,7 @@ static uint32_t seco_nvm_manager_get_chunk(struct seco_nvm_ctx *nvm_ctx, struct 
         }
 
         if (resp.rsp_code == SAB_FAILURE_STATUS) {
-            err = 0u; /* not failing due to this error */
-            printf("seco_nvm_manager_get_chunk error blob_id 0x%x \n", blob_id);
+            err = 0u; /* not killing due to this error */
             break;
         }
 
