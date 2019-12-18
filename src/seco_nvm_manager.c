@@ -423,6 +423,12 @@ static uint32_t seco_nvm_manager_get_chunk(struct seco_nvm_ctx *nvm_ctx, struct 
             break;
         }
 
+        if (resp.rsp_code == SAB_FAILURE_STATUS) {
+            err = 0u; /* not failing due to this error */
+            printf("seco_nvm_manager_get_chunk error blob_id 0x%x \n", blob_id);
+            break;
+        }
+
         /* Wait for the message from SECO indicating that the data are no more in use. */
         len = seco_os_abs_read_mu_message(nvm_ctx->phdl, (uint32_t *)&finish_msg, (uint32_t)sizeof(struct sab_cmd_key_store_chunk_get_done_msg));
         if (
