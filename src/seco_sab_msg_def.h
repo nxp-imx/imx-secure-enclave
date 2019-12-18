@@ -1052,4 +1052,54 @@ struct sab_kik_export_rsp {
     uint32_t rsp_code;
 };
 
+struct sab_cmd_mac_open_msg{
+    struct sab_mu_hdr hdr;
+    uint32_t key_store_handle;
+    uint32_t input_address_ext;
+    uint32_t output_address_ext;
+    uint8_t flags;
+    uint8_t rsv[3];
+    uint32_t crc;
+} ;
+
+struct sab_cmd_mac_open_rsp{
+    struct sab_mu_hdr hdr;
+    uint32_t rsp_code;
+    uint32_t mac_handle;
+} ;
+
+struct sab_cmd_mac_close_msg {
+    struct sab_mu_hdr hdr;
+    uint32_t mac_handle;
+} ;
+
+struct sab_cmd_mac_close_rsp {
+    struct sab_mu_hdr hdr;
+    uint32_t rsp_code;
+} ;
+
+struct sab_cmd_mac_one_go_msg {
+    struct sab_mu_hdr hdr;
+    uint32_t mac_handle;
+    uint32_t key_id;
+    uint32_t payload_address;
+    uint32_t mac_address;
+    uint16_t payload_size;
+    uint16_t mac_size;
+    uint8_t  flags;
+    uint8_t  algorithm;
+    uint8_t  rsv[2];
+    uint32_t crc;
+};
+
+struct sab_cmd_mac_one_go_rsp {
+    struct sab_mu_hdr hdr;
+    uint32_t rsp_code;
+    uint32_t verification_status;
+};
+
+#define SAB_HSM_MAC_ONE_GO_IND_VERIFICATION_STATUS_OK  (0x6C1AA1C6u)
+#define SAB_HSM_MAC_ONE_GO_IND_VERIFICATION_STATUS_KO  (0u)
+
+
 #endif

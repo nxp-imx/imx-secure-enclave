@@ -972,5 +972,71 @@ hsm_err_t hsm_get_info(hsm_hdl_t session_hdl, hsm_op_get_info_args_t *args);
 
 /** @} end of Get info operation */
 
+/**
+ *  @defgroup group16 Mac
+ * @{
+ */
+
+typedef uint8_t hsm_svc_mac_flags_t;
+typedef struct {
+    hsm_svc_mac_flags_t flags;           //!< bitmap specifying the services properties.
+    uint8_t reserved[3];
+} open_svc_mac_args_t;
+
+/**
+ * Open a mac service flow\n
+ * User can call this function only after having opened a key store service flow.\n
+ * User must open this service in order to perform mac operation\n
+ *
+ * \param key_store_hdl handle indentifing the key store service flow.
+ * \param args pointer to the structure containing the function arugments.
+ * \param mac_hdl pointer to where the mac service flow handle must be written.
+ *
+ * \return error code
+ */
+hsm_err_t hsm_open_mac_service(hsm_hdl_t key_store_hdl, open_svc_mac_args_t *args, hsm_hdl_t *mac_hdl);
+
+
+typedef uint8_t hsm_op_mac_one_go_algo_t;
+typedef uint8_t hsm_op_mac_one_go_flags_t; 
+
+typedef struct {
+    uint32_t key_identifier;                    //!< identifier of the key to be used for the operation
+    hsm_op_mac_one_go_algo_t algorithm;         //!< algorithm to be used for the operation
+    hsm_op_mac_one_go_flags_t flags;            //!< bitmap specifying the operation attributes
+    uint8_t *payload;                           //!< pointer to the payload area\n 
+    uint8_t *mac;                               //!< pointer to the tag area\n 
+    uint16_t payload_size;                      //!< length in bytes of the payload
+    uint16_t mac_size;                          //!< length in bytes of the tag\n the value is in range from 4 to 16 bytes.
+} op_mac_one_go_args_t;
+
+typedef uint32_t hsm_mac_verification_status_t;
+/**
+ * Perform mac operation\n
+ * User can call this function only after having opened a mac service flow
+ *
+ * \param mac_hdl handle identifying the mac service flow.
+ * \param args pointer to the structure containing the function arugments.
+ *
+ * \return error code
+ */
+hsm_err_t hsm_mac_one_go(hsm_hdl_t mac_hdl, op_mac_one_go_args_t* args, hsm_mac_verification_status_t *status);
+
+#define HSM_OP_MAC_ONE_GO_FLAGS_MAC_VERIFICATION       ((hsm_op_mac_one_go_flags_t)( 0 << 0))
+#define HSM_OP_MAC_ONE_GO_FLAGS_MAC_GENERATION         ((hsm_op_mac_one_go_flags_t)( 1 << 0))
+#define HSM_OP_MAC_ONE_GO_ALGO_AES_CMAC                ((hsm_op_mac_one_go_algo_t)(0x01))
+#define HSM_MAC_VERIFICATION_STATUS_SUCCESS            ((hsm_mac_verification_status_t)(0x6C1AA1C6))
+
+/**
+ * Terminate a previously opened mac service flow
+ *
+ * \param mac_hdl pointer to handle identifying the mac service flow to be closed.
+ *
+ * \return error code
+ */
+hsm_err_t hsm_close_mac_service(hsm_hdl_t mac_hdl);
+
+/** @} end of mac service flow */
+
 /** \}*/
 #endif

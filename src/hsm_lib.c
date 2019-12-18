@@ -2002,4 +2002,134 @@ hsm_err_t hsm_get_info(hsm_hdl_t session_hdl, hsm_op_get_info_args_t *args) {
 	return err;
 }
 
+hsm_err_t hsm_open_mac_service(hsm_hdl_t key_store_hdl,
+					open_svc_mac_args_t *args,
+					hsm_hdl_t *mac_hdl)
+{
+	struct hsm_service_hdl_s *key_store_serv_ptr;
+	struct hsm_service_hdl_s *mac_serv_ptr;
+	hsm_err_t err = HSM_GENERAL_ERROR;
+	uint32_t sab_err;
+
+	do {
+		if ((args == NULL) || (mac_hdl == NULL)) {
+			break;
+		}
+		key_store_serv_ptr = service_hdl_to_ptr(key_store_hdl);
+		if (key_store_serv_ptr == NULL) {
+			err = HSM_UNKNOWN_HANDLE;
+			break;
+		}
+
+		mac_serv_ptr = add_service(key_store_serv_ptr->session);
+		if (mac_serv_ptr == NULL) {
+			break;
+		}
+
+		sab_err = sab_open_mac(key_store_serv_ptr->session->phdl,
+					key_store_hdl,
+					&(mac_serv_ptr->service_hdl),
+					args->flags);
+		err = sab_rating_to_hsm_err(sab_err);
+		if (err != HSM_NO_ERROR) {
+			delete_service(mac_serv_ptr);
+			break;
+		}
+		*mac_hdl = mac_serv_ptr->service_hdl;
+	} while (false);
+
+	return err;
+}
+
+
+hsm_err_t hsm_close_mac_service(hsm_hdl_t mac_hdl)
+{
+	struct hsm_service_hdl_s *serv_ptr;
+
+	hsm_err_t err = HSM_GENERAL_ERROR;
+	uint32_t sab_err;
+
+	do {
+		serv_ptr = service_hdl_to_ptr(mac_hdl);
+		if (serv_ptr == NULL) {
+			err = HSM_UNKNOWN_HANDLE;
+			break;
+		}
+
+		sab_err = sab_close_mac(serv_ptr->session->phdl, mac_hdl);
+		err = sab_rating_to_hsm_err(sab_err);
+
+		delete_service(serv_ptr);
+	} while (false);
+
+	return err;
+
+}
+
+hsm_err_t hsm_mac_one_go(hsm_hdl_t mac_hdl, op_mac_one_go_args_t* args, hsm_mac_verification_status_t *status)
+{
+	struct sab_cmd_mac_one_go_msg cmd;
+    struct sab_cmd_mac_one_go_rsp rsp;
+	struct hsm_service_hdl_s *serv_ptr;
+
+	hsm_err_t err = HSM_GENERAL_ERROR;
+	uint32_t sab_err;
+
+    do {
+        if (args == NULL) {
+            break;
+        }
+
+		serv_ptr = service_hdl_to_ptr(mac_hdl);
+		if (serv_ptr == NULL) {
+			err = HSM_UNKNOWN_HANDLE;
+			break;
+		}
+
+        /* Build command message. */
+        seco_fill_cmd_msg_hdr(&cmd.hdr, SAB_MAC_ONE_GO_REQ, (uint32_t)sizeof(struct sab_cmd_mac_one_go_msg));
+        cmd.mac_handle = mac_hdl;
+        cmd.key_id = args->key_identifier;
+        cmd.algorithm = args->algorithm;
+        cmd.flags = args->flags;
+        cmd.payload_address = seco_os_abs_data_buf(serv_ptr->session->phdl, 
+											args->payload, 
+											args->payload_size, 
+											DATA_BUF_IS_INPUT);
+        if (args->flags & HSM_OP_MAC_ONE_GO_FLAGS_MAC_GENERATION) {
+            cmd.mac_address = seco_os_abs_data_buf(serv_ptr->session->phdl, 
+											args->mac, 
+											args->mac_size, 
+											0u);
+        }
+        else {
+            cmd.mac_address = seco_os_abs_data_buf(serv_ptr->session->phdl, 
+											args->mac, 
+											args->mac_size, 
+											DATA_BUF_IS_INPUT);
+        }
+        cmd.payload_size = args->payload_size;
+        cmd.mac_size = args->mac_size;
+        cmd.rsv[0] = 0u;
+        cmd.rsv[1] = 0u;
+ 		cmd.crc = 0u;
+        cmd.crc = seco_compute_msg_crc((uint32_t*)&cmd, (uint32_t)(sizeof(cmd) - sizeof(uint32_t)));
+
+        /* Send the message to Seco. */
+        err = seco_send_msg_and_get_resp(serv_ptr->session->phdl,
+                    (uint32_t *)&cmd, (uint32_t)sizeof(struct sab_cmd_mac_one_go_msg),
+                    (uint32_t *)&rsp, (uint32_t)sizeof(struct sab_cmd_mac_one_go_rsp));
+        if (err != 0) {
+            break;
+        }
+
+		err = sab_rating_to_hsm_err(rsp.rsp_code);
+
+        *status = rsp.verification_status;
+
+    } while (false);
+
+    return err;
+
+}
 
