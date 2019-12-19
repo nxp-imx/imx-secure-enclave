@@ -186,17 +186,17 @@ hsm_err_t hsm_generate_key(hsm_hdl_t key_management_hdl, op_generate_key_args_t 
 #define HSM_KEY_TYPE_ECDSA_BRAINPOOL_T1_256                 ((hsm_key_type_t)0x23)              //!< not supported
 #define HSM_KEY_TYPE_ECDSA_BRAINPOOL_T1_384                 ((hsm_key_type_t)0x25)              //!< not supported
 #define HSM_KEY_TYPE_AES_128                                ((hsm_key_type_t)0x30)
-#define HSM_KEY_TYPE_AES_192                                ((hsm_key_type_t)0x31)              
-#define HSM_KEY_TYPE_AES_256                                ((hsm_key_type_t)0x32)              
+#define HSM_KEY_TYPE_AES_192                                ((hsm_key_type_t)0x31)
+#define HSM_KEY_TYPE_AES_256                                ((hsm_key_type_t)0x32)
 #define HSM_OP_KEY_GENERATION_FLAGS_UPDATE                  ((hsm_op_key_gen_flags_t)(1 << 0))  //!< User can replace an existing key only by generating a key with the same type of the original one.
 #define HSM_OP_KEY_GENERATION_FLAGS_CREATE                  ((hsm_op_key_gen_flags_t)(1 << 1))  //!< Create a new key.
 #define HSM_OP_KEY_GENERATION_FLAGS_STRICT_OPERATION        ((hsm_op_key_gen_flags_t)(1 << 7))  //!< The request is completed only when the new key has been written in the NVM. This applicable for persistent key only.
 
+#define HSM_KEY_INFO_PERSISTENT                             ((hsm_key_info_t)(0 << 1))          //!< Persistent keys are stored in the external NVM. The entire key group is written in the NVM at the next STRICT operation.
 #define HSM_KEY_INFO_PERMANENT                              ((hsm_key_info_t)(1 << 0))          //!< When set, the key is permanent (write locked). Once created, it will not be possible to update or delete the key anymore. Transient keys will be anyway deleted after a PoR or when the corresponding key store service flow is closed. This bit can never be reset.
 #define HSM_KEY_INFO_TRANSIENT                              ((hsm_key_info_t)(1 << 1))          //!< not supported - Transient keys are deleted when the corresponding key store service flow is closed or after a PoR. Transient keys cannot be in the same key group than persistent keys.
-#define HSM_KEY_INFO_PERSISTENT                             ((hsm_key_info_t)(0 << 1))          //!< Persistent keys are stored in the external NVM. The entire key group is written in the NVM at the next STRICT operation.
 #define HSM_KEY_INFO_MASTER                                 ((hsm_key_info_t)(1 << 2))          //!< When set, the key is considered as a master key. Only master keys can be used as input of key derivation functions (i.e butterfly key expansion)
-
+#define HSM_KEY_INFO_KEK                                    ((hsm_key_info_t)(1 << 3))          //!< When set, the key is considered as a key encryption key. It can only be used to import keys in the key store. Not supported.
 
 typedef uint8_t hsm_op_manage_key_flags_t;
 typedef uint8_t hsm_op_manage_key_flags_t;
@@ -925,27 +925,28 @@ hsm_err_t hsm_close_data_storage_service(hsm_hdl_t data_storage_hdl);
  *  @defgroup group14
  * @{
  */
-typedef uint8_t hsm_op_kik_export_flags_t;
+typedef uint8_t hsm_op_export_root_kek_flags_t;
 typedef struct {
-    uint8_t *signed_message;               //!< pointer to signed_message authorizing the operation
-    uint8_t *out_kik;                      //!< pointer to the kik address where the derived kik (key import key) must be written
-    uint16_t signed_msg_size;              //!< size of the signed_message authorizing the operation
-    uint16_t kik_size;                     //!< length in bytes of the kik. Must be 32 bytes.
-    hsm_op_kik_export_flags_t flags;       //!< flags bitmap specifying the operation attributes.
+    uint8_t *signed_message;                    //!< pointer to signed_message authorizing the operation
+    uint8_t *out_root_kek;                      //!< pointer to the root kek address where the derived root kek (key encryption key) must be written
+    uint16_t signed_msg_size;                   //!< size of the signed_message authorizing the operation
+    uint16_t root_kek_size;                     //!< length in bytes of the root kek. Must be 32 bytes.
+    hsm_op_export_root_kek_flags_t flags;       //!< flags bitmap specifying the operation attributes.
     uint8_t reserved[3];
-} hsm_op_kik_export_args_t;
+} hsm_op_export_root_kek_args_t;
 
 /**
- * Export the derived key import key.
+ * Export the root key encryption key. This key is derived on chip. It can be common or chip unique.
+ * This key will be used to import key in the key store through the manage key API.
  *
  * \param session_hdl handle identifying the current session.
  * \param args pointer to the structure containing the function arugments.
  *
  * \return error code
  */
-hsm_err_t hsm_kik_export(hsm_hdl_t session_hdl,  hsm_op_kik_export_args_t *args);
-#define HSM_OP_KIK_EXPORT_FLAGS_COMMON_KEY  ((hsm_op_kik_export_flags_t)(1 << 0))
-/** @} end of key import key export operation */
+hsm_err_t hsm_export_root_key_encryption_key (hsm_hdl_t session_hdl,  hsm_op_export_root_kek_args_t *args);
+#define HSM_OP_EXPORT_ROOT_KEK_FLAGS_COMMON_KEY   ((hsm_op_export_root_kek_flags_t)(1 << 0))
+/** @} end of export root key encryption key operation */
 
 /**
  *  @defgroup group15 Get info

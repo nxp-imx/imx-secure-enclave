@@ -1922,8 +1922,8 @@ hsm_err_t hsm_auth_enc(hsm_hdl_t cipher_hdl, op_auth_enc_args_t* args)
 	return err;
 }
 
-hsm_err_t hsm_kik_export(hsm_hdl_t session_hdl,
-						 hsm_op_kik_export_args_t *args)
+hsm_err_t hsm_export_root_key_encryption_key (hsm_hdl_t session_hdl,
+						                      hsm_op_export_root_kek_args_t *args)
 {
 	struct sab_kik_export_msg cmd;
 	struct sab_kik_export_rsp rsp;
@@ -1950,11 +1950,11 @@ hsm_err_t hsm_kik_export(hsm_hdl_t session_hdl,
 			(uint32_t)sizeof(struct sab_kik_export_msg));
 		cmd.session_handle = session_hdl;
 		cmd.kik_address = (uint32_t)seco_os_abs_data_buf(sess_ptr->phdl,
-							args->out_kik,
-							args->kik_size,
+							args->out_root_kek,
+							args->root_kek_size,
 							0u);
 		cmd.flags = args->flags;
-		cmd.kik_size = args->kik_size;
+		cmd.kik_size = args->root_kek_size;
 		cmd.reserved = 0u;
 
 
