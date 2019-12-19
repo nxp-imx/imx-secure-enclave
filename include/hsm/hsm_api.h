@@ -216,7 +216,7 @@ typedef struct {
  *  - import a key using an existing key identifier (import and update)
  *  - delete an existing key
  *
- * The key encryption key (KEK) can be previosly pre-shared or stored in the key store.
+ * The key encryption key (KEK) can be previously pre-shared or stored in the key store.
  *
  * The key to be imported must be encrypted by using the KEK as following:
  *  - Algorithm: AES GCM
@@ -386,13 +386,13 @@ typedef uint8_t hsm_op_auth_enc_flags_t;
 typedef struct {
     uint32_t key_identifier;                    //!< identifier of the key to be used for the operation
     uint8_t *iv;                                //!< pointer to the initialization vector or nonce
-    uint16_t iv_size;                           //!< length in bytes of the initialization vector\n It must be 12.
+    uint16_t iv_size;                           //!< length in bytes of the initialization vector\n It must be 12 bytes.
     uint8_t *aad;                               //!< pointer to the additional authentication data
     uint16_t aad_size;                          //!< length in bytes of the additional authentication data
     hsm_op_auth_enc_algo_t ae_algo;             //!< algorithm to be used for the operation
     hsm_op_auth_enc_flags_t flags;              //!< bitmap specifying the operation attributes
-    uint8_t *input;                             //!< pointer to the input area\n plaintext for encryption\n (ciphertext + tag) for decryption
-    uint8_t *output;                            //!< pointer to the output area\n (ciphertext + tag) for encryption \n plaintext for decryption if the tag is verified
+    uint8_t *input;                             //!< pointer to the input area\n plaintext for encryption\n Ciphertext + Tag (16 bytes) for decryption
+    uint8_t *output;                            //!< pointer to the output area\n Ciphertext + Tag (16 bytes) for encryption \n plaintext for decryption if the Tag is verified
     uint32_t input_size;                        //!< length in bytes of the input
     uint32_t output_size;                       //!< length in bytes of the output
 } op_auth_enc_args_t;
