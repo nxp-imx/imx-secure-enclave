@@ -1960,6 +1960,7 @@ hsm_err_t hsm_export_root_key_encryption_key (hsm_hdl_t session_hdl,
 			SAB_ROOT_KEK_EXPORT_REQ,
 			(uint32_t)sizeof(struct sab_root_kek_export_msg));
 		cmd.session_handle = session_hdl;
+		cmd.root_kek_address_ext = 0;
 		cmd.root_kek_address = (uint32_t)seco_os_abs_data_buf(sess_ptr->phdl,
 							args->out_root_kek,
 							args->root_kek_size,
@@ -1967,7 +1968,9 @@ hsm_err_t hsm_export_root_key_encryption_key (hsm_hdl_t session_hdl,
 		cmd.flags = args->flags;
 		cmd.root_kek_size = args->root_kek_size;
 		cmd.reserved = 0u;
-
+		cmd.crc = 0;
+		cmd.crc = seco_compute_msg_crc((uint32_t*)&cmd,
+				(uint32_t)(sizeof(cmd) - sizeof(uint32_t)));
 
 		err = seco_send_msg_and_get_resp(sess_ptr->phdl,
 			(uint32_t *)&cmd,

@@ -983,7 +983,7 @@ struct sab_cmd_pub_key_recovery_msg {
     struct sab_mu_hdr hdr;
     uint32_t key_store_handle;
     uint32_t key_identifier;
-    uint32_t out_key_addr_ext;    
+    uint32_t out_key_addr_ext;
     uint32_t out_key_addr;
     uint16_t out_key_size;
     uint8_t key_type;
@@ -1041,10 +1041,12 @@ struct sab_cmd_data_storage_rsp {
 struct sab_root_kek_export_msg {
     struct sab_mu_hdr hdr;
     uint32_t session_handle;
+    uint32_t root_kek_address_ext;
     uint32_t root_kek_address;
     uint8_t root_kek_size;
     uint8_t flags;
     uint16_t reserved;
+    uint32_t crc;
 };
 
 struct sab_root_kek_export_rsp {
