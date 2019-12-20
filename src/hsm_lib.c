@@ -1936,8 +1936,8 @@ hsm_err_t hsm_auth_enc(hsm_hdl_t cipher_hdl, op_auth_enc_args_t* args)
 hsm_err_t hsm_export_root_key_encryption_key (hsm_hdl_t session_hdl,
 						                      hsm_op_export_root_kek_args_t *args)
 {
-	struct sab_kik_export_msg cmd;
-	struct sab_kik_export_rsp rsp;
+	struct sab_root_kek_export_msg cmd;
+	struct sab_root_kek_export_rsp rsp;
 	struct hsm_session_hdl_s *sess_ptr;
 	hsm_err_t err = HSM_GENERAL_ERROR;
 
@@ -1957,23 +1957,23 @@ hsm_err_t hsm_export_root_key_encryption_key (hsm_hdl_t session_hdl,
         }
 
 		seco_fill_cmd_msg_hdr(&cmd.hdr,
-			SAB_KIK_EXPORT_REQ,
-			(uint32_t)sizeof(struct sab_kik_export_msg));
+			SAB_ROOT_KEK_EXPORT_REQ,
+			(uint32_t)sizeof(struct sab_root_kek_export_msg));
 		cmd.session_handle = session_hdl;
-		cmd.kik_address = (uint32_t)seco_os_abs_data_buf(sess_ptr->phdl,
+		cmd.root_kek_address = (uint32_t)seco_os_abs_data_buf(sess_ptr->phdl,
 							args->out_root_kek,
 							args->root_kek_size,
 							0u);
 		cmd.flags = args->flags;
-		cmd.kik_size = args->root_kek_size;
+		cmd.root_kek_size = args->root_kek_size;
 		cmd.reserved = 0u;
 
 
 		err = seco_send_msg_and_get_resp(sess_ptr->phdl,
 			(uint32_t *)&cmd,
-			(uint32_t)sizeof(struct sab_kik_export_msg),
+			(uint32_t)sizeof(struct sab_root_kek_export_msg),
 			(uint32_t *)&rsp,
-			(uint32_t)sizeof(struct sab_kik_export_rsp));
+			(uint32_t)sizeof(struct sab_root_kek_export_rsp));
 
 		if (err != 0) {
 			break;
