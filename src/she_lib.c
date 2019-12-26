@@ -150,7 +150,7 @@ static she_err_t she_close_utils(struct she_hdl_s *hdl)
             break;
         }
 
-        hdl->cipher_handle = 0u;
+        hdl->utils_handle = 0u;
         /* Success. */
         ret = ERC_NO_ERROR;
     } while(false);
