@@ -398,7 +398,10 @@ hsm_err_t hsm_generate_key(hsm_hdl_t key_management_hdl,
 		}
 
 		err = sab_rating_to_hsm_err(rsp.rsp_code);
-		if (cmd.flags & HSM_OP_KEY_GENERATION_FLAGS_CREATE) {
+		if (
+			(err  == HSM_NO_ERROR) &&
+			(cmd.flags & HSM_OP_KEY_GENERATION_FLAGS_CREATE) 
+		) {
 			*(args->key_identifier) = rsp.key_identifier;
 		}
 
@@ -457,7 +460,10 @@ hsm_err_t hsm_manage_key(hsm_hdl_t key_management_hdl,
 		}
 
 		err = sab_rating_to_hsm_err(rsp.rsp_code);
-		if (cmd.flags & HSM_OP_MANAGE_KEY_FLAGS_IMPORT_CREATE) {
+		if (
+			(err  == HSM_NO_ERROR) && 
+			(cmd.flags & HSM_OP_MANAGE_KEY_FLAGS_IMPORT_CREATE) 
+		) {
 			*(args->key_identifier) = rsp.key_identifier;
 		}
 
@@ -579,7 +585,12 @@ hsm_err_t hsm_butterfly_key_expansion(hsm_hdl_t key_management_hdl,
 		}
 
 		err = sab_rating_to_hsm_err(rsp.rsp_code);
-		*(args->dest_key_identifier) = rsp.dest_key_identifier;
+		if (
+			(err  == HSM_NO_ERROR) && 
+			(cmd.flags & HSM_OP_BUTTERFLY_KEY_FLAGS_CREATE) 
+		) {
+			*(args->dest_key_identifier) = rsp.dest_key_identifier;
+		}
 
 	} while(false);
 
