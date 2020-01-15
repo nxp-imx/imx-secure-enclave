@@ -1,5 +1,5 @@
 /*
- * Copyright 2019 NXP
+ * Copyright 2019-2020 NXP
  *
  * NXP Confidential.
  * This software is owned or controlled by NXP and may only be used strictly
@@ -119,11 +119,10 @@ static struct seco_nvm_ctx *seco_nvm_open_session(uint8_t flags)
         /* Open the Storage session on the MU */
         if ((flags & NVM_FLAGS_SHE) != 0u) {
             nvm_ctx->phdl = seco_os_abs_open_mu_channel(MU_CHANNEL_SHE_NVM, &mu_params);
-        } else if ((flags & NVM_FLAGS_HSM) != 0u) {
-            nvm_ctx->phdl = seco_os_abs_open_mu_channel(MU_CHANNEL_HSM_NVM, &mu_params);
         } else {
-            nvm_ctx->phdl = NULL;
+            nvm_ctx->phdl = seco_os_abs_open_mu_channel(MU_CHANNEL_HSM_NVM, &mu_params);
         }
+        
         if (nvm_ctx->phdl == NULL) {
             break;
         }

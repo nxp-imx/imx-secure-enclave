@@ -1,5 +1,5 @@
 /*
- * Copyright 2019 NXP
+ * Copyright 2019-2020 NXP
  *
  * NXP Confidential.
  * This software is owned or controlled by NXP and may only be used strictly
@@ -201,7 +201,7 @@ hsm_err_t hsm_generate_key(hsm_hdl_t key_management_hdl, op_generate_key_args_t 
 typedef uint8_t hsm_op_manage_key_flags_t;
 typedef struct {
     uint32_t *key_identifier;           //!< pointer to the identifier of the key to be used for the operation.\n In case of create operation the new key identifier will be stored in this location.
-    uint32_t kek_identifier;            //!< not supported - identifier of the key to be used to decrypt the key to be imported (Key Encryption Key), only AES-256 key can be uses as KEK. It must be 0 if the HSM_OP_MANAGE_KEY_FLAGS_PART_UNIQUE_ROOT_KEK or HSM_OP_MANAGE_KEY_FLAGS_COMMON_ROOT_KEK flags are set.
+    uint32_t kek_identifier;            //!< identifier of the key to be used to decrypt the key to be imported (Key Encryption Key), only AES-256 key can be uses as KEK. It must be 0 if the HSM_OP_MANAGE_KEY_FLAGS_PART_UNIQUE_ROOT_KEK or HSM_OP_MANAGE_KEY_FLAGS_COMMON_ROOT_KEK flags are set.
     uint16_t input_size;                //!< length in bytes of the input key area. It must be eqaul to the length of the IV (12 bytes) + ciphertext + Tag (16 bytes). It must be 0 in case of delete operation.
     hsm_op_manage_key_flags_t flags;    //!< bitmap specifying the operation properties.
     hsm_key_type_t key_type;            //!< indicates the type of the key to be managed.

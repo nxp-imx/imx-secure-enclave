@@ -1,5 +1,5 @@
 /*
- * Copyright 2019 NXP
+ * Copyright 2019-2020 NXP
  *
  * NXP Confidential.
  * This software is owned or controlled by NXP and may only be used strictly
@@ -25,7 +25,7 @@
 
 void seco_nvm_manager(uint8_t flags, uint32_t *status);
 #define NVM_FLAGS_SHE    (0x01u)
-#define NVM_FLAGS_HSM    (0x02u)
+#define NVM_FLAGS_HSM    (0x00u)
 
 #define NVM_STATUS_UNDEF    (0x00u)
 #define NVM_STATUS_STARTING (0x01u)
