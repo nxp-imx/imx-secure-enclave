@@ -160,7 +160,7 @@ typedef struct {
     uint16_t out_size;                  //!< length in bytes of the generated key. It must be 0 in case of symetric keys.
     hsm_op_key_gen_flags_t flags;       //!< bitmap specifying the operation properties.
     hsm_key_type_t key_type;            //!< indicates which type of key must be generated.
-    hsm_key_group_t key_group;          //!< Key group of the generated key. it must be a value in the range 0-1023. Keys belonging to the same group can be cached in the HSM local memory throug the ham_manage_key_group API
+    hsm_key_group_t key_group;          //!< Key group of the generated key, relevant only in case of create operation. it must be a value in the range 0-1023. Keys belonging to the same group can be cached in the HSM local memory throug the hsm_manage_key_group API
     hsm_key_info_t key_info;            //!< bitmap specifying the properties of the key.
     uint8_t *out_key;                   //!< pointer to the output area where the generated public key must be written
 } op_generate_key_args_t;
