@@ -24,10 +24,11 @@
 #include "she_test_macros.h"
 
 static uint32_t nvm_status;
+static seco_nvm_ctx_t nvm_ctx = {0};
 
 static void *she_storage_thread(void *arg)
 {
-    seco_nvm_manager(NVM_FLAGS_SHE, &nvm_status);
+    seco_nvm_manager(NVM_FLAGS_SHE, &nvm_status, &nvm_ctx);
 }
 
 
@@ -61,6 +62,10 @@ uint32_t she_test_start_storage_manager(test_struct_t *testCtx, FILE *fp)
 uint32_t she_test_stop_storage_manager(test_struct_t *testCtx, FILE *fp)
 {
     uint32_t fails = 0;
+
+    if (nvm_ctx.phdl != NULL) {
+        seco_nvm_close_session(&nvm_ctx);
+    }
 
     if (nvm_status != NVM_STATUS_STOPPED) {
         if (pthread_cancel(testCtx->tid) != 0) {

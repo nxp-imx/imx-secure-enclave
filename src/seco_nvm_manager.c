@@ -17,13 +17,6 @@
 #include "seco_utils.h"
 #include "seco_nvm.h"
 
-struct seco_nvm_ctx {
-    struct seco_os_abs_hdl *phdl;
-    uint32_t session_handle;
-    uint32_t storage_handle;
-    uint32_t blob_size;
-};
-
 struct seco_nvm_header_s {
     uint32_t size;
     uint32_t crc;
@@ -82,7 +75,7 @@ static uint32_t seco_nvm_storage_import(struct seco_nvm_ctx *nvm_ctx, uint8_t *d
     return ret;
 }
 
-static void seco_nvm_close_session(struct seco_nvm_ctx *nvm_ctx)
+void seco_nvm_close_session(struct seco_nvm_ctx *nvm_ctx)
 {
     if (nvm_ctx != NULL) {
         if (nvm_ctx->phdl != NULL) {
@@ -97,24 +90,15 @@ static void seco_nvm_close_session(struct seco_nvm_ctx *nvm_ctx)
             seco_os_abs_close_session(nvm_ctx->phdl);
             nvm_ctx->phdl = NULL;
         }
-        seco_os_abs_free(nvm_ctx);
     }
 }
 
-static struct seco_nvm_ctx *seco_nvm_open_session(uint8_t flags)
+void seco_nvm_open_session(uint8_t flags, seco_nvm_ctx_t * nvm_ctx)
 {
-    struct seco_nvm_ctx *nvm_ctx = NULL;
     uint32_t err = SAB_FAILURE_STATUS;
     struct seco_mu_params mu_params;
 
     do {
-        /* allocate the handle. */
-        nvm_ctx = (struct seco_nvm_ctx *)seco_os_abs_malloc((uint32_t)sizeof(struct seco_nvm_ctx));
-        if (nvm_ctx == NULL) {
-            break;
-        }
-
-        seco_os_abs_memset((uint8_t *)nvm_ctx, 0u, (uint32_t)sizeof(struct seco_nvm_ctx));
 
         /* Open the Storage session on the MU */
         if ((flags & NVM_FLAGS_SHE) != 0u) {
@@ -122,7 +106,7 @@ static struct seco_nvm_ctx *seco_nvm_open_session(uint8_t flags)
         } else {
             nvm_ctx->phdl = seco_os_abs_open_mu_channel(MU_CHANNEL_HSM_NVM, &mu_params);
         }
-        
+
         if (nvm_ctx->phdl == NULL) {
             break;
         }
@@ -157,7 +141,6 @@ static struct seco_nvm_ctx *seco_nvm_open_session(uint8_t flags)
         seco_nvm_close_session(nvm_ctx);
         nvm_ctx = NULL;
     }
-    return nvm_ctx;
 }
 
 static uint32_t seco_nvm_export_finish_rsp(struct seco_nvm_ctx *nvm_ctx, uint32_t error)
@@ -460,9 +443,8 @@ static uint32_t seco_nvm_manager_get_chunk(struct seco_nvm_ctx *nvm_ctx, struct 
 
 #define MAX_RCV_MSG_SIZE ((uint32_t)sizeof(struct sab_cmd_key_store_chunk_export_msg))
 
-void seco_nvm_manager(uint8_t flags, uint32_t *status)
+void seco_nvm_manager(uint8_t flags, uint32_t *status, seco_nvm_ctx_t *nvm_ctx)
 {
-    struct seco_nvm_ctx *nvm_ctx;
     int32_t len = 0;
     uint32_t data_len = 0u;
     struct seco_nvm_header_s nvm_hdr;
@@ -476,7 +458,7 @@ void seco_nvm_manager(uint8_t flags, uint32_t *status)
     }
 
     do {
-        nvm_ctx = seco_nvm_open_session(flags);
+        seco_nvm_open_session(flags, nvm_ctx);
         if (nvm_ctx == NULL) {
             break;
         }
