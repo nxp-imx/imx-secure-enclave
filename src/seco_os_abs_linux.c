@@ -47,8 +47,9 @@ struct seco_os_abs_hdl {
 
 static char SECO_MU_SHE_PATH[] = "/dev/seco_mu1_ch0";
 static char SECO_MU_SHE_NVM_PATH[] = "/dev/seco_mu1_ch1";
-static char SECO_MU_HSM_PATH[] = "/dev/seco_mu2_ch0";
+static char SECO_MU_HSM_PATH_PRIMARY[] = "/dev/seco_mu2_ch0";
 static char SECO_MU_HSM_NVM_PATH[] = "/dev/seco_mu2_ch1";
+static char SECO_MU_HSM_PATH_SECONDARY[] = "/dev/seco_mu2_ch2";
 
 static char SECO_NVM_SHE_STORAGE_FILE[] = "/etc/seco_she_nvm";
 static char SECO_NVM_HSM_STORAGE_FILE[] = "/etc/seco_hsm/seco_nvm_master";
@@ -74,7 +75,7 @@ struct seco_os_abs_hdl *seco_os_abs_open_mu_channel(uint32_t type, struct seco_m
         is_nvm = 1u;
         break;
     case MU_CHANNEL_HSM:
-        device_path = SECO_MU_HSM_PATH;
+        device_path = SECO_MU_HSM_PATH_PRIMARY;
         break;
     case MU_CHANNEL_HSM_NVM:
         device_path = SECO_MU_HSM_NVM_PATH;
@@ -89,9 +90,20 @@ struct seco_os_abs_hdl *seco_os_abs_open_mu_channel(uint32_t type, struct seco_m
         phdl->fd = open(device_path, O_RDWR);
         /* If open failed return NULL handle. */
         if (phdl->fd < 0) {
-            free(phdl);
-            phdl = NULL;
-        } else {
+            if (type == MU_CHANNEL_HSM) {
+                device_path = SECO_MU_HSM_PATH_SECONDARY;
+                phdl->fd = open(device_path, O_RDWR);
+                if (phdl->fd < 0) {
+                    free(phdl);
+                    phdl = NULL;
+                }
+            } else {
+                free(phdl);
+                phdl = NULL;
+            }
+        }
+
+        if (phdl != NULL) {
             phdl->type = type;
 
             error = ioctl(phdl->fd, SECO_MU_IOCTL_GET_MU_INFO, &info_ioctl);
