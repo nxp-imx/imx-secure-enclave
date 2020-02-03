@@ -1,7 +1,7 @@
 
 all: she_test hsm_test she_lib.a seco_nvm_manager.a hsm_lib.a
 
-CFLAGS = -Werror
+CFLAGS = -O1 -Werror
 DESTDIR ?= export
 BINDIR ?= /usr/bin
 LIBDIR ?= /usr/lib
