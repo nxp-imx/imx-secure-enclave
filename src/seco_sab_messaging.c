@@ -378,7 +378,7 @@ uint32_t sab_cmd_cipher_one_go(struct seco_os_abs_hdl *phdl,
     uint32_t ret = SAB_FAILURE_STATUS;
 
     do {
-        if ((phdl == NULL) || (input == NULL) || (output == NULL)) {
+        if (phdl == NULL) {
             break;
         }
         /* Build command message. */

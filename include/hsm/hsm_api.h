@@ -196,7 +196,7 @@ hsm_err_t hsm_generate_key(hsm_hdl_t key_management_hdl, op_generate_key_args_t 
 #define HSM_KEY_INFO_PERMANENT                              ((hsm_key_info_t)(1 << 0))          //!< When set, the key is permanent (write locked). Once created, it will not be possible to update or delete the key anymore. Transient keys will be anyway deleted after a PoR or when the corresponding key store service flow is closed. This bit can never be reset.
 #define HSM_KEY_INFO_TRANSIENT                              ((hsm_key_info_t)(1 << 1))          //!< Transient keys are deleted when the corresponding key store service flow is closed or after a PoR. Transient keys cannot be in the same key group than persistent keys.
 #define HSM_KEY_INFO_MASTER                                 ((hsm_key_info_t)(1 << 2))          //!< When set, the key is considered as a master key. Only master keys can be used as input of key derivation functions (i.e butterfly key expansion)
-#define HSM_KEY_INFO_KEK                                    ((hsm_key_info_t)(1 << 3))          //!< When set, the key is considered as a key encryption key. It can only be used to import keys in the key store.
+#define HSM_KEY_INFO_KEK                                    ((hsm_key_info_t)(1 << 3))          //!< When set, the key is considered as a key encryption key. KEK keys can only be used to wrap and import other keys into the key store, all other operation are not allowed. Only keys imported in the key store through the hsm_mange_key API can get this attribute.
 
 typedef uint8_t hsm_op_manage_key_flags_t;
 typedef struct {
