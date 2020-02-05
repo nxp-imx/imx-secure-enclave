@@ -220,9 +220,11 @@ typedef struct {
  *
  * The key to be imported must be encrypted by using the KEK as following:
  *  - Algorithm: AES GCM
+ *  - Key: root KEK
  *  - AAD = 0
  *  - IV = 12 bytes
  *  - Tag = 16 bytes
+ *  - Plaintext: key to be imported
  *
  * User can call this function only after having opened a key management service flow
  *
@@ -425,7 +427,7 @@ typedef struct {
     uint16_t mac_size;                      //!< length in bytes of the requested message authentication code should be equal to 16 bytes
     hsm_key_type_t key_type;                //!< indicates the type of the used key (only NIST P256 and Br256r1 are supported)
     hsm_op_ecies_dec_flags_t flags;         //!< bitmap specifying the operation attributes.
-} hsm_op_ecies_dec_args_t;
+} op_ecies_dec_args_t;
 
 /**
  * Decrypt data usign ECIES \n
@@ -437,7 +439,7 @@ typedef struct {
  *
  * \return error code
  */
-hsm_err_t hsm_ecies_decryption(hsm_hdl_t cipher_hdl, hsm_op_ecies_dec_args_t *args);
+hsm_err_t hsm_ecies_decryption(hsm_hdl_t cipher_hdl, op_ecies_dec_args_t *args);
 
 /**
  * Terminate a previously opened cipher service flow
@@ -764,7 +766,7 @@ typedef struct {
     hsm_key_type_t key_type;                //!< indicates the type of the manged keys.
     hsm_op_pub_key_rec_flags_t flags;       //!< flags bitmap specifying the operation attributes.
     uint16_t reserved;
-} hsm_op_pub_key_rec_args_t;
+} op_pub_key_rec_args_t;
 
 /**
  * Reconstruct an ECC public key provided by an implicit certificate\n
@@ -777,7 +779,7 @@ typedef struct {
  *
  * \return error code
  */
-hsm_err_t hsm_pub_key_reconstruction(hsm_hdl_t session_hdl,  hsm_op_pub_key_rec_args_t *args);
+hsm_err_t hsm_pub_key_reconstruction(hsm_hdl_t session_hdl,  op_pub_key_rec_args_t *args);
 /** @} end of public key reconstruction operation */
 
 /**
@@ -793,7 +795,7 @@ typedef struct {
     hsm_key_type_t key_type;                //!< indicates the type of the manged keys.
     hsm_op_pub_key_dec_flags_t flags;       //!< bitmap specifying the operation attributes.
     uint16_t reserved;
-} hsm_op_pub_key_dec_args_t;
+} op_pub_key_dec_args_t;
 
 /**
  * Decompress an ECC public key \n
@@ -805,7 +807,7 @@ typedef struct {
  *
  * \return error code
  */
-hsm_err_t hsm_pub_key_decompression(hsm_hdl_t session_hdl,  hsm_op_pub_key_dec_args_t *args);
+hsm_err_t hsm_pub_key_decompression(hsm_hdl_t session_hdl,  op_pub_key_dec_args_t *args);
 /** @} end of public key decompression operation */
 
 /**
@@ -828,7 +830,7 @@ typedef struct {
     hsm_key_type_t key_type;                //!< indicates the type of the recipient public key (only NIST P256 and Br256r1 are supported)
     hsm_op_ecies_enc_flags_t flags;         //!< bitmap specifying the operation attributes.
     uint16_t reserved;
-} hsm_op_ecies_enc_args_t;
+} op_ecies_enc_args_t;
 
 /**
  * Encrypt data usign ECIES \n
@@ -840,7 +842,7 @@ typedef struct {
  *
  * \return error code
  */
-hsm_err_t hsm_ecies_encryption(hsm_hdl_t session_hdl, hsm_op_ecies_enc_args_t *args);
+hsm_err_t hsm_ecies_encryption(hsm_hdl_t session_hdl, op_ecies_enc_args_t *args);
 /** @} end of ECIES encryption operation */
 
 /**
@@ -854,7 +856,7 @@ typedef struct {
     uint16_t out_key_size;                  //!< length in bytes of the output key
     hsm_key_type_t key_type;                //!< indicates the type of the key to be recovered
     hsm_op_pub_key_recovery_flags_t flags;  //!< bitmap specifying the operation attributes.
-} hsm_op_pub_key_recovery_args_t;
+} op_pub_key_recovery_args_t;
 
 /**
  * Recover Public key from private key present in key store \n
@@ -865,7 +867,7 @@ typedef struct {
  *
  * \return error code
  */
-hsm_err_t hsm_pub_key_recovery(hsm_hdl_t key_store_hdl, hsm_op_pub_key_recovery_args_t *args);
+hsm_err_t hsm_pub_key_recovery(hsm_hdl_t key_store_hdl, op_pub_key_recovery_args_t *args);
 /** @} end of Public key recovery operation */
 
 /**
@@ -935,7 +937,7 @@ typedef struct {
     uint16_t root_kek_size;                     //!< length in bytes of the root kek. Must be 32 bytes.
     hsm_op_export_root_kek_flags_t flags;       //!< flags bitmap specifying the operation attributes.
     uint8_t reserved[3];
-} hsm_op_export_root_kek_args_t;
+} op_export_root_kek_args_t;
 
 /**
  * Export the root key encryption key. This key is derived on chip. It can be common or chip unique.
@@ -946,7 +948,7 @@ typedef struct {
  *
  * \return error code
  */
-hsm_err_t hsm_export_root_key_encryption_key (hsm_hdl_t session_hdl,  hsm_op_export_root_kek_args_t *args);
+hsm_err_t hsm_export_root_key_encryption_key (hsm_hdl_t session_hdl,  op_export_root_kek_args_t *args);
 #define HSM_OP_EXPORT_ROOT_KEK_FLAGS_COMMON_KEK   ((hsm_op_export_root_kek_flags_t)(1 << 0))
 #define HSM_OP_EXPORT_ROOT_KEK_FLAGS_UNIQUE_KEK   ((hsm_op_export_root_kek_flags_t)(0 << 0))
 /** @} end of export root key encryption key operation */
@@ -963,7 +965,7 @@ typedef struct {
     uint32_t *version;                  //!< pointer to the output area where the module version (32bits) must be written
     uint32_t *version_ext;              //!< pointer to the output area where module extended version (32bits) must be written
     uint8_t  *fips_mode;                //!< pointer to the output area where the FIPS mode of operation (8bits) must be written
-} hsm_op_get_info_args_t;
+} op_get_info_args_t;
 /**
  *
  * \param session_hdl handle identifying the current session.
@@ -972,7 +974,7 @@ typedef struct {
  * \return error code
  */
 
-hsm_err_t hsm_get_info(hsm_hdl_t session_hdl, hsm_op_get_info_args_t *args);
+hsm_err_t hsm_get_info(hsm_hdl_t session_hdl, op_get_info_args_t *args);
 
 /** @} end of Get info operation */
 

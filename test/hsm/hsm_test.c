@@ -54,8 +54,8 @@ static uint8_t ecies_pubk[2*32] = {
 
 static void public_key_test(hsm_hdl_t hsm_session_hdl)
 {
-    hsm_op_pub_key_rec_args_t hsm_op_pub_key_rec_args;
-    hsm_op_pub_key_dec_args_t hsm_op_pub_key_dec_args;
+    op_pub_key_rec_args_t hsm_op_pub_key_rec_args;
+    op_pub_key_dec_args_t hsm_op_pub_key_dec_args;
     uint8_t out[64];
     uint8_t out_384[96];
     uint32_t i;
@@ -127,8 +127,8 @@ static void public_key_test(hsm_hdl_t hsm_session_hdl)
 
 static void ecies_tests(hsm_hdl_t hsm_session_hdl)
 {
-    hsm_op_ecies_enc_args_t op_ecies_enc_args;
-    hsm_op_ecies_dec_args_t op_ecies_dec_args;
+    op_ecies_enc_args_t op_ecies_enc_args;
+    op_ecies_dec_args_t op_ecies_dec_args;
     uint8_t out[3*32]; //VCT
     uint8_t key_plain[16];
     hsm_err_t err;

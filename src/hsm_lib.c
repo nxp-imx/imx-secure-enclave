@@ -729,7 +729,7 @@ hsm_err_t hsm_cipher_one_go(hsm_hdl_t cipher_hdl, op_cipher_one_go_args_t* args)
 	return err;
 }
 
-hsm_err_t hsm_ecies_decryption(hsm_hdl_t cipher_hdl, hsm_op_ecies_dec_args_t *args)
+hsm_err_t hsm_ecies_decryption(hsm_hdl_t cipher_hdl, op_ecies_dec_args_t *args)
 {
 	struct sab_cmd_ecies_decrypt_msg cmd;
 	struct sab_cmd_ecies_decrypt_rsp rsp;
@@ -1469,7 +1469,7 @@ hsm_err_t hsm_hash_one_go(hsm_hdl_t hash_hdl, op_hash_one_go_args_t *args)
 }
 
 hsm_err_t hsm_pub_key_reconstruction(hsm_hdl_t session_hdl,
-					hsm_op_pub_key_rec_args_t *args)
+					op_pub_key_rec_args_t *args)
 {
 	struct sab_public_key_reconstruct_msg cmd;
 	struct sab_public_key_reconstruct_rsp rsp;
@@ -1537,7 +1537,7 @@ hsm_err_t hsm_pub_key_reconstruction(hsm_hdl_t session_hdl,
 }
 
 hsm_err_t hsm_pub_key_decompression(hsm_hdl_t session_hdl,
-					hsm_op_pub_key_dec_args_t *args)
+					op_pub_key_dec_args_t *args)
 {
 	struct sab_public_key_decompression_msg cmd;
 	struct sab_public_key_decompression_rsp rsp;
@@ -1592,7 +1592,7 @@ hsm_err_t hsm_pub_key_decompression(hsm_hdl_t session_hdl,
 	return err;
 }
 
-hsm_err_t hsm_ecies_encryption(hsm_hdl_t session_hdl, hsm_op_ecies_enc_args_t *args)
+hsm_err_t hsm_ecies_encryption(hsm_hdl_t session_hdl, op_ecies_enc_args_t *args)
 {
 	struct sab_cmd_ecies_encrypt_msg cmd;
 	struct sab_cmd_ecies_encrypt_rsp rsp;
@@ -1666,7 +1666,7 @@ hsm_err_t hsm_ecies_encryption(hsm_hdl_t session_hdl, hsm_op_ecies_enc_args_t *a
 	return err;
 }
 
-hsm_err_t hsm_pub_key_recovery(hsm_hdl_t key_store_hdl, hsm_op_pub_key_recovery_args_t *args)
+hsm_err_t hsm_pub_key_recovery(hsm_hdl_t key_store_hdl, op_pub_key_recovery_args_t *args)
 {
 	struct sab_cmd_pub_key_recovery_msg cmd;
 	struct sab_cmd_pub_key_recovery_rsp rsp;
@@ -1934,7 +1934,7 @@ hsm_err_t hsm_auth_enc(hsm_hdl_t cipher_hdl, op_auth_enc_args_t* args)
 }
 
 hsm_err_t hsm_export_root_key_encryption_key (hsm_hdl_t session_hdl,
-						                      hsm_op_export_root_kek_args_t *args)
+						                      op_export_root_kek_args_t *args)
 {
 	struct sab_root_kek_export_msg cmd;
 	struct sab_root_kek_export_rsp rsp;
@@ -1989,7 +1989,7 @@ hsm_err_t hsm_export_root_key_encryption_key (hsm_hdl_t session_hdl,
 	return err;
 }
 
-hsm_err_t hsm_get_info(hsm_hdl_t session_hdl, hsm_op_get_info_args_t *args) {
+hsm_err_t hsm_get_info(hsm_hdl_t session_hdl, op_get_info_args_t *args) {
 	struct hsm_session_hdl_s *sess_ptr;
 	hsm_err_t err = HSM_GENERAL_ERROR;
 	
