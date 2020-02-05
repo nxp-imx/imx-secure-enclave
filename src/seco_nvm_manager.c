@@ -521,6 +521,5 @@ void seco_nvm_manager(uint8_t flags, uint32_t *status)
 
     if (nvm_ctx.phdl != NULL) {
         seco_nvm_close_session();
-        // clean nvm_ctx
     }
 }
