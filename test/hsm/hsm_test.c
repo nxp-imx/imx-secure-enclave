@@ -163,11 +163,10 @@ static void ecies_tests(hsm_hdl_t hsm_session_hdl)
 }
 
 static uint32_t nvm_status;
-static seco_nvm_ctx_t nvm_ctx = {0}; 
 
 static void *hsm_storage_thread(void *arg)
 {
-    seco_nvm_manager(NVM_FLAGS_HSM, &nvm_status, &nvm_ctx);
+    seco_nvm_manager(NVM_FLAGS_HSM, &nvm_status);
 }
 
 

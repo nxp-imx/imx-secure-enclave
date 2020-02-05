@@ -17,6 +17,13 @@
 #include "seco_utils.h"
 #include "seco_nvm.h"
 
+struct seco_nvm_ctx {
+    struct seco_os_abs_hdl *phdl;
+    uint32_t session_handle;
+    uint32_t storage_handle;
+    uint32_t blob_size;
+};
+
 struct seco_nvm_header_s {
     uint32_t size;
     uint32_t crc;
@@ -28,6 +35,8 @@ struct nvm_chunk_hdr {
     uint32_t len;
     uint8_t *data;
 };
+
+static struct seco_nvm_ctx nvm_ctx = {0};
 
 /* Storage import processing. Return 0 on success.  */
 static uint32_t seco_nvm_storage_import(struct seco_nvm_ctx *nvm_ctx, uint8_t *data, uint32_t len)
@@ -75,25 +84,22 @@ static uint32_t seco_nvm_storage_import(struct seco_nvm_ctx *nvm_ctx, uint8_t *d
     return ret;
 }
 
-void seco_nvm_close_session(struct seco_nvm_ctx *nvm_ctx)
+void seco_nvm_close_session(void)
 {
-    if (nvm_ctx != NULL) {
-        if (nvm_ctx->phdl != NULL) {
-            if (nvm_ctx->storage_handle != 0u) {
-                (void)sab_close_storage_command (nvm_ctx->phdl, nvm_ctx->storage_handle);
-                nvm_ctx->storage_handle = 0u;
-            }          
-            if (nvm_ctx->session_handle != 0u) {
-                (void)sab_close_session_command (nvm_ctx->phdl, nvm_ctx->session_handle);
-                nvm_ctx->session_handle = 0u;
-            }
-            seco_os_abs_close_session(nvm_ctx->phdl);
-            nvm_ctx->phdl = NULL;
+    if (nvm_ctx.phdl != NULL) {
+        if (nvm_ctx.storage_handle != 0u) {
+            (void)sab_close_storage_command (nvm_ctx.phdl, nvm_ctx.storage_handle);
+            nvm_ctx.storage_handle = 0u;
+        }          
+        if (nvm_ctx.session_handle != 0u) {
+            (void)sab_close_session_command (nvm_ctx.phdl, nvm_ctx.session_handle);
+            nvm_ctx.session_handle = 0u;
         }
+        seco_os_abs_close_session(nvm_ctx.phdl);
+        nvm_ctx.phdl = NULL;
     }
 }
-
-void seco_nvm_open_session(uint8_t flags, seco_nvm_ctx_t * nvm_ctx)
+static void seco_nvm_open_session(uint8_t flags)
 {
     uint32_t err = SAB_FAILURE_STATUS;
     struct seco_mu_params mu_params;
@@ -102,18 +108,18 @@ void seco_nvm_open_session(uint8_t flags, seco_nvm_ctx_t * nvm_ctx)
 
         /* Open the Storage session on the MU */
         if ((flags & NVM_FLAGS_SHE) != 0u) {
-            nvm_ctx->phdl = seco_os_abs_open_mu_channel(MU_CHANNEL_SHE_NVM, &mu_params);
+            nvm_ctx.phdl = seco_os_abs_open_mu_channel(MU_CHANNEL_SHE_NVM, &mu_params);
         } else {
-            nvm_ctx->phdl = seco_os_abs_open_mu_channel(MU_CHANNEL_HSM_NVM, &mu_params);
+            nvm_ctx.phdl = seco_os_abs_open_mu_channel(MU_CHANNEL_HSM_NVM, &mu_params);
         }
 
-        if (nvm_ctx->phdl == NULL) {
+        if (nvm_ctx.phdl == NULL) {
             break;
         }
 
         /* Open the SHE session on SECO side */
-        err = sab_open_session_command(nvm_ctx->phdl,
-                                       &nvm_ctx->session_handle,
+        err = sab_open_session_command(nvm_ctx.phdl,
+                                       &nvm_ctx.session_handle,
                                        mu_params.mu_id,
                                        mu_params.interrupt_idx,
                                        mu_params.tz,
@@ -121,25 +127,25 @@ void seco_nvm_open_session(uint8_t flags, seco_nvm_ctx_t * nvm_ctx)
                                        mu_params.priority,
                                        mu_params.operating_mode);
         if (err != SAB_SUCCESS_STATUS) {
-            nvm_ctx->session_handle = 0u;
+            nvm_ctx.session_handle = 0u;
             break;
         }
 
         /* Open the NVM STORAGE session on SECO side */
-        err = sab_open_storage_command(nvm_ctx->phdl,
-                                        nvm_ctx->session_handle,
-                                        &nvm_ctx->storage_handle,
+        err = sab_open_storage_command(nvm_ctx.phdl,
+                                        nvm_ctx.session_handle,
+                                        &nvm_ctx.storage_handle,
                                         flags);
         if (err != SAB_SUCCESS_STATUS) {
-            nvm_ctx->storage_handle = 0u;
+            nvm_ctx.storage_handle = 0u;
             break;
         }
     } while (false);
 
     /* Clean-up in case of error. */
-    if ((err != SAB_SUCCESS_STATUS) && (nvm_ctx != NULL)) {
-        seco_nvm_close_session(nvm_ctx);
-        nvm_ctx = NULL;
+    if (err != SAB_SUCCESS_STATUS) { 
+        seco_nvm_close_session();
+        //clean nvm_ctx
     }
 }
 
@@ -443,7 +449,7 @@ static uint32_t seco_nvm_manager_get_chunk(struct seco_nvm_ctx *nvm_ctx, struct 
 
 #define MAX_RCV_MSG_SIZE ((uint32_t)sizeof(struct sab_cmd_key_store_chunk_export_msg))
 
-void seco_nvm_manager(uint8_t flags, uint32_t *status, seco_nvm_ctx_t *nvm_ctx)
+void seco_nvm_manager(uint8_t flags, uint32_t *status)
 {
     int32_t len = 0;
     uint32_t data_len = 0u;
@@ -458,24 +464,21 @@ void seco_nvm_manager(uint8_t flags, uint32_t *status, seco_nvm_ctx_t *nvm_ctx)
     }
 
     do {
-        seco_nvm_open_session(flags, nvm_ctx);
-        if (nvm_ctx == NULL) {
-            break;
-        }
+        seco_nvm_open_session(flags);
 
         /*
          * Try to read the storage header which length is known.
          * Then if successful extract the full length and read the whole storage into an allocated buffer.
          */
-        if (seco_os_abs_storage_read(nvm_ctx->phdl, (uint8_t *)&nvm_hdr, (uint32_t)sizeof(nvm_hdr)) == (int32_t)sizeof(nvm_hdr)) {
+        if (seco_os_abs_storage_read(nvm_ctx.phdl, (uint8_t *)&nvm_hdr, (uint32_t)sizeof(nvm_hdr)) == (int32_t)sizeof(nvm_hdr)) {
             data_len = nvm_hdr.size + (uint32_t)sizeof(nvm_hdr);
             data = seco_os_abs_malloc(data_len);
             if (data != NULL) {
-                if (seco_os_abs_storage_read(nvm_ctx->phdl, data, data_len) == (int32_t)data_len) {
+                if (seco_os_abs_storage_read(nvm_ctx.phdl, data, data_len) == (int32_t)data_len) {
                     /* In case of error then start anyway the storage manager process so SECO can create
                      * and export a storage.
                      */
-                    (void)seco_nvm_storage_import(nvm_ctx, data, data_len);
+                    (void)seco_nvm_storage_import(&nvm_ctx, data, data_len);
                 }
                 seco_os_abs_free(data);
                 data = NULL;
@@ -490,16 +493,16 @@ void seco_nvm_manager(uint8_t flags, uint32_t *status, seco_nvm_ctx_t *nvm_ctx)
         while (true)
         {
             /* Receive a message from SECO and process it according its type. */
-            len = seco_os_abs_read_mu_message(nvm_ctx->phdl, recv_msg, MAX_RCV_MSG_SIZE);
+            len = seco_os_abs_read_mu_message(nvm_ctx.phdl, recv_msg, MAX_RCV_MSG_SIZE);
             switch (hdr->command) {
                 case SAB_STORAGE_MASTER_EXPORT_REQ:
-                    err = seco_nvm_manager_export_master(nvm_ctx, (struct sab_cmd_key_store_export_start_msg *)recv_msg, len);
+                    err = seco_nvm_manager_export_master(&nvm_ctx, (struct sab_cmd_key_store_export_start_msg *)recv_msg, len);
                 break;
                 case SAB_STORAGE_CHUNK_EXPORT_REQ:
-                    err = seco_nvm_manager_export_chunk(nvm_ctx, (struct sab_cmd_key_store_chunk_export_msg *)recv_msg, len);
+                    err = seco_nvm_manager_export_chunk(&nvm_ctx, (struct sab_cmd_key_store_chunk_export_msg *)recv_msg, len);
                 break;
                 case SAB_STORAGE_CHUNK_GET_REQ:
-                    err = seco_nvm_manager_get_chunk(nvm_ctx, (struct sab_cmd_key_store_chunk_get_msg *)recv_msg, len);
+                    err = seco_nvm_manager_get_chunk(&nvm_ctx, (struct sab_cmd_key_store_chunk_get_msg *)recv_msg, len);
                 break;
                 default:
                     err = 1u;
@@ -516,7 +519,8 @@ void seco_nvm_manager(uint8_t flags, uint32_t *status, seco_nvm_ctx_t *nvm_ctx)
         *status = NVM_STATUS_STOPPED;
     }
 
-    if (nvm_ctx != NULL) {
-        seco_nvm_close_session(nvm_ctx);
+    if (nvm_ctx.phdl != NULL) {
+        seco_nvm_close_session();
+        // clean nvm_ctx
     }
 }

@@ -23,17 +23,8 @@
 
 #include <stdint.h>
 
-struct seco_nvm_ctx {
-    struct seco_os_abs_hdl *phdl;
-    uint32_t session_handle;
-    uint32_t storage_handle;
-    uint32_t blob_size;
-};
-
-typedef struct seco_nvm_ctx seco_nvm_ctx_t;
-
-void seco_nvm_manager(uint8_t flags, uint32_t *status, seco_nvm_ctx_t *nvm_ctx);
-void seco_nvm_close_session(struct seco_nvm_ctx *nvm_ctx);
+void seco_nvm_manager(uint8_t flags, uint32_t *status);
+void seco_nvm_close_session(void);
 
 #define NVM_FLAGS_SHE    (0x01u)
 #define NVM_FLAGS_HSM    (0x00u)
