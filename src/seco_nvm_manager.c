@@ -105,6 +105,10 @@ static void seco_nvm_open_session(uint8_t flags)
     struct seco_mu_params mu_params;
 
     do {
+        /* Check if structure is already in use */
+        if (nvm_ctx.phdl != NULL) {
+            break;
+        }
 
         /* Open the Storage session on the MU */
         if ((flags & NVM_FLAGS_SHE) != 0u) {
