@@ -87,6 +87,7 @@ hsm_err_t hsm_close_session(hsm_hdl_t session_hdl);
  *  - update an existing key store
  *  - delete an existing key store
  *  - perform operations involving keys stored in the key store (ciphering, signature generation...)
+ *  - perform key store reprovisioning
  *
  * The authentication is based on the user domain ID and messaging unit, additionaly an authentication nonce is provided.
  * @{
@@ -123,6 +124,31 @@ hsm_err_t hsm_open_key_store_service(hsm_hdl_t session_hdl, open_svc_key_store_a
  * \return error_code error code.
  */
 hsm_err_t hsm_close_key_store_service(hsm_hdl_t key_store_hdl);
+
+typedef uint8_t hsm_svc_key_store_reprovisioning_flags_t;
+typedef struct {
+    uint8_t *signed_message;                            //!< pointer to signed_message authorizing the operation
+    uint16_t signed_msg_size;                           //!< size of the signed_message authorizing the operation
+    uint32_t key_store_identifier;                      //!< user defined id identifying the key store to be reprovisioning.*/
+    uint32_t authentication_nonce;                      //!< user defined nonce used as authentication proof for accesing the key store. */
+    uint16_t max_updates_number;                        //!< maximum number of updates authorized for the key store. Valid only for create operation. */
+    hsm_svc_key_store_reprovisioning_flags_t flags;     //!< bitmap specifying the services properties. */
+    uint8_t reserved;
+} open_svc_key_store_reprovisioning_args_t;
+
+/**
+ * Open a service flow to re-provision a key store.
+ *
+ * \param session_hdl pointer to the handle indentifing the current session.
+ * \param args pointer to the structure containing the function arguments.
+
+ * \param key_store_hdl pointer to where the key store service flow handle must be written.
+ *
+ * \return error_code error code.
+ */
+hsm_err_t hsm_key_store_reprovisioning_service(hsm_hdl_t session_hdl, open_svc_key_store_reprovisioning_args_t *args, hsm_hdl_t *key_store_hdl);
+#define HSM_SVC_KEY_STORE_REPROVISIONING_FLAGS_CREATE ((hsm_svc_key_store_reprovisioning_flags_t)(1 << 0)) //!< It must be specified to reprovision the key store. The key store reprovisioning will be effective in the NVM only once a key is generated/imported specyfing the STRICT OPERATION flag.
+
 /** @} end of key store service flow */
 
 

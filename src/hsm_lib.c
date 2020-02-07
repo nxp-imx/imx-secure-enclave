@@ -286,6 +286,54 @@ hsm_err_t hsm_close_key_store_service(hsm_hdl_t key_store_hdl)
 	return err;
 }
 
+hsm_err_t hsm_key_store_reprovisioning_service(hsm_hdl_t session_hdl, open_svc_key_store_reprovisioning_args_t *args, hsm_hdl_t *key_store_hdl)
+{
+	struct hsm_session_hdl_s *sess_ptr;
+	struct hsm_service_hdl_s *serv_ptr;
+	hsm_err_t err = HSM_GENERAL_ERROR;
+	uint32_t sab_err;
+
+	do {
+		if ((args == NULL) || (key_store_hdl == NULL) || !(args->flags & HSM_SVC_KEY_STORE_REPROVISIONING_FLAGS_CREATE)) {
+			break;
+		}
+
+		sess_ptr = session_hdl_to_ptr(session_hdl);
+		if (sess_ptr == NULL) {
+			err = HSM_UNKNOWN_HANDLE;
+			break;
+		}
+
+		serv_ptr = add_service(sess_ptr);
+		if (serv_ptr == NULL) {
+			break;
+		}
+
+
+		/* Send the signed message to SECO if provided here. */
+        if (args->signed_message != NULL) {
+            (void)seco_os_abs_send_signed_message(sess_ptr->phdl, args->signed_message, args->signed_msg_size);
+        }
+
+		sab_err = sab_open_key_store_command(sess_ptr->phdl,
+						session_hdl,
+						&serv_ptr->service_hdl,
+						args->key_store_identifier,
+						args->authentication_nonce,
+						args->max_updates_number,
+						args->flags);
+		err = sab_rating_to_hsm_err(sab_err);
+		if (err != HSM_NO_ERROR) {
+			delete_service(serv_ptr);
+			break;
+		}
+
+		*key_store_hdl = serv_ptr->service_hdl;
+	} while (false);
+
+	return err;
+}
+
 hsm_err_t hsm_open_key_management_service(hsm_hdl_t key_store_hdl,
 					open_svc_key_management_args_t *args,
 					hsm_hdl_t *key_management_hdl)
