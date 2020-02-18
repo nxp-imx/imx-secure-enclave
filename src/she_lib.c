@@ -354,7 +354,8 @@ she_err_t she_cmd_generate_mac(struct she_hdl_s *hdl, uint8_t key_ext, uint8_t k
         cmd.she_utils_handle = hdl->utils_handle;
         cmd.key_id = (uint16_t)key_ext | (uint16_t)key_id;
         cmd.data_length = message_length;
-        if (message_length == 0) {
+        /* the MAC data is stored right after the input data */
+        if (message_length == 0u) {
             cmd.data_offset = (uint16_t)(seco_os_abs_data_buf(hdl->phdl, mac, SHE_MAC_SIZE, DATA_BUF_USE_SEC_MEM | DATA_BUF_SHORT_ADDR) & SEC_MEM_SHORT_ADDR_MASK);
         } else {
             cmd.data_offset = (uint16_t)(seco_os_abs_data_buf(hdl->phdl, message, message_length, DATA_BUF_IS_INPUT | DATA_BUF_USE_SEC_MEM | DATA_BUF_SHORT_ADDR) & SEC_MEM_SHORT_ADDR_MASK);
@@ -409,7 +410,8 @@ she_err_t she_cmd_verify_mac(struct she_hdl_s *hdl, uint8_t key_ext, uint8_t key
         cmd.she_utils_handle = hdl->utils_handle;
         cmd.key_id = (uint16_t)key_ext | (uint16_t)key_id;
         cmd.data_length = message_length;
-        if (message_length == 0) {
+        /* the MAC data is stored right after the input data */
+        if (message_length == 0u) {
             cmd.data_offset = (uint16_t)(seco_os_abs_data_buf(hdl->phdl, mac, SHE_MAC_SIZE, DATA_BUF_USE_SEC_MEM | DATA_BUF_SHORT_ADDR) & SEC_MEM_SHORT_ADDR_MASK);
         } else {
             cmd.data_offset = (uint16_t)(seco_os_abs_data_buf(hdl->phdl, message, message_length, DATA_BUF_IS_INPUT | DATA_BUF_USE_SEC_MEM | DATA_BUF_SHORT_ADDR) & SEC_MEM_SHORT_ADDR_MASK);
