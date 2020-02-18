@@ -95,10 +95,10 @@ hsm_err_t hsm_close_session(hsm_hdl_t session_hdl);
 
 typedef uint8_t hsm_svc_key_store_flags_t;
 typedef struct {
-    uint32_t key_store_identifier;      //!< user defined id identifying the key store.*/
-    uint32_t authentication_nonce;      //!< user defined nonce used as authentication proof for accesing the key store. */
-    uint16_t max_updates_number;        //!< maximum number of updates authorized for the key store. Valid only for create operation. */
-    hsm_svc_key_store_flags_t flags;    //!< bitmap specifying the services properties. */
+    uint32_t key_store_identifier;      //!< user defined id identifying the key store.
+    uint32_t authentication_nonce;      //!< user defined nonce used as authentication proof for accesing the key store.
+    uint16_t max_updates_number;        //!< maximum number of updates authorized for the key store. Valid only for create operation.\n This parameter has the goal to limit the occupation of the monotonic counter used as anti-rollback protection.\n If the maximum number of updates is reached, HSM still allows key store updates but without updating the monotonic counter giving the opportunity for rollback attacks.
+    hsm_svc_key_store_flags_t flags;    //!< bitmap specifying the services properties.
     uint8_t reserved;
     uint8_t *signed_message;            //!< pointer to signed_message to be sent only in case of the key store reprovisioning 
     uint16_t signed_msg_size;           //!< size of the signed_message to be sent only in case of the key store reprovisioning

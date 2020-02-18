@@ -85,10 +85,10 @@ typedef enum {
  * 
  * \param key_storage_identifier key store identifier
  * \param authentication_nonce user defined nonce to be used as authentication proof for accesing the key store.
- * \param max_updates_number Not supported - maximum number of updates authorized on this new storage.\n
+ * \param max_updates_number Not supported: maximum number of updates authorized on this new storage.\n
  * This parameter has the goal to limit the occupation of the monotonic counter used as anti-rollback protection.\n
  * If the maximum number of updates is reached, SHE still allows key store updates but without updating the monotonic counter giving the opportunity for rollback attacks.\n
- * Always forced to 300 in the current release.
+ * Always forced to the SHE available monotonic counter bits in the current release.
  * \param signed_message pointer to a signed message authorizing the operation (NULL if no signed message to be used)
  * \param msg_len length in bytes of the signed message
  *
