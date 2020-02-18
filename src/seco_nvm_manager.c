@@ -437,10 +437,6 @@ static uint32_t seco_nvm_manager_get_chunk(struct seco_nvm_ctx *nvm_ctx, struct 
         if (len != (int32_t)sizeof(struct sab_cmd_key_store_chunk_get_done_rsp)) {
             break;
         }
-
-        if (finish_msg.get_status != SAB_CHUNK_GET_STATUS_SUCCEEDED) {
-            break;
-        }
         
         err = 0u;
 
