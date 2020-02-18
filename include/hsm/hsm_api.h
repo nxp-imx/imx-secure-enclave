@@ -87,7 +87,7 @@ hsm_err_t hsm_close_session(hsm_hdl_t session_hdl);
  *  - update an existing key store
  *  - delete an existing key store
  *  - perform operations involving keys stored in the key store (ciphering, signature generation...)
- *  - perform key store reprovisioning using signed message
+ *  - perform key store reprovisioning using a signed message. A key store re-provisioning results in erasing all the key stores handled by the HSM.
  *
  * The authentication is based on the user domain ID and messaging unit, additionaly an authentication nonce is provided.
  * @{

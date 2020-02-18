@@ -15,7 +15,7 @@
  * 1.5 - subject to change | Sept 13 2019 | - manage key argument: fix padding size\n - butterfly key expansion: change argument definition\n- introduce public key recovery API
  * 1.6 - subject to change | Oct 14 2019  | - add Key store section in chapter 3\n- change key_info and flags definition, substitute key_type_ext with group_id\n- hsm_generate_key, hsm_manage_key, hsm_butterfly_key_expansion: change argument definition\n- hsm_manage_key: change argument definition\n- add hsm_manage_key_group API
  * 1.7 - subject to change | Dec 20 2019  | - add generic data storage API \n- add GCM and CMAC support\n- add support for AES 192/256 key size for all cipher algorithms\n - add root KEK export API\n - add key import functionality\n- add get info API
- * 1.8 - subject to change | Feb 21 2020  | - fix HSM_KEY_INFO_TRANSIENT definition: delete erroneous "not supported" comment \n- adding signed message support for key store reprovisionning in key store open service
+ * 2.0 - subject to change | Feb 21 2020  | - fix HSM_KEY_INFO_TRANSIENT definition: delete erroneous "not supported" comment \n- adding signed message support for key store reprovisionning in key store open service
  * */
 
 /*! \page page1 General concepts related to the API
