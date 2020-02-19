@@ -939,9 +939,9 @@ typedef struct {
     uint8_t *signed_message;                    //!< pointer to signed_message authorizing the operation
     uint8_t *out_root_kek;                      //!< pointer to the output area where the derived root kek (key encryption key) must be written
     uint16_t signed_msg_size;                   //!< size of the signed_message authorizing the operation
-    uint16_t root_kek_size;                     //!< length in bytes of the root kek. Must be 32 bytes.
+    uint8_t root_kek_size;                     //!< length in bytes of the root kek. Must be 32 bytes.
     hsm_op_export_root_kek_flags_t flags;       //!< flags bitmap specifying the operation attributes.
-    uint8_t reserved[3];
+    uint8_t reserved[2];
 } op_export_root_kek_args_t;
 
 /**

@@ -1,5 +1,5 @@
 /*
- * Copyright 2019 NXP
+ * Copyright 2019-2020 NXP
  *
  * NXP Confidential.
  * This software is owned or controlled by NXP and may only be used strictly
@@ -386,7 +386,7 @@ uint32_t sab_cmd_cipher_one_go(struct seco_os_abs_hdl *phdl,
         cmd.cipher_handle = cipher_handle;
         cmd.key_id = key_id;
         if (iv == NULL) {
-            cmd.iv_address = 0;
+            cmd.iv_address = 0u;
         } else {
             cmd.iv_address = seco_os_abs_data_buf(phdl, iv, iv_size, DATA_BUF_IS_INPUT);
         }
@@ -397,6 +397,7 @@ uint32_t sab_cmd_cipher_one_go(struct seco_os_abs_hdl *phdl,
         cmd.output_address = seco_os_abs_data_buf(phdl, output, output_size, 0u);
         cmd.input_size = input_size;
         cmd.output_size = output_size;
+        cmd.crc = 0u;
         cmd.crc = seco_compute_msg_crc((uint32_t*)&cmd, (uint32_t)(sizeof(cmd) - sizeof(uint32_t)));
 
         /* Send the message to Seco. */
@@ -423,10 +424,14 @@ uint32_t sab_open_mac(struct seco_os_abs_hdl *phdl, uint32_t key_store_handle, u
     do {
         /* Send the mac open command to Seco. */
         seco_fill_cmd_msg_hdr(&cmd.hdr, SAB_MAC_OPEN_REQ, (uint32_t)sizeof(struct sab_cmd_mac_open_msg));
-        cmd.input_address_ext = 0;
-        cmd.output_address_ext = 0;
+        cmd.input_address_ext = 0u;
+        cmd.output_address_ext = 0u;
         cmd.flags = flags;
         cmd.key_store_handle = key_store_handle;
+        cmd.rsv[0] = 0u;
+        cmd.rsv[1] = 0u;
+        cmd.rsv[2] = 0u;
+        cmd.crc = 0u;
         cmd.crc = seco_compute_msg_crc((uint32_t*)&cmd, (uint32_t)(sizeof(cmd) - sizeof(uint32_t)));
 
         error = seco_send_msg_and_get_resp(phdl,

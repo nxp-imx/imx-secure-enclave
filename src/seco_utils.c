@@ -41,23 +41,17 @@ int32_t seco_send_msg_and_get_resp(struct seco_os_abs_hdl *phdl, uint32_t *cmd, 
     do {
         /* Command and response need to be at least 1 word for the header. */
         if ((cmd_len < (uint32_t)sizeof(uint32_t)) || (rsp_len < (uint32_t)sizeof(uint32_t))) {
-            printf("error cmd_len 0x%x \n", cmd_len);
-            printf("error resp_len 0x%x \n", rsp_len);
             break;
         }
 
         /* Send the command. */
         len = seco_os_abs_send_mu_message(phdl, cmd, cmd_len);
         if (len != (int32_t)cmd_len) {
-            printf("error cmd_len 0x%x \n", cmd_len);
-            printf("error len 0x%x \n", len);
             break;
         }
         /* Read the response. */
         len = seco_os_abs_read_mu_message(phdl, rsp, rsp_len);
         if (len != (int32_t)rsp_len) {
-            printf("error rsp_len 0x%x \n", rsp_len);
-            printf("error len 0x%x \n", len);
             break;
         }
 

@@ -39,7 +39,7 @@ struct nvm_chunk_hdr {
 static struct seco_nvm_ctx nvm_ctx = {0};
 
 /* Storage import processing. Return 0 on success.  */
-static uint32_t seco_nvm_storage_import(struct seco_nvm_ctx *nvm_ctx, uint8_t *data, uint32_t len)
+static uint32_t seco_nvm_storage_import(struct seco_nvm_ctx *nvm_ctx_param, uint8_t *data, uint32_t len)
 {
     struct sab_cmd_key_store_import_msg msg;
     struct sab_cmd_key_store_import_rsp rsp;
@@ -49,7 +49,7 @@ static uint32_t seco_nvm_storage_import(struct seco_nvm_ctx *nvm_ctx, uint8_t *d
     int32_t error;
 
     do {
-        if (nvm_ctx->storage_handle == 0u) {
+        if (nvm_ctx_param->storage_handle == 0u) {
             break;
         }
    
@@ -64,15 +64,15 @@ static uint32_t seco_nvm_storage_import(struct seco_nvm_ctx *nvm_ctx, uint8_t *d
             break;
         }
       
-        seco_addr = seco_os_abs_data_buf(nvm_ctx->phdl, data + sizeof(struct seco_nvm_header_s), blob_hdr->size, DATA_BUF_IS_INPUT);
+        seco_addr = seco_os_abs_data_buf(nvm_ctx_param->phdl, data + sizeof(struct seco_nvm_header_s), blob_hdr->size, DATA_BUF_IS_INPUT);
   
         /* Prepare command message. */
         seco_fill_cmd_msg_hdr(&msg.hdr, SAB_STORAGE_MASTER_IMPORT_REQ, (uint32_t)sizeof(struct sab_cmd_key_store_import_msg));
-        msg.storage_handle = nvm_ctx->storage_handle;
+        msg.storage_handle = nvm_ctx_param->storage_handle;
         msg.key_store_address = (uint32_t)(seco_addr & 0xFFFFFFFFu);
         msg.key_store_size = blob_hdr->size;
      
-        error = seco_send_msg_and_get_resp(nvm_ctx->phdl,
+        error = seco_send_msg_and_get_resp(nvm_ctx_param->phdl,
                     (uint32_t *)&msg, (uint32_t)sizeof(struct sab_cmd_key_store_import_msg),
                     (uint32_t *)&rsp, (uint32_t)sizeof(struct sab_cmd_key_store_import_rsp));
         if (error != 0) {        
@@ -153,14 +153,14 @@ static void seco_nvm_open_session(uint8_t flags)
     }
 }
 
-static uint32_t seco_nvm_export_finish_rsp(struct seco_nvm_ctx *nvm_ctx, uint32_t error)
+static uint32_t seco_nvm_export_finish_rsp(struct seco_nvm_ctx *nvm_ctx_param, uint32_t error)
 {
     struct sab_cmd_key_store_export_finish_rsp resp;
     uint32_t ret = SAB_FAILURE_STATUS;
     int32_t len;
 
     do {
-        if (nvm_ctx->storage_handle == 0u) {
+        if (nvm_ctx_param->storage_handle == 0u) {
             break;
         }
         seco_fill_rsp_msg_hdr(&resp.hdr, SAB_STORAGE_EXPORT_FINISH_REQ, (uint32_t)sizeof(struct sab_cmd_key_store_export_finish_rsp));
@@ -169,8 +169,8 @@ static uint32_t seco_nvm_export_finish_rsp(struct seco_nvm_ctx *nvm_ctx, uint32_
         } else {
             resp.rsp_code = SAB_FAILURE_STATUS;
         }
-        resp.storage_handle = nvm_ctx->storage_handle;
-        len = seco_os_abs_send_mu_message(nvm_ctx->phdl, (uint32_t *)&resp, (uint32_t)sizeof(struct sab_cmd_key_store_export_finish_rsp));
+        resp.storage_handle = nvm_ctx_param->storage_handle;
+        len = seco_os_abs_send_mu_message(nvm_ctx_param->phdl, (uint32_t *)&resp, (uint32_t)sizeof(struct sab_cmd_key_store_export_finish_rsp));
         if (len != (int32_t)sizeof(struct sab_cmd_key_store_export_finish_rsp)) {
             break;
         }
@@ -181,13 +181,12 @@ static uint32_t seco_nvm_export_finish_rsp(struct seco_nvm_ctx *nvm_ctx, uint32_
     return ret;
 }
 
-static uint32_t seco_nvm_manager_export_master(struct seco_nvm_ctx *nvm_ctx, struct sab_cmd_key_store_export_start_msg *msg, int32_t msg_len)
+static uint32_t seco_nvm_manager_export_master(struct seco_nvm_ctx *nvm_ctx_param, struct sab_cmd_key_store_export_start_msg *msg, int32_t msg_len)
 {
     uint32_t err = 1u;
     uint32_t data_len;
     int32_t len = 0;
     uint8_t *data = NULL;
-    struct nvm_chunk_hdr *chunk;
     struct sab_cmd_key_store_export_start_rsp resp;
     struct sab_cmd_key_store_export_finish_msg finish_msg;
     uint64_t seco_addr;
@@ -200,7 +199,7 @@ static uint32_t seco_nvm_manager_export_master(struct seco_nvm_ctx *nvm_ctx, str
         }
 
         /* Extract length of the blob from the message. */
-        nvm_ctx->blob_size = msg->key_store_size;
+        nvm_ctx_param->blob_size = msg->key_store_size;
         data_len = msg->key_store_size + (uint32_t)sizeof(struct seco_nvm_header_s);
         if ((data_len == 0u) || (data_len > 16u*1024u)) {
             /* Fixing arbitrary maximum blob size to 16k for sanity checks.*/
@@ -215,9 +214,9 @@ static uint32_t seco_nvm_manager_export_master(struct seco_nvm_ctx *nvm_ctx, str
         seco_fill_rsp_msg_hdr(&resp.hdr, SAB_STORAGE_MASTER_EXPORT_REQ, (uint32_t)sizeof(struct sab_cmd_key_store_export_start_rsp));
 
         if (data != NULL) {
-            seco_addr = seco_os_abs_data_buf(nvm_ctx->phdl,
+            seco_addr = seco_os_abs_data_buf(nvm_ctx_param->phdl,
                                             data + (uint32_t)sizeof(struct seco_nvm_header_s),
-                                            nvm_ctx->blob_size,
+                                            nvm_ctx_param->blob_size,
                                             0u);
             resp.key_store_export_address = (uint32_t)(seco_addr & 0xFFFFFFFFu);
             resp.rsp_code = SAB_SUCCESS_STATUS;
@@ -225,9 +224,9 @@ static uint32_t seco_nvm_manager_export_master(struct seco_nvm_ctx *nvm_ctx, str
             resp.key_store_export_address = 0;
             resp.rsp_code = SAB_FAILURE_STATUS;
         }
-        resp.storage_handle = nvm_ctx->storage_handle;
+        resp.storage_handle = nvm_ctx_param->storage_handle;
 
-        len = seco_os_abs_send_mu_message(nvm_ctx->phdl, (uint32_t *)&resp, (uint32_t)sizeof(struct sab_cmd_key_store_export_start_rsp));
+        len = seco_os_abs_send_mu_message(nvm_ctx_param->phdl, (uint32_t *)&resp, (uint32_t)sizeof(struct sab_cmd_key_store_export_start_rsp));
         if (len != (int32_t)sizeof(struct sab_cmd_key_store_export_start_rsp)) {
             break;
         }
@@ -237,7 +236,7 @@ static uint32_t seco_nvm_manager_export_master(struct seco_nvm_ctx *nvm_ctx, str
         }
 
         /* Wait for the message from SECO indicating that the data are available at the specified destination. */
-        len = seco_os_abs_read_mu_message(nvm_ctx->phdl, (uint32_t *)&finish_msg, (uint32_t)sizeof(struct sab_cmd_key_store_export_finish_msg));
+        len = seco_os_abs_read_mu_message(nvm_ctx_param->phdl, (uint32_t *)&finish_msg, (uint32_t)sizeof(struct sab_cmd_key_store_export_finish_msg));
         if ((finish_msg.hdr.command != SAB_STORAGE_EXPORT_FINISH_REQ)
             || (len != (int32_t)sizeof(struct sab_cmd_key_store_export_finish_msg))) {
             break;
@@ -245,24 +244,24 @@ static uint32_t seco_nvm_manager_export_master(struct seco_nvm_ctx *nvm_ctx, str
 
         if (finish_msg.export_status != SAB_EXPORT_STATUS_SUCCESS) {
             /* Notification that export failed. Acknowledge it but stop write to NVM. */
-            (void)seco_nvm_export_finish_rsp(nvm_ctx, 0u);
+            (void)seco_nvm_export_finish_rsp(nvm_ctx_param, 0u);
             break;
         }
         err = 0;
 
         /* fill header for sanity check when it will be re-loaded. */
         blob_hdr = (struct seco_nvm_header_s *)data;
-        blob_hdr->size = nvm_ctx->blob_size;
-        blob_hdr->crc = seco_os_abs_crc(data + sizeof(struct seco_nvm_header_s),  nvm_ctx->blob_size);
+        blob_hdr->size = nvm_ctx_param->blob_size;
+        blob_hdr->crc = seco_os_abs_crc(data + sizeof(struct seco_nvm_header_s),  nvm_ctx_param->blob_size);
         blob_hdr->blob_id = 0u; /* Used only for chunks. */
-        nvm_ctx->blob_size = 0u;
+        nvm_ctx_param->blob_size = 0u;
         /* Data have been provided by SECO. Write them in NVM and acknowledge. */
-        if (seco_os_abs_storage_write(nvm_ctx->phdl, data, data_len) == (int32_t)data_len) {
+        if (seco_os_abs_storage_write(nvm_ctx_param->phdl, data, data_len) == (int32_t)data_len) {
             /* Success. */
-            (void)seco_nvm_export_finish_rsp(nvm_ctx, 0u);
+            (void)seco_nvm_export_finish_rsp(nvm_ctx_param, 0u);
         } else {
             /* Notify SECO of an error during write to NVM. */
-            (void)seco_nvm_export_finish_rsp(nvm_ctx, 1u);
+            (void)seco_nvm_export_finish_rsp(nvm_ctx_param, 1u);
         }
     } while (false);
 
@@ -271,9 +270,9 @@ static uint32_t seco_nvm_manager_export_master(struct seco_nvm_ctx *nvm_ctx, str
     return err;
 }
 
-static uint32_t seco_nvm_manager_export_chunk(struct seco_nvm_ctx *nvm_ctx, struct sab_cmd_key_store_chunk_export_msg *msg, int32_t msg_len)
+static uint32_t seco_nvm_manager_export_chunk(struct seco_nvm_ctx *nvm_ctx_param, struct sab_cmd_key_store_chunk_export_msg *msg, int32_t msg_len)
 {
-    uint32_t err = 1u;
+    uint32_t err = 0u;
     uint32_t data_len;
     int32_t len = 0;
     struct nvm_chunk_hdr *chunk = NULL;
@@ -288,7 +287,7 @@ static uint32_t seco_nvm_manager_export_chunk(struct seco_nvm_ctx *nvm_ctx, stru
             break;
         }
         /* Extract length of the blob from the message. */
-        nvm_ctx->blob_size = msg->chunk_size;
+        nvm_ctx_param->blob_size = msg->chunk_size;
         data_len = msg->chunk_size + (uint32_t)sizeof(struct seco_nvm_header_s);
         if ((data_len == 0u) || (data_len > 16u*1024u)) {
             /* Fixing arbitrary maximum blob size to 16k for sanity checks.*/
@@ -307,9 +306,9 @@ static uint32_t seco_nvm_manager_export_chunk(struct seco_nvm_ctx *nvm_ctx, stru
         seco_fill_rsp_msg_hdr(&resp.hdr, SAB_STORAGE_CHUNK_EXPORT_REQ, (uint32_t)sizeof(struct sab_cmd_key_store_chunk_export_rsp));
 
         if ((chunk != NULL) && (chunk->data != NULL)) {
-            seco_addr = seco_os_abs_data_buf(nvm_ctx->phdl,
+            seco_addr = seco_os_abs_data_buf(nvm_ctx_param->phdl,
                                             chunk->data + (uint32_t)sizeof(struct seco_nvm_header_s),
-                                            nvm_ctx->blob_size,
+                                            nvm_ctx_param->blob_size,
                                             0u);
             resp.chunk_export_address = (uint32_t)(seco_addr & 0xFFFFFFFFu);
             resp.rsp_code = SAB_SUCCESS_STATUS;
@@ -318,7 +317,7 @@ static uint32_t seco_nvm_manager_export_chunk(struct seco_nvm_ctx *nvm_ctx, stru
             resp.rsp_code = SAB_FAILURE_STATUS;
         }
 
-        len = seco_os_abs_send_mu_message(nvm_ctx->phdl, (uint32_t *)&resp, (uint32_t)sizeof(struct sab_cmd_key_store_chunk_export_rsp));
+        len = seco_os_abs_send_mu_message(nvm_ctx_param->phdl, (uint32_t *)&resp, (uint32_t)sizeof(struct sab_cmd_key_store_chunk_export_rsp));
         if (len != (int32_t)sizeof(struct sab_cmd_key_store_chunk_export_rsp)) {
             break;
         }
@@ -328,7 +327,7 @@ static uint32_t seco_nvm_manager_export_chunk(struct seco_nvm_ctx *nvm_ctx, stru
         }
 
         /* Wait for the message from SECO indicating that the data are available at the specified destination. */
-        len = seco_os_abs_read_mu_message(nvm_ctx->phdl, (uint32_t *)&finish_msg, (uint32_t)sizeof(struct sab_cmd_key_store_export_finish_msg));
+        len = seco_os_abs_read_mu_message(nvm_ctx_param->phdl, (uint32_t *)&finish_msg, (uint32_t)sizeof(struct sab_cmd_key_store_export_finish_msg));
         if ((finish_msg.hdr.command != SAB_STORAGE_EXPORT_FINISH_REQ)
             || (len != (int32_t)sizeof(struct sab_cmd_key_store_export_finish_msg))) {
             break;
@@ -341,15 +340,15 @@ static uint32_t seco_nvm_manager_export_chunk(struct seco_nvm_ctx *nvm_ctx, stru
             blob_hdr->crc = seco_os_abs_crc(chunk->data + sizeof(struct seco_nvm_header_s), chunk->len);
             blob_hdr->blob_id = chunk->blob_id;
 
-            if (seco_os_abs_storage_write_chunk(nvm_ctx->phdl, chunk->data, chunk->len , chunk->blob_id) != (int32_t)(chunk->len)) {
-                err = 1u;
+            if (seco_os_abs_storage_write_chunk(nvm_ctx_param->phdl, chunk->data, chunk->len , chunk->blob_id) != (int32_t)(chunk->len)) {
+                err = 1;
             }
         }
         seco_os_abs_free(chunk->data);
         seco_os_abs_free(chunk);
 
         /* Send success to SECO. */
-        (void)seco_nvm_export_finish_rsp(nvm_ctx, 0);
+        (void)seco_nvm_export_finish_rsp(nvm_ctx_param, err);
 
         err = 0u;
     } while (false);
@@ -364,7 +363,7 @@ static uint32_t seco_nvm_manager_export_chunk(struct seco_nvm_ctx *nvm_ctx, stru
     return err;
 }
 
-static uint32_t seco_nvm_manager_get_chunk(struct seco_nvm_ctx *nvm_ctx, struct sab_cmd_key_store_chunk_get_msg *msg, int32_t msg_len)
+static uint32_t seco_nvm_manager_get_chunk(struct seco_nvm_ctx *nvm_ctx_param, struct sab_cmd_key_store_chunk_get_msg *msg, int32_t msg_len)
 {
     uint32_t err = 1;
     struct seco_nvm_header_s nvm_hdr;
@@ -384,10 +383,10 @@ static uint32_t seco_nvm_manager_get_chunk(struct seco_nvm_ctx *nvm_ctx, struct 
 
         blob_id = ((uint64_t)(msg->blob_id_ext) << 32u) | (uint64_t)msg->blob_id;
 
-        if (seco_os_abs_storage_read_chunk(nvm_ctx->phdl, (uint8_t *)&nvm_hdr, (uint32_t)sizeof(nvm_hdr), blob_id) == (int32_t)sizeof(nvm_hdr)) {
+        if (seco_os_abs_storage_read_chunk(nvm_ctx_param->phdl, (uint8_t *)&nvm_hdr, (uint32_t)sizeof(nvm_hdr), blob_id) == (int32_t)sizeof(nvm_hdr)) {
             data = seco_os_abs_malloc(nvm_hdr.size);
             if (data != NULL) {;
-                if (seco_os_abs_storage_read_chunk(nvm_ctx->phdl, data, nvm_hdr.size, blob_id) == (int32_t)nvm_hdr.size) {
+                if (seco_os_abs_storage_read_chunk(nvm_ctx_param->phdl, data, nvm_hdr.size, blob_id) == (int32_t)nvm_hdr.size) {
                     err = 0u;
                 }
             }
@@ -397,7 +396,7 @@ static uint32_t seco_nvm_manager_get_chunk(struct seco_nvm_ctx *nvm_ctx, struct 
         seco_fill_rsp_msg_hdr(&resp.hdr, SAB_STORAGE_CHUNK_GET_REQ, (uint32_t)sizeof(struct sab_cmd_key_store_chunk_get_rsp));
         if (err == 0u) {
             resp.chunk_size = nvm_hdr.size - (uint32_t)sizeof(struct seco_nvm_header_s);
-            seco_addr = seco_os_abs_data_buf(nvm_ctx->phdl,
+            seco_addr = seco_os_abs_data_buf(nvm_ctx_param->phdl,
                                             data + (uint32_t)sizeof(struct seco_nvm_header_s),
                                             nvm_hdr.size - (uint32_t)sizeof(struct seco_nvm_header_s),
                                             DATA_BUF_IS_INPUT);
@@ -410,7 +409,7 @@ static uint32_t seco_nvm_manager_get_chunk(struct seco_nvm_ctx *nvm_ctx, struct 
         }
 
         err = 1u;
-        len = seco_os_abs_send_mu_message(nvm_ctx->phdl, (uint32_t *)&resp, (uint32_t)sizeof(struct sab_cmd_key_store_chunk_get_rsp));
+        len = seco_os_abs_send_mu_message(nvm_ctx_param->phdl, (uint32_t *)&resp, (uint32_t)sizeof(struct sab_cmd_key_store_chunk_get_rsp));
         if (len != (int32_t)sizeof(struct sab_cmd_key_store_chunk_get_rsp)) {
             break;
         }
@@ -421,7 +420,7 @@ static uint32_t seco_nvm_manager_get_chunk(struct seco_nvm_ctx *nvm_ctx, struct 
         }
 
         /* Wait for the message from SECO indicating that the data are no more in use. */
-        len = seco_os_abs_read_mu_message(nvm_ctx->phdl, (uint32_t *)&finish_msg, (uint32_t)sizeof(struct sab_cmd_key_store_chunk_get_done_msg));
+        len = seco_os_abs_read_mu_message(nvm_ctx_param->phdl, (uint32_t *)&finish_msg, (uint32_t)sizeof(struct sab_cmd_key_store_chunk_get_done_msg));
         if (
             (finish_msg.hdr.command != SAB_STORAGE_CHUNK_GET_DONE_REQ) || 
             (len != (int32_t)sizeof(struct sab_cmd_key_store_chunk_get_done_msg))
@@ -433,7 +432,7 @@ static uint32_t seco_nvm_manager_get_chunk(struct seco_nvm_ctx *nvm_ctx, struct 
         seco_fill_rsp_msg_hdr(&finish_rsp.hdr, SAB_STORAGE_CHUNK_GET_DONE_REQ, (uint32_t)sizeof(struct sab_cmd_key_store_chunk_get_done_rsp));
         finish_rsp.rsp_code = SAB_SUCCESS_STATUS;
 
-        len = seco_os_abs_send_mu_message(nvm_ctx->phdl, (uint32_t *)&finish_rsp, (uint32_t)sizeof(struct sab_cmd_key_store_chunk_get_done_rsp));
+        len = seco_os_abs_send_mu_message(nvm_ctx_param->phdl, (uint32_t *)&finish_rsp, (uint32_t)sizeof(struct sab_cmd_key_store_chunk_get_done_rsp));
         if (len != (int32_t)sizeof(struct sab_cmd_key_store_chunk_get_done_rsp)) {
             break;
         }

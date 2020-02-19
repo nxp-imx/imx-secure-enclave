@@ -636,6 +636,10 @@ she_err_t she_cmd_load_key_ext(struct she_hdl_s *hdl, uint8_t key_ext, uint8_t k
         seco_os_abs_memcpy((uint8_t *)cmd.m2, m2, 2u * SHE_KEY_SIZE);
         seco_os_abs_memcpy((uint8_t *)cmd.m3, m3, SHE_KEY_SIZE);
         cmd.flags = flags;
+        cmd.pad[0] = 0u;
+        cmd.pad[1] = 0u;
+        cmd.pad[2] = 0u;
+        cmd.crc = 0u;
         cmd.crc = seco_compute_msg_crc((uint32_t*)&cmd, (uint32_t)(sizeof(cmd) - sizeof(uint32_t)));
 
         /* Send the message to Seco. */

@@ -392,7 +392,7 @@ struct sab_cmd_key_store_chunk_get_rsp {
     uint32_t rsp_code;
 };
 
-#define SAB_CHUNK_GET_STATUS_SUCCEEDED 0xCA3BB3AC
+#define SAB_CHUNK_GET_STATUS_SUCCEEDED (0xCA3BB3ACu)
 
 struct sab_cmd_key_store_chunk_get_done_msg {
     struct sab_mu_hdr hdr;
