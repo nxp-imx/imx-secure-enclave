@@ -592,7 +592,7 @@ hsm_err_t hsm_butterfly_key_expansion(hsm_hdl_t key_management_hdl,
 		err = sab_rating_to_hsm_err(rsp.rsp_code);
 		if (
 			(err  == HSM_NO_ERROR) && 
-			((cmd.flags & HSM_OP_BUTTERFLY_KEY_FLAGS_CREATE) == HSM_OP_BUTTERFLY_KEY_FLAGS_CREATE) 
+			((cmd.flags & (uint8_t)HSM_OP_BUTTERFLY_KEY_FLAGS_CREATE) == (uint8_t)HSM_OP_BUTTERFLY_KEY_FLAGS_CREATE) 
 		) {
 			*(args->dest_key_identifier) = rsp.dest_key_identifier;
 		}
