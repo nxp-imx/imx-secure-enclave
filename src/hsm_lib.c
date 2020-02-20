@@ -1845,7 +1845,7 @@ hsm_err_t hsm_data_storage(hsm_hdl_t data_storage_hdl,
 		cmd.data_address = (uint32_t)seco_os_abs_data_buf(serv_ptr->session->phdl,
 					args->data,
 					args->data_size,
-					(((args->flags & HSM_OP_DATA_STORAGE_FLAGS_STORE)==HSM_OP_DATA_STORAGE_FLAGS_STORE)? DATA_BUF_IS_INPUT : 0));
+					(((args->flags & HSM_OP_DATA_STORAGE_FLAGS_STORE)==HSM_OP_DATA_STORAGE_FLAGS_STORE)? DATA_BUF_IS_INPUT : 0u));
 		cmd.data_size = args->data_size;
 		cmd.data_id = args->data_id;
 		cmd.flags = args->flags;
