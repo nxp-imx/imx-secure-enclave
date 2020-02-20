@@ -344,21 +344,17 @@ static uint32_t seco_nvm_manager_export_chunk(struct seco_nvm_ctx *nvm_ctx_param
                 err = 1;
             }
         }
-        seco_os_abs_free(chunk->data);
-        seco_os_abs_free(chunk);
-
+        
         /* Send success to SECO. */
         (void)seco_nvm_export_finish_rsp(nvm_ctx_param, err);
 
         err = 0u;
     } while (false);
 
-    if (err != 0u) {
-        if (chunk != NULL) {
-            seco_os_abs_free(chunk->data);
-        }
-        seco_os_abs_free(chunk);
+    if (chunk != NULL) {
+        seco_os_abs_free(chunk->data);
     }
+    seco_os_abs_free(chunk);
 
     return err;
 }

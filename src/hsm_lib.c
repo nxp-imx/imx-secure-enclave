@@ -1991,10 +1991,6 @@ hsm_err_t hsm_export_root_key_encryption_key (hsm_hdl_t session_hdl,
 
 		err = sab_rating_to_hsm_err(rsp.rsp_code);
 
-		if (err != 0) {
-			break;
-		}
-
 	} while (false);
 
 	return err;
@@ -2003,7 +1999,7 @@ hsm_err_t hsm_export_root_key_encryption_key (hsm_hdl_t session_hdl,
 hsm_err_t hsm_get_info(hsm_hdl_t session_hdl, op_get_info_args_t *args) {
 	struct hsm_session_hdl_s *sess_ptr;
 	hsm_err_t err = HSM_GENERAL_ERROR;
-	int32_t error = 1;
+	uint32_t error = 1;
 	
     do {
 
@@ -2083,9 +2079,6 @@ hsm_err_t hsm_close_mac_service(hsm_hdl_t mac_hdl)
 		sab_err = sab_close_mac(serv_ptr->session->phdl, mac_hdl);
 		err = sab_rating_to_hsm_err(sab_err);
 		delete_service(serv_ptr);
-		if (err != 0) {
-			break;
-		}
 
 	} while (false);
 
@@ -2153,9 +2146,6 @@ hsm_err_t hsm_mac_one_go(hsm_hdl_t mac_hdl, op_mac_one_go_args_t* args, hsm_mac_
 		err = sab_rating_to_hsm_err(rsp.rsp_code);
 
         *status = rsp.verification_status;
-		if (err != 0) {
-			break;
-		}
 
     } while (false);
 
