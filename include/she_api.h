@@ -306,7 +306,7 @@ typedef uint8_t she_cmd_load_key_ext_flags_t;
  * \return error code
  */
 she_err_t she_cmd_load_key_ext(struct she_hdl_s *hdl, uint8_t key_ext, uint8_t key_id, uint8_t *m1, uint8_t *m2, uint8_t *m3, uint8_t *m4, uint8_t *m5, she_cmd_load_key_ext_flags_t flags);
-#define SHE_LOAD_KEY_EXT_FLAGS_STRICT_OPERATION        ((she_cmd_load_key_ext_flags_t)(1 << 7))  //!< The request is completed only when the key store is written in the NVM and the monotonic counter is incremented.
+#define SHE_LOAD_KEY_EXT_FLAGS_STRICT_OPERATION        ((she_cmd_load_key_ext_flags_t)(1u << 7))  //!< The request is completed only when the key store is written in the NVM and the monotonic counter is incremented.
 #define SHE_KEY_SIZE 16u //!< SHE keys are 128 bits (16 bytes) long.
 /** @} end of CMD_LOAD_KEY group */
 
