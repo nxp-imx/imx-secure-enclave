@@ -15,7 +15,7 @@
  * 1.5 - subject to change | Sept 13 2019 | - manage key argument: fix padding size\n - butterfly key expansion: change argument definition\n- introduce public key recovery API
  * 1.6 - subject to change | Oct 14 2019  | - add Key store section in chapter 3\n- change key_info and flags definition, substitute key_type_ext with group_id\n- hsm_generate_key, hsm_manage_key, hsm_butterfly_key_expansion: change argument definition\n- hsm_manage_key: change argument definition\n- add hsm_manage_key_group API
  * 1.7 - subject to change | Dec 20 2019  | - add generic data storage API \n- add GCM and CMAC support\n- add support for AES 192/256 key size for all cipher algorithms\n - add root KEK export API\n - add key import functionality\n- add get info API
- * 2.0 - subject to change | Feb 21 2020  | - fix HSM_KEY_INFO_TRANSIENT definition: delete erroneous "not supported" comment \n- adding signed message support for key store reprovisionning in key store open service
+ * 2.0 - subject to change | Feb 21 2020  | - fix HSM_KEY_INFO_TRANSIENT definition: delete erroneous "not supported" comment \n- key store open service API: adding signed message support for key store reprovisionning \n- Naming consistency: remove "hsm_" prefix from \n hsm_op_ecies_dec_args_t \n hsm_op_pub_key_rec_args_t \n hsm_op_pub_key_dec_args_t \n hsm_op_ecies_enc_args_t \n hsm_op_pub_key_recovery_args_t \n hsm_op_get_info_args_t
  * */
 
 /*! \page page1 General concepts related to the API
@@ -33,18 +33,18 @@
   \section sec3 Example
   \image latex /srv/dev/imx8-seco-qx/seco_libs/doc/images/code_example.png
   \section sec4 Key store
-  A key store can be created by specifying the CREATE flag in the hsm_open_key_store_service API. Please note that the created key store will be not stored in the NVM till a key is generated/imported specyfing the STRICT OPERATION flag.\n
+  A key store can be created by specifying the CREATE flag in the hsm_open_key_store_service API. Please note that the created key store will be not stored in the NVM till a key is generated/imported specyfing the "STRICT OPERATION" flag.\n
   Only symmetric and private keys are stored into the key store. Public keys can be exported during the key pair generation operation or recalculated through the hsm_pub_key_recovery API.\n
   Secret keys cannot be exported under any circumstances, while they can be imported in encrypted form.\n
   \subsection subsec2 Key management
   Keys are divided in groups, keys belonging to the same group are written/read from the NVM as a monolitic block.\n
   Up to 3 key groups can be handled in the HSM local memory (those immediatly available to perform crypto operation), while up to 1024 key groups can be handled in the external NVM and imported in the local memory as needed.\n
   If the local memory is full (3 key groups already reside in the HSM local memory) and a new key group is needed by an incoming user request, the HSM swaps one of the local key group with the one needed by the user request.\n
-  A control of which key group should be kept in the local memory (cached) is provide through the manage_key_group API lock/unlock mechanism.\n
+  The user can control which key group must be kept in the local memory (cached) through the manage_key_group API lock/unlock mechanism.\n
   As general concept, frequently used keys should be kept, when possible, in the same key group and locked in the local memory for performance optimization.\n
   \subsection subsec3 NVM writing
-  All the APIs modyfing the content of the key store (key generation, key_management, key derivation functions) provide a "STRICT OPERATION" flag. If the flag is set, the HSM triggers and export of the encrypted key group into the external NVM and blows one bit of the OTP monotonic counter. Please note that the "STRICT OPERATION" has effect only on the current key group.\n
+  All the APIs modyfing the content of the key store (key generation, key_management, key derivation functions) provide a "STRICT OPERATION" flag. If the flag is set, the HSM triggers and export of the encrypted key group into the external NVM and increments (blows one bit) the OTP monotonic counter used as roll back protection. Please note that the "STRICT OPERATION" has effect only on the current key group.\n
   Any update to the key store must be considered as effective only after an operation specifing the flag "STRICT OPERATION" is aknowledged by the HSM. All the operations not specifying the "STRICT OPERATION" flags impact the HSM local memory only and will be lost in case of system reset\n
-  Due to the limited monotonic counter size (QXPB0 up to 1620 update available), the user should, when possible, perform multiple udates before setting the "STRICT OPERATION" flag.\n
+  Due to the limited monotonic counter size (QXPB0 up to 1620 update available by default), the user should, when possible, perform multiple udates before setting the "STRICT OPERATION" flag (i.e. keys to be updated should be kept in the same key group).\n
   Once the monotonic counter is completely blown a warning is returned on each update operation to inform the user that the new updates are not roll-back protected.
  */

@@ -84,29 +84,27 @@ hsm_err_t hsm_close_session(hsm_hdl_t session_hdl);
  *  @defgroup group2 Key store
  * User must open a key store service flow in order to perform the following operations:
  *  - create a new key store
- *  - update an existing key store
- *  - delete an existing key store
  *  - perform operations involving keys stored in the key store (ciphering, signature generation...)
- *  - perform key store reprovisioning using a signed message. A key store re-provisioning results in erasing all the key stores handled by the HSM.
+ *  - perform a key store reprovisioning using a signed message. A key store re-provisioning results in erasing all the key stores handled by the HSM.
  *
- * The authentication is based on the user domain ID and messaging unit, additionaly an authentication nonce is provided.
+ * To grant access to the key store, the caller is authenticated against the domain ID (DID) and Messaging Unit used at the keystore creation, additionally an authentication nonce can be provided.
  * @{
  */
 
 typedef uint8_t hsm_svc_key_store_flags_t;
 typedef struct {
-    uint32_t key_store_identifier;      //!< user defined id identifying the key store.
+    uint32_t key_store_identifier;      //!< user defined id identifying the key store. Only one key store service can be opened on a given key_store_identifier.
     uint32_t authentication_nonce;      //!< user defined nonce used as authentication proof for accesing the key store.
     uint16_t max_updates_number;        //!< maximum number of updates authorized for the key store. Valid only for create operation.\n This parameter has the goal to limit the occupation of the monotonic counter used as anti-rollback protection.\n If the maximum number of updates is reached, HSM still allows key store updates but without updating the monotonic counter giving the opportunity for rollback attacks.
     hsm_svc_key_store_flags_t flags;    //!< bitmap specifying the services properties.
     uint8_t reserved;
-    uint8_t *signed_message;            //!< pointer to signed_message to be sent only in case of the key store reprovisioning 
-    uint16_t signed_msg_size;           //!< size of the signed_message to be sent only in case of the key store reprovisioning
+    uint8_t *signed_message;            //!< pointer to signed_message to be sent only in case of key store re-provisioning
+    uint16_t signed_msg_size;           //!< size of the signed_message to be sent only in case of key store re-provisioning
     uint8_t reserved_1[2];
 } open_svc_key_store_args_t;
 
 /**
- * Open a service flow on the specified key store.
+ * Open a service flow on the specified key store. Only one key store service can be opened on a given key store.
  *
  * \param session_hdl pointer to the handle indentifing the current session.
  * \param args pointer to the structure containing the function arugments.
