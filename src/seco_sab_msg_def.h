@@ -22,6 +22,26 @@
 #define MESSAGING_TAG_RESPONSE                  0xe1u
 #define MESSAGING_VERSION_6                     0x06u
 
+#define V2X_SV0_API_VER                         0x02u
+#define V2X_SV0_REQ_TAG                         0x18u
+#define V2X_SV0_IND_TAG                         0xe2u
+
+#define V2X_SV1_API_VER                         0x02u
+#define V2X_SV1_REQ_TAG                         0x19u
+#define V2X_SV1_IND_TAG                         0xe3u
+
+#define V2X_SHE_API_VER                         0x02u
+#define V2X_SHE_REQ_TAG                         0x1au
+#define V2X_SHE_IND_TAG                         0xe4u
+
+#define V2X_SG0_API_VER                         0x02u
+#define V2X_SG0_REQ_TAG                         0x1du
+#define V2X_SG0_IND_TAG                         0xe7u
+
+#define V2X_SG1_API_VER                         0x02u
+#define V2X_SG1_REQ_TAG                         0x1eu
+#define V2X_SG1_IND_TAG                         0xe8u
+
 #define SAB_SESSION_OPEN_REQ                    0x10u
 #define SAB_SESSION_CLOSE_REQ                   0x11u
 #define SAB_SHARED_BUF_REQ                      0x12u

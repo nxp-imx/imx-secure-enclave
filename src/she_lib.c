@@ -26,6 +26,7 @@ struct she_hdl_s {
     uint32_t utils_handle;
     uint32_t cancel;
     uint32_t last_rating;
+    uint32_t mu_type;
 };
 
 
@@ -97,7 +98,7 @@ static she_err_t she_open_utils(struct she_hdl_s *hdl)
             break;
         }
         /* Send the keys store open command to Seco. */
-        seco_fill_cmd_msg_hdr(&cmd.hdr, SAB_SHE_UTILS_OPEN, (uint32_t)sizeof(struct sab_cmd_she_utils_open_msg));
+        seco_fill_cmd_msg_hdr(&cmd.hdr, SAB_SHE_UTILS_OPEN, (uint32_t)sizeof(struct sab_cmd_she_utils_open_msg), hdl->mu_type);
         cmd.input_address_ext = 0;
         cmd.output_address_ext = 0;
         cmd.key_store_handle = hdl->key_store_handle;
@@ -134,7 +135,7 @@ static she_err_t she_close_utils(struct she_hdl_s *hdl)
             break;
         }
         /* Send the keys store open command to Seco. */
-        seco_fill_cmd_msg_hdr(&cmd.hdr, SAB_SHE_UTILS_CLOSE, (uint32_t)sizeof(struct sab_cmd_she_utils_close_msg));
+        seco_fill_cmd_msg_hdr(&cmd.hdr, SAB_SHE_UTILS_CLOSE, (uint32_t)sizeof(struct sab_cmd_she_utils_close_msg), hdl->mu_type);
         cmd.utils_handle = hdl->utils_handle;
         error = seco_send_msg_and_get_resp(hdl->phdl,
                     (uint32_t *)&cmd, (uint32_t)sizeof(struct sab_cmd_she_utils_close_msg),
@@ -164,17 +165,17 @@ void she_close_session(struct she_hdl_s *hdl)
         if (hdl->phdl != NULL) {
             (void) she_close_utils(hdl);
             if (hdl->cipher_handle != 0u) {
-                (void)sab_close_cipher(hdl->phdl, hdl->cipher_handle);
+                (void)sab_close_cipher(hdl->phdl, hdl->cipher_handle, hdl->mu_type);
             }
             if (hdl->rng_handle != 0u) {
-                (void)sab_close_rng(hdl->phdl, hdl->rng_handle);
+                (void)sab_close_rng(hdl->phdl, hdl->rng_handle, hdl->mu_type);
             }
             if (hdl->key_store_handle != 0u) {
-                (void)sab_close_key_store(hdl->phdl, hdl->key_store_handle);
+                (void)sab_close_key_store(hdl->phdl, hdl->key_store_handle, hdl->mu_type);
                 hdl->key_store_handle = 0u;
             }
             if (hdl -> session_handle != 0u) {
-                (void)sab_close_session_command (hdl->phdl, hdl->session_handle);
+                (void)sab_close_session_command (hdl->phdl, hdl->session_handle, hdl->mu_type);
                 hdl -> session_handle = 0u;
             }
             seco_os_abs_close_session(hdl->phdl);
@@ -200,7 +201,8 @@ uint32_t she_storage_create(uint32_t key_storage_identifier, uint32_t authentica
         seco_os_abs_memset((uint8_t *)hdl, 0u, (uint32_t)sizeof(struct she_hdl_s));
 
         /* Open the SHE session on the SHE kernel driver */
-        hdl->phdl = seco_os_abs_open_mu_channel(MU_CHANNEL_SECO_SHE, &mu_params);
+        hdl->mu_type = MU_CHANNEL_SECO_SHE;
+        hdl->phdl = seco_os_abs_open_mu_channel(hdl->mu_type, &mu_params);
         if (hdl->phdl == NULL) {
             break;
         }
@@ -213,6 +215,7 @@ uint32_t she_storage_create(uint32_t key_storage_identifier, uint32_t authentica
         /* Open the SHE session on SECO side */
         err = sab_open_session_command(hdl->phdl,
                                        &hdl->session_handle,
+                                       hdl->mu_type,
                                        mu_params.mu_id,
                                        mu_params.interrupt_idx,
                                        mu_params.tz,
@@ -228,6 +231,7 @@ uint32_t she_storage_create(uint32_t key_storage_identifier, uint32_t authentica
         err = sab_open_key_store_command(hdl->phdl,
                                          hdl->session_handle,
                                          &hdl->key_store_handle,
+                                         hdl->mu_type,
                                          key_storage_identifier,
                                          authentication_nonce,
                                          max_updates_number,
@@ -276,7 +280,8 @@ struct she_hdl_s *she_open_session(uint32_t key_storage_identifier, uint32_t aut
         seco_os_abs_memset((uint8_t *)hdl, 0u, (uint32_t)sizeof(struct she_hdl_s));
 
         /* Open the SHE session on the MU */
-        hdl->phdl = seco_os_abs_open_mu_channel(MU_CHANNEL_SECO_SHE, &mu_params);
+        hdl->mu_type = MU_CHANNEL_SECO_SHE;
+        hdl->phdl = seco_os_abs_open_mu_channel(hdl->mu_type, &mu_params);
         if (hdl->phdl == NULL) {
             break;
         }
@@ -284,6 +289,7 @@ struct she_hdl_s *she_open_session(uint32_t key_storage_identifier, uint32_t aut
         /* Open the SHE session on SECO side */
         err = sab_open_session_command(hdl->phdl,
                                        &hdl->session_handle,
+                                       hdl->mu_type,
                                        mu_params.mu_id,
                                        mu_params.interrupt_idx,
                                        mu_params.tz,
@@ -296,7 +302,7 @@ struct she_hdl_s *she_open_session(uint32_t key_storage_identifier, uint32_t aut
         }
 
         /* Get a SECURE RAM partition to be used as shared buffer */
-        err = sab_get_shared_buffer(hdl->phdl, hdl->session_handle);
+        err = sab_get_shared_buffer(hdl->phdl, hdl->session_handle, hdl->mu_type);
         if (err != SAB_SUCCESS_STATUS) {
             break;
         }
@@ -304,6 +310,7 @@ struct she_hdl_s *she_open_session(uint32_t key_storage_identifier, uint32_t aut
         err = sab_open_key_store_command(hdl->phdl,
                                          hdl->session_handle,
                                          &hdl->key_store_handle,
+                                         hdl->mu_type,
                                          key_storage_identifier,
                                          authentication_nonce,
                                          0u,
@@ -322,6 +329,7 @@ struct she_hdl_s *she_open_session(uint32_t key_storage_identifier, uint32_t aut
         err = sab_open_cipher(hdl->phdl,
                               hdl->key_store_handle,
                               &hdl->cipher_handle,
+                              hdl->mu_type,
                               CIPHER_OPEN_FLAGS_DEFAULT);
         if (err != SAB_SUCCESS_STATUS) {
             hdl->cipher_handle = 0u;
@@ -350,7 +358,7 @@ she_err_t she_cmd_generate_mac(struct she_hdl_s *hdl, uint8_t key_ext, uint8_t k
             break;
         }
         /* Build command message. */
-        seco_fill_cmd_msg_hdr(&cmd.hdr, SAB_FAST_MAC_REQ, (uint32_t)sizeof(struct sab_she_fast_mac_msg));
+        seco_fill_cmd_msg_hdr(&cmd.hdr, SAB_FAST_MAC_REQ, (uint32_t)sizeof(struct sab_she_fast_mac_msg), hdl->mu_type);
         cmd.she_utils_handle = hdl->utils_handle;
         cmd.key_id = (uint16_t)key_ext | (uint16_t)key_id;
         cmd.data_length = message_length;
@@ -406,7 +414,7 @@ she_err_t she_cmd_verify_mac(struct she_hdl_s *hdl, uint8_t key_ext, uint8_t key
             break;
         }
         /* Build command message. */
-        seco_fill_cmd_msg_hdr(&cmd.hdr, SAB_FAST_MAC_REQ, (uint32_t)sizeof(struct sab_she_fast_mac_msg));
+        seco_fill_cmd_msg_hdr(&cmd.hdr, SAB_FAST_MAC_REQ, (uint32_t)sizeof(struct sab_she_fast_mac_msg), hdl->mu_type);
         cmd.she_utils_handle = hdl->utils_handle;
         cmd.key_id = (uint16_t)key_ext | (uint16_t)key_id;
         cmd.data_length = message_length;
@@ -451,6 +459,7 @@ she_err_t she_cmd_enc_cbc(struct she_hdl_s *hdl, uint8_t key_ext, uint8_t key_id
 
     sab_error =  sab_cmd_cipher_one_go(hdl->phdl,
                                         hdl->cipher_handle,
+                                        hdl->mu_type,
                                         (uint32_t)key_ext | (uint32_t)key_id,
                                         iv,
                                         SHE_AES_BLOCK_SIZE_128,
@@ -479,6 +488,7 @@ she_err_t she_cmd_dec_cbc(struct she_hdl_s *hdl, uint8_t key_ext, uint8_t key_id
 
     sab_error =  sab_cmd_cipher_one_go(hdl->phdl,
                                         hdl->cipher_handle,
+                                        hdl->mu_type,
                                         (uint32_t)key_ext | (uint32_t)key_id,
                                         iv,
                                         SHE_AES_BLOCK_SIZE_128,
@@ -508,6 +518,7 @@ she_err_t she_cmd_enc_ecb(struct she_hdl_s *hdl, uint8_t key_ext, uint8_t key_id
 
     sab_error =  sab_cmd_cipher_one_go(hdl->phdl,
                                         hdl->cipher_handle,
+                                        hdl->mu_type,
                                         (uint32_t)key_ext | (uint32_t)key_id,
                                         NULL,
                                         0u,
@@ -537,6 +548,7 @@ she_err_t she_cmd_dec_ecb(struct she_hdl_s *hdl, uint8_t key_ext, uint8_t key_id
 
     sab_error =  sab_cmd_cipher_one_go(hdl->phdl,
                                         hdl->cipher_handle,
+                                        hdl->mu_type,
                                         (uint32_t)key_ext | (uint32_t)key_id,
                                         NULL,
                                         0u,
@@ -574,7 +586,7 @@ she_err_t she_cmd_load_key(struct she_hdl_s *hdl, uint8_t key_ext, uint8_t key_i
             break;
         }
         /* Build command message. */
-        seco_fill_cmd_msg_hdr(&cmd.hdr, SAB_SHE_KEY_UPDATE, (uint32_t)sizeof(struct sab_she_key_update_msg));
+        seco_fill_cmd_msg_hdr(&cmd.hdr, SAB_SHE_KEY_UPDATE, (uint32_t)sizeof(struct sab_she_key_update_msg), hdl->mu_type);
         cmd.utils_handle = hdl->utils_handle;
         cmd.key_id = (uint32_t)key_ext | (uint32_t)key_id;
         seco_os_abs_memcpy((uint8_t *)cmd.m1, m1, SHE_KEY_SIZE);
@@ -629,7 +641,7 @@ she_err_t she_cmd_load_key_ext(struct she_hdl_s *hdl, uint8_t key_ext, uint8_t k
             break;
         }
         /* Build command message. */
-        seco_fill_cmd_msg_hdr(&cmd.hdr, SAB_SHE_KEY_UPDATE_EXT, (uint32_t)sizeof(struct sab_she_key_update_ext_msg));
+        seco_fill_cmd_msg_hdr(&cmd.hdr, SAB_SHE_KEY_UPDATE_EXT, (uint32_t)sizeof(struct sab_she_key_update_ext_msg), hdl->mu_type);
         cmd.utils_handle = hdl->utils_handle;
         cmd.key_id = (uint32_t)key_ext | (uint32_t)key_id;
         seco_os_abs_memcpy((uint8_t *)cmd.m1, m1, SHE_KEY_SIZE);
@@ -684,7 +696,7 @@ she_err_t she_cmd_load_plain_key(struct she_hdl_s *hdl, uint8_t *key)
             break;
         }
         /* Build command message. */
-        seco_fill_cmd_msg_hdr(&cmd.hdr, SAB_SHE_PLAIN_KEY_UPDATE, (uint32_t)sizeof(struct she_cmd_load_plain_key_msg));
+        seco_fill_cmd_msg_hdr(&cmd.hdr, SAB_SHE_PLAIN_KEY_UPDATE, (uint32_t)sizeof(struct she_cmd_load_plain_key_msg), hdl->mu_type);
 
         seco_os_abs_memcpy(cmd.key, key, SHE_KEY_SIZE);
         cmd.she_utils_handle = hdl->utils_handle;
@@ -728,7 +740,7 @@ she_err_t she_cmd_export_ram_key(struct she_hdl_s *hdl, uint8_t *m1, uint8_t *m2
             break;
         }
         /* Build command message. */
-        seco_fill_cmd_msg_hdr(&cmd.hdr, SAB_SHE_PLAIN_KEY_EXPORT, (uint32_t)sizeof(struct sab_she_plain_key_export_msg));
+        seco_fill_cmd_msg_hdr(&cmd.hdr, SAB_SHE_PLAIN_KEY_EXPORT, (uint32_t)sizeof(struct sab_she_plain_key_export_msg), hdl->mu_type);
         cmd.utils_handle = hdl->utils_handle;
 
         /* Send the message to Seco. */
@@ -779,7 +791,7 @@ she_err_t she_cmd_init_rng(struct she_hdl_s *hdl) {
         seco_os_abs_start_system_rng(hdl->phdl);
 
         /* Then send the command to SECO so it can perform its own RNG inits. */
-        seco_rsp_code = sab_open_rng(hdl->phdl, hdl->session_handle, &hdl->rng_handle, RNG_OPEN_FLAGS_SHE);
+        seco_rsp_code = sab_open_rng(hdl->phdl, hdl->session_handle, &hdl->rng_handle, hdl->mu_type, RNG_OPEN_FLAGS_SHE);
 
         if ((hdl->cancel != 0u) || (GET_STATUS_CODE(seco_rsp_code)!= SAB_SUCCESS_STATUS)) {
             hdl->rng_handle = 0u;
@@ -809,7 +821,7 @@ she_err_t she_cmd_extend_seed(struct she_hdl_s *hdl, uint8_t *entropy) {
             break;
         }
         /* Build command message. */
-        seco_fill_cmd_msg_hdr(&cmd.hdr, SAB_RNG_EXTEND_SEED, (uint32_t)sizeof(struct sab_cmd_extend_seed_msg));
+        seco_fill_cmd_msg_hdr(&cmd.hdr, SAB_RNG_EXTEND_SEED, (uint32_t)sizeof(struct sab_cmd_extend_seed_msg), hdl->mu_type);
         cmd.rng_handle = hdl->rng_handle;
         seco_os_abs_memcpy((uint8_t *)cmd.entropy, entropy, SHE_ENTROPY_SIZE);
         cmd.crc = seco_compute_msg_crc((uint32_t*)&cmd, (uint32_t)(sizeof(cmd) - sizeof(uint32_t)));
@@ -855,7 +867,7 @@ she_err_t she_cmd_rnd(struct she_hdl_s *hdl, uint8_t *rnd)
         }
 
         /* Build command message. */
-        seco_fill_cmd_msg_hdr(&cmd.hdr, SAB_RNG_GET_RANDOM, (uint32_t)sizeof(struct sab_cmd_get_rnd_msg));
+        seco_fill_cmd_msg_hdr(&cmd.hdr, SAB_RNG_GET_RANDOM, (uint32_t)sizeof(struct sab_cmd_get_rnd_msg), hdl->mu_type);
         seco_rnd_addr = seco_os_abs_data_buf(hdl->phdl, rnd, SHE_RND_SIZE, 0u);
         cmd.rng_handle = hdl->rng_handle;
         cmd.rnd_addr = (uint32_t)(seco_rnd_addr & 0xFFFFFFFFu);
@@ -896,7 +908,7 @@ she_err_t she_cmd_get_status(struct she_hdl_s *hdl, uint8_t *sreg) {
             break;
         }
         /* Build command message. */
-        seco_fill_cmd_msg_hdr(&cmd.hdr, SAB_SHE_GET_STATUS, (uint32_t)sizeof(struct she_cmd_get_status_msg));
+        seco_fill_cmd_msg_hdr(&cmd.hdr, SAB_SHE_GET_STATUS, (uint32_t)sizeof(struct she_cmd_get_status_msg), hdl->mu_type);
         cmd.she_utils_handle = hdl->utils_handle;
 
         /* Send the message to Seco. */
@@ -937,7 +949,7 @@ she_err_t she_cmd_get_id(struct she_hdl_s *hdl, uint8_t *challenge, uint8_t *id,
             break;
         }
         /* Build command message. */
-        seco_fill_cmd_msg_hdr(&cmd.hdr, SAB_SHE_GET_ID, (uint32_t)sizeof(struct she_cmd_get_id_msg));
+        seco_fill_cmd_msg_hdr(&cmd.hdr, SAB_SHE_GET_ID, (uint32_t)sizeof(struct she_cmd_get_id_msg), hdl->mu_type);
         seco_os_abs_memcpy(cmd.challenge, challenge, SHE_CHALLENGE_SIZE);
         cmd.she_utils_handle = hdl->utils_handle;
         cmd.crc = seco_compute_msg_crc((uint32_t*)&cmd, (uint32_t)(sizeof(cmd) - sizeof(uint32_t)));
@@ -1006,7 +1018,7 @@ she_err_t she_get_info(struct she_hdl_s *hdl, uint32_t *user_sab_id, uint8_t *ch
         if ((hdl == NULL) || (user_sab_id == NULL) || (chip_unique_id == NULL) || (chip_monotonic_counter == NULL) || (chip_life_cycle == NULL) || (she_version == NULL)) {
             break;
         }
-        seco_rsp_code = sab_get_info(hdl->phdl, hdl->session_handle, user_sab_id, chip_unique_id, chip_monotonic_counter, chip_life_cycle, she_version, &version_ext, &fips_mode);
+        seco_rsp_code = sab_get_info(hdl->phdl, hdl->session_handle, hdl->mu_type, user_sab_id, chip_unique_id, chip_monotonic_counter, chip_life_cycle, she_version, &version_ext, &fips_mode);
 
         hdl->last_rating = seco_rsp_code;
         if (GET_STATUS_CODE(seco_rsp_code) != SAB_SUCCESS_STATUS) {

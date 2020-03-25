@@ -15,21 +15,69 @@
 #include "seco_utils.h"
 
 /* Fill a command message header with a given command ID and length in bytes. */
-void seco_fill_cmd_msg_hdr(struct sab_mu_hdr *hdr, uint8_t cmd, uint32_t len)
+void seco_fill_cmd_msg_hdr(struct sab_mu_hdr *hdr, uint8_t cmd, uint32_t len, uint32_t mu_type)
 {
-    hdr->tag = MESSAGING_TAG_COMMAND;
+    switch (mu_type) {
+    case MU_CHANNEL_V2X_SV0:
+        hdr->tag = V2X_SV0_REQ_TAG;
+        hdr->ver = V2X_SV0_API_VER;
+        break;
+    case MU_CHANNEL_V2X_SV1:
+        hdr->tag = V2X_SV1_REQ_TAG;
+        hdr->ver = V2X_SV1_API_VER;
+        break;
+    case MU_CHANNEL_V2X_SHE:
+        hdr->tag = V2X_SHE_REQ_TAG;
+        hdr->ver = V2X_SHE_API_VER;
+        break;
+    case MU_CHANNEL_V2X_SG0:
+        hdr->tag = V2X_SG0_REQ_TAG;
+        hdr->ver = V2X_SG0_API_VER;
+        break;
+    case MU_CHANNEL_V2X_SG1:
+        hdr->tag = V2X_SG1_REQ_TAG;
+        hdr->ver = V2X_SG1_API_VER;
+        break;
+    default:
+        hdr->tag = MESSAGING_TAG_COMMAND;
+        hdr->ver = MESSAGING_VERSION_6;
+        break;
+    }
     hdr->command = cmd;
     hdr->size = (uint8_t)(len / sizeof(uint32_t));
-    hdr->ver = MESSAGING_VERSION_6;
 };
 
 /* Fill a response message header with a given command ID and length in bytes. */
-void seco_fill_rsp_msg_hdr(struct sab_mu_hdr *hdr, uint8_t cmd, uint32_t len)
+void seco_fill_rsp_msg_hdr(struct sab_mu_hdr *hdr, uint8_t cmd, uint32_t len, uint32_t mu_type)
 {
-    hdr->tag = MESSAGING_TAG_RESPONSE;
+    switch (mu_type) {
+    case MU_CHANNEL_V2X_SV0:
+        hdr->tag = V2X_SV0_IND_TAG;
+        hdr->ver = V2X_SV0_API_VER;
+        break;
+    case MU_CHANNEL_V2X_SV1:
+        hdr->tag = V2X_SV1_IND_TAG;
+        hdr->ver = V2X_SV1_API_VER;
+        break;
+    case MU_CHANNEL_V2X_SHE:
+        hdr->tag = V2X_SHE_IND_TAG;
+        hdr->ver = V2X_SHE_API_VER;
+        break;
+    case MU_CHANNEL_V2X_SG0:
+        hdr->tag = V2X_SG0_IND_TAG;
+        hdr->ver = V2X_SG0_API_VER;
+        break;
+    case MU_CHANNEL_V2X_SG1:
+        hdr->tag = V2X_SG1_IND_TAG;
+        hdr->ver = V2X_SG1_API_VER;
+        break;
+    default:
+        hdr->tag = MESSAGING_TAG_RESPONSE;
+        hdr->ver = MESSAGING_VERSION_6;
+        break;
+    }
     hdr->command = cmd;
     hdr->size = (uint8_t)(len / sizeof(uint32_t));
-    hdr->ver = MESSAGING_VERSION_6;
 };
 
 /* Helper function to send a message and wait for the response. Return 0 on success.*/

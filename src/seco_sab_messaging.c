@@ -16,7 +16,7 @@
 #include "seco_sab_msg_def.h"
 #include "seco_utils.h"
 
-uint32_t sab_open_session_command (struct seco_os_abs_hdl *phdl, uint32_t *session_handle, uint8_t mu_id, uint8_t interrupt_idx, uint8_t tz, uint8_t did, uint8_t priority,uint8_t operating_mode) {
+uint32_t sab_open_session_command (struct seco_os_abs_hdl *phdl, uint32_t *session_handle, uint32_t mu_type, uint8_t mu_id, uint8_t interrupt_idx, uint8_t tz, uint8_t did, uint8_t priority,uint8_t operating_mode) {
     struct sab_cmd_session_open_msg cmd;
     struct sab_cmd_session_open_rsp rsp;
     int32_t error;
@@ -24,7 +24,7 @@ uint32_t sab_open_session_command (struct seco_os_abs_hdl *phdl, uint32_t *sessi
 
     do {
         /* Send the session open command to Seco. */
-        seco_fill_cmd_msg_hdr((struct sab_mu_hdr *)&cmd, SAB_SESSION_OPEN_REQ, (uint32_t)sizeof(struct sab_cmd_session_open_msg));
+        seco_fill_cmd_msg_hdr((struct sab_mu_hdr *)&cmd, SAB_SESSION_OPEN_REQ, (uint32_t)sizeof(struct sab_cmd_session_open_msg), mu_type);
         cmd.mu_id = mu_id;
         cmd.interrupt_idx = interrupt_idx;
         cmd.tz = tz;
@@ -46,14 +46,14 @@ uint32_t sab_open_session_command (struct seco_os_abs_hdl *phdl, uint32_t *sessi
     return ret;
 }
 
-uint32_t sab_close_session_command (struct seco_os_abs_hdl *phdl, uint32_t session_handle) {
+uint32_t sab_close_session_command (struct seco_os_abs_hdl *phdl, uint32_t session_handle, uint32_t mu_type) {
     struct sab_cmd_session_close_msg cmd;
     struct sab_cmd_session_close_rsp rsp;
     int32_t error;
     uint32_t ret = SAB_FAILURE_STATUS;
 
     do {
-        seco_fill_cmd_msg_hdr(&cmd.hdr, SAB_SESSION_CLOSE_REQ, (uint32_t)sizeof(struct sab_cmd_session_close_msg));
+        seco_fill_cmd_msg_hdr(&cmd.hdr, SAB_SESSION_CLOSE_REQ, (uint32_t)sizeof(struct sab_cmd_session_close_msg), mu_type);
         cmd.session_handle = session_handle;
 
         error =  seco_send_msg_and_get_resp(phdl,
@@ -68,7 +68,7 @@ uint32_t sab_close_session_command (struct seco_os_abs_hdl *phdl, uint32_t sessi
     return ret;
 }
 
-uint32_t sab_get_shared_buffer(struct seco_os_abs_hdl *phdl, uint32_t session_handle)
+uint32_t sab_get_shared_buffer(struct seco_os_abs_hdl *phdl, uint32_t session_handle, uint32_t mu_type)
 {
     struct sab_cmd_shared_buffer_msg cmd;
     struct sab_cmd_shared_buffer_rsp rsp;
@@ -77,7 +77,7 @@ uint32_t sab_get_shared_buffer(struct seco_os_abs_hdl *phdl, uint32_t session_ha
 
     do {
         /* Send the keys store open command to Seco. */
-        seco_fill_cmd_msg_hdr(&cmd.hdr, SAB_SHARED_BUF_REQ, (uint32_t)sizeof(struct sab_cmd_shared_buffer_msg));
+        seco_fill_cmd_msg_hdr(&cmd.hdr, SAB_SHARED_BUF_REQ, (uint32_t)sizeof(struct sab_cmd_shared_buffer_msg), mu_type);
 
         cmd.session_handle = session_handle;
         error = seco_send_msg_and_get_resp(phdl,
@@ -103,7 +103,7 @@ uint32_t sab_get_shared_buffer(struct seco_os_abs_hdl *phdl, uint32_t session_ha
     return ret;
 }
 
-uint32_t sab_open_key_store_command(struct seco_os_abs_hdl *phdl, uint32_t session_handle, uint32_t *key_store_handle, uint32_t key_storage_identifier, uint32_t password, uint16_t max_updates, uint8_t flags)
+uint32_t sab_open_key_store_command(struct seco_os_abs_hdl *phdl, uint32_t session_handle, uint32_t *key_store_handle, uint32_t mu_type, uint32_t key_storage_identifier, uint32_t password, uint16_t max_updates, uint8_t flags)
 {
     struct sab_cmd_key_store_open_msg cmd;
     struct sab_cmd_key_store_open_rsp rsp;
@@ -112,7 +112,7 @@ uint32_t sab_open_key_store_command(struct seco_os_abs_hdl *phdl, uint32_t sessi
     int32_t error = 1;
     do {
         /* Send the keys store open command to Seco. */
-        seco_fill_cmd_msg_hdr(&cmd.hdr, SAB_KEY_STORE_OPEN_REQ, (uint32_t)sizeof(struct sab_cmd_key_store_open_msg));
+        seco_fill_cmd_msg_hdr(&cmd.hdr, SAB_KEY_STORE_OPEN_REQ, (uint32_t)sizeof(struct sab_cmd_key_store_open_msg), mu_type);
 
         cmd.session_handle = session_handle;
         cmd.key_store_id = key_storage_identifier;
@@ -134,7 +134,7 @@ uint32_t sab_open_key_store_command(struct seco_os_abs_hdl *phdl, uint32_t sessi
     return ret;
 }
 
-uint32_t sab_close_key_store(struct seco_os_abs_hdl *phdl, uint32_t key_store_handle)
+uint32_t sab_close_key_store(struct seco_os_abs_hdl *phdl, uint32_t key_store_handle, uint32_t mu_type)
 {
     struct sab_cmd_key_store_close_msg cmd;
     struct sab_cmd_key_store_close_rsp rsp;
@@ -143,7 +143,7 @@ uint32_t sab_close_key_store(struct seco_os_abs_hdl *phdl, uint32_t key_store_ha
 
     do {
         /* Send the keys store close command to Seco. */
-        seco_fill_cmd_msg_hdr(&cmd.hdr, SAB_KEY_STORE_CLOSE_REQ, (uint32_t)sizeof(struct sab_cmd_key_store_close_msg));
+        seco_fill_cmd_msg_hdr(&cmd.hdr, SAB_KEY_STORE_CLOSE_REQ, (uint32_t)sizeof(struct sab_cmd_key_store_close_msg), mu_type);
         cmd.key_store_handle = key_store_handle;
 
         error = seco_send_msg_and_get_resp(phdl,
@@ -159,7 +159,7 @@ uint32_t sab_close_key_store(struct seco_os_abs_hdl *phdl, uint32_t key_store_ha
     return ret;
 }
 
-uint32_t sab_open_cipher(struct seco_os_abs_hdl *phdl, uint32_t key_store_handle, uint32_t *cipher_handle, uint8_t flags)
+uint32_t sab_open_cipher(struct seco_os_abs_hdl *phdl, uint32_t key_store_handle, uint32_t *cipher_handle, uint32_t mu_type, uint8_t flags)
 {
     struct sab_cmd_cipher_open_msg cmd;
     struct sab_cmd_cipher_open_rsp rsp;
@@ -168,7 +168,7 @@ uint32_t sab_open_cipher(struct seco_os_abs_hdl *phdl, uint32_t key_store_handle
 
     do {
         /* Send the cipher open command to Seco. */
-        seco_fill_cmd_msg_hdr(&cmd.hdr, SAB_CIPHER_OPEN_REQ, (uint32_t)sizeof(struct sab_cmd_cipher_open_msg));
+        seco_fill_cmd_msg_hdr(&cmd.hdr, SAB_CIPHER_OPEN_REQ, (uint32_t)sizeof(struct sab_cmd_cipher_open_msg), mu_type);
         cmd.input_address_ext = 0;
         cmd.output_address_ext = 0;
         cmd.flags = flags;
@@ -188,7 +188,7 @@ uint32_t sab_open_cipher(struct seco_os_abs_hdl *phdl, uint32_t key_store_handle
     return ret;
 }
 
-uint32_t sab_close_cipher(struct seco_os_abs_hdl *phdl, uint32_t cipher_handle)
+uint32_t sab_close_cipher(struct seco_os_abs_hdl *phdl, uint32_t cipher_handle, uint32_t mu_type)
 {
     struct sab_cmd_cipher_close_msg cmd;
     struct sab_cmd_cipher_close_rsp rsp;
@@ -197,7 +197,7 @@ uint32_t sab_close_cipher(struct seco_os_abs_hdl *phdl, uint32_t cipher_handle)
 
     do {
         /* Send the cipher store close command to Seco. */
-        seco_fill_cmd_msg_hdr(&cmd.hdr, SAB_CIPHER_CLOSE_REQ, (uint32_t)sizeof(struct sab_cmd_cipher_close_msg));
+        seco_fill_cmd_msg_hdr(&cmd.hdr, SAB_CIPHER_CLOSE_REQ, (uint32_t)sizeof(struct sab_cmd_cipher_close_msg), mu_type);
         cmd.cipher_handle = cipher_handle;
         error = seco_send_msg_and_get_resp(phdl,
                     (uint32_t *)&cmd, (uint32_t)sizeof(struct sab_cmd_cipher_close_msg),
@@ -212,7 +212,7 @@ uint32_t sab_close_cipher(struct seco_os_abs_hdl *phdl, uint32_t cipher_handle)
     return ret;
 }
 
-uint32_t sab_open_rng(struct seco_os_abs_hdl *phdl, uint32_t session_handle, uint32_t *rng_handle, uint8_t flags)
+uint32_t sab_open_rng(struct seco_os_abs_hdl *phdl, uint32_t session_handle, uint32_t *rng_handle, uint32_t mu_type, uint8_t flags)
 {
     struct sab_cmd_rng_open_msg cmd;
     struct sab_cmd_rng_open_rsp rsp;
@@ -221,7 +221,7 @@ uint32_t sab_open_rng(struct seco_os_abs_hdl *phdl, uint32_t session_handle, uin
 
     do {
         /* Send the keys store open command to Seco. */
-        seco_fill_cmd_msg_hdr(&cmd.hdr, SAB_RNG_OPEN_REQ, (uint32_t)sizeof(struct sab_cmd_rng_open_msg));
+        seco_fill_cmd_msg_hdr(&cmd.hdr, SAB_RNG_OPEN_REQ, (uint32_t)sizeof(struct sab_cmd_rng_open_msg), mu_type);
         cmd.session_handle = session_handle;
         cmd.input_address_ext = 0u;
         cmd.output_address_ext = 0u;
@@ -243,7 +243,7 @@ uint32_t sab_open_rng(struct seco_os_abs_hdl *phdl, uint32_t session_handle, uin
     return ret;
 }
 
-uint32_t sab_close_rng(struct seco_os_abs_hdl *phdl, uint32_t rng_handle)
+uint32_t sab_close_rng(struct seco_os_abs_hdl *phdl, uint32_t rng_handle, uint32_t mu_type)
 {
     struct sab_cmd_rng_close_msg cmd;
     struct sab_cmd_rng_close_rsp rsp;
@@ -252,7 +252,7 @@ uint32_t sab_close_rng(struct seco_os_abs_hdl *phdl, uint32_t rng_handle)
 
     do {
         /* Send the keys store open command to Seco. */
-        seco_fill_cmd_msg_hdr(&cmd.hdr, SAB_RNG_CLOSE_REQ, (uint32_t)sizeof(struct sab_cmd_rng_close_msg));
+        seco_fill_cmd_msg_hdr(&cmd.hdr, SAB_RNG_CLOSE_REQ, (uint32_t)sizeof(struct sab_cmd_rng_close_msg), mu_type);
         cmd.rng_handle = rng_handle;
         error = seco_send_msg_and_get_resp(phdl,
                     (uint32_t *)&cmd, (uint32_t)sizeof(struct sab_cmd_rng_close_msg),
@@ -267,7 +267,7 @@ uint32_t sab_close_rng(struct seco_os_abs_hdl *phdl, uint32_t rng_handle)
     return ret;
 }
 
-uint32_t sab_open_storage_command(struct seco_os_abs_hdl *phdl, uint32_t session_handle, uint32_t *storage_handle, uint8_t flags)
+uint32_t sab_open_storage_command(struct seco_os_abs_hdl *phdl, uint32_t session_handle, uint32_t *storage_handle, uint32_t mu_type, uint8_t flags)
 {
     struct sab_cmd_storage_open_msg cmd;
     struct sab_cmd_storage_open_rsp rsp;
@@ -276,7 +276,7 @@ uint32_t sab_open_storage_command(struct seco_os_abs_hdl *phdl, uint32_t session
 
     do {
         /* Send the Storage open command to Seco. */
-        seco_fill_cmd_msg_hdr(&cmd.hdr, SAB_STORAGE_OPEN_REQ, (uint32_t)sizeof(struct sab_cmd_storage_open_msg));
+        seco_fill_cmd_msg_hdr(&cmd.hdr, SAB_STORAGE_OPEN_REQ, (uint32_t)sizeof(struct sab_cmd_storage_open_msg), mu_type);
         cmd.session_handle = session_handle;
         cmd.input_address_ext = 0u;
         cmd.output_address_ext = 0u;
@@ -298,7 +298,7 @@ uint32_t sab_open_storage_command(struct seco_os_abs_hdl *phdl, uint32_t session
     return ret;
 }
 
-uint32_t sab_close_storage_command(struct seco_os_abs_hdl *phdl, uint32_t storage_handle)
+uint32_t sab_close_storage_command(struct seco_os_abs_hdl *phdl, uint32_t storage_handle, uint32_t mu_type)
 {
     struct sab_cmd_storage_close_msg cmd;
     struct sab_cmd_storage_close_rsp rsp;
@@ -307,7 +307,7 @@ uint32_t sab_close_storage_command(struct seco_os_abs_hdl *phdl, uint32_t storag
 
     do {
         /* Send the Storage close command to Seco. */
-        seco_fill_cmd_msg_hdr(&cmd.hdr, SAB_STORAGE_CLOSE_REQ, (uint32_t)sizeof(struct sab_cmd_storage_close_msg));
+        seco_fill_cmd_msg_hdr(&cmd.hdr, SAB_STORAGE_CLOSE_REQ, (uint32_t)sizeof(struct sab_cmd_storage_close_msg), mu_type);
         cmd.storage_handle = storage_handle;
         error = seco_send_msg_and_get_resp(phdl,
                     (uint32_t *)&cmd, (uint32_t)sizeof(struct sab_cmd_storage_close_msg),
@@ -322,7 +322,7 @@ uint32_t sab_close_storage_command(struct seco_os_abs_hdl *phdl, uint32_t storag
     return ret;
 }
 
-uint32_t sab_get_info(struct seco_os_abs_hdl *phdl, uint32_t session_handle, uint32_t *user_sab_id, uint8_t *chip_unique_id, uint16_t *chip_monotonic_counter, uint16_t *chip_life_cycle, uint32_t *version, uint32_t *version_ext, uint8_t *fips_mode)
+uint32_t sab_get_info(struct seco_os_abs_hdl *phdl, uint32_t session_handle, uint32_t mu_type, uint32_t *user_sab_id, uint8_t *chip_unique_id, uint16_t *chip_monotonic_counter, uint16_t *chip_life_cycle, uint32_t *version, uint32_t *version_ext, uint8_t *fips_mode)
 {
     struct sab_cmd_get_info_msg cmd;
     struct sab_cmd_get_info_rsp rsp;
@@ -332,7 +332,7 @@ uint32_t sab_get_info(struct seco_os_abs_hdl *phdl, uint32_t session_handle, uin
     do {
 
         /* Send the keys store open command to Seco. */
-        seco_fill_cmd_msg_hdr(&cmd.hdr, SAB_GET_INFO_REQ, (uint32_t)sizeof(struct sab_cmd_get_info_msg));
+        seco_fill_cmd_msg_hdr(&cmd.hdr, SAB_GET_INFO_REQ, (uint32_t)sizeof(struct sab_cmd_get_info_msg), mu_type);
         cmd.session_handle = session_handle;
 
         /* Send the message to Seco. */
@@ -362,6 +362,7 @@ uint32_t sab_get_info(struct seco_os_abs_hdl *phdl, uint32_t session_handle, uin
 /* Generic function for encryption and decryption. */
 uint32_t sab_cmd_cipher_one_go(struct seco_os_abs_hdl *phdl,
                                 uint32_t cipher_handle,
+                                uint32_t mu_type,
                                 uint32_t key_id,
                                 uint8_t *iv,
                                 uint16_t iv_size,
@@ -382,7 +383,7 @@ uint32_t sab_cmd_cipher_one_go(struct seco_os_abs_hdl *phdl,
             break;
         }
         /* Build command message. */
-        seco_fill_cmd_msg_hdr(&cmd.hdr, SAB_CIPHER_ONE_GO_REQ, (uint32_t)sizeof(struct sab_cmd_cipher_one_go_msg));
+        seco_fill_cmd_msg_hdr(&cmd.hdr, SAB_CIPHER_ONE_GO_REQ, (uint32_t)sizeof(struct sab_cmd_cipher_one_go_msg), mu_type);
         cmd.cipher_handle = cipher_handle;
         cmd.key_id = key_id;
         if (iv == NULL) {
@@ -414,7 +415,7 @@ uint32_t sab_cmd_cipher_one_go(struct seco_os_abs_hdl *phdl,
     return ret;
 }
 
-uint32_t sab_open_mac(struct seco_os_abs_hdl *phdl, uint32_t key_store_handle, uint32_t *mac_handle, uint8_t flags)
+uint32_t sab_open_mac(struct seco_os_abs_hdl *phdl, uint32_t key_store_handle, uint32_t *mac_handle, uint32_t mu_type, uint8_t flags)
 {
     struct sab_cmd_mac_open_msg cmd;
     struct sab_cmd_mac_open_rsp rsp;
@@ -423,7 +424,7 @@ uint32_t sab_open_mac(struct seco_os_abs_hdl *phdl, uint32_t key_store_handle, u
 
     do {
         /* Send the mac open command to Seco. */
-        seco_fill_cmd_msg_hdr(&cmd.hdr, SAB_MAC_OPEN_REQ, (uint32_t)sizeof(struct sab_cmd_mac_open_msg));
+        seco_fill_cmd_msg_hdr(&cmd.hdr, SAB_MAC_OPEN_REQ, (uint32_t)sizeof(struct sab_cmd_mac_open_msg), mu_type);
         cmd.input_address_ext = 0u;
         cmd.output_address_ext = 0u;
         cmd.flags = flags;
@@ -447,7 +448,7 @@ uint32_t sab_open_mac(struct seco_os_abs_hdl *phdl, uint32_t key_store_handle, u
     return ret;
 }
 
-uint32_t sab_close_mac(struct seco_os_abs_hdl *phdl, uint32_t mac_handle)
+uint32_t sab_close_mac(struct seco_os_abs_hdl *phdl, uint32_t mac_handle, uint32_t mu_type)
 {
     struct sab_cmd_mac_close_msg cmd;
     struct sab_cmd_mac_close_rsp rsp;
@@ -456,7 +457,7 @@ uint32_t sab_close_mac(struct seco_os_abs_hdl *phdl, uint32_t mac_handle)
 
     do {
         /* Send the mac store close command to Seco. */
-        seco_fill_cmd_msg_hdr(&cmd.hdr, SAB_MAC_CLOSE_REQ, (uint32_t)sizeof(struct sab_cmd_mac_close_msg));
+        seco_fill_cmd_msg_hdr(&cmd.hdr, SAB_MAC_CLOSE_REQ, (uint32_t)sizeof(struct sab_cmd_mac_close_msg), mu_type);
         cmd.mac_handle = mac_handle;
         error = seco_send_msg_and_get_resp(phdl,
                     (uint32_t *)&cmd, (uint32_t)sizeof(struct sab_cmd_mac_close_msg),
