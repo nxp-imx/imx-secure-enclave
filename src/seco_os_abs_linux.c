@@ -53,6 +53,17 @@ static char SECO_NVM_SHE_STORAGE_FILE[] = "/etc/seco_she_nvm";
 static char SECO_NVM_HSM_STORAGE_FILE[] = "/etc/seco_hsm/seco_nvm_master";
 static char SECO_NVM_HSM_STORAGE_CHUNK_PATH[] = "/etc/seco_hsm/";
 
+/*
+ * V2X MUs
+ */
+static char V2X_MU_SV0_PATH[] = "/dev/seco_mu4_ch0";
+static char V2X_MU_SV1_PATH[] = "/dev/seco_mu5_ch0";
+static char V2X_MU_SHE_PATH[] = "/dev/seco_mu6_ch0";
+static char V2X_MU_SG0_PATH[] = "/dev/seco_mu7_ch0";
+static char V2X_MU_SG1_PATH[] = "/dev/seco_mu8_ch0";
+static char V2X_MU_SHE_NVM_PATH[] = "/dev/seco_mu6_ch1";
+static char V2X_MU_SG1_NVM_PATH[] = "/dev/seco_mu8_ch1";
+
 /* Open a SHE session and returns a pointer to the handle or NULL in case of error.
  * Here it consists in opening the decicated seco MU device file.
  */
@@ -65,18 +76,44 @@ struct seco_os_abs_hdl *seco_os_abs_open_mu_channel(uint32_t type, struct seco_m
     uint8_t is_nvm = 0u;
 
     switch (type) {
-    case MU_CHANNEL_SHE:
+    case MU_CHANNEL_SECO_SHE:
         device_path = SECO_MU_SHE_PATH;
         break;
-    case MU_CHANNEL_SHE_NVM:
+    case MU_CHANNEL_SECO_SHE_NVM:
         device_path = SECO_MU_SHE_NVM_PATH;
         is_nvm = 1u;
         break;
-    case MU_CHANNEL_HSM:
+    case MU_CHANNEL_SECO_HSM:
         device_path = SECO_MU_HSM_PATH_PRIMARY;
         break;
-    case MU_CHANNEL_HSM_NVM:
+    case MU_CHANNEL_SECO_HSM_2ND:
+        device_path = SECO_MU_HSM_PATH_SECONDARY;
+        break;
+    case MU_CHANNEL_SECO_HSM_NVM:
         device_path = SECO_MU_HSM_NVM_PATH;
+        is_nvm = 1u;
+        break;
+    case MU_CHANNEL_V2X_SV0:
+        device_path = V2X_MU_SV0_PATH;
+        break;
+    case MU_CHANNEL_V2X_SV1:
+        device_path = V2X_MU_SV1_PATH;
+        break;
+    case MU_CHANNEL_V2X_SHE:
+        device_path = V2X_MU_SHE_PATH;
+        break;
+    case MU_CHANNEL_V2X_SG0:
+        device_path = V2X_MU_SG0_PATH;
+        break;
+    case MU_CHANNEL_V2X_SG1:
+        device_path = V2X_MU_SG1_PATH;
+        break;
+    case MU_CHANNEL_V2X_SHE_NVM:
+        device_path = V2X_MU_SHE_NVM_PATH;
+        is_nvm = 1u;
+        break;
+    case MU_CHANNEL_V2X_HSM_NVM:
+        device_path = V2X_MU_SG1_NVM_PATH;
         is_nvm = 1u;
         break;
     default:
@@ -88,7 +125,7 @@ struct seco_os_abs_hdl *seco_os_abs_open_mu_channel(uint32_t type, struct seco_m
         phdl->fd = open(device_path, O_RDWR);
         /* If open failed return NULL handle. */
         if (phdl->fd < 0) {
-            if (type == MU_CHANNEL_HSM) {
+            if (type == MU_CHANNEL_SECO_HSM) {
                 device_path = SECO_MU_HSM_PATH_SECONDARY;
                 phdl->fd = open(device_path, O_RDWR);
                 if (phdl->fd < 0) {
@@ -196,10 +233,10 @@ int32_t seco_os_abs_storage_write(struct seco_os_abs_hdl *phdl, uint8_t *src, ui
     char *path;
 
     switch(phdl->type) {
-    case MU_CHANNEL_SHE_NVM:
+    case MU_CHANNEL_SECO_SHE_NVM:
         path = SECO_NVM_SHE_STORAGE_FILE;
         break;
-    case MU_CHANNEL_HSM_NVM:
+    case MU_CHANNEL_SECO_HSM_NVM:
         path = SECO_NVM_HSM_STORAGE_FILE;
         break;
     default:
@@ -227,10 +264,10 @@ int32_t seco_os_abs_storage_read(struct seco_os_abs_hdl *phdl, uint8_t *dst, uin
     char *path;
 
     switch(phdl->type) {
-    case MU_CHANNEL_SHE_NVM:
+    case MU_CHANNEL_SECO_SHE_NVM:
         path = SECO_NVM_SHE_STORAGE_FILE;
         break;
-    case MU_CHANNEL_HSM_NVM:
+    case MU_CHANNEL_SECO_HSM_NVM:
         path = SECO_NVM_HSM_STORAGE_FILE;
         break;
     default:
@@ -259,7 +296,7 @@ int32_t seco_os_abs_storage_write_chunk(struct seco_os_abs_hdl *phdl, uint8_t *s
     int n = -1;
     char *path = malloc(sizeof(SECO_NVM_HSM_STORAGE_CHUNK_PATH)+16u);
 
-    if ((path != NULL) && (phdl->type == MU_CHANNEL_HSM_NVM)) {
+    if ((path != NULL) && (phdl->type == MU_CHANNEL_SECO_HSM_NVM)) {
         (void)mkdir(SECO_NVM_HSM_STORAGE_CHUNK_PATH, S_IRUSR|S_IWUSR);
         n = snprintf(path, sizeof(SECO_NVM_HSM_STORAGE_CHUNK_PATH)+16u,
                         "%s%016lx", SECO_NVM_HSM_STORAGE_CHUNK_PATH, blob_id);
@@ -286,7 +323,7 @@ int32_t seco_os_abs_storage_read_chunk(struct seco_os_abs_hdl *phdl, uint8_t *ds
     int n = -1;
     char *path = malloc(sizeof(SECO_NVM_HSM_STORAGE_CHUNK_PATH)+16u);
 
-    if ((path != NULL) && (phdl->type == MU_CHANNEL_HSM_NVM)) {
+    if ((path != NULL) && (phdl->type == MU_CHANNEL_SECO_HSM_NVM)) {
         n = snprintf(path, sizeof(SECO_NVM_HSM_STORAGE_CHUNK_PATH)+16u,
                         "%s%016lx",SECO_NVM_HSM_STORAGE_CHUNK_PATH, blob_id);
     }

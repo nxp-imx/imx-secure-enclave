@@ -200,7 +200,7 @@ uint32_t she_storage_create(uint32_t key_storage_identifier, uint32_t authentica
         seco_os_abs_memset((uint8_t *)hdl, 0u, (uint32_t)sizeof(struct she_hdl_s));
 
         /* Open the SHE session on the SHE kernel driver */
-        hdl->phdl = seco_os_abs_open_mu_channel(MU_CHANNEL_SHE, &mu_params);
+        hdl->phdl = seco_os_abs_open_mu_channel(MU_CHANNEL_SECO_SHE, &mu_params);
         if (hdl->phdl == NULL) {
             break;
         }
@@ -276,7 +276,7 @@ struct she_hdl_s *she_open_session(uint32_t key_storage_identifier, uint32_t aut
         seco_os_abs_memset((uint8_t *)hdl, 0u, (uint32_t)sizeof(struct she_hdl_s));
 
         /* Open the SHE session on the MU */
-        hdl->phdl = seco_os_abs_open_mu_channel(MU_CHANNEL_SHE, &mu_params);
+        hdl->phdl = seco_os_abs_open_mu_channel(MU_CHANNEL_SECO_SHE, &mu_params);
         if (hdl->phdl == NULL) {
             break;
         }

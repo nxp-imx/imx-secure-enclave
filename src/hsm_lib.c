@@ -178,9 +178,9 @@ hsm_err_t hsm_open_session(open_session_args_t *args, hsm_hdl_t *session_hdl)
 		}
 
 		if ((args->operating_mode & HSM_OPEN_SESSION_NO_KEY_STORE_MASK) != 0) {
-			s_ptr->phdl = seco_os_abs_open_mu_channel(MU_CHANNEL_HSM_2ND, &mu_params);
+			s_ptr->phdl = seco_os_abs_open_mu_channel(MU_CHANNEL_SECO_HSM_2ND, &mu_params);
 		} else {
-			s_ptr->phdl = seco_os_abs_open_mu_channel(MU_CHANNEL_HSM, &mu_params);
+			s_ptr->phdl = seco_os_abs_open_mu_channel(MU_CHANNEL_SECO_HSM, &mu_params);
 		}
 		if (s_ptr->phdl == NULL) {
 			break;

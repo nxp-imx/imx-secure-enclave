@@ -112,9 +112,9 @@ static void seco_nvm_open_session(uint8_t flags)
 
         /* Open the Storage session on the MU */
         if ((flags & NVM_FLAGS_SHE) != 0u) {
-            nvm_ctx.phdl = seco_os_abs_open_mu_channel(MU_CHANNEL_SHE_NVM, &mu_params);
+            nvm_ctx.phdl = seco_os_abs_open_mu_channel(MU_CHANNEL_SECO_SHE_NVM, &mu_params);
         } else {
-            nvm_ctx.phdl = seco_os_abs_open_mu_channel(MU_CHANNEL_HSM_NVM, &mu_params);
+            nvm_ctx.phdl = seco_os_abs_open_mu_channel(MU_CHANNEL_SECO_HSM_NVM, &mu_params);
         }
 
         if (nvm_ctx.phdl == NULL) {
