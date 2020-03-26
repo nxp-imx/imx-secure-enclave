@@ -166,6 +166,22 @@ struct seco_os_abs_hdl *seco_os_abs_open_mu_channel(uint32_t type, struct seco_m
     return phdl;
 }
 
+/* Check if the V2X accelerator is present on this HW. */
+uint32_t seco_os_abs_has_v2x_hw(void)
+{
+    uint32_t ret;
+    struct stat buf;
+
+    /* Just check if one of the MU driver is present. */
+    if (stat(V2X_MU_SV0_PATH, &buf) == 0) {
+        ret = 1U;
+    } else {
+        ret = 0U;
+    }
+
+    return ret;
+}
+
 
 /* Close a previously opened session (SHE or storage). */
 void seco_os_abs_close_session(struct seco_os_abs_hdl *phdl)

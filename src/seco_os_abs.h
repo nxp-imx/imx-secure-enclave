@@ -81,8 +81,15 @@ struct seco_mu_params {
 #define MU_CHANNEL_V2X_SHE_NVM    (0x15u)
 #define MU_CHANNEL_V2X_HSM_NVM    (0x16u)
 
-
 struct seco_os_abs_hdl *seco_os_abs_open_mu_channel(uint32_t type, struct seco_mu_params *mu_params);
+
+/**
+ * Check if the V2X accelerator is present on this HW
+ *
+ *\return null if V2X HW is not available. Not null if present.
+ */
+uint32_t seco_os_abs_has_v2x_hw(void);
+
 
 /**
  * Close a previously opened session.

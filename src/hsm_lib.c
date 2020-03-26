@@ -160,15 +160,45 @@ hsm_err_t hsm_close_session(hsm_hdl_t session_hdl)
 	return err;
 }
 
+
+#define MU_CONFIG(prio, op_mode) (((op_mode & HSM_OPEN_SESSION_LOW_LATENCY_MASK) != 0U  ? 4U : 0U)\
+				| (prio == HSM_OPEN_SESSION_PRIORITY_HIGH               ? 2U : 0U)\
+				| ((op_mode & HSM_OPEN_SESSION_NO_KEY_STORE_MASK) != 0U ? 1U : 0U))
+#define MU_CONFIG_NB		(8)
+
+static const uint32_t mu_table[MU_CONFIG_NB] = {
+	MU_CHANNEL_SECO_HSM,      // best_effort, low prio, with key store
+	MU_CHANNEL_SECO_HSM_2ND,  // best_effort, low prio, no key store
+	MU_CHANNEL_UNDEF,         // best_effort, high prio, with key store
+	MU_CHANNEL_UNDEF,         // best_effort, high prio, no key store
+	MU_CHANNEL_V2X_SG1,       // low latency, low prio,  with key store
+	MU_CHANNEL_V2X_SV1,       // low latency, low prio,  no key store
+	MU_CHANNEL_V2X_SG0,       // low latency, high prio, with key store
+	MU_CHANNEL_V2X_SV0,       // low latency, high prio, no key store
+};
+
 hsm_err_t hsm_open_session(open_session_args_t *args, hsm_hdl_t *session_hdl)
 {
 	struct hsm_session_hdl_s *s_ptr = NULL;
 	struct seco_mu_params mu_params;
 	hsm_err_t err = HSM_GENERAL_ERROR;
 	uint32_t sab_err;
+	uint32_t mu_type = MU_CHANNEL_UNDEF;
+	uint8_t session_priority, operating_mode;
 
 	do {
 		if ((args == NULL) || (session_hdl == NULL)) {
+			break;
+		}
+
+		/* sanity check on the input parameters. */
+		session_priority = args->session_priority;
+		operating_mode = args->operating_mode;
+		if ((session_priority != HSM_OPEN_SESSION_PRIORITY_LOW)
+			&& (session_priority != HSM_OPEN_SESSION_PRIORITY_HIGH)) {
+			break;
+		}
+		if ((operating_mode & HSM_OPEN_SESSION_RESERVED_MASK) != 0U) {
 			break;
 		}
 
@@ -177,11 +207,14 @@ hsm_err_t hsm_open_session(open_session_args_t *args, hsm_hdl_t *session_hdl)
 			break;
 		}
 
-		if ((args->operating_mode & HSM_OPEN_SESSION_NO_KEY_STORE_MASK) != 0) {
-			s_ptr->phdl = seco_os_abs_open_mu_channel(MU_CHANNEL_SECO_HSM_2ND, &mu_params);
-		} else {
-			s_ptr->phdl = seco_os_abs_open_mu_channel(MU_CHANNEL_SECO_HSM, &mu_params);
+		if (seco_os_abs_has_v2x_hw() == 0U) {
+			/* SECO only HW: low latency and high priority not supported. */
+			operating_mode &= ~(uint8_t)HSM_OPEN_SESSION_LOW_LATENCY_MASK;
+			session_priority = HSM_OPEN_SESSION_PRIORITY_LOW;
 		}
+
+		mu_type = mu_table[MU_CONFIG((session_priority), (operating_mode))];
+		s_ptr->phdl = seco_os_abs_open_mu_channel(mu_type, &mu_params);
 		if (s_ptr->phdl == NULL) {
 			break;
 		}
@@ -192,8 +225,8 @@ hsm_err_t hsm_open_session(open_session_args_t *args, hsm_hdl_t *session_hdl)
 						mu_params.interrupt_idx,
 						mu_params.tz,
 						mu_params.did,
-						args->session_priority,
-						args->operating_mode);
+						session_priority,
+						operating_mode);
 		err = sab_rating_to_hsm_err(sab_err);
 		if (err != HSM_NO_ERROR) {
 			break;
@@ -247,9 +280,9 @@ hsm_err_t hsm_open_key_store_service(hsm_hdl_t session_hdl,
 		}
 
 		/* Send the signed message to SECO if provided here. */
-        if (args->signed_message != NULL) {
-            (void)seco_os_abs_send_signed_message(sess_ptr->phdl, args->signed_message, args->signed_msg_size);
-        }
+		if (args->signed_message != NULL) {
+			(void)seco_os_abs_send_signed_message(sess_ptr->phdl, args->signed_message, args->signed_msg_size);
+		}
 
 		sab_err = sab_open_key_store_command(sess_ptr->phdl,
 						session_hdl,
@@ -387,12 +420,12 @@ hsm_err_t hsm_generate_key(hsm_hdl_t key_management_hdl,
 		cmd.flags = args->flags;
 		cmd.key_type = args->key_type;
 		cmd.key_group = args->key_group;
- 		cmd.key_info = args->key_info;
- 		cmd.out_key_addr = (uint32_t)seco_os_abs_data_buf(serv_ptr->session->phdl,
+		cmd.key_info = args->key_info;
+		cmd.out_key_addr = (uint32_t)seco_os_abs_data_buf(serv_ptr->session->phdl,
 				args->out_key,
 				args->out_size,
 				0u);
- 		cmd.crc = 0u;
+		cmd.crc = 0u;
 		cmd.crc = seco_compute_msg_crc((uint32_t*)&cmd,
 				(uint32_t)(sizeof(cmd) - sizeof(uint32_t)));
 
@@ -449,12 +482,12 @@ hsm_err_t hsm_manage_key(hsm_hdl_t key_management_hdl,
 		cmd.flags = args->flags;
 		cmd.key_type = args->key_type;
 		cmd.key_group = args->key_group;
- 		cmd.key_info = args->key_info;
+		cmd.key_info = args->key_info;
 		cmd.input_data_addr = (uint32_t)seco_os_abs_data_buf(serv_ptr->session->phdl,
 				args->input_data,
 				args->input_size,
 				DATA_BUF_IS_INPUT);
- 		cmd.crc = 0u;
+		cmd.crc = 0u;
 		cmd.crc = seco_compute_msg_crc((uint32_t*)&cmd,
 				(uint32_t)(sizeof(cmd) - sizeof(uint32_t)));
 
@@ -1854,7 +1887,7 @@ hsm_err_t hsm_data_storage(hsm_hdl_t data_storage_hdl,
 		cmd.data_id = args->data_id;
 		cmd.flags = args->flags;
 		cmd.rsv = 0u;
- 		cmd.crc = 0u;
+		cmd.crc = 0u;
 		cmd.crc = seco_compute_msg_crc((uint32_t*)&cmd,
 				(uint32_t)(sizeof(cmd) - sizeof(uint32_t)));
 
@@ -1944,7 +1977,7 @@ hsm_err_t hsm_auth_enc(hsm_hdl_t cipher_hdl, op_auth_enc_args_t* args)
 }
 
 hsm_err_t hsm_export_root_key_encryption_key (hsm_hdl_t session_hdl,
-						                      op_export_root_kek_args_t *args)
+											  op_export_root_kek_args_t *args)
 {
 	struct sab_root_kek_export_msg cmd;
 	struct sab_root_kek_export_rsp rsp;
@@ -1963,9 +1996,9 @@ hsm_err_t hsm_export_root_key_encryption_key (hsm_hdl_t session_hdl,
 		}
 
 		/* Send the signed message to SECO if provided here. */
-        if (args->signed_message != NULL) {
-            (void)seco_os_abs_send_signed_message(sess_ptr->phdl, args->signed_message, args->signed_msg_size);
-        }
+		if (args->signed_message != NULL) {
+			(void)seco_os_abs_send_signed_message(sess_ptr->phdl, args->signed_message, args->signed_msg_size);
+		}
 
 		seco_fill_cmd_msg_hdr(&cmd.hdr,
 			SAB_ROOT_KEK_EXPORT_REQ,
@@ -2005,7 +2038,7 @@ hsm_err_t hsm_get_info(hsm_hdl_t session_hdl, op_get_info_args_t *args) {
 	hsm_err_t err = HSM_GENERAL_ERROR;
 	uint32_t error = 1;
 	
-    do {
+	do {
 
 		sess_ptr = session_hdl_to_ptr(session_hdl);
 		if (sess_ptr == NULL) {
@@ -2013,15 +2046,15 @@ hsm_err_t hsm_get_info(hsm_hdl_t session_hdl, op_get_info_args_t *args) {
 			break;
 		}
 
-        if ((args == NULL) || (args->user_sab_id == NULL) || (args->chip_unique_id == NULL) || (args->chip_monotonic_counter == NULL) || (args->chip_life_cycle == NULL) || (args->version == NULL) || (args->version_ext == NULL) || (args->fips_mode == NULL)) {
-            break;
-        }
+		if ((args == NULL) || (args->user_sab_id == NULL) || (args->chip_unique_id == NULL) || (args->chip_monotonic_counter == NULL) || (args->chip_life_cycle == NULL) || (args->version == NULL) || (args->version_ext == NULL) || (args->fips_mode == NULL)) {
+			break;
+		}
 
-        error = sab_get_info(sess_ptr->phdl, session_hdl, args->user_sab_id, args->chip_unique_id, args->chip_monotonic_counter, args->chip_life_cycle, args->version, args->version_ext, args->fips_mode);
+		error = sab_get_info(sess_ptr->phdl, session_hdl, args->user_sab_id, args->chip_unique_id, args->chip_monotonic_counter, args->chip_life_cycle, args->version, args->version_ext, args->fips_mode);
 
 		err = sab_rating_to_hsm_err(error);
 
-    } while (false);
+	} while (false);
 
 	return err;
 }
@@ -2093,16 +2126,16 @@ hsm_err_t hsm_close_mac_service(hsm_hdl_t mac_hdl)
 hsm_err_t hsm_mac_one_go(hsm_hdl_t mac_hdl, op_mac_one_go_args_t* args, hsm_mac_verification_status_t *status)
 {
 	struct sab_cmd_mac_one_go_msg cmd;
-    struct sab_cmd_mac_one_go_rsp rsp;
+	struct sab_cmd_mac_one_go_rsp rsp;
 	struct hsm_service_hdl_s *serv_ptr;
 
 	hsm_err_t err = HSM_GENERAL_ERROR;
 	int32_t error = 1;
 
-    do {
-        if (args == NULL) {
-            break;
-        }
+	do {
+		if (args == NULL) {
+			break;
+		}
 
 		serv_ptr = service_hdl_to_ptr(mac_hdl);
 		if (serv_ptr == NULL) {
@@ -2110,50 +2143,50 @@ hsm_err_t hsm_mac_one_go(hsm_hdl_t mac_hdl, op_mac_one_go_args_t* args, hsm_mac_
 			break;
 		}
 
-        /* Build command message. */
-        seco_fill_cmd_msg_hdr(&cmd.hdr, SAB_MAC_ONE_GO_REQ, (uint32_t)sizeof(struct sab_cmd_mac_one_go_msg));
-        cmd.mac_handle = mac_hdl;
-        cmd.key_id = args->key_identifier;
-        cmd.algorithm = args->algorithm;
-        cmd.flags = args->flags;
-        cmd.payload_address = (uint32_t)seco_os_abs_data_buf(serv_ptr->session->phdl, 
+		/* Build command message. */
+		seco_fill_cmd_msg_hdr(&cmd.hdr, SAB_MAC_ONE_GO_REQ, (uint32_t)sizeof(struct sab_cmd_mac_one_go_msg));
+		cmd.mac_handle = mac_hdl;
+		cmd.key_id = args->key_identifier;
+		cmd.algorithm = args->algorithm;
+		cmd.flags = args->flags;
+		cmd.payload_address = (uint32_t)seco_os_abs_data_buf(serv_ptr->session->phdl, 
 											args->payload, 
 											args->payload_size, 
 											DATA_BUF_IS_INPUT);
-        if ((args->flags & HSM_OP_MAC_ONE_GO_FLAGS_MAC_GENERATION) == HSM_OP_MAC_ONE_GO_FLAGS_MAC_GENERATION) {
-            cmd.mac_address = (uint32_t)seco_os_abs_data_buf(serv_ptr->session->phdl, 
+		if ((args->flags & HSM_OP_MAC_ONE_GO_FLAGS_MAC_GENERATION) == HSM_OP_MAC_ONE_GO_FLAGS_MAC_GENERATION) {
+			cmd.mac_address = (uint32_t)seco_os_abs_data_buf(serv_ptr->session->phdl, 
 											args->mac, 
 											args->mac_size, 
 											0u);
-        }
-        else {
-            cmd.mac_address = (uint32_t)seco_os_abs_data_buf(serv_ptr->session->phdl, 
+		}
+		else {
+			cmd.mac_address = (uint32_t)seco_os_abs_data_buf(serv_ptr->session->phdl, 
 											args->mac, 
 											args->mac_size, 
 											DATA_BUF_IS_INPUT);
-        }
-        cmd.payload_size = args->payload_size;
-        cmd.mac_size = args->mac_size;
-        cmd.rsv[0] = 0u;
-        cmd.rsv[1] = 0u;
- 		cmd.crc = 0u;
-        cmd.crc = seco_compute_msg_crc((uint32_t*)&cmd, (uint32_t)(sizeof(cmd) - sizeof(uint32_t)));
+		}
+		cmd.payload_size = args->payload_size;
+		cmd.mac_size = args->mac_size;
+		cmd.rsv[0] = 0u;
+		cmd.rsv[1] = 0u;
+		cmd.crc = 0u;
+		cmd.crc = seco_compute_msg_crc((uint32_t*)&cmd, (uint32_t)(sizeof(cmd) - sizeof(uint32_t)));
 
-        /* Send the message to Seco. */
-        error = seco_send_msg_and_get_resp(serv_ptr->session->phdl,
-                    (uint32_t *)&cmd, (uint32_t)sizeof(struct sab_cmd_mac_one_go_msg),
-                    (uint32_t *)&rsp, (uint32_t)sizeof(struct sab_cmd_mac_one_go_rsp));
-        if (error != 0) {
-            break;
-        }
+		/* Send the message to Seco. */
+		error = seco_send_msg_and_get_resp(serv_ptr->session->phdl,
+					(uint32_t *)&cmd, (uint32_t)sizeof(struct sab_cmd_mac_one_go_msg),
+					(uint32_t *)&rsp, (uint32_t)sizeof(struct sab_cmd_mac_one_go_rsp));
+		if (error != 0) {
+			break;
+		}
 
 		err = sab_rating_to_hsm_err(rsp.rsp_code);
 
-        *status = rsp.verification_status;
+		*status = rsp.verification_status;
 
-    } while (false);
+	} while (false);
 
-    return err;
+	return err;
 
 }
 
