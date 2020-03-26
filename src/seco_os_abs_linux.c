@@ -31,8 +31,6 @@
 #define SHE_DEFAULT_TZ              0x0u
 #define SHE_DEFAULT_MU              0x1u
 #define SHE_DEFAULT_INTERRUPT_IDX   0x0u
-#define SHE_DEFAULT_PRIORITY        0x0u
-#define SHE_DEFAULT_OPERATING_MODE  0x0u
 
 struct seco_os_abs_hdl {
     int32_t fd;
@@ -118,8 +116,6 @@ struct seco_os_abs_hdl *seco_os_abs_open_mu_channel(uint32_t type, struct seco_m
                 mu_params->tz = SHE_DEFAULT_TZ;
                 mu_params->did = SHE_DEFAULT_DID;
             }
-            mu_params->priority = SHE_DEFAULT_PRIORITY;
-            mu_params->operating_mode = SHE_DEFAULT_OPERATING_MODE;
 
             if (is_nvm != 0u) {
                 /* for NVM: configure the device to accept incoming commands. */

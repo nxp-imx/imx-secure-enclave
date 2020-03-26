@@ -128,8 +128,8 @@ static void seco_nvm_open_session(uint8_t flags)
                                        mu_params.interrupt_idx,
                                        mu_params.tz,
                                        mu_params.did,
-                                       mu_params.priority,
-                                       mu_params.operating_mode);
+                                       0U,
+                                       0U);
         if (err != SAB_SUCCESS_STATUS) {
             nvm_ctx.session_handle = 0u;
             break;

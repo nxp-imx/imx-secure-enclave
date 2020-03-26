@@ -65,15 +65,14 @@ struct seco_mu_params {
     uint8_t interrupt_idx;		/**< Interrupt number of the MU used to indicate data availability. */
     uint8_t tz;					/**< indicate if current partition has TZ enabled. */
     uint8_t did;				/**< DID of the calling partition. */
-    uint8_t priority;			/**< SECO priority associated to this MU. */
-    uint8_t operating_mode;		/**< SECO operating mode associated to this MU. */
 };
 
 #define MU_CHANNEL_UNDEF     (0x00u)
 #define MU_CHANNEL_SHE       (0x01u)
 #define MU_CHANNEL_SHE_NVM   (0x02u)
 #define MU_CHANNEL_HSM       (0x03u)
-#define MU_CHANNEL_HSM_NVM   (0x04u)
+#define MU_CHANNEL_HSM_2ND   (0x04u)
+#define MU_CHANNEL_HSM_NVM   (0x05u)
 
 struct seco_os_abs_hdl *seco_os_abs_open_mu_channel(uint32_t type, struct seco_mu_params *mu_params);
 

@@ -217,8 +217,8 @@ uint32_t she_storage_create(uint32_t key_storage_identifier, uint32_t authentica
                                        mu_params.interrupt_idx,
                                        mu_params.tz,
                                        mu_params.did,
-                                       mu_params.priority,
-                                       mu_params.operating_mode);
+                                       0U,
+                                       0U);
         if (err != SAB_SUCCESS_STATUS) {
             hdl->session_handle = 0u;
             break;
@@ -288,8 +288,8 @@ struct she_hdl_s *she_open_session(uint32_t key_storage_identifier, uint32_t aut
                                        mu_params.interrupt_idx,
                                        mu_params.tz,
                                        mu_params.did,
-                                       mu_params.priority,
-                                       mu_params.operating_mode);
+                                       0U,
+                                       0U);
         if (err != SAB_SUCCESS_STATUS) {
             hdl->session_handle = 0u;
             break;
