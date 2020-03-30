@@ -20,7 +20,7 @@
 
 /*! \page page1 General concepts related to the API
   \tableofcontents
-  \image latex /srv/dev/imx8-seco-qx/seco_libs/doc/images/hsm_services.png
+  \image latex hsm_services.png
   \section sec1 Session
   The API must be initialized by a potential requestor by opening a session.\n
   The session establishes a route (MU, DomainID...) between the requester and the HSM.
@@ -31,7 +31,7 @@
   Upon reception of the open request, the HSM allocates a context in which the session handle, as well as the provided control parameters are stored and return a handle identifying the service flow.\n
   The context is preserved until the service flow, or the session, are closed by the user and it is used by the HSM to proceed with the sub-sequent operations requested by the user on the service flow.
   \section sec3 Example
-  \image latex /srv/dev/imx8-seco-qx/seco_libs/doc/images/code_example.png
+  \image latex code_example.PNG
   \section sec4 Key store
   A key store can be created by specifying the CREATE flag in the hsm_open_key_store_service API. Please note that the created key store will be not stored in the NVM till a key is generated/imported specyfing the "STRICT OPERATION" flag.\n
   Only symmetric and private keys are stored into the key store. Public keys can be exported during the key pair generation operation or recalculated through the hsm_pub_key_recovery API.\n
