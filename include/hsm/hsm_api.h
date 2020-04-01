@@ -46,7 +46,6 @@ typedef enum {
 } hsm_err_t;
 /** @} end of error code group */
 
-
 /**
  *  @defgroup group1 Session
  * The API must be initialized by a potential requestor by opening a session.\n
@@ -86,6 +85,31 @@ hsm_err_t hsm_open_session(open_session_args_t *args, hsm_hdl_t *session_hdl);
  * \return error_code error code.
  */
 hsm_err_t hsm_close_session(hsm_hdl_t session_hdl);
+
+/**
+ *\addtogroup qxp_specific
+ * \ref group1
+ *
+ * i.MX8QXP HSM is implemented only on SECO core which doesn't offer priority management neither low latencies.
+ * - \ref HSM_OPEN_SESSION_FIPS_MODE_MASK not supported and ignored
+ * - \ref HSM_OPEN_SESSION_EXCLUSIVE_MASK not supported and ignored
+ * - session_priority field of \ref open_session_args_t is ignored.
+ * - \ref HSM_OPEN_SESSION_LOW_LATENCY_MASK not supported and ignored.
+ * 
+ */
+
+/**
+ *\addtogroup dxl_specific
+ * \ref group1
+ *
+ * i.MX8DXL has 2 separate implementations of HSM on SECO and on V2X cores.
+ * - \ref HSM_OPEN_SESSION_FIPS_MODE_MASK not supported and ignored
+ * - \ref HSM_OPEN_SESSION_EXCLUSIVE_MASK not supported and ignored
+ * - If \ref HSM_OPEN_SESSION_LOW_LATENCY_MASK is unset then SECO implementation will be used.
+ * In this case session_priority field of \ref open_session_args_t is ignored.
+ * - If \ref HSM_OPEN_SESSION_LOW_LATENCY_MASK is set then V2X implementation is used. session_priority field of \ref open_session_args_t and \ref HSM_OPEN_SESSION_NO_KEY_STORE_MASK are considered.
+ *
+ */
 /** @} end of session group */
 
 /**
@@ -123,8 +147,8 @@ typedef struct {
  */
 hsm_err_t hsm_open_key_store_service(hsm_hdl_t session_hdl, open_svc_key_store_args_t *args, hsm_hdl_t *key_store_hdl);
 #define HSM_SVC_KEY_STORE_FLAGS_CREATE ((hsm_svc_key_store_flags_t)(1u << 0)) //!< It must be specified to create a new key store. The key store will be stored in the NVM only once a key is generated/imported specyfing the STRICT OPERATION flag.
-#define HSM_SVC_KEY_STORE_FLAGS_UPDATE ((hsm_svc_key_store_flags_t)(1u << 2)) //!< Not supported - It must be specified in order to open a key management service flow
-#define HSM_SVC_KEY_STORE_FLAGS_DELETE ((hsm_svc_key_store_flags_t)(1u << 3)) //!< Not supported - It must be specified to delete an existing key store
+#define HSM_SVC_KEY_STORE_FLAGS_UPDATE ((hsm_svc_key_store_flags_t)(1u << 2)) //!< It must be specified in order to open a key management service flow
+#define HSM_SVC_KEY_STORE_FLAGS_DELETE ((hsm_svc_key_store_flags_t)(1u << 3)) //!< It must be specified to delete an existing key store
 /**
  * Close a previously opened key store service flow. The key store is deleted from the HSM local memory, any update not written in the NVM is lost \n
  *
@@ -133,6 +157,24 @@ hsm_err_t hsm_open_key_store_service(hsm_hdl_t session_hdl, open_svc_key_store_a
  * \return error_code error code.
  */
 hsm_err_t hsm_close_key_store_service(hsm_hdl_t key_store_hdl);
+
+/**
+ *\addtogroup qxp_specific
+ * \ref group2
+ *
+ * - \ref HSM_SVC_KEY_STORE_FLAGS_UPDATE is not supported.
+ * - \ref HSM_SVC_KEY_STORE_FLAGS_DELETE is not supported.
+ *
+ */
+
+/**
+ *\addtogroup dxl_specific
+ * \ref group2
+ *
+ * - \ref HSM_SVC_KEY_STORE_FLAGS_UPDATE is not supported.
+ * - \ref HSM_SVC_KEY_STORE_FLAGS_DELETE is not supported.
+ *
+ */
 
 /** @} end of key store service flow */
 

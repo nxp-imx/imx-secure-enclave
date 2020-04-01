@@ -47,4 +47,19 @@
   Any update to the key store must be considered as effective only after an operation specifing the flag "STRICT OPERATION" is aknowledged by the HSM. All the operations not specifying the "STRICT OPERATION" flags impact the HSM local memory only and will be lost in case of system reset\n
   Due to the limited monotonic counter size (QXPB0 up to 1620 update available by default), the user should, when possible, perform multiple udates before setting the "STRICT OPERATION" flag (i.e. keys to be updated should be kept in the same key group).\n
   Once the monotonic counter is completely blown a warning is returned on each update operation to inform the user that the new updates are not roll-back protected.
+  \section sec5 implementation specificities
+  HSM API is supported on different versions of the i.MX8 family. The API description below is the same for all of them but some features may not be available on some chips. The details of the supported features per chip can be found here:
+  - for i.MX8QXP: \ref qxp_specific
+  - for i.MX8DXL: \ref dxl_specific
  */
+
+/**
+ * \defgroup qxp_specific i.MX8QXP specificities
+ *
+ */
+
+/**
+ * \defgroup dxl_specific i.MX8DXL specificities
+ *
+ */
+

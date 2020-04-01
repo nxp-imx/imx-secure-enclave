@@ -34,4 +34,8 @@ void seco_nvm_close_session(void);
 #define NVM_STATUS_RUNNING  (0x02u)
 #define NVM_STATUS_STOPPED  (0x03u)
 
+/**
+ * \}
+ */
+
 #endif
