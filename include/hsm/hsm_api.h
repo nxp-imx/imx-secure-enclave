@@ -64,12 +64,12 @@ typedef struct {
 #define HSM_OPEN_SESSION_FIPS_MODE_MASK     (1u << 0) //!< Only FIPS certified operations authorized in this session
 #define HSM_OPEN_SESSION_EXCLUSIVE_MASK     (1u << 1) //!< No other HSM session will be authorized on the same security enclave.
 #define HSM_OPEN_SESSION_LOW_LATENCY_MASK   (1u << 3) //!< Use a low latency HSM implementation
-#define HSM_OPEN_SESSION_NO_KEY_STORE_MASK  (1u << 4) //!< No key store will be attached to this session. May provide better performances on some operation depensing on the implementation. Usage of the session will be restricted to operations that doesn't involve secret keys (e.g. hash, signature verification, random generation).
+#define HSM_OPEN_SESSION_NO_KEY_STORE_MASK  (1u << 4) //!< No key store will be attached to this session. May provide better performances on some operation depending on the implementation. Usage of the session will be restricted to operations that doesn't involve secret keys (e.g. hash, signature verification, random generation).
 #define HSM_OPEN_SESSION_RESERVED_MASK      ((1u << 2) | (1u << 5) | (1u << 6) | (1u << 7)) //!< Bits reserved for future use. Should be set to 0.
 
 /**
  *
- * \param args pointer to the structure containing the function arugments.
+ * \param args pointer to the structure containing the function arguments.
 
  * \param session_hdl pointer to where the session handle must be written.
  *
@@ -95,7 +95,7 @@ hsm_err_t hsm_close_session(hsm_hdl_t session_hdl);
  * - \ref HSM_OPEN_SESSION_EXCLUSIVE_MASK not supported and ignored
  * - session_priority field of \ref open_session_args_t is ignored.
  * - \ref HSM_OPEN_SESSION_LOW_LATENCY_MASK not supported and ignored.
- * 
+ *
  */
 
 /**
@@ -138,8 +138,8 @@ typedef struct {
 /**
  * Open a service flow on the specified key store. Only one key store service can be opened on a given key store.
  *
- * \param session_hdl pointer to the handle indentifing the current session.
- * \param args pointer to the structure containing the function arugments.
+ * \param session_hdl pointer to the handle identifying the current session.
+ * \param args pointer to the structure containing the function arguments.
 
  * \param key_store_hdl pointer to where the key store service flow handle must be written.
  *
@@ -152,7 +152,7 @@ hsm_err_t hsm_open_key_store_service(hsm_hdl_t session_hdl, open_svc_key_store_a
 /**
  * Close a previously opened key store service flow. The key store is deleted from the HSM local memory, any update not written in the NVM is lost \n
  *
- * \param handle indentifing the key store service flow to be closed.
+ * \param handle identifying the key store service flow to be closed.
  *
  * \return error_code error code.
  */
@@ -194,8 +194,8 @@ typedef struct {
  * Open a key management service flow\n
  * User must open this service flow in order to perform operation on the key store keys (generate, update, delete)
  *
- * \param key_store_hdl handle indentifing the key store service flow.
- * \param args pointer to the structure containing the function arugments.
+ * \param key_store_hdl handle identifying the key store service flow.
+ * \param args pointer to the structure containing the function arguments.
 
  * \param key_management_hdl pointer to where the key management service flow handle must be written.
  *
@@ -210,12 +210,12 @@ typedef uint16_t hsm_key_group_t;
 
 typedef struct {
     uint32_t *key_identifier;           //!< pointer to the identifier of the key to be used for the operation.\n In case of create operation the new key identifier will be stored in this location.
-    uint16_t out_size;                  //!< length in bytes of the generated key. It must be 0 in case of symetric keys.
+    uint16_t out_size;                  //!< length in bytes of the generated key. It must be 0 in case of symmetric keys.
     hsm_op_key_gen_flags_t flags;       //!< bitmap specifying the operation properties.
     hsm_key_type_t key_type;            //!< indicates which type of key must be generated.
-    hsm_key_group_t key_group;          //!< Key group of the generated key, relevant only in case of create operation. it must be a value in the range 0-1023. Keys belonging to the same group can be cached in the HSM local memory throug the hsm_manage_key_group API
+    hsm_key_group_t key_group;          //!< Key group of the generated key, relevant only in case of create operation. it must be a value in the range 0-1023. Keys belonging to the same group can be cached in the HSM local memory throug the hsm_manage_key_group API.
     hsm_key_info_t key_info;            //!< bitmap specifying the properties of the key.
-    uint8_t *out_key;                   //!< pointer to the output area where the generated public key must be written
+    uint8_t *out_key;                   //!< pointer to the output area where the generated public key must be written.
 } op_generate_key_args_t;
 
 /**
@@ -224,31 +224,34 @@ typedef struct {
  * User can call this function only after having opened a key management service flow.
  *
  * \param key_management_hdl handle identifying the key management service flow.
- * \param args pointer to the structure containing the function arugments.
+ * \param args pointer to the structure containing the function arguments.
  *
  * \return error code
  */
 hsm_err_t hsm_generate_key(hsm_hdl_t key_management_hdl, op_generate_key_args_t *args);
-#define HSM_KEY_TYPE_ECDSA_NIST_P224                        ((hsm_key_type_t)0x01u)              //!< not supported
 #define HSM_KEY_TYPE_ECDSA_NIST_P256                        ((hsm_key_type_t)0x02u)
 #define HSM_KEY_TYPE_ECDSA_NIST_P384                        ((hsm_key_type_t)0x03u)
-#define HSM_KEY_TYPE_ECDSA_BRAINPOOL_R1_224                 ((hsm_key_type_t)0x12u)              //!< not supported
+#define HSM_KEY_TYPE_ECDSA_NIST_P521                        ((hsm_key_type_t)0x04u)
 #define HSM_KEY_TYPE_ECDSA_BRAINPOOL_R1_256                 ((hsm_key_type_t)0x13u)
+#define HSM_KEY_TYPE_ECDSA_BRAINPOOL_R1_320                 ((hsm_key_type_t)0x14u)
 #define HSM_KEY_TYPE_ECDSA_BRAINPOOL_R1_384                 ((hsm_key_type_t)0x15u)
-#define HSM_KEY_TYPE_ECDSA_BRAINPOOL_T1_224                 ((hsm_key_type_t)0x22u)              //!< not supported
-#define HSM_KEY_TYPE_ECDSA_BRAINPOOL_T1_256                 ((hsm_key_type_t)0x23u)              //!< not supported
-#define HSM_KEY_TYPE_ECDSA_BRAINPOOL_T1_384                 ((hsm_key_type_t)0x25u)              //!< not supported
+#define HSM_KEY_TYPE_ECDSA_BRAINPOOL_R1_512                 ((hsm_key_type_t)0x16u)
+#define HSM_KEY_TYPE_ECDSA_BRAINPOOL_T1_256                 ((hsm_key_type_t)0x23u)
+#define HSM_KEY_TYPE_ECDSA_BRAINPOOL_T1_320                 ((hsm_key_type_t)0x24u)
+#define HSM_KEY_TYPE_ECDSA_BRAINPOOL_T1_384                 ((hsm_key_type_t)0x25u)
+#define HSM_KEY_TYPE_ECDSA_BRAINPOOL_T1_512                 ((hsm_key_type_t)0x26u)
 #define HSM_KEY_TYPE_AES_128                                ((hsm_key_type_t)0x30u)
 #define HSM_KEY_TYPE_AES_192                                ((hsm_key_type_t)0x31u)
 #define HSM_KEY_TYPE_AES_256                                ((hsm_key_type_t)0x32u)
+#define HSM_KEY_TYPE_DSA_SM2_FP_256                         ((hsm_key_type_t)0x42u)
+#define HSM_KEY_TYPE_SM4_128                                ((hsm_key_type_t)0x50u)
 #define HSM_OP_KEY_GENERATION_FLAGS_UPDATE                  ((hsm_op_key_gen_flags_t)(1u << 0))  //!< User can replace an existing key only by generating a key with the same type of the original one.
 #define HSM_OP_KEY_GENERATION_FLAGS_CREATE                  ((hsm_op_key_gen_flags_t)(1u << 1))  //!< Create a new key.
 #define HSM_OP_KEY_GENERATION_FLAGS_STRICT_OPERATION        ((hsm_op_key_gen_flags_t)(1u << 7))  //!< The request is completed only when the new key has been written in the NVM. This applicable for persistent key only.
-
 #define HSM_KEY_INFO_PERSISTENT                             ((hsm_key_info_t)(0u << 1))          //!< Persistent keys are stored in the external NVM. The entire key group is written in the NVM at the next STRICT operation.
 #define HSM_KEY_INFO_PERMANENT                              ((hsm_key_info_t)(1u << 0))          //!< When set, the key is permanent (write locked). Once created, it will not be possible to update or delete the key anymore. Transient keys will be anyway deleted after a PoR or when the corresponding key store service flow is closed. This bit can never be reset.
 #define HSM_KEY_INFO_TRANSIENT                              ((hsm_key_info_t)(1u << 1))          //!< Transient keys are deleted when the corresponding key store service flow is closed or after a PoR. Transient keys cannot be in the same key group than persistent keys.
-#define HSM_KEY_INFO_MASTER                                 ((hsm_key_info_t)(1u << 2))          //!< When set, the key is considered as a master key. Only master keys can be used as input of key derivation functions (i.e butterfly key expansion)
+#define HSM_KEY_INFO_MASTER                                 ((hsm_key_info_t)(1u << 2))          //!< When set, the key is considered as a master key. Only master keys can be used as input of key derivation functions (i.e butterfly key expansion).
 #define HSM_KEY_INFO_KEK                                    ((hsm_key_info_t)(1u << 3))          //!< When set, the key is considered as a key encryption key. KEK keys can only be used to wrap and import other keys into the key store, all other operation are not allowed. Only keys imported in the key store through the hsm_mange_key API can get this attribute.
 
 typedef uint8_t hsm_op_manage_key_flags_t;
@@ -258,9 +261,9 @@ typedef struct {
     uint16_t input_size;                //!< length in bytes of the input key area. It must be eqaul to the length of the IV (12 bytes) + ciphertext + Tag (16 bytes). It must be 0 in case of delete operation.
     hsm_op_manage_key_flags_t flags;    //!< bitmap specifying the operation properties.
     hsm_key_type_t key_type;            //!< indicates the type of the key to be managed.
-    hsm_key_group_t key_group;          //!< key group of the imported key, only relevant in case of create operation (it must be 0 otherwise). It must be a value in the range 0-1023. Keys belonging to the same group can be cached in the HSM local memory throug the ham_manage_key_group API
+    hsm_key_group_t key_group;          //!< key group of the imported key, only relevant in case of create operation (it must be 0 otherwise). It must be a value in the range 0-1023. Keys belonging to the same group can be cached in the HSM local memory throug the hsm_manage_key_group API.
     hsm_key_info_t key_info;            //!< bitmap specifying the properties of the key, in case of update operation it will replace the existing value. It must be 0 in case of delete operation.
-    uint8_t *input_data;                //!< pointer to the input buffer. The input buffer is the concatenation of the IV, the encrypted key to be imported and the Tag. It must be 0 in case of delete operation.
+    uint8_t *input_data;                //!< pointer to the input buffer. The input buffer is the concatenation of the IV, the encrypted key to be imported and the tag. It must be 0 in case of delete operation.
 } op_manage_key_args_t;
 
 /**
@@ -282,22 +285,22 @@ typedef struct {
  * User can call this function only after having opened a key management service flow
  *
  * \param key_management_hdl handle identifying the key management service flow.
- * \param args pointer to the structure containing the function arugments.
+ * \param args pointer to the structure containing the function arguments.
  *
  * \return error code
  */
 hsm_err_t hsm_manage_key(hsm_hdl_t key_management_hdl, op_manage_key_args_t *args);
 #define HSM_OP_MANAGE_KEY_FLAGS_IMPORT_UPDATE                           ((hsm_op_manage_key_flags_t)(1u << 0))   //!< User can replace an existing key only by importing a key with the same type of the original one.
-#define HSM_OP_MANAGE_KEY_FLAGS_IMPORT_CREATE                           ((hsm_op_manage_key_flags_t)(1u << 1))   //!< Import a key and create a new identifier
-#define HSM_OP_MANAGE_KEY_FLAGS_DELETE                                  ((hsm_op_manage_key_flags_t)(1u << 2))   //!< Delete an existing key
-#define HSM_OP_MANAGE_KEY_FLAGS_PART_UNIQUE_ROOT_KEK                    ((hsm_op_manage_key_flags_t)(1u << 3))   //!< The key to be imported is encrypted using the part-unique root kek
-#define HSM_OP_MANAGE_KEY_FLAGS_COMMON_ROOT_KEK                         ((hsm_op_manage_key_flags_t)(1u << 4))   //!< The key to be imported is encrypted using the common root kek
-#define HSM_OP_MANAGE_KEY_FLAGS_STRICT_OPERATION                        ((hsm_op_manage_key_flags_t)(1u << 7))   //!< The request is completed only when the new key has been written in the NVM. This applicable for persistent key only.
+#define HSM_OP_MANAGE_KEY_FLAGS_IMPORT_CREATE                           ((hsm_op_manage_key_flags_t)(1u << 1))   //!< Import a key and create a new identifier.
+#define HSM_OP_MANAGE_KEY_FLAGS_DELETE                                  ((hsm_op_manage_key_flags_t)(1u << 2))   //!< Delete an existing key.
+#define HSM_OP_MANAGE_KEY_FLAGS_PART_UNIQUE_ROOT_KEK                    ((hsm_op_manage_key_flags_t)(1u << 3))   //!< The key to be imported is encrypted using the part-unique root kek.
+#define HSM_OP_MANAGE_KEY_FLAGS_COMMON_ROOT_KEK                         ((hsm_op_manage_key_flags_t)(1u << 4))   //!< The key to be imported is encrypted using the common root kek.
+#define HSM_OP_MANAGE_KEY_FLAGS_STRICT_OPERATION                        ((hsm_op_manage_key_flags_t)(1u << 7))   //!< The request is completed only when the new key has been written in the NVM. This is only applicable for persistent key.
 
 
 typedef uint8_t hsm_op_manage_key_group_flags_t;
 typedef struct {
-    hsm_key_group_t key_group;                  //!< it must be a value in the range 0-1023. Keys belonging to the same group can be cached in the HSM local memory throug the ham_manage_key_group API
+    hsm_key_group_t key_group;                  //!< it must be a value in the range 0-1023. Keys belonging to the same group can be cached in the HSM local memory throug the hsm_manage_key_group API.
     hsm_op_manage_key_group_flags_t flags;      //!< bitmap specifying the operation properties.
     uint8_t reserved;
 } op_manage_key_group_args_t;
@@ -308,23 +311,23 @@ typedef struct {
  *  - un-lock a key group. HSM may export the key group into the external NVM to free up local memory as needed
  *  - delete an existing key group
  *
- * User can call this function only after having opened a key management service flow
+ * User can call this function only after having opened a key management service flow.
  *
  * \param key_management_hdl handle identifying the key management service flow.
- * \param args pointer to the structure containing the function arugments.
+ * \param args pointer to the structure containing the function arguments.
  *
  * \return error code
  */
 hsm_err_t hsm_manage_key_group(hsm_hdl_t key_management_hdl, op_manage_key_group_args_t *args);
 #define HSM_OP_MANAGE_KEY_GROUP_FLAGS_CACHE_LOCKDOWN          ((hsm_op_manage_key_group_flags_t)(1u << 0))   //!< The entire key group will be cached in the HSM local memory.
 #define HSM_OP_MANAGE_KEY_GROUP_FLAGS_CACHE_UNLOCK            ((hsm_op_manage_key_group_flags_t)(1u << 1))   //!< HSM may export the key group in the external NVM to free up the local memory. HSM will copy the key group in the local memory again in case of key group usage/update.
-#define HSM_OP_MANAGE_KEY_GROUP_FLAGS_DELETE                  ((hsm_op_manage_key_group_flags_t)(1u << 2))   //!< not supported - delete an existing key group
+#define HSM_OP_MANAGE_KEY_GROUP_FLAGS_DELETE                  ((hsm_op_manage_key_group_flags_t)(1u << 2))   //!< Delete an existing key group.
 #define HSM_OP_MANAGE_KEY_GROUP_FLAGS_STRICT_OPERATION        ((hsm_op_manage_key_group_flags_t)(1u << 7))   //!< The request is completed only when the update has been written in the NVM. Not applicable for cache lockdown/unlock.
 
 
 typedef uint8_t hsm_op_but_key_exp_flags_t;
 typedef struct {
-    uint32_t key_identifier;                //!< identifier of the key to be expanded
+    uint32_t key_identifier;                //!< identifier of the key to be expanded.
     uint8_t *expansion_function_value;      //!< pointer to the expansion function value input
     uint8_t *hash_value;                    //!< pointer to the hash value input.\n In case of explicit certificate, the hash value address must be set to 0.
     uint8_t *pr_reconstruction_value;       //!< pointer to the private reconstruction value input.\n In case of explicit certificate, the pr_reconstruction_value address must be set to 0.
@@ -337,7 +340,7 @@ typedef struct {
     uint16_t output_size;                   //!< length in bytes of the generated key, if the size is 0, no key is copied in the output.
     hsm_key_type_t key_type;                //!< indicates the type of the key to be derived.
     uint8_t reserved;
-    hsm_key_group_t key_group;              //!< it must be a value in the range 0-1023. Keys belonging to the same group can be cached in the HSM local memory throug the ham_manage_key_group API
+    hsm_key_group_t key_group;              //!< it must be a value in the range 0-1023. Keys belonging to the same group can be cached in the HSM local memory throug the hsm_manage_key_group API
     hsm_key_info_t key_info;                //!< bitmap specifying the properties of the derived key.
 } op_butt_key_exp_args_t;
 
@@ -347,20 +350,20 @@ typedef struct {
  * User can call this function only after having opened a key management service flow. \n\n
  *
  * Explicit certificates:
- *  - f_k = expansion function value 
- * 
+ *  - f_k = expansion function value
+ *
  * out_key = Key  + f_k
  * \n\n
  *
  * Implicit certificates:
  *  - f_k = expansion function value,
- *  - hash = hash value used to in the derivation of the pseudonym ECC key,
+ *  - hash = hash value used in the derivation of the pseudonym ECC key,
  *  - pr_v = private reconstruction value
  *
  * out_key = (Key  + f_k)*hash + pr_v
  *
  * \param key_management_hdl handle identifying the key store management service flow.
- * \param args pointer to the structure containing the function arugments.
+ * \param args pointer to the structure containing the function arguments.
  *
  * \return error code
 */
@@ -379,6 +382,35 @@ hsm_err_t hsm_butterfly_key_expansion(hsm_hdl_t key_management_hdl, op_butt_key_
  * \return error code
  */
 hsm_err_t hsm_close_key_management_service(hsm_hdl_t key_management_hdl);
+
+/**
+ *\addtogroup qxp_specific
+ * \ref group3
+ *
+ * - \ref HSM_OP_MANAGE_KEY_GROUP_FLAGS_DELETE is not supported.
+ *
+ * - \ref HSM_KEY_TYPE_ECDSA_NIST_P521 is not supported.
+ * - \ref HSM_KEY_TYPE_ECDSA_BRAINPOOL_R1_320 is not supported.
+ * - \ref HSM_KEY_TYPE_ECDSA_BRAINPOOL_R1_512 is not supported.
+ * - \ref HSM_KEY_TYPE_ECDSA_BRAINPOOL_T1_256 is not supported.
+ * - \ref HSM_KEY_TYPE_ECDSA_BRAINPOOL_T1_320 is not supported.
+ * - \ref HSM_KEY_TYPE_ECDSA_BRAINPOOL_T1_384 is not supported.
+ * - \ref HSM_KEY_TYPE_ECDSA_BRAINPOOL_T1_512 is not supported.
+ * - \ref HSM_KEY_TYPE_DSA_SM2_FP_256 is not supported.
+ * - \ref HSM_KEY_TYPE_SM4_128 is not supported.
+ *
+ * - \ref hsm_key_type_t of op_butt_key_exp_args_t: Only HSM_KEY_TYPE_ECDSA_NIST_P256 and HSM_KEY_TYPE_ECDSA_BRAINPOOL_R1_256 are supported.
+ */
+
+/**
+ *\addtogroup dxl_specific
+ * \ref group3
+ *
+ * - \ref HSM_OP_MANAGE_KEY_GROUP_FLAGS_DELETE is not supported.
+ *
+ * - \ref hsm_key_type_t of op_butt_key_exp_args_t: Only HSM_KEY_TYPE_ECDSA_NIST_P256, HSM_KEY_TYPE_ECDSA_BRAINPOOL_R1_256 and HSM_KEY_TYPE_ECDSA_BRAINPOOL_T1_256 are supported.
+ *
+ */
 /** @} end of key management service flow */
 
 /**
@@ -397,8 +429,8 @@ typedef struct {
  * User can call this function only after having opened a key store service flow.\n
  * User must open this service in order to perform cipher operation\n
  *
- * \param key_store_hdl handle indentifing the key store service flow.
- * \param args pointer to the structure containing the function arugments.
+ * \param key_store_hdl handle identifying the key store service flow.
+ * \param args pointer to the structure containing the function arguments.
  * \param cipher_hdl pointer to where the cipher service flow handle must be written.
  *
  * \return error code
@@ -425,14 +457,17 @@ typedef struct {
  * User can call this function only after having opened a cipher service flow
  *
  * \param cipher_hdl handle identifying the cipher service flow.
- * \param args pointer to the structure containing the function arugments.
+ * \param args pointer to the structure containing the function arguments.
  *
  * \return error code
  */
+
 hsm_err_t hsm_cipher_one_go(hsm_hdl_t cipher_hdl, op_cipher_one_go_args_t* args);
 #define HSM_CIPHER_ONE_GO_ALGO_AES_ECB              ((hsm_op_cipher_one_go_algo_t)(0x00u))
 #define HSM_CIPHER_ONE_GO_ALGO_AES_CBC              ((hsm_op_cipher_one_go_algo_t)(0x01u))
 #define HSM_CIPHER_ONE_GO_ALGO_AES_CCM              ((hsm_op_cipher_one_go_algo_t)(0x04u))       //!< Perform AES CCM with following constraints: AES CCM where Adata = 0, Tlen = 16 bytes, nonce size = 12 bytes
+#define HSM_CIPHER_ONE_GO_ALGO_SM4_ECB              ((hsm_op_cipher_one_go_algo_t)(0x10u))
+#define HSM_CIPHER_ONE_GO_ALGO_SM4_CBC              ((hsm_op_cipher_one_go_algo_t)(0x11u))
 #define HSM_CIPHER_ONE_GO_FLAGS_DECRYPT             ((hsm_op_cipher_one_go_flags_t)(0u << 0))
 #define HSM_CIPHER_ONE_GO_FLAGS_ENCRYPT             ((hsm_op_cipher_one_go_flags_t)(1u << 0))
 
@@ -457,7 +492,7 @@ typedef struct {
  * User can call this function only after having opened a cipher service flow
  *
  * \param cipher_hdl handle identifying the cipher service flow.
- * \param args pointer to the structure containing the function arugments.
+ * \param args pointer to the structure containing the function arguments.
  *
  * \return error code
  */
@@ -478,7 +513,7 @@ typedef struct {
     uint16_t p1_size;                       //!< length in bytes of the KDF P1 parameter should be equal to 32 bytes
     uint16_t p2_size;                       //!< length in bytes of the MAC P2 parameter should be zero reserved for generic use cases
     uint16_t mac_size;                      //!< length in bytes of the requested message authentication code should be equal to 16 bytes
-    hsm_key_type_t key_type;                //!< indicates the type of the used key (only NIST P256 and Br256r1 are supported)
+    hsm_key_type_t key_type;                //!< indicates the type of the used key
     hsm_op_ecies_dec_flags_t flags;         //!< bitmap specifying the operation attributes.
 } op_ecies_dec_args_t;
 
@@ -488,7 +523,7 @@ typedef struct {
  * ECIES is supported with the constraints specified in 1609.2-2016.
  *
  * \param session_hdl handle identifying the current session.
- * \param args pointer to the structure containing the function arugments.
+ * \param args pointer to the structure containing the function arguments.
  *
  * \return error code
  */
@@ -502,6 +537,25 @@ hsm_err_t hsm_ecies_decryption(hsm_hdl_t cipher_hdl, op_ecies_dec_args_t *args);
  * \return error code
  */
 hsm_err_t hsm_close_cipher_service(hsm_hdl_t cipher_hdl);
+
+/**
+ *\addtogroup qxp_specific
+ * \ref group4
+ *
+ * - \ref HSM_CIPHER_ONE_GO_ALGO_SM4_ECB is not supported.
+ * - \ref HSM_CIPHER_ONE_GO_ALGO_SM4_CBC is not supported.
+ *
+ * - \ref hsm_key_type_t of op_ecies_dec_args_t: Only HSM_KEY_TYPE_ECDSA_NIST_P256 and HSM_KEY_TYPE_ECDSA_BRAINPOOL_R1_256 are supported.
+ *
+ */
+
+/**
+ *\addtogroup dxl_specific
+ * \ref group4
+ *
+ * - \ref hsm_key_type_t of op_ecies_dec_args_t: Only HSM_KEY_TYPE_ECDSA_NIST_P256, HSM_KEY_TYPE_ECDSA_BRAINPOOL_R1_256 and HSM_KEY_TYPE_ECDSA_BRAINPOOL_T1_256 are supported.
+ *
+ */
 /** @} end of cipher service flow */
 
 /**
@@ -519,8 +573,8 @@ typedef struct {
  * User can call this function only after having opened a key store service flow.\n
  * User must open this service in order to perform signature generation operations.
  *
- * \param key_store_hdl handle indentifing the key store service flow.
- * \param args pointer to the structure containing the function arugments.
+ * \param key_store_hdl handle identifying the key store service flow.
+ * \param args pointer to the structure containing the function arguments.
  * \param signature_gen_hdl pointer to where the signature generation service flow handle must be written.
  *
  * \return error code
@@ -555,25 +609,32 @@ typedef struct {
  * User can call this function only after having opened a signature generation service flow\n
  * The signature S=(r,s) is stored in the format r||s||Ry where Ry is an additional byte containing the lsb of y. Ry has to be considered valid only if the HSM_OP_GENERATE_SIGN_FLAGS_COMPRESSED_POINT is set.
  *
- * \param signature_gen_hdl handle identifying the signature generation service flow
- * \param args pointer to the structure containing the function arugments.
+ * In case of HSM_SIGNATURE_SCHEME_DSA_SM2_FP_256_SM3, message of op_generate_sign_args_t should be (as specified in GB/T 32918): \n
+ *       - equal to Z||M in case of HSM_OP_GENERATE_SIGN_FLAGS_INPUT_MESSAGE \n
+ *       - equal to SM3(Z||M) in case of HSM_OP_GENERATE_SIGN_FLAGS_INPUT_DIGEST
+ *
+ * \param signature_gen_hdl handle identifying the signature generation service flow.
+ * \param args pointer to the structure containing the function arguments.
  *
  * \return error code
  */
 hsm_err_t hsm_generate_signature(hsm_hdl_t signature_gen_hdl, op_generate_sign_args_t *args);
-#define HSM_SIGNATURE_SCHEME_ECDSA_NIST_P224_SHA_256            ((hsm_signature_scheme_id_t)0x01u)              //!< not supported
 #define HSM_SIGNATURE_SCHEME_ECDSA_NIST_P256_SHA_256            ((hsm_signature_scheme_id_t)0x02u)
 #define HSM_SIGNATURE_SCHEME_ECDSA_NIST_P384_SHA_384            ((hsm_signature_scheme_id_t)0x03u)
-#define HSM_SIGNATURE_SCHEME_ECDSA_BRAINPOOL_R1_224_SHA_256     ((hsm_signature_scheme_id_t)0x12u)              //!< not supported
+#define HSM_SIGNATURE_SCHEME_ECDSA_NIST_P521_SHA_512            ((hsm_signature_scheme_id_t)0x04u)
 #define HSM_SIGNATURE_SCHEME_ECDSA_BRAINPOOL_R1_256_SHA_256     ((hsm_signature_scheme_id_t)0x13u)
+#define HSM_SIGNATURE_SCHEME_ECDSA_BRAINPOOL_R1_320_SHA_384     ((hsm_signature_scheme_id_t)0x14u)
 #define HSM_SIGNATURE_SCHEME_ECDSA_BRAINPOOL_R1_384_SHA_384     ((hsm_signature_scheme_id_t)0x15u)
-#define HSM_SIGNATURE_SCHEME_ECDSA_BRAINPOOL_T1_224_SHA_256     ((hsm_signature_scheme_id_t)0x22u)              //!< not supported
-#define HSM_SIGNATURE_SCHEME_ECDSA_BRAINPOOL_T1_256_SHA_256     ((hsm_signature_scheme_id_t)0x23u)              //!< not supported
-#define HSM_SIGNATURE_SCHEME_ECDSA_BRAINPOOL_T1_384_SHA_384     ((hsm_signature_scheme_id_t)0x25u)              //!< not supported
+#define HSM_SIGNATURE_SCHEME_ECDSA_BRAINPOOL_R1_512_SHA_512     ((hsm_signature_scheme_id_t)0x16u)
+#define HSM_SIGNATURE_SCHEME_ECDSA_BRAINPOOL_T1_256_SHA_256     ((hsm_signature_scheme_id_t)0x23u)
+#define HSM_SIGNATURE_SCHEME_ECDSA_BRAINPOOL_T1_320_SHA_384     ((hsm_signature_scheme_id_t)0x24u)
+#define HSM_SIGNATURE_SCHEME_ECDSA_BRAINPOOL_T1_384_SHA_384     ((hsm_signature_scheme_id_t)0x25u)
+#define HSM_SIGNATURE_SCHEME_ECDSA_BRAINPOOL_T1_512_SHA_512     ((hsm_signature_scheme_id_t)0x26u)
+#define HSM_SIGNATURE_SCHEME_DSA_SM2_FP_256_SM3                 ((hsm_signature_scheme_id_t)0x43u)
 #define HSM_OP_GENERATE_SIGN_FLAGS_INPUT_DIGEST                 ((hsm_op_generate_sign_flags_t)(0u << 0))
 #define HSM_OP_GENERATE_SIGN_FLAGS_INPUT_MESSAGE                ((hsm_op_generate_sign_flags_t)(1u << 0))
 #define HSM_OP_GENERATE_SIGN_FLAGS_COMPRESSED_POINT             ((hsm_op_generate_sign_flags_t)(1u << 1))
-#define HSM_OP_GENERATE_SIGN_FLAGS_LOW_LATENCY_SIGNATURE        ((hsm_op_generate_sign_flags_t)(1u << 2))        //! HSM finalizes the signature by using the artifacts of the previously executed hsm_prepare_signature API. The API fails if no artifacts related to the requested scheme id are available
+#define HSM_OP_GENERATE_SIGN_FLAGS_LOW_LATENCY_SIGNATURE        ((hsm_op_generate_sign_flags_t)(1u << 2))        //! HSM finalizes the signature by using the artifacts of the previously executed hsm_prepare_signature API. The API fails if no artifacts related to the requested scheme id are available.
 
 
 typedef uint8_t hsm_op_prepare_signature_flags_t;
@@ -590,7 +651,7 @@ typedef struct {
  * The signature S=(r,s) is stored in the format r||s||Ry where Ry is an additional byte containing the lsb of y, Ry has to be considered valid only if the HSM_OP_PREPARE_SIGN_COMPRESSED_POINT is set.
  *
  * \param signature_gen_hdl handle identifying the signature generation service flow
- * \param args pointer to the structure containing the function arugments.
+ * \param args pointer to the structure containing the function arguments.
  *
  * \return error code
  */
@@ -598,6 +659,29 @@ hsm_err_t hsm_prepare_signature(hsm_hdl_t signature_gen_hdl, op_prepare_sign_arg
 #define HSM_OP_PREPARE_SIGN_INPUT_DIGEST           ((hsm_op_prepare_signature_flags_t)(0u << 0))
 #define HSM_OP_PREPARE_SIGN_INPUT_MESSAGE          ((hsm_op_prepare_signature_flags_t)(1u << 0))
 #define HSM_OP_PREPARE_SIGN_COMPRESSED_POINT       ((hsm_op_prepare_signature_flags_t)(1u << 1))
+
+/**
+ *\addtogroup qxp_specific
+ * \ref group5
+ *
+ * - \ref HSM_SIGNATURE_SCHEME_ECDSA_NIST_P521_SHA_512 is not supported.
+ * - \ref HSM_SIGNATURE_SCHEME_ECDSA_BRAINPOOL_R1_320_SHA_384 is not supported.
+ * - \ref HSM_SIGNATURE_SCHEME_ECDSA_BRAINPOOL_R1_512_SHA_512 is not supported.
+ * - \ref HSM_SIGNATURE_SCHEME_ECDSA_BRAINPOOL_T1_256_SHA_256 is not supported.
+ * - \ref HSM_SIGNATURE_SCHEME_ECDSA_BRAINPOOL_T1_320_SHA_384 is not supported.
+ * - \ref HSM_SIGNATURE_SCHEME_ECDSA_BRAINPOOL_T1_384_SHA_384 is not supported.
+ * - \ref HSM_SIGNATURE_SCHEME_ECDSA_BRAINPOOL_T1_512_SHA_512 is not supported.
+ * - \ref HSM_SIGNATURE_SCHEME_DSA_SM2_FP_256_SM3 is not supported.
+ *
+ */
+
+/**
+ *\addtogroup dxl_specific
+ * \ref group5
+ *
+ * - \ref HSM_OP_GENERATE_SIGN_FLAGS_COMPRESSED_POINT is not supported, in case of HSM_SIGNATURE_SCHEME_DSA_SM2_FP_256_SM3.
+ *
+ */
 /** @} end of signature generation service flow */
 
 /**
@@ -614,8 +698,8 @@ typedef struct {
  * User must open this service in order to perform signature verification operations.\n
  * User can call this function only after having opened a session.
  *
- * \param session_hdl handle indentifing the current session.
- * \param args pointer to the structure containing the function arugments.
+ * \param session_hdl handle identifying the current session.
+ * \param args pointer to the structure containing the function arguments.
  * \param signature_ver_hdl pointer to where the signature verification service flow handle must be written.
  *
  * \return error code
@@ -629,7 +713,7 @@ typedef struct {
     uint8_t *message;                       //!< pointer to the input (message or message digest)
     uint8_t *signature;                     //!< pointer to the input signature. The signature S=(r,s) is expected to be in the format r||s||Ry where Ry is an additional byte containing the lsb of y. Ry will be considered as valid only if the HSM_OP_VERIFY_SIGN_FLAGS_COMPRESSED_POINT is set.
     uint16_t key_size;                      //!< length in bytes of the input key
-    uint16_t signature_size;                //!< length in bytes of the output - it must contains one additional byte where to store the Ry.
+    uint16_t signature_size;                //!< length in bytes of the output - it must contain one additional byte where to store the Ry.
     uint32_t message_size;                  //!< length in bytes of the input message
     hsm_signature_scheme_id_t scheme_id;    //!< identifier of the digital signature scheme to be used for the operation
     hsm_op_verify_sign_flags_t flags;       //!< bitmap specifying the operation attributes
@@ -643,8 +727,12 @@ typedef uint32_t hsm_verification_status_t;
  * The signature S=(r,s) is expected to be in format r||s||Ry where Ry is an additional byte containing the lsb of y. Ry will be considered as valid only if the HSM_OP_VERIFY_SIGN_FLAGS_COMPRESSED_POINT is set.\n
  * Only not-compressed keys (x,y) can be used by this command. Compressed keys can be decompressed by using the dedicated API.
  *
+ * In case of HSM_SIGNATURE_SCHEME_DSA_SM2_FP_256_SM3, message of op_verify_sign_args_t should be (as specified in GB/T 32918): \n
+ *      - equal to Z||M in case of HSM_OP_VERIFY_SIGN_FLAGS_INPUT_MESSAGE \n
+ *      - equal to SM3(Z||M) in case of HSM_OP_VERIFY_SIGN_FLAGS_INPUT_DIGEST
+ *
  * \param signature_ver_hdl handle identifying the signature verification service flow.
- * \param args pointer to the structure containing the function arugments.
+ * \param args pointer to the structure containing the function arguments.
  * \param status pointer to where the verification status must be stored\n if the verification suceed the value HSM_VERIFICATION_STATUS_SUCCESS is returned.
  *
  * \return error code
@@ -654,7 +742,7 @@ hsm_err_t hsm_verify_signature(hsm_hdl_t signature_ver_hdl, op_verify_sign_args_
 #define HSM_OP_VERIFY_SIGN_FLAGS_INPUT_DIGEST               ((hsm_op_verify_sign_flags_t)(0u << 0))
 #define HSM_OP_VERIFY_SIGN_FLAGS_INPUT_MESSAGE              ((hsm_op_verify_sign_flags_t)(1u << 0))
 #define HSM_OP_VERIFY_SIGN_FLAGS_COMPRESSED_POINT           ((hsm_op_verify_sign_flags_t)(1u << 1))
-#define HSM_OP_VERIFY_SIGN_FLAGS_KEY_INTERNAL               ((hsm_op_verify_sign_flags_t)(1u << 2)) //!< when set the value passed by the key argument is considered as the internal reference of a key imported throught the hsm_import_pub_key API.
+#define HSM_OP_VERIFY_SIGN_FLAGS_KEY_INTERNAL               ((hsm_op_verify_sign_flags_t)(1u << 2)) //!< when set the value passed by the key argument is considered as the internal reference of a key imported through the hsm_import_pub_key API.
 #define HSM_VERIFICATION_STATUS_SUCCESS                     ((hsm_verification_status_t)(0x5A3CC3A5u))
 
 
@@ -669,11 +757,11 @@ typedef struct {
 /**
  * Import a public key to be used for several verification operations, a reference to the imported key is returned. \n
  * User can use the returned reference in the hsm_verify_signature API by setting the HSM_OP_VERIFY_SIGN_FLAGS_KEY_INTERNAL flag \n
- * Only not-compressed keys (x,y) can be imprted by this command. Compressed keys can be decompressed by using the dedicated API.
+ * Only not-compressed keys (x,y) can be imported by this command. Compressed keys can be decompressed by using the dedicated API.
  * User can call this function only after having opened a signature verification service flow.\n
  *
  * \param signature_ver_hdl handle identifying the signature verification service flow.
- * \param args pointer to the structure containing the function arugments.
+ * \param args pointer to the structure containing the function arguments.
  * \param key_ref pointer to where the 4 bytes key reference to be used as key in the hsm_verify_signature will be stored\n
  *
  * \return error code
@@ -688,6 +776,29 @@ hsm_err_t hsm_import_public_key(hsm_hdl_t signature_ver_hdl, op_import_public_ke
  * \return error code
  */
 hsm_err_t hsm_close_signature_verification_service(hsm_hdl_t signature_ver_hdl);
+
+/**
+ *\addtogroup qxp_specific
+ * \ref group5
+ *
+ * - \ref HSM_SIGNATURE_SCHEME_ECDSA_NIST_P521_SHA_512 is not supported.
+ * - \ref HSM_SIGNATURE_SCHEME_ECDSA_BRAINPOOL_R1_320_SHA_384 is not supported.
+ * - \ref HSM_SIGNATURE_SCHEME_ECDSA_BRAINPOOL_R1_512_SHA_512 is not supported.
+ * - \ref HSM_SIGNATURE_SCHEME_ECDSA_BRAINPOOL_T1_256_SHA_256 is not supported.
+ * - \ref HSM_SIGNATURE_SCHEME_ECDSA_BRAINPOOL_T1_320_SHA_384 is not supported.
+ * - \ref HSM_SIGNATURE_SCHEME_ECDSA_BRAINPOOL_T1_384_SHA_384 is not supported.
+ * - \ref HSM_SIGNATURE_SCHEME_ECDSA_BRAINPOOL_T1_512_SHA_512 is not supported.
+ * - \ref HSM_SIGNATURE_SCHEME_DSA_SM2_FP_256_SM3 is not supported.
+ *
+ */
+
+/**
+ *\addtogroup dxl_specific
+ * \ref group5
+ *
+ * - \ref HSM_OP_VERIFY_SIGN_FLAGS_COMPRESSED_POINT is not supported, in case of HSM_SIGNATURE_SCHEME_DSA_SM2_FP_256_SM3.
+ *
+ */
 /** @} end of signature verification service flow */
 
 /**
@@ -706,8 +817,8 @@ typedef struct {
  * User can call this function only after having opened a session.\n
  * User must open this service in order to perform rng operations.
  *
- * \param session_hdl handle indentifing the current session.
- * \param args pointer to the structure containing the function arugments.
+ * \param session_hdl handle identifying the current session.
+ * \param args pointer to the structure containing the function arguments.
  * \param rng_hdl pointer to where the rng service flow handle must be written.
  *
  * \return error code
@@ -734,7 +845,7 @@ typedef struct {
  * User can call this function only after having opened a rng service flow
  *
  * \param rng_hdl handle identifying the rng service flow.
- * \param args pointer to the structure containing the function arugments.
+ * \param args pointer to the structure containing the function arguments.
  *
  * \return error code
  */
@@ -754,10 +865,10 @@ typedef struct {
 /**
  * Open an hash service flow\n
  * User can call this function only after having opened a session.\n
- * User must open this service in order to perform an hash operations.
+ * User must open this service in order to perform hash operations.
  *
- * \param session_hdl handle indentifing the current session.
- * \param args pointer to the structure containing the function arugments.
+ * \param session_hdl handle identifying the current session.
+ * \param args pointer to the structure containing the function arguments.
  * \param hash_hdl pointer to where the hash service flow handle must be written.
  *
  * \return error code
@@ -790,7 +901,7 @@ typedef struct {
  * User can call this function only after having opened a hash service flow
  *
  * \param hash_hdl handle identifying the hash service flow.
- * \param args pointer to the structure containing the function arugments.
+ * \param args pointer to the structure containing the function arguments.
  *
  * \return error code
  */
@@ -799,7 +910,15 @@ hsm_err_t hsm_hash_one_go(hsm_hdl_t hash_hdl, op_hash_one_go_args_t *args);
 #define HSM_HASH_ALGO_SHA_256      ((hsm_hash_algo_t)(0x1u))
 #define HSM_HASH_ALGO_SHA_384      ((hsm_hash_algo_t)(0x2u))
 #define HSM_HASH_ALGO_SHA_512      ((hsm_hash_algo_t)(0x3u))
+#define HSM_HASH_ALGO_SM3_256      ((hsm_hash_algo_t)(0x11u))
 
+/**
+ *\addtogroup qxp_specific
+ * \ref group5
+ *
+ * - \ref HSM_HASH_ALGO_SM3_256 is not supported.
+ *
+ */
 /** @} end of hash service flow */
 
 /**
@@ -814,9 +933,9 @@ typedef struct {
     uint8_t *out_key;                       //!< pointer to the output area where the reconstructed public key must be written.
     uint16_t pub_rec_size;                  //!< length in bytes of the public reconstruction value
     uint16_t hash_size;                     //!< length in bytes of the input hash
-    uint16_t ca_key_size;                   //!< length in bytes of the input  CA public key
+    uint16_t ca_key_size;                   //!< length in bytes of the input CA public key
     uint16_t out_key_size;                  //!< length in bytes of the output key
-    hsm_key_type_t key_type;                //!< indicates the type of the manged keys.
+    hsm_key_type_t key_type;                //!< indicates the type of the managed key.
     hsm_op_pub_key_rec_flags_t flags;       //!< flags bitmap specifying the operation attributes.
     uint16_t reserved;
 } op_pub_key_rec_args_t;
@@ -828,11 +947,27 @@ typedef struct {
  * out_key = (pub_rec * hash) + ca_key
  *
  * \param session_hdl handle identifying the current session.
- * \param args pointer to the structure containing the function arugments.
+ * \param args pointer to the structure containing the function arguments.
  *
  * \return error code
  */
 hsm_err_t hsm_pub_key_reconstruction(hsm_hdl_t session_hdl,  op_pub_key_rec_args_t *args);
+
+/**
+ *\addtogroup qxp_specific
+ * \ref group9
+ *
+ *
+ * - \ref hsm_key_type_t of op_pub_key_rec_args_t: Only HSM_KEY_TYPE_ECDSA_NIST_P256 and HSM_KEY_TYPE_ECDSA_BRAINPOOL_R1_256 are supported.
+ *
+ */
+/**
+ *\addtogroup dxl_specific
+ * \ref group9
+ *
+ * - \ref hsm_key_type_t of op_pub_key_rec_args_t: Only HSM_KEY_TYPE_ECDSA_NIST_P256, HSM_KEY_TYPE_ECDSA_BRAINPOOL_R1_256 and HSM_KEY_TYPE_ECDSA_BRAINPOOL_T1_256 are supported.
+ *
+ */
 /** @} end of public key reconstruction operation */
 
 /**
@@ -856,7 +991,7 @@ typedef struct {
  * User can call this function only after having opened a session
  *
  * \param session_hdl handle identifying the current session.
- * \param args pointer to the structure containing the function arugments.
+ * \param args pointer to the structure containing the function arguments.
  *
  * \return error code
  */
@@ -880,7 +1015,7 @@ typedef struct {
     uint16_t pub_key_size;                  //!< length in bytes of the recipient public key should be equal to 64 bytes
     uint16_t mac_size;                      //!< length in bytes of the requested message authentication code should be equal to 16 bytes
     uint32_t out_size;                      //!< length in bytes of the output VCT should be equal to 96 bytes
-    hsm_key_type_t key_type;                //!< indicates the type of the recipient public key (only NIST P256 and Br256r1 are supported)
+    hsm_key_type_t key_type;                //!< indicates the type of the recipient public key
     hsm_op_ecies_enc_flags_t flags;         //!< bitmap specifying the operation attributes.
     uint16_t reserved;
 } op_ecies_enc_args_t;
@@ -891,11 +1026,27 @@ typedef struct {
  * ECIES is supported with the constraints specified in 1609.2-2016.
  *
  * \param session_hdl handle identifying the current session.
- * \param args pointer to the structure containing the function arugments.
+ * \param args pointer to the structure containing the function arguments.
  *
  * \return error code
  */
 hsm_err_t hsm_ecies_encryption(hsm_hdl_t session_hdl, op_ecies_enc_args_t *args);
+
+/**
+ *\addtogroup qxp_specific
+ * \ref group11
+ *
+ * - \ref hsm_key_type_t of op_ecies_enc_args_t: Only HSM_KEY_TYPE_ECDSA_NIST_P256 and HSM_KEY_TYPE_ECDSA_BRAINPOOL_R1_256 are supported.
+ *
+ */
+
+/**
+ *\addtogroup dxl_specific
+ * \ref group11
+ *
+ * - \ref hsm_key_type_t of op_ecies_enc_args_t: Only HSM_KEY_TYPE_ECDSA_NIST_P256, HSM_KEY_TYPE_ECDSA_BRAINPOOL_R1_256 and HSM_KEY_TYPE_ECDSA_BRAINPOOL_T1_256 are supported.
+ *
+ */
 /** @} end of ECIES encryption operation */
 
 /**
@@ -938,8 +1089,8 @@ typedef struct {
  * Open a data storage service flow\n
  * User must open this service flow in order to store/retreive generic data in/from the HSM.
  *
- * \param key_store_hdl handle indentifing the key store service flow.
- * \param args pointer to the structure containing the function arugments.
+ * \param key_store_hdl handle identifying the key store service flow.
+ * \param args pointer to the structure containing the function arguments.
 
  * \param data_storage_hdl pointer to where the data storage service flow handle must be written.
  *
@@ -960,7 +1111,7 @@ typedef struct {
  * Store or retrieve generic data identified by a data_id. \n
  *
  * \param data_storage_hdl handle identifying the data storage service flow.
- * \param args pointer to the structure containing the function arugments.
+ * \param args pointer to the structure containing the function arguments.
  *
  * \return error code
  */
@@ -984,11 +1135,11 @@ hsm_err_t hsm_close_data_storage_service(hsm_hdl_t data_storage_hdl);
  */
 typedef uint8_t hsm_op_export_root_kek_flags_t;
 typedef struct {
-    uint8_t *signed_message;                    //!< pointer to signed_message authorizing the operation
-    uint8_t *out_root_kek;                      //!< pointer to the output area where the derived root kek (key encryption key) must be written
-    uint16_t signed_msg_size;                   //!< size of the signed_message authorizing the operation
+    uint8_t *signed_message;                   //!< pointer to signed_message authorizing the operation
+    uint8_t *out_root_kek;                     //!< pointer to the output area where the derived root kek (key encryption key) must be written
+    uint16_t signed_msg_size;                  //!< size of the signed_message authorizing the operation
     uint8_t root_kek_size;                     //!< length in bytes of the root kek. Must be 32 bytes.
-    hsm_op_export_root_kek_flags_t flags;       //!< flags bitmap specifying the operation attributes.
+    hsm_op_export_root_kek_flags_t flags;      //!< flags bitmap specifying the operation attributes.
     uint8_t reserved[2];
 } op_export_root_kek_args_t;
 
@@ -997,7 +1148,7 @@ typedef struct {
  * This key will be used to import key in the key store through the manage key API.
  *
  * \param session_hdl handle identifying the current session.
- * \param args pointer to the structure containing the function arugments.
+ * \param args pointer to the structure containing the function arguments.
  *
  * \return error code
  */
@@ -1022,7 +1173,7 @@ typedef struct {
 /**
  *
  * \param session_hdl handle identifying the current session.
- * \param args pointer to the structure containing the function arugments.
+ * \param args pointer to the structure containing the function arguments.
  *
  * \return error code
  */
@@ -1047,8 +1198,8 @@ typedef struct {
  * User can call this function only after having opened a key store service flow.\n
  * User must open this service in order to perform mac operation\n
  *
- * \param key_store_hdl handle indentifing the key store service flow.
- * \param args pointer to the structure containing the function arugments.
+ * \param key_store_hdl handle identifying the key store service flow.
+ * \param args pointer to the structure containing the function arguments.
  * \param mac_hdl pointer to where the mac service flow handle must be written.
  *
  * \return error code
@@ -1057,14 +1208,14 @@ hsm_err_t hsm_open_mac_service(hsm_hdl_t key_store_hdl, open_svc_mac_args_t *arg
 
 
 typedef uint8_t hsm_op_mac_one_go_algo_t;
-typedef uint8_t hsm_op_mac_one_go_flags_t; 
+typedef uint8_t hsm_op_mac_one_go_flags_t;
 
 typedef struct {
     uint32_t key_identifier;                    //!< identifier of the key to be used for the operation
     hsm_op_mac_one_go_algo_t algorithm;         //!< algorithm to be used for the operation
     hsm_op_mac_one_go_flags_t flags;            //!< bitmap specifying the operation attributes
-    uint8_t *payload;                           //!< pointer to the payload area\n 
-    uint8_t *mac;                               //!< pointer to the tag area\n 
+    uint8_t *payload;                           //!< pointer to the payload area\n
+    uint8_t *mac;                               //!< pointer to the tag area\n
     uint16_t payload_size;                      //!< length in bytes of the payload
     uint16_t mac_size;                          //!< length in bytes of the tag\n the value is in range from 4 to 16 bytes.
 } op_mac_one_go_args_t;
@@ -1075,14 +1226,14 @@ typedef uint32_t hsm_mac_verification_status_t;
  * User can call this function only after having opened a mac service flow
  *
  * \param mac_hdl handle identifying the mac service flow.
- * \param args pointer to the structure containing the function arugments.
+ * \param args pointer to the structure containing the function arguments.
  *
  * \return error code
  */
 hsm_err_t hsm_mac_one_go(hsm_hdl_t mac_hdl, op_mac_one_go_args_t* args, hsm_mac_verification_status_t *status);
 
-#define HSM_OP_MAC_ONE_GO_FLAGS_MAC_VERIFICATION       ((hsm_op_mac_one_go_flags_t)( 0u << 0))
-#define HSM_OP_MAC_ONE_GO_FLAGS_MAC_GENERATION         ((hsm_op_mac_one_go_flags_t)( 1u << 0))
+#define HSM_OP_MAC_ONE_GO_FLAGS_MAC_VERIFICATION       ((hsm_op_mac_one_go_flags_t)(0u << 0))
+#define HSM_OP_MAC_ONE_GO_FLAGS_MAC_GENERATION         ((hsm_op_mac_one_go_flags_t)(1u << 0))
 #define HSM_OP_MAC_ONE_GO_ALGO_AES_CMAC                ((hsm_op_mac_one_go_algo_t)(0x01u))
 #define HSM_MAC_VERIFICATION_STATUS_SUCCESS            ((hsm_mac_verification_status_t)(0x6C1AA1C6u))
 
@@ -1096,6 +1247,229 @@ hsm_err_t hsm_mac_one_go(hsm_hdl_t mac_hdl, op_mac_one_go_args_t* args, hsm_mac_
 hsm_err_t hsm_close_mac_service(hsm_hdl_t mac_hdl);
 
 /** @} end of mac service flow */
+
+/**
+ *  @defgroup group17 SM2 Get Z
+ * @{
+ */
+typedef uint8_t hsm_op_sm2_get_z_flags_t;
+typedef struct {
+    uint8_t *public_key;                  //!< pointer to the sender public key
+    uint8_t *identifier;                  //!< pointer to the sender identifier
+    uint8_t *z_value;                     //!< pointer to the output area where the Z value must be written
+    uint16_t public_key_size;             //!< length in bytes of the sender public key should be equal to 64 bytes
+    uint8_t id_size;                      //!< length in bytes of the identifier
+    uint8_t z_size;                       //!< length in bytes of Z should be at least 32 bytes
+    hsm_key_type_t key_type;              //!< indicates the type of the sender public key. Only HSM_KEY_TYPE_DSA_SM2_FP_256 is supported.
+    hsm_op_sm2_get_z_flags_t flags;       //!< bitmap specifying the operation attributes.
+    uint8_t reserved[2];
+} op_sm2_get_z_args_t;
+
+/**
+ * This command is designed to compute  Z = SM3(Entl || ID || a || b || xG || yG || xpubk || ypubk) \n
+ *  - ID, Entl: user distinguishing identifier and length,
+ *  - a, b, xG and yG : curve parameters,
+ *  - xpubk , ypubk : public key \n\n
+ * This value is used for SM2 public key cryptography algorithms, as specified in GB/T 32918.
+ * User can call this function only after having opened a session.\n
+ *
+ * \param session_hdl handle identifying the current session.
+ * \param args pointer to the structure containing the function arguments.
+ *
+ * \return error code
+ */
+hsm_err_t hsm_sm2_get_z(hsm_hdl_t session_hdl, op_sm2_get_z_args_t *args);
+
+/**
+ *\addtogroup qxp_specific
+ * \ref group17
+ *
+ * - \ref This API is not supported.
+ *
+ */
+/** @} end of SM2 Get Z operation */
+
+/**
+ *  @defgroup group18 SM2 ECES decryption
+ * @{
+ */
+
+typedef uint8_t hsm_svc_sm2_eces_flags_t;
+typedef struct {
+    hsm_svc_sm2_eces_flags_t flags;           //!< bitmap indicating the service flow properties
+    uint8_t reserved[3];
+} open_svc_sm2_eces_args_t;
+
+/**
+ * Open a SM2 ECES decryption service flow\n
+ * User can call this function only after having opened a key store.\n
+ * User must open this service in order to perform SM2 decryption.
+ *
+ * \param session_hdl handle identifying the current session.
+ * \param args pointer to the structure containing the function arguments.
+ * \param sm2_eces_hdl pointer to where the sm2 eces service flow handle must be written.
+ *
+ * \return error code
+ */
+hsm_err_t hsm_open_sm2_eces_service(hsm_hdl_t key_store_hdl, open_svc_sm2_eces_args_t *args, hsm_hdl_t *sm2_eces_hdl);
+
+/**
+ * Terminate a previously opened SM2 ECES service flow
+ *
+ * \param sm2_eces_hdl handle identifying the SM2 ECES service flow to be closed.
+ *
+ * \return error code
+ */
+hsm_err_t hsm_close_sm2_eces_service(hsm_hdl_t sm2_eces_hdl);
+
+typedef uint8_t hsm_op_sm2_eces_dec_flags_t;
+typedef struct {
+    uint32_t key_identifier;                //!< identifier of the private key to be used for the operation
+    uint8_t *input;                         //!< pointer to the input ciphertext
+    uint8_t *output;                        //!< pointer to the output area where the plaintext must be written
+    uint32_t input_size;                    //!< length in bytes of the input ciphertext
+    uint32_t output_size;                   //!< length in bytes of the output plaintext
+    hsm_key_type_t key_type;                //!< indicates the type of the used key. Only HSM_KEY_TYPE_DSA_SM2_FP_256 is supported.
+    hsm_op_sm2_eces_dec_flags_t flags;      //!< bitmap specifying the operation attributes.
+    uint16_t reserved;
+} op_sm2_eces_dec_args_t;
+
+/**
+ * Decrypt data usign SM2 ECES \n
+ * User can call this function only after having opened a SM2 ECES service flow.\n
+ *
+ * \param sm2_eces_hdl handle identifying the SM2 ECES
+ * \param args pointer to the structure containing the function arguments.
+ *
+ * \return error code
+ */
+hsm_err_t hsm_sm2_eces_decryption(hsm_hdl_t sm2_eces_hdl, op_sm2_eces_dec_args_t *args);
+
+/**
+ *\addtogroup qxp_specific
+ * \ref group18
+ *
+ * - \ref All the APIs related the SM2 ECES decryption are not supported.
+ *
+ */
+/**
+ *\addtogroup dxl_specific
+ * \ref group18
+ *
+ * - \ref All the APIs related the SM2 ECES decryption should be considered as a preliminary version.
+ *
+ */
+/** @} end of SM2 ECES decryption flow */
+
+/**
+ *  @defgroup group19 SM2 ECES encryption
+ * @{
+ */
+
+typedef uint8_t hsm_op_sm2_eces_enc_flags_t;
+typedef struct {
+    uint8_t *input;                         //!< pointer to the input plaintext
+    uint8_t *output;                        //!< pointer to the output area where the ciphertext must be written
+    uint8_t *pub_key;                       //!< pointer to the input recipient public key
+    uint32_t input_size;                    //!< length in bytes of the input plaintext
+    uint32_t output_size;                   //!< length in bytes of the output ciphertext
+    uint16_t pub_key_size;                  //!< length in bytes of the recipient public key should be equal to 64 bytes
+    hsm_key_type_t key_type;                //!< indicates the type of the recipient public key. Only HSM_KEY_TYPE_DSA_SM2_FP_256 is supported.
+    hsm_op_sm2_eces_enc_flags_t flags;      //!< bitmap specifying the operation attributes.
+} op_sm2_eces_enc_args_t;
+
+/**
+ * Encrypt data usign SM2 ECES \n
+ * User can call this function only after having opened a session.\n
+ *
+ * \param session_hdl handle identifying the current session.
+ * \param args pointer to the structure containing the function arguments.
+ *
+ * \return error code
+ */
+hsm_err_t hsm_sm2_eces_encryption(hsm_hdl_t session_hdl, op_sm2_eces_enc_args_t *args);
+
+/**
+ *\addtogroup qxp_specific
+ * \ref group19
+ *
+ * - \ref This API is not supported.
+ *
+ */
+/**
+ *\addtogroup dxl_specific
+ * \ref group19
+ *
+ * - \ref This API should be considered as a preliminary version.
+ *
+ */
+/** @} end of SM2 ECES encryption operation */
+
+/**
+ *  @defgroup group20 Key exchange
+ * @{
+ */
+typedef uint8_t hsm_kdf_algo_id_t;
+typedef uint8_t hsm_key_exchange_scheme_id_t;
+typedef uint8_t hsm_op_key_exchange_flags_t;
+typedef struct {
+    uint32_t key_identifier;                            //!< identifier of the key used for derivation. It must be zero, if HSM_OP_KEY_EXCHANGE_FLAGS_USE_EPHEMERAL is set.
+    uint32_t *shared_key_identifier;                    //!< pointer to identifier of the derived key \n In case of create operation the new destination key identifier will be stored in this location.
+    uint8_t *ke_input;                                  //!< pointer to the initiator input data related to the key exchange function
+    uint8_t *ke_output;                                 //!< pointer to the output area where the data related to the key exchange function must be written. It corresponds to the receiver public data.\n It must be zero, if HSM_OP_KEY_EXCHANGE_FLAGS_USE_EPHEMERAL is set.
+    uint8_t *kdf_input;                                 //!< pointer to the input data of the KDF
+    uint8_t *kdf_output;                                //!< pointer to the output area where the non sensitive output data related to the KDF
+    hsm_key_group_t shared_key_group;                   //!< it must be a value in the range 0-1023. Keys belonging to the same group can be cached in the HSM local memory throug the hsm_manage_key_group API
+    hsm_key_info_t shared_key_info;                     //!< bitmap specifying the properties of the derived key.
+    hsm_key_type_t shared_key_type;                     //!< indicates the type of the key to be derived.
+    hsm_key_type_t public_data_type;                    //!< indicates the key type of the initiator and receiver
+    hsm_key_exchange_scheme_id_t key_exchange_scheme;   //!< indicates the key exchange scheme
+    hsm_kdf_algo_id_t kdf_algorithm;                    //!< indicates the KDF algorithm
+    uint16_t ke_input_size;                             //!< length in bytes of the input data of the key exchange function
+    uint16_t ke_output_size;                            //!< length in bytes of the output data of the key exchange function
+    uint8_t kdf_input_size;                             //!< length in bytes of the input data of the KDF
+    uint8_t kdf_output_size;                            //!< length in bytes of the non sensitive output data related to the KDF
+    hsm_op_key_exchange_flags_t flags;                  //!< bitmap specifying the operation properties
+    uint8_t reserved;
+} op_key_exchange_args_t;
+
+/**
+ * This command is designed to to derive a secret key that will be stored in the key store as a new key or as an update of an existing key.
+ * For this secret key derivation, we can use, as input, a freshly generated key or an existing key from the key store.
+ * User can call this function only after having opened a key management service flow
+
+ * \param key_management_hdl handle identifying the key store management service flow.
+ * \param args pointer to the structure containing the function arguments.
+ *
+ * \return error code
+*/
+hsm_err_t hsm_key_exchange(hsm_hdl_t key_management_hdl, op_key_exchange_args_t *args);
+#define HSM_KDF_ALG_AES_CMAC                            ((hsm_kdf_algo_id_t)0x00u)
+#define HSM_KDF_ALG_FOR_SM2                             ((hsm_kdf_algo_id_t)0x10u)
+#define HSM_KE_SCHEME_ECDH_P256                         ((hsm_key_exchange_scheme_id_t)0x00u)
+#define HSM_KE_SCHEME_SM2                               ((hsm_key_exchange_scheme_id_t)0x10u)
+#define HSM_OP_KEY_EXCHANGE_FLAGS_UPDATE                ((hsm_op_key_exchange_flags_t)(1u << 0))  //!< User can replace an existing key only by the derived key which should have the same type of the original one.
+#define HSM_OP_KEY_EXCHANGE_FLAGS_CREATE                ((hsm_op_key_exchange_flags_t)(1u << 1))  //!< Create a new key
+#define HSM_OP_KEY_EXCHANGE_FLAGS_USE_EPHEMERAL         ((hsm_op_key_exchange_flags_t)(1u << 2))  //!< Use an ephemeral key (freshly generated key)
+#define HSM_OP_KEY_EXCHANGE_FLAGS_STRICT_OPERATION      ((hsm_op_key_exchange_flags_t)(1u << 7))  //!< The request is completed only when the new key has been written in the NVM. This applicable for persistent key only.
+
+
+/**
+ *\addtogroup qxp_specific
+ * \ref group20
+ *
+ * - \ref This API should be considered as a preliminary version.
+ * - \ref HSM_KDF_ALG_FOR_SM2 and HSM_KE_SCHEME_ALG_SM2 are not supported.
+ *
+ */
+/**
+ *\addtogroup dxl_specific
+ * \ref group20
+ *
+ * - \ref This API should be considered as a preliminary version.
+ *
+ */
+/** @} end of key exchange operation */
 
 /** \}*/
 #endif
