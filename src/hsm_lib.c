@@ -2226,3 +2226,62 @@ hsm_err_t hsm_mac_one_go(hsm_hdl_t mac_hdl, op_mac_one_go_args_t* args, hsm_mac_
 
 }
 
+hsm_err_t hsm_sm2_get_z(hsm_hdl_t session_hdl, op_sm2_get_z_args_t *args)
+{
+	struct sab_cmd_sm2_get_z_msg cmd;
+	struct sab_cmd_sm2_get_z_rsp rsp;
+	int32_t error = 1;
+	struct hsm_session_hdl_s *sess_ptr;
+	hsm_err_t err = HSM_GENERAL_ERROR;
+
+	do {
+		sess_ptr = session_hdl_to_ptr(session_hdl);
+		if (sess_ptr == NULL) {
+			err = HSM_UNKNOWN_HANDLE;
+			break;
+		}
+
+		seco_fill_cmd_msg_hdr(&cmd.hdr,
+			SAB_SM2_GET_Z_REQ,
+			(uint32_t)sizeof(struct sab_cmd_sm2_get_z_msg),
+			sess_ptr->mu_type);
+		cmd.session_handle = session_hdl;
+		cmd.input_address_ext = 0u;
+		cmd.public_key_address = (uint32_t)seco_os_abs_data_buf(sess_ptr->phdl,
+								args->public_key,
+								args->public_key_size,
+								DATA_BUF_IS_INPUT);
+		cmd.id_address = (uint32_t)seco_os_abs_data_buf(sess_ptr->phdl,
+							args->identifier,
+							args->id_size,
+							DATA_BUF_IS_INPUT);
+		cmd.output_address_ext = 0U;
+	    cmd.z_value_address = (uint32_t)seco_os_abs_data_buf(sess_ptr->phdl,
+								args->z_value,
+								args->z_size,
+								0u);
+		cmd.public_key_size = args->public_key_size;
+		cmd.id_size = args->id_size;
+		cmd.z_size = args-> z_size;
+		cmd.key_type = args->key_type;;
+		cmd.flags = args->flags;
+		cmd.reserved = 0u;
+		cmd.crc = 0u;
+		cmd.crc = seco_compute_msg_crc((uint32_t*)&cmd,
+				(uint32_t)(sizeof(cmd) - sizeof(uint32_t)));
+
+		error = seco_send_msg_and_get_resp(sess_ptr->phdl,
+			(uint32_t *)&cmd,
+			(uint32_t)sizeof(struct sab_cmd_sm2_get_z_msg),
+			(uint32_t *)&rsp,
+			(uint32_t)sizeof(struct sab_cmd_sm2_get_z_rsp));
+		if (error != 0) {
+			break;
+		}
+
+		err = sab_rating_to_hsm_err(rsp.rsp_code);
+	} while(false);
+
+	return err;
+}
+

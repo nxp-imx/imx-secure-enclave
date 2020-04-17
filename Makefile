@@ -44,7 +44,7 @@ v2x_test: $(V2X_TEST_OBJ) hsm_lib.a
 	$(CC) $^  -o $@ -I include -I include/hsm $(CFLAGS) -lpthread -lz $(DEFINES) $(GCOV_FLAGS)
 
 clean:
-	rm -rf she_test *.o *.gcno *.a hsm_test $(TEST_OBJ) $(DESTDIR)
+	rm -rf she_test *.o *.gcno *.a hsm_test v2x_test $(TEST_OBJ) $(DESTDIR)
 
 she_doc: include/she_api.h include/seco_nvm.h
 	rm -rf doc/latex/
