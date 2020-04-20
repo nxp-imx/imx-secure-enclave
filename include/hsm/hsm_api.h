@@ -42,6 +42,9 @@ typedef enum {
     HSM_KEY_STORE_CONFLICT              = 0xF,      /**< 	A key store with the same attributes already exists. */
     HSM_KEY_STORE_COUNTER               = 0x10,     /**<    The current key store reaches the max number of monotonic counter updates, updates are still allowed but monotonic counter will not be blown. */
     HSM_FEATURE_NOT_SUPPORTED           = 0x11,     /**<    The requested feature is not supported by the firwmare. */
+    HSM_SELF_TEST_FAILURE               = 0x12,     /**<    Self tests report an issue */
+    HSM_NOT_READY_RATING                = 0x13,     /**<    The HSM is not ready to handle the current request */
+    HSM_FEATURE_DISABLED                = 0x14,     /**<    The required service/operation is disabled */
     HSM_GENERAL_ERROR                   = 0xFF,     /**<    Error not covered by other codes occured. */
 } hsm_err_t;
 /** @} end of error code group */

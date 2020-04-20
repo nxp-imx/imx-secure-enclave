@@ -138,6 +138,12 @@
 #define SAB_RNG_NOT_STARTED_RATING              (0x0Cu)
 #define SAB_CMD_NOT_SUPPORTED_RATING            (0x0Du)
 #define SAB_INVALID_LIFECYCLE_RATING            (0x0Eu)
+#define SAB_KEY_STORE_CONFLICT_RATING           (0x0Fu)
+#define SAB_KEY_STORE_COUNTER_RATING            (0x10u)
+#define SAB_FEATURE_NOT_SUPPORTED_RATING        (0x11u)
+#define SAB_SELF_TEST_FAILURE_RATING            (0x12u)
+#define SAB_NOT_READY_RATING                    (0x13u)
+#define SAB_FEATURE_DISABLED_RATING             (0x14u)
 
 /* SHE specific rating */
 #define SAB_SHE_SEQUENCE_ERROR_RATING           (0xD1u)     /**< Invalid sequence of commands. */
