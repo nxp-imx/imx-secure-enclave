@@ -1,10 +1,10 @@
 /*! \mainpage HSM API
  *
  * This document is a software referece description of the API provided by the i.MX8 HSM solutions.
- */ 
+ */
 
 /*! \page  History Revision History
- * 
+ *
  * Revision       | date           | description
  * :------------: | :-------------:| :------------
  * 0.1 -  | Mar 29 2019  | Preliminary draft
