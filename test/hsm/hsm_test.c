@@ -162,6 +162,203 @@ static void ecies_tests(hsm_hdl_t hsm_session_hdl)
 
 }
 
+static void transient_key_tests(hsm_hdl_t sess_hdl, hsm_hdl_t key_store_hdl)
+{
+	open_svc_key_management_args_t key_mgmt_args;
+	hsm_hdl_t key_mgmt_hdl;
+	uint8_t pub_key[64];
+	op_generate_key_args_t key_gen_args;
+	uint32_t master_key_id;
+	op_butt_key_exp_args_t butterfly_gen_args;
+	uint32_t butterfly_key_id;
+	uint8_t exp_data[32] = {
+		0xA4, 0x3A, 0x19, 0x55, 0x9A, 0xA4, 0x15, 0xE5,
+		0xCB, 0xD7, 0x84, 0xEB, 0x44, 0x14, 0xC0, 0x37,
+		0x44, 0xC8, 0xFE, 0xF6, 0x15, 0xF6, 0x5E, 0x9B,
+		0x63, 0x23, 0x5E, 0x2F, 0xDE, 0x44, 0xA3, 0x8E };
+	open_svc_sign_gen_args_t open_sig_gen_args;
+	hsm_hdl_t  sig_gen_hdl;
+	op_generate_sign_args_t sig_gen_args;
+	uint8_t hash_data[32] = {
+		0x00, 0x01, 0x02, 0x03, 0x04, 0x05, 0x06, 0x07,
+		0x08, 0x09, 0x0A, 0x0B, 0x0C, 0x0D, 0x0E, 0x0F,
+		0x10, 0x11, 0x12, 0x13, 0x14, 0x15, 0x16, 0x17,
+		0x18, 0x19, 0x1A, 0x1B, 0x1C, 0x1D, 0x1E, 0x1F };
+	uint8_t signature_data[65];
+	open_svc_sign_ver_args_t open_sig_ver_args;
+	hsm_hdl_t sig_ver_hdl;
+	op_verify_sign_args_t sig_ver_args;
+	hsm_verification_status_t verif_status;
+	uint32_t sym_key_id;
+	open_svc_cipher_args_t open_cipher_args;
+	op_cipher_one_go_args_t cipher_args;
+	hsm_hdl_t cipher_hdl;
+	uint8_t ciphered_data[32];
+	uint8_t deciphered_data[32];
+	uint8_t iv_data[16] = {
+		0x00, 0x01, 0x02, 0x03, 0x04, 0x05, 0x06, 0x07,
+		0x08, 0x09, 0x0A, 0x0B, 0x0C, 0x0D, 0x0E, 0x0F };
+	op_manage_key_args_t del_args;
+	hsm_err_t hsmret;
+
+	memset(&key_mgmt_args, 0, sizeof(key_mgmt_args));
+	hsmret = hsm_open_key_management_service(
+		key_store_hdl, &key_mgmt_args, &key_mgmt_hdl);
+	printf("hsm_open_key_store_service ret:0x%x\n", hsmret);
+
+	memset(&key_gen_args, 0, sizeof(key_gen_args));
+	key_gen_args.key_identifier = &master_key_id;
+	key_gen_args.out_size = sizeof(pub_key);
+	key_gen_args.flags = HSM_OP_KEY_GENERATION_FLAGS_CREATE;
+	key_gen_args.key_group = 1;
+	key_gen_args.key_info = HSM_KEY_INFO_TRANSIENT | HSM_KEY_INFO_MASTER;
+	key_gen_args.key_type = HSM_KEY_TYPE_ECDSA_NIST_P256;
+	key_gen_args.out_key = pub_key;
+	hsmret = hsm_generate_key(key_mgmt_hdl, &key_gen_args);
+	printf("hsm_generate_key ret:0x%x\n", hsmret);
+
+	memset(&butterfly_gen_args, 0, sizeof(butterfly_gen_args));
+	butterfly_gen_args.key_identifier = master_key_id;
+	butterfly_gen_args.expansion_function_value = exp_data;
+	butterfly_gen_args.hash_value = NULL;
+	butterfly_gen_args.pr_reconstruction_value = NULL;
+	butterfly_gen_args.expansion_function_value_size = sizeof(exp_data);
+	butterfly_gen_args.hash_value_size = 0;
+	butterfly_gen_args.pr_reconstruction_value_size = 0;
+	butterfly_gen_args.flags = HSM_OP_BUTTERFLY_KEY_FLAGS_CREATE |
+				HSM_OP_BUTTERFLY_KEY_FLAGS_EXPLICIT_CERTIF;
+	butterfly_gen_args.dest_key_identifier = &butterfly_key_id;
+	butterfly_gen_args.output = pub_key;
+	butterfly_gen_args.output_size = sizeof(pub_key);
+	butterfly_gen_args.key_type = HSM_KEY_TYPE_ECDSA_NIST_P256;
+	butterfly_gen_args.key_group = 101;
+	butterfly_gen_args.key_info = HSM_KEY_INFO_TRANSIENT;
+	hsmret = hsm_butterfly_key_expansion(key_mgmt_hdl, &butterfly_gen_args);
+	printf("hsm_butterfly_key_expansion ret:0x%x\n", hsmret);
+
+	memset(&open_sig_gen_args, 0, sizeof(open_sig_gen_args));
+	hsmret = hsm_open_signature_generation_service(key_store_hdl,
+					&open_sig_gen_args, &sig_gen_hdl);
+	printf("hsm_open_signature_generation_service ret:0x%x\n", hsmret);
+
+	memset(&sig_gen_args, 0, sizeof(sig_gen_args));
+	sig_gen_args.key_identifier = butterfly_key_id;
+	sig_gen_args.message = hash_data;
+	sig_gen_args.signature = signature_data;
+	sig_gen_args.message_size = sizeof(hash_data);
+	sig_gen_args.signature_size = sizeof(signature_data);
+	sig_gen_args.scheme_id = HSM_SIGNATURE_SCHEME_ECDSA_NIST_P256_SHA_256;
+	sig_gen_args.flags = HSM_OP_GENERATE_SIGN_FLAGS_INPUT_DIGEST;
+	hsmret = hsm_generate_signature(sig_gen_hdl, &sig_gen_args);
+	printf("hsm_generate_signature ret:0x%x\n", hsmret);
+
+	hsmret = hsm_close_signature_generation_service(sig_gen_hdl);
+	printf("hsm_close_signature_generation_service ret:0x%x\n", hsmret);
+
+	memset(&open_sig_ver_args, 0, sizeof(open_sig_ver_args));
+	hsmret = hsm_open_signature_verification_service(sess_hdl,
+					&open_sig_ver_args, &sig_ver_hdl);
+	printf("hsm_open_signature_verification_service ret:0x%x\n", hsmret);
+
+	memset(&sig_ver_args, 0, sizeof(sig_ver_args));
+	sig_ver_args.key = pub_key;
+	sig_ver_args.message = hash_data;
+	sig_ver_args.signature = signature_data;
+	sig_ver_args.key_size = sizeof(pub_key);
+	sig_ver_args.signature_size = sizeof(signature_data);
+	sig_ver_args.message_size = sizeof(hash_data);
+	sig_ver_args.scheme_id = HSM_SIGNATURE_SCHEME_ECDSA_NIST_P256_SHA_256;
+	sig_ver_args.flags = HSM_OP_VERIFY_SIGN_FLAGS_INPUT_DIGEST;
+	hsmret = hsm_verify_signature (sig_ver_hdl, &sig_ver_args,
+							&verif_status);
+	printf("hsm_verify_signature ret:0x%x\n", hsmret);
+	if (verif_status == HSM_VERIFICATION_STATUS_SUCCESS)
+		printf("Verification PASS\n");
+	else
+		printf("Verification FAIL, status:0x%x\n", verif_status);
+
+	hsmret = hsm_close_signature_verification_service(sig_ver_hdl);
+	printf("hsm_close_signature_verification_service ret:0x%x\n", hsmret);
+
+	memset(&del_args, 0, sizeof(del_args));
+	del_args.key_identifier = &master_key_id;
+	del_args.flags = HSM_OP_MANAGE_KEY_FLAGS_DELETE;
+	del_args.key_type = HSM_KEY_TYPE_ECDSA_NIST_P256;
+	del_args.key_group = 1;
+	hsmret = hsm_manage_key(key_mgmt_hdl, &del_args);
+	printf("hsm_manage_key ret:0x%x\n", hsmret);
+
+	memset(&del_args, 0, sizeof(del_args));
+	del_args.key_identifier = &butterfly_key_id;
+	del_args.flags = HSM_OP_MANAGE_KEY_FLAGS_DELETE;
+	del_args.key_type = HSM_KEY_TYPE_ECDSA_NIST_P256;
+	del_args.key_group = 101;
+	hsmret = hsm_manage_key(key_mgmt_hdl, &del_args);
+	printf("hsm_manage_key ret:0x%x\n", hsmret);
+
+	memset(&key_gen_args, 0, sizeof(key_gen_args));
+	key_gen_args.key_identifier = &sym_key_id;
+	key_gen_args.out_size = 0;
+	key_gen_args.flags = HSM_OP_KEY_GENERATION_FLAGS_CREATE;
+	key_gen_args.key_group = 1001;
+	key_gen_args.key_info = HSM_KEY_INFO_TRANSIENT;
+	key_gen_args.key_type = HSM_KEY_TYPE_AES_256;
+	key_gen_args.out_key = NULL;
+	hsmret = hsm_generate_key(key_mgmt_hdl, &key_gen_args);
+	printf("hsm_generate_key ret:0x%x\n", hsmret);
+
+	memset(&open_cipher_args, 0, sizeof(open_cipher_args));
+	hsmret = hsm_open_cipher_service (key_store_hdl, &open_cipher_args,
+						&cipher_hdl);
+	printf("hsm_open_cipher_service ret:0x%x\n", hsmret);
+
+	memset(&cipher_args, 0, sizeof(cipher_args));
+	cipher_args.key_identifier = sym_key_id;
+	cipher_args.iv = iv_data;
+	cipher_args.iv_size = sizeof(iv_data);
+	cipher_args.cipher_algo = HSM_CIPHER_ONE_GO_ALGO_AES_CBC;
+	cipher_args.flags = HSM_CIPHER_ONE_GO_FLAGS_ENCRYPT;
+	cipher_args.input = hash_data;
+	cipher_args.output = ciphered_data;
+	cipher_args.input_size = sizeof(hash_data);
+	cipher_args.output_size = sizeof(ciphered_data);
+	hsmret = hsm_cipher_one_go(cipher_hdl, &cipher_args);
+	printf("hsm_cipher_one_go ret:0x%x\n", hsmret);
+
+	memset(&deciphered_data, 0, sizeof(deciphered_data));
+	memset(&cipher_args, 0, sizeof(cipher_args));
+	cipher_args.key_identifier = sym_key_id;
+	cipher_args.iv = iv_data;
+	cipher_args.iv_size = sizeof(iv_data);
+	cipher_args.cipher_algo = HSM_CIPHER_ONE_GO_ALGO_AES_CBC;
+	cipher_args.flags = HSM_CIPHER_ONE_GO_FLAGS_DECRYPT;
+	cipher_args.input = ciphered_data;
+	cipher_args.output = deciphered_data;
+	cipher_args.input_size = sizeof(ciphered_data);
+	cipher_args.output_size = sizeof(deciphered_data);
+	hsmret = hsm_cipher_one_go(cipher_hdl, &cipher_args);
+	printf("hsm_cipher_one_go ret:0x%x\n", hsmret);
+	if (memcmp(hash_data, deciphered_data, sizeof(hash_data)) == 0)
+		printf("Decrypted data matches encrypted data [PASS]\n");
+	else
+		printf("Decrypted data doesn't match encrypted data [FAIL]\n");
+
+	hsmret = hsm_close_cipher_service (cipher_hdl);
+	printf("hsm_close_cipher_service ret:0x%x\n", hsmret);
+
+	memset(&del_args, 0, sizeof(del_args));
+	del_args.key_identifier = &sym_key_id;
+	del_args.flags = HSM_OP_MANAGE_KEY_FLAGS_DELETE;
+	del_args.key_type = HSM_KEY_TYPE_AES_256;
+	del_args.key_group = 1001;
+	hsmret = hsm_manage_key(key_mgmt_hdl, &del_args);
+	printf("hsm_manage_key ret:0x%x\n", hsmret);
+
+	hsmret = hsm_close_key_management_service(key_mgmt_hdl);
+	printf("hsm_close_key_management_service ret:0x%x\n", hsmret);
+}
+
+
 static uint32_t nvm_status;
 
 static void *hsm_storage_thread(void *arg)
@@ -218,6 +415,8 @@ int main(int argc, char *argv[])
         public_key_test(hsm_session_hdl);
 
         ecies_tests(hsm_session_hdl);
+
+        transient_key_tests(hsm_session_hdl, key_store_hdl);
 
         err = hsm_close_key_store_service(key_store_hdl);
         printf("hsm_close_key_store_service ret:0x%x\n", err);
