@@ -150,8 +150,6 @@ typedef struct {
  */
 hsm_err_t hsm_open_key_store_service(hsm_hdl_t session_hdl, open_svc_key_store_args_t *args, hsm_hdl_t *key_store_hdl);
 #define HSM_SVC_KEY_STORE_FLAGS_CREATE ((hsm_svc_key_store_flags_t)(1u << 0)) //!< It must be specified to create a new key store. The key store will be stored in the NVM only once a key is generated/imported specyfing the STRICT OPERATION flag.
-#define HSM_SVC_KEY_STORE_FLAGS_UPDATE ((hsm_svc_key_store_flags_t)(1u << 2)) //!< It must be specified in order to open a key management service flow
-#define HSM_SVC_KEY_STORE_FLAGS_DELETE ((hsm_svc_key_store_flags_t)(1u << 3)) //!< It must be specified to delete an existing key store
 /**
  * Close a previously opened key store service flow. The key store is deleted from the HSM local memory, any update not written in the NVM is lost \n
  *
@@ -160,24 +158,6 @@ hsm_err_t hsm_open_key_store_service(hsm_hdl_t session_hdl, open_svc_key_store_a
  * \return error_code error code.
  */
 hsm_err_t hsm_close_key_store_service(hsm_hdl_t key_store_hdl);
-
-/**
- *\addtogroup qxp_specific
- * \ref group2
- *
- * - \ref HSM_SVC_KEY_STORE_FLAGS_UPDATE is not supported.
- * - \ref HSM_SVC_KEY_STORE_FLAGS_DELETE is not supported.
- *
- */
-
-/**
- *\addtogroup dxl_specific
- * \ref group2
- *
- * - \ref HSM_SVC_KEY_STORE_FLAGS_UPDATE is not supported.
- * - \ref HSM_SVC_KEY_STORE_FLAGS_DELETE is not supported.
- *
- */
 
 /** @} end of key store service flow */
 
