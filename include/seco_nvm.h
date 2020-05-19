@@ -26,6 +26,7 @@
 void seco_nvm_manager(uint8_t flags, uint32_t *status);
 void seco_nvm_close_session(void);
 
+#define NVM_FLAGS_V2X    (0x02u)
 #define NVM_FLAGS_SHE    (0x01u)
 #define NVM_FLAGS_HSM    (0x00u)
 

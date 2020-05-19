@@ -40,7 +40,7 @@ she_test: $(SHE_TEST_OBJ) she_lib.a seco_nvm_manager.a
 	$(CC) $^  -o $@ -I include $(CFLAGS) -lpthread -lz $(DEFINES) $(GCOV_FLAGS)
 
 V2X_TEST_OBJ=$(wildcard test/v2x/*.c)
-v2x_test: $(V2X_TEST_OBJ) hsm_lib.a
+v2x_test: $(V2X_TEST_OBJ) hsm_lib.a seco_nvm_manager.a
 	$(CC) $^  -o $@ -I include -I include/hsm $(CFLAGS) -lpthread -lz $(DEFINES) $(GCOV_FLAGS)
 
 clean:

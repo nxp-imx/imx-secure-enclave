@@ -12,11 +12,14 @@
  */
 
 #include "hsm_api.h"
+#include "seco_nvm.h"
+#include <pthread.h>
 #include <stdio.h>
 #include <stdbool.h>
 #include <stdlib.h>
 #include <string.h>
 #include <time.h>
+#include <unistd.h>
 
 
 static uint8_t  SM2_test_message[300] = {
@@ -73,6 +76,14 @@ static uint8_t SM2_Z[32] = {
 
 uint8_t work_area[128] = {0};
 
+static uint32_t nvm_status;
+
+static void *v2x_hsm_storage_thread(void *arg)
+{
+    seco_nvm_manager(NVM_FLAGS_V2X | NVM_FLAGS_HSM, &nvm_status);
+}
+
+
 int main(int argc, char *argv[])
 {
     open_session_args_t args;
@@ -92,6 +103,26 @@ int main(int argc, char *argv[])
     hsm_verification_status_t status;
     hsm_err_t err;
     int j;
+    pthread_t tid;
+
+    printf("\n---------------------------------------------------\n");
+    printf("Starting storage manager \n");
+    printf("---------------------------------------------------\n");
+    nvm_status = NVM_STATUS_UNDEF;
+
+    (void)pthread_create(&tid, NULL, v2x_hsm_storage_thread, NULL);
+
+    /* Wait for the storage manager to be ready to receive commands from V2X. */
+    while (nvm_status <= NVM_STATUS_STARTING) {
+        usleep(1000);
+    }
+    /* Check if it ended because of an error. */
+    if (nvm_status == NVM_STATUS_STOPPED) {
+        printf("nvm manager failed to start\n");
+        return 1;
+    }
+    printf("nvm manager started: status: 0x%x \n", nvm_status);
+
 
     // Open session on all MUs (even if all are not really used here)
 
@@ -266,6 +297,11 @@ int main(int argc, char *argv[])
     err = hsm_close_session(sv1_sess);
     printf("err: 0x%x SV1 hsm_close_session hdl: 0x%x\n", err, sv1_sess);
  
+
+    if (nvm_status != NVM_STATUS_STOPPED) {
+        pthread_cancel(tid);
+    }
+    seco_nvm_close_session();
 
     return 0;
 }

@@ -112,10 +112,18 @@ static void seco_nvm_open_session(uint8_t flags)
         }
 
         /* Open the Storage session on the MU */
-        if ((flags & NVM_FLAGS_SHE) != 0u) {
-            nvm_ctx.mu_type = MU_CHANNEL_SECO_SHE_NVM;
+        if ((flags & NVM_FLAGS_V2X) != 0u) {
+            if ((flags & NVM_FLAGS_SHE) != 0u) {
+                nvm_ctx.mu_type = MU_CHANNEL_V2X_SHE_NVM;
+            } else {
+                nvm_ctx.mu_type = MU_CHANNEL_V2X_HSM_NVM;
+            }
         } else {
-            nvm_ctx.mu_type = MU_CHANNEL_SECO_HSM_NVM;
+            if ((flags & NVM_FLAGS_SHE) != 0u) {
+                nvm_ctx.mu_type = MU_CHANNEL_SECO_SHE_NVM;
+            } else {
+                nvm_ctx.mu_type = MU_CHANNEL_SECO_HSM_NVM;
+            }
         }
         nvm_ctx.phdl = seco_os_abs_open_mu_channel(nvm_ctx.mu_type, &mu_params);
 
@@ -123,7 +131,7 @@ static void seco_nvm_open_session(uint8_t flags)
             break;
         }
 
-        /* Open the SHE session on SECO side */
+        /* Open the SAB session on the selected security enclave */
         err = sab_open_session_command(nvm_ctx.phdl,
                                        &nvm_ctx.session_handle,
                                        nvm_ctx.mu_type,
@@ -131,14 +139,14 @@ static void seco_nvm_open_session(uint8_t flags)
                                        mu_params.interrupt_idx,
                                        mu_params.tz,
                                        mu_params.did,
-                                       0U,
-                                       0U);
+                                       SAB_OPEN_SESSION_PRIORITY_LOW,
+                                       ((flags & NVM_FLAGS_V2X) != 0u) ? SAB_OPEN_SESSION_LOW_LATENCY_MASK : 0U);
         if (err != SAB_SUCCESS_STATUS) {
             nvm_ctx.session_handle = 0u;
             break;
         }
 
-        /* Open the NVM STORAGE session on SECO side */
+        /* Open the NVM STORAGE session on the selected security enclave */
         err = sab_open_storage_command(nvm_ctx.phdl,
                                         nvm_ctx.session_handle,
                                         &nvm_ctx.storage_handle,

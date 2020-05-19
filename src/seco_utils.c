@@ -27,6 +27,7 @@ void seco_fill_cmd_msg_hdr(struct sab_mu_hdr *hdr, uint8_t cmd, uint32_t len, ui
         hdr->ver = V2X_SV1_API_VER;
         break;
     case MU_CHANNEL_V2X_SHE:
+    case MU_CHANNEL_V2X_SHE_NVM:
         hdr->tag = V2X_SHE_REQ_TAG;
         hdr->ver = V2X_SHE_API_VER;
         break;
@@ -35,6 +36,7 @@ void seco_fill_cmd_msg_hdr(struct sab_mu_hdr *hdr, uint8_t cmd, uint32_t len, ui
         hdr->ver = V2X_SG0_API_VER;
         break;
     case MU_CHANNEL_V2X_SG1:
+    case MU_CHANNEL_V2X_HSM_NVM:
         hdr->tag = V2X_SG1_REQ_TAG;
         hdr->ver = V2X_SG1_API_VER;
         break;

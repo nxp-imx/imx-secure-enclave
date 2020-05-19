@@ -64,6 +64,10 @@ static char V2X_MU_SG1_PATH[] = "/dev/seco_mu8_ch0";
 static char V2X_MU_SHE_NVM_PATH[] = "/dev/seco_mu6_ch1";
 static char V2X_MU_SG1_NVM_PATH[] = "/dev/seco_mu8_ch1";
 
+static char V2X_NVM_SHE_STORAGE_FILE[] = "/etc/v2x_she_nvm";
+static char V2X_NVM_HSM_STORAGE_FILE[] = "/etc/v2x_hsm/v2x_nvm_master";
+static char V2X_NVM_HSM_STORAGE_CHUNK_PATH[] = "/etc/v2x_hsm/";
+
 /* Open a SHE session and returns a pointer to the handle or NULL in case of error.
  * Here it consists in opening the decicated seco MU device file.
  */
@@ -255,6 +259,12 @@ int32_t seco_os_abs_storage_write(struct seco_os_abs_hdl *phdl, uint8_t *src, ui
     case MU_CHANNEL_SECO_HSM_NVM:
         path = SECO_NVM_HSM_STORAGE_FILE;
         break;
+    case MU_CHANNEL_V2X_SHE_NVM:
+        path = V2X_NVM_SHE_STORAGE_FILE;
+        break;
+    case MU_CHANNEL_V2X_HSM_NVM:
+        path = V2X_NVM_HSM_STORAGE_FILE;
+        break;
     default:
         path = NULL;
         break;
@@ -286,6 +296,12 @@ int32_t seco_os_abs_storage_read(struct seco_os_abs_hdl *phdl, uint8_t *dst, uin
     case MU_CHANNEL_SECO_HSM_NVM:
         path = SECO_NVM_HSM_STORAGE_FILE;
         break;
+    case MU_CHANNEL_V2X_SHE_NVM:
+        path = V2X_NVM_SHE_STORAGE_FILE;
+        break;
+    case MU_CHANNEL_V2X_HSM_NVM:
+        path = V2X_NVM_HSM_STORAGE_FILE;
+        break;
     default:
         path = NULL;
         break;
@@ -310,13 +326,28 @@ int32_t seco_os_abs_storage_write_chunk(struct seco_os_abs_hdl *phdl, uint8_t *s
     int32_t fd = -1;
     int32_t l = 0;
     int n = -1;
-    char *path = malloc(sizeof(SECO_NVM_HSM_STORAGE_CHUNK_PATH)+16u);
+    char *path = NULL;
 
-    if ((path != NULL) && (phdl->type == MU_CHANNEL_SECO_HSM_NVM)) {
-        (void)mkdir(SECO_NVM_HSM_STORAGE_CHUNK_PATH, S_IRUSR|S_IWUSR);
-        n = snprintf(path, sizeof(SECO_NVM_HSM_STORAGE_CHUNK_PATH)+16u,
-                        "%s%016lx", SECO_NVM_HSM_STORAGE_CHUNK_PATH, blob_id);
+    if (phdl->type == MU_CHANNEL_SECO_HSM_NVM) {
+        path = malloc(sizeof(SECO_NVM_HSM_STORAGE_CHUNK_PATH)+16u);
+
+        if (path != NULL) {
+            (void)mkdir(SECO_NVM_HSM_STORAGE_CHUNK_PATH, S_IRUSR|S_IWUSR);
+            n = snprintf(path, sizeof(SECO_NVM_HSM_STORAGE_CHUNK_PATH)+16u,
+                            "%s%016lx", SECO_NVM_HSM_STORAGE_CHUNK_PATH, blob_id);
+        }
+    } else if (phdl->type == MU_CHANNEL_V2X_HSM_NVM) {
+        path = malloc(sizeof(V2X_NVM_HSM_STORAGE_CHUNK_PATH)+16u);
+
+        if (path != NULL) {
+            (void)mkdir(V2X_NVM_HSM_STORAGE_CHUNK_PATH, S_IRUSR|S_IWUSR);
+            n = snprintf(path, sizeof(V2X_NVM_HSM_STORAGE_CHUNK_PATH)+16u,
+                            "%s%016lx", V2X_NVM_HSM_STORAGE_CHUNK_PATH, blob_id);
+        }
+    } else {
+        path = NULL;
     }
+
     if (n > 0) {
         /* Open or create the file with access reserved to the current user. */
         fd = open(path, O_CREAT|O_WRONLY|O_SYNC, S_IRUSR|S_IWUSR);
@@ -337,13 +368,27 @@ int32_t seco_os_abs_storage_read_chunk(struct seco_os_abs_hdl *phdl, uint8_t *ds
     int32_t fd = -1;
     int32_t l = 0;
     int n = -1;
-    char *path = malloc(sizeof(SECO_NVM_HSM_STORAGE_CHUNK_PATH)+16u);
+    char *path;
 
-    if ((path != NULL) && (phdl->type == MU_CHANNEL_SECO_HSM_NVM)) {
-        n = snprintf(path, sizeof(SECO_NVM_HSM_STORAGE_CHUNK_PATH)+16u,
-                        "%s%016lx",SECO_NVM_HSM_STORAGE_CHUNK_PATH, blob_id);
+    if (phdl->type == MU_CHANNEL_SECO_HSM_NVM) {
+        path = malloc(sizeof(SECO_NVM_HSM_STORAGE_CHUNK_PATH)+16u);
+
+        if (path != NULL) {
+            (void)mkdir(SECO_NVM_HSM_STORAGE_CHUNK_PATH, S_IRUSR|S_IWUSR);
+            n = snprintf(path, sizeof(SECO_NVM_HSM_STORAGE_CHUNK_PATH)+16u,
+                            "%s%016lx", SECO_NVM_HSM_STORAGE_CHUNK_PATH, blob_id);
+        }
+    } else if (phdl->type == MU_CHANNEL_V2X_HSM_NVM) {
+        path = malloc(sizeof(V2X_NVM_HSM_STORAGE_CHUNK_PATH)+16u);
+
+        if (path != NULL) {
+            (void)mkdir(V2X_NVM_HSM_STORAGE_CHUNK_PATH, S_IRUSR|S_IWUSR);
+            n = snprintf(path, sizeof(V2X_NVM_HSM_STORAGE_CHUNK_PATH)+16u,
+                            "%s%016lx", V2X_NVM_HSM_STORAGE_CHUNK_PATH, blob_id);
+        }
+    } else {
+        path = NULL;
     }
-
 
     if (n > 0) {
         /* Open the file as read only. */

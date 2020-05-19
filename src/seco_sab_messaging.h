@@ -18,6 +18,15 @@
 
 /* Session */
 uint32_t sab_open_session_command (struct seco_os_abs_hdl *phdl, uint32_t *session_handle, uint32_t mu_type, uint8_t mu_id, uint8_t interrupt_idx, uint8_t tz, uint8_t did, uint8_t priority,uint8_t operating_mode);
+// should be kept aligned with flags definition in hsm API
+#define SAB_OPEN_SESSION_PRIORITY_LOW       (0x00U)
+#define SAB_OPEN_SESSION_PRIORITY_HIGH      (0x01U)
+
+#define SAB_OPEN_SESSION_FIPS_MODE_MASK     (1u << 0)
+#define SAB_OPEN_SESSION_EXCLUSIVE_MASK     (1u << 1)
+#define SAB_OPEN_SESSION_LOW_LATENCY_MASK   (1u << 3)
+#define SAB_OPEN_SESSION_NO_KEY_STORE_MASK  (1u << 4)
+
 
 uint32_t sab_close_session_command (struct seco_os_abs_hdl *phdl, uint32_t session_handle, uint32_t mu_type);
 
