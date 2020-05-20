@@ -17,7 +17,7 @@
  * 1.7 -  | Dec 20 2019  | - add generic data storage API \n- add GCM and CMAC support\n- add support for AES 192/256 key size for all cipher algorithms\n - add root KEK export API\n - add key import functionality\n- add get info API
  * 2.0 -  | Feb 21 2020  | - fix HSM_KEY_INFO_TRANSIENT definition: delete erroneous "not supported" comment \n- add Key Encryption Key (HSM_KEY_INFO_KEK) support \n- key store open service API: adding signed message support for key store reprovisionning \n- naming consistency: remove "hsm_" prefix from \n hsm_op_ecies_dec_args_t \n hsm_op_pub_key_rec_args_t \n hsm_op_pub_key_dec_args_t \n hsm_op_ecies_enc_args_t \n hsm_op_pub_key_recovery_args_t \n hsm_op_get_info_args_t
  * 2.1 - subject to change | Apr 16 2020  | - Preliminary version: Add the support of the chinese algorithms and update for i.MX8DXL
- * 2.2 | Apr 30 2020  | - fix erroneous number of supported key groups (correct number is 1000 while 1024 was indicated)\n- add missing status code definition
+ * 2.2 | Apr 30 2020  | - fix erroneous number of supported key groups (correct number is 1000 while 1024 was indicated)\n- add missing status code definition \n- remove hsm_open_key_store_service unused flags: HSM_SVC_KEY_STORE_FLAGS_UPDATE, HSM_SVC_KEY_STORE_FLAGS_DELETE
  * */
 
 /*! \page page1 General concepts related to the API
