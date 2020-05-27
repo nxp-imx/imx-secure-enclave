@@ -1,7 +1,7 @@
 NXP Software Content Register
 --------------------------------------------
 Package:                     seco_libs.git
-Outgoing License:            LA_OPT_NXP_Software_License v7 April 2019 - Production Use - Section 2.3 applies
+Outgoing License:            LA_OPT_NXP_Software_License - Production Use - Section 2.3 applies
 License File:                COPYING
 Package Category:            BSP
 Type of Content:             source
