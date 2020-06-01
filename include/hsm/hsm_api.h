@@ -382,6 +382,7 @@ hsm_err_t hsm_close_key_management_service(hsm_hdl_t key_management_hdl);
  * - \ref HSM_KEY_TYPE_DSA_SM2_FP_256 is not supported.
  * - \ref HSM_KEY_TYPE_SM4_128 is not supported.
  *
+ * - \ref hsm_butterfly_key_expansion: This feature is disabled when part is running in FIPS approved mode. Any call to this API will results in a HSM_FEATURE_DISABLED error.
  * - \ref hsm_key_type_t of op_butt_key_exp_args_t: Only HSM_KEY_TYPE_ECDSA_NIST_P256 and HSM_KEY_TYPE_ECDSA_BRAINPOOL_R1_256 are supported.
  */
 
@@ -528,6 +529,7 @@ hsm_err_t hsm_close_cipher_service(hsm_hdl_t cipher_hdl);
  * - \ref HSM_CIPHER_ONE_GO_ALGO_SM4_ECB is not supported.
  * - \ref HSM_CIPHER_ONE_GO_ALGO_SM4_CBC is not supported.
  *
+ * - \ref hsm_ecies_decryption: This feature is disabled when part is running in FIPS approved mode. Any call to this API will results in a HSM_FEATURE_DISABLED error.
  * - \ref hsm_key_type_t of op_ecies_dec_args_t: Only HSM_KEY_TYPE_ECDSA_NIST_P256 and HSM_KEY_TYPE_ECDSA_BRAINPOOL_R1_256 are supported.
  *
  */
@@ -940,7 +942,7 @@ hsm_err_t hsm_pub_key_reconstruction(hsm_hdl_t session_hdl,  op_pub_key_rec_args
  *\addtogroup qxp_specific
  * \ref group9
  *
- *
+ * - \ref This feature is disabled when part is running in FIPS approved mode. Any call to this API will results in a HSM_FEATURE_DISABLED error.
  * - \ref hsm_key_type_t of op_pub_key_rec_args_t: Only HSM_KEY_TYPE_ECDSA_NIST_P256 and HSM_KEY_TYPE_ECDSA_BRAINPOOL_R1_256 are supported.
  *
  */
@@ -979,6 +981,13 @@ typedef struct {
  * \return error code
  */
 hsm_err_t hsm_pub_key_decompression(hsm_hdl_t session_hdl,  op_pub_key_dec_args_t *args);
+
+/**
+ *\addtogroup qxp_specific
+ * \ref group10
+ *
+ * - \ref This feature is disabled when part is running in FIPS approved mode. Any call to this API will results in a HSM_FEATURE_DISABLED error.
+ */
 /** @} end of public key decompression operation */
 
 /**
@@ -1019,6 +1028,7 @@ hsm_err_t hsm_ecies_encryption(hsm_hdl_t session_hdl, op_ecies_enc_args_t *args)
  *\addtogroup qxp_specific
  * \ref group11
  *
+ * - \ref hsm_ecies_encryption: This feature is disabled when part is running in FIPS approved mode. Any call to this API will results in a HSM_FEATURE_DISABLED error.
  * - \ref hsm_key_type_t of op_ecies_enc_args_t: Only HSM_KEY_TYPE_ECDSA_NIST_P256 and HSM_KEY_TYPE_ECDSA_BRAINPOOL_R1_256 are supported.
  *
  */
@@ -1148,10 +1158,10 @@ typedef struct {
     uint32_t *user_sab_id;              //!< pointer to the output area where the user identifier (32bits) must be written
     uint8_t  *chip_unique_id;           //!< pointer to the output area where the chip unique identifier (64bits) must be written
     uint16_t *chip_monotonic_counter;   //!< pointer to the output are where the chip monotonic counter value (16bits) must be written
-    uint16_t *chip_life_cycle;          //!< pointer to the output area where the chip current life cycle (16bits) must be written
+    uint16_t *chip_life_cycle;          //!< pointer to the output area where the chip current life cycle bitfield (16bits) must be written
     uint32_t *version;                  //!< pointer to the output area where the module version (32bits) must be written
     uint32_t *version_ext;              //!< pointer to the output area where module extended version (32bits) must be written
-    uint8_t  *fips_mode;                //!< pointer to the output area where the FIPS mode of operation (8bits) must be written
+    uint8_t  *fips_mode;                //!< pointer to the output area where the FIPS mode bitfield (8bits) must be written. Bitmask definition:\n bit0 - FIPS mode of operation:\n- value 0 - part is running in FIPS non-approved mode.\n- value 1 - part is running in FIPS approved mode.\n bit1 - FIPS certified part:\n- value 0 - part is not FIPS certified.\n- value 1 - part is FIPS certified.\n bit2-7: reserved - 0 value.
 } op_get_info_args_t;
 /**
  *
