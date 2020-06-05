@@ -75,6 +75,9 @@ static uint8_t SM2_Z[32] = {
 
 
 uint8_t work_area[128] = {0};
+uint8_t work_area2[128] = {0};
+uint8_t work_area3[128] = {0};
+uint8_t work_area4[128] = {0};
 
 static uint32_t nvm_status;
 
@@ -84,26 +87,107 @@ static void *v2x_hsm_storage_thread(void *arg)
 }
 
 
+typedef struct {
+    char *tag;
+    hsm_hdl_t key_mgmt_srv;
+    hsm_hdl_t sig_gen_serv;
+    hsm_hdl_t sig_ver_serv;
+    uint8_t *sig_area;
+    uint8_t *pubk_area;
+} sig_thread_args_t;
+
+static void *sig_loop_thread(void *arg)
+{
+
+    op_generate_sign_args_t sig_gen_args;
+    op_verify_sign_args_t sig_ver_args;
+    op_generate_key_args_t gen_key_args;
+    uint32_t key_id = 0;;
+    hsm_verification_status_t status;
+    hsm_err_t err;
+    int i, success, failed;
+
+    sig_thread_args_t *args = (sig_thread_args_t *)arg;
+    if (!args)
+        return NULL;
+
+    success = 0;
+    failed = 0;
+    for (i=0 ; i<200; i++) {
+        /* generate and verify a SM2 signature - use alternatively create and update flags. */
+        gen_key_args.key_identifier = &key_id;
+        gen_key_args.out_size = 64;
+        gen_key_args.flags = ((i%4 == 0) ? HSM_OP_KEY_GENERATION_FLAGS_CREATE : HSM_OP_KEY_GENERATION_FLAGS_UPDATE);
+        gen_key_args.key_type = HSM_KEY_TYPE_DSA_SM2_FP_256;
+        gen_key_args.key_group = 12;
+        gen_key_args.key_info = 0U;
+        gen_key_args.out_key = args->pubk_area;
+        err = hsm_generate_key(args->key_mgmt_srv, &gen_key_args);
+        // printf("%s err: 0x%x hsm_generate_key err: hdl: 0x%08x\n", args->tag, err, args->key_mgmt_srv);
+
+        sig_gen_args.key_identifier = key_id;
+        sig_gen_args.message = SM2_test_message;
+        sig_gen_args.signature = args->sig_area;
+        sig_gen_args.message_size = 300;
+        sig_gen_args.signature_size = 65;
+        sig_gen_args.scheme_id = 0x43;
+        sig_gen_args.flags = HSM_OP_GENERATE_SIGN_FLAGS_INPUT_MESSAGE; 
+        err = hsm_generate_signature(args->sig_gen_serv, &sig_gen_args);
+        // printf("%s err: 0x%x hsm_generate_signature hdl: 0x%08x\n", args->tag, err, args->sig_gen_serv);
+
+        sig_ver_args.key = args->pubk_area;
+        sig_ver_args.message = SM2_test_message;
+        sig_ver_args.signature = args->sig_area;
+        sig_ver_args.key_size = 64;
+        sig_ver_args.signature_size = 64;
+        sig_ver_args.message_size = 300;
+        sig_ver_args.scheme_id = 0x43;
+        sig_ver_args.flags = HSM_OP_PREPARE_SIGN_INPUT_MESSAGE;
+        err = hsm_verify_signature(args->sig_ver_serv, &sig_ver_args, &status);
+        // printf("%s err: 0x%x hsm_verify_signature hdl: 0x%08x status: 0x%x\n", args->tag, err, args->sig_ver_serv, status);
+        if (status == HSM_VERIFICATION_STATUS_SUCCESS) {
+            success++;
+            // printf(" --> SUCCESS\n");
+        } else {
+            failed++;
+            // printf(" --> FAILURE\n");
+        }
+    }
+    printf("%s success: %d / failures: %d\n", args->tag, success, failed);
+
+    pthread_exit(NULL);
+    return NULL;
+}
+
+
 int main(int argc, char *argv[])
 {
     open_session_args_t args;
-    open_svc_sign_ver_args_t sv_args;
+
     open_svc_hash_args_t hash_srv_args;
     open_svc_key_store_args_t key_store_srv_args;
+    open_svc_key_management_args_t key_mgmt_srv_args;
     open_svc_sign_gen_args_t sig_gen_srv_args;
-    op_generate_sign_args_t sig_gen_args;
     open_svc_sign_ver_args_t sig_ver_srv_args;
-    op_verify_sign_args_t sig_ver_args;
+
     op_hash_one_go_args_t hash_args;
     op_sm2_get_z_args_t get_z_args;
 
-    hsm_hdl_t sg0_sess, sg1_sess, sv0_sess, sv1_sess;
-    hsm_hdl_t key_store_serv, sig_ver_serv, sig_gen_serv, hash_serv;
+    hsm_hdl_t sg0_sess, sv0_sess;
+    hsm_hdl_t sg1_sess, sv1_sess;
+    hsm_hdl_t sg0_key_store_serv, sg0_sig_gen_serv, sg0_key_mgmt_srv;
+    hsm_hdl_t sg1_key_store_serv, sg1_sig_gen_serv, sg1_key_mgmt_srv;
+    hsm_hdl_t sv0_sig_ver_serv;
+    hsm_hdl_t sv1_sig_ver_serv;
+    hsm_hdl_t hash_serv;
 
     hsm_verification_status_t status;
     hsm_err_t err;
     int j;
-    pthread_t tid;
+    pthread_t tid, sig1, sig2;
+    sig_thread_args_t args1, args2;
+
+    srand (time (NULL));
 
     printf("\n---------------------------------------------------\n");
     printf("Starting storage manager \n");
@@ -123,8 +207,6 @@ int main(int argc, char *argv[])
     }
     printf("nvm manager started: status: 0x%x \n", nvm_status);
 
-
-    // Open session on all MUs (even if all are not really used here)
 
     // SG0
     printf("\n---------------------------------------------------\n");
@@ -147,70 +229,76 @@ int main(int argc, char *argv[])
     err = hsm_open_session(&args, &sg1_sess);
     printf("err: 0x%x SG1 hsm_open_session session_hdl: 0x%08x\n", err, sg1_sess);
 
-    //SV1
+    // //SV1
     args.session_priority = HSM_OPEN_SESSION_PRIORITY_LOW;
     args.operating_mode = HSM_OPEN_SESSION_LOW_LATENCY_MASK | HSM_OPEN_SESSION_NO_KEY_STORE_MASK;
     err = hsm_open_session(&args, &sv1_sess);
     printf("err: 0x%x SV1 hsm_open_session session_hdl: 0x%08x\n", err, sv1_sess);
 
 
-    // SM2 signature test: generate a signature and verify it
-    //
-    // Note that V2X currently uses an hardcoded private key
-    // Corresponding public key is used here for verification
-    printf("\n---------------------------------------------------\n");
-    printf("SM2 signature generation and verification\n");
-    printf("---------------------------------------------------\n");
-    key_store_srv_args.key_store_identifier = 0;
-    key_store_srv_args.authentication_nonce = 0;
-    key_store_srv_args.max_updates_number = 0;
-    key_store_srv_args.flags = 0;
+    // opening services for signature generation/verif on SG0 and SG1
+
+    key_store_srv_args.key_store_identifier = (uint32_t) rand();
+    key_store_srv_args.authentication_nonce = (uint32_t) rand();
+    key_store_srv_args.max_updates_number = 12;
+    key_store_srv_args.flags = HSM_SVC_KEY_STORE_FLAGS_CREATE;
     key_store_srv_args.signed_message = NULL;
     key_store_srv_args.signed_msg_size = 0;
-    err = hsm_open_key_store_service(sg0_sess, &key_store_srv_args, &key_store_serv);
-    printf("err: 0x%x hsm_open_key_store_service hdl: 0x%08x\n", err, key_store_serv);
+    err = hsm_open_key_store_service(sg0_sess, &key_store_srv_args, &sg0_key_store_serv);
+    printf("err: 0x%x hsm_open_key_store_service hdl: 0x%08x\n", err, sg0_key_store_serv);
+
+    key_store_srv_args.key_store_identifier = (uint32_t) rand();
+    key_store_srv_args.authentication_nonce = (uint32_t) rand();
+    err = hsm_open_key_store_service(sg1_sess, &key_store_srv_args, &sg1_key_store_serv);
+    printf("err: 0x%x hsm_open_key_store_service hdl: 0x%08x\n", err, sg1_key_store_serv);
 
     sig_gen_srv_args.flags = 0;
-    err = hsm_open_signature_generation_service(key_store_serv, &sig_gen_srv_args, &sig_gen_serv);
-    printf("err: 0x%x hsm_open_signature_generation_service err: hdl: 0x%08x\n", err, sig_gen_serv);
+    err = hsm_open_signature_generation_service(sg0_key_store_serv, &sig_gen_srv_args, &sg0_sig_gen_serv);
+    printf("err: 0x%x hsm_open_signature_generation_service err: hdl: 0x%08x\n", err, sg0_sig_gen_serv);
+    err = hsm_open_signature_generation_service(sg1_key_store_serv, &sig_gen_srv_args, &sg1_sig_gen_serv);
+    printf("err: 0x%x hsm_open_signature_generation_service err: hdl: 0x%08x\n", err, sg1_sig_gen_serv);
+
+    key_mgmt_srv_args.flags = 0;
+    err = hsm_open_key_management_service(sg0_key_store_serv, &key_mgmt_srv_args, &sg0_key_mgmt_srv);
+    printf("err: 0x%x hsm_open_key_management_service err: hdl: 0x%08x\n", err, sg0_key_mgmt_srv);
+    err = hsm_open_key_management_service(sg1_key_store_serv, &key_mgmt_srv_args, &sg1_key_mgmt_srv);
+    printf("err: 0x%x hsm_open_key_management_service err: hdl: 0x%08x\n", err, sg1_key_mgmt_srv);
 
     sig_ver_srv_args.flags = 0;
-    err = hsm_open_signature_verification_service(sv0_sess, &sig_ver_srv_args, &sig_ver_serv);
-    printf("err: 0x%x hsm_open_signature_verification_service err: hdl: 0x%08x\n", err, sig_ver_serv);
+    err = hsm_open_signature_verification_service(sv0_sess, &sig_ver_srv_args, &sv0_sig_ver_serv);
+    printf("err: 0x%x hsm_open_signature_verification_service err: hdl: 0x%08x\n", err, sv0_sig_ver_serv);
+    err = hsm_open_signature_verification_service(sv1_sess, &sig_ver_srv_args, &sv1_sig_ver_serv);
+    printf("err: 0x%x hsm_open_signature_verification_service err: hdl: 0x%08x\n", err, sv1_sig_ver_serv);
 
-    sig_gen_args.key_identifier = 0;
-    sig_gen_args.message = SM2_test_message;
-    sig_gen_args.signature = work_area;
-    sig_gen_args.message_size = 300;
-    sig_gen_args.signature_size = 65;
-    sig_gen_args.scheme_id = 0x43;
-    sig_gen_args.flags = HSM_OP_GENERATE_SIGN_FLAGS_INPUT_MESSAGE; 
-    err = hsm_generate_signature(sig_gen_serv, &sig_gen_args);
-    printf("err: 0x%x hsm_generate_signature hdl: 0x%08x\n", err, sig_gen_serv);
 
-    printf("signature:\n");
-    for (j=0; j<64; j++) {
-        printf("0x%02x ", work_area[j]);
-        if (j%16 == 15)
-            printf("\n");
-    }
+    // SM2 signature test: generate a signature and verify it
+    //
+    printf("\n---------------------------------------------------\n");
+    printf("SM2 signature generation and verification in parallel\n");
+    printf("---------------------------------------------------\n");
+    args1.tag = "HIGH_P";
+    args1.key_mgmt_srv = sg0_key_mgmt_srv;
+    args1.sig_gen_serv = sg0_sig_gen_serv;
+    args1.sig_ver_serv = sv0_sig_ver_serv;
+    args1.sig_area = work_area;
+    args1.pubk_area = work_area2;
+    (void)pthread_create(&sig1, NULL, sig_loop_thread, &args1);
+    printf("started signature High prio thread\n");
 
-    sig_ver_args.key = ECDSA_SigVer_SM2_Q;
-    sig_ver_args.message = SM2_test_message;
-    sig_ver_args.signature = work_area;
-    sig_ver_args.key_size = 64;
-    sig_ver_args.signature_size = 64;
-    sig_ver_args.message_size = 300;
-    sig_ver_args.scheme_id = 0x43;
-    sig_ver_args.flags = HSM_OP_PREPARE_SIGN_INPUT_MESSAGE;
-    // printf("%s hsm_verify_signature iteration %d  hdl: 0x%08x\n", mu_name[i], j, serv_hdl[i]);
-    err = hsm_verify_signature(sig_ver_serv, &sig_ver_args, &status);
-    printf("err: 0x%x hsm_verify_signature hdl: 0x%08x status: 0x%x\n", err, sig_ver_serv, status);
-    if (status == HSM_VERIFICATION_STATUS_SUCCESS) {
-        printf(" --> SUCCESS\n");
-    } else {
-        printf(" --> FAILURE\n");
-    }
+    args2.tag = "LOW_P ";
+    args2.key_mgmt_srv = sg1_key_mgmt_srv;
+    args2.sig_gen_serv = sg1_sig_gen_serv;
+    args2.sig_ver_serv = sv1_sig_ver_serv;
+    args2.sig_area = work_area3;
+    args2.pubk_area = work_area4;
+    (void)pthread_create(&sig2, NULL, sig_loop_thread, &args2);
+    printf("started signature Low prio thread\n");
+
+    pthread_join(sig1, NULL);
+    printf("completed signature High prio thread\n");
+
+    pthread_join(sig2, NULL);
+    printf("completed signature Low prio thread\n");
 
     // SM3 hash test
 
@@ -276,27 +364,37 @@ int main(int argc, char *argv[])
     err = hsm_close_hash_service(hash_serv);
     printf("err: 0x%x hsm_close_hash_service hdl: 0x%08x\n", err, hash_serv);
 
-    err = hsm_close_signature_verification_service(sig_ver_serv);
-    printf("err: 0x%x hsm_close_signature_verification_service hdl: 0x%08x\n", err, sig_ver_serv);
+    err = hsm_close_signature_verification_service(sv0_sig_ver_serv);
+    printf("err: 0x%x hsm_close_signature_verification_service hdl: 0x%08x\n", err, sv0_sig_ver_serv);
+    err = hsm_close_signature_verification_service(sv1_sig_ver_serv);
+    printf("err: 0x%x hsm_close_signature_verification_service hdl: 0x%08x\n", err, sv1_sig_ver_serv);
 
-    err = hsm_close_signature_generation_service(sig_gen_serv);
-    printf("err: 0x%x hsm_close_signature_generation_service hdl: 0x%08x\n", err, sig_gen_serv);
+    err = hsm_close_signature_generation_service(sg0_sig_gen_serv);
+    printf("err: 0x%x hsm_close_signature_generation_service hdl: 0x%08x\n", err, sg0_sig_gen_serv);
+    err = hsm_close_signature_generation_service(sg1_sig_gen_serv);
+    printf("err: 0x%x hsm_close_signature_generation_service hdl: 0x%08x\n", err, sg1_sig_gen_serv);
 
-    err = hsm_close_key_store_service(key_store_serv);
-    printf("err: 0x%x hsm_close_key_store_service hdl: 0x%08x\n", err, key_store_serv);
+    err = hsm_close_key_management_service(sg0_key_mgmt_srv);
+    printf("err: 0x%x hsm_close_key_management_service hdl: 0x%x\n", err, sg0_key_mgmt_srv);
+    err = hsm_close_key_management_service(sg1_key_mgmt_srv);
+    printf("err: 0x%x hsm_close_key_management_service hdl: 0x%x\n", err, sg1_key_mgmt_srv);
+
+    err = hsm_close_key_store_service(sg0_key_store_serv);
+    printf("err: 0x%x hsm_close_key_store_service hdl: 0x%08x\n", err, sg0_key_store_serv);
+    err = hsm_close_key_store_service(sg1_key_store_serv);
+    printf("err: 0x%x hsm_close_key_store_service hdl: 0x%08x\n", err, sg1_key_store_serv);
 
     err = hsm_close_session(sg0_sess);
-    printf("err: 0x%x SG0 hsm_close_session hdl: 0x%x\n", err, sg0_sess);
+    printf("err: 0x%x SG hsm_close_session hdl: 0x%x\n", err, sg0_sess);
 
     err = hsm_close_session(sv0_sess);
-    printf("err: 0x%x SV0 hsm_close_session hdl: 0x%x\n", err, sv0_sess);
+    printf("err: 0x%x SV hsm_close_session hdl: 0x%x\n", err, sv0_sess);
 
     err = hsm_close_session(sg1_sess);
-    printf("err: 0x%x SG1 hsm_close_session hdl: 0x%x\n", err, sg1_sess);
+    printf("err: 0x%x SG hsm_close_session hdl: 0x%x\n", err, sg1_sess);
 
     err = hsm_close_session(sv1_sess);
-    printf("err: 0x%x SV1 hsm_close_session hdl: 0x%x\n", err, sv1_sess);
- 
+    printf("err: 0x%x SV hsm_close_session hdl: 0x%x\n", err, sv1_sess);
 
     if (nvm_status != NVM_STATUS_STOPPED) {
         pthread_cancel(tid);
