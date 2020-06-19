@@ -159,6 +159,77 @@ static void *sig_loop_thread(void *arg)
     return NULL;
 }
 
+typedef struct {
+    char *tag;
+    hsm_hdl_t key_mgmt_srv;
+    hsm_hdl_t cipher_hdl;
+    uint8_t *cipher_area;
+    uint8_t *clear_area;
+} cipher_thread_args_t;
+
+static void *cipher_loop_thread(void *arg)
+{
+
+    op_cipher_one_go_args_t cipher_args;
+    op_generate_key_args_t gen_key_args;
+    uint32_t key_id = 0;;
+    hsm_verification_status_t status;
+    hsm_err_t err;
+    int i, success, failed;
+
+    cipher_thread_args_t *args = (cipher_thread_args_t *)arg;
+    if (!args)
+        return NULL;
+
+    success = 0;
+    failed = 0;
+    for (i=0 ; i<200; i++) {
+        memset(args->cipher_area, 0, 128);
+        memset(args->clear_area, 0, 128);
+        /* generate and verify a SM2 signature - use alternatively create and update flags. */
+        gen_key_args.key_identifier = &key_id;
+        gen_key_args.out_size = 0;
+        gen_key_args.flags = ((i%4 == 0) ? HSM_OP_KEY_GENERATION_FLAGS_CREATE : HSM_OP_KEY_GENERATION_FLAGS_UPDATE);
+        gen_key_args.key_type = HSM_KEY_TYPE_SM4_128;
+        gen_key_args.key_group = 14;
+        gen_key_args.key_info = 0U;
+        gen_key_args.out_key = NULL;
+        err = hsm_generate_key(args->key_mgmt_srv, &gen_key_args);
+        // printf("%s err: 0x%x hsm_generate_key hdl: 0x%08x\n", args->tag, err, args->key_mgmt_srv);
+   
+        cipher_args.key_identifier = key_id;
+        cipher_args.iv = ((i%2 == 0) ? SM2_IDENTIFIER : NULL); // just need 16 bytes somewhere to be used as IV
+        cipher_args.iv_size = ((i%2 == 0) ? 16 : 0);
+        cipher_args.cipher_algo = ((i%2 == 0) ? HSM_CIPHER_ONE_GO_ALGO_SM4_CBC : HSM_CIPHER_ONE_GO_ALGO_SM4_ECB);
+        cipher_args.flags = HSM_CIPHER_ONE_GO_FLAGS_ENCRYPT;
+        cipher_args.input = SM2_test_message;
+        cipher_args.output = args->cipher_area;
+        cipher_args.input_size = 128;
+        cipher_args.output_size = 128;
+        hsm_cipher_one_go(args->cipher_hdl, &cipher_args);
+        // printf("%s err: 0x%x hsm_cipher_one_go ENCRYPT hdl: 0x%08x\n", args->tag, err, args->cipher_hdl);
+
+        cipher_args.flags = HSM_CIPHER_ONE_GO_FLAGS_DECRYPT;
+        cipher_args.input = args->cipher_area;
+        cipher_args.output = args->clear_area;
+        // other args unchanged
+        hsm_cipher_one_go(args->cipher_hdl, &cipher_args);
+        // printf("%s err: 0x%x hsm_cipher_one_go DECRYPT hdl: 0x%08x\n", args->tag, err, args->cipher_hdl);
+
+        if (memcmp(SM2_test_message, args->clear_area, 128) == 0) {
+            success++;
+            // printf(" --> SUCCESS\n");
+        } else {
+            failed++;
+            // printf(" --> FAILURE\n");
+        }
+    }
+    printf("%s success: %d / failures: %d\n", args->tag, success, failed);
+
+    pthread_exit(NULL);
+    return NULL;
+}
+
 
 int main(int argc, char *argv[])
 {
@@ -169,14 +240,15 @@ int main(int argc, char *argv[])
     open_svc_key_management_args_t key_mgmt_srv_args;
     open_svc_sign_gen_args_t sig_gen_srv_args;
     open_svc_sign_ver_args_t sig_ver_srv_args;
+    open_svc_cipher_args_t cipher_srv_args;
 
     op_hash_one_go_args_t hash_args;
     op_sm2_get_z_args_t get_z_args;
 
     hsm_hdl_t sg0_sess, sv0_sess;
     hsm_hdl_t sg1_sess, sv1_sess;
-    hsm_hdl_t sg0_key_store_serv, sg0_sig_gen_serv, sg0_key_mgmt_srv;
-    hsm_hdl_t sg1_key_store_serv, sg1_sig_gen_serv, sg1_key_mgmt_srv;
+    hsm_hdl_t sg0_key_store_serv, sg0_sig_gen_serv, sg0_key_mgmt_srv, sg0_cipher_hdl;
+    hsm_hdl_t sg1_key_store_serv, sg1_sig_gen_serv, sg1_key_mgmt_srv, sg1_cipher_hdl;
     hsm_hdl_t sv0_sig_ver_serv;
     hsm_hdl_t sv1_sig_ver_serv;
     hsm_hdl_t hash_serv;
@@ -186,6 +258,7 @@ int main(int argc, char *argv[])
     int j;
     pthread_t tid, sig1, sig2;
     sig_thread_args_t args1, args2;
+    cipher_thread_args_t cipher_args1, cipher_args2;
 
     srand (time (NULL));
 
@@ -355,7 +428,42 @@ int main(int argc, char *argv[])
     } else {
         printf(" --> FAILURE\n");
     }
+
+    // SM4 test
+    printf("\n---------------------------------------------------\n");
+    printf("SM4 encrypt/decrypt test\n");
+    printf("---------------------------------------------------\n");
+    cipher_srv_args.flags = 0U;
+    err = hsm_open_cipher_service(sg0_key_store_serv, &cipher_srv_args, &sg0_cipher_hdl);
+    printf("err: 0x%x hsm_open_cipher_service err: hdl: 0x%08x\n", err, sg0_cipher_hdl);
+    err = hsm_open_cipher_service(sg1_key_store_serv, &cipher_srv_args, &sg1_cipher_hdl);
+    printf("err: 0x%x hsm_open_cipher_service err: hdl: 0x%08x\n", err, sg1_cipher_hdl);
+
+    cipher_args1.tag = "HIGH_P";
+    cipher_args1.key_mgmt_srv = sg0_key_mgmt_srv;
+    cipher_args1.cipher_hdl = sg0_cipher_hdl;
+    cipher_args1.cipher_area = work_area;
+    cipher_args1.clear_area = work_area2;
+    (void)pthread_create(&sig1, NULL, cipher_loop_thread, &cipher_args1);
+    printf("started cipher High prio thread\n");
+
+    cipher_args2.tag = "LOW_P ";
+    cipher_args2.key_mgmt_srv = sg1_key_mgmt_srv;
+    cipher_args2.cipher_hdl = sg1_cipher_hdl;
+    cipher_args2.cipher_area = work_area3;
+    cipher_args2.clear_area = work_area4;
+    (void)pthread_create(&sig2, NULL, cipher_loop_thread, &cipher_args2);
+    printf("started cipher Low prio thread\n");
+
+    pthread_join(sig1, NULL);
+    printf("completed cipher High prio thread\n");
+
+    pthread_join(sig2, NULL);
+    printf("completed cipher Low prio thread\n");
+
+
     // Close all services and sessions
+
 
     printf("\n---------------------------------------------------\n");
     printf("Closing services and sessions\n");
