@@ -244,6 +244,7 @@ int main(int argc, char *argv[])
 
     op_hash_one_go_args_t hash_args;
     op_sm2_get_z_args_t get_z_args;
+    op_sm2_eces_enc_args_t sm2_eces_enc_args;
 
     hsm_hdl_t sg0_sess, sv0_sess;
     hsm_hdl_t sg1_sess, sv1_sess;
@@ -461,6 +462,28 @@ int main(int argc, char *argv[])
     pthread_join(sig2, NULL);
     printf("completed cipher Low prio thread\n");
 
+    // SM2 eces encrypt
+    printf("\n---------------------------------------------------\n");
+    printf("SM2 ECES encrypt test\n");
+    printf("---------------------------------------------------\n");
+
+    sm2_eces_enc_args.input = SM2_test_message;
+    sm2_eces_enc_args.output = work_area;
+    sm2_eces_enc_args.pub_key = SM2_PUBK;
+    sm2_eces_enc_args.input_size = 16;
+    sm2_eces_enc_args.output_size = 128; // aligned with 32 bits - ciphertext size = align(plaintext_size + 97)
+    sm2_eces_enc_args.pub_key_size = 64;
+    sm2_eces_enc_args.key_type = HSM_KEY_TYPE_DSA_SM2_FP_256;
+    sm2_eces_enc_args.flags = 0;
+
+    err = hsm_sm2_eces_encryption(sg1_sess, &sm2_eces_enc_args);
+    printf("err: 0x%x hsm_sm2_eces_encryption hdl: 0x%08x\n", err, sg0_sess);
+    printf("output:\n"); // we need to decrypt with the associated public key to check if the result is correct
+    for (j=0; j<20; j++) {
+            printf("0x%02x ", work_area[j]);
+            if (j%16 == 15)
+                    printf("\n");
+    }
 
     // Close all services and sessions
 
