@@ -2285,3 +2285,64 @@ hsm_err_t hsm_sm2_get_z(hsm_hdl_t session_hdl, op_sm2_get_z_args_t *args)
 	return err;
 }
 
+hsm_err_t hsm_sm2_eces_encryption(hsm_hdl_t session_hdl, op_sm2_eces_enc_args_t *args)
+{
+	struct sab_cmd_sm2_eces_enc_msg cmd;
+	struct sab_cmd_sm2_eces_enc_rsp rsp;
+	int32_t error = 1;
+	struct hsm_session_hdl_s *sess_ptr;
+	hsm_err_t err = HSM_GENERAL_ERROR;
+
+	do {
+		sess_ptr = session_hdl_to_ptr(session_hdl);
+		if (sess_ptr == NULL) {
+			err = HSM_UNKNOWN_HANDLE;
+			break;
+		}
+
+		seco_fill_cmd_msg_hdr(&cmd.hdr,
+			SAB_SM2_ECES_ENC_REQ,
+			(uint32_t)sizeof(struct sab_cmd_sm2_eces_enc_msg),
+			sess_ptr->mu_type);
+
+		cmd.session_handle = session_hdl;
+		cmd.input_addr_ext = 0u;
+		cmd.input_addr = (uint32_t)seco_os_abs_data_buf(sess_ptr->phdl,
+								args->input,
+								args->input_size,
+								DATA_BUF_IS_INPUT);
+		cmd.key_addr_ext = 0U;
+		cmd.key_addr = (uint32_t)seco_os_abs_data_buf(sess_ptr->phdl,
+							args->pub_key,
+							args->pub_key_size,
+							DATA_BUF_IS_INPUT);
+
+		cmd.output_addr_ext = 0U;
+	    cmd.output_addr = (uint32_t)seco_os_abs_data_buf(sess_ptr->phdl,
+								args->output,
+								args->output_size,
+								0u);
+
+		cmd.input_size = args->input_size;
+		cmd.output_size = args->output_size;
+		cmd.key_size = args-> pub_key_size;
+		cmd.key_type = args->key_type;;
+		cmd.flags = args->flags;
+		cmd.crc = 0u;
+		cmd.crc = seco_compute_msg_crc((uint32_t*)&cmd,
+				(uint32_t)(sizeof(cmd) - sizeof(uint32_t)));
+
+		error = seco_send_msg_and_get_resp(sess_ptr->phdl,
+			(uint32_t *)&cmd,
+			(uint32_t)sizeof(struct sab_cmd_sm2_eces_enc_msg),
+			(uint32_t *)&rsp,
+			(uint32_t)sizeof(struct sab_cmd_sm2_eces_enc_rsp));
+		if (error != 0) {
+			break;
+		}
+
+		err = sab_rating_to_hsm_err(rsp.rsp_code);
+	} while(false);
+
+	return err;
+}

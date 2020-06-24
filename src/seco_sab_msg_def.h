@@ -96,6 +96,7 @@
 #define SAB_DATA_STORAGE_REQ                    0xA2u
 
 #define SAB_SM2_GET_Z_REQ                       0xB0U
+#define SAB_SM2_ECES_ENC_REQ                    0xB1U
 
 #define SAB_STORAGE_OPEN_REQ                    0xE0u
 #define SAB_STORAGE_CLOSE_REQ                   0xE1u
@@ -1150,6 +1151,29 @@ struct sab_cmd_sm2_get_z_msg {
 };
 
 struct sab_cmd_sm2_get_z_rsp {
+    struct sab_mu_hdr hdr;
+    uint32_t rsp_code;
+};
+
+/* SM2 ECES ENC */
+struct sab_cmd_sm2_eces_enc_msg {
+    struct sab_mu_hdr hdr;
+    uint32_t session_handle;
+    uint32_t input_addr_ext;
+    uint32_t input_addr;
+    uint32_t key_addr_ext;
+    uint32_t key_addr;
+    uint32_t output_addr_ext;
+    uint32_t output_addr;
+    uint32_t input_size;
+    uint32_t output_size;
+    uint16_t key_size;
+    uint8_t key_type;
+    uint8_t flags;
+    uint32_t crc;
+};
+
+struct sab_cmd_sm2_eces_enc_rsp {
     struct sab_mu_hdr hdr;
     uint32_t rsp_code;
 };
