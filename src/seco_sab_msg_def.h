@@ -97,6 +97,9 @@
 
 #define SAB_SM2_GET_Z_REQ                       0xB0U
 #define SAB_SM2_ECES_ENC_REQ                    0xB1U
+#define SAB_SM2_ECES_DEC_OPEN_REQ               0xB2U
+#define SAB_SM2_ECES_DEC_CLOSE_REQ              0xB3U
+#define SAB_SM2_ECES_DEC_REQ                    0xB4U
 
 #define SAB_STORAGE_OPEN_REQ                    0xE0u
 #define SAB_STORAGE_CLOSE_REQ                   0xE1u
@@ -1177,5 +1180,50 @@ struct sab_cmd_sm2_eces_enc_rsp {
     struct sab_mu_hdr hdr;
     uint32_t rsp_code;
 };
+
+struct sab_cmd_sm2_eces_dec_open_msg {
+    struct sab_mu_hdr hdr;
+    uint32_t key_store_handle;
+    uint32_t input_address_ext;
+    uint32_t output_address_ext;
+    uint8_t flags;
+    uint8_t rsv[3];
+    uint32_t crc;
+};
+
+struct sab_cmd_sm2_eces_dec_open_rsp {
+    struct sab_mu_hdr hdr;
+    uint32_t rsp_code;
+    uint32_t sm2_eces_handle;
+};
+
+struct sab_cmd_sm2_eces_dec_close_msg {
+    struct sab_mu_hdr hdr;
+    uint32_t sm2_eces_handle;
+};
+
+struct sab_cmd_sm2_eces_dec_close_rsp {
+    struct sab_mu_hdr hdr;
+    uint32_t rsp_code;
+};
+
+struct sab_cmd_sm2_eces_dec_msg{
+    struct sab_mu_hdr hdr;
+    uint32_t sm2_eces_handle;
+    uint32_t key_id;
+    uint32_t input_address;
+    uint32_t output_address;
+    uint32_t input_size;
+    uint32_t output_size;
+    uint8_t key_type;
+    uint8_t  flags;
+    uint16_t rsv;
+    uint32_t crc;
+} ;
+
+struct sab_cmd_sm2_eces_dec_rsp{
+    struct sab_mu_hdr hdr;
+    uint32_t rsp_code;
+} ;
 
 #endif

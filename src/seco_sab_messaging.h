@@ -75,4 +75,8 @@ uint32_t sab_get_info(struct seco_os_abs_hdl *phdl, uint32_t session_handle, uin
 uint32_t sab_open_mac(struct seco_os_abs_hdl *phdl, uint32_t key_store_handle, uint32_t *mac_handle, uint32_t mu_type, uint8_t flags);
 uint32_t sab_close_mac(struct seco_os_abs_hdl *phdl, uint32_t mac_handle, uint32_t mu_type);
 
+/* SM2 ECES DEC */
+uint32_t sab_open_sm2_eces(struct seco_os_abs_hdl *phdl, uint32_t key_store_handle, uint32_t *sm2_eces_handle, uint32_t mu_type, uint8_t flags);
+uint32_t sab_close_sm2_eces(struct seco_os_abs_hdl *phdl, uint32_t sm2_eces_handle, uint32_t mu_type); 
+
 #endif
