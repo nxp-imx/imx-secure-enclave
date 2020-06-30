@@ -432,7 +432,7 @@ typedef struct {
     hsm_op_cipher_one_go_flags_t flags;         //!< bitmap specifying the operation attributes
     uint8_t *input;                             //!< pointer to the input area\n plaintext for encryption\n ciphertext for decryption (in case of CCM is the purported ciphertext)
     uint8_t *output;                            //!< pointer to the output area\n ciphertext for encryption (in case of CCM is the output of the generation-encryption process)\n plaintext for decryption
-    uint32_t input_size;                        //!< length in bytes of the input
+    uint32_t input_size;                        //!< length in bytes of the input. In case of CBC and ECB, the input size should be multiple of a block cipher size (16 bytes).
     uint32_t output_size;                       //!< length in bytes of the output
 } op_cipher_one_go_args_t;
 
@@ -1320,7 +1320,7 @@ typedef struct {
     uint32_t key_identifier;                //!< identifier of the private key to be used for the operation
     uint8_t *input;                         //!< pointer to the input ciphertext
     uint8_t *output;                        //!< pointer to the output area where the plaintext must be written
-    uint32_t input_size;                    //!< length in bytes of the input ciphertext
+    uint32_t input_size;                    //!< length in bytes of the input ciphertext.
     uint32_t output_size;                   //!< length in bytes of the output plaintext
     hsm_key_type_t key_type;                //!< indicates the type of the used key. Only HSM_KEY_TYPE_DSA_SM2_FP_256 is supported.
     hsm_op_sm2_eces_dec_flags_t flags;      //!< bitmap specifying the operation attributes.
@@ -1330,6 +1330,7 @@ typedef struct {
 /**
  * Decrypt data usign SM2 ECES \n
  * User can call this function only after having opened a SM2 ECES service flow.\n
+ * SM2 ECES is supported with the requirements specified in the GB/T 32918.4.
  *
  * \param sm2_eces_hdl handle identifying the SM2 ECES
  * \param args pointer to the structure containing the function arguments.
@@ -1349,7 +1350,7 @@ hsm_err_t hsm_sm2_eces_decryption(hsm_hdl_t sm2_eces_hdl, op_sm2_eces_dec_args_t
  *\addtogroup dxl_specific
  * \ref group18
  *
- * - \ref All the APIs related the SM2 ECES decryption should be considered as a preliminary version.
+ * - \ref The output_size should be a multiple of 4 bytes.
  *
  */
 /** @} end of SM2 ECES decryption flow */
@@ -1365,7 +1366,7 @@ typedef struct {
     uint8_t *output;                        //!< pointer to the output area where the ciphertext must be written
     uint8_t *pub_key;                       //!< pointer to the input recipient public key
     uint32_t input_size;                    //!< length in bytes of the input plaintext
-    uint32_t output_size;                   //!< length in bytes of the output ciphertext
+    uint32_t output_size;                   //!< length in bytes of the output ciphertext. \n It should be at least input_size + 97 bytes (overhead related to C1 and C3 - as specifed below) + size alignment constraints specific to a given implementation (see related chapter).
     uint16_t pub_key_size;                  //!< length in bytes of the recipient public key should be equal to 64 bytes
     hsm_key_type_t key_type;                //!< indicates the type of the recipient public key. Only HSM_KEY_TYPE_DSA_SM2_FP_256 is supported.
     hsm_op_sm2_eces_enc_flags_t flags;      //!< bitmap specifying the operation attributes.
@@ -1374,6 +1375,12 @@ typedef struct {
 /**
  * Encrypt data usign SM2 ECES \n
  * User can call this function only after having opened a session.\n
+ * SM2 ECES is supported with the requirements specified in the GB/T 32918.4. \n
+ * The output (i.e. ciphertext) is stored in the format C= C1||C2||C3 : \n
+ *      C1 = PC||x1||y1  where PC=04 and (x1,y1) are the coordinates of a an elliptic curve point \n
+ *      C2 = M xor t where t=KDF(x2||y2, input_size) and (x2,y2) are the coordinates of a an elliptic curve point \n
+ *      C3 = SM3 (x2||M||y2)
+
  *
  * \param session_hdl handle identifying the current session.
  * \param args pointer to the structure containing the function arguments.
@@ -1393,7 +1400,7 @@ hsm_err_t hsm_sm2_eces_encryption(hsm_hdl_t session_hdl, op_sm2_eces_enc_args_t 
  *\addtogroup dxl_specific
  * \ref group19
  *
- * - \ref This API should be considered as a preliminary version.
+ * - \ref The output_size should be a multiple of 4 bytes.
  *
  */
 /** @} end of SM2 ECES encryption operation */
