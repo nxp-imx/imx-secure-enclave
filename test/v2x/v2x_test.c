@@ -102,7 +102,7 @@ static void *sig_loop_thread(void *arg)
     op_generate_sign_args_t sig_gen_args;
     op_verify_sign_args_t sig_ver_args;
     op_generate_key_args_t gen_key_args;
-    uint32_t key_id = 0;;
+    uint32_t key_id = 0;
     hsm_verification_status_t status;
     hsm_err_t err;
     int i, success, failed;
@@ -246,6 +246,9 @@ int main(int argc, char *argv[])
     op_sm2_get_z_args_t get_z_args;
     op_sm2_eces_enc_args_t sm2_eces_enc_args;
 
+    open_svc_sm2_eces_args_t sm2_eces_dec_svc_args;
+    op_sm2_eces_dec_args_t sm2_eces_dec_args;
+
     hsm_hdl_t sg0_sess, sv0_sess;
     hsm_hdl_t sg1_sess, sv1_sess;
     hsm_hdl_t sg0_key_store_serv, sg0_sig_gen_serv, sg0_key_mgmt_srv, sg0_cipher_hdl;
@@ -253,6 +256,10 @@ int main(int argc, char *argv[])
     hsm_hdl_t sv0_sig_ver_serv;
     hsm_hdl_t sv1_sig_ver_serv;
     hsm_hdl_t hash_serv;
+    hsm_hdl_t sg0_sm2_eces_hdl, sg1_sm2_eces_hdl;
+
+    op_generate_key_args_t gen_key_args;
+    uint32_t key_id = 0;
 
     hsm_verification_status_t status;
     hsm_err_t err;
@@ -326,17 +333,19 @@ int main(int argc, char *argv[])
     err = hsm_open_key_store_service(sg1_sess, &key_store_srv_args, &sg1_key_store_serv);
     printf("err: 0x%x hsm_open_key_store_service hdl: 0x%08x\n", err, sg1_key_store_serv);
 
-    sig_gen_srv_args.flags = 0;
-    err = hsm_open_signature_generation_service(sg0_key_store_serv, &sig_gen_srv_args, &sg0_sig_gen_serv);
-    printf("err: 0x%x hsm_open_signature_generation_service err: hdl: 0x%08x\n", err, sg0_sig_gen_serv);
-    err = hsm_open_signature_generation_service(sg1_key_store_serv, &sig_gen_srv_args, &sg1_sig_gen_serv);
-    printf("err: 0x%x hsm_open_signature_generation_service err: hdl: 0x%08x\n", err, sg1_sig_gen_serv);
 
     key_mgmt_srv_args.flags = 0;
     err = hsm_open_key_management_service(sg0_key_store_serv, &key_mgmt_srv_args, &sg0_key_mgmt_srv);
     printf("err: 0x%x hsm_open_key_management_service err: hdl: 0x%08x\n", err, sg0_key_mgmt_srv);
     err = hsm_open_key_management_service(sg1_key_store_serv, &key_mgmt_srv_args, &sg1_key_mgmt_srv);
     printf("err: 0x%x hsm_open_key_management_service err: hdl: 0x%08x\n", err, sg1_key_mgmt_srv);
+
+
+    sig_gen_srv_args.flags = 0;
+    err = hsm_open_signature_generation_service(sg0_key_store_serv, &sig_gen_srv_args, &sg0_sig_gen_serv);
+    printf("err: 0x%x hsm_open_signature_generation_service err: hdl: 0x%08x\n", err, sg0_sig_gen_serv);
+    err = hsm_open_signature_generation_service(sg1_key_store_serv, &sig_gen_srv_args, &sg1_sig_gen_serv);
+    printf("err: 0x%x hsm_open_signature_generation_service err: hdl: 0x%08x\n", err, sg1_sig_gen_serv);
 
     sig_ver_srv_args.flags = 0;
     err = hsm_open_signature_verification_service(sv0_sess, &sig_ver_srv_args, &sv0_sig_ver_serv);
@@ -462,27 +471,59 @@ int main(int argc, char *argv[])
     pthread_join(sig2, NULL);
     printf("completed cipher Low prio thread\n");
 
-    // SM2 eces encrypt
+    // SM2 eces encrypt and decrypt
     printf("\n---------------------------------------------------\n");
-    printf("SM2 ECES encrypt test\n");
+    printf("SM2 ECES test\n");
     printf("---------------------------------------------------\n");
+
+    sm2_eces_dec_svc_args.flags = 0U;
+    err = hsm_open_sm2_eces_service(sg0_key_store_serv, &sm2_eces_dec_svc_args, &sg0_sm2_eces_hdl);
+    printf("err: 0x%x hsm_open_sm2_eces_service err: hdl: 0x%08x\n", err, sg0_sm2_eces_hdl);
+    err = hsm_open_sm2_eces_service(sg1_key_store_serv, &sm2_eces_dec_svc_args, &sg1_sm2_eces_hdl);
+    printf("err: 0x%x hsm_open_sm2_eces_service err: hdl: 0x%08x\n", err, sg1_sm2_eces_hdl);
+
+    gen_key_args.key_identifier = &key_id;
+    gen_key_args.out_size = 64;
+    gen_key_args.flags = HSM_OP_KEY_GENERATION_FLAGS_CREATE;
+    gen_key_args.key_type = HSM_KEY_TYPE_DSA_SM2_FP_256;
+    gen_key_args.key_group = 12;
+    gen_key_args.key_info = 0U;
+    gen_key_args.out_key = work_area2; // public key needed for the encryption
+    err = hsm_generate_key(sg0_key_mgmt_srv, &gen_key_args);
+    printf("err: 0x%x hsm_generate_key err: hdl: 0x%08x\n", err, sg0_key_mgmt_srv);
 
     sm2_eces_enc_args.input = SM2_test_message;
     sm2_eces_enc_args.output = work_area;
-    sm2_eces_enc_args.pub_key = SM2_PUBK;
+    sm2_eces_enc_args.pub_key = work_area2;
     sm2_eces_enc_args.input_size = 16;
     sm2_eces_enc_args.output_size = 128; // aligned with 32 bits - ciphertext size = align(plaintext_size + 97)
     sm2_eces_enc_args.pub_key_size = 64;
     sm2_eces_enc_args.key_type = HSM_KEY_TYPE_DSA_SM2_FP_256;
     sm2_eces_enc_args.flags = 0;
 
-    err = hsm_sm2_eces_encryption(sg1_sess, &sm2_eces_enc_args);
-    printf("err: 0x%x hsm_sm2_eces_encryption hdl: 0x%08x\n", err, sg0_sess);
-    printf("output:\n"); // we need to decrypt with the associated public key to check if the result is correct
-    for (j=0; j<20; j++) {
+    err = hsm_sm2_eces_encryption(sv0_sess, &sm2_eces_enc_args);
+    printf("err: 0x%x hsm_sm2_eces_encryption hdl: 0x%08x\n", err, sv0_sess);
+    printf("output:\n"); // we need to decrypt it with the associated private key to check if the result is correct
+    for (j=0; j<8; j++) {
             printf("0x%02x ", work_area[j]);
-            if (j%16 == 15)
-                    printf("\n");
+    }
+    printf("\n");
+
+    sm2_eces_dec_args.input = work_area;
+    sm2_eces_dec_args.output = work_area3; //plaintext
+    sm2_eces_dec_args.key_identifier = key_id;
+    sm2_eces_dec_args.input_size = 113;
+    sm2_eces_dec_args.output_size = 16;
+    sm2_eces_dec_args.key_type = HSM_KEY_TYPE_DSA_SM2_FP_256;
+    sm2_eces_dec_args.flags = 0;
+
+    err = hsm_sm2_eces_decryption(sg0_sm2_eces_hdl, &sm2_eces_dec_args);
+    printf("err: 0x%x hsm_sm2_eces_decryption hdl: 0x%08x\n", err, sg0_sm2_eces_hdl);
+
+    if (memcmp(SM2_test_message, work_area3, 16) == 0) {
+        printf(" --> SUCCESS\n");
+    } else {
+        printf(" --> FAILURE\n");
     }
 
     // Close all services and sessions
@@ -504,6 +545,11 @@ int main(int argc, char *argv[])
     printf("err: 0x%x hsm_close_signature_generation_service hdl: 0x%08x\n", err, sg0_sig_gen_serv);
     err = hsm_close_signature_generation_service(sg1_sig_gen_serv);
     printf("err: 0x%x hsm_close_signature_generation_service hdl: 0x%08x\n", err, sg1_sig_gen_serv);
+
+    err = hsm_close_sm2_eces_service(sg0_sm2_eces_hdl);
+    printf("err: 0x%x hsm_close_sm2_eces_service hdl: 0x%08x\n", err, sg0_sm2_eces_hdl);
+    err = hsm_close_sm2_eces_service(sg1_sm2_eces_hdl);
+    printf("err: 0x%x hsm_close_sm2_eces_service hdl: 0x%08x\n", err, sg1_sm2_eces_hdl);
 
     err = hsm_close_key_management_service(sg0_key_mgmt_srv);
     printf("err: 0x%x hsm_close_key_management_service hdl: 0x%x\n", err, sg0_key_mgmt_srv);
