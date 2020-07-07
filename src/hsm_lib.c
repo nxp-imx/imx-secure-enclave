@@ -2465,3 +2465,9 @@ hsm_err_t hsm_sm2_eces_decryption(hsm_hdl_t sm2_eces_hdl, op_sm2_eces_dec_args_t
 
 	return err;
 }
+
+hsm_err_t hsm_key_exchange(hsm_hdl_t key_management_hdl, op_key_exchange_args_t *args)
+{
+	/* Stub for now */
+	return HSM_NO_ERROR;
+}
