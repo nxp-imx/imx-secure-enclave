@@ -66,6 +66,7 @@
 #define SAB_BUT_KEY_EXP_REQ                     0x44u
 #define SAB_MANAGE_KEY_GROUP_REQ                0x45u
 #define SAB_ROOT_KEK_EXPORT_REQ                 0x46u
+#define SAB_KEY_EXCHANGE_REQ                    0x47u
 
 #define SAB_MAC_OPEN_REQ                        0x50u
 #define SAB_MAC_CLOSE_REQ                       0x51u
@@ -1225,5 +1226,34 @@ struct sab_cmd_sm2_eces_dec_rsp{
     struct sab_mu_hdr hdr;
     uint32_t rsp_code;
 } ;
+
+struct sab_cmd_key_exchange_msg {
+    struct sab_mu_hdr hdr;
+    uint32_t key_management_handle;
+    uint32_t key_identifier;
+    uint32_t shared_key_identifier_array;
+    uint32_t ke_input_addr;
+    uint32_t ke_output_addr;
+    uint32_t kdf_input_data;
+    uint32_t kdf_output_data;
+    uint16_t shared_key_group;
+    uint16_t shared_key_info;
+    uint8_t shared_key_type;
+    uint8_t initiator_key_type;
+    uint8_t key_exchange_algorithm;
+    uint8_t kdf_algorithm;
+    uint16_t ke_input_data_size;
+    uint16_t ke_output_data_size;
+    uint8_t shared_key_identifier_array_size;
+    uint8_t kdf_input_size;
+    uint8_t kdf_output_size;
+    uint8_t flags;
+    uint32_t crc;
+};
+
+struct sab_cmd_key_exchange_rsp {
+    struct sab_mu_hdr hdr;
+    uint32_t rsp_code;
+};
 
 #endif

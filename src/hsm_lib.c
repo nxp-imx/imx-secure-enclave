@@ -2468,6 +2468,79 @@ hsm_err_t hsm_sm2_eces_decryption(hsm_hdl_t sm2_eces_hdl, op_sm2_eces_dec_args_t
 
 hsm_err_t hsm_key_exchange(hsm_hdl_t key_management_hdl, op_key_exchange_args_t *args)
 {
-	/* Stub for now */
-	return HSM_NO_ERROR;
+	struct sab_cmd_key_exchange_msg cmd;
+	struct sab_cmd_key_exchange_rsp rsp;
+	int32_t error = 1;
+	struct hsm_service_hdl_s *serv_ptr;
+	hsm_err_t err = HSM_GENERAL_ERROR;
+
+	do {
+		if (args == NULL) {
+			break;
+		}
+		serv_ptr = service_hdl_to_ptr(key_management_hdl);
+		if (serv_ptr == NULL) {
+			err = HSM_UNKNOWN_HANDLE;
+			break;
+		}
+
+		/* Prepare the seco commmand */
+		seco_fill_cmd_msg_hdr(&cmd.hdr,
+			SAB_KEY_EXCHANGE_REQ,
+			(uint32_t)sizeof(struct sab_cmd_key_exchange_msg),
+			serv_ptr->session->mu_type);
+
+		cmd.key_management_handle = key_management_hdl;
+		cmd.key_identifier = args->key_identifier;
+		cmd.shared_key_identifier_array = (uint32_t)seco_os_abs_data_buf(serv_ptr->session->phdl,
+				args->shared_key_identifier_array,
+				args->shared_key_identifier_array_size,
+				0u);
+		cmd.ke_input_addr = (uint32_t)seco_os_abs_data_buf(serv_ptr->session->phdl,
+				args->ke_input,
+				args->ke_input_size,
+				DATA_BUF_IS_INPUT);
+		cmd.ke_output_addr = (uint32_t)seco_os_abs_data_buf(serv_ptr->session->phdl,
+				args->ke_output,
+				args->ke_output_size,
+				0u);
+		cmd.kdf_input_data = (uint32_t)seco_os_abs_data_buf(serv_ptr->session->phdl,
+				args->kdf_input,
+				args->kdf_input_size,
+				DATA_BUF_IS_INPUT);
+		cmd.kdf_output_data = (uint32_t)seco_os_abs_data_buf(serv_ptr->session->phdl,
+				args->kdf_output,
+				args->kdf_output_size,
+				0u);
+		cmd.shared_key_group = args->shared_key_group;
+		cmd.shared_key_info = args->shared_key_info;
+		cmd.shared_key_type = args->shared_key_type;
+		cmd.initiator_key_type = args->initiator_key_type;
+		cmd.key_exchange_algorithm = args->key_exchange_scheme;
+		cmd.kdf_algorithm = args->kdf_algorithm;
+		cmd.ke_input_data_size = args->ke_input_size;
+		cmd.ke_output_data_size = args->ke_output_size;
+		cmd.shared_key_identifier_array_size = args->shared_key_identifier_array_size;
+		cmd.kdf_input_size = args->kdf_input_size;
+		cmd.kdf_output_size = args->kdf_output_size;
+		cmd.flags = args->flags;
+		cmd.crc = 0u;
+		cmd.crc = seco_compute_msg_crc((uint32_t*)&cmd,
+				(uint32_t)(sizeof(cmd) - sizeof(uint32_t)));
+
+		/* Send the message to Seco. */
+		error = seco_send_msg_and_get_resp(serv_ptr->session->phdl,
+			(uint32_t *)&cmd,
+			(uint32_t)sizeof(struct sab_cmd_key_exchange_msg),
+			(uint32_t *)&rsp,
+			(uint32_t)sizeof(struct sab_cmd_key_exchange_rsp));
+		if (error != 0) {
+			break;
+		}
+
+		err = sab_rating_to_hsm_err(rsp.rsp_code);
+
+	} while(false);
+
+	return err;
 }
