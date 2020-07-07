@@ -1459,7 +1459,6 @@ hsm_err_t hsm_key_exchange(hsm_hdl_t key_management_hdl, op_key_exchange_args_t 
  * \ref group20
  *
  * - \ref This API is not supported.
- * - \ref HSM_KDF_ALG_FOR_SM2 and HSM_KE_SCHEME_ALG_SM2 are not supported.
  *
  */
 /**
