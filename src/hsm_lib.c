@@ -2515,7 +2515,7 @@ hsm_err_t hsm_key_exchange(hsm_hdl_t key_management_hdl, op_key_exchange_args_t 
 		cmd.shared_key_group = args->shared_key_group;
 		cmd.shared_key_info = args->shared_key_info;
 		cmd.shared_key_type = args->shared_key_type;
-		cmd.initiator_key_type = args->initiator_key_type;
+		cmd.initiator_public_data_type = args->initiator_public_data_type;
 		cmd.key_exchange_algorithm = args->key_exchange_scheme;
 		cmd.kdf_algorithm = args->kdf_algorithm;
 		cmd.ke_input_data_size = args->ke_input_size;

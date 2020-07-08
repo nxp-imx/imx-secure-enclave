@@ -1421,7 +1421,7 @@ typedef struct {
     hsm_key_group_t shared_key_group;                   //!< It specifies the group where the derived keys will be stored.\n It must be a value in the range 0-1023. Keys belonging to the same group can be cached in the HSM local memory throug the hsm_manage_key_group API
     hsm_key_info_t shared_key_info;                     //!< bitmap specifying the properties of the derived keys, it will be applied to all the derived keys.
     hsm_key_type_t shared_key_type;                     //!< indicates the type of the derived key. Not relevant in case of HSM_KDF_HMAC_SHA_256_TLS_0_16_4 or HSM_KDF_HMAC_SHA_384_TLS_0_32_4 KDF
-    hsm_key_type_t initiator_key_type;                  //!< indicates the key type of the initiator and receiver.
+    hsm_key_type_t initiator_public_data_type;          //!< indicates the public data type specified by the initiator, e.g. public key type
     hsm_key_exchange_scheme_id_t key_exchange_scheme;   //!< indicates the key exchange scheme
     hsm_kdf_algo_id_t kdf_algorithm;                    //!< indicates the KDF algorithm
     uint16_t ke_input_size;                             //!< length in bytes of the input data of the key exchange function

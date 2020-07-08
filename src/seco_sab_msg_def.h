@@ -1239,7 +1239,7 @@ struct sab_cmd_key_exchange_msg {
     uint16_t shared_key_group;
     uint16_t shared_key_info;
     uint8_t shared_key_type;
-    uint8_t initiator_key_type;
+    uint8_t initiator_public_data_type;
     uint8_t key_exchange_algorithm;
     uint8_t kdf_algorithm;
     uint16_t ke_input_data_size;
