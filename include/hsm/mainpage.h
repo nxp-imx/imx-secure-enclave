@@ -19,6 +19,7 @@
  * 2.1 - subject to change | Apr 16 2020  | - Preliminary version: Add the support of the chinese algorithms and update for i.MX8DXL
  * 2.2 | Apr 30 2020  | - fix erroneous number of supported key groups (correct number is 1000 while 1024 was indicated)\n- add missing status code definition \n- remove hsm_open_key_store_service unused flags: HSM_SVC_KEY_STORE_FLAGS_UPDATE, HSM_SVC_KEY_STORE_FLAGS_DELETE
  * 2.3 | June 30 2020  | - hsm_get_info fips mode definition: now specifying "FIPS mode of operation" and "FIPS certified part" bits.\n- Update i.MX8QXP specificities section specifying operations disabled when in FIPS approved mode. \n- Update comments related to cipher_one_go and SM2 ECES APIs for i.MX8DXL
+ * 2.4 | July 9 2020 | - clarify support of hsm_import_public key API.
  * */
 
 /*! \page page1 General concepts related to the API
