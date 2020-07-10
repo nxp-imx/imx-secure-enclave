@@ -1225,6 +1225,8 @@ hsm_err_t hsm_mac_one_go(hsm_hdl_t mac_hdl, op_mac_one_go_args_t* args, hsm_mac_
 #define HSM_OP_MAC_ONE_GO_FLAGS_MAC_VERIFICATION       ((hsm_op_mac_one_go_flags_t)(0u << 0))
 #define HSM_OP_MAC_ONE_GO_FLAGS_MAC_GENERATION         ((hsm_op_mac_one_go_flags_t)(1u << 0))
 #define HSM_OP_MAC_ONE_GO_ALGO_AES_CMAC                ((hsm_op_mac_one_go_algo_t)(0x01u))
+#define HSM_OP_MAC_ONE_GO_ALGO_HMAC_SHA_256            ((hsm_op_mac_one_go_algo_t)(0x06u))  //!< Only supported for AES128 & AES256 keys
+#define HSM_OP_MAC_ONE_GO_ALGO_HMAC_SHA_384            ((hsm_op_mac_one_go_algo_t)(0x07u))  //!< Only supported for AES128 & AES256 keys
 #define HSM_MAC_VERIFICATION_STATUS_SUCCESS            ((hsm_mac_verification_status_t)(0x6C1AA1C6u))
 
 /**
