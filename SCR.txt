@@ -2,7 +2,7 @@ NXP Software Content Register
 --------------------------------------------
 Package:                     seco_libs.git
 Outgoing License:            LA_OPT_NXP_Software_License - Production Use - Section 2.3 applies
-License File:                COPYING
+License File:                EULA.txt
 Package Category:            BSP
 Type of Content:             source
 Description and comments:    User library with APIs to use SHE feature
