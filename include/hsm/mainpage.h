@@ -20,6 +20,7 @@
  * 2.2 | Apr 30 2020  | - fix erroneous number of supported key groups (correct number is 1000 while 1024 was indicated)\n- add missing status code definition \n- remove hsm_open_key_store_service unused flags: HSM_SVC_KEY_STORE_FLAGS_UPDATE, HSM_SVC_KEY_STORE_FLAGS_DELETE
  * 2.3 | June 30 2020  | - hsm_get_info fips mode definition: now specifying "FIPS mode of operation" and "FIPS certified part" bits.\n- Update i.MX8QXP specificities section specifying operations disabled when in FIPS approved mode. \n- Update comments related to cipher_one_go and SM2 ECES APIs for i.MX8DXL
  * 2.4 | July 9 2020 | - clarify support of hsm_import_public key API.
+ * 2.5 | July 28 2020 | - add section in "i.MX8QXP specificities" chapter indicating the maximum number of keys per group.
  * */
 
 /*! \page page1 General concepts related to the API
@@ -42,7 +43,7 @@
   Secret keys cannot be exported under any circumstances, while they can be imported in encrypted form.\n
   \subsection subsec2 Key management
   Keys are divided in groups, keys belonging to the same group are written/read from the NVM as a monolitic block.\n
-  Up to 3 key groups can be handled in the HSM local memory (those immediatly available to perform crypto operation), while up to 1000 key groups can be handled in the external NVM and imported in the local memory as needed.\n
+  Up to 3 key groups can be handled in the HSM local memory (those immediatly available to perform crypto operations), while up to 1000 key groups can be handled in the external NVM and imported in the local memory as needed.\n
   If the local memory is full (3 key groups already reside in the HSM local memory) and a new key group is needed by an incoming user request, the HSM swaps one of the local key group with the one needed by the user request.\n
   The user can control which key group must be kept in the local memory (cached) through the manage_key_group API lock/unlock mechanism.\n
   As general concept, frequently used keys should be kept, when possible, in the same key group and locked in the local memory for performance optimization.\n
@@ -51,7 +52,7 @@
   Any update to the key store must be considered as effective only after an operation specifing the flag "STRICT OPERATION" is aknowledged by the HSM. All the operations not specifying the "STRICT OPERATION" flags impact the HSM local memory only and will be lost in case of system reset\n
   Due to the limited monotonic counter size (QXPB0 up to 1620 update available by default), the user should, when possible, perform multiple udates before setting the "STRICT OPERATION" flag (i.e. keys to be updated should be kept in the same key group).\n
   Once the monotonic counter is completely blown a warning is returned on each update operation to inform the user that the new updates are not roll-back protected.
-  \section sec5 implementation specificities
+  \section sec5 Implementation specificities
   HSM API is supported on different versions of the i.MX8 family. The API description below is the same for all of them but some features may not be available on some chips. The details of the supported features per chip can be found here:
   - for i.MX8QXP: \ref qxp_specific
   - for i.MX8DXL: \ref dxl_specific
@@ -67,3 +68,16 @@
  *
  */
 
+/**
+ *\addtogroup qxp_specific
+ * \ref sec4
+ *
+ * The table below summarizes the maximum number of keys per group in the QXP implementation:
+ * Key size (bits)| Number of keys per group
+ * :------------: | :-------------:
+ * 128 | 169
+ * 192 | 126
+ * 256 | 101
+ * 384 | 72
+ *
+ */
