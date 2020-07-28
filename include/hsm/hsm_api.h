@@ -1435,7 +1435,8 @@ typedef struct {
 /**
  * This command is designed to to derive a secret key that will be stored in the key store as a new key or as an update of an existing key.\n
  * A freshly generated key or an existing key can be used as input for the shared secret calculation.\n
- * User can call this function only after having opened a key management service flow
+ * User can call this function only after having opened a key management service flow.\n
+ * When using CMAC KDF, only Key Encryption Keys (KEKs) can be generated. The input data to the CMAC uses the format described in NIST SP 800-108, with Context set to 'NXP HSM KEY ENCRYPTION KEY' and Label set to 'NXP HSM USER_KEK'.
 
  * \param key_management_hdl handle identifying the key store management service flow.
  * \param args pointer to the structure containing the function arguments.
@@ -1443,7 +1444,7 @@ typedef struct {
  * \return error code
 */
 hsm_err_t hsm_key_exchange(hsm_hdl_t key_management_hdl, op_key_exchange_args_t *args);
-#define HSM_KDF_ALG_AES_CMAC_256_COUNTER                ((hsm_kdf_algo_id_t)0x00u)
+#define HSM_KDF_ALG_AES_CMAC_256_COUNTER                ((hsm_kdf_algo_id_t)0x00u)  //!< CMAC KDF can only be used to generate KEKs (key encryption keys)
 #define HSM_KDF_ALG_FOR_SM2                             ((hsm_kdf_algo_id_t)0x10u)
 #define HSM_KDF_HMAC_SHA_256_TLS_0_16_4                 ((hsm_kdf_algo_id_t)0x20u)  //!< TLS PRF based on HMAC with SHA-256, the resulting mac_key_length is 0, enc_key_length is 16 bytes and fixed_iv_length is 4 bytes.
 #define HSM_KDF_HMAC_SHA_384_TLS_0_32_4                 ((hsm_kdf_algo_id_t)0x21u)  //!< TLS PRF based on HMAC with SHA-384, the resulting mac_key_length is 0, enc_key_length is 32 bytes and fixed_iv_length is 4 bytes.
