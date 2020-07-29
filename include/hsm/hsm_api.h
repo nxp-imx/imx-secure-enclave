@@ -1461,14 +1461,17 @@ hsm_err_t hsm_key_exchange(hsm_hdl_t key_management_hdl, op_key_exchange_args_t 
  *\addtogroup qxp_specific
  * \ref group20
  *
- * - \ref This API is not supported.
+ * - \ref HSM_KE_SCHEME_SM2 is not supported.
+ * - \ref HSM_KDF_ALG_FOR_SM2 is not supported.
+ * - \ref HSM_KDF_HMAC_SHA_256_TLS_0_16_4 is not supported.
+ * - \ref HSM_KDF_HMAC_SHA_384_TLS_0_32_4 is not supported.
  *
  */
 /**
  *\addtogroup dxl_specific
  * \ref group20
  *
- * - \ref The key exchange API and defines are not supported for DXL.
+ * - \ref This API should be considered as a preliminary version.
  *
  */
 /** @} end of key exchange operation */
