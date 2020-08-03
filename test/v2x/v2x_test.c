@@ -241,6 +241,7 @@ int main(int argc, char *argv[])
     open_svc_sign_gen_args_t sig_gen_srv_args;
     open_svc_sign_ver_args_t sig_ver_srv_args;
     open_svc_cipher_args_t cipher_srv_args;
+    open_svc_rng_args_t rng_srv_args;
 
     op_hash_one_go_args_t hash_args;
     op_sm2_get_z_args_t get_z_args;
@@ -248,11 +249,13 @@ int main(int argc, char *argv[])
 
     open_svc_sm2_eces_args_t sm2_eces_dec_svc_args;
     op_sm2_eces_dec_args_t sm2_eces_dec_args;
+    op_get_random_args_t rng_get_random_args;
 
     hsm_hdl_t sg0_sess, sv0_sess;
     hsm_hdl_t sg1_sess, sv1_sess;
     hsm_hdl_t sg0_key_store_serv, sg0_sig_gen_serv, sg0_key_mgmt_srv, sg0_cipher_hdl;
     hsm_hdl_t sg1_key_store_serv, sg1_sig_gen_serv, sg1_key_mgmt_srv, sg1_cipher_hdl;
+    hsm_hdl_t sv0_rng_serv, sv1_rng_serv, sg0_rng_serv, sg1_rng_serv;
     hsm_hdl_t sv0_sig_ver_serv;
     hsm_hdl_t sv1_sig_ver_serv;
     hsm_hdl_t hash_serv;
@@ -267,6 +270,7 @@ int main(int argc, char *argv[])
     pthread_t tid, sig1, sig2;
     sig_thread_args_t args1, args2;
     cipher_thread_args_t cipher_args1, cipher_args2;
+    uint8_t rng_out_buff[4096];
 
     srand (time (NULL));
 
@@ -382,6 +386,34 @@ int main(int argc, char *argv[])
 
     pthread_join(sig2, NULL);
     printf("completed signature Low prio thread\n");
+
+    // RNG srv tests
+    printf("\n---------------------------------------------------\n");
+    printf("RNG test\n");
+    printf("---------------------------------------------------\n");
+    rng_srv_args.flags = 0;
+    err = hsm_open_rng_service(sv0_sess, &rng_srv_args, &sv0_rng_serv);
+    printf("err: 0x%x hsm_open_rng_service hdl: 0x%08x\n", err, sv0_rng_serv);
+    err = hsm_open_rng_service(sv1_sess, &rng_srv_args, &sv1_rng_serv);
+    printf("err: 0x%x hsm_open_rng_service hdl: 0x%08x\n", err, sv1_rng_serv);
+    err = hsm_open_rng_service(sg0_sess, &rng_srv_args, &sg0_rng_serv);
+    printf("err: 0x%x hsm_open_rng_service hdl: 0x%08x\n", err, sg0_rng_serv);
+    err = hsm_open_rng_service(sg1_sess, &rng_srv_args, &sg1_rng_serv);
+    printf("err: 0x%x hsm_open_rng_service hdl: 0x%08x\n", err, sg1_rng_serv);
+
+    rng_get_random_args.output = rng_out_buff;
+    rng_get_random_args.random_size = 3;
+    err =  hsm_get_random(sv0_rng_serv, &rng_get_random_args);
+    printf("err: 0x%x hsm_get_random hdl: 0x%08x, rand size=0x%08x\n", err, sv0_rng_serv, rng_get_random_args.random_size);
+    rng_get_random_args.random_size = 176;
+    err =  hsm_get_random(sv1_rng_serv, &rng_get_random_args);
+    printf("err: 0x%x hsm_get_random hdl: 0x%08x, rand size=0x%08x\n", err, sv1_rng_serv, rng_get_random_args.random_size);
+    rng_get_random_args.random_size = 2050;
+    err =  hsm_get_random(sg0_rng_serv, &rng_get_random_args);
+    printf("err: 0x%x hsm_get_random hdl: 0x%08x, rand size=0x%08x\n", err, sg0_rng_serv, rng_get_random_args.random_size);
+    rng_get_random_args.random_size = 4096;
+    err =  hsm_get_random(sg1_rng_serv, &rng_get_random_args);
+    printf("err: 0x%x hsm_get_random hdl: 0x%08x, rand size=0x%08x\n", err, sg1_rng_serv, rng_get_random_args.random_size);
 
     // SM3 hash test
 
@@ -560,6 +592,16 @@ int main(int argc, char *argv[])
     printf("err: 0x%x hsm_close_key_store_service hdl: 0x%08x\n", err, sg0_key_store_serv);
     err = hsm_close_key_store_service(sg1_key_store_serv);
     printf("err: 0x%x hsm_close_key_store_service hdl: 0x%08x\n", err, sg1_key_store_serv);
+
+    err = hsm_close_rng_service(sv0_rng_serv);
+    printf("err: 0x%x hsm_close_rng_service hdl: 0x%x\n", err, sv0_rng_serv);
+    err = hsm_close_rng_service(sv1_rng_serv);
+    printf("err: 0x%x hsm_close_rng_service hdl: 0x%x\n", err, sv1_rng_serv);
+
+    err = hsm_close_rng_service(sg0_rng_serv);
+    printf("err: 0x%x hsm_close_rng_service hdl: 0x%x\n", err, sg0_rng_serv);
+    err = hsm_close_rng_service(sg1_rng_serv);
+    printf("err: 0x%x hsm_close_rng_service hdl: 0x%x\n", err, sg1_rng_serv);
 
     err = hsm_close_session(sg0_sess);
     printf("err: 0x%x SG hsm_close_session hdl: 0x%x\n", err, sg0_sess);
