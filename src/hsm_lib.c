@@ -1882,7 +1882,9 @@ hsm_err_t hsm_close_data_storage_service(hsm_hdl_t data_storage_hdl)
 			err = sab_rating_to_hsm_err(rsp.rsp_code);
 		}
 
-		delete_service(serv_ptr);
+		if (err == HSM_NO_ERROR) {
+			delete_service(serv_ptr);
+		}
 	} while (false);
 
 	return err;
