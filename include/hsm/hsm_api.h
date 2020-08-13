@@ -1448,9 +1448,9 @@ hsm_err_t hsm_key_exchange(hsm_hdl_t key_management_hdl, op_key_exchange_args_t 
 #define HSM_KDF_ALG_FOR_SM2                             ((hsm_kdf_algo_id_t)0x10u)
 #define HSM_KDF_HMAC_SHA_256_TLS_0_16_4                 ((hsm_kdf_algo_id_t)0x20u)  //!< TLS PRF based on HMAC with SHA-256, the resulting mac_key_length is 0, enc_key_length is 16 bytes and fixed_iv_length is 4 bytes.
 #define HSM_KDF_HMAC_SHA_384_TLS_0_32_4                 ((hsm_kdf_algo_id_t)0x21u)  //!< TLS PRF based on HMAC with SHA-384, the resulting mac_key_length is 0, enc_key_length is 32 bytes and fixed_iv_length is 4 bytes.
-#define HSM_KE_SCHEME_ECDH_P256                         ((hsm_key_exchange_scheme_id_t)0x00u)
-#define HSM_KE_SCHEME_ECDH_P384                         ((hsm_key_exchange_scheme_id_t)0x01u)
-#define HSM_KE_SCHEME_SM2                               ((hsm_key_exchange_scheme_id_t)0x10u)
+#define HSM_KE_SCHEME_ECDH_NIST_P256                    ((hsm_key_exchange_scheme_id_t)0x02u)
+#define HSM_KE_SCHEME_ECDH_NIST_P384                    ((hsm_key_exchange_scheme_id_t)0x03u)
+#define HSM_KE_SCHEME_SM2_FP_256                        ((hsm_key_exchange_scheme_id_t)0x42u)
 #define HSM_OP_KEY_EXCHANGE_FLAGS_UPDATE                ((hsm_op_key_exchange_flags_t)(1u << 0))  //!< User can replace an existing key only by the derived key which should have the same type of the original one.
 #define HSM_OP_KEY_EXCHANGE_FLAGS_CREATE                ((hsm_op_key_exchange_flags_t)(1u << 1))  //!< Create a new key
 #define HSM_OP_KEY_EXCHANGE_FLAGS_USE_EPHEMERAL         ((hsm_op_key_exchange_flags_t)(1u << 2))  //!< Use an ephemeral key (freshly generated key)
@@ -1461,10 +1461,8 @@ hsm_err_t hsm_key_exchange(hsm_hdl_t key_management_hdl, op_key_exchange_args_t 
  *\addtogroup qxp_specific
  * \ref group20
  *
- * - \ref HSM_KE_SCHEME_SM2 is not supported.
+ * - \ref HSM_KE_SCHEME_SM2_FP_256 is not supported.
  * - \ref HSM_KDF_ALG_FOR_SM2 is not supported.
- * - \ref HSM_KDF_HMAC_SHA_256_TLS_0_16_4 is not supported.
- * - \ref HSM_KDF_HMAC_SHA_384_TLS_0_32_4 is not supported.
  *
  */
 /**
@@ -1472,6 +1470,8 @@ hsm_err_t hsm_key_exchange(hsm_hdl_t key_management_hdl, op_key_exchange_args_t 
  * \ref group20
  *
  * - \ref This API should be considered as a preliminary version.
+ * - \ref HSM_KDF_HMAC_SHA_256_TLS_0_16_4 is not supported.
+ * - \ref HSM_KDF_HMAC_SHA_384_TLS_0_32_4 is not supported.
  *
  */
 /** @} end of key exchange operation */
