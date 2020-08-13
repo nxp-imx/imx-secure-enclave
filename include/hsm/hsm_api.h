@@ -1416,7 +1416,7 @@ typedef struct {
     uint8_t *shared_key_identifier_array;               //!< pointer to the identifiers of the derived keys. In case of create operation the new destination key identifiers will be stored in this location.\n In case of HSM_KDF_HMAC_SHA_256_TLS_0_16_4 or HSM_KDF_HMAC_SHA_384_TLS_0_32_4 KDF its contain the contatenation of client_write_key id (4 bytes) and the server_write_key id (4 bytes)
     uint8_t *ke_input;                                  //!< pointer to the initiator input data related to the key exchange function.
     uint8_t *ke_output;                                 //!< pointer to the output area where the data related to the key exchange function must be written. It corresponds to the receiver public data.\n
-    uint8_t *kdf_input;                                 //!< pointer to the input data of the KDF.\n In case of HSM_KDF_HMAC_SHA_256_TLS_0_16_4 or HSM_KDF_HMAC_SHA_384_TLS_0_32_4 KDF it must contain to the concatenarion of client_random (32 bytes) and server_random (32 bytes), it must be 0 otherwise
+    uint8_t *kdf_input;                                 //!< pointer to the input data of the KDF.\n In case of HSM_KDF_HMAC_SHA_256_TLS_0_16_4 or HSM_KDF_HMAC_SHA_384_TLS_0_32_4 KDF it must contain to the concatenarion of clientHello_random (32 bytes), serverHello_random (32 bytes), server_random (32 bytes) and client_random (32 bytes), it must be 0 otherwise
     uint8_t *kdf_output;                                //!< pointer to the output area where the non sensitive output data related to the KDF are written. In case of HSM_KDF_HMAC_SHA_256_TLS_0_16_4 or HSM_KDF_HMAC_SHA_384_TLS_0_32_4 KDF the concatenation of client_write_iv (4 bytes) and server_write_iv (4 bytes) will be stored at this address, it must be 0 otherwise
     hsm_key_group_t shared_key_group;                   //!< It specifies the group where the derived keys will be stored.\n It must be a value in the range 0-1023. Keys belonging to the same group can be cached in the HSM local memory throug the hsm_manage_key_group API
     hsm_key_info_t shared_key_info;                     //!< bitmap specifying the properties of the derived keys, it will be applied to all the derived keys.
@@ -1427,7 +1427,7 @@ typedef struct {
     uint16_t ke_input_size;                             //!< length in bytes of the input data of the key exchange function
     uint16_t ke_output_size;                            //!< length in bytes of the output data of the key exchange function
     uint8_t shared_key_identifier_array_size;           //!< length in byte of the area containing the shared key identifiers
-    uint8_t kdf_input_size;                             //!< length in bytes of the input data of the KDF. It must be 64 bytes in case of HSM_KDF_HMAC_SHA_256_TLS_0_16_4 or HSM_KDF_HMAC_SHA_384_TLS_0_32_4 KDF, 0 otherwise
+    uint8_t kdf_input_size;                             //!< length in bytes of the input data of the KDF. It must be 128 bytes in case of HSM_KDF_HMAC_SHA_256_TLS_0_16_4 or HSM_KDF_HMAC_SHA_384_TLS_0_32_4 KDF, 0 otherwise
     uint8_t kdf_output_size;                            //!< length in bytes of the non sensitive output data related to the KDF. It must be 8 bytes in case of HSM_KDF_HMAC_SHA_256_TLS_0_16_4 or HSM_KDF_HMAC_SHA_384_TLS_0_32_4 KDF
     hsm_op_key_exchange_flags_t flags;                  //!< bitmap specifying the operation properties
 } op_key_exchange_args_t;
