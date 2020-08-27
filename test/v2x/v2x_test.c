@@ -139,7 +139,7 @@ static void *sig_loop_thread(void *arg)
         sig_ver_args.message = SM2_test_message;
         sig_ver_args.signature = args->sig_area;
         sig_ver_args.key_size = 64;
-        sig_ver_args.signature_size = 64;
+        sig_ver_args.signature_size = 65;
         sig_ver_args.message_size = 300;
         sig_ver_args.scheme_id = 0x43;
         sig_ver_args.flags = HSM_OP_PREPARE_SIGN_INPUT_MESSAGE;
