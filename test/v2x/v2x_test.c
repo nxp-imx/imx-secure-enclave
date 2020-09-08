@@ -73,6 +73,13 @@ static uint8_t SM2_Z[32] = {
     0x2B, 0x9D, 0xA7, 0xE0, 0x7C, 0xCB, 0x0E, 0xA9, 0xF4, 0x74, 0x7B, 0x8C, 0xCD, 0xA8, 0xA4, 0xF3
 };
 
+static uint8_t gcm_auth_data[16] = {
+    0x31, 0x32, 0x33, 0x34, 0x35, 0x36, 0x37, 0x38, 0x31, 0x32, 0x33, 0x34, 0x35, 0x36, 0x37, 0x38
+};
+
+static uint8_t iv_gcm[16] = {
+    0x18, 0x33, 0x23, 0x01, 0xFF, 0x99, 0x72, 0x1A, 0xBB, 0xEF, 0xA3, 0x22
+};
 
 uint8_t work_area[128] = {0};
 uint8_t work_area2[128] = {0};
@@ -250,6 +257,7 @@ int main(int argc, char *argv[])
     open_svc_sm2_eces_args_t sm2_eces_dec_svc_args;
     op_sm2_eces_dec_args_t sm2_eces_dec_args;
     op_get_random_args_t rng_get_random_args;
+    op_auth_enc_args_t auth_enc_args;
 
     hsm_hdl_t sg0_sess, sv0_sess;
     hsm_hdl_t sg1_sess, sv1_sess;
@@ -270,6 +278,9 @@ int main(int argc, char *argv[])
     pthread_t tid, sig1, sig2;
     sig_thread_args_t args1, args2;
     cipher_thread_args_t cipher_args1, cipher_args2;
+    op_pub_key_recovery_args_t pub_k_rec_args;
+
+    uint8_t recovered_key[256];
     uint8_t rng_out_buff[4096];
 
     srand (time (NULL));
@@ -461,9 +472,9 @@ int main(int argc, char *argv[])
     printf("err: 0x%x hsm_sm2_get_z hdl: 0x%08x\n", err, sv0_sess);
     printf("Z output:\n");
     for (j=0; j<32; j++) {
-            printf("0x%02x ", work_area[j]);
-            if (j%16 == 15)
-                    printf("\n");
+        printf("0x%02x ", work_area[j]);
+        if (j%16 == 15)
+            printf("\n");
     }
     if (memcmp(SM2_Z, work_area, sizeof(SM2_Z)) == 0) {
         printf(" --> SUCCESS\n");
@@ -537,7 +548,7 @@ int main(int argc, char *argv[])
     printf("err: 0x%x hsm_sm2_eces_encryption hdl: 0x%08x\n", err, sv0_sess);
     printf("output:\n"); // we need to decrypt it with the associated private key to check if the result is correct
     for (j=0; j<8; j++) {
-            printf("0x%02x ", work_area[j]);
+        printf("0x%02x ", work_area[j]);
     }
     printf("\n");
 
@@ -558,6 +569,74 @@ int main(int argc, char *argv[])
         printf(" --> FAILURE\n");
     }
 
+    printf("\n---------------------------------------------------\n");
+    printf("Public key recovery\n");
+    printf("---------------------------------------------------\n");
+
+    pub_k_rec_args.key_identifier = key_id;
+    pub_k_rec_args.out_key = recovered_key;
+    pub_k_rec_args.out_key_size = 64;
+    pub_k_rec_args.key_type = HSM_KEY_TYPE_DSA_SM2_FP_256;
+    pub_k_rec_args.flags = 0;
+
+    printf("err: 0x%x hsm_pub_key_recovery: \n", err, sg0_sm2_eces_hdl);
+    err = hsm_pub_key_recovery(sg0_key_store_serv, &pub_k_rec_args);
+    if (memcmp(recovered_key, work_area2, 64) == 0) {
+        printf(" --> SUCCESS\n");
+    } else {
+        printf(" --> FAILURE\n");
+    }
+
+    printf("\n---------------------------------------------------\n");
+    printf("AES_128 auth encryption\n");
+    printf("---------------------------------------------------\n");
+    gen_key_args.key_identifier = &key_id;
+    gen_key_args.out_size = 0;
+    gen_key_args.flags = HSM_OP_KEY_GENERATION_FLAGS_CREATE;
+    gen_key_args.key_type = HSM_KEY_TYPE_AES_128;
+    gen_key_args.key_group = 12;
+    gen_key_args.key_info = 0U;
+    gen_key_args.out_key = NULL;
+
+    err = hsm_generate_key(sg0_key_mgmt_srv, &gen_key_args);
+    printf("err: 0x%x hsm_generate_key err: hdl: 0x%08x\n", err, sg0_key_mgmt_srv);
+
+    // AUTH ENC KEY AES128 -> ENCRYPT
+    auth_enc_args.key_identifier = key_id;
+    auth_enc_args.iv = iv_gcm;
+    auth_enc_args.iv_size = 12U;
+    auth_enc_args.aad = gcm_auth_data;
+    auth_enc_args.aad_size = 16U;
+    auth_enc_args.ae_algo = HSM_AUTH_ENC_ALGO_AES_GCM;
+    auth_enc_args.flags = HSM_AUTH_ENC_FLAGS_ENCRYPT;
+    auth_enc_args.input = SM2_test_message;
+    auth_enc_args.output = work_area;
+    auth_enc_args.input_size = 64;
+    auth_enc_args.output_size = 64 + 16;
+    err = hsm_auth_enc(sg0_cipher_hdl, &auth_enc_args);
+    printf("err: 0x%x hsm_auth data encrypt\n", err);
+
+    // AUTH ENC KEY AES128 -> DECRYPT
+    auth_enc_args.key_identifier = key_id;
+    auth_enc_args.iv = iv_gcm;
+    auth_enc_args.iv_size = 12U;
+    auth_enc_args.aad = gcm_auth_data;
+    auth_enc_args.aad_size = 16U;
+    auth_enc_args.ae_algo = HSM_AUTH_ENC_ALGO_AES_GCM;
+    auth_enc_args.flags = HSM_AUTH_ENC_FLAGS_DECRYPT;
+    auth_enc_args.input = work_area;
+    auth_enc_args.output = work_area2;
+    auth_enc_args.input_size = 64 + 16;
+    auth_enc_args.output_size = 64;
+    err = hsm_auth_enc(sg0_cipher_hdl, &auth_enc_args);
+    printf("err: 0x%x hsm_auth data encrypt\n", err);
+    // CHECK DECRYPTED OUTPUT
+    if (memcmp(SM2_test_message, work_area2, 64) == 0) {
+        printf(" --> SUCCESS\n");
+    } else {
+        printf(" --> FAILURE\n");
+    }
+    
     // Close all services and sessions
 
 
