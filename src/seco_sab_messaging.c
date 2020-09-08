@@ -103,7 +103,7 @@ uint32_t sab_get_shared_buffer(struct seco_os_abs_hdl *phdl, uint32_t session_ha
     return ret;
 }
 
-uint32_t sab_open_key_store_command(struct seco_os_abs_hdl *phdl, uint32_t session_handle, uint32_t *key_store_handle, uint32_t mu_type, uint32_t key_storage_identifier, uint32_t password, uint16_t max_updates, uint8_t flags)
+uint32_t sab_open_key_store_command(struct seco_os_abs_hdl *phdl, uint32_t session_handle, uint32_t *key_store_handle, uint32_t mu_type, uint32_t key_storage_identifier, uint32_t password, uint16_t max_updates, uint8_t flags, uint8_t min_mac_length)
 {
     struct sab_cmd_key_store_open_msg cmd;
     struct sab_cmd_key_store_open_rsp rsp;
@@ -119,6 +119,7 @@ uint32_t sab_open_key_store_command(struct seco_os_abs_hdl *phdl, uint32_t sessi
         cmd.password = password;
         cmd.flags = flags;
         cmd.max_updates = max_updates;
+        cmd.min_mac_length = min_mac_length;
         cmd.crc = seco_compute_msg_crc((uint32_t*)&cmd, (uint32_t)(sizeof(cmd) - sizeof(uint32_t)));
 
         error = seco_send_msg_and_get_resp(phdl,

@@ -293,7 +293,8 @@ hsm_err_t hsm_open_key_store_service(hsm_hdl_t session_hdl,
 						args->key_store_identifier,
 						args->authentication_nonce,
 						args->max_updates_number,
-						args->flags);
+						args->flags,
+						0);
 		err = sab_rating_to_hsm_err(sab_err);
 		if (err != HSM_NO_ERROR) {
 			delete_service(serv_ptr);

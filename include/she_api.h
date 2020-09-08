@@ -95,6 +95,18 @@ typedef enum {
  * \return error code
  */
 uint32_t she_storage_create(uint32_t key_storage_identifier, uint32_t authentication_nonce, uint16_t max_updates_number, uint8_t *signed_message, uint32_t msg_len);
+
+/**
+ * This is an extension of the she_storage_create API.\n
+ * The functionality of the she_storage_create API is extended by adding the following argument:
+ * \param min_mac_length: MAC verification minimum length (in bits).\n
+ * By default, this SHE solution forbids to verify MAC whose length is lower than 32 bits.
+ * By setting this parameter the user can configure the MAC minimum length, this configuration is effective only when the she_cmd_verify_mac_bit_ext API is used (ignored otherwise).
+ *
+ */
+uint32_t she_storage_create_ext(uint32_t key_storage_identifier, uint32_t authentication_nonce, uint16_t max_updates_number, uint8_t min_mac_length, uint8_t *signed_message, uint32_t msg_len);
+
+
 #define SHE_STORAGE_CREATE_SUCCESS          0u     //!< New storage created succesfully.
 #define SHE_STORAGE_CREATE_WARNING          1u     //!< New storage created but its usage is restricted to a limited security state of the chip.
 #define SHE_STORAGE_CREATE_UNAUTHORIZED     2u     //!< Creation of the storage is not authorized.
@@ -172,8 +184,8 @@ she_err_t she_cmd_generate_mac(struct she_hdl_s *hdl, uint8_t key_ext, uint8_t k
  * \param key_id identifier of the key to be used for the operation
  * \param message_length lenght in bytes of the input message.  The message is padded to be a multiple of 128 bits by SHE.
  * \param message pointer to the message to be processed
- * \param mac pointer to the MAC to be compared (implicitely 128 bits)
- * \param mac_length number of bytes to compare (must be at least 4)
+ * \param mac pointer to the MAC to be compared
+ * \param mac_length number of MAC bytes to be compared with the expected value. It cannot be lower than 4 bytes.
  * \param verification_status pointer to where write the result of the MAC comparison
  *
  * \return error code
@@ -181,6 +193,16 @@ she_err_t she_cmd_generate_mac(struct she_hdl_s *hdl, uint8_t key_ext, uint8_t k
 she_err_t she_cmd_verify_mac(struct she_hdl_s *hdl, uint8_t key_ext, uint8_t key_id, uint16_t message_length, uint8_t *message, uint8_t *mac, uint8_t mac_length, uint8_t *verification_status);
 #define SHE_MAC_VERIFICATION_SUCCESS 0u //!< indication of mac verification success
 #define SHE_MAC_VERIFICATION_FAILED  1u //!< indication of mac verification failure
+
+/**
+ *
+ * This API is an extension of the she_cmd_verify_mac API where the mac_length argument is replaced by the following:
+ * \param mac_bit_length Number of MAC bits to be compared with the expected value.\n
+ * By default the provided value cannot be lower than 32 bit.
+ * This minimum length is optionally configurable at the key store provisioning by using the she_storage_create_ext min_mac_length argument.
+ */
+she_err_t she_cmd_verify_mac_bit_ext(struct she_hdl_s *hdl, uint8_t key_ext, uint8_t key_id, uint16_t message_length, uint8_t *message, uint8_t *mac, uint8_t mac_bit_length, uint8_t *verification_status);
+
 /** @} end of CMD_VERIFY_MAC group */
 
 

@@ -33,10 +33,11 @@ uint32_t sab_close_session_command (struct seco_os_abs_hdl *phdl, uint32_t sessi
 uint32_t sab_get_shared_buffer(struct seco_os_abs_hdl *phdl, uint32_t session_handle, uint32_t mu_type);
 
 /* Key store */
-uint32_t sab_open_key_store_command(struct seco_os_abs_hdl *phdl, uint32_t session_handle, uint32_t *key_store_handle, uint32_t mu_type, uint32_t key_storage_identifier, uint32_t password, uint16_t max_updates, uint8_t flags);
-#define KEY_STORE_OPEN_FLAGS_DEFAULT    0x0u
-#define KEY_STORE_OPEN_FLAGS_CREATE     0x1u
-#define KEY_STORE_OPEN_FLAGS_SHE        0x2u
+uint32_t sab_open_key_store_command(struct seco_os_abs_hdl *phdl, uint32_t session_handle, uint32_t *key_store_handle, uint32_t mu_type, uint32_t key_storage_identifier, uint32_t password, uint16_t max_updates, uint8_t flags, uint8_t min_mac_length);
+#define KEY_STORE_OPEN_FLAGS_DEFAULT        0x0u
+#define KEY_STORE_OPEN_FLAGS_CREATE         0x1u
+#define KEY_STORE_OPEN_FLAGS_SHE            0x2u
+#define KEY_STORE_OPEN_FLAGS_SET_MAC_LEN    0x8u
 
 uint32_t sab_close_key_store(struct seco_os_abs_hdl *phdl, uint32_t key_store_handle, uint32_t mu_type);
 

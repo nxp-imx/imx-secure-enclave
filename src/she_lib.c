@@ -187,6 +187,10 @@ void she_close_session(struct she_hdl_s *hdl)
 
 uint32_t she_storage_create(uint32_t key_storage_identifier, uint32_t authentication_nonce, uint16_t max_updates_number, uint8_t *signed_message, uint32_t msg_len)
 {
+    return she_storage_create_ext(key_storage_identifier, authentication_nonce, max_updates_number, 0, signed_message, msg_len);
+}
+
+uint32_t she_storage_create_ext(uint32_t key_storage_identifier, uint32_t authentication_nonce, uint16_t max_updates_number, uint8_t min_mac_length, uint8_t *signed_message, uint32_t msg_len) {
     struct she_hdl_s *hdl = NULL;
     uint32_t ret = SHE_STORAGE_CREATE_FAIL;
     uint32_t err;
@@ -235,7 +239,8 @@ uint32_t she_storage_create(uint32_t key_storage_identifier, uint32_t authentica
                                          key_storage_identifier,
                                          authentication_nonce,
                                          max_updates_number,
-                                         KEY_STORE_OPEN_FLAGS_CREATE | KEY_STORE_OPEN_FLAGS_SHE);
+                                         KEY_STORE_OPEN_FLAGS_CREATE | KEY_STORE_OPEN_FLAGS_SHE | KEY_STORE_OPEN_FLAGS_SET_MAC_LEN,
+                                         min_mac_length);
 
         /* Interpret Seco status code*/
         if (GET_STATUS_CODE(err) == SAB_SUCCESS_STATUS) {
@@ -314,7 +319,8 @@ struct she_hdl_s *she_open_session(uint32_t key_storage_identifier, uint32_t aut
                                          key_storage_identifier,
                                          authentication_nonce,
                                          0u,
-                                         KEY_STORE_OPEN_FLAGS_SHE);
+                                         KEY_STORE_OPEN_FLAGS_SHE,
+                                         0);
         if (err != SAB_SUCCESS_STATUS) {
             hdl->key_store_handle = 0u;
             break;
@@ -395,8 +401,11 @@ she_err_t she_cmd_generate_mac(struct she_hdl_s *hdl, uint8_t key_ext, uint8_t k
     return ret;
 }
 
+#define MAC_BYTES_LENGTH    (0)
+#define MAC_BITS_LENGTH     (1)
+
 /* MAC verify command processing. */
-she_err_t she_cmd_verify_mac(struct she_hdl_s *hdl, uint8_t key_ext, uint8_t key_id, uint16_t message_length, uint8_t *message, uint8_t *mac, uint8_t mac_length, uint8_t *verification_status)
+static she_err_t she_cmd_verify_mac_generic(struct she_hdl_s *hdl, uint8_t key_ext, uint8_t key_id, uint16_t message_length, uint8_t *message, uint8_t *mac, uint8_t mac_length, uint8_t *verification_status, uint8_t bit_length)
 {
     struct sab_she_fast_mac_msg cmd;
     struct sab_she_fast_mac_rsp rsp;
@@ -427,6 +436,9 @@ she_err_t she_cmd_verify_mac(struct she_hdl_s *hdl, uint8_t key_ext, uint8_t key
         }
         cmd.mac_length = mac_length;
         cmd.flags = SAB_SHE_FAST_MAC_FLAGS_VERIFICATION;
+        if (bit_length) {
+            cmd.flags |= SAB_SHE_FAST_MAC_FLAGS_VERIF_BIT_LEN;
+        }
 
         /* Send the message to Seco. */
         error = seco_send_msg_and_get_resp(hdl->phdl,
@@ -449,6 +461,14 @@ she_err_t she_cmd_verify_mac(struct she_hdl_s *hdl, uint8_t key_ext, uint8_t key
     } while (false);
 
     return ret;
+}
+
+she_err_t she_cmd_verify_mac(struct she_hdl_s *hdl, uint8_t key_ext, uint8_t key_id, uint16_t message_length, uint8_t *message, uint8_t *mac, uint8_t mac_length, uint8_t *verification_status) {
+    return she_cmd_verify_mac_generic(hdl, key_ext, key_id, message_length, message, mac, mac_length, verification_status, MAC_BYTES_LENGTH);
+}
+
+she_err_t she_cmd_verify_mac_bit_ext(struct she_hdl_s *hdl, uint8_t key_ext, uint8_t key_id, uint16_t message_length, uint8_t *message, uint8_t *mac, uint8_t mac_length, uint8_t *verification_status) {
+    return she_cmd_verify_mac_generic(hdl, key_ext, key_id, message_length, message, mac, mac_length, verification_status, MAC_BITS_LENGTH);
 }
 
 /* CBC encrypt command. */

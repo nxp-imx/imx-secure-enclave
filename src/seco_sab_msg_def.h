@@ -183,6 +183,7 @@ struct sab_she_fast_mac_msg {
     uint8_t flags;
 };
 #define SAB_SHE_FAST_MAC_FLAGS_VERIFICATION    (1u)
+#define SAB_SHE_FAST_MAC_FLAGS_VERIF_BIT_LEN   (2u)
 
 struct sab_she_fast_mac_rsp {
     struct sab_mu_hdr hdr;
@@ -500,7 +501,7 @@ struct sab_cmd_key_store_open_msg{
     uint32_t password;
     uint16_t max_updates;
     uint8_t flags;
-    uint8_t rsv;
+    uint8_t min_mac_length;
     uint32_t crc;
 } ;
 
