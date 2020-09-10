@@ -102,7 +102,7 @@ uint32_t she_storage_create(uint32_t key_storage_identifier, uint32_t authentica
  * \param min_mac_length: MAC verification minimum length (in bits).\n
  * By default, this SHE solution forbids to verify MAC whose length is lower than 32 bits.
  * By setting this parameter the user can configure the MAC minimum length, this configuration is effective only when the she_cmd_verify_mac_bit_ext API is used (ignored otherwise).
- *
+ * It must be different from 0.
  */
 uint32_t she_storage_create_ext(uint32_t key_storage_identifier, uint32_t authentication_nonce, uint16_t max_updates_number, uint8_t min_mac_length, uint8_t *signed_message, uint32_t msg_len);
 
