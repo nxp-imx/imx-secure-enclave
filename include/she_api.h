@@ -107,11 +107,12 @@ uint32_t she_storage_create(uint32_t key_storage_identifier, uint32_t authentica
 uint32_t she_storage_create_ext(uint32_t key_storage_identifier, uint32_t authentication_nonce, uint16_t max_updates_number, uint8_t min_mac_length, uint8_t *signed_message, uint32_t msg_len);
 
 
-#define SHE_STORAGE_CREATE_SUCCESS          0u     //!< New storage created succesfully.
-#define SHE_STORAGE_CREATE_WARNING          1u     //!< New storage created but its usage is restricted to a limited security state of the chip.
-#define SHE_STORAGE_CREATE_UNAUTHORIZED     2u     //!< Creation of the storage is not authorized.
-#define SHE_STORAGE_CREATE_FAIL             3u     //!< Creation of the storage failed for any other reason.
-#define SHE_STORAGE_NUMBER_UPDATES_DEFAULT  300u   //!< default number of maximum number of updated for SHE storage.
+#define SHE_STORAGE_CREATE_SUCCESS              0u     //!< New storage created succesfully.
+#define SHE_STORAGE_CREATE_WARNING              1u     //!< New storage created but its usage is restricted to a limited security state of the chip.
+#define SHE_STORAGE_CREATE_UNAUTHORIZED         2u     //!< Creation of the storage is not authorized.
+#define SHE_STORAGE_CREATE_FAIL                 3u     //!< Creation of the storage failed for any other reason.
+#define SHE_STORAGE_NUMBER_UPDATES_DEFAULT      300u   //!< default number of maximum number of updated for SHE storage.
+#define SHE_STORAGE_MIN_MAC_BIT_LENGTH_DEFAULT  32u    //!< default MAC verification lenght in bits
 /** @} end of provisioning group */
 
 
