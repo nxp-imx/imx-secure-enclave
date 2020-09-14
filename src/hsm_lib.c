@@ -2496,7 +2496,7 @@ hsm_err_t hsm_key_exchange(hsm_hdl_t key_management_hdl, op_key_exchange_args_t 
 		cmd.shared_key_identifier_array = (uint32_t)seco_os_abs_data_buf(serv_ptr->session->phdl,
 				args->shared_key_identifier_array,
 				args->shared_key_identifier_array_size,
-				0u);
+				(((args->flags & HSM_OP_KEY_EXCHANGE_FLAGS_UPDATE)==HSM_OP_KEY_EXCHANGE_FLAGS_UPDATE)? DATA_BUF_IS_INPUT : 0u));
 		cmd.ke_input_addr = (uint32_t)seco_os_abs_data_buf(serv_ptr->session->phdl,
 				args->ke_input,
 				args->ke_input_size,
