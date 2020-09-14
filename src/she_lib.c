@@ -185,9 +185,9 @@ void she_close_session(struct she_hdl_s *hdl)
     }
 }
 
-#define MAC_LENGTH_NOT_SET  (0u)
-#define MAC_LENGTH_SET      (1u)
-uint32_t she_storage_create_generic(uint32_t key_storage_identifier, uint32_t authentication_nonce, uint16_t max_updates_number, uint8_t set_mac_len, uint8_t min_mac_length, uint8_t *signed_message, uint32_t msg_len) {
+#define MIN_MAC_LEN_NOT_SET  (0u)
+#define MIN_MAC_LEN_SET      (1u)
+static uint32_t she_storage_create_generic(uint32_t key_storage_identifier, uint32_t authentication_nonce, uint16_t max_updates_number, uint8_t min_mac_len_setting, uint8_t min_mac_length, uint8_t *signed_message, uint32_t msg_len) {
     struct she_hdl_s *hdl = NULL;
     uint32_t ret = SHE_STORAGE_CREATE_FAIL;
     uint32_t err;
@@ -228,7 +228,7 @@ uint32_t she_storage_create_generic(uint32_t key_storage_identifier, uint32_t au
             break;
         }
 
-        if(set_mac_len) {
+        if(min_mac_len_setting == MIN_MAC_LEN_SET) {
             flags |= KEY_STORE_OPEN_FLAGS_SET_MAC_LEN;
         }
 
@@ -268,12 +268,12 @@ uint32_t she_storage_create_generic(uint32_t key_storage_identifier, uint32_t au
 
 uint32_t she_storage_create(uint32_t key_storage_identifier, uint32_t authentication_nonce, uint16_t max_updates_number, uint8_t *signed_message, uint32_t msg_len)
 {
-    return she_storage_create_generic(key_storage_identifier, authentication_nonce, max_updates_number, MAC_LENGTH_NOT_SET, MAC_LENGTH_NOT_SET, signed_message, msg_len);
+    return she_storage_create_generic(key_storage_identifier, authentication_nonce, max_updates_number, MIN_MAC_LEN_NOT_SET, MIN_MAC_LEN_NOT_SET, signed_message, msg_len);
 }
 
 uint32_t she_storage_create_ext(uint32_t key_storage_identifier, uint32_t authentication_nonce, uint16_t max_updates_number, uint8_t min_mac_length, uint8_t *signed_message, uint32_t msg_len)
 {
-    return she_storage_create_generic(key_storage_identifier, authentication_nonce, max_updates_number, MAC_LENGTH_SET, min_mac_length, signed_message, msg_len);
+    return she_storage_create_generic(key_storage_identifier, authentication_nonce, max_updates_number, MIN_MAC_LEN_SET, min_mac_length, signed_message, msg_len);
 }
 
 
@@ -416,7 +416,7 @@ she_err_t she_cmd_generate_mac(struct she_hdl_s *hdl, uint8_t key_ext, uint8_t k
 #define MAC_BYTES_LENGTH    (0)
 #define MAC_BITS_LENGTH     (1)
 /* MAC verify command processing. */
-static she_err_t she_cmd_verify_mac_generic(struct she_hdl_s *hdl, uint8_t key_ext, uint8_t key_id, uint16_t message_length, uint8_t *message, uint8_t *mac, uint8_t mac_length, uint8_t bit_length, uint8_t *verification_status)
+static she_err_t she_cmd_verify_mac_generic(struct she_hdl_s *hdl, uint8_t key_ext, uint8_t key_id, uint16_t message_length, uint8_t *message, uint8_t *mac, uint8_t mac_length, uint8_t mac_length_encoding, uint8_t *verification_status)
 {
     struct sab_she_fast_mac_msg cmd;
     struct sab_she_fast_mac_rsp rsp;
@@ -447,7 +447,7 @@ static she_err_t she_cmd_verify_mac_generic(struct she_hdl_s *hdl, uint8_t key_e
         }
         cmd.mac_length = mac_length;
         cmd.flags = SAB_SHE_FAST_MAC_FLAGS_VERIFICATION;
-        if (bit_length) {
+        if (mac_length_encoding == MAC_BITS_LENGTH) {
             cmd.flags |= SAB_SHE_FAST_MAC_FLAGS_VERIF_BIT_LEN;
         }
 
@@ -478,8 +478,8 @@ she_err_t she_cmd_verify_mac(struct she_hdl_s *hdl, uint8_t key_ext, uint8_t key
     return she_cmd_verify_mac_generic(hdl, key_ext, key_id, message_length, message, mac, mac_length, MAC_BYTES_LENGTH, verification_status);
 }
 
-she_err_t she_cmd_verify_mac_bit_ext(struct she_hdl_s *hdl, uint8_t key_ext, uint8_t key_id, uint16_t message_length, uint8_t *message, uint8_t *mac, uint8_t mac_length, uint8_t *verification_status) {
-    return she_cmd_verify_mac_generic(hdl, key_ext, key_id, message_length, message, mac, mac_length, MAC_BITS_LENGTH, verification_status);
+she_err_t she_cmd_verify_mac_bit_ext(struct she_hdl_s *hdl, uint8_t key_ext, uint8_t key_id, uint16_t message_length, uint8_t *message, uint8_t *mac, uint8_t mac_bit_length, uint8_t *verification_status) {
+    return she_cmd_verify_mac_generic(hdl, key_ext, key_id, message_length, message, mac, mac_bit_length, MAC_BITS_LENGTH, verification_status);
 }
 
 /* CBC encrypt command. */
