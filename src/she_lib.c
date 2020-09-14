@@ -440,10 +440,10 @@ static she_err_t she_cmd_verify_mac_generic(struct she_hdl_s *hdl, uint8_t key_e
         cmd.data_length = message_length;
         /* the MAC data is stored right after the input data */
         if (message_length == 0u) {
-            cmd.data_offset = (uint16_t)(seco_os_abs_data_buf(hdl->phdl, mac, SHE_MAC_SIZE, DATA_BUF_USE_SEC_MEM | DATA_BUF_SHORT_ADDR) & SEC_MEM_SHORT_ADDR_MASK);
+            cmd.data_offset = (uint16_t)(seco_os_abs_data_buf(hdl->phdl, mac, SHE_MAC_SIZE, DATA_BUF_IS_INPUT |DATA_BUF_USE_SEC_MEM | DATA_BUF_SHORT_ADDR) & SEC_MEM_SHORT_ADDR_MASK);
         } else {
             cmd.data_offset = (uint16_t)(seco_os_abs_data_buf(hdl->phdl, message, message_length, DATA_BUF_IS_INPUT | DATA_BUF_USE_SEC_MEM | DATA_BUF_SHORT_ADDR) & SEC_MEM_SHORT_ADDR_MASK);
-            (void)(seco_os_abs_data_buf(hdl->phdl, mac, SHE_MAC_SIZE, DATA_BUF_USE_SEC_MEM | DATA_BUF_SHORT_ADDR) & SEC_MEM_SHORT_ADDR_MASK);
+            (void)(seco_os_abs_data_buf(hdl->phdl, mac, SHE_MAC_SIZE, DATA_BUF_IS_INPUT | DATA_BUF_USE_SEC_MEM | DATA_BUF_SHORT_ADDR) & SEC_MEM_SHORT_ADDR_MASK);
         }
         cmd.mac_length = mac_length;
         cmd.flags = SAB_SHE_FAST_MAC_FLAGS_VERIFICATION;
