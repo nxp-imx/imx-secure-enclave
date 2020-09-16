@@ -258,6 +258,7 @@ int main(int argc, char *argv[])
     op_sm2_eces_dec_args_t sm2_eces_dec_args;
     op_get_random_args_t rng_get_random_args;
     op_auth_enc_args_t auth_enc_args;
+    op_manage_key_args_t mng_key_args;
 
     hsm_hdl_t sg0_sess, sv0_sess;
     hsm_hdl_t sg1_sess, sv1_sess;
@@ -638,8 +639,42 @@ int main(int argc, char *argv[])
     }
     
     // Close all services and sessions
+    printf("\n---------------------------------------------------\n");
+    printf("ḱey deletion test\n");
+    printf("---------------------------------------------------\n");
+
+    /* Test deletion of last generated key. */
+    mng_key_args.key_identifier = &key_id;
+    mng_key_args.kek_identifier = 0;
+    mng_key_args.input_size = 0;
+    mng_key_args.flags = HSM_OP_MANAGE_KEY_FLAGS_DELETE;
+    mng_key_args.key_type = HSM_KEY_TYPE_DSA_SM2_FP_256;
+    mng_key_args.key_group = 12;
+    mng_key_args.key_info = 0;
+    mng_key_args.input_data = NULL;
+
+    err = hsm_manage_key(sg0_key_mgmt_srv, &mng_key_args);
+    printf("err: 0x%x hsm_manage_key hdl: 0x%08x\n", err, sg0_key_mgmt_srv);
+
+    /* Try to use again this key: an error is expected. */
+    sm2_eces_dec_args.input = work_area;
+    sm2_eces_dec_args.output = work_area3; //plaintext
+    sm2_eces_dec_args.key_identifier = key_id;
+    sm2_eces_dec_args.input_size = 113;
+    sm2_eces_dec_args.output_size = 16;
+    sm2_eces_dec_args.key_type = HSM_KEY_TYPE_DSA_SM2_FP_256;
+    sm2_eces_dec_args.flags = 0;
+
+    err = hsm_sm2_eces_decryption(sg0_sm2_eces_hdl, &sm2_eces_dec_args);
+    printf("err: 0x%x hsm_sm2_eces_decryption hdl: 0x%08x\n", err, sg0_sm2_eces_hdl);
+    if (err == HSM_UNKNOWN_ID) {
+        printf("error expected --> SUCCESS\n");
+    } else {
+        printf("unexpected error code --> FAILURE\n");
+    }
 
 
+    // Close all services and sessions
     printf("\n---------------------------------------------------\n");
     printf("Closing services and sessions\n");
     printf("---------------------------------------------------\n");
