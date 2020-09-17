@@ -81,6 +81,15 @@ static uint8_t iv_gcm[16] = {
     0x18, 0x33, 0x23, 0x01, 0xFF, 0x99, 0x72, 0x1A, 0xBB, 0xEF, 0xA3, 0x22
 };
 
+uint8_t ecies_input[16] = {
+    0x91, 0x69, 0x15, 0x5B, 0x08, 0xB0, 0x76, 0x74, 0xCB, 0xAD, 0xF7, 0x5F, 0xB4, 0x6A, 0x7B, 0x0D
+};
+
+uint8_t ecies_p1[32] = {
+    0xA6, 0xB7, 0xB5, 0x25, 0x54, 0xB4, 0x20, 0x3F, 0x7E, 0x3A, 0xCF, 0xDB, 0x3A, 0x3E, 0xD8, 0x67,
+    0x4E, 0xE0, 0x86, 0xCE, 0x59, 0x06, 0xA7, 0xCA, 0xC2, 0xF8, 0xA3, 0x98, 0x30, 0x6D, 0x3B, 0xE9
+};
+
 uint8_t work_area[128] = {0};
 uint8_t work_area2[128] = {0};
 uint8_t work_area3[128] = {0};
@@ -259,6 +268,8 @@ int main(int argc, char *argv[])
     op_get_random_args_t rng_get_random_args;
     op_auth_enc_args_t auth_enc_args;
     op_manage_key_args_t mng_key_args;
+    op_ecies_enc_args_t op_ecies_enc_args;
+    op_ecies_dec_args_t op_ecies_dec_args;
 
     hsm_hdl_t sg0_sess, sv0_sess;
     hsm_hdl_t sg1_sess, sv1_sess;
@@ -545,7 +556,7 @@ int main(int argc, char *argv[])
     sm2_eces_enc_args.key_type = HSM_KEY_TYPE_DSA_SM2_FP_256;
     sm2_eces_enc_args.flags = 0;
 
-    err = hsm_sm2_eces_encryption(sv0_sess, &sm2_eces_enc_args);
+    err = hsm_sm2_eces_encryption(sg0_sess, &sm2_eces_enc_args);
     printf("err: 0x%x hsm_sm2_eces_encryption hdl: 0x%08x\n", err, sv0_sess);
     printf("output:\n"); // we need to decrypt it with the associated private key to check if the result is correct
     for (j=0; j<8; j++) {
@@ -671,6 +682,64 @@ int main(int argc, char *argv[])
         printf("error expected --> SUCCESS\n");
     } else {
         printf("unexpected error code --> FAILURE\n");
+    }
+
+    printf("\n---------------------------------------------------\n");
+    printf("ecies test\n");
+    printf("---------------------------------------------------\n");
+
+    gen_key_args.key_identifier = &key_id;
+    gen_key_args.out_size = 64;
+    gen_key_args.flags = HSM_OP_KEY_GENERATION_FLAGS_CREATE;
+    gen_key_args.key_type = HSM_KEY_TYPE_ECDSA_NIST_P256;
+    gen_key_args.key_group = 12;
+    gen_key_args.key_info = 0U;
+    gen_key_args.out_key = work_area2; // public key needed for the encryption
+    err = hsm_generate_key(sg0_key_mgmt_srv, &gen_key_args);
+    printf("err: 0x%x hsm_generate_key err: hdl: 0x%08x\n", err, sg0_key_mgmt_srv);
+
+    op_ecies_enc_args.input = ecies_input;
+    op_ecies_enc_args.pub_key = work_area2;
+    op_ecies_enc_args.p1 = ecies_p1;
+    op_ecies_enc_args.p2 = NULL;
+    op_ecies_enc_args.output = work_area;
+    op_ecies_enc_args.input_size = 16;
+    op_ecies_enc_args.p1_size = 32;
+    op_ecies_enc_args.p2_size = 0;
+    op_ecies_enc_args.pub_key_size = 2*32;
+    op_ecies_enc_args.mac_size = 16;
+    op_ecies_enc_args.out_size = 3*32;
+    op_ecies_enc_args.key_type = HSM_KEY_TYPE_ECDSA_NIST_P256;
+    op_ecies_enc_args.flags = 0u;
+    op_ecies_enc_args.reserved= 0u;
+    err = hsm_ecies_encryption(sg0_sess, &op_ecies_enc_args);
+    printf("err: 0x%x hsm_ecies_encryption err: hdl: 0x%08x\n", err, sg0_key_mgmt_srv);
+    printf("output:\n"); // we need to decrypt it with the associated private key to check if the result is correct
+    for (j=0; j<3*32; j++) {
+        printf("0x%02x ", work_area[j]);
+        if (j%16 == 15) printf("\n");
+    }
+    printf("\n");
+
+    op_ecies_dec_args.key_identifier = key_id;
+    op_ecies_dec_args.input = work_area;
+    op_ecies_dec_args.p1 = ecies_p1;
+    op_ecies_dec_args.p2 = NULL;
+    op_ecies_dec_args.output = work_area3;
+    op_ecies_dec_args.input_size = 3*32;
+    op_ecies_dec_args.output_size = 16;
+    op_ecies_dec_args.p1_size = 32;
+    op_ecies_dec_args.p2_size = 0;
+    op_ecies_dec_args.mac_size = 16;
+    op_ecies_dec_args.key_type = HSM_KEY_TYPE_ECDSA_NIST_P256;
+    op_ecies_dec_args.flags = 0;
+    err = hsm_ecies_decryption(sg0_cipher_hdl, &op_ecies_dec_args);
+    printf("err: 0x%x hsm_ecies_decryption err: hdl: 0x%08x\n", err, sg0_cipher_hdl);
+
+    if (memcmp(ecies_input, work_area3, 16) == 0) {
+        printf(" --> SUCCESS\n");
+    } else {
+        printf(" --> FAILURE\n");
     }
 
 
