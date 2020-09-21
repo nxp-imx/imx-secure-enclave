@@ -346,20 +346,30 @@ int main(int argc, char *argv[])
 
     // opening services for signature generation/verif on SG0 and SG1
 
-    key_store_srv_args.key_store_identifier = (uint32_t) rand();
-    key_store_srv_args.authentication_nonce = (uint32_t) rand();
+    key_store_srv_args.key_store_identifier = 1234;
+    key_store_srv_args.authentication_nonce = 1234;
     key_store_srv_args.max_updates_number = 12;
     key_store_srv_args.flags = HSM_SVC_KEY_STORE_FLAGS_CREATE;
     key_store_srv_args.signed_message = NULL;
     key_store_srv_args.signed_msg_size = 0;
     err = hsm_open_key_store_service(sg0_sess, &key_store_srv_args, &sg0_key_store_serv);
+    if (err != HSM_NO_ERROR) {
+        /* key store may already exist. */
+        key_store_srv_args.flags = 0U;
+        err = hsm_open_key_store_service(sg0_sess, &key_store_srv_args, &sg0_key_store_serv);
+    }
     printf("err: 0x%x hsm_open_key_store_service hdl: 0x%08x\n", err, sg0_key_store_serv);
 
-    key_store_srv_args.key_store_identifier = (uint32_t) rand();
-    key_store_srv_args.authentication_nonce = (uint32_t) rand();
+    key_store_srv_args.key_store_identifier = 5678;
+    key_store_srv_args.authentication_nonce = 5678;
+    key_store_srv_args.flags = HSM_SVC_KEY_STORE_FLAGS_CREATE;
     err = hsm_open_key_store_service(sg1_sess, &key_store_srv_args, &sg1_key_store_serv);
+    if (err != HSM_NO_ERROR) {
+        /* key store may already exist. */
+        key_store_srv_args.flags = 0U;
+        err = hsm_open_key_store_service(sg1_sess, &key_store_srv_args, &sg1_key_store_serv);
+    }
     printf("err: 0x%x hsm_open_key_store_service hdl: 0x%08x\n", err, sg1_key_store_serv);
-
 
     key_mgmt_srv_args.flags = 0;
     err = hsm_open_key_management_service(sg0_key_store_serv, &key_mgmt_srv_args, &sg0_key_mgmt_srv);
