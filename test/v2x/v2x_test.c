@@ -591,8 +591,8 @@ int main(int argc, char *argv[])
     pub_k_rec_args.key_type = HSM_KEY_TYPE_DSA_SM2_FP_256;
     pub_k_rec_args.flags = 0;
 
-    printf("err: 0x%x hsm_pub_key_recovery: \n", err, sg0_sm2_eces_hdl);
     err = hsm_pub_key_recovery(sg0_key_store_serv, &pub_k_rec_args);
+    printf("err: 0x%x hsm_pub_key_recovery\n", err);
     if (memcmp(recovered_key, work_area2, 64) == 0) {
         printf(" --> SUCCESS\n");
     } else {
