@@ -1432,22 +1432,22 @@ typedef uint8_t hsm_key_exchange_scheme_id_t;
 typedef uint8_t hsm_op_key_exchange_flags_t;
 typedef struct {
     uint32_t key_identifier;                            //!< identifier of the key used for derivation. It must be zero, if HSM_OP_KEY_EXCHANGE_FLAGS_USE_EPHEMERAL is set.
-    uint8_t *shared_key_identifier_array;               //!< pointer to the identifiers of the derived keys. In case of create operation the new destination key identifiers will be stored in this location.\n In case of HSM_KDF_HMAC_SHA_256_TLS_0_16_4, HSM_KDF_HMAC_SHA_384_TLS_0_32_4 or HSM_KDF_HMAC_SHA_256_TLS_0_32_4 KDF it contains the concatenation of client_write_key id (4 bytes) and the server_write_key id (4 bytes). In case of HSM_KDF_HMAC_SHA_256_TLS_32_16_4 or HSM_KDF_HMAC_SHA_384_TLS_48_32_4 KDF it contains the concatenation of client_write_MAC_key id (4 bytes), server_write_MAC_key id (4 bytes), client_write_key id (4 bytes) and the server_write_key id (4 bytes).
+    uint8_t *shared_key_identifier_array;               //!< pointer to the identifiers of the derived keys. In case of create operation the new destination key identifiers will be stored in this location.  In case of update operation the destination key identifiers to update are provided by the caller in this location.\n In case of HSM_KDF_ALG_SHA_256 it contains the KEK key id.\n In case of HSM_KDF_HMAC_SHA_256_TLS_0_16_4, HSM_KDF_HMAC_SHA_384_TLS_0_32_4 or HSM_KDF_HMAC_SHA_256_TLS_0_32_4 KDF it contains the concatenation of client_write_key id (4 bytes) and the server_write_key id (4 bytes). In case of HSM_KDF_HMAC_SHA_256_TLS_32_16_4 or HSM_KDF_HMAC_SHA_384_TLS_48_32_4 KDF it contains the concatenation of client_write_MAC_key id (4 bytes), server_write_MAC_key id (4 bytes), client_write_key id (4 bytes) and the server_write_key id (4 bytes).
     uint8_t *ke_input;                                  //!< pointer to the initiator input data related to the key exchange function.
     uint8_t *ke_output;                                 //!< pointer to the output area where the data related to the key exchange function must be written. It corresponds to the receiver public data.\n
     uint8_t *kdf_input;                                 //!< pointer to the input data of the KDF.\n In case of HSM_KDF_HMAC_SHA_256_TLS_0_16_4, HSM_KDF_HMAC_SHA_384_TLS_0_32_4 KDF, HSM_KDF_HMAC_SHA_256_TLS_0_32_4, HSM_KDF_HMAC_SHA_256_TLS_32_16_4 or HSM_KDF_HMAC_SHA_384_TLS_48_32_4 it must contain to the concatenarion of clientHello_random (32 bytes), serverHello_random (32 bytes), server_random (32 bytes) and client_random (32 bytes), it must be 0 otherwise
     uint8_t *kdf_output;                                //!< pointer to the output area where the non sensitive output data related to the KDF are written. In case of HSM_KDF_HMAC_SHA_256_TLS_0_16_4, HSM_KDF_HMAC_SHA_384_TLS_0_32_4 KDF, HSM_KDF_HMAC_SHA_256_TLS_0_32_4, HSM_KDF_HMAC_SHA_256_TLS_32_16_4 or HSM_KDF_HMAC_SHA_384_TLS_48_32_4 KDF the concatenation of client_write_iv (4 bytes) and server_write_iv (4 bytes) will be stored at this address, it must be 0 otherwise
     hsm_key_group_t shared_key_group;                   //!< It specifies the group where the derived keys will be stored.\n It must be a value in the range 0-1023. Keys belonging to the same group can be cached in the HSM local memory throug the hsm_manage_key_group API
     hsm_key_info_t shared_key_info;                     //!< bitmap specifying the properties of the derived keys, it will be applied to all the derived keys.
-    hsm_key_type_t shared_key_type;                     //!< indicates the type of the derived key.\n In case of HSM_KDF_ALG_AES_CMAC_256_COUNTER it must be HSM_KEY_TYPE_AES_256.\n Not relevant in case of HSM_KDF_HMAC_SHA_256_TLS_0_16_4, HSM_KDF_HMAC_SHA_384_TLS_0_32_4 KDF, HSM_KDF_HMAC_SHA_256_TLS_0_32_4, HSM_KDF_HMAC_SHA_256_TLS_32_16_4 or HSM_KDF_HMAC_SHA_384_TLS_48_32_4 KDF.
-    hsm_key_type_t initiator_public_data_type;          //!< indicates the public data type specified by the initiator, e.g. public key type.\n For CMAC KDF, this must be HSM_KEY_TYPE_ECDSA_NIST_P256.\n For HMAC KDF, this can be HSM_KEY_TYPE_ECDSA_NIST_P256 or HSM_KEY_TYPE_ECDSA_NIST_P384.
+    hsm_key_type_t shared_key_type;                     //!< indicates the type of the derived key.\n In case of HSM_KDF_ALG_SHA_256 it must be HSM_KEY_TYPE_AES_256.\n Not relevant in case of HSM_KDF_HMAC_SHA_256_TLS_0_16_4, HSM_KDF_HMAC_SHA_384_TLS_0_32_4 KDF, HSM_KDF_HMAC_SHA_256_TLS_0_32_4, HSM_KDF_HMAC_SHA_256_TLS_32_16_4 or HSM_KDF_HMAC_SHA_384_TLS_48_32_4 KDF.
+    hsm_key_type_t initiator_public_data_type;          //!< indicates the public data type specified by the initiator, e.g. public key type.\n For SHA KDF, this must be HSM_KEY_TYPE_ECDSA_NIST_P256.\n For HMAC KDF, this can be HSM_KEY_TYPE_ECDSA_NIST_P256 or HSM_KEY_TYPE_ECDSA_NIST_P384.
     hsm_key_exchange_scheme_id_t key_exchange_scheme;   //!< indicates the key exchange scheme
     hsm_kdf_algo_id_t kdf_algorithm;                    //!< indicates the KDF algorithm
     uint16_t ke_input_size;                             //!< length in bytes of the input data of the key exchange function
     uint16_t ke_output_size;                            //!< length in bytes of the output data of the key exchange function
     uint8_t shared_key_identifier_array_size;           //!< length in byte of the area containing the shared key identifiers
-    uint8_t kdf_input_size;                             //!< length in bytes of the input data of the KDF. It must be 128 bytes in case of HSM_KDF_HMAC_SHA_256_TLS_0_16_4, HSM_KDF_HMAC_SHA_384_TLS_0_32_4 KDF, HSM_KDF_HMAC_SHA_256_TLS_0_32_4 KDF, HSM_KDF_HMAC_SHA_256_TLS_32_16_4 or HSM_KDF_HMAC_SHA_384_TLS_48_32_4, 0 otherwise
-    uint8_t kdf_output_size;                            //!< length in bytes of the non sensitive output data related to the KDF. It must be 8 bytes in case of HSM_KDF_HMAC_SHA_256_TLS_0_16_4, HSM_KDF_HMAC_SHA_384_TLS_0_32_4, HSM_KDF_HMAC_SHA_256_TLS_0_32_4 KDF, HSM_KDF_HMAC_SHA_256_TLS_32_16_4 or HSM_KDF_HMAC_SHA_384_TLS_48_32_4 KDF
+    uint8_t kdf_input_size;                             //!< length in bytes of the input data of the KDF. It must be 128 bytes in case of HSM_KDF_HMAC_SHA_256_TLS_0_16_4, HSM_KDF_HMAC_SHA_384_TLS_0_32_4 KDF, HSM_KDF_HMAC_SHA_256_TLS_0_32_4 KDF, HSM_KDF_HMAC_SHA_256_TLS_32_16_4 or HSM_KDF_HMAC_SHA_384_TLS_48_32_4, 0 otherwise.
+    uint8_t kdf_output_size;                            //!< length in bytes of the non sensitive output data related to the KDF. It must be 8 bytes in case of HSM_KDF_HMAC_SHA_256_TLS_0_16_4, HSM_KDF_HMAC_SHA_384_TLS_0_32_4, HSM_KDF_HMAC_SHA_256_TLS_0_32_4 KDF, HSM_KDF_HMAC_SHA_256_TLS_32_16_4 or HSM_KDF_HMAC_SHA_384_TLS_48_32_4 KDF, 0 otherwise.
     hsm_op_key_exchange_flags_t flags;                  //!< bitmap specifying the operation properties
 } op_key_exchange_args_t;
 
@@ -1455,7 +1455,7 @@ typedef struct {
  * This command is designed to to derive a secret key that will be stored in the key store as a new key or as an update of an existing key.\n
  * A freshly generated key or an existing key can be used as input for the shared secret calculation.\n
  * User can call this function only after having opened a key management service flow.\n
- * When using CMAC KDF, only Key Encryption Keys (KEKs) can be generated. The input data to the CMAC uses the format described in NIST SP 800-108, with Context set to 'NXP HSM KEY ENCRYPTION KEY' and Label set to 'NXP HSM USER_KEK'.
+ * When using the SHA KDF, only Key Encryption Keys (KEKs) can be generated.  The KEK is generated using SHA_256(counter || Z || FixedInput), where counter is a 32 bit value of 1 in big endian format, Z is the output of the ECDH exchange, and FixedInput is the string 'NXP HSM USER KEY DERIVATION' (27 bytes, no null termination).
  *
  * \param key_management_hdl handle identifying the key store management service flow.
  * \param args pointer to the structure containing the function arguments.
@@ -1463,13 +1463,13 @@ typedef struct {
  * \return error code
 */
 hsm_err_t hsm_key_exchange(hsm_hdl_t key_management_hdl, op_key_exchange_args_t *args);
-#define HSM_KDF_ALG_AES_CMAC_256_COUNTER                ((hsm_kdf_algo_id_t)0x00u)  //!< CMAC KDF can only be used to generate KEKs (key encryption keys)
 #define HSM_KDF_ALG_FOR_SM2                             ((hsm_kdf_algo_id_t)0x10u)
 #define HSM_KDF_HMAC_SHA_256_TLS_0_16_4                 ((hsm_kdf_algo_id_t)0x20u)  //!< TLS PRF based on HMAC with SHA-256, the resulting mac_key_length is 0 bytes, enc_key_length is 16 bytes and fixed_iv_length is 4 bytes.
 #define HSM_KDF_HMAC_SHA_384_TLS_0_32_4                 ((hsm_kdf_algo_id_t)0x21u)  //!< TLS PRF based on HMAC with SHA-384, the resulting mac_key_length is 0 bytes, enc_key_length is 32 bytes and fixed_iv_length is 4 bytes.
 #define HSM_KDF_HMAC_SHA_256_TLS_0_32_4                 ((hsm_kdf_algo_id_t)0x22u)  //!< TLS PRF based on HMAC with SHA-256, the resulting mac_key_length is 0 bytes, enc_key_length is 32 bytes and fixed_iv_length is 4 bytes.
 #define HSM_KDF_HMAC_SHA_256_TLS_32_16_4                ((hsm_kdf_algo_id_t)0x23u)  //!< TLS PRF based on HMAC with SHA-256, the resulting mac_key_length is 32 bytes, enc_key_length is 16 bytes and fixed_iv_length is 4 bytes.
 #define HSM_KDF_HMAC_SHA_384_TLS_48_32_4                ((hsm_kdf_algo_id_t)0x24u)  //!< TLS PRF based on HMAC with SHA-384, the resulting mac_key_length is 48 bytes, enc_key_length is 32 bytes and fixed_iv_length is 4 bytes.
+#define HSM_KDF_ALG_SHA_256                             ((hsm_kdf_algo_id_t)0x31u)  //!< SHA KDF can only be used to generate KEKs (key encryption keys)
 #define HSM_KE_SCHEME_ECDH_NIST_P256                    ((hsm_key_exchange_scheme_id_t)0x02u)
 #define HSM_KE_SCHEME_ECDH_NIST_P384                    ((hsm_key_exchange_scheme_id_t)0x03u)
 #define HSM_KE_SCHEME_SM2_FP_256                        ((hsm_key_exchange_scheme_id_t)0x42u)
