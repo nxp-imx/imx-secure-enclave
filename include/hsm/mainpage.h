@@ -7,21 +7,22 @@
  *
  * Revision       | date           | description
  * :------------: | :-------------:| :------------
- * 0.1 -  | Mar 29 2019  | Preliminary draft
- * 0.8 -  | May 24 2019  | It adds the following API: \n-signature generation \n-signature verification \n-rng \n-hash \n-butterfly key expansion \n-ECIES enc/dec \n-public key reconstruction \n-public key decompression
- * 0.9 -  | May 28 2019  | Explicit addresses are replaced by pointers.
- * 1.0 -  | May 29 2019  | - bug/typos fix. \n- Change HSM_SVC_KEY_STORE_FLAGS definition
- * 1.1 -  | July 31 2019 | - hsm_butterfly_key_expansion argument definition: dest_key_identifier is now a pointer. \n- add error code definition. \n- improve argument comments clarity
- * 1.5 -  | Sept 13 2019 | - manage key argument: fix padding size\n - butterfly key expansion: change argument definition\n- introduce public key recovery API
- * 1.6 -  | Oct 14 2019  | - add Key store section in chapter 3\n- change key_info and flags definition, substitute key_type_ext with group_id\n- hsm_generate_key, hsm_manage_key, hsm_butterfly_key_expansion: change argument definition\n- hsm_manage_key: change argument definition\n- add hsm_manage_key_group API
- * 1.7 -  | Dec 20 2019  | - add generic data storage API \n- add GCM and CMAC support\n- add support for AES 192/256 key size for all cipher algorithms\n - add root KEK export API\n - add key import functionality\n- add get info API
- * 2.0 -  | Feb 21 2020  | - fix HSM_KEY_INFO_TRANSIENT definition: delete erroneous "not supported" comment \n- add Key Encryption Key (HSM_KEY_INFO_KEK) support \n- key store open service API: adding signed message support for key store reprovisionning \n- naming consistency: remove "hsm_" prefix from \n hsm_op_ecies_dec_args_t \n hsm_op_pub_key_rec_args_t \n hsm_op_pub_key_dec_args_t \n hsm_op_ecies_enc_args_t \n hsm_op_pub_key_recovery_args_t \n hsm_op_get_info_args_t
- * 2.1 - subject to change | Apr 16 2020  | - Preliminary version: Add the support of the chinese algorithms and update for i.MX8DXL
+ * 0.1 | Mar 29 2019  | Preliminary draft
+ * 0.8 | May 24 2019  | It adds the following API: \n-signature generation \n-signature verification \n-rng \n-hash \n-butterfly key expansion \n-ECIES enc/dec \n-public key reconstruction \n-public key decompression
+ * 0.9 | May 28 2019  | Explicit addresses are replaced by pointers.
+ * 1.0 | May 29 2019  | - bug/typos fix. \n- Change HSM_SVC_KEY_STORE_FLAGS definition
+ * 1.1 | July 31 2019 | - hsm_butterfly_key_expansion argument definition: dest_key_identifier is now a pointer. \n- add error code definition. \n- improve argument comments clarity
+ * 1.5 | Sept 13 2019 | - manage key argument: fix padding size\n - butterfly key expansion: change argument definition\n- introduce public key recovery API
+ * 1.6 | Oct 14 2019  | - add Key store section in chapter 3\n- change key_info and flags definition, substitute key_type_ext with group_id\n- hsm_generate_key, hsm_manage_key, hsm_butterfly_key_expansion: change argument definition\n- hsm_manage_key: change argument definition\n- add hsm_manage_key_group API
+ * 1.7 | Dec 20 2019  | - add generic data storage API \n- add GCM and CMAC support\n- add support for AES 192/256 key size for all cipher algorithms\n - add root KEK export API\n - add key import functionality\n- add get info API
+ * 2.0 | Feb 21 2020  | - fix HSM_KEY_INFO_TRANSIENT definition: delete erroneous "not supported" comment \n- add Key Encryption Key (HSM_KEY_INFO_KEK) support \n- key store open service API: adding signed message support for key store reprovisionning \n- naming consistency: remove "hsm_" prefix from \n hsm_op_ecies_dec_args_t \n hsm_op_pub_key_rec_args_t \n hsm_op_pub_key_dec_args_t \n hsm_op_ecies_enc_args_t \n hsm_op_pub_key_recovery_args_t \n hsm_op_get_info_args_t
+ * 2.1 | Apr 16 2020  | - Preliminary version: Add the support of the chinese algorithms and update for i.MX8DXL
  * 2.2 | Apr 30 2020  | - fix erroneous number of supported key groups (correct number is 1000 while 1024 was indicated)\n- add missing status code definition \n- remove hsm_open_key_store_service unused flags: HSM_SVC_KEY_STORE_FLAGS_UPDATE, HSM_SVC_KEY_STORE_FLAGS_DELETE
  * 2.3 | June 30 2020  | - hsm_get_info fips mode definition: now specifying "FIPS mode of operation" and "FIPS certified part" bits.\n- Update i.MX8QXP specificities section specifying operations disabled when in FIPS approved mode. \n- Update comments related to cipher_one_go and SM2 ECES APIs for i.MX8DXL
  * 2.4 | July 9 2020 | - clarify support of hsm_import_public key API.
  * 2.5 | July 28 2020 | - add section in "i.MX8QXP specificities" chapter indicating the maximum number of keys per group.
  * 2.6 | Jul 29 2020  | - Key Exchange: add the definition of ECDH_P384 and TLS KDFs\n- mac_one_go: add definition of HMAC SHA256/384.
+ * 2.7 | Sep 25 2020  | - Key Exchange: additional TLS KDFs support, CMAC KDF replaced by SHA-256 KDF\n- mac_one_go: add support of HMAC SHA224/523.
  * */
 
 /*! \page page1 General concepts related to the API
