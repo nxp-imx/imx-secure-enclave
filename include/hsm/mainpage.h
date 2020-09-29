@@ -85,3 +85,22 @@
  * 512 | 56
  *
  */
+
+/**
+ *\addtogroup dxl_specific
+ * \ref sec4
+ *
+ * The table below summarizes the maximum number of keys per group in the DXL implementation:
+ *
+ * sessions using V2X implementation (HSM_OPEN_SESSION_LOW_LATENCY_MASK) :
+ * Key size (bits)| Number of keys per group
+ * :------------: | :-------------:
+ * 128 | 166
+ * 192 | 125
+ * 224 | 111
+ * 256 | 100
+ * 384 | 71
+ * 512 | 52
+ *
+ * session using SECO implementation : same number as QXP applies
+ */
