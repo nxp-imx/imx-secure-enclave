@@ -23,6 +23,7 @@
  * 2.5 | July 28 2020 | - add section in "i.MX8QXP specificities" chapter indicating the maximum number of keys per group.
  * 2.6 | Jul 29 2020  | - Key Exchange: add the definition of ECDH_P384 and TLS KDFs\n- mac_one_go: add definition of HMAC SHA256/384.
  * 2.7 | Sep 25 2020  | - Key Exchange: additional TLS KDFs support, CMAC KDF replaced by SHA-256 KDF\n- mac_one_go: add support of HMAC SHA224/523.
+ * 2.8 | Sep 30 2020  | - Key Exchange: add details related to the SM2 key exchange.
  * */
 
 /*! \page page1 General concepts related to the API
