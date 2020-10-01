@@ -1211,7 +1211,7 @@ typedef struct {
     uint8_t *payload;                           //!< pointer to the payload area\n
     uint8_t *mac;                               //!< pointer to the tag area\n
     uint16_t payload_size;                      //!< length in bytes of the payload
-    uint16_t mac_size;                          //!< length in bytes of the tag\n the value is in range from 4 to 16 bytes.
+    uint16_t mac_size;                          //!< length in bytes of the tag\n For CMAC the value must be between 4 and 16 bytes.\n For HMAC the value must be between 4 and the hash size.
 } op_mac_one_go_args_t;
 
 typedef uint32_t hsm_mac_verification_status_t;
