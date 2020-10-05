@@ -325,6 +325,11 @@ int main(int argc, char *argv[])
     op_key_exchange_args_t key_exch;
     op_cipher_one_go_args_t cipher_args;
 
+    open_svc_mac_args_t mac_srv_args;
+    hsm_hdl_t sg0_mac_hdl;
+    op_mac_one_go_args_t mac_one_go;
+    hsm_mac_verification_status_t mac_status;
+
     uint8_t recovered_key[256];
     uint8_t rng_out_buff[4096];
 
@@ -915,7 +920,49 @@ int main(int argc, char *argv[])
             printf("\n");
     }
 
+    // mac test
+    printf("\n---------------------------------------------------\n");
+    printf("MAC ONE GO Test \n");
+    printf("---------------------------------------------------\n");
+    mac_srv_args.flags = 0u;
+    err = hsm_open_mac_service(sg0_key_store_serv, &mac_srv_args, &sg0_mac_hdl);
+    printf("err: 0x%x hsm_open_mac_service err: hdl: 0x%08x\n", err, sg0_mac_hdl);
 
+    gen_key_args.key_identifier = &key_id;
+    gen_key_args.out_size = 0U;
+    gen_key_args.flags = HSM_OP_KEY_GENERATION_FLAGS_CREATE;
+    gen_key_args.key_type = HSM_KEY_TYPE_AES_256;
+    gen_key_args.key_group = 12;
+    gen_key_args.key_info = 0U;
+    gen_key_args.out_key = NULL;
+    err = hsm_generate_key(sg0_key_mgmt_srv, &gen_key_args);
+    printf("err: 0x%x hsm_generate_key err: hdl: 0x%08x\n", err, sg0_key_mgmt_srv);
+
+    mac_one_go.key_identifier = key_id;
+    mac_one_go.algorithm = HSM_OP_MAC_ONE_GO_ALGO_AES_CMAC;
+    mac_one_go.flags = HSM_OP_MAC_ONE_GO_FLAGS_MAC_GENERATION;
+    mac_one_go.payload = SM2_test_message;
+    mac_one_go.mac = work_area2;
+    mac_one_go.payload_size = 32u;
+    mac_one_go.mac_size = 16u;
+    err = hsm_mac_one_go(sg0_mac_hdl, &mac_one_go, &mac_status);
+    printf("err: 0x%x hsm_mac_one_go GEN hdl: 0x%08x\n", err, sg0_mac_hdl);
+
+    mac_one_go.key_identifier = key_id;
+    mac_one_go.algorithm = HSM_OP_MAC_ONE_GO_ALGO_AES_CMAC;
+    mac_one_go.flags = HSM_OP_MAC_ONE_GO_FLAGS_MAC_VERIFICATION;
+    mac_one_go.payload = SM2_test_message;
+    mac_one_go.mac = work_area2;
+    mac_one_go.payload_size = 32u;
+    mac_one_go.mac_size = 8u;
+    err = hsm_mac_one_go(sg0_mac_hdl, &mac_one_go, &mac_status);
+    printf("err: 0x%x hsm_mac_one_go VER hdl: 0x%08x\n", err, sg0_mac_hdl);
+
+    if (mac_status == HSM_MAC_VERIFICATION_STATUS_SUCCESS) {
+        printf(" --> SUCCESS\n");
+    } else {
+        printf(" --> FAILURE\n");
+    }
 
     // Close all services and sessions
     printf("\n---------------------------------------------------\n");
@@ -939,6 +986,9 @@ int main(int argc, char *argv[])
     printf("err: 0x%x hsm_close_sm2_eces_service hdl: 0x%08x\n", err, sg0_sm2_eces_hdl);
     err = hsm_close_sm2_eces_service(sg1_sm2_eces_hdl);
     printf("err: 0x%x hsm_close_sm2_eces_service hdl: 0x%08x\n", err, sg1_sm2_eces_hdl);
+
+    err = hsm_close_mac_service(sg0_mac_hdl);
+    printf("err: 0x%x hsm_close_mac_service hdl: 0x%x\n", err, sg0_mac_hdl);
 
     err = hsm_close_key_management_service(sg0_key_mgmt_srv);
     printf("err: 0x%x hsm_close_key_management_service hdl: 0x%x\n", err, sg0_key_mgmt_srv);
