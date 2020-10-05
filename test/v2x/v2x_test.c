@@ -90,6 +90,35 @@ uint8_t ecies_p1[32] = {
     0x4E, 0xE0, 0x86, 0xCE, 0x59, 0x06, 0xA7, 0xCA, 0xC2, 0xF8, 0xA3, 0x98, 0x30, 0x6D, 0x3B, 0xE9
 };
 
+uint8_t ecc_p256_pubk[2*32] = {
+    0x1c, 0xcb, 0xe9, 0x1c, 0x07, 0x5f, 0xc7, 0xf4, 0xf0, 0x33, 0xbf, 0xa2, 0x48, 0xdb, 0x8f, 0xcc,
+    0xd3, 0x56, 0x5d, 0xe9, 0x4b, 0xbf, 0xb1, 0x2f, 0x3c, 0x59, 0xff, 0x46, 0xc2, 0x71, 0xbf, 0x83,
+    0xce, 0x40, 0x14, 0xc6, 0x88, 0x11, 0xf9, 0xa2, 0x1a, 0x1f, 0xdb, 0x2c, 0x0e, 0x61, 0x13, 0xe0,
+    0x6d, 0xb7, 0xca, 0x93, 0xb7, 0x40, 0x4e, 0x78, 0xdc, 0x7c, 0xcd, 0x5c, 0xa8, 0x9a, 0x4c, 0xa9
+};
+
+uint8_t sm2_ke_input[2*64] = {
+    // initiator static public key
+    0x6A, 0xE8, 0x48, 0xC5, 0x7C, 0x53, 0xC7, 0xB1, 0xB5, 0xFA, 0x99, 0xEB, 0x22, 0x86, 0xAF, 0x07,
+    0x8B, 0xA6, 0x4C, 0x64, 0x59, 0x1B, 0x8B, 0x56, 0x6F, 0x73, 0x57, 0xD5, 0x76, 0xF1, 0x6D, 0xFB,
+    0xEE, 0x48, 0x9D, 0x77, 0x16, 0x21, 0xA2, 0x7B, 0x36, 0xC5, 0xC7, 0x99, 0x20, 0x62, 0xE9, 0xCD,
+    0x09, 0xA9, 0x26, 0x43, 0x86, 0xF3, 0xFB, 0xEA, 0x54, 0xDF, 0xF6, 0x93, 0x05, 0x62, 0x1C, 0x4D,
+    // initiator ephemeral public key
+    0x16, 0x0E, 0x12, 0x89, 0x7D, 0xF4, 0xED, 0xB6, 0x1D, 0xD8, 0x12, 0xFE, 0xB9, 0x67, 0x48, 0xFB,
+    0xD3, 0xCC, 0xF4, 0xFF, 0xE2, 0x6A, 0xA6, 0xF6, 0xDB, 0x95, 0x40, 0xAF, 0x49, 0xC9, 0x42, 0x32,
+    0x4A, 0x7D, 0xAD, 0x08, 0xBB, 0x9A, 0x45, 0x95, 0x31, 0x69, 0x4B, 0xEB, 0x20, 0xAA, 0x48, 0x9D,
+    0x66, 0x49, 0x97, 0x5E, 0x1B, 0xFC, 0xF8, 0xC4, 0x74, 0x1B, 0x78, 0xB4, 0xB2, 0x23, 0x00, 0x7F
+};
+
+uint8_t sm2_kdf_input[2*32] = {
+    // Za
+    0xB2, 0xE1, 0x4C, 0x5C, 0x79, 0xC6, 0xDF, 0x5B, 0x85, 0xF4, 0xFE, 0x7E, 0xD8, 0xDB, 0x7A, 0x26,
+    0x2B, 0x9D, 0xA7, 0xE0, 0x7C, 0xCB, 0x0E, 0xA9, 0xF4, 0x74, 0x7B, 0x8C, 0xCD, 0xA8, 0xA4, 0xF3,
+    // Zb
+    0xB5 ,0x24 ,0xF5 ,0x52 ,0xCD ,0x82 ,0xB8 ,0xB0 ,0x28 ,0x47 ,0x6E ,0x00 ,0x5C ,0x37 ,0x7F ,0xB1,
+    0x9A ,0x87 ,0xE6 ,0xFC ,0x68 ,0x2D ,0x48 ,0xBB ,0x5D ,0x42 ,0xE3 ,0xD9 ,0xB9 ,0xEF ,0xFE ,0x76,
+};
+
 uint8_t work_area[128] = {0};
 uint8_t work_area2[128] = {0};
 uint8_t work_area3[128] = {0};
@@ -283,6 +312,7 @@ int main(int argc, char *argv[])
 
     op_generate_key_args_t gen_key_args;
     uint32_t key_id = 0;
+    uint32_t key_id_sm4 = 0;
 
     hsm_verification_status_t status;
     hsm_err_t err;
@@ -291,6 +321,9 @@ int main(int argc, char *argv[])
     sig_thread_args_t args1, args2;
     cipher_thread_args_t cipher_args1, cipher_args2;
     op_pub_key_recovery_args_t pub_k_rec_args;
+
+    op_key_exchange_args_t key_exch;
+    op_cipher_one_go_args_t cipher_args;
 
     uint8_t recovered_key[256];
     uint8_t rng_out_buff[4096];
@@ -751,6 +784,137 @@ int main(int argc, char *argv[])
     } else {
         printf(" --> FAILURE\n");
     }
+
+
+    // Key exchange to create a KEK
+    printf("\n---------------------------------------------------\n");
+    printf("Key exchange KEK derivation \n");
+    printf("---------------------------------------------------\n");
+    key_exch.key_identifier =0;
+    key_exch.shared_key_identifier_array = work_area2;
+    key_exch.ke_input = ecc_p256_pubk;
+    key_exch.ke_output = work_area3;
+    key_exch.kdf_input = 0;
+    key_exch.kdf_output = 0;
+    key_exch.shared_key_group = 32;
+    key_exch.shared_key_info = HSM_KEY_INFO_KEK;
+    key_exch.shared_key_type = HSM_KEY_TYPE_AES_256;
+    key_exch.initiator_public_data_type = HSM_KEY_TYPE_ECDSA_NIST_P256;
+    key_exch.key_exchange_scheme = HSM_KE_SCHEME_ECDH_NIST_P256;
+    key_exch.kdf_algorithm = HSM_KDF_ALG_SHA_256;
+    key_exch.ke_input_size = 64;
+    key_exch.ke_output_size = 64;
+    key_exch.shared_key_identifier_array_size = 4;
+    key_exch.kdf_input_size = 0;
+    key_exch.kdf_output_size = 0;
+    key_exch.flags = HSM_OP_KEY_EXCHANGE_FLAGS_CREATE | HSM_OP_KEY_EXCHANGE_FLAGS_USE_EPHEMERAL;
+
+    err = hsm_key_exchange(sg0_key_mgmt_srv, &key_exch);
+    printf("err: 0x%x hsm_key_exchange err hdl: 0x%08x\n", err, sg0_key_mgmt_srv);
+
+    printf("Receiver pubk:\n");
+    for (j=0; j<64; j++) {
+        printf("0x%02x ", work_area3[j]);
+        if (j%16 == 15)
+            printf("\n");
+    }
+
+
+    // SM2 Key exchange
+    printf("\n---------------------------------------------------\n");
+    printf("SM2 Key exchange \n");
+    printf("---------------------------------------------------\n");
+
+    gen_key_args.key_identifier = &key_id;
+    gen_key_args.out_size = 64;
+    gen_key_args.flags = HSM_OP_KEY_GENERATION_FLAGS_CREATE;
+    gen_key_args.key_type = HSM_KEY_TYPE_DSA_SM2_FP_256;
+    gen_key_args.key_group = 12;
+    gen_key_args.key_info = 0U;
+    gen_key_args.out_key = work_area2;
+    err = hsm_generate_key(sg0_key_mgmt_srv, &gen_key_args);
+    printf("err: 0x%x hsm_generate_key err: hdl: 0x%08x\n", err, sg0_key_mgmt_srv);
+
+    key_exch.key_identifier = key_id;
+    key_exch.shared_key_identifier_array = (uint8_t *)&key_id_sm4;
+    key_exch.ke_input = sm2_ke_input;
+    key_exch.ke_output = work_area3;
+    key_exch.kdf_input = sm2_kdf_input; // Za|| Zb
+    key_exch.kdf_output = 0;
+    key_exch.shared_key_group = 12;
+    key_exch.shared_key_info = 0;
+    key_exch.shared_key_type = HSM_KEY_TYPE_SM4_128;
+    key_exch.initiator_public_data_type = HSM_KEY_TYPE_DSA_SM2_FP_256;
+    key_exch.key_exchange_scheme = HSM_KE_SCHEME_SM2_FP_256;
+    key_exch.kdf_algorithm = HSM_KDF_ALG_FOR_SM2;
+    key_exch.ke_input_size = 64 *2;
+    key_exch.ke_output_size = 64 * 2;
+    key_exch.shared_key_identifier_array_size = 4;
+    key_exch.kdf_input_size = 32*2;
+    key_exch.kdf_output_size = 0;
+    key_exch.flags = HSM_OP_KEY_EXCHANGE_FLAGS_CREATE;
+
+    err = hsm_key_exchange(sg0_key_mgmt_srv, &key_exch);
+    printf("err: 0x%x hsm_key_exchange err hdl: 0x%08x\n", err, sg0_key_mgmt_srv);
+
+    printf("Receiver pubk:\n");
+    for (j=0; j<64; j++) {
+        printf("0x%02x ", work_area3[j]);
+        if (j%16 == 15)
+            printf("\n");
+    }
+
+    printf("Derived key_id 0x%08x\n", key_id_sm4);
+
+    // SM4 test with the derived key
+    printf("\n---------------------------------------------------\n");
+    printf("SM4 encrypt test with derived key \n");
+    printf("---------------------------------------------------\n");
+    cipher_srv_args.flags = 0U;
+    err = hsm_open_cipher_service(sg0_key_store_serv, &cipher_srv_args, &sg0_cipher_hdl);
+    printf("err: 0x%x hsm_open_cipher_service err: hdl: 0x%08x\n", err, sg0_cipher_hdl);
+
+    cipher_args.key_identifier = key_id_sm4;
+    cipher_args.iv = 0;
+    cipher_args.iv_size = 0;
+    cipher_args.cipher_algo = HSM_CIPHER_ONE_GO_ALGO_SM4_ECB;
+    cipher_args.flags = HSM_CIPHER_ONE_GO_FLAGS_ENCRYPT;
+    cipher_args.input = SM2_test_message;
+    cipher_args.output = work_area3;
+    cipher_args.input_size = 16;
+    cipher_args.output_size = 16;
+    err = hsm_cipher_one_go(sg0_cipher_hdl, &cipher_args);
+    printf("err: 0x%x hsm_cipher_one_go SM4 ENCRYPT hdl: 0x%08x\n", err, sg0_cipher_hdl);
+
+    key_exch.key_identifier = key_id;
+    key_exch.shared_key_identifier_array = work_area2;
+    key_exch.ke_input = sm2_ke_input;
+    key_exch.ke_output = work_area3;
+    key_exch.kdf_input = sm2_kdf_input; // Za|| Zb
+    key_exch.kdf_output = 0;
+    key_exch.shared_key_group = 12;
+    key_exch.shared_key_info = 0;
+    key_exch.shared_key_type = HSM_KEY_TYPE_DSA_SM2_FP_256;
+    key_exch.initiator_public_data_type = HSM_KEY_TYPE_DSA_SM2_FP_256;
+    key_exch.key_exchange_scheme = HSM_KE_SCHEME_SM2_FP_256;
+    key_exch.kdf_algorithm = HSM_KDF_ALG_FOR_SM2;
+    key_exch.ke_input_size = 64 *2;
+    key_exch.ke_output_size = 64 * 2;
+    key_exch.shared_key_identifier_array_size = 4;
+    key_exch.kdf_input_size = 32*2;
+    key_exch.kdf_output_size = 0;
+    key_exch.flags = HSM_OP_KEY_EXCHANGE_FLAGS_CREATE | HSM_OP_KEY_EXCHANGE_FLAGS_STRICT_OPERATION;
+
+    err = hsm_key_exchange(sg0_key_mgmt_srv, &key_exch);
+    printf("err: 0x%x hsm_key_exchange err hdl: 0x%08x\n", err, sg0_key_mgmt_srv);
+
+    printf("Receiver pubk:\n");
+    for (j=0; j<64; j++) {
+        printf("0x%02x ", work_area3[j]);
+        if (j%16 == 15)
+            printf("\n");
+    }
+
 
 
     // Close all services and sessions
