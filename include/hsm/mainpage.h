@@ -24,6 +24,7 @@
  * 2.6 | Jul 29 2020  | - Key Exchange: add the definition of ECDH_P384 and TLS KDFs\n- mac_one_go: add definition of HMAC SHA256/384.
  * 2.7 | Sep 25 2020  | - Key Exchange: additional TLS KDFs support, CMAC KDF replaced by SHA-256 KDF\n- mac_one_go: add support of HMAC SHA224/523.
  * 2.8 | Sep 30 2020  | - Key Exchange: add details related to the SM2 key exchange.
+ * 2.9 | Oct 14 2020  | - key_store_open: add STRICT_OPERATION flag. This flag allows to export the key store in the external NVM at the key store creation.
  * */
 
 /*! \page page1 General concepts related to the API
@@ -51,10 +52,10 @@
   The user can control which key group must be kept in the local memory (cached) through the manage_key_group API lock/unlock mechanism.\n
   As general concept, frequently used keys should be kept, when possible, in the same key group and locked in the local memory for performance optimization.\n
   \subsection subsec3 NVM writing
-  All the APIs modyfing the content of the key store (key generation, key_management, key derivation functions) provide a "STRICT OPERATION" flag. If the flag is set, the HSM triggers and export of the encrypted key group into the external NVM and increments (blows one bit) the OTP monotonic counter used as roll back protection. Please note that the "STRICT OPERATION" has effect only on the current key group.\n
+  All the APIs creating a key store (open key store API) or modyfing its content (key generation, key_management, key derivation functions) provide a "STRICT OPERATION" flag. If the flag is set, the HSM exports the relevant key store blocks into the external NVM and increments (blows one bit) the OTP monotonic counter used as roll back protection. In case of key generation/derivation/update the "STRICT OPERATION" has effect only on the target key group.\n
   Any update to the key store must be considered as effective only after an operation specifing the flag "STRICT OPERATION" is aknowledged by the HSM. All the operations not specifying the "STRICT OPERATION" flags impact the HSM local memory only and will be lost in case of system reset\n
   Due to the limited monotonic counter size (QXPB0 up to 1620 update available by default), the user should, when possible, perform multiple udates before setting the "STRICT OPERATION" flag (i.e. keys to be updated should be kept in the same key group).\n
-  Once the monotonic counter is completely blown a warning is returned on each update operation to inform the user that the new updates are not roll-back protected.
+  Once the monotonic counter is completely blown a warning is returned on each key store export to the NVM to inform the user that the new updates are not roll-back protected.
   \section sec5 Implementation specificities
   HSM API is supported on different versions of the i.MX8 family. The API description below is the same for all of them but some features may not be available on some chips. The details of the supported features per chip can be found here:
   - for i.MX8QXP: \ref qxp_specific
