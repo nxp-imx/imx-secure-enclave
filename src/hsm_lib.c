@@ -127,7 +127,7 @@ static hsm_err_t sab_rating_to_hsm_err(uint32_t sab_err)
 		hsm_err = (hsm_err_t)GET_RATING_CODE(sab_err);
 		if (hsm_err == HSM_NO_ERROR) {
 			hsm_err = HSM_GENERAL_ERROR;
-		} 
+		}
 	}
 
 	return hsm_err;
@@ -256,7 +256,7 @@ hsm_err_t hsm_open_session(open_session_args_t *args, hsm_hdl_t *session_hdl)
 	return err;
 }
 
-hsm_err_t hsm_open_key_store_service(hsm_hdl_t session_hdl, 
+hsm_err_t hsm_open_key_store_service(hsm_hdl_t session_hdl,
 					open_svc_key_store_args_t *args,
 					hsm_hdl_t *key_store_hdl)
 {
@@ -294,7 +294,7 @@ hsm_err_t hsm_open_key_store_service(hsm_hdl_t session_hdl,
 						args->authentication_nonce,
 						args->max_updates_number,
 						args->flags,
-						0);
+						args->min_mac_length);
 		err = sab_rating_to_hsm_err(sab_err);
 		if (err != HSM_NO_ERROR) {
 			delete_service(serv_ptr);
@@ -511,7 +511,7 @@ hsm_err_t hsm_manage_key(hsm_hdl_t key_management_hdl,
 
 		err = sab_rating_to_hsm_err(rsp.rsp_code);
 		if (
-			(err  == HSM_NO_ERROR) && 
+			(err  == HSM_NO_ERROR) &&
 			((cmd.flags & HSM_OP_MANAGE_KEY_FLAGS_IMPORT_CREATE) == HSM_OP_MANAGE_KEY_FLAGS_IMPORT_CREATE)
 		) {
 			*(args->key_identifier) = rsp.key_identifier;
@@ -638,8 +638,8 @@ hsm_err_t hsm_butterfly_key_expansion(hsm_hdl_t key_management_hdl,
 
 		err = sab_rating_to_hsm_err(rsp.rsp_code);
 		if (
-			(err  == HSM_NO_ERROR) && 
-			((cmd.flags & HSM_OP_BUTTERFLY_KEY_FLAGS_CREATE) == HSM_OP_BUTTERFLY_KEY_FLAGS_CREATE) 
+			(err  == HSM_NO_ERROR) &&
+			((cmd.flags & HSM_OP_BUTTERFLY_KEY_FLAGS_CREATE) == HSM_OP_BUTTERFLY_KEY_FLAGS_CREATE)
 		) {
 			*(args->dest_key_identifier) = rsp.dest_key_identifier;
 		}
@@ -2075,7 +2075,7 @@ hsm_err_t hsm_get_info(hsm_hdl_t session_hdl, op_get_info_args_t *args) {
 	struct hsm_session_hdl_s *sess_ptr;
 	hsm_err_t err = HSM_GENERAL_ERROR;
 	uint32_t error = 1;
-	
+
 	do {
 
 		sess_ptr = session_hdl_to_ptr(session_hdl);
@@ -2167,6 +2167,7 @@ hsm_err_t hsm_mac_one_go(hsm_hdl_t mac_hdl, op_mac_one_go_args_t* args, hsm_mac_
 	struct sab_cmd_mac_one_go_msg cmd;
 	struct sab_cmd_mac_one_go_rsp rsp;
 	struct hsm_service_hdl_s *serv_ptr;
+	uint32_t mac_size_bytes;
 
 	hsm_err_t err = HSM_GENERAL_ERROR;
 	int32_t error = 1;
@@ -2188,20 +2189,30 @@ hsm_err_t hsm_mac_one_go(hsm_hdl_t mac_hdl, op_mac_one_go_args_t* args, hsm_mac_
 		cmd.key_id = args->key_identifier;
 		cmd.algorithm = args->algorithm;
 		cmd.flags = args->flags;
-		cmd.payload_address = (uint32_t)seco_os_abs_data_buf(serv_ptr->session->phdl, 
-											args->payload, 
-											args->payload_size, 
+		if (args->flags & HSM_OP_MAC_ONE_GO_FLAGS_MAC_LENGTH_IN_BITS) {
+			mac_size_bytes = args->mac_size / 8;
+			if (args->mac_size % 8) {
+				mac_size_bytes++;
+			}
+		}
+		else {
+			mac_size_bytes = args->mac_size;
+		}
+
+		cmd.payload_address = (uint32_t)seco_os_abs_data_buf(serv_ptr->session->phdl,
+											args->payload,
+											args->payload_size,
 											DATA_BUF_IS_INPUT);
 		if ((args->flags & HSM_OP_MAC_ONE_GO_FLAGS_MAC_GENERATION) == HSM_OP_MAC_ONE_GO_FLAGS_MAC_GENERATION) {
-			cmd.mac_address = (uint32_t)seco_os_abs_data_buf(serv_ptr->session->phdl, 
-											args->mac, 
-											args->mac_size, 
+			cmd.mac_address = (uint32_t)seco_os_abs_data_buf(serv_ptr->session->phdl,
+											args->mac,
+											mac_size_bytes,
 											0u);
 		}
 		else {
-			cmd.mac_address = (uint32_t)seco_os_abs_data_buf(serv_ptr->session->phdl, 
-											args->mac, 
-											args->mac_size, 
+			cmd.mac_address = (uint32_t)seco_os_abs_data_buf(serv_ptr->session->phdl,
+											args->mac,
+											mac_size_bytes,
 											DATA_BUF_IS_INPUT);
 		}
 		cmd.payload_size = args->payload_size;

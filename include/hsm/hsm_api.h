@@ -132,7 +132,7 @@ typedef struct {
     uint32_t authentication_nonce;      //!< user defined nonce used as authentication proof for accesing the key store.
     uint16_t max_updates_number;        //!< maximum number of updates authorized for the key store. Valid only for create operation.\n This parameter has the goal to limit the occupation of the monotonic counter used as anti-rollback protection.\n If the maximum number of updates is reached, HSM still allows key store updates but without updating the monotonic counter giving the opportunity for rollback attacks.
     hsm_svc_key_store_flags_t flags;    //!< bitmap specifying the services properties.
-    uint8_t reserved;                   //!< it must be 0.
+    uint8_t min_mac_length;             //!< minimum mac length when using created key store, specified in bits.  Must be from 1 to 128.  Only used upon key store creation when HSM_SVC_KEY_STORE_FLAGS_SET_MAC_LEN bit is set.
     uint8_t *signed_message;            //!< pointer to signed_message to be sent only in case of key store re-provisioning
     uint16_t signed_msg_size;           //!< size of the signed_message to be sent only in case of key store re-provisioning
     uint8_t reserved_1[2];
@@ -150,6 +150,7 @@ typedef struct {
  */
 hsm_err_t hsm_open_key_store_service(hsm_hdl_t session_hdl, open_svc_key_store_args_t *args, hsm_hdl_t *key_store_hdl);
 #define HSM_SVC_KEY_STORE_FLAGS_CREATE              ((hsm_svc_key_store_flags_t)(1u << 0)) //!< It must be specified to create a new key store. The key store will be stored in the NVM only if the STRICT OPERATION flag is set.
+#define HSM_SVC_KEY_STORE_FLAGS_SET_MAC_LEN         ((hsm_svc_key_store_flags_t)(1u << 3)) //!< If set, minimum mac length specified in min_mac_length field will be stored in the key store when creating the key store.  Must only be set at key store creation.
 #define HSM_SVC_KEY_STORE_FLAGS_STRICT_OPERATION    ((hsm_svc_key_store_flags_t)(1u << 7)) //!< The request is completed only when the new key store has been written in the NVM. This applicable for CREATE operations only.
 
 /**
@@ -1213,7 +1214,7 @@ typedef struct {
     uint8_t *payload;                           //!< pointer to the payload area\n
     uint8_t *mac;                               //!< pointer to the tag area\n
     uint16_t payload_size;                      //!< length in bytes of the payload
-    uint16_t mac_size;                          //!< length in bytes of the tag\n For CMAC the value must be between 4 and 16 bytes.\n For HMAC the value must be between 4 and the hash size.
+    uint16_t mac_size;                          //!< length of the tag.  Specified in bytes if HSM_OP_MAC_ONE_GO_FLAGS_MAC_LENGTH_IN_BITS is clear, specified in bits when HSM_OP_MAC_ONE_GO_FLAGS_MAC_LENGTH_IN_BITS is set.\n When specified in bits, the key store is checked to see if a minimum value was set at key store creation. If a minimum value was specified at key store creation, the mac size is checked against that minimum size. If a minimum size was not set when creating key store, or the size is specified in bytes, minimum size is 4 bytes (32 bits).\n For CMAC the maximum size is 16 bytes (128 bits).\n For HMAC the maximum size is the hash size.
 } op_mac_one_go_args_t;
 
 typedef uint32_t hsm_mac_verification_status_t;
@@ -1232,6 +1233,7 @@ hsm_err_t hsm_mac_one_go(hsm_hdl_t mac_hdl, op_mac_one_go_args_t* args, hsm_mac_
 
 #define HSM_OP_MAC_ONE_GO_FLAGS_MAC_VERIFICATION       ((hsm_op_mac_one_go_flags_t)(0u << 0))
 #define HSM_OP_MAC_ONE_GO_FLAGS_MAC_GENERATION         ((hsm_op_mac_one_go_flags_t)(1u << 0))
+#define HSM_OP_MAC_ONE_GO_FLAGS_MAC_LENGTH_IN_BITS     ((hsm_op_mac_one_go_flags_t)(1u << 1))
 #define HSM_OP_MAC_ONE_GO_ALGO_AES_CMAC                ((hsm_op_mac_one_go_algo_t)(0x01u))
 #define HSM_OP_MAC_ONE_GO_ALGO_HMAC_SHA_224            ((hsm_op_mac_one_go_algo_t)(0x05u))
 #define HSM_OP_MAC_ONE_GO_ALGO_HMAC_SHA_256            ((hsm_op_mac_one_go_algo_t)(0x06u))
