@@ -715,7 +715,7 @@ she_err_t she_cmd_load_key_ext(struct she_hdl_s *hdl, uint8_t key_ext, uint8_t k
     return ret;
 }
 
-she_err_t she_cmd_load_plain_key(struct she_hdl_s *hdl, uint8_t *key) 
+she_err_t she_cmd_load_plain_key(struct she_hdl_s *hdl, uint8_t *key)
 {
     struct she_cmd_load_plain_key_msg cmd;
     struct she_cmd_load_plain_key_rsp rsp;
@@ -848,7 +848,7 @@ she_err_t she_cmd_extend_seed(struct she_hdl_s *hdl, uint8_t *entropy) {
             break;
         }
         if (hdl->rng_handle == 0u) {
-            ret = ERC_SEQUENCE_ERROR;
+            ret = ERC_RNG_SEED;
             break;
         }
         /* Build command message. */
