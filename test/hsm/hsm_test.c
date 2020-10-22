@@ -427,6 +427,8 @@ int main(int argc, char *argv[])
 
         (void)pthread_cancel(tid);
 
+        seco_nvm_close_session();
+
     } while (0);
     return 0;
 }
