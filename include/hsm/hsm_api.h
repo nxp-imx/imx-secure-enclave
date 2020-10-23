@@ -1491,6 +1491,8 @@ hsm_err_t hsm_key_exchange(hsm_hdl_t key_management_hdl, op_key_exchange_args_t 
 #define HSM_KDF_ALG_SHA_256                             ((hsm_kdf_algo_id_t)0x31u)  //!< SHA KDF can only be used to generate KEKs (key encryption keys) for key injection (hsm_manage_key API)
 #define HSM_KE_SCHEME_ECDH_NIST_P256                    ((hsm_key_exchange_scheme_id_t)0x02u)
 #define HSM_KE_SCHEME_ECDH_NIST_P384                    ((hsm_key_exchange_scheme_id_t)0x03u)
+#define HSM_KE_SCHEME_ECDH_BRAINPOOL_R1_256             ((hsm_key_exchange_scheme_id_t)0x13u)
+#define HSM_KE_SCHEME_ECDH_BRAINPOOL_R1_384             ((hsm_key_exchange_scheme_id_t)0x15u)
 #define HSM_KE_SCHEME_SM2_FP_256                        ((hsm_key_exchange_scheme_id_t)0x42u)
 #define HSM_OP_KEY_EXCHANGE_FLAGS_UPDATE                ((hsm_op_key_exchange_flags_t)(1u << 0))  //!< User can replace an existing key only by the derived key which should have the same type of the original one.
 #define HSM_OP_KEY_EXCHANGE_FLAGS_CREATE                ((hsm_op_key_exchange_flags_t)(1u << 1))  //!< Create a new key
