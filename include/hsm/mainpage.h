@@ -25,6 +25,7 @@
  * 2.7 | Sep 25 2020  | - Key Exchange: additional TLS KDFs support, CMAC KDF replaced by SHA-256 KDF\n- mac_one_go: add support of HMAC SHA224/523.
  * 2.8 | Sep 30 2020  | - Key Exchange: add details related to the SM2 key exchange.
  * 2.9 | Oct 14 2020  | - key_store_open: add STRICT_OPERATION flag. This flag allows to export the key store in the external NVM at the key store creation.
+ * 3.0 | Nov 6 2020   | - key Exchange: add signed message arguments (mandatory for KEK generation).\n- rename HSM_KDF_ALG_SHA_256 in HSM_KDF_ONE_STEP_SHA_256.
  * */
 
 /*! \page page1 General concepts related to the API

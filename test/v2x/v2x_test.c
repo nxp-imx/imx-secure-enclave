@@ -806,7 +806,7 @@ int main(int argc, char *argv[])
     key_exch.shared_key_type = HSM_KEY_TYPE_AES_256;
     key_exch.initiator_public_data_type = HSM_KEY_TYPE_ECDSA_NIST_P256;
     key_exch.key_exchange_scheme = HSM_KE_SCHEME_ECDH_NIST_P256;
-    key_exch.kdf_algorithm = HSM_KDF_ALG_SHA_256;
+    key_exch.kdf_algorithm = HSM_KDF_ONE_STEP_SHA_256;
     key_exch.ke_input_size = 64;
     key_exch.ke_output_size = 64;
     key_exch.shared_key_identifier_array_size = 4;

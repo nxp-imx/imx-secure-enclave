@@ -2487,6 +2487,11 @@ hsm_err_t hsm_key_exchange(hsm_hdl_t key_management_hdl, op_key_exchange_args_t 
 			break;
 		}
 
+		/* Send the signed message to SECO if provided here. */
+		if (args->signed_message != NULL) {
+			(void)seco_os_abs_send_signed_message(serv_ptr->session->phdl, args->signed_message, args->signed_msg_size);
+		}
+
 		/* Prepare the seco commmand */
 		seco_fill_cmd_msg_hdr(&cmd.hdr,
 			SAB_KEY_EXCHANGE_REQ,
