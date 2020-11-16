@@ -132,7 +132,7 @@ typedef struct {
     uint32_t authentication_nonce;      //!< user defined nonce used as authentication proof for accesing the key store.
     uint16_t max_updates_number;        //!< maximum number of updates authorized for the key store. Valid only for create operation.\n This parameter has the goal to limit the occupation of the monotonic counter used as anti-rollback protection.\n If the maximum number of updates is reached, HSM still allows key store updates but without updating the monotonic counter giving the opportunity for rollback attacks.
     hsm_svc_key_store_flags_t flags;    //!< bitmap specifying the services properties.
-    uint8_t min_mac_length;             //!< minimum mac length when using created key store, specified in bits.  Must be from 1 to 128.  Only used upon key store creation when HSM_SVC_KEY_STORE_FLAGS_SET_MAC_LEN bit is set.
+    uint8_t min_mac_length;             //!< it corresponds to the minimum mac length (in bits) accepted by the HSM to perfrom MAC verification operations. It can be used to replace the default value (32 bits).\n Only used upon key store creation when HSM_SVC_KEY_STORE_FLAGS_SET_MAC_LEN bit is set. The min_mac_length impacts all MAC algorithms and all key lengths.
     uint8_t *signed_message;            //!< pointer to signed_message to be sent only in case of key store re-provisioning
     uint16_t signed_msg_size;           //!< size of the signed_message to be sent only in case of key store re-provisioning
     uint8_t reserved_1[2];
@@ -1214,7 +1214,7 @@ typedef struct {
     uint8_t *payload;                           //!< pointer to the payload area\n
     uint8_t *mac;                               //!< pointer to the tag area\n
     uint16_t payload_size;                      //!< length in bytes of the payload
-    uint16_t mac_size;                          //!< length of the tag.  Specified in bytes if HSM_OP_MAC_ONE_GO_FLAGS_MAC_LENGTH_IN_BITS is clear, specified in bits when HSM_OP_MAC_ONE_GO_FLAGS_MAC_LENGTH_IN_BITS is set.\n When specified in bits, the key store is checked to see if a minimum value was set at key store creation. If a minimum value was specified at key store creation, the mac size is checked against that minimum size. If a minimum size was not set when creating key store, or the size is specified in bytes, minimum size is 4 bytes (32 bits).\n For CMAC the maximum size is 16 bytes (128 bits).\n For HMAC the maximum size is the hash size.
+    uint16_t mac_size;                          //!< length of the tag. Specified in bytes if HSM_OP_MAC_ONE_GO_FLAGS_MAC_LENGTH_IN_BITS is clear, specified in bits when HSM_OP_MAC_ONE_GO_FLAGS_MAC_LENGTH_IN_BITS is set.\n When specified in bytes the mac size cannot be less than 4 bytes.\n When specified in bits the mac size cannot be less than:\n - the min_mac_length value if specified at the key store provisioning or\n - the default value (32 bit) if min_mac_length has not been specified.
 } op_mac_one_go_args_t;
 
 typedef uint32_t hsm_mac_verification_status_t;
@@ -1249,6 +1249,17 @@ hsm_err_t hsm_mac_one_go(hsm_hdl_t mac_hdl, op_mac_one_go_args_t* args, hsm_mac_
  * \return error code
  */
 hsm_err_t hsm_close_mac_service(hsm_hdl_t mac_hdl);
+
+/**
+ *\addtogroup qxp_specific
+ * \ref group16
+ *
+ * - \ref HSM_OP_MAC_ONE_GO_ALGO_HMAC_SHA_224 is not supported.
+ * - \ref HSM_OP_MAC_ONE_GO_ALGO_HMAC_SHA_256 is not supported.
+ * - \ref HSM_OP_MAC_ONE_GO_ALGO_HMAC_SHA_384 is not supported.
+ * - \ref HSM_OP_MAC_ONE_GO_ALGO_HMAC_SHA_512 is not supported.
+ *
+ */
 
 /**
  *\addtogroup dxl_specific
@@ -1435,51 +1446,82 @@ typedef uint8_t hsm_kdf_algo_id_t;
 typedef uint8_t hsm_key_exchange_scheme_id_t;
 typedef uint8_t hsm_op_key_exchange_flags_t;
 typedef struct {
-    uint32_t key_identifier;                            //!< identifier of the key used for derivation. It must be zero, if HSM_OP_KEY_EXCHANGE_FLAGS_USE_EPHEMERAL is set.
-    uint8_t *shared_key_identifier_array;               //!< pointer to the identifiers of the derived keys. In case of create operation the new destination key identifiers will be stored in this location.  In case of update operation the destination key identifiers to update are provided by the caller in this location.\n In case of HSM_KDF_ONE_STEP_SHA_256 it contains the KEK key id.\n In case of HSM_KDF_HMAC_SHA_256_TLS_0_16_4, HSM_KDF_HMAC_SHA_384_TLS_0_32_4 or HSM_KDF_HMAC_SHA_256_TLS_0_32_4 KDF it contains the concatenation of client_write_key id (4 bytes) and the server_write_key id (4 bytes). In case of HSM_KDF_HMAC_SHA_256_TLS_32_16_4 or HSM_KDF_HMAC_SHA_384_TLS_48_32_4 KDF it contains the concatenation of client_write_MAC_key id (4 bytes), server_write_MAC_key id (4 bytes), client_write_key id (4 bytes) and the server_write_key id (4 bytes).
+    uint32_t key_identifier;                            //!< identifier of the key used for derivation. It must be zero, if HSM_OP_KEY_EXCHANGE_FLAGS_GENERATE_EPHEMERAL is set.
+    uint8_t *shared_key_identifier_array;               //!< pointer to the identifiers of the derived keys. In case of create operation the new destination key identifiers will be stored in this location. In case of update operation the destination key identifiers to update are provided by the caller in this location.
     uint8_t *ke_input;                                  //!< pointer to the initiator input data related to the key exchange function.
-    uint8_t *ke_output;                                 //!< pointer to the output area where the data related to the key exchange function must be written. It corresponds to the receiver public data.\n
-    uint8_t *kdf_input;                                 //!< pointer to the input data of the KDF.\n In case of HSM_KDF_HMAC_SHA_256_TLS_0_16_4, HSM_KDF_HMAC_SHA_384_TLS_0_32_4 KDF, HSM_KDF_HMAC_SHA_256_TLS_0_32_4, HSM_KDF_HMAC_SHA_256_TLS_32_16_4 or HSM_KDF_HMAC_SHA_384_TLS_48_32_4 it must contain to the concatenarion of clientHello_random (32 bytes), serverHello_random (32 bytes), server_random (32 bytes) and client_random (32 bytes), it must be 0 otherwise
-    uint8_t *kdf_output;                                //!< pointer to the output area where the non sensitive output data related to the KDF are written. In case of HSM_KDF_HMAC_SHA_256_TLS_0_16_4, HSM_KDF_HMAC_SHA_384_TLS_0_32_4 KDF, HSM_KDF_HMAC_SHA_256_TLS_0_32_4, HSM_KDF_HMAC_SHA_256_TLS_32_16_4 or HSM_KDF_HMAC_SHA_384_TLS_48_32_4 KDF the concatenation of client_write_iv (4 bytes) and server_write_iv (4 bytes) will be stored at this address, it must be 0 otherwise
+    uint8_t *ke_output;                                 //!< pointer to the output area where the data related to the key exchange function must be written. It corresponds to the receiver public data.
+    uint8_t *kdf_input;                                 //!< pointer to the input data of the KDF.
+    uint8_t *kdf_output;                                //!< pointer to the output area where the non sensitive output data related to the KDF are written.
     hsm_key_group_t shared_key_group;                   //!< It specifies the group where the derived keys will be stored.\n It must be a value in the range 0-1023. Keys belonging to the same group can be cached in the HSM local memory throug the hsm_manage_key_group API
     hsm_key_info_t shared_key_info;                     //!< bitmap specifying the properties of the derived keys, it will be applied to all the derived keys.
-    hsm_key_type_t shared_key_type;                     //!< indicates the type of the derived key.\n In case of HSM_KDF_ONE_STEP_SHA_256 it must be HSM_KEY_TYPE_AES_256.\n Not relevant in case of HSM_KDF_HMAC_SHA_256_TLS_0_16_4, HSM_KDF_HMAC_SHA_384_TLS_0_32_4 KDF, HSM_KDF_HMAC_SHA_256_TLS_0_32_4, HSM_KDF_HMAC_SHA_256_TLS_32_16_4 or HSM_KDF_HMAC_SHA_384_TLS_48_32_4 KDF.
-    hsm_key_type_t initiator_public_data_type;          //!< indicates the public data type specified by the initiator, e.g. public key type.\n For SHA KDF, this must be HSM_KEY_TYPE_ECDSA_NIST_P256.\n For HMAC KDF, this can be HSM_KEY_TYPE_ECDSA_NIST_P256 or HSM_KEY_TYPE_ECDSA_NIST_P384.
+    hsm_key_type_t shared_key_type;                     //!< indicates the type of the derived key.
+    hsm_key_type_t initiator_public_data_type;          //!< indicates the public data type specified by the initiator, e.g. public key type.
     hsm_key_exchange_scheme_id_t key_exchange_scheme;   //!< indicates the key exchange scheme
     hsm_kdf_algo_id_t kdf_algorithm;                    //!< indicates the KDF algorithm
-    uint16_t ke_input_size;                             //!< length in bytes of the input data of the key exchange function
+    uint16_t ke_input_size;                             //!< length in bytes of the input data of the key exchange function.
     uint16_t ke_output_size;                            //!< length in bytes of the output data of the key exchange function
     uint8_t shared_key_identifier_array_size;           //!< length in byte of the area containing the shared key identifiers
-    uint8_t kdf_input_size;                             //!< length in bytes of the input data of the KDF. It must be 128 bytes in case of HSM_KDF_HMAC_SHA_256_TLS_0_16_4, HSM_KDF_HMAC_SHA_384_TLS_0_32_4 KDF, HSM_KDF_HMAC_SHA_256_TLS_0_32_4 KDF, HSM_KDF_HMAC_SHA_256_TLS_32_16_4 or HSM_KDF_HMAC_SHA_384_TLS_48_32_4, 0 otherwise.
-    uint8_t kdf_output_size;                            //!< length in bytes of the non sensitive output data related to the KDF. It must be 8 bytes in case of HSM_KDF_HMAC_SHA_256_TLS_0_16_4, HSM_KDF_HMAC_SHA_384_TLS_0_32_4, HSM_KDF_HMAC_SHA_256_TLS_0_32_4 KDF, HSM_KDF_HMAC_SHA_256_TLS_32_16_4 or HSM_KDF_HMAC_SHA_384_TLS_48_32_4 KDF, 0 otherwise.
+    uint8_t kdf_input_size;                             //!< length in bytes of the input data of the KDF.
+    uint8_t kdf_output_size;                            //!< length in bytes of the non sensitive output data related to the KDF.
     hsm_op_key_exchange_flags_t flags;                  //!< bitmap specifying the operation properties
-    uint8_t *signed_message;                            //!< pointer to the signed_message authorizing the operation. To be sent for KEK generation only.
+    uint8_t *signed_message;                            //!< pointer to the signed_message authorizing the operation.
     uint16_t signed_msg_size;                           //!< size of the signed_message authorizing the operation.
-    uint8_t reserved[2];
+    uint8_t reserved[2];                                //!< It must be 0.
 } op_key_exchange_args_t;
 
 /**
- * This command is designed to to derive a secret key that will be stored in the key store as a new key or as an update of an existing key.\n
- * A freshly generated key or an existing key can be used as input for the shared secret calculation.\n
+ * This command is designed to compute secret keys through a key exchange protocol and the use of a key derivation function. The resulting secret keys are stored into the key store as new keys or as an update of existing keys.\n
+ * A freshly generated key or an existing key can be used as input of the shared secret calculation.\n
  * User can call this function only after having opened a key management service flow.\n
- * When using the SHA KDF, only Key Encryption Keys (KEKs) can be generated.\n As per as per SP800-56C rev2, the KEK is generated using SHA_256(counter || Z || FixedInput), where:
- * - counter is a 32 bit value of 1 in big endian format
- * - Z is the shared secret generated by the DH key-establishment scheme
- * - FixedInput is the literal 'NXP HSM USER KEY DERIVATION' (27 bytes, no null termination).\n
- *
- *
- * In the case of HSM_KE_SCHEME_SM2_FP_256 :
- *     - v2x role is receiver
- *     - only HSM_KDF_ALG_FOR_SM2 is supported
- *     - HSM_OP_KEY_EXCHANGE_FLAGS_USE_EPHEMERAL is not supported
- *	   - shared_key_type could only be HSM_KEY_TYPE_SM4_128 or HSM_KEY_TYPE_DSA_SM2_FP_256
- * 	   - shared_key info could not be a KEK
- * 	   - initiator_public_data_type could only be HSM_KEY_TYPE_DSA_SM2_FP_256
- * 	   - ke_input = (x||y) || (xephemeral||yephemeral) of the 2 public keys of initiator
- *	   - ke_out = (x||y)|| (xephemeral||yephemeral) of the 2 public keys the receiver
- *	   - kdf_input = (Zinitiator||Zinitiator||V1) if HSM_OP_KEY_EXCHANGE_FLAGS_KEY_CONF_EN enabled, \n where V1 is the verification value calculated on the initiator side
- *	   - kdf_output = (VA||VB)  if HSM_OP_KEY_EXCHANGE_FLAGS_KEY_CONF_EN enabled, 0 otherwise.
- *     - This SM2 key exchange algorithm is specified in GB/T 32918.
+ * 
+ * 
+ * This API support three use cases:
+ *  - Key Encryption Key generation:
+ *       - shared_key_identifier_array: it must corresponds to the KEK key id.
+ *       - The kdf_input must be 0
+ *       - The kdf_output must be 0
+ *       - The shared_key_info must have the HSM_KEY_INFO_KEK bit set (only Key Encryption Keys can be generated).
+ *       - The shared_key_type must be HSM_KEY_TYPE_AES_256
+ *       - The initiator_public_data_type must be HSM_KEY_TYPE_ECDSA_NIST_P256 or HSM_KEY_TYPE_ECDSA_BRAINPOOL_R1_256.
+ *       - The key_exchange_scheme must be HSM_KE_SCHEME_ECDH_NIST_P256 or HSM_KE_SCHEME_ECDH_BRAINPOOL_R1_256
+ *       - The kdf_algorithm must be HSM_KDF_ONE_STEP_SHA_256. As per as per SP800-56C rev2, the KEK is generated using the formula SHA_256(counter || Z || FixedInput), where:
+ *          - counter is the value 1 expressed in 32 bit and in big endian format 
+ *          - Z is the shared secret generated by the DH key-establishment scheme
+ *          - FixedInput is the literal 'NXP HSM USER KEY DERIVATION' (27 bytes, no null termination).
+ *       - The kdf_input_size must be 0.
+ *       - The kdf_output_size must be 0.
+ *       - Flags: the use of the HSM_OP_KEY_EXCHANGE_FLAGS_GENERATE_EPHEMERAL flag is mandatory (only freshly generated keys can be used as input of the Z derivation)
+ *       - signed_message: mandatory in OEM CLOSED life cycle.
+ * 
+ *  - TLS Key generation:
+ *       - Only an ephemeral key pair is supported as input of the TLS key_exchange negotiation. This can be:
+ *          - either a TRANSIENT private key already stored into the key store indicated by its key identifier. To prevent any misuse non-transient key will be rejected, additionally the private key will be deleted from the key store as part of this command handling.
+ *          - either a key pair freshly generated by the use of HSM_OP_KEY_EXCHANGE_FLAGS_GENERATE_EPHEMERAL flag.
+ *       - shared_key_identifier_array: it must correspond to the concatenation of client_write_MAC_key id (4 bytes, if any), server_write_MAC_key id (4 bytes, if any), client_write_key id (4 bytes) and the server_write_key id (4 bytes).
+ *       - The kdf_input must correspond to the concatenation of clientHello_random (32 bytes), serverHello_random (32 bytes), server_random (32 bytes) and client_random (32 bytes).
+ *       - kdf_output: the concatenation of client_write_iv (4 bytes) and server_write_iv (4 bytes) will be stored at this address.
+ *       - The shared_key_info must have the HSM_KEY_INFO_TRANSIENT bit set (only transient keys can be generated), the HSM_KEY_INFO_KEK bit is not allowed.
+ *       - The shared_key_type is not applicable and must be left to 0.
+ *       - The initiator_public_data_type must be HSM_KEY_TYPE_ECDSA_NIST_P256/384 or HSM_KEY_TYPE_ECDSA_BRAINPOOL_R1_256/384.
+ *       - The key_exchange_scheme must be HSM_KE_SCHEME_ECDH_NIST_P256/384 or HSM_KE_SCHEME_ECDH_BRAINPOOL_R1_256/384. 
+ *       - The kdf_algorithm must be HSM_KDF_HMAC_SHA_xxx_TLS_xxx. The generated MAC keys will have type ALG_HMAC_XXX, where XXX corresponds to the key length in bit of generated MAC key. The generated encryption keys will have type HSM_KEY_TYPE_AES_XXX, where XXX corresponds to the key length in bit of the generated AES key.
+ *       - kdf_input_size: It must be 128 bytes.
+ *       - kdf_output_size: It must be 8 bytes
+ *       - signed_message: it must be NULL
+ * 
+ *  - SM2 key generation (as specified in GB/T 32918):
+ *       - Only the receiver role is supported.
+ *       - ke_input = (x||y) || (xephemeral||yephemeral) of the 2 public keys of initiator
+ *       - ke_out = (x||y)|| (xephemeral||yephemeral) of the 2 public keys the receiver
+ *       - kdf_input = (Zinitiator||Zinitiator||V1) if HSM_OP_KEY_EXCHANGE_FLAGS_KEY_CONF_EN enabled, \n where V1 is the verification value calculated on the initiator side
+ *       - kdf_output = (VA||VB)  if HSM_OP_KEY_EXCHANGE_FLAGS_KEY_CONF_EN enabled, 0 otherwise.
+ *       - shared_key_info: the HSM_KEY_INFO_KEK bit is not allowed.
+ *       - The shared_key_type must be HSM_KEY_TYPE_SM4_128 or HSM_KEY_TYPE_DSA_SM2_FP_256
+ *       - The initiator_public_data_type must be HSM_KEY_TYPE_DSA_SM2_FP_256
+ *       - The key_exchange_scheme must be HSM_KE_SCHEME_SM2_FP_256.
+ *       - The kdf_algorithm must be HSM_KDF_ALG_FOR_SM2.
+ *       - Flags: the HSM_OP_KEY_EXCHANGE_FLAGS_GENERATE_EPHEMERAL flag is not supported
+ *       - signed_message: it must be NULL
  *
  * \param key_management_hdl handle identifying the key store management service flow.
  * \param args pointer to the structure containing the function arguments.
@@ -1501,7 +1543,7 @@ hsm_err_t hsm_key_exchange(hsm_hdl_t key_management_hdl, op_key_exchange_args_t 
 #define HSM_KE_SCHEME_SM2_FP_256                        ((hsm_key_exchange_scheme_id_t)0x42u)
 #define HSM_OP_KEY_EXCHANGE_FLAGS_UPDATE                ((hsm_op_key_exchange_flags_t)(1u << 0))  //!< User can replace an existing key only by the derived key which should have the same type of the original one.
 #define HSM_OP_KEY_EXCHANGE_FLAGS_CREATE                ((hsm_op_key_exchange_flags_t)(1u << 1))  //!< Create a new key
-#define HSM_OP_KEY_EXCHANGE_FLAGS_USE_EPHEMERAL         ((hsm_op_key_exchange_flags_t)(1u << 2))  //!< Use an ephemeral key (freshly generated key)
+#define HSM_OP_KEY_EXCHANGE_FLAGS_GENERATE_EPHEMERAL         ((hsm_op_key_exchange_flags_t)(1u << 2))  //!< Use an ephemeral key (freshly generated key)
 #define HSM_OP_KEY_EXCHANGE_FLAGS_KEY_CONF_EN           ((hsm_op_key_exchange_flags_t)(1u << 3))  //!< Enable key confirmation (valid only in case of HSM_KE_SCHEME_SM2_FP_256)
 #define HSM_OP_KEY_EXCHANGE_FLAGS_STRICT_OPERATION      ((hsm_op_key_exchange_flags_t)(1u << 7))  //!< The request is completed only when the new key has been written in the NVM. This applicable for persistent key only.
 
@@ -1509,7 +1551,7 @@ hsm_err_t hsm_key_exchange(hsm_hdl_t key_management_hdl, op_key_exchange_args_t 
 /**
  *\addtogroup qxp_specific
  * \ref group20
- *
+ * the hsm_key_exchange API is not supported.
  * - \ref HSM_KE_SCHEME_SM2_FP_256 is not supported.
  * - \ref HSM_KDF_ALG_FOR_SM2 is not supported.
  * - \ref HSM_OP_KEY_EXCHANGE_FLAGS_KEY_CONF_EN is not supported

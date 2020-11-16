@@ -812,7 +812,7 @@ int main(int argc, char *argv[])
     key_exch.shared_key_identifier_array_size = 4;
     key_exch.kdf_input_size = 0;
     key_exch.kdf_output_size = 0;
-    key_exch.flags = HSM_OP_KEY_EXCHANGE_FLAGS_CREATE | HSM_OP_KEY_EXCHANGE_FLAGS_USE_EPHEMERAL;
+    key_exch.flags = HSM_OP_KEY_EXCHANGE_FLAGS_CREATE | HSM_OP_KEY_EXCHANGE_FLAGS_GENERATE_EPHEMERAL;
 
     err = hsm_key_exchange(sg0_key_mgmt_srv, &key_exch);
     printf("err: 0x%x hsm_key_exchange err hdl: 0x%08x\n", err, sg0_key_mgmt_srv);
