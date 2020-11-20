@@ -1251,17 +1251,6 @@ hsm_err_t hsm_mac_one_go(hsm_hdl_t mac_hdl, op_mac_one_go_args_t* args, hsm_mac_
 hsm_err_t hsm_close_mac_service(hsm_hdl_t mac_hdl);
 
 /**
- *\addtogroup qxp_specific
- * \ref group16
- *
- * - \ref HSM_OP_MAC_ONE_GO_ALGO_HMAC_SHA_224 is not supported.
- * - \ref HSM_OP_MAC_ONE_GO_ALGO_HMAC_SHA_256 is not supported.
- * - \ref HSM_OP_MAC_ONE_GO_ALGO_HMAC_SHA_384 is not supported.
- * - \ref HSM_OP_MAC_ONE_GO_ALGO_HMAC_SHA_512 is not supported.
- *
- */
-
-/**
  *\addtogroup dxl_specific
  * \ref group16
  *
@@ -1551,7 +1540,7 @@ hsm_err_t hsm_key_exchange(hsm_hdl_t key_management_hdl, op_key_exchange_args_t 
 /**
  *\addtogroup qxp_specific
  * \ref group20
- * the hsm_key_exchange API is not supported.
+ *
  * - \ref HSM_KE_SCHEME_SM2_FP_256 is not supported.
  * - \ref HSM_KDF_ALG_FOR_SM2 is not supported.
  * - \ref HSM_OP_KEY_EXCHANGE_FLAGS_KEY_CONF_EN is not supported
