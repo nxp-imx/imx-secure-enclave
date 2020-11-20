@@ -132,7 +132,7 @@ typedef struct {
     uint32_t authentication_nonce;      //!< user defined nonce used as authentication proof for accesing the key store.
     uint16_t max_updates_number;        //!< maximum number of updates authorized for the key store. Valid only for create operation.\n This parameter has the goal to limit the occupation of the monotonic counter used as anti-rollback protection.\n If the maximum number of updates is reached, HSM still allows key store updates but without updating the monotonic counter giving the opportunity for rollback attacks.
     hsm_svc_key_store_flags_t flags;    //!< bitmap specifying the services properties.
-    uint8_t min_mac_length;             //!< it corresponds to the minimum mac length (in bits) accepted by the HSM to perfrom MAC verification operations. It can be used to replace the default value (32 bits).\n Only used upon key store creation when HSM_SVC_KEY_STORE_FLAGS_SET_MAC_LEN bit is set. The min_mac_length impacts all MAC algorithms and all key lengths.
+    uint8_t min_mac_length;             //!< it corresponds to the minimum mac length (in bits) accepted by the HSM to perform MAC verification operations.\n Only used upon key store creation when HSM_SVC_KEY_STORE_FLAGS_SET_MAC_LEN bit is set.\n It is effective only for MAC verification operations with the mac length expressed in bits.\n It can be used to replace the default value (32 bits).\n It impacts all MAC algorithms and all key lengths.\n It must be different from 0.
     uint8_t *signed_message;            //!< pointer to signed_message to be sent only in case of key store re-provisioning
     uint16_t signed_msg_size;           //!< size of the signed_message to be sent only in case of key store re-provisioning
     uint8_t reserved_1[2];
