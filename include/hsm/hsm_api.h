@@ -199,7 +199,7 @@ typedef struct {
     uint16_t out_size;                  //!< length in bytes of the generated key. It must be 0 in case of symmetric keys.
     hsm_op_key_gen_flags_t flags;       //!< bitmap specifying the operation properties.
     hsm_key_type_t key_type;            //!< indicates which type of key must be generated.
-    hsm_key_group_t key_group;          //!< Key group of the generated key, relevant only in case of create operation. it must be a value in the range 0-1023. Keys belonging to the same group can be cached in the HSM local memory throug the hsm_manage_key_group API.
+    hsm_key_group_t key_group;          //!< Key group of the generated key. It must be a value in the range 0-1023. Keys belonging to the same group can be cached in the HSM local memory throug the hsm_manage_key_group API.
     hsm_key_info_t key_info;            //!< bitmap specifying the properties of the key.
     uint8_t *out_key;                   //!< pointer to the output area where the generated public key must be written.
 } op_generate_key_args_t;
@@ -251,7 +251,7 @@ typedef struct {
     uint16_t input_size;                //!< length in bytes of the input key area. It must be eqaul to the length of the IV (12 bytes) + ciphertext + Tag (16 bytes). It must be 0 in case of delete operation.
     hsm_op_manage_key_flags_t flags;    //!< bitmap specifying the operation properties.
     hsm_key_type_t key_type;            //!< indicates the type of the key to be managed.
-    hsm_key_group_t key_group;          //!< key group of the imported key, only relevant in case of create operation (it must be 0 otherwise). It must be a value in the range 0-1023. Keys belonging to the same group can be cached in the HSM local memory throug the hsm_manage_key_group API.
+    hsm_key_group_t key_group;          //!< key group of the imported key. It must be a value in the range 0-1023. Keys belonging to the same group can be cached in the HSM local memory throug the hsm_manage_key_group API.
     hsm_key_info_t key_info;            //!< bitmap specifying the properties of the key, in case of update operation it will replace the existing value. It must be 0 in case of delete operation.
     uint8_t *input_data;                //!< pointer to the input buffer. The input buffer is the concatenation of the IV, the encrypted key to be imported and the tag. It must be 0 in case of delete operation.
 } op_manage_key_args_t;
