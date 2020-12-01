@@ -200,6 +200,46 @@ static void *sig_loop_thread(void *arg)
     }
     printf("%s success: %d / failures: %d\n", args->tag, success, failed);
 
+    printf("\n---------------------------------------------------\n");
+    printf("P256 Compressed signature \n");
+    printf("-----------------------------------------------------\n");
+    /* generate and verify a P256 signature - use alternatively create and update flags. */
+    gen_key_args.key_identifier = &key_id;
+    gen_key_args.out_size = 64;
+    gen_key_args.flags = HSM_OP_KEY_GENERATION_FLAGS_CREATE;
+    gen_key_args.key_type = HSM_KEY_TYPE_ECDSA_NIST_P256;
+    gen_key_args.key_group = 12;
+    gen_key_args.key_info = 0U;
+    gen_key_args.out_key = args->pubk_area;
+    err = hsm_generate_key(args->key_mgmt_srv, &gen_key_args);
+    //printf("%s err: 0x%x hsm_generate_key err: hdl: 0x%08x\n", args->tag, err, args->key_mgmt_srv);
+
+    sig_gen_args.key_identifier = key_id;
+    sig_gen_args.message = SM2_test_message;
+    sig_gen_args.signature = args->sig_area;
+    sig_gen_args.message_size = 300;
+    sig_gen_args.signature_size = 65;
+    sig_gen_args.scheme_id = HSM_SIGNATURE_SCHEME_ECDSA_NIST_P256_SHA_256;
+    sig_gen_args.flags = HSM_OP_GENERATE_SIGN_FLAGS_INPUT_MESSAGE | HSM_OP_GENERATE_SIGN_FLAGS_COMPRESSED_POINT;
+    err = hsm_generate_signature(args->sig_gen_serv, &sig_gen_args);
+    printf("%s err: 0x%x hsm_generate_signature hdl: 0x%08x\n", args->tag, err, args->sig_gen_serv);
+
+    sig_ver_args.key = args->pubk_area;
+    sig_ver_args.message = SM2_test_message;
+    sig_ver_args.signature = args->sig_area;
+    sig_ver_args.key_size = 64;
+    sig_ver_args.signature_size = 65;
+    sig_ver_args.message_size = 300;
+    sig_ver_args.scheme_id = HSM_SIGNATURE_SCHEME_ECDSA_NIST_P256_SHA_256;
+    sig_ver_args.flags = HSM_OP_VERIFY_SIGN_FLAGS_INPUT_MESSAGE;
+    err = hsm_verify_signature(args->sig_ver_serv, &sig_ver_args, &status);
+    // printf("%s err: 0x%x hsm_verify_signature hdl: 0x%08x status: 0x%x\n", args->tag, err, args->sig_ver_serv, status);
+    if (status == HSM_VERIFICATION_STATUS_SUCCESS) {
+        printf(" --> Compressed signature SUCCESS\n");
+    } else {
+        printf(" --> Compressed signature FAILURE\n");
+    }
+
     pthread_exit(NULL);
     return NULL;
 }
