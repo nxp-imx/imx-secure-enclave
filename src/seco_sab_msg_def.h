@@ -67,6 +67,7 @@
 #define SAB_MANAGE_KEY_GROUP_REQ                0x45u
 #define SAB_ROOT_KEK_EXPORT_REQ                 0x46u
 #define SAB_KEY_EXCHANGE_REQ                    0x47u
+#define SAB_TLS_FINISH_REQ                      0x48u
 
 #define SAB_MAC_OPEN_REQ                        0x50u
 #define SAB_MAC_CLOSE_REQ                       0x51u
@@ -387,7 +388,7 @@ struct sab_cmd_key_store_export_start_rsp {
 struct sab_cmd_key_store_export_finish_msg {
     struct sab_mu_hdr hdr;
     uint32_t storage_handle;
-    uint32_t export_status;    
+    uint32_t export_status;
 };
 #define SAB_EXPORT_STATUS_SUCCESS (0xBA2CC2ABu)
 
@@ -1253,6 +1254,25 @@ struct sab_cmd_key_exchange_msg {
 };
 
 struct sab_cmd_key_exchange_rsp {
+    struct sab_mu_hdr hdr;
+    uint32_t rsp_code;
+};
+
+struct sab_cmd_tls_finish_msg{
+    struct sab_mu_hdr hdr;
+    uint32_t        key_management_handle;
+    uint32_t        key_identifier;
+    uint32_t        handshake_hash_input_addr;
+    uint32_t        verify_data_output_addr;
+    uint16_t        handshake_hash_input_size;
+    uint16_t        verify_data_output_size;
+    uint8_t         flags;
+    uint8_t         hash_algorithm;
+    uint16_t        reserved;
+    uint32_t        crc;
+};
+
+struct sab_cmd_tls_finish_rsp{
     struct sab_mu_hdr hdr;
     uint32_t rsp_code;
 };

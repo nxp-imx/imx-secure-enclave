@@ -2563,3 +2563,63 @@ hsm_err_t hsm_key_exchange(hsm_hdl_t key_management_hdl, op_key_exchange_args_t 
 
 	return err;
 }
+
+hsm_err_t hsm_tls_finish(hsm_hdl_t key_management_hdl, op_tls_finish_args_t *args)
+{
+	struct sab_cmd_tls_finish_msg cmd;
+	struct sab_cmd_tls_finish_rsp rsp;
+	int32_t error = 1;
+	struct hsm_service_hdl_s *serv_ptr;
+	hsm_err_t err = HSM_GENERAL_ERROR;
+
+	do {
+		if (args == NULL) {
+			break;
+		}
+		serv_ptr = service_hdl_to_ptr(key_management_hdl);
+		if (serv_ptr == NULL) {
+			err = HSM_UNKNOWN_HANDLE;
+			break;
+		}
+
+		/* Prepare the seco commmand */
+		seco_fill_cmd_msg_hdr(&cmd.hdr,
+			SAB_TLS_FINISH_REQ,
+			(uint32_t)sizeof(struct sab_cmd_tls_finish_msg),
+			serv_ptr->session->mu_type);
+
+		cmd.key_management_handle = key_management_hdl;
+		cmd.key_identifier = args->key_identifier;
+		cmd.handshake_hash_input_addr = (uint32_t)seco_os_abs_data_buf(serv_ptr->session->phdl,
+				args->handshake_hash_input,
+				args->handshake_hash_input_size,
+				DATA_BUF_IS_INPUT);
+		cmd.verify_data_output_addr = (uint32_t)seco_os_abs_data_buf(serv_ptr->session->phdl,
+				args->verify_data_output,
+				args->verify_data_output_size,
+				0u);
+		cmd.handshake_hash_input_size = args->handshake_hash_input_size;
+		cmd.verify_data_output_size = args->verify_data_output_size;
+		cmd.flags = args->flags;
+		cmd.hash_algorithm = args->hash_algorithm;
+		cmd.reserved = 0;
+		cmd.crc = 0u;
+		cmd.crc = seco_compute_msg_crc((uint32_t*)&cmd,
+				(uint32_t)(sizeof(cmd) - sizeof(uint32_t)));
+
+		/* Send the message to Seco. */
+		error = seco_send_msg_and_get_resp(serv_ptr->session->phdl,
+			(uint32_t *)&cmd,
+			(uint32_t)sizeof(struct sab_cmd_tls_finish_msg),
+			(uint32_t *)&rsp,
+			(uint32_t)sizeof(struct sab_cmd_tls_finish_rsp));
+		if (error != 0) {
+			break;
+		}
+
+		err = sab_rating_to_hsm_err(rsp.rsp_code);
+
+	} while(false);
+
+	return err;
+}
