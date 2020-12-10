@@ -538,7 +538,7 @@ int main(int argc, char *argv[])
     hash_args.input = SM2_test_message;
     hash_args.output = work_area;
     hash_args.input_size = sizeof(SM2_test_message);
-    hash_args.output_size = 128;
+    hash_args.output_size = 32;
     hash_args.algo = 0x11;
     hash_args.flags = 0;
 
@@ -739,7 +739,7 @@ int main(int argc, char *argv[])
     
     // Close all services and sessions
     printf("\n---------------------------------------------------\n");
-    printf("ḱey deletion test\n");
+    printf("key deletion test\n");
     printf("---------------------------------------------------\n");
 
     /* Test deletion of last generated key. */
