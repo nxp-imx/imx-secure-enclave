@@ -1,5 +1,5 @@
 /*
- * Copyright 2019-2020 NXP
+ * Copyright 2019-2021 NXP
  *
  * NXP Confidential.
  * This software is owned or controlled by NXP and may only be used strictly
@@ -1971,8 +1971,13 @@ hsm_err_t hsm_auth_enc(hsm_hdl_t cipher_hdl, op_auth_enc_args_t* args)
 
 		cmd.cipher_handle = cipher_hdl;
 		cmd.key_id = args->key_identifier;
-		cmd.iv_address = (uint32_t)seco_os_abs_data_buf(serv_ptr->session->phdl,
-								args->iv, args->iv_size, DATA_BUF_IS_INPUT);
+		if (args->iv_size != 0) {
+			cmd.iv_address = (uint32_t)seco_os_abs_data_buf(serv_ptr->session->phdl,
+									args->iv, args->iv_size, DATA_BUF_IS_INPUT);
+		}
+		else {
+			cmd.iv_address = 0;
+		}
 		cmd.iv_size = args->iv_size;
 		cmd.aad_address = (uint32_t)seco_os_abs_data_buf(serv_ptr->session->phdl,
 							args->aad,
