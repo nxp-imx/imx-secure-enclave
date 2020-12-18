@@ -47,7 +47,7 @@ static uint8_t  SM2_test_message[300] = {
 
 static uint8_t SM3_HASH[32] = {
     0x52, 0x1d, 0xa1, 0x93, 0x21, 0xcb, 0x3a, 0xfc, 0xb5, 0x13, 0x25, 0x45, 0x7f, 0x8f, 0x15, 0x89,
-    0xdc, 0x60, 0xfa, 0xf0, 0x87, 0xf2, 0xcf, 0x8f, 0xf3, 0xe2, 0x8d, 0x8b, 0xde, 0x28, 0x97, 0x8e, 
+    0xdc, 0x60, 0xfa, 0xf0, 0x87, 0xf2, 0xcf, 0x8f, 0xf3, 0xe2, 0x8d, 0x8b, 0xde, 0x28, 0x97, 0x8e,
 };
 
 static uint8_t ECDSA_SigVer_SM2_Q[64] = {
@@ -56,7 +56,7 @@ static uint8_t ECDSA_SigVer_SM2_Q[64] = {
     0xCC, 0xEA, 0x49, 0x0C, 0xE2, 0x67, 0x75, 0xA5, 0x2D, 0xC6, 0xEA, 0x71, 0x8C, 0xC1, 0xAA, 0x60,
     0x0A, 0xED, 0x05, 0xFB, 0xF3, 0x5E, 0x08, 0x4A, 0x66, 0x32, 0xF6, 0x07, 0x2D, 0xA9, 0xAD, 0x13
 };
- 
+
 static uint8_t SM2_IDENTIFIER[16] = {
     0x31, 0x32, 0x33, 0x34, 0x35, 0x36, 0x37, 0x38, 0x31, 0x32, 0x33, 0x34, 0x35, 0x36, 0x37, 0x38
 };
@@ -176,7 +176,7 @@ static void *sig_loop_thread(void *arg)
         sig_gen_args.message_size = 300;
         sig_gen_args.signature_size = 65;
         sig_gen_args.scheme_id = 0x43;
-        sig_gen_args.flags = HSM_OP_GENERATE_SIGN_FLAGS_INPUT_MESSAGE; 
+        sig_gen_args.flags = HSM_OP_GENERATE_SIGN_FLAGS_INPUT_MESSAGE;
         err = hsm_generate_signature(args->sig_gen_serv, &sig_gen_args);
         // printf("%s err: 0x%x hsm_generate_signature hdl: 0x%08x\n", args->tag, err, args->sig_gen_serv);
 
@@ -736,8 +736,8 @@ int main(int argc, char *argv[])
     } else {
         printf(" --> FAILURE\n");
     }
-    
-    // Close all services and sessions
+
+
     printf("\n---------------------------------------------------\n");
     printf("key deletion test\n");
     printf("---------------------------------------------------\n");
@@ -771,6 +771,52 @@ int main(int argc, char *argv[])
     } else {
         printf("unexpected error code --> FAILURE\n");
     }
+
+
+    printf("\n---------------------------------------------------\n");
+    printf("key delete with key group check test \n");
+    printf("---------------------------------------------------\n");
+
+    gen_key_args.key_identifier = &key_id;
+    gen_key_args.out_size = 64;
+    gen_key_args.flags = HSM_OP_KEY_GENERATION_FLAGS_CREATE;
+    gen_key_args.key_type = HSM_KEY_TYPE_DSA_SM2_FP_256;
+    gen_key_args.key_group = 12;
+    gen_key_args.key_info = 0U;
+    gen_key_args.out_key = work_area2; // public key needed for the encryption
+    err = hsm_generate_key(sg0_key_mgmt_srv, &gen_key_args);
+    printf("err: 0x%x hsm_generate_key err: hdl: 0x%08x\n", err, sg0_key_mgmt_srv);
+
+    /* Test deletion of last generated key with bad key group */
+    mng_key_args.key_identifier = &key_id;
+    mng_key_args.kek_identifier = 0;
+    mng_key_args.input_size = 0;
+    mng_key_args.flags = HSM_OP_MANAGE_KEY_FLAGS_DELETE;
+    mng_key_args.key_type = HSM_KEY_TYPE_DSA_SM2_FP_256;
+    mng_key_args.key_group = 10;
+    mng_key_args.key_info = 0;
+    mng_key_args.input_data = NULL;
+
+    err = hsm_manage_key(sg0_key_mgmt_srv, &mng_key_args);
+    printf("err: 0x%x hsm_manage_key hdl: 0x%08x\n", err, sg0_key_mgmt_srv);
+    if (err == HSM_UNKNOWN_ID) {
+        printf("error expected --> SUCCESS\n");
+    } else {
+        printf("unexpected error code --> FAILURE\n");
+    }
+
+    /* Test deletion of last generated key with the right key group */
+    mng_key_args.key_identifier = &key_id;
+    mng_key_args.kek_identifier = 0;
+    mng_key_args.input_size = 0;
+    mng_key_args.flags = HSM_OP_MANAGE_KEY_FLAGS_DELETE;
+    mng_key_args.key_type = HSM_KEY_TYPE_DSA_SM2_FP_256;
+    mng_key_args.key_group = 12;
+    mng_key_args.key_info = 0;
+    mng_key_args.input_data = NULL;
+
+    err = hsm_manage_key(sg0_key_mgmt_srv, &mng_key_args);
+    printf("err: 0x%x hsm_manage_key hdl: 0x%08x\n", err, sg0_key_mgmt_srv);
 
     printf("\n---------------------------------------------------\n");
     printf("ecies test\n");

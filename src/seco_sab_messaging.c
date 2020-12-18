@@ -341,8 +341,8 @@ uint32_t sab_get_info(struct seco_os_abs_hdl *phdl, uint32_t session_handle, uin
                     (uint32_t *)&cmd, (uint32_t)sizeof(struct sab_cmd_get_info_msg),
                     (uint32_t *)&rsp, (uint32_t)sizeof(struct sab_cmd_get_info_rsp));
 
-        if ((error != 0)
-            || (rsp.crc != seco_compute_msg_crc((uint32_t*)&rsp, (uint32_t)(sizeof(rsp) - sizeof(uint32_t))))) {
+        if (error != 0) {
+            /*|| (rsp.crc != seco_compute_msg_crc((uint32_t*)&rsp, (uint32_t)(sizeof(rsp) - sizeof(uint32_t)))))*/
             break;
         }
 
