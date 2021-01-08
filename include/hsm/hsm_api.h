@@ -466,8 +466,8 @@ typedef uint8_t hsm_op_auth_enc_algo_t;
 typedef uint8_t hsm_op_auth_enc_flags_t;
 typedef struct {
     uint32_t key_identifier;                    //!< identifier of the key to be used for the operation
-    uint8_t *iv;                                //!< pointer to the fixed part of initialization vector or nonce, when applicable, otherwise 0
-    uint16_t iv_size;                           //!< length in bytes of the fixed part of the initialization vector
+    uint8_t *iv;                                //!< pointer to the user supplied part of initialization vector or nonce, when applicable, otherwise 0
+    uint16_t iv_size;                           //!< length in bytes of the fixed part of the initialization vector for encryption (0 or 4 bytes), length in bytes of the full IV for decryption (12 bytes)
     uint8_t *aad;                               //!< pointer to the additional authentication data
     uint16_t aad_size;                          //!< length in bytes of the additional authentication data
     hsm_op_auth_enc_algo_t ae_algo;             //!< algorithm to be used for the operation
@@ -485,9 +485,9 @@ typedef struct {
  *
  * For decryption operations, the full IV is supplied by the caller via the iv and iv_size parameters\n
  *
- * For encryption operations, either HSM_AUTH_ENC_FLAGS_GENERATE_FULL_IV or HSM_AUTH_ENC_FLAGS_GENERATE_TLS_IV must be set when calling this function:
+ * For encryption operations, either HSM_AUTH_ENC_FLAGS_GENERATE_FULL_IV or HSM_AUTH_ENC_FLAGS_GENERATE_COUNTER_IV must be set when calling this function:
  * - When HSM_AUTH_ENC_FLAGS_GENERATE_FULL_IV is set, the full IV is internally generated, iv and iv_size must be set to 0
- * - When HSM_AUTH_ENC_FLAGS_GENERATE_TLS_IV is set, the user supplies a 4 byte fixed part of the IV.  The other IV bytes are internally generated
+ * - When HSM_AUTH_ENC_FLAGS_GENERATE_COUNTER_IV is set, the user supplies a 4 byte fixed part of the IV.  The other IV bytes are internally generated
  *
  * \param cipher_hdl handle identifying the cipher service flow.
  * \param args pointer to the structure containing the function arguments.
@@ -499,7 +499,7 @@ hsm_err_t hsm_auth_enc(hsm_hdl_t cipher_hdl, op_auth_enc_args_t* args);
 #define HSM_AUTH_ENC_FLAGS_DECRYPT             ((hsm_op_auth_enc_flags_t)(0u << 0))
 #define HSM_AUTH_ENC_FLAGS_ENCRYPT             ((hsm_op_auth_enc_flags_t)(1u << 0))
 #define HSM_AUTH_ENC_FLAGS_GENERATE_FULL_IV    ((hsm_op_auth_enc_flags_t)(1u << 1))    //!< Full  IV is internally generated
-#define HSM_AUTH_ENC_FLAGS_GENERATE_TLS_IV     ((hsm_op_auth_enc_flags_t)(1u << 2))    //!< User supplies 4 bytes of the IV (fixed part), the other bytes are internally generated
+#define HSM_AUTH_ENC_FLAGS_GENERATE_COUNTER_IV (hsm_op_auth_enc_flags_t)(1u << 2))    //!< User supplies 4 bytes of the IV (fixed part), the other bytes are internally generated
 
 
 typedef uint8_t hsm_op_ecies_dec_flags_t;
