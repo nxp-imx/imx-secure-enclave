@@ -28,7 +28,7 @@
  * 3.0 | Nov 16 2020  |  hsm_open_key_store_service: add min_mac_length argument.\n hsm_mac_one_go - verification: add HSM_OP_MAC_ONE_GO_FLAGS_MAC_LENGTH_IN_BITS to represent mac_length in bit.\n hsm_key_exchange:\n - enforce new costraints on KEK and TLS key generations\n - add signed message arguments for KEK generation.\n - rename HSM_KDF_ALG_SHA_256 in HSM_KDF_ONE_STEP_SHA_256.\n - rename HSM_OP_KEY_EXCHANGE_FLAGS_USE_EPHEMERAL in HSM_OP_KEY_EXCHANGE_FLAGS_GENERATE_EPHEMERAL
  * 3.1 | Nov 20 2020  |  Enable support of key_exchange and HMAC on QXP
  * 3.2 | Dec 1  2020  | hsm_generate_key, hsm_manage_key: fix key_group argument wrong description. User must specify the key group for CREATE/UPDATE/DELETE operations.
- * 3.3 | Jan 11 2021  |  Add support of hsm_tls_finish on QXP, update hsm_key_exchange to describe creation of master_secret for TLS KDF and use of extended master secret. Add IV generation for AES GSM - not backward compatible with previous implementation
+ * 3.3 | Jan 11 2021  |  Add hsm_tls_finish.\n Update hsm_key_exchange description:\n - creation of master_secret for TLS KDF\n - use of extended master secret\n Add IV generation for AES GSM\n - not backward compatible with previous hsm_auth_enc implementation
  * */
 
 /*! \page page1 General concepts related to the API
