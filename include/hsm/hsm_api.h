@@ -268,7 +268,7 @@ typedef struct {
  *  - Algorithm: AES GCM
  *  - Key: root KEK
  *  - AAD = 0
- *  - IV = 12 bytes
+ *  - IV = 12 bytes. When encrypting with a given key, the same IV MUST NOT be repeated. Refer to SP 800-38D for recommendations.
  *  - Tag = 16 bytes
  *  - Plaintext: key to be imported
  *
