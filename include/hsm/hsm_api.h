@@ -207,6 +207,7 @@ typedef struct {
 /**
  * Generate a key or a key pair. Only the confidential keys (symmetric and private keys) are stored in the internal key store, while the non-confidential keys (public key) are exported.\n
  * The generated key can be stored using a new or existing key identifier with the restriction that an existing key can be replaced only by a key of the same type.\n
+ * The hsm_generate_key_ext function (described separately) allows additional settings.  When using the hsm_generate_key function, all additional settings are set to their default values.\n
  * User can call this function only after having opened a key management service flow.
  *
  * \param key_management_hdl handle identifying the key management service flow.
@@ -244,6 +245,30 @@ hsm_err_t hsm_generate_key(hsm_hdl_t key_management_hdl, op_generate_key_args_t 
 #define HSM_KEY_INFO_MASTER                                 ((hsm_key_info_t)(1u << 2))          //!< When set, the key is considered as a master key. Only master keys can be used as input of key derivation functions (i.e butterfly key expansion).
 #define HSM_KEY_INFO_KEK                                    ((hsm_key_info_t)(1u << 3))          //!< When set, the key is considered as a key encryption key. KEK keys can only be used to wrap and import other keys into the key store, all other operation are not allowed. Only keys imported in the key store through the hsm_mange_key API can get this attribute.
 
+typedef uint8_t hsm_op_key_gen_ext_flags_t;
+typedef struct {
+    uint32_t *key_identifier;           //!< pointer to the identifier of the key to be used for the operation.\n In case of create operation the new key identifier will be stored in this location.
+    uint16_t out_size;                  //!< length in bytes of the generated key. It must be 0 in case of symmetric keys.
+    hsm_op_key_gen_flags_t flags;       //!< bitmap specifying the operation properties.
+    hsm_key_type_t key_type;            //!< indicates which type of key must be generated.
+    hsm_key_group_t key_group;          //!< Key group of the generated key. It must be a value in the range 0-1023. Keys belonging to the same group can be cached in the HSM local memory through the hsm_manage_key_group API.
+    hsm_key_info_t key_info;            //!< bitmap specifying the properties of the key.
+    uint8_t *out_key;                   //!< pointer to the output area where the generated public key must be written.
+    uint8_t min_mac_len;                //!< min mac length in bits to be set for this key, value 0 indicates use default (see op_mac_one_go_args_t for more details).  Only accepted for keys that can be used for mac operations, must not be larger than maximum mac size that can be performed with the key.
+    uint8_t reserved[3];                //!< It must be 0.
+} op_generate_key_ext_args_t;
+
+/**
+ * Generate a key or a key pair with extended settings. Basic operation is identical to hsm_generate_key, but accepts additional settings.
+ * Currently the min_mac_len is the only additional setting accepted.
+ *
+ * \param key_management_hdl handle identifying the key management service flow.
+ * \param args pointer to the structure containing the function arguments.
+ *
+ * \return error code
+ */
+hsm_err_t hsm_generate_key_ext(hsm_hdl_t key_management_hdl, op_generate_key_ext_args_t *args);
+
 typedef uint8_t hsm_op_manage_key_flags_t;
 typedef struct {
     uint32_t *key_identifier;           //!< pointer to the identifier of the key to be used for the operation.\n In case of create operation the new key identifier will be stored in this location.
@@ -272,6 +297,8 @@ typedef struct {
  *  - Tag = 16 bytes
  *  - Plaintext: key to be imported
  *
+ * The hsm_manage_key_ext function (described separately) allows additional settings when importing keys.  When using the hsm_manage_key function to import a key, all additional settings are set to their default values
+ *
  * User can call this function only after having opened a key management service flow
  *
  * \param key_management_hdl handle identifying the key management service flow.
@@ -287,6 +314,30 @@ hsm_err_t hsm_manage_key(hsm_hdl_t key_management_hdl, op_manage_key_args_t *arg
 #define HSM_OP_MANAGE_KEY_FLAGS_COMMON_ROOT_KEK                         ((hsm_op_manage_key_flags_t)(1u << 4))   //!< The key to be imported is encrypted using the common root kek.
 #define HSM_OP_MANAGE_KEY_FLAGS_STRICT_OPERATION                        ((hsm_op_manage_key_flags_t)(1u << 7))   //!< The request is completed only when the new key has been written in the NVM. This is only applicable for persistent key.
 
+typedef uint8_t hsm_op_manage_key_ext_flags_t;
+typedef struct {
+    uint32_t *key_identifier;           //!< pointer to the identifier of the key to be used for the operation.\n In case of create operation the new key identifier will be stored in this location.
+    uint32_t kek_identifier;            //!< identifier of the key to be used to decrypt the key to be imported (Key Encryption Key), only AES-256 key can be uses as KEK. It must be 0 if the HSM_OP_MANAGE_KEY_FLAGS_PART_UNIQUE_ROOT_KEK or HSM_OP_MANAGE_KEY_FLAGS_COMMON_ROOT_KEK flags are set.
+    uint16_t input_size;                //!< length in bytes of the input key area. It must be eqaul to the length of the IV (12 bytes) + ciphertext + Tag (16 bytes). It must be 0 in case of delete operation.
+    hsm_op_manage_key_flags_t flags;    //!< bitmap specifying the operation properties.
+    hsm_key_type_t key_type;            //!< indicates the type of the key to be managed.
+    hsm_key_group_t key_group;          //!< key group of the imported key. It must be a value in the range 0-1023. Keys belonging to the same group can be cached in the HSM local memory through the hsm_manage_key_group API.
+    hsm_key_info_t key_info;            //!< bitmap specifying the properties of the key, in case of update operation it will replace the existing value. It must be 0 in case of delete operation.
+    uint8_t *input_data;                //!< pointer to the input buffer. The input buffer is the concatenation of the IV, the encrypted key to be imported and the tag. It must be 0 in case of delete operation.
+    uint8_t min_mac_len;                //!< min mac length in bits to be set for this key, value 0 indicates use default (see op_mac_one_go_args_t for more details).  Only accepted for keys that can be used for mac operations, must not be larger than maximum mac size that can be performed with the key.
+    uint8_t reserved[3];                  //!< It must be 0.
+} op_manage_key_ext_args_t;
+
+/**
+ * Manage a key or a key pair with extended settings. Basic operation is identical to hsm_manage_key, but accepts additional settings.
+ * Currently the min_mac_len is the only additional setting accepted.
+ *
+ * \param key_management_hdl handle identifying the key management service flow.
+ * \param args pointer to the structure containing the function arguments.
+ *
+ * \return error code
+ */
+hsm_err_t hsm_manage_key_ext(hsm_hdl_t key_management_hdl, op_manage_key_ext_args_t *args);
 
 typedef uint8_t hsm_op_manage_key_group_flags_t;
 typedef struct {
@@ -1224,7 +1275,7 @@ typedef struct {
     uint8_t *payload;                           //!< pointer to the payload area\n
     uint8_t *mac;                               //!< pointer to the tag area\n
     uint16_t payload_size;                      //!< length in bytes of the payload
-    uint16_t mac_size;                          //!< length of the tag. Specified in bytes if HSM_OP_MAC_ONE_GO_FLAGS_MAC_LENGTH_IN_BITS is clear, specified in bits when HSM_OP_MAC_ONE_GO_FLAGS_MAC_LENGTH_IN_BITS is set.\n When specified in bytes the mac size cannot be less than 4 bytes.\n When specified in bits the mac size cannot be less than:\n - the min_mac_length value if specified at the key store provisioning or\n - the default value (32 bit) if min_mac_length has not been specified.
+    uint16_t mac_size;                          //!< length of the tag. Specified in bytes if HSM_OP_MAC_ONE_GO_FLAGS_MAC_LENGTH_IN_BITS is clear, specified in bits when HSM_OP_MAC_ONE_GO_FLAGS_MAC_LENGTH_IN_BITS is set.\n When specified in bytes the mac size cannot be less than 4 bytes.\n When specified in bits the mac size cannot be less than:\n - the key specific min_mac_len setting if specified for this key when generated/injected or\n - the min_mac_length value if specified at the key store provisioning (if a key specific setting was not specified at key generation/injection) or\n - the default value (32 bit) if a minimum has not been specified using one of the above 2 methods.
 } op_mac_one_go_args_t;
 
 typedef uint32_t hsm_mac_verification_status_t;
@@ -1232,7 +1283,8 @@ typedef uint32_t hsm_mac_verification_status_t;
  * Perform mac operation\n
  * User can call this function only after having opened a mac service flow\n
  * For CMAC algorithm, a key of type HSM_KEY_TYPE_AES_XXX must be used\n
- * For HMAC algorithm, a key of type HSM_KEY_TYPE_HMAC_XXX must be used
+ * For HMAC algorithm, a key of type HSM_KEY_TYPE_HMAC_XXX must be used\n
+ * For mac verification operations, the verified mac length can be specified in bits by setting the HSM_OP_MAC_ONE_GO_FLAGS_MAC_LENGTH_IN_BITS flag, if this flag is clear then the mac_length is specified in bytes.  For mac generation operations, the mac length must be set in bytes and the HSM_OP_MAC_ONE_GO_FLAGS_MAC_LENGTH_IN_BITS flag must be 0\n
  *
  * \param mac_hdl handle identifying the mac service flow.
  * \param args pointer to the structure containing the function arguments.

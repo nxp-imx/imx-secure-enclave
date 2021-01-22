@@ -459,6 +459,72 @@ hsm_err_t hsm_generate_key(hsm_hdl_t key_management_hdl,
 	return err;
 }
 
+hsm_err_t hsm_generate_key_ext(hsm_hdl_t key_management_hdl,
+				op_generate_key_ext_args_t *args)
+{
+	struct sab_cmd_generate_key_ext_msg cmd;
+	struct sab_cmd_generate_key_rsp rsp;
+	int32_t error = 1;
+	struct hsm_service_hdl_s *serv_ptr;
+	hsm_err_t err = HSM_GENERAL_ERROR;
+
+	do {
+		if ((args == NULL) || (args->key_identifier == NULL)) {
+			break;
+		}
+		serv_ptr = service_hdl_to_ptr(key_management_hdl);
+		if (serv_ptr == NULL) {
+			err = HSM_UNKNOWN_HANDLE;
+			break;
+		}
+
+		/* Send the keys store open command to Seco. */
+		seco_fill_cmd_msg_hdr(&cmd.hdr,
+			SAB_KEY_GENERATE_EXT_REQ,
+			(uint32_t)sizeof(struct sab_cmd_generate_key_ext_msg),
+			serv_ptr->session->mu_type);
+		cmd.key_management_handle = key_management_hdl;
+		cmd.key_identifier = *(args->key_identifier);
+		cmd.out_size = args->out_size;
+		cmd.flags = args->flags;
+		cmd.key_type = args->key_type;
+		cmd.key_group = args->key_group;
+		cmd.key_info = args->key_info;
+		cmd.out_key_addr = (uint32_t)seco_os_abs_data_buf(serv_ptr->session->phdl,
+				args->out_key,
+				args->out_size,
+				0u);
+		cmd.min_mac_len = args->min_mac_len;
+		cmd.reserved[0] = args->reserved[0];
+		cmd.reserved[1] = args->reserved[1];
+		cmd.reserved[2] = args->reserved[2];
+		cmd.crc = 0u;
+		cmd.crc = seco_compute_msg_crc((uint32_t*)&cmd,
+				(uint32_t)(sizeof(cmd) - sizeof(uint32_t)));
+
+		/* Send the message to Seco. */
+		error = seco_send_msg_and_get_resp(serv_ptr->session->phdl,
+			(uint32_t *)&cmd,
+			(uint32_t)sizeof(struct sab_cmd_generate_key_ext_msg),
+			(uint32_t *)&rsp,
+			(uint32_t)sizeof(struct sab_cmd_generate_key_rsp));
+		if (error != 0) {
+			break;
+		}
+
+		err = sab_rating_to_hsm_err(rsp.rsp_code);
+		if (
+			(err  == HSM_NO_ERROR) &&
+			((cmd.flags & HSM_OP_KEY_GENERATION_FLAGS_CREATE) == HSM_OP_KEY_GENERATION_FLAGS_CREATE)
+		) {
+			*(args->key_identifier) = rsp.key_identifier;
+		}
+
+	} while(false);
+
+	return err;
+}
+
 hsm_err_t hsm_manage_key(hsm_hdl_t key_management_hdl,
 				op_manage_key_args_t *args)
 {
@@ -503,6 +569,74 @@ hsm_err_t hsm_manage_key(hsm_hdl_t key_management_hdl,
 		error = seco_send_msg_and_get_resp(serv_ptr->session->phdl,
 			(uint32_t *)&cmd,
 			(uint32_t)sizeof(struct sab_cmd_manage_key_msg),
+			(uint32_t *)&rsp,
+			(uint32_t)sizeof(struct sab_cmd_manage_key_rsp));
+		if (error != 0) {
+			break;
+		}
+
+		err = sab_rating_to_hsm_err(rsp.rsp_code);
+		if (
+			(err  == HSM_NO_ERROR) &&
+			((cmd.flags & HSM_OP_MANAGE_KEY_FLAGS_IMPORT_CREATE) == HSM_OP_MANAGE_KEY_FLAGS_IMPORT_CREATE)
+		) {
+			*(args->key_identifier) = rsp.key_identifier;
+		}
+
+	} while(false);
+
+	return err;
+}
+
+
+hsm_err_t hsm_manage_key_ext(hsm_hdl_t key_management_hdl,
+				op_manage_key_ext_args_t *args)
+{
+	struct sab_cmd_manage_key_ext_msg cmd;
+	struct sab_cmd_manage_key_rsp rsp;
+	int32_t error = 1;
+	struct hsm_service_hdl_s *serv_ptr;
+	hsm_err_t err = HSM_GENERAL_ERROR;
+
+	do {
+		if ((args == NULL) || (args->key_identifier == NULL)) {
+			break;
+		}
+		serv_ptr = service_hdl_to_ptr(key_management_hdl);
+		if (serv_ptr == NULL) {
+			err = HSM_UNKNOWN_HANDLE;
+			break;
+		}
+
+		/* Send the keys store open command to Seco. */
+		seco_fill_cmd_msg_hdr(&cmd.hdr,
+			SAB_MANAGE_KEY_EXT_REQ,
+			(uint32_t)sizeof(struct sab_cmd_manage_key_ext_msg),
+			serv_ptr->session->mu_type);
+		cmd.key_management_handle = key_management_hdl;
+		cmd.dest_key_identifier = *(args->key_identifier);
+		cmd.kek_id = args->kek_identifier;
+		cmd.input_data_size = args->input_size;
+		cmd.flags = args->flags;
+		cmd.key_type = args->key_type;
+		cmd.key_group = args->key_group;
+		cmd.key_info = args->key_info;
+		cmd.input_data_addr = (uint32_t)seco_os_abs_data_buf(serv_ptr->session->phdl,
+				args->input_data,
+				args->input_size,
+				DATA_BUF_IS_INPUT);
+		cmd.min_mac_len = args->min_mac_len;
+		cmd.reserved[0] = args->reserved[0];
+		cmd.reserved[1] = args->reserved[1];
+		cmd.reserved[2] = args->reserved[2];
+		cmd.crc = 0u;
+		cmd.crc = seco_compute_msg_crc((uint32_t*)&cmd,
+				(uint32_t)(sizeof(cmd) - sizeof(uint32_t)));
+
+		/* Send the message to Seco. */
+		error = seco_send_msg_and_get_resp(serv_ptr->session->phdl,
+			(uint32_t *)&cmd,
+			(uint32_t)sizeof(struct sab_cmd_manage_key_ext_msg),
 			(uint32_t *)&rsp,
 			(uint32_t)sizeof(struct sab_cmd_manage_key_rsp));
 		if (error != 0) {
