@@ -369,6 +369,8 @@ int main(int argc, char *argv[])
     hsm_hdl_t sg0_mac_hdl;
     op_mac_one_go_args_t mac_one_go;
     hsm_mac_verification_status_t mac_status;
+    op_auth_enc_args_t auth_enc_gcm;
+
 
     uint8_t recovered_key[256];
     uint8_t rng_out_buff[4096];
@@ -454,7 +456,6 @@ int main(int argc, char *argv[])
     printf("err: 0x%x hsm_open_key_management_service err: hdl: 0x%08x\n", err, sg0_key_mgmt_srv);
     err = hsm_open_key_management_service(sg1_key_store_serv, &key_mgmt_srv_args, &sg1_key_mgmt_srv);
     printf("err: 0x%x hsm_open_key_management_service err: hdl: 0x%08x\n", err, sg1_key_mgmt_srv);
-
 
     sig_gen_srv_args.flags = 0;
     err = hsm_open_signature_generation_service(sg0_key_store_serv, &sig_gen_srv_args, &sg0_sig_gen_serv);
@@ -1045,6 +1046,149 @@ int main(int argc, char *argv[])
     printf("err: 0x%x hsm_mac_one_go VER hdl: 0x%08x\n", err, sg0_mac_hdl);
 
     if (mac_status == HSM_MAC_VERIFICATION_STATUS_SUCCESS) {
+        printf(" --> SUCCESS\n");
+    } else {
+        printf(" --> FAILURE\n");
+    }
+
+    // AES GCM test
+    printf("\n---------------------------------------------------\n");
+    printf("AES GCM Test \n");
+    printf("---------------------------------------------------\n");
+
+    gen_key_args.key_identifier = &key_id;
+    gen_key_args.out_size = 0U;
+    gen_key_args.flags = HSM_OP_KEY_GENERATION_FLAGS_CREATE;
+    gen_key_args.key_type = HSM_KEY_TYPE_AES_256;
+    gen_key_args.key_group = 12;
+    gen_key_args.key_info = 0U;
+    gen_key_args.out_key = NULL;
+    err = hsm_generate_key(sg0_key_mgmt_srv, &gen_key_args);
+    printf("err: 0x%x hsm_generate_key err: hdl: 0x%08x\n", err, sg0_key_mgmt_srv);
+
+    auth_enc_gcm.key_identifier = key_id;
+    auth_enc_gcm.iv = &SM2_test_message[256];
+    auth_enc_gcm.iv_size = 4;
+    auth_enc_gcm.aad = &SM2_test_message[128];
+    auth_enc_gcm.aad_size = 16;
+    auth_enc_gcm.ae_algo = HSM_AUTH_ENC_ALGO_AES_GCM;
+    auth_enc_gcm.flags = HSM_AUTH_ENC_FLAGS_ENCRYPT | HSM_AUTH_ENC_FLAGS_GENERATE_COUNTER_IV;
+    auth_enc_gcm.input = SM2_test_message;
+    auth_enc_gcm.output = work_area3;
+    auth_enc_gcm.input_size = 32;
+    auth_enc_gcm.output_size = 32+16+12;
+    err = hsm_auth_enc(sg0_cipher_hdl, &auth_enc_gcm);
+    printf("err: 0x%x hsm_auth_enc err: hdl: 0x%08x\n", err, sg0_cipher_hdl);
+
+
+    printf("IV :\n");
+    for (j=0; j<12; j++) {
+        printf("0x%02x ", work_area3[32+16+j]);
+        if (j%16 == 15)
+            printf("\n");
+    }
+
+    auth_enc_gcm.key_identifier = key_id;
+    auth_enc_gcm.iv = &work_area3[32+16];
+    auth_enc_gcm.iv_size = 12;
+    auth_enc_gcm.aad = &SM2_test_message[128];
+    auth_enc_gcm.aad_size = 16;
+    auth_enc_gcm.ae_algo = HSM_AUTH_ENC_ALGO_AES_GCM;
+    auth_enc_gcm.flags = HSM_AUTH_ENC_FLAGS_DECRYPT;
+    auth_enc_gcm.input = work_area3;
+    auth_enc_gcm.output = work_area4;
+    auth_enc_gcm.input_size = 32 +16;
+    auth_enc_gcm.output_size = 32;
+
+    err = hsm_auth_enc(sg0_cipher_hdl, &auth_enc_gcm);
+    printf("err: 0x%x hsm_auth_enc err: hdl: 0x%08x\n", err, sg0_cipher_hdl);
+
+    if (memcmp(SM2_test_message, work_area4, 32) == 0) {
+        printf(" --> SUCCESS\n");
+    } else {
+        printf(" --> FAILURE\n");
+    }
+
+    auth_enc_gcm.key_identifier = key_id;
+    auth_enc_gcm.iv = &SM2_test_message[256];
+    auth_enc_gcm.iv_size = 4;
+    auth_enc_gcm.aad = &SM2_test_message[128];
+    auth_enc_gcm.aad_size = 16;
+    auth_enc_gcm.ae_algo = HSM_AUTH_ENC_ALGO_AES_GCM;
+    auth_enc_gcm.flags = HSM_AUTH_ENC_FLAGS_ENCRYPT | HSM_AUTH_ENC_FLAGS_GENERATE_COUNTER_IV;
+    auth_enc_gcm.input = SM2_test_message;
+    auth_enc_gcm.output = work_area3;
+    auth_enc_gcm.input_size = 32;
+    auth_enc_gcm.output_size = 32+16+12;
+    err = hsm_auth_enc(sg0_cipher_hdl, &auth_enc_gcm);
+    printf("err: 0x%x hsm_auth_enc err: hdl: 0x%08x\n", err, sg0_cipher_hdl);
+
+
+    printf("IV :\n");
+    for (j=0; j<12; j++) {
+        printf("0x%02x ", work_area3[32+16+j]);
+        if (j%16 == 15)
+            printf("\n");
+    }
+
+    auth_enc_gcm.key_identifier = key_id;
+    auth_enc_gcm.iv = &work_area3[32+16];
+    auth_enc_gcm.iv_size = 12;
+    auth_enc_gcm.aad = &SM2_test_message[128];
+    auth_enc_gcm.aad_size = 16;
+    auth_enc_gcm.ae_algo = HSM_AUTH_ENC_ALGO_AES_GCM;
+    auth_enc_gcm.flags = HSM_AUTH_ENC_FLAGS_DECRYPT;
+    auth_enc_gcm.input = work_area3;
+    auth_enc_gcm.output = work_area4;
+    auth_enc_gcm.input_size = 32 +16;
+    auth_enc_gcm.output_size = 32;
+
+    err = hsm_auth_enc(sg0_cipher_hdl, &auth_enc_gcm);
+    printf("err: 0x%x hsm_auth_enc err: hdl: 0x%08x\n", err, sg0_cipher_hdl);
+
+    if (memcmp(SM2_test_message, work_area4, 32) == 0) {
+        printf(" --> SUCCESS\n");
+    } else {
+        printf(" --> FAILURE\n");
+    }
+
+    auth_enc_gcm.key_identifier = key_id;
+    auth_enc_gcm.iv = NULL;
+    auth_enc_gcm.iv_size = 0;
+    auth_enc_gcm.aad = &SM2_test_message[128];
+    auth_enc_gcm.aad_size = 16;
+    auth_enc_gcm.ae_algo = HSM_AUTH_ENC_ALGO_AES_GCM;
+    auth_enc_gcm.flags = HSM_AUTH_ENC_FLAGS_ENCRYPT | HSM_AUTH_ENC_FLAGS_GENERATE_FULL_IV;
+    auth_enc_gcm.input = SM2_test_message;
+    auth_enc_gcm.output = work_area3;
+    auth_enc_gcm.input_size = 32;
+    auth_enc_gcm.output_size = 32+16+12;
+    err = hsm_auth_enc(sg0_cipher_hdl, &auth_enc_gcm);
+    printf("err: 0x%x hsm_auth_enc err: hdl: 0x%08x\n", err, sg0_cipher_hdl);
+
+    printf("IV :\n");
+    for (j=0; j<12; j++) {
+        printf("0x%02x ", work_area3[32+16+j]);
+        if (j%16 == 15)
+            printf("\n");
+    }
+
+    auth_enc_gcm.key_identifier = key_id;
+    auth_enc_gcm.iv = &work_area3[32+16];
+    auth_enc_gcm.iv_size = 12;
+    auth_enc_gcm.aad = &SM2_test_message[128];
+    auth_enc_gcm.aad_size = 16;
+    auth_enc_gcm.ae_algo = HSM_AUTH_ENC_ALGO_AES_GCM;
+    auth_enc_gcm.flags = HSM_AUTH_ENC_FLAGS_DECRYPT;
+    auth_enc_gcm.input = work_area3;
+    auth_enc_gcm.output = work_area4;
+    auth_enc_gcm.input_size = 32 +16;
+    auth_enc_gcm.output_size = 32;
+
+    err = hsm_auth_enc(sg0_cipher_hdl, &auth_enc_gcm);
+    printf("err: 0x%x hsm_auth_enc err: hdl: 0x%08x\n", err, sg0_cipher_hdl);
+
+    if (memcmp(SM2_test_message, work_area4, 32) == 0) {
         printf(" --> SUCCESS\n");
     } else {
         printf(" --> FAILURE\n");
