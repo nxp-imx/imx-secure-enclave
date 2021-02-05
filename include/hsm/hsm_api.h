@@ -550,7 +550,7 @@ hsm_err_t hsm_auth_enc(hsm_hdl_t cipher_hdl, op_auth_enc_args_t* args);
 #define HSM_AUTH_ENC_FLAGS_DECRYPT             ((hsm_op_auth_enc_flags_t)(0u << 0))
 #define HSM_AUTH_ENC_FLAGS_ENCRYPT             ((hsm_op_auth_enc_flags_t)(1u << 0))
 #define HSM_AUTH_ENC_FLAGS_GENERATE_FULL_IV    ((hsm_op_auth_enc_flags_t)(1u << 1))    //!< Full  IV is internally generated
-#define HSM_AUTH_ENC_FLAGS_GENERATE_COUNTER_IV (hsm_op_auth_enc_flags_t)(1u << 2))    //!< User supplies 4 bytes of the IV (fixed part), the other bytes are internally generated
+#define HSM_AUTH_ENC_FLAGS_GENERATE_COUNTER_IV ((hsm_op_auth_enc_flags_t)(1u << 2))    //!< User supplies 4 bytes of the IV (fixed part), the other bytes are internally generated
 
 
 typedef uint8_t hsm_op_ecies_dec_flags_t;
