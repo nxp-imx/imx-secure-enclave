@@ -1656,7 +1656,8 @@ hsm_err_t hsm_tls_finish(hsm_hdl_t key_management_hdl, op_tls_finish_args_t *arg
  *\addtogroup qxp_specific
  * \ref group20
  * 
- * \ref hsm_key_exchange API is not supported.
+ * - \ref hsm_key_exchange API is not supported.
+ * - \ref hsm_tls_finish API is not supported.
  */
 /**
  *\addtogroup dxl_specific
