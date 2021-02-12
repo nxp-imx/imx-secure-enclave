@@ -515,10 +515,6 @@ void seco_nvm_manager(uint8_t flags, uint32_t *status)
                     err = 1u;
                 break;
             }
-            if (err != 0u) {
-                /* Stop storage manager in case of any error. */
-                break;
-            }
         }
     } while (false);
 
