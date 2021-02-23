@@ -75,6 +75,9 @@ static she_err_t she_seco_ind_to_she_err_t (uint32_t rsp_code)
         case SAB_SHE_GENERAL_ERROR_RATING :
             err = ERC_GENERAL_ERROR;
             break;
+        case SAB_FATAL_FAILURE_RATING :
+            err = ERC_FATAL_FAILURE;
+            break;
         /* All other SECO error codes. */
         default:
             err = ERC_GENERAL_ERROR;

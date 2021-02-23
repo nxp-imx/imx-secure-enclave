@@ -125,8 +125,10 @@ static hsm_err_t sab_rating_to_hsm_err(uint32_t sab_err)
 		hsm_err = HSM_NO_ERROR;
 	} else {
 		hsm_err = (hsm_err_t)GET_RATING_CODE(sab_err);
-		if (hsm_err == HSM_NO_ERROR) {
+		if (hsm_err == SAB_NO_MESSAGE_RATING) {
 			hsm_err = HSM_GENERAL_ERROR;
+		} else if (hsm_err == SAB_FATAL_FAILURE_RATING) {
+			hsm_err = HSM_FATAL_FAILURE;
 		}
 	}
 

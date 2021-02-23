@@ -36,6 +36,7 @@ typedef enum {
     ERC_BUSY                = 0xA,      /**< A function of SHE is called while another function is still processing. */
     ERC_MEMORY_FAILURE      = 0xB,      /**< Memory error (e.g. flipped bits) */
     ERC_GENERAL_ERROR       = 0xC,      /**< Error not covered by other codes occured. */
+    ERC_FATAL_FAILURE       = 0x29      /**< A fatal failure occured, SHE goes in unrecoverable error state not replying to further requests */
 } she_err_t;
 /** @} end of error code group */
 

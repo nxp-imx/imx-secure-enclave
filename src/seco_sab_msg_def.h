@@ -132,6 +132,7 @@
 #define SAB_FAILURE_STATUS                      0x29u
 
 /* Rating code definition */
+#define SAB_NO_MESSAGE_RATING                   (0x00u)
 #define SAB_INVALID_MESSAGE_RATING              (0x01u)
 #define SAB_INVALID_ADDRESS_RATING              (0x02u)
 #define SAB_UNKNOWN_ID_RATING                   (0x03u)
@@ -166,6 +167,8 @@
 #define SAB_SHE_BUSY_RATING                     (0xDAu)     /**< A function of SHE is called while another function is still processing. */
 #define SAB_SHE_MEMORY_FAILURE_RATING           (0xDBu)     /**< Memory error (e.g. flipped bits) */
 #define SAB_SHE_GENERAL_ERROR_RATING            (0xDCu)     /**< Error not covered by other codes occured. */
+
+#define SAB_FATAL_FAILURE_RATING                (0xFFu)
 
 struct sab_mu_hdr {
     uint8_t ver;
