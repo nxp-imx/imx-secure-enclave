@@ -458,7 +458,7 @@ hsm_err_t hsm_close_key_management_service(hsm_hdl_t key_management_hdl);
  * - \ref HSM_KEY_TYPE_HMAC_256 is not supported.
  * - \ref HSM_KEY_TYPE_HMAC_384 is not supported.
  * - \ref HSM_KEY_TYPE_HMAC_512 is not supported.
- * 
+ *
  * - \ref hsm_key_type_t of op_butt_key_exp_args_t: Only HSM_KEY_TYPE_ECDSA_NIST_P256, HSM_KEY_TYPE_ECDSA_BRAINPOOL_R1_256 and HSM_KEY_TYPE_ECDSA_BRAINPOOL_T1_256 are supported.
  *
  */
@@ -543,7 +543,7 @@ typedef struct {
  * User can call this function only after having opened a cipher service flow\n
  *
  *
- * For decryption operations, the full IV is supplied by the caller via the iv and iv_size parameters\n
+ * For decryption operations, the full IV is supplied by the caller via the iv and iv_size parameters. HSM_AUTH_ENC_FLAGS_GENERATE_FULL_IV and HSM_AUTH_ENC_FLAGS_GENERATE_COUNTER_IV flags are ignored.\n
  *
  * For encryption operations, either HSM_AUTH_ENC_FLAGS_GENERATE_FULL_IV or HSM_AUTH_ENC_FLAGS_GENERATE_COUNTER_IV must be set when calling this function:
  * - When HSM_AUTH_ENC_FLAGS_GENERATE_FULL_IV is set, the full IV is internally generated, iv and iv_size must be set to 0
@@ -558,8 +558,8 @@ hsm_err_t hsm_auth_enc(hsm_hdl_t cipher_hdl, op_auth_enc_args_t* args);
 #define HSM_AUTH_ENC_ALGO_AES_GCM              ((hsm_op_auth_enc_algo_t)(0x00u))       //!< Perform AES GCM with following constraints: AES GCM where AAD supported, Tag len = 16 bytes, IV len = 12 bytes
 #define HSM_AUTH_ENC_FLAGS_DECRYPT             ((hsm_op_auth_enc_flags_t)(0u << 0))
 #define HSM_AUTH_ENC_FLAGS_ENCRYPT             ((hsm_op_auth_enc_flags_t)(1u << 0))
-#define HSM_AUTH_ENC_FLAGS_GENERATE_FULL_IV    ((hsm_op_auth_enc_flags_t)(1u << 1))    //!< Full  IV is internally generated
-#define HSM_AUTH_ENC_FLAGS_GENERATE_COUNTER_IV ((hsm_op_auth_enc_flags_t)(1u << 2))    //!< User supplies 4 bytes of the IV (fixed part), the other bytes are internally generated
+#define HSM_AUTH_ENC_FLAGS_GENERATE_FULL_IV    ((hsm_op_auth_enc_flags_t)(1u << 1))    //!< Full IV is internally generated (only relevant for encryption)
+#define HSM_AUTH_ENC_FLAGS_GENERATE_COUNTER_IV ((hsm_op_auth_enc_flags_t)(1u << 2))    //!< User supplies 4 bytes of the IV (fixed part), the other bytes are internally generated (only relevant for encryption)
 
 
 typedef uint8_t hsm_op_ecies_dec_flags_t;
@@ -1655,7 +1655,7 @@ hsm_err_t hsm_tls_finish(hsm_hdl_t key_management_hdl, op_tls_finish_args_t *arg
 /**
  *\addtogroup qxp_specific
  * \ref group20
- * 
+ *
  * - \ref hsm_key_exchange API is not supported.
  * - \ref hsm_tls_finish API is not supported.
  */
