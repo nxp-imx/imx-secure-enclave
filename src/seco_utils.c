@@ -103,9 +103,6 @@ int32_t seco_send_msg_and_get_resp(struct seco_os_abs_hdl *phdl, uint32_t *cmd, 
         }
         /* Read the response. */
         len = seco_os_abs_read_mu_message(phdl, rsp, rsp_len);
-        if (len != (int32_t)rsp_len) {
-            break;
-        }
 
         err = 0;
     } while (false);
