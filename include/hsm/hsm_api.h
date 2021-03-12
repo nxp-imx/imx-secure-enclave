@@ -1657,8 +1657,16 @@ hsm_err_t hsm_tls_finish(hsm_hdl_t key_management_hdl, op_tls_finish_args_t *arg
  *\addtogroup qxp_specific
  * \ref group20
  *
- * - \ref hsm_key_exchange API is not supported.
+ * - \ref HSM_KDF_HMAC_SHA_256_TLS_0_16_4 is not supported.
+ * - \ref HSM_KDF_HMAC_SHA_384_TLS_0_32_4 is not supported.
+ * - \ref HSM_KDF_HMAC_SHA_256_TLS_0_32_4 is not supported.
+ * - \ref HSM_KDF_HMAC_SHA_256_TLS_32_16_4 is not supported.
+ * - \ref HSM_KDF_HMAC_SHA_384_TLS_48_32_4 is not supported.
  * - \ref hsm_tls_finish API is not supported.
+ * - \ref HSM_OP_TLS_FINISH_HASH_ALGO_SHA256 is not supported.
+ * - \ref HSM_OP_TLS_FINISH_HASH_ALGO_SHA384 is not supported.
+ * - \ref HSM_OP_TLS_FINISH_FLAGS_CLIENT is not supported.
+ * - \ref HSM_OP_TLS_FINISH_FLAGS_SERVER is not supported.
  */
 /**
  *\addtogroup dxl_specific
@@ -1669,7 +1677,7 @@ hsm_err_t hsm_tls_finish(hsm_hdl_t key_management_hdl, op_tls_finish_args_t *arg
  * - \ref HSM_KDF_HMAC_SHA_256_TLS_0_32_4 is not supported.
  * - \ref HSM_KDF_HMAC_SHA_256_TLS_32_16_4 is not supported.
  * - \ref HSM_KDF_HMAC_SHA_384_TLS_48_32_4 is not supported.
- * - \ref hsm_tls_finish is not supported.
+ * - \ref hsm_tls_finish API is not supported.
  * - \ref HSM_OP_TLS_FINISH_HASH_ALGO_SHA256 is not supported.
  * - \ref HSM_OP_TLS_FINISH_HASH_ALGO_SHA384 is not supported.
  * - \ref HSM_OP_TLS_FINISH_FLAGS_CLIENT is not supported.
