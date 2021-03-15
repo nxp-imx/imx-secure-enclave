@@ -900,6 +900,8 @@ int main(int argc, char *argv[])
     key_exch.kdf_input_size = 0;
     key_exch.kdf_output_size = 0;
     key_exch.flags = HSM_OP_KEY_EXCHANGE_FLAGS_CREATE | HSM_OP_KEY_EXCHANGE_FLAGS_GENERATE_EPHEMERAL;
+    key_exch.signed_message = NULL;
+    key_exch.signed_msg_size = 0;
 
     err = hsm_key_exchange(sg0_key_mgmt_srv, &key_exch);
     printf("err: 0x%x hsm_key_exchange err hdl: 0x%08x\n", err, sg0_key_mgmt_srv);
@@ -945,6 +947,8 @@ int main(int argc, char *argv[])
     key_exch.kdf_input_size = 32*2;
     key_exch.kdf_output_size = 0;
     key_exch.flags = HSM_OP_KEY_EXCHANGE_FLAGS_CREATE;
+    key_exch.signed_message = NULL;
+    key_exch.signed_msg_size = 0;
 
     err = hsm_key_exchange(sg0_key_mgmt_srv, &key_exch);
     printf("err: 0x%x hsm_key_exchange err hdl: 0x%08x\n", err, sg0_key_mgmt_srv);
@@ -996,6 +1000,8 @@ int main(int argc, char *argv[])
     key_exch.kdf_input_size = 32*2;
     key_exch.kdf_output_size = 0;
     key_exch.flags = HSM_OP_KEY_EXCHANGE_FLAGS_CREATE | HSM_OP_KEY_EXCHANGE_FLAGS_STRICT_OPERATION;
+    key_exch.signed_message = NULL;
+    key_exch.signed_msg_size = 0;
 
     err = hsm_key_exchange(sg0_key_mgmt_srv, &key_exch);
     printf("err: 0x%x hsm_key_exchange err hdl: 0x%08x\n", err, sg0_key_mgmt_srv);
