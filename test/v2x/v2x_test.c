@@ -688,56 +688,6 @@ int main(int argc, char *argv[])
         printf(" --> FAILURE\n");
     }
 
-    printf("\n---------------------------------------------------\n");
-    printf("AES_128 auth encryption\n");
-    printf("---------------------------------------------------\n");
-    gen_key_args.key_identifier = &key_id;
-    gen_key_args.out_size = 0;
-    gen_key_args.flags = HSM_OP_KEY_GENERATION_FLAGS_CREATE;
-    gen_key_args.key_type = HSM_KEY_TYPE_AES_128;
-    gen_key_args.key_group = 12;
-    gen_key_args.key_info = 0U;
-    gen_key_args.out_key = NULL;
-
-    err = hsm_generate_key(sg0_key_mgmt_srv, &gen_key_args);
-    printf("err: 0x%x hsm_generate_key err: hdl: 0x%08x\n", err, sg0_key_mgmt_srv);
-
-    // AUTH ENC KEY AES128 -> ENCRYPT
-    auth_enc_args.key_identifier = key_id;
-    auth_enc_args.iv = iv_gcm;
-    auth_enc_args.iv_size = 12U;
-    auth_enc_args.aad = gcm_auth_data;
-    auth_enc_args.aad_size = 16U;
-    auth_enc_args.ae_algo = HSM_AUTH_ENC_ALGO_AES_GCM;
-    auth_enc_args.flags = HSM_AUTH_ENC_FLAGS_ENCRYPT;
-    auth_enc_args.input = SM2_test_message;
-    auth_enc_args.output = work_area;
-    auth_enc_args.input_size = 64;
-    auth_enc_args.output_size = 64 + 16;
-    err = hsm_auth_enc(sg0_cipher_hdl, &auth_enc_args);
-    printf("err: 0x%x hsm_auth data encrypt\n", err);
-
-    // AUTH ENC KEY AES128 -> DECRYPT
-    auth_enc_args.key_identifier = key_id;
-    auth_enc_args.iv = iv_gcm;
-    auth_enc_args.iv_size = 12U;
-    auth_enc_args.aad = gcm_auth_data;
-    auth_enc_args.aad_size = 16U;
-    auth_enc_args.ae_algo = HSM_AUTH_ENC_ALGO_AES_GCM;
-    auth_enc_args.flags = HSM_AUTH_ENC_FLAGS_DECRYPT;
-    auth_enc_args.input = work_area;
-    auth_enc_args.output = work_area2;
-    auth_enc_args.input_size = 64 + 16;
-    auth_enc_args.output_size = 64;
-    err = hsm_auth_enc(sg0_cipher_hdl, &auth_enc_args);
-    printf("err: 0x%x hsm_auth data encrypt\n", err);
-    // CHECK DECRYPTED OUTPUT
-    if (memcmp(SM2_test_message, work_area2, 64) == 0) {
-        printf(" --> SUCCESS\n");
-    } else {
-        printf(" --> FAILURE\n");
-    }
-
 
     printf("\n---------------------------------------------------\n");
     printf("key deletion test\n");
