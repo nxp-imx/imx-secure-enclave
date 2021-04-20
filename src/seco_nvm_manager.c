@@ -465,12 +465,14 @@ void seco_nvm_manager(uint8_t flags, uint32_t *status)
     struct sab_mu_hdr *hdr = (struct sab_mu_hdr *)recv_msg;
     uint32_t err = 0u;
     uint8_t *data = NULL;
+    uint8_t retry = 0;
 
     if (status != NULL) {
         *status = NVM_STATUS_STARTING;
     }
 
     do {
+        retry = 0;
         seco_nvm_open_session(flags);
 
         if(nvm_ctx.phdl == NULL) {
@@ -505,6 +507,14 @@ void seco_nvm_manager(uint8_t flags, uint32_t *status)
         {
             /* Receive a message from SECO and process it according its type. */
             len = seco_os_abs_read_mu_message(nvm_ctx.phdl, recv_msg, MAX_RCV_MSG_SIZE);
+            if (len < 0) {
+                    retry = 1;
+                    /* handle case when SECO/V2X are reset */
+                    seco_os_abs_close_session(nvm_ctx.phdl);
+                    nvm_ctx.phdl = NULL;
+                    break;
+            }
+
             switch (hdr->command) {
                 case SAB_STORAGE_MASTER_EXPORT_REQ:
                     err = seco_nvm_manager_export_master(&nvm_ctx, (struct sab_cmd_key_store_export_start_msg *)recv_msg, len);
@@ -520,7 +530,7 @@ void seco_nvm_manager(uint8_t flags, uint32_t *status)
                 break;
             }
         }
-    } while (false);
+    } while (retry);
 
     if (status != NULL) {
         *status = NVM_STATUS_STOPPED;
