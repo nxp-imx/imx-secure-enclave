@@ -35,6 +35,7 @@
  * 3.6 | Feb 12 2021  | Key exchange for KEK negotiation supported on QXP, usage of IV flags for auth_enc clarified.
  * 3.7 | Mar 19 2021  | Add HSM_FATAL_FAILURE error code definition
  * 3.8 | April 30 2021| - hsm_open_key_store_service, hsm_generate_key_ext, hsm_manage_key_ext: min_mac_len cannot be set to values < 32 bits when in FIPS approved mode. \n - Update hsm_key_exchange kdf_input_size argument description in case of TLS Key generation.
+ * 3.8 | Mar 27 2021  | - Butterfly key expansion: add the support of SM2 on DXL \n - Public key reconstruction: add the support of SM2 on DXL \n.
  * */
 
 /*! \page page1 General concepts related to the API
