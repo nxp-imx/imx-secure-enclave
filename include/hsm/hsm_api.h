@@ -133,7 +133,7 @@ typedef struct {
     uint32_t authentication_nonce;      //!< user defined nonce used as authentication proof for accesing the key store.
     uint16_t max_updates_number;        //!< maximum number of updates authorized for the key store. Valid only for create operation.\n This parameter has the goal to limit the occupation of the monotonic counter used as anti-rollback protection.\n If the maximum number of updates is reached, HSM still allows key store updates but without updating the monotonic counter giving the opportunity for rollback attacks.
     hsm_svc_key_store_flags_t flags;    //!< bitmap specifying the services properties.
-    uint8_t min_mac_length;             //!< it corresponds to the minimum mac length (in bits) accepted by the HSM to perform MAC verification operations.\n Only used upon key store creation when HSM_SVC_KEY_STORE_FLAGS_SET_MAC_LEN bit is set.\n It is effective only for MAC verification operations with the mac length expressed in bits.\n It can be used to replace the default value (32 bits).\n It impacts all MAC algorithms and all key lengths.\n It must be different from 0.
+    uint8_t min_mac_length;             //!< it corresponds to the minimum mac length (in bits) accepted by the HSM to perform MAC verification operations.\n Only used upon key store creation when HSM_SVC_KEY_STORE_FLAGS_SET_MAC_LEN bit is set.\n It is effective only for MAC verification operations with the mac length expressed in bits.\n It can be used to replace the default value (32 bits).\n It impacts all MAC algorithms and all key lengths.\n It must be different from 0.\n When in FIPS approved mode values < 32 bits are not allowed.
     uint8_t *signed_message;            //!< pointer to signed_message to be sent only in case of key store re-provisioning
     uint16_t signed_msg_size;           //!< size of the signed_message to be sent only in case of key store re-provisioning
     uint8_t reserved_1[2];
@@ -255,7 +255,7 @@ typedef struct {
     hsm_key_group_t key_group;          //!< Key group of the generated key. It must be a value in the range 0-1023. Keys belonging to the same group can be cached in the HSM local memory through the hsm_manage_key_group API.
     hsm_key_info_t key_info;            //!< bitmap specifying the properties of the key.
     uint8_t *out_key;                   //!< pointer to the output area where the generated public key must be written.
-    uint8_t min_mac_len;                //!< min mac length in bits to be set for this key, value 0 indicates use default (see op_mac_one_go_args_t for more details).  Only accepted for keys that can be used for mac operations, must not be larger than maximum mac size that can be performed with the key.
+    uint8_t min_mac_len;                //!< min mac length in bits to be set for this key, value 0 indicates use default (see op_mac_one_go_args_t for more details).  Only accepted for keys that can be used for mac operations, must not be larger than maximum mac size that can be performed with the key.\n When in FIPS approved mode values < 32 bits are not allowed.
     uint8_t reserved[3];                //!< It must be 0.
 } op_generate_key_ext_args_t;
 
@@ -325,7 +325,7 @@ typedef struct {
     hsm_key_group_t key_group;          //!< key group of the imported key. It must be a value in the range 0-1023. Keys belonging to the same group can be cached in the HSM local memory through the hsm_manage_key_group API.
     hsm_key_info_t key_info;            //!< bitmap specifying the properties of the key, in case of update operation it will replace the existing value. It must be 0 in case of delete operation.
     uint8_t *input_data;                //!< pointer to the input buffer. The input buffer is the concatenation of the IV, the encrypted key to be imported and the tag. It must be 0 in case of delete operation.
-    uint8_t min_mac_len;                //!< min mac length in bits to be set for this key, value 0 indicates use default (see op_mac_one_go_args_t for more details).  Only accepted for keys that can be used for mac operations, must not be larger than maximum mac size that can be performed with the key.
+    uint8_t min_mac_len;                //!< min mac length in bits to be set for this key, value 0 indicates use default (see op_mac_one_go_args_t for more details).  Only accepted for keys that can be used for mac operations, must not be larger than maximum mac size that can be performed with the key.\n When in FIPS approved mode values < 32 bits are not allowed.
     uint8_t reserved[3];                  //!< It must be 0.
 } op_manage_key_ext_args_t;
 
@@ -1579,7 +1579,9 @@ typedef struct {
  *       - The initiator_public_data_type must be HSM_KEY_TYPE_ECDSA_NIST_P256/384 or HSM_KEY_TYPE_ECDSA_BRAINPOOL_R1_256/384.
  *       - The key_exchange_scheme must be HSM_KE_SCHEME_ECDH_NIST_P256/384 or HSM_KE_SCHEME_ECDH_BRAINPOOL_R1_256/384.
  *       - The kdf_algorithm must be HSM_KDF_HMAC_SHA_xxx_TLS_xxx. The generated MAC keys will have type ALG_HMAC_XXX, where XXX corresponds to the key length in bit of generated MAC key. The generated encryption keys will have type HSM_KEY_TYPE_AES_XXX, where XXX corresponds to the key length in bit of the generated AES key. The master_secret key can only be used for the hsm_tls_finish function or be deleted using the hsm_manage_key function.
- *       - kdf_input_size: It must be 128 bytes.
+ *       - kdf_input_size:
+ *          - for HSM_OP_KEY_EXCHANGE_FLAGS_USE_TLS_EMS not set, it must be 128 bytes.
+ *          - for HSM_OP_KEY_EXCHANGE_FLAGS_USE_TLS_EMS set, it must be 96 (SHA256) or 112 (SHA384) bytes.
  *       - kdf_output_size: It must be 8 bytes
  *       - signed_message: it must be NULL
  *
