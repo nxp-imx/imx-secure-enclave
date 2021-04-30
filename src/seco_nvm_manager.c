@@ -473,6 +473,10 @@ void seco_nvm_manager(uint8_t flags, uint32_t *status)
     do {
         seco_nvm_open_session(flags);
 
+        if(nvm_ctx.phdl == NULL) {
+            break;
+        }
+
         /*
          * Try to read the storage header which length is known.
          * Then if successful extract the full length and read the whole storage into an allocated buffer.
