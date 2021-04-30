@@ -1,0 +1,60 @@
+From 496fdb0d0680e07714fe9d2dd7ef83cd07d418e7 Mon Sep 17 00:00:00 2001
+From: Asma Mkhinini <asma.mkhinini@nxp.com>
+Date: Mon, 1 Mar 2021 13:00:42 +0100
+Subject: [PATCH] strict update ...
+
+Signed-off-by: Asma Mkhinini <asma.mkhinini@nxp.com>
+---
+ test/v2x/v2x_test.c | 8 +++++---
+ 1 file changed, 5 insertions(+), 3 deletions(-)
+
+diff --git a/test/v2x/v2x_test.c b/test/v2x/v2x_test.c
+index 8d77779..496558e 100644
+--- a/test/v2x/v2x_test.c
++++ b/test/v2x/v2x_test.c
+@@ -440,6 +440,7 @@ int main(int argc, char *argv[])
+     }
+     printf("err: 0x%x hsm_open_key_store_service hdl: 0x%08x\n", err, sg0_key_store_serv);
+ 
++
+     key_store_srv_args.key_store_identifier = 5678;
+     key_store_srv_args.authentication_nonce = 5678;
+     key_store_srv_args.flags = HSM_SVC_KEY_STORE_FLAGS_CREATE;
+@@ -628,7 +629,7 @@ int main(int argc, char *argv[])
+ 
+     gen_key_args.key_identifier = &key_id;
+     gen_key_args.out_size = 64;
+-    gen_key_args.flags = HSM_OP_KEY_GENERATION_FLAGS_CREATE;
++    gen_key_args.flags = HSM_OP_KEY_GENERATION_FLAGS_CREATE | HSM_OP_KEY_GENERATION_FLAGS_STRICT_OPERATION;
+     gen_key_args.key_type = HSM_KEY_TYPE_DSA_SM2_FP_256;
+     gen_key_args.key_group = 12;
+     gen_key_args.key_info = 0U;
+@@ -780,7 +781,7 @@ int main(int argc, char *argv[])
+ 
+     gen_key_args.key_identifier = &key_id;
+     gen_key_args.out_size = 64;
+-    gen_key_args.flags = HSM_OP_KEY_GENERATION_FLAGS_CREATE;
++    gen_key_args.flags = HSM_OP_KEY_GENERATION_FLAGS_CREATE | HSM_OP_KEY_GENERATION_FLAGS_STRICT_OPERATION;
+     gen_key_args.key_type = HSM_KEY_TYPE_DSA_SM2_FP_256;
+     gen_key_args.key_group = 12;
+     gen_key_args.key_info = 0U;
+@@ -825,7 +826,7 @@ int main(int argc, char *argv[])
+ 
+     gen_key_args.key_identifier = &key_id;
+     gen_key_args.out_size = 64;
+-    gen_key_args.flags = HSM_OP_KEY_GENERATION_FLAGS_CREATE;
++    gen_key_args.flags = HSM_OP_KEY_GENERATION_FLAGS_CREATE | HSM_OP_KEY_GENERATION_FLAGS_STRICT_OPERATION;
+     gen_key_args.key_type = HSM_KEY_TYPE_ECDSA_NIST_P256;
+     gen_key_args.key_group = 12;
+     gen_key_args.key_info = 0U;
+@@ -1252,6 +1253,7 @@ int main(int argc, char *argv[])
+     err = hsm_close_session(sv1_sess);
+     printf("err: 0x%x SV hsm_close_session hdl: 0x%x\n", err, sv1_sess);
+ 
++ 
+     if (nvm_status != NVM_STATUS_STOPPED) {
+         pthread_cancel(tid);
+     }
+-- 
+2.29.0
+

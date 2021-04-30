@@ -1,0 +1,175 @@
+From 54be5d054fa8f4cc9b24d7a283c6b968343515cf Mon Sep 17 00:00:00 2001
+From: Asma Mkhinini <asma.mkhinini@nxp.com>
+Date: Tue, 2 Mar 2021 10:14:21 +0100
+Subject: [PATCH] test butt conti ..
+
+Signed-off-by: Asma Mkhinini <asma.mkhinini@nxp.com>
+---
+ test/v2x/v2x_test.c | 115 +++++++++++++++++++++++++++++++++++++++++++-
+ 1 file changed, 114 insertions(+), 1 deletion(-)
+
+diff --git a/test/v2x/v2x_test.c b/test/v2x/v2x_test.c
+index 8d77779..18c5eee 100644
+--- a/test/v2x/v2x_test.c
++++ b/test/v2x/v2x_test.c
+@@ -119,6 +119,20 @@ uint8_t sm2_kdf_input[2*32] = {
+     0x9A ,0x87 ,0xE6 ,0xFC ,0x68 ,0x2D ,0x48 ,0xBB ,0x5D ,0x42 ,0xE3 ,0xD9 ,0xB9 ,0xEF ,0xFE ,0x76,
+ };
+ 
++uint8_t exp_fct[32] = {
++    0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
++    0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00
++};
++
++uint8_t hash_val [32] = {
++    0x66, 0xF7, 0x3A, 0x02, 0xC6, 0xE1, 0xC4, 0xA2, 0xCD, 0x93, 0xED, 0x2D, 0x60, 0xD8, 0x28, 0x4A, 
++    0x94, 0x50, 0xF5, 0xD1, 0xC6, 0xFD, 0x0A, 0xEB, 0x1E, 0x4B, 0xE7, 0x55, 0x75, 0x34, 0xE9, 0x50
++}; 
++uint8_t rec_val [32] = {
++    0x06, 0xA8, 0xD6, 0xFC, 0xDC, 0x18, 0xAC, 0x05, 0xF6, 0xD9, 0xD8, 0x8A, 0xB2, 0xC3, 0x1B, 0x46, 
++    0x2E, 0x72, 0xC5, 0x8C, 0x60, 0x55, 0x5A, 0x3D, 0x9D, 0xF8, 0x3D, 0xB6, 0xF2, 0xE3, 0x14, 0x2B 
++}; 
++
+ uint8_t work_area[128] = {0};
+ uint8_t work_area2[128] = {0};
+ uint8_t work_area3[128] = {0};
+@@ -340,6 +354,9 @@ int main(int argc, char *argv[])
+     op_ecies_enc_args_t op_ecies_enc_args;
+     op_ecies_dec_args_t op_ecies_dec_args;
+ 
++    op_manage_key_group_args_t manage_key_group_args;
++    op_butt_key_exp_args_t butt_key_exp_args; 
++
+     hsm_hdl_t sg0_sess, sv0_sess;
+     hsm_hdl_t sg1_sess, sv1_sess;
+     hsm_hdl_t sg0_key_store_serv, sg0_sig_gen_serv, sg0_key_mgmt_srv, sg0_cipher_hdl;
+@@ -353,6 +370,8 @@ int main(int argc, char *argv[])
+     op_generate_key_args_t gen_key_args;
+     uint32_t key_id = 0;
+     uint32_t key_id_sm4 = 0;
++    uint32_t key_id_master = 0; 
++    uint32_t butt_key_id = 0; 
+ 
+     hsm_verification_status_t status;
+     hsm_err_t err;
+@@ -469,6 +488,7 @@ int main(int argc, char *argv[])
+     err = hsm_open_signature_verification_service(sv1_sess, &sig_ver_srv_args, &sv1_sig_ver_serv);
+     printf("err: 0x%x hsm_open_signature_verification_service err: hdl: 0x%08x\n", err, sv1_sig_ver_serv);
+ 
++#if 0
+ 
+     // SM2 signature test: generate a signature and verify it
+     //
+@@ -1193,7 +1213,100 @@ int main(int argc, char *argv[])
+     } else {
+         printf(" --> FAILURE\n");
+     }
++#endif 
++    // Butterfly 
++    printf("\n---------------------------------------------------\n");
++    printf("Butterfly Test \n");
++    printf("---------------------------------------------------\n");
++
++    gen_key_args.key_identifier = &key_id_master;
++    gen_key_args.out_size = 64;
++    gen_key_args.flags = HSM_OP_KEY_GENERATION_FLAGS_CREATE | HSM_OP_KEY_GENERATION_FLAGS_STRICT_OPERATION;
++    gen_key_args.key_type = HSM_KEY_TYPE_ECDSA_NIST_P256;
++    gen_key_args.key_group = 2;
++    gen_key_args.key_info = HSM_KEY_INFO_MASTER;
++    gen_key_args.out_key = work_area;
++    err = hsm_generate_key(sg0_key_mgmt_srv, &gen_key_args);
++    printf("err: 0x%x hsm_generate_key err: hdl: 0x%08x\n", err, sg0_key_mgmt_srv);
++
++    gen_key_args.key_identifier = &key_id;
++    gen_key_args.out_size = 64;
++    gen_key_args.flags = HSM_OP_KEY_GENERATION_FLAGS_CREATE | HSM_OP_KEY_GENERATION_FLAGS_STRICT_OPERATION;
++    gen_key_args.key_type = HSM_KEY_TYPE_ECDSA_NIST_P256;
++    gen_key_args.key_group = 3;
++    gen_key_args.key_info = 0;
++    gen_key_args.out_key = work_area;
++    err = hsm_generate_key(sg0_key_mgmt_srv, &gen_key_args);
++    printf("err: 0x%x hsm_generate_key err: hdl: 0x%08x\n", err, sg0_key_mgmt_srv);
++
++    gen_key_args.key_identifier = &key_id;
++    gen_key_args.out_size = 64;
++    gen_key_args.flags = HSM_OP_KEY_GENERATION_FLAGS_CREATE | HSM_OP_KEY_GENERATION_FLAGS_STRICT_OPERATION;
++    gen_key_args.key_type = HSM_KEY_TYPE_ECDSA_NIST_P256;
++    gen_key_args.key_group = 4;
++    gen_key_args.key_info = 0;
++    gen_key_args.out_key = work_area;
++    err = hsm_generate_key(sg0_key_mgmt_srv, &gen_key_args);
++    printf("err: 0x%x hsm_generate_key err: hdl: 0x%08x\n", err, sg0_key_mgmt_srv);
++
++    manage_key_group_args.key_group = 2; 
++    manage_key_group_args.flags = HSM_OP_MANAGE_KEY_GROUP_FLAGS_CACHE_LOCKDOWN; 
++    manage_key_group_args.reserved = 0; 
++
++    err = hsm_manage_key_group(sg0_key_mgmt_srv, &manage_key_group_args);
++    printf("err: 0x%x hsm_manage_key_group err: hdl: 0x%08x\n", err, sg0_key_mgmt_srv);
++
++    butt_key_exp_args.key_identifier = key_id_master; 
++    butt_key_exp_args.expansion_function_value = exp_fct; 
++    butt_key_exp_args.hash_value = hash_val; 
++    butt_key_exp_args.pr_reconstruction_value = rec_val; 
++    butt_key_exp_args.expansion_function_value_size = 32; 
++    butt_key_exp_args.hash_value_size = 32; 
++    butt_key_exp_args.pr_reconstruction_value_size = 32; 
++    butt_key_exp_args.flags = HSM_OP_BUTTERFLY_KEY_FLAGS_IMPLICIT_CERTIF | HSM_OP_BUTTERFLY_KEY_FLAGS_CREATE | HSM_OP_BUTTERFLY_KEY_FLAGS_STRICT_OPERATION;
++    butt_key_exp_args.dest_key_identifier = &butt_key_id;
++    butt_key_exp_args.output = work_area2;
++    butt_key_exp_args.output_size = 64;
++    butt_key_exp_args.key_type = HSM_KEY_TYPE_ECDSA_NIST_P256;
++    butt_key_exp_args.key_group = 5;
++    butt_key_exp_args.key_info = 0U;
++
++    err = hsm_butterfly_key_expansion(sg0_key_mgmt_srv, &butt_key_exp_args);
++    printf("err: 0x%x hsm_butterfly_key_expansion err: hdl: 0x%08x\n", err, sg0_key_mgmt_srv);
++
++    printf("Buuterfly pub key :\n");
++    for (j=0; j<64; j++) {
++        printf("0x%02x ", work_area2[j]);
++        if (j%16 == 15)
++            printf("\n");
++    }
++
++    butt_key_exp_args.key_identifier = key_id_master; 
++    butt_key_exp_args.expansion_function_value = 0; 
++    butt_key_exp_args.hash_value = hash_val; 
++    butt_key_exp_args.pr_reconstruction_value = rec_val; 
++    butt_key_exp_args.expansion_function_value_size = 0; 
++    butt_key_exp_args.hash_value_size = 32; 
++    butt_key_exp_args.pr_reconstruction_value_size = 32; 
++    butt_key_exp_args.flags = HSM_OP_BUTTERFLY_KEY_FLAGS_EXPLICIT_CERTIF | HSM_OP_BUTTERFLY_KEY_FLAGS_CREATE | HSM_OP_BUTTERFLY_KEY_FLAGS_STRICT_OPERATION;
++    butt_key_exp_args.dest_key_identifier = &butt_key_id;
++    butt_key_exp_args.output = work_area2;
++    butt_key_exp_args.output_size = 64;
++    butt_key_exp_args.key_type = HSM_KEY_TYPE_ECDSA_NIST_P256;
++    butt_key_exp_args.key_group = 5;
++    butt_key_exp_args.key_info = 0U;
++
++    err = hsm_butterfly_key_expansion(sg0_key_mgmt_srv, &butt_key_exp_args);
++    printf("err: 0x%x hsm_butterfly_key_expansion err: hdl: 0x%08x\n", err, sg0_key_mgmt_srv);
++
++    printf("Buuterfly pub key :\n");
++    for (j=0; j<64; j++) {
++        printf("0x%02x ", work_area2[j]);
++        if (j%16 == 15)
++            printf("\n");
++    }
+ 
++#if 0
+     // Close all services and sessions
+     printf("\n---------------------------------------------------\n");
+     printf("Closing services and sessions\n");
+@@ -1251,7 +1364,7 @@ int main(int argc, char *argv[])
+ 
+     err = hsm_close_session(sv1_sess);
+     printf("err: 0x%x SV hsm_close_session hdl: 0x%x\n", err, sv1_sess);
+-
++#endif 
+     if (nvm_status != NVM_STATUS_STOPPED) {
+         pthread_cancel(tid);
+     }
+-- 
+2.29.0
+
