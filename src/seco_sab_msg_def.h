@@ -70,6 +70,7 @@
 #define SAB_TLS_FINISH_REQ                      0x48u
 #define SAB_KEY_GENERATE_EXT_REQ                0x49u
 #define SAB_MANAGE_KEY_EXT_REQ                  0x4au
+#define SAB_ST_BUT_KEY_EXP_REQ                  0x4bu
 
 #define SAB_MAC_OPEN_REQ                        0x50u
 #define SAB_MAC_CLOSE_REQ                       0x51u
@@ -1311,6 +1312,34 @@ struct sab_cmd_tls_finish_msg{
 struct sab_cmd_tls_finish_rsp{
     struct sab_mu_hdr hdr;
     uint32_t rsp_code;
+};
+
+struct sab_cmd_st_butterfly_key_exp_msg {
+    struct sab_mu_hdr hdr;
+    uint32_t key_management_handle;
+    uint32_t key_identifier;
+    uint32_t exp_fct_key_identifier;
+    uint32_t exp_fct_input_address;
+    uint32_t hash_value_address;
+    uint32_t pr_reconst_value_address;
+    uint8_t  exp_fct_input_size;
+    uint8_t  hash_value_size;
+    uint8_t  pr_reconst_value_size;
+    uint8_t  flags;
+    uint32_t dest_key_identifier;
+    uint32_t output_address;
+    uint16_t output_size;
+    uint8_t  key_type;
+    uint8_t  exp_fct_algorithm;
+    uint16_t key_group;
+    uint16_t key_info;
+    uint32_t crc;
+};
+
+struct sab_cmd_st_butterfly_key_exp_rsp {
+    struct sab_mu_hdr hdr;
+    uint32_t rsp_code;
+    uint32_t dest_key_identifier;
 };
 
 #endif
