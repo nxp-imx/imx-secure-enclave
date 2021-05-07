@@ -508,11 +508,11 @@ void seco_nvm_manager(uint8_t flags, uint32_t *status)
             /* Receive a message from SECO and process it according its type. */
             len = seco_os_abs_read_mu_message(nvm_ctx.phdl, recv_msg, MAX_RCV_MSG_SIZE);
             if (len < 0) {
-                    retry = 1;
-                    /* handle case when SECO/V2X are reset */
-                    seco_os_abs_close_session(nvm_ctx.phdl);
-                    nvm_ctx.phdl = NULL;
-                    break;
+                retry = 1;
+                /* handle case when SECO/V2X are reset */
+                seco_os_abs_close_session(nvm_ctx.phdl);
+                nvm_ctx.phdl = NULL;
+                break;
             }
 
             switch (hdr->command) {
