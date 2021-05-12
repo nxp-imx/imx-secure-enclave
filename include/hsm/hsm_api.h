@@ -460,8 +460,7 @@ hsm_err_t hsm_close_key_management_service(hsm_hdl_t key_management_hdl);
  * - \ref HSM_KEY_TYPE_HMAC_384 is not supported.
  * - \ref HSM_KEY_TYPE_HMAC_512 is not supported.
  *
- * - \ref hsm_key_type_t of op_butt_key_exp_args_t: Only HSM_KEY_TYPE_ECDSA_NIST_P256, HSM_KEY_TYPE_ECDSA_BRAINPOOL_R1_256
- *         and HSM_KEY_TYPE_DSA_SM2_FP_256 are supported.
+ * - \ref hsm_key_type_t of op_butt_key_exp_args_t: Only HSM_KEY_TYPE_ECDSA_NIST_P256, HSM_KEY_TYPE_ECDSA_BRAINPOOL_R1_256 and HSM_KEY_TYPE_DSA_SM2_FP_256 are supported.
  *
  */
 /** @} end of key management service flow */
@@ -710,7 +709,7 @@ typedef struct {
 
 /**
  * Prepare the creation of a signature by pre-calculating the operations having not dependencies on the input message.\n
- * The pre-calculated value will be stored internally and used once call hsm_generate_signature \n
+ * The pre-calculated value will be stored internally and used once call hsm_generate_signature. Up to 20 pre-calculated values can be stored, additional preparation operations will have no effects.\n
  * User can call this function only after having opened a signature generation service flow\n
  * The signature S=(r,s) is stored in the format r||s||Ry where Ry is an additional byte containing the lsb of y, Ry has to be considered valid only if the HSM_OP_PREPARE_SIGN_COMPRESSED_POINT is set.
  *
@@ -1026,8 +1025,7 @@ hsm_err_t hsm_pub_key_reconstruction(hsm_hdl_t session_hdl,  op_pub_key_rec_args
  *\addtogroup dxl_specific
  * \ref group9
  *
- * - \ref hsm_key_type_t of op_pub_key_rec_args_t: Only HSM_KEY_TYPE_ECDSA_NIST_P256, HSM_KEY_TYPE_ECDSA_BRAINPOOL_R1_256
- *        and HSM_KEY_TYPE_DSA_SM2_FP_256 are supported.
+ * - \ref hsm_key_type_t of op_pub_key_rec_args_t: Only HSM_KEY_TYPE_ECDSA_NIST_P256, HSM_KEY_TYPE_ECDSA_BRAINPOOL_R1_256 and HSM_KEY_TYPE_DSA_SM2_FP_256 are supported.
  *
  */
 /** @} end of public key reconstruction operation */
@@ -1761,8 +1759,7 @@ hsm_err_t hsm_standalone_butterfly_key_expansion(hsm_hdl_t key_management_hdl, o
  *\addtogroup dxl_specific
  * \ref group21
  *
- * \ref hsm_key_type_t of op_butt_key_exp_args_t: Only HSM_KEY_TYPE_ECDSA_NIST_P256, HSM_KEY_TYPE_ECDSA_BRAINPOOL_R1_256 \n
- *         and HSM_KEY_TYPE_DSA_SM2_FP_256 are supported.
+ * \ref hsm_key_type_t of op_butt_key_exp_args_t: Only HSM_KEY_TYPE_ECDSA_NIST_P256, HSM_KEY_TYPE_ECDSA_BRAINPOOL_R1_256 and HSM_KEY_TYPE_DSA_SM2_FP_256 are supported.
  *
  */
 /** @} end of Standalone butterfly key expansion */
