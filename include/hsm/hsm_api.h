@@ -461,7 +461,7 @@ hsm_err_t hsm_close_key_management_service(hsm_hdl_t key_management_hdl);
  * - \ref HSM_KEY_TYPE_HMAC_512 is not supported.
  *
  * - \ref hsm_key_type_t of op_butt_key_exp_args_t: Only HSM_KEY_TYPE_ECDSA_NIST_P256, HSM_KEY_TYPE_ECDSA_BRAINPOOL_R1_256
- *        and HSM_KEY_TYPE_ECDSA_BRAINPOOL_T1_256 and HSM_KEY_TYPE_DSA_SM2_FP_256 are supported.
+ *         and HSM_KEY_TYPE_DSA_SM2_FP_256 are supported.
  *
  */
 /** @} end of key management service flow */
@@ -617,7 +617,7 @@ hsm_err_t hsm_close_cipher_service(hsm_hdl_t cipher_hdl);
  *\addtogroup dxl_specific
  * \ref group4
  *
- * - \ref hsm_key_type_t of op_ecies_dec_args_t: Only HSM_KEY_TYPE_ECDSA_NIST_P256, HSM_KEY_TYPE_ECDSA_BRAINPOOL_R1_256 and HSM_KEY_TYPE_ECDSA_BRAINPOOL_T1_256 are supported.
+ * - \ref hsm_key_type_t of op_ecies_dec_args_t: Only HSM_KEY_TYPE_ECDSA_NIST_P256 and HSM_KEY_TYPE_ECDSA_BRAINPOOL_R1_256 are supported.
  *
  */
 /** @} end of cipher service flow */
@@ -1027,7 +1027,7 @@ hsm_err_t hsm_pub_key_reconstruction(hsm_hdl_t session_hdl,  op_pub_key_rec_args
  * \ref group9
  *
  * - \ref hsm_key_type_t of op_pub_key_rec_args_t: Only HSM_KEY_TYPE_ECDSA_NIST_P256, HSM_KEY_TYPE_ECDSA_BRAINPOOL_R1_256
- *        and HSM_KEY_TYPE_ECDSA_BRAINPOOL_T1_256  and HSM_KEY_TYPE_DSA_SM2_FP_256 are supported.
+ *        and HSM_KEY_TYPE_DSA_SM2_FP_256 are supported.
  *
  */
 /** @} end of public key reconstruction operation */
@@ -1114,7 +1114,7 @@ hsm_err_t hsm_ecies_encryption(hsm_hdl_t session_hdl, op_ecies_enc_args_t *args)
  *\addtogroup dxl_specific
  * \ref group11
  *
- * - \ref hsm_key_type_t of op_ecies_enc_args_t: Only HSM_KEY_TYPE_ECDSA_NIST_P256, HSM_KEY_TYPE_ECDSA_BRAINPOOL_R1_256 and HSM_KEY_TYPE_ECDSA_BRAINPOOL_T1_256 are supported.
+ * - \ref hsm_key_type_t of op_ecies_enc_args_t: Only HSM_KEY_TYPE_ECDSA_NIST_P256 and HSM_KEY_TYPE_ECDSA_BRAINPOOL_R1_256 are supported.
  *
  */
 /** @} end of ECIES encryption operation */
@@ -1762,7 +1762,7 @@ hsm_err_t hsm_standalone_butterfly_key_expansion(hsm_hdl_t key_management_hdl, o
  * \ref group21
  *
  * \ref hsm_key_type_t of op_butt_key_exp_args_t: Only HSM_KEY_TYPE_ECDSA_NIST_P256, HSM_KEY_TYPE_ECDSA_BRAINPOOL_R1_256 \n
- *        and HSM_KEY_TYPE_ECDSA_BRAINPOOL_T1_256 and HSM_KEY_TYPE_DSA_SM2_FP_256 are supported.
+ *         and HSM_KEY_TYPE_DSA_SM2_FP_256 are supported.
  *
  */
 /** @} end of Standalone butterfly key expansion */
