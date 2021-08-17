@@ -36,6 +36,7 @@
  * 3.7 | Mar 19 2021  | Add HSM_FATAL_FAILURE error code definition
  * 3.8 | April 30 2021| - hsm_open_key_store_service, hsm_generate_key_ext, hsm_manage_key_ext: min_mac_len cannot be set to values < 32 bits when in FIPS approved mode. \n - Update hsm_key_exchange kdf_input_size argument description in case of TLS Key generation.
  * 3.9 | May 12 2021  | - Butterfly key expansion: add the support of SM2 on DXL \n - Public key reconstruction: add the support of SM2 on DXL \n - Introduce standalone Butterfly key expansion API on DXL. \n - Butterfly key expansion, Public key reconstruction, ECIES enc/dec: remove the support of BR256T1 on DXL. \n- hsm_prepare_signature: specify max number of stored pre-calculated values. \n key exchange: add the support of BR256T1 on DXL.
+ * 4.0 | Aug 05 2021  | - Authenticated encryption: add the support of SM4 CCM on DXL. \n - Add key generic cryptographic service API on DXL.
  * */
 
 /*! \page page1 General concepts related to the API

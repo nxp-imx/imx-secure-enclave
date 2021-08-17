@@ -557,6 +557,7 @@ typedef struct {
  */
 hsm_err_t hsm_auth_enc(hsm_hdl_t cipher_hdl, op_auth_enc_args_t* args);
 #define HSM_AUTH_ENC_ALGO_AES_GCM              ((hsm_op_auth_enc_algo_t)(0x00u))       //!< Perform AES GCM with following constraints: AES GCM where AAD supported, Tag len = 16 bytes, IV len = 12 bytes
+#define HSM_AUTH_ENC_ALGO_SM4_CCM              ((hsm_op_auth_enc_algo_t)(0x10u))       //!< Perform SM4 CCM with following constraints: SM4 CCM where AAD supported, Tag len = 16 bytes, IV len = 12 bytes
 #define HSM_AUTH_ENC_FLAGS_DECRYPT             ((hsm_op_auth_enc_flags_t)(0u << 0))
 #define HSM_AUTH_ENC_FLAGS_ENCRYPT             ((hsm_op_auth_enc_flags_t)(1u << 0))
 #define HSM_AUTH_ENC_FLAGS_GENERATE_FULL_IV    ((hsm_op_auth_enc_flags_t)(1u << 1))    //!< Full IV is internally generated (only relevant for encryption)
@@ -606,6 +607,7 @@ hsm_err_t hsm_close_cipher_service(hsm_hdl_t cipher_hdl);
  *
  * - \ref HSM_CIPHER_ONE_GO_ALGO_SM4_ECB is not supported.
  * - \ref HSM_CIPHER_ONE_GO_ALGO_SM4_CBC is not supported.
+ * - \ref HSM_AUTH_ENC_ALGO_SM4_CCM is not supported.
  *
  * - \ref hsm_ecies_decryption: This feature is disabled when part is running in FIPS approved mode. Any call to this API will results in a HSM_FEATURE_DISABLED error.
  * - \ref hsm_key_type_t of op_ecies_dec_args_t: Only HSM_KEY_TYPE_ECDSA_NIST_P256 and HSM_KEY_TYPE_ECDSA_BRAINPOOL_R1_256 are supported.
@@ -1765,6 +1767,98 @@ hsm_err_t hsm_standalone_butterfly_key_expansion(hsm_hdl_t key_management_hdl, o
  *
  */
 /** @} end of Standalone butterfly key expansion */
+
+/**
+ *  @defgroup group22 Key generic crypto service
+ * @{
+ */
+typedef uint8_t hsm_svc_key_generic_crypto_flags_t;
+typedef struct {
+    hsm_svc_key_generic_crypto_flags_t flags;  //!< bitmap indicating the service flow properties
+    uint8_t reserved[3];
+} open_svc_key_generic_crypto_args_t;
+
+/**
+ * Open a generic crypto service flow. \n
+ * User can call this function only after having opened a session.\n
+ * User must open this service in order to perform key generic cryptographic operations.
+ *
+ * \param session_hdl handle identifying the current session.
+ * \param args pointer to the structure containing the function arguments.
+ * \param key_generic_crypto_hdl pointer to where the key generic cryto service flow handle must be written.
+ *
+ * \return error code
+ */
+hsm_err_t hsm_open_key_generic_crypto_service(hsm_hdl_t session_hdl, open_svc_key_generic_crypto_args_t *args, hsm_hdl_t *key_generic_crypto_hdl);
+
+/**
+ *\addtogroup qxp_specific
+ * \ref group22
+ *
+ * - \ref This API is not supported.
+ *
+ */
+
+/**
+ * Terminate a previously opened key generic service flow.
+ *
+ * \param key_generic_crypto_hdl handle identifying the key generic service flow to be closed.
+ *
+ * \return error code
+ */
+hsm_err_t hsm_close_key_generic_crypto_service(hsm_hdl_t key_generic_crypto_hdl);
+
+/**
+ *\addtogroup qxp_specific
+ * \ref group22
+ *
+ * - \ref This API is not supported.
+ *
+ */
+
+typedef uint8_t hsm_op_key_generic_crypto_algo_t;
+typedef uint8_t hsm_op_key_generic_crypto_flags_t;
+typedef struct {
+    uint8_t *key;                                   //!< pointer to the key to be used for the cryptographic operation
+    uint8_t key_size;                               //!< length in bytes of the key
+    uint8_t *iv;                                    //!< pointer to the initialization vector
+    uint16_t iv_size;                               //!< length in bytes of the initialization vector
+    uint8_t *aad;                                   //!< pointer to the additional authentication data
+    uint16_t aad_size;                              //!< length in bytes of the additional authentication data
+    uint8_t tag_size;                               //!< length in bytes of the tag
+    hsm_op_key_generic_crypto_algo_t crypto_algo;   //!< algorithm to be used for the cryptographic operation
+    hsm_op_key_generic_crypto_flags_t flags;        //!< bitmap specifying the cryptographic operation attributes
+    uint8_t *input;                                 //!< pointer to the input area\n plaintext for encryption\n ciphertext + tag for decryption
+    uint8_t *output;                                //!< pointer to the output area\n ciphertext + tag for encryption \n plaintext for decryption if the tag is verified
+    uint32_t input_size;                            //!< length in bytes of the input
+    uint32_t output_size;                           //!< length in bytes of the output
+    uint32_t reserved;
+} op_key_generic_crypto_args_t;
+
+/**
+ * Perform key generic crypto service operations\n
+ * User can call this function only after having opened a key generic crypto service flow\n
+ *
+ * \param key_generic_crypto_hdl handle identifying the key generic cryto service flow.
+ * \param args pointer to the structure containing the function arguments.
+ *
+ * \return error code
+ */
+hsm_err_t hsm_key_generic_crypto(hsm_hdl_t key_generic_crypto_hdl, op_key_generic_crypto_args_t* args);
+
+#define HSM_KEY_GENERIC_ALGO_SM4_CCM           ((hsm_op_key_generic_crypto_algo_t)(0x10u))       //!< Perform SM4 CCM with following characteristics: SM4 CCM where AAD supported, Tag len = {4, 6, 8, 10, 12, 14, 16} bytes, IV len = {7, 8, 9, 10, 11, 12, 13} bytes
+#define HSM_KEY_GENERIC_FLAGS_DECRYPT          ((hsm_op_key_generic_crypto_flags_t)(0u << 0))
+#define HSM_KEY_GENERIC_FLAGS_ENCRYPT          ((hsm_op_key_generic_crypto_flags_t)(1u << 0))
+
+/**
+ *\addtogroup qxp_specific
+ * \ref group22
+ *
+ * - \ref This API is not supported.
+ *
+ */
+
+/** @} end of Key generic crypto service flow */
 
 /** \}*/
 #endif
