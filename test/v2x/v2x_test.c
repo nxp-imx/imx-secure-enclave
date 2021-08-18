@@ -138,6 +138,25 @@ uint8_t p256_exp_fct_input[16] = {
     0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x21, 0x7D, 0x00, 0x00, 0x00, 0x10, 0x00, 0x00, 0x00, 0x00
 };
 
+uint8_t sm4_ccm_nonce [12] = {
+    0x72, 0x43, 0x52, 0x3C, 0x65, 0x17, 0x8B, 0x96, 0x68, 0x37, 0xA3, 0x6F
+};
+
+uint8_t sm4_ccm_ptx [23] = {
+    0x03, 0x80, 0x14, 0xA0, 0xA1, 0xA2, 0xA3, 0xA4, 0xA5, 0xA6, 0xA7, 0xA8, 0xA9, 0xA0, 0xA1, 0xA2,
+    0xA3, 0xA4, 0xA5, 0xA6, 0xA7, 0xA8, 0xA9
+};
+
+uint8_t sm4_ccm_ctx_tag [23+16] = {
+    0xFB, 0x78, 0x40, 0x15, 0x24, 0xCA, 0x9C, 0x2D, 0x68, 0x3B, 0xC4, 0xE9, 0x5D, 0xDC, 0x71, 0xB8,
+    0x28, 0x07, 0x77, 0x81, 0xAA, 0x8E, 0x3F, 0xE8, 0x1C, 0xE4, 0xDE, 0x21, 0x38, 0x76, 0x49, 0x19,
+    0x59, 0xEE, 0x87, 0x63, 0xE2, 0x21, 0x55
+};
+
+uint8_t sm4_ccm_key[16] = {
+    0xCA, 0x44, 0xEF, 0x8D, 0xF3, 0x25, 0xAB, 0xB3, 0x8D, 0xAC, 0x37, 0x43, 0xDD, 0x32, 0x43, 0xDF
+};
+
 uint8_t work_area[128] = {0};
 uint8_t work_area2[128] = {0};
 uint8_t work_area3[128] = {0};
@@ -346,6 +365,7 @@ int main(int argc, char *argv[])
     open_svc_sign_ver_args_t sig_ver_srv_args;
     open_svc_cipher_args_t cipher_srv_args;
     open_svc_rng_args_t rng_srv_args;
+    open_svc_key_generic_crypto_args_t key_generic_crypto_args;
 
     op_hash_one_go_args_t hash_args;
     op_sm2_get_z_args_t get_z_args;
@@ -368,6 +388,7 @@ int main(int argc, char *argv[])
     hsm_hdl_t sv1_sig_ver_serv;
     hsm_hdl_t hash_serv;
     hsm_hdl_t sg0_sm2_eces_hdl, sg1_sm2_eces_hdl;
+    hsm_hdl_t key_generic_crypto;
 
     op_generate_key_args_t gen_key_args;
     uint32_t key_id = 0;
@@ -392,6 +413,7 @@ int main(int argc, char *argv[])
     hsm_mac_verification_status_t mac_status;
     op_auth_enc_args_t auth_enc_gcm;
     op_st_butt_key_exp_args_t st_butt_key_expansion;
+    op_key_generic_crypto_args_t key_generic_crypto_srv_args;
 
     uint8_t recovered_key[256];
     uint8_t rng_out_buff[4096];
@@ -1268,6 +1290,108 @@ int main(int argc, char *argv[])
             printf("\n");
     }
 
+    // SM4 CCM
+    printf("\n---------------------------------------------------\n");
+    printf("SM4 CCM Test \n");
+    printf("---------------------------------------------------\n");
+
+    gen_key_args.key_identifier = &key_id;
+    gen_key_args.out_size = 0U;
+    gen_key_args.flags = HSM_OP_KEY_GENERATION_FLAGS_CREATE;
+    gen_key_args.key_type = HSM_KEY_TYPE_SM4_128;
+    gen_key_args.key_group = 2U;
+    gen_key_args.key_info = 0U;
+    gen_key_args.out_key = NULL;
+    err = hsm_generate_key(sg0_key_mgmt_srv, &gen_key_args);
+    printf("err: 0x%x hsm_generate_key err: hdl: 0x%08x\n", err, sg0_key_mgmt_srv);
+
+    auth_enc_gcm.key_identifier = key_id;
+    auth_enc_gcm.iv = NULL;
+    auth_enc_gcm.iv_size = 0;
+    auth_enc_gcm.aad = NULL;
+    auth_enc_gcm.aad_size = 0;
+    auth_enc_gcm.ae_algo = HSM_AUTH_ENC_ALGO_SM4_CCM;
+    auth_enc_gcm.flags = HSM_AUTH_ENC_FLAGS_ENCRYPT | HSM_AUTH_ENC_FLAGS_GENERATE_FULL_IV;
+    auth_enc_gcm.input = sm4_ccm_ptx;
+    auth_enc_gcm.output = work_area3;
+    auth_enc_gcm.input_size = 23;
+    auth_enc_gcm.output_size = 23+16+12;
+    err = hsm_auth_enc(sg0_cipher_hdl, &auth_enc_gcm);
+    printf("err: 0x%x hsm_auth_enc err: hdl: 0x%08x\n", err, sg0_cipher_hdl);
+
+    auth_enc_gcm.key_identifier = key_id;
+    auth_enc_gcm.iv = &work_area3[23+16];
+    auth_enc_gcm.iv_size = 12;
+    auth_enc_gcm.aad = NULL;
+    auth_enc_gcm.aad_size = 0;
+    auth_enc_gcm.ae_algo = HSM_AUTH_ENC_ALGO_SM4_CCM;
+    auth_enc_gcm.flags = HSM_AUTH_ENC_FLAGS_DECRYPT;
+    auth_enc_gcm.input = work_area3;
+    auth_enc_gcm.output = work_area4;
+    auth_enc_gcm.input_size = 23 + 16;
+    auth_enc_gcm.output_size = 23;
+    err = hsm_auth_enc(sg0_cipher_hdl, &auth_enc_gcm);
+    printf("err: 0x%x hsm_auth_enc err: hdl: 0x%08x\n", err, sg0_cipher_hdl);
+
+    if (memcmp(sm4_ccm_ptx, work_area4, 23) == 0) {
+        printf(" --> SUCCESS\n");
+    } else {
+        printf(" --> FAILURE\n");
+    }
+
+    // Key Generic crypto service
+    printf("\n---------------------------------------------------\n");
+    printf("Key Generic crypto service  \n");
+    printf("---------------------------------------------------\n");
+
+    key_generic_crypto_args.flags = 0u;
+    err = hsm_open_key_generic_crypto_service(sg0_sess, &key_generic_crypto_args, &key_generic_crypto);
+    printf("err: 0x%x hsm_open_key_generic_crypto_service err: hdl: 0x%08x\n", err, sg0_sess);
+
+    key_generic_crypto_srv_args.key = sm4_ccm_key;
+    key_generic_crypto_srv_args.key_size = 16u;
+    key_generic_crypto_srv_args.iv = sm4_ccm_nonce;
+    key_generic_crypto_srv_args.iv_size = 12u;
+    key_generic_crypto_srv_args.aad = NULL;
+    key_generic_crypto_srv_args.aad_size = 0u;
+    key_generic_crypto_srv_args.tag_size = 16u;
+    key_generic_crypto_srv_args.crypto_algo = HSM_KEY_GENERIC_ALGO_SM4_CCM;
+    key_generic_crypto_srv_args.flags = HSM_KEY_GENERIC_FLAGS_ENCRYPT;
+    key_generic_crypto_srv_args.input = sm4_ccm_ptx;
+    key_generic_crypto_srv_args.output = work_area3;
+    key_generic_crypto_srv_args.input_size = 23;
+    key_generic_crypto_srv_args.output_size = 23+16;
+    err = hsm_key_generic_crypto(key_generic_crypto, &key_generic_crypto_srv_args);
+    printf("err: 0x%x hsm_key_generic_crypto err: hdl: 0x%08x\n", err, key_generic_crypto);
+
+    if (memcmp(sm4_ccm_ctx_tag, work_area3, 23+16) == 0) {
+        printf(" --> SUCCESS\n");
+    } else {
+        printf(" --> FAILURE\n");
+    }
+
+    key_generic_crypto_srv_args.key = sm4_ccm_key;
+    key_generic_crypto_srv_args.key_size = 16u;
+    key_generic_crypto_srv_args.iv = sm4_ccm_nonce;
+    key_generic_crypto_srv_args.iv_size = 12u;
+    key_generic_crypto_srv_args.aad = NULL;
+    key_generic_crypto_srv_args.aad_size = 0u;
+    key_generic_crypto_srv_args.tag_size = 16u;
+    key_generic_crypto_srv_args.crypto_algo = HSM_KEY_GENERIC_ALGO_SM4_CCM;
+    key_generic_crypto_srv_args.flags = HSM_KEY_GENERIC_FLAGS_DECRYPT;
+    key_generic_crypto_srv_args.input = sm4_ccm_ctx_tag;
+    key_generic_crypto_srv_args.output = work_area4;
+    key_generic_crypto_srv_args.input_size = 23 +16;
+    key_generic_crypto_srv_args.output_size = 23;
+    err = hsm_key_generic_crypto(key_generic_crypto, &key_generic_crypto_srv_args);
+    printf("err: 0x%x hsm_key_generic_crypto err: hdl: 0x%08x\n", err, key_generic_crypto);
+
+    if (memcmp(sm4_ccm_ptx, work_area4, 23) == 0) {
+        printf(" --> SUCCESS\n");
+    } else {
+        printf(" --> FAILURE\n");
+    }
+
     // Close all services and sessions
     printf("\n---------------------------------------------------\n");
     printf("Closing services and sessions\n");
@@ -1313,6 +1437,9 @@ int main(int argc, char *argv[])
     printf("err: 0x%x hsm_close_rng_service hdl: 0x%x\n", err, sg0_rng_serv);
     err = hsm_close_rng_service(sg1_rng_serv);
     printf("err: 0x%x hsm_close_rng_service hdl: 0x%x\n", err, sg1_rng_serv);
+
+    err = hsm_close_key_generic_crypto_service(key_generic_crypto);
+    printf("err: 0x%x hsm_close_key_generic_crypto_service hdl: 0x%x\n", err, key_generic_crypto);
 
     err = hsm_close_session(sg0_sess);
     printf("err: 0x%x SG hsm_close_session hdl: 0x%x\n", err, sg0_sess);
