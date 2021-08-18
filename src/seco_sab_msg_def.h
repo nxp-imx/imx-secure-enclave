@@ -106,6 +106,10 @@
 #define SAB_SM2_ECES_DEC_CLOSE_REQ              0xB3U
 #define SAB_SM2_ECES_DEC_REQ                    0xB4U
 
+#define SAB_KEY_GENERIC_CRYPTO_SRV_OPEN_REQ     0xC0U
+#define SAB_KEY_GENERIC_CRYPTO_SRV_CLOSE_REQ    0xC1U
+#define SAB_KEY_GENERIC_CRYPTO_SRV_REQ          0xC2U
+
 #define SAB_STORAGE_OPEN_REQ                    0xE0u
 #define SAB_STORAGE_CLOSE_REQ                   0xE1u
 #define SAB_STORAGE_MASTER_IMPORT_REQ           0xE2u
@@ -1340,6 +1344,57 @@ struct sab_cmd_st_butterfly_key_exp_rsp {
     struct sab_mu_hdr hdr;
     uint32_t rsp_code;
     uint32_t dest_key_identifier;
+};
+
+struct sab_key_generic_crypto_srv_open_msg {
+    struct sab_mu_hdr header;
+    uint32_t session_handle;
+    uint32_t input_address_ext;
+    uint32_t output_address_ext;
+    uint8_t flags;
+    uint8_t rsv[3];
+    uint32_t crc;
+};
+
+struct sab_key_generic_crypto_srv_open_rsp {
+    struct sab_mu_hdr header;
+    uint32_t rsp_code;
+    uint32_t key_generic_crypto_srv_handle;
+};
+
+struct sab_key_generic_crypto_srv_close_msg {
+    struct sab_mu_hdr header;
+    uint32_t key_generic_crypto_srv_handle;
+};
+
+struct sab_key_generic_crypto_srv_close_rsp {
+    struct sab_mu_hdr header;
+    uint32_t rsp_code;
+};
+
+struct sab_key_generic_crypto_srv_msg {
+    struct sab_mu_hdr header;
+    uint32_t key_generic_crypto_srv_handle;
+    uint32_t key_address;
+    uint32_t iv_address;
+    uint16_t iv_size;
+    uint8_t key_size;
+    uint8_t crypto_algo;
+    uint32_t aad_address;
+    uint16_t aad_size;
+    uint8_t tag_size;
+    uint8_t flags;
+    uint32_t input_address;
+    uint32_t output_address;
+    uint32_t input_length;
+    uint32_t output_length;
+    uint32_t rsv;
+    uint32_t crc;
+};
+
+struct sab_key_generic_crypto_srv_rsp {
+    struct sab_mu_hdr header;
+    uint32_t rsp_code;
 };
 
 #endif

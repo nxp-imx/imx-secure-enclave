@@ -2844,3 +2844,180 @@ hsm_err_t hsm_standalone_butterfly_key_expansion(hsm_hdl_t key_management_hdl,
 
 	return err;
 }
+
+hsm_err_t hsm_open_key_generic_crypto_service(hsm_hdl_t session_hdl,
+				open_svc_key_generic_crypto_args_t *args,
+				hsm_hdl_t *key_generic_crypto_hdl)
+{
+	struct sab_key_generic_crypto_srv_open_msg cmd;
+	struct sab_key_generic_crypto_srv_open_rsp rsp;
+	struct hsm_session_hdl_s *sess_ptr;
+	struct hsm_service_hdl_s *serv_ptr;
+	int32_t error = 1;
+	hsm_err_t err = HSM_GENERAL_ERROR;
+
+	do {
+		if ((args == NULL) || (key_generic_crypto_hdl == NULL)) {
+			break;
+		}
+		sess_ptr = session_hdl_to_ptr(session_hdl);
+		if (sess_ptr == NULL) {
+			err = HSM_UNKNOWN_HANDLE;
+			break;
+		}
+
+		serv_ptr = add_service(sess_ptr);
+		if (serv_ptr == NULL) {
+			break;
+		}
+
+		seco_fill_cmd_msg_hdr(&cmd.header,
+			SAB_KEY_GENERIC_CRYPTO_SRV_OPEN_REQ,
+			(uint32_t)sizeof(struct sab_key_generic_crypto_srv_open_msg),
+			serv_ptr->session->mu_type);
+		cmd.session_handle = session_hdl;
+		cmd.input_address_ext = 0u;
+		cmd.output_address_ext = 0u;
+		cmd.flags = args->flags;
+		cmd.rsv[0] = 0u;
+		cmd.rsv[1] = 0u;
+		cmd.rsv[2] = 0u;
+		cmd.crc = 0u;
+		cmd.crc = seco_compute_msg_crc((uint32_t*)&cmd,
+				(uint32_t)(sizeof(cmd) - sizeof(uint32_t)));
+
+		error = seco_send_msg_and_get_resp(sess_ptr->phdl,
+			(uint32_t *)&cmd,
+			(uint32_t)sizeof(struct sab_key_generic_crypto_srv_open_msg),
+			(uint32_t *)&rsp,
+			(uint32_t)sizeof(struct sab_key_generic_crypto_srv_open_rsp));
+		if (error != 0) {
+			delete_service(serv_ptr);
+			break;
+		}
+
+		err = sab_rating_to_hsm_err(rsp.rsp_code);
+		if (err != HSM_NO_ERROR) {
+			delete_service(serv_ptr);
+			break;
+		}
+		serv_ptr->service_hdl = rsp.key_generic_crypto_srv_handle;
+		*key_generic_crypto_hdl = rsp.key_generic_crypto_srv_handle;
+	} while (false);
+
+	return err;
+}
+
+hsm_err_t hsm_close_key_generic_crypto_service(hsm_hdl_t key_generic_crypto_hdl)
+{
+	struct sab_key_generic_crypto_srv_close_msg cmd;
+	struct sab_key_generic_crypto_srv_close_rsp rsp;
+	struct hsm_service_hdl_s *serv_ptr;
+	int32_t error = 1;
+	hsm_err_t err = HSM_GENERAL_ERROR;
+
+	do {
+		serv_ptr = service_hdl_to_ptr(key_generic_crypto_hdl);
+		if (serv_ptr == NULL) {
+			err = HSM_UNKNOWN_HANDLE;
+			break;
+		}
+
+		seco_fill_cmd_msg_hdr(&cmd.header,
+			SAB_KEY_GENERIC_CRYPTO_SRV_CLOSE_REQ,
+			(uint32_t)sizeof(struct sab_key_generic_crypto_srv_close_msg),
+			serv_ptr->session->mu_type);
+		cmd.key_generic_crypto_srv_handle = key_generic_crypto_hdl;
+
+
+		error = seco_send_msg_and_get_resp(serv_ptr->session->phdl,
+			(uint32_t *)&cmd,
+			(uint32_t)sizeof(struct sab_key_generic_crypto_srv_close_msg),
+			(uint32_t *)&rsp,
+			(uint32_t)sizeof(struct sab_key_generic_crypto_srv_close_rsp));
+		if (error == 0) {
+			err = sab_rating_to_hsm_err(rsp.rsp_code);
+		}
+		delete_service(serv_ptr);
+	} while (false);
+
+	return err;
+}
+
+hsm_err_t hsm_key_generic_crypto(hsm_hdl_t key_generic_crypto_hdl, op_key_generic_crypto_args_t* args)
+{
+	struct sab_key_generic_crypto_srv_msg cmd;
+	struct sab_key_generic_crypto_srv_rsp rsp;
+	struct hsm_service_hdl_s *serv_ptr;
+	hsm_err_t err = HSM_GENERAL_ERROR;
+	int32_t error = 1;
+
+	do {
+		if (args == NULL) {
+			break;
+		}
+
+		serv_ptr = service_hdl_to_ptr(key_generic_crypto_hdl);
+		if (serv_ptr == NULL) {
+			err = HSM_UNKNOWN_HANDLE;
+			break;
+		}
+
+		/* Fill the authenticated encryption command */
+		seco_fill_cmd_msg_hdr(&cmd.header,
+			SAB_KEY_GENERIC_CRYPTO_SRV_REQ,
+			(uint32_t)sizeof(struct sab_key_generic_crypto_srv_msg),
+			serv_ptr->session->mu_type);
+
+		cmd.key_generic_crypto_srv_handle = key_generic_crypto_hdl;
+		cmd.key_size = args->key_size;
+		cmd.key_address = (uint32_t)seco_os_abs_data_buf(serv_ptr->session->phdl,
+									args->key, args->key_size, DATA_BUF_IS_INPUT);
+		if (args->iv_size != 0) {
+			cmd.iv_address = (uint32_t)seco_os_abs_data_buf(serv_ptr->session->phdl,
+									args->iv, args->iv_size, DATA_BUF_IS_INPUT);
+		}
+		else {
+			cmd.iv_address = 0;
+		}
+		cmd.iv_size = args->iv_size;
+		cmd.aad_address = (uint32_t)seco_os_abs_data_buf(serv_ptr->session->phdl,
+							args->aad,
+							args->aad_size,
+							DATA_BUF_IS_INPUT);
+		cmd.aad_size = args->aad_size;
+		cmd.rsv = 0;
+		cmd.crypto_algo = args->crypto_algo;
+		cmd.flags = args->flags;
+		cmd.tag_size = args->tag_size;
+		cmd.input_address = (uint32_t)seco_os_abs_data_buf(serv_ptr->session->phdl,
+							args->input,
+							args->input_size,
+							DATA_BUF_IS_INPUT);
+		cmd.output_address = (uint32_t)seco_os_abs_data_buf(serv_ptr->session->phdl,
+							args->output,
+							args->output_size,
+							0u);
+		cmd.input_length = args->input_size;
+		cmd.output_length = args->output_size;
+		cmd.rsv = args->reserved;
+		cmd.crc = 0u;
+		cmd.crc = seco_compute_msg_crc((uint32_t*)&cmd,
+				(uint32_t)(sizeof(cmd) - sizeof(uint32_t)));
+
+		/* Send the message to Seco. */
+		error = seco_send_msg_and_get_resp(serv_ptr->session->phdl,
+			(uint32_t *)&cmd,
+			(uint32_t)sizeof(struct sab_key_generic_crypto_srv_msg),
+			(uint32_t *)&rsp,
+			(uint32_t)sizeof(struct sab_key_generic_crypto_srv_rsp));
+		if (error != 0) {
+			break;
+		}
+
+		err = sab_rating_to_hsm_err(rsp.rsp_code);
+
+	} while (false);
+
+	return err;
+}
