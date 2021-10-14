@@ -1,5 +1,5 @@
 /*
- * Copyright 2021 NXP
+ * Copyright 2019-2021 NXP
  *
  * NXP Confidential.
  * This software is owned or controlled by NXP and may only be used strictly
@@ -82,6 +82,7 @@ static void public_key_test(hsm_hdl_t hsm_session_hdl)
     }
 #endif
 
+#ifdef CONFIG_PLAT_SECO
     /* Brainpool R1 256 */
     hsm_op_pub_key_dec_args.key = ECC_BRAINPOOL_R1_256_Qx;
     hsm_op_pub_key_dec_args.out_key = out;
@@ -101,6 +102,7 @@ static void public_key_test(hsm_hdl_t hsm_session_hdl)
             printf("\n");
         }
     }
+#endif
 #endif
 
     /* P384 */
@@ -162,6 +164,63 @@ static void ecies_tests(hsm_hdl_t hsm_session_hdl)
 
 }
 
+static void hsm_rng_test(hsm_hdl_t sess_hdl, op_get_random_args_t *rng_get_random_args)
+{
+    open_svc_rng_args_t rng_srv_args;
+    hsm_hdl_t rng_serv_hdl;
+    int err, i;
+    uint8_t rng_out_buff[4096];
+
+    printf("\n---------------------------------------------------\n");
+    printf("RNG test\n");
+    printf("---------------------------------------------------\n");
+
+    rng_srv_args.flags = 0;
+    err = hsm_open_rng_service(sess_hdl, &rng_srv_args, &rng_serv_hdl);
+    printf("err: 0x%x hsm_open_rng_service hdl: 0x%08x\n", err, rng_serv_hdl);
+
+    rng_get_random_args->output = rng_out_buff;
+
+    rng_get_random_args->random_size = 3;
+    err =  hsm_get_random(rng_serv_hdl, rng_get_random_args);
+    printf("err: 0x%x hsm_get_random hdl: 0x%08x, rand size=0x%08x\n", err, rng_serv_hdl, rng_get_random_args->random_size);
+    for (i = 0; i < rng_get_random_args->random_size; i++)
+	    printf("%02x", rng_out_buff[i]);
+    printf("\n");
+
+    rng_get_random_args->random_size = 176;
+    err =  hsm_get_random(rng_serv_hdl, rng_get_random_args);
+    printf("Random Number Successfully fetched: 0x%x hsm_get_random hdl: 0x%08x, rand size=0x%08x\n",
+		    err, rng_serv_hdl, rng_get_random_args->random_size);
+    for (i = 0; i < rng_get_random_args->random_size; i++)
+	    printf("%02x", rng_out_buff[i]);
+    printf("\n");
+
+    rng_get_random_args->random_size = 2050;
+    err =  hsm_get_random(rng_serv_hdl, rng_get_random_args);
+    printf("Random Number Successfully fetched: 0x%x hsm_get_random hdl: 0x%08x, rand size=0x%08x\n",
+		    err, rng_serv_hdl, rng_get_random_args->random_size);
+    for (i = 0; i < rng_get_random_args->random_size; i++)
+	    printf("%02x", rng_out_buff[i]);
+    printf("\n");
+
+    rng_get_random_args->random_size = 4096;
+    err =  hsm_get_random(rng_serv_hdl, rng_get_random_args);
+    printf("Random Number Successfully fetched: 0x%x hsm_get_random hdl: 0x%08x, rand size=0x%08x\n",
+		    err, rng_serv_hdl, rng_get_random_args->random_size);
+    for (i = 0; i < rng_get_random_args->random_size; i++)
+	    printf("%02x", rng_out_buff[i]);
+    printf("\n");
+
+    err = hsm_close_rng_service(rng_serv_hdl);
+    printf("RNG Service Closed: 0x%x hsm_close_rng_service hdl: 0x%x\n", err, rng_serv_hdl);
+
+    printf("\n---------------------------------------------------\n");
+    printf("RNG test Complete\n");
+    printf("---------------------------------------------------\n");
+
+}
+
 static void transient_key_tests(hsm_hdl_t sess_hdl, hsm_hdl_t key_store_hdl)
 {
 	open_svc_key_management_args_t key_mgmt_args;
@@ -217,6 +276,7 @@ static void transient_key_tests(hsm_hdl_t sess_hdl, hsm_hdl_t key_store_hdl)
 	hsmret = hsm_generate_key(key_mgmt_hdl, &key_gen_args);
 	printf("hsm_generate_key ret:0x%x\n", hsmret);
 
+#ifdef CONFIG_PLAT_SECO
 	memset(&butterfly_gen_args, 0, sizeof(butterfly_gen_args));
 	butterfly_gen_args.key_identifier = master_key_id;
 	butterfly_gen_args.expansion_function_value = exp_data;
@@ -235,6 +295,7 @@ static void transient_key_tests(hsm_hdl_t sess_hdl, hsm_hdl_t key_store_hdl)
 	butterfly_gen_args.key_info = HSM_KEY_INFO_TRANSIENT;
 	hsmret = hsm_butterfly_key_expansion(key_mgmt_hdl, &butterfly_gen_args);
 	printf("hsm_butterfly_key_expansion ret:0x%x\n", hsmret);
+#endif
 
 	memset(&open_sig_gen_args, 0, sizeof(open_sig_gen_args));
 	hsmret = hsm_open_signature_generation_service(key_store_hdl,
@@ -242,7 +303,11 @@ static void transient_key_tests(hsm_hdl_t sess_hdl, hsm_hdl_t key_store_hdl)
 	printf("hsm_open_signature_generation_service ret:0x%x\n", hsmret);
 
 	memset(&sig_gen_args, 0, sizeof(sig_gen_args));
+#ifdef CONFIG_PLAT_SECO
 	sig_gen_args.key_identifier = butterfly_key_id;
+#else
+	sig_gen_args.key_identifier = master_key_id;
+#endif
 	sig_gen_args.message = hash_data;
 	sig_gen_args.signature = signature_data;
 	sig_gen_args.message_size = sizeof(hash_data);
@@ -288,6 +353,7 @@ static void transient_key_tests(hsm_hdl_t sess_hdl, hsm_hdl_t key_store_hdl)
 	hsmret = hsm_manage_key(key_mgmt_hdl, &del_args);
 	printf("hsm_manage_key ret:0x%x\n", hsmret);
 
+#ifdef CONFIG_PLAT_SECO
 	memset(&del_args, 0, sizeof(del_args));
 	del_args.key_identifier = &butterfly_key_id;
 	del_args.flags = HSM_OP_MANAGE_KEY_FLAGS_DELETE;
@@ -295,6 +361,7 @@ static void transient_key_tests(hsm_hdl_t sess_hdl, hsm_hdl_t key_store_hdl)
 	del_args.key_group = 101;
 	hsmret = hsm_manage_key(key_mgmt_hdl, &del_args);
 	printf("hsm_manage_key ret:0x%x\n", hsmret);
+#endif
 
 	memset(&key_gen_args, 0, sizeof(key_gen_args));
 	key_gen_args.key_identifier = &sym_key_id;
@@ -375,6 +442,7 @@ int main(int argc, char *argv[])
 
     open_session_args_t open_session_args = {0};
     open_svc_key_store_args_t open_svc_key_store_args = {0};
+    op_get_random_args_t rng_get_random_args = {0};
 
     pthread_t tid;
 
@@ -412,9 +480,12 @@ int main(int argc, char *argv[])
         err = hsm_open_key_store_service(hsm_session_hdl, &open_svc_key_store_args, &key_store_hdl);
         printf("hsm_open_key_store_service ret:0x%x\n", err);
 
+        hsm_rng_test(hsm_session_hdl, &rng_get_random_args);
         public_key_test(hsm_session_hdl);
 
+#ifdef CONFIG_PLAT_SECO
         ecies_tests(hsm_session_hdl);
+#endif
 
         transient_key_tests(hsm_session_hdl, key_store_hdl);
 
