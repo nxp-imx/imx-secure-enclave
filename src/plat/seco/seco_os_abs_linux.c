@@ -23,7 +23,7 @@
 #include <unistd.h>
 #include <zlib.h>
 #include "she_api.h"
-#include "seco_os_abs.h"
+#include "plat_os_abs.h"
 #include "seco_mu_ioctl.h"
 
 
@@ -66,29 +66,29 @@ static char V2X_NVM_HSM_STORAGE_CHUNK_PATH[] = "/etc/v2x_hsm/";
 /* Open a SHE session and returns a pointer to the handle or NULL in case of error.
  * Here it consists in opening the decicated seco MU device file.
  */
-struct seco_os_abs_hdl *seco_os_abs_open_mu_channel(uint32_t type, struct seco_mu_params *mu_params)
+struct plat_os_abs_hdl *plat_os_abs_open_mu_channel(uint32_t type, struct plat_mu_params *mu_params)
 {
     char *device_path;
-    struct seco_os_abs_hdl *phdl = malloc(sizeof(struct seco_os_abs_hdl));
+    struct plat_os_abs_hdl *phdl = malloc(sizeof(struct plat_os_abs_hdl));
     struct seco_mu_ioctl_get_mu_info info_ioctl;
     int32_t error;
     uint8_t is_nvm = 0u;
 
     switch (type) {
-    case MU_CHANNEL_SECO_SHE:
+    case MU_CHANNEL_PLAT_SHE:
         device_path = SECO_MU_SHE_PATH;
         break;
-    case MU_CHANNEL_SECO_SHE_NVM:
+    case MU_CHANNEL_PLAT_SHE_NVM:
         device_path = SECO_MU_SHE_NVM_PATH;
         is_nvm = 1u;
         break;
-    case MU_CHANNEL_SECO_HSM:
+    case MU_CHANNEL_PLAT_HSM:
         device_path = SECO_MU_HSM_PATH_PRIMARY;
         break;
-    case MU_CHANNEL_SECO_HSM_2ND:
+    case MU_CHANNEL_PLAT_HSM_2ND:
         device_path = SECO_MU_HSM_PATH_SECONDARY;
         break;
-    case MU_CHANNEL_SECO_HSM_NVM:
+    case MU_CHANNEL_PLAT_HSM_NVM:
         device_path = SECO_MU_HSM_NVM_PATH;
         is_nvm = 1u;
         break;
@@ -124,7 +124,7 @@ struct seco_os_abs_hdl *seco_os_abs_open_mu_channel(uint32_t type, struct seco_m
         phdl->fd = open(device_path, O_RDWR);
         /* If open failed return NULL handle. */
         if (phdl->fd < 0) {
-            if (type == MU_CHANNEL_SECO_HSM) {
+            if (type == MU_CHANNEL_PLAT_HSM) {
                 device_path = SECO_MU_HSM_PATH_SECONDARY;
                 phdl->fd = open(device_path, O_RDWR);
                 if (phdl->fd < 0) {
@@ -166,7 +166,7 @@ struct seco_os_abs_hdl *seco_os_abs_open_mu_channel(uint32_t type, struct seco_m
 }
 
 /* Check if the V2X accelerator is present on this HW. */
-uint32_t seco_os_abs_has_v2x_hw(void)
+uint32_t plat_os_abs_has_v2x_hw(void)
 {
     uint32_t ret;
     struct stat buf;
@@ -183,7 +183,7 @@ uint32_t seco_os_abs_has_v2x_hw(void)
 
 
 /* Close a previously opened session (SHE or storage). */
-void seco_os_abs_close_session(struct seco_os_abs_hdl *phdl)
+void plat_os_abs_close_session(struct plat_os_abs_hdl *phdl)
 {
     /* Close the device. */
     (void)close(phdl->fd);
@@ -192,19 +192,19 @@ void seco_os_abs_close_session(struct seco_os_abs_hdl *phdl)
 }
 
 /* Send a message to Seco on the MU. Return the size of the data written. */
-int32_t seco_os_abs_send_mu_message(struct seco_os_abs_hdl *phdl, uint32_t *message, uint32_t size)
+int32_t plat_os_abs_send_mu_message(struct plat_os_abs_hdl *phdl, uint32_t *message, uint32_t size)
 {
     return (int32_t)write(phdl->fd, message, size);
 }
 
 /* Read a message from Seco on the MU. Return the size of the data that were read. */
-int32_t seco_os_abs_read_mu_message(struct seco_os_abs_hdl *phdl, uint32_t *message, uint32_t size)
+int32_t plat_os_abs_read_mu_message(struct plat_os_abs_hdl *phdl, uint32_t *message, uint32_t size)
 {
     return (int32_t)read(phdl->fd, message, size);
 };
 
 /* Map the shared buffer allocated by Seco. */
-int32_t seco_os_abs_configure_shared_buf(struct seco_os_abs_hdl *phdl, uint32_t shared_buf_off, uint32_t size)
+int32_t plat_os_abs_configure_shared_buf(struct plat_os_abs_hdl *phdl, uint32_t shared_buf_off, uint32_t size)
 {
     int32_t error;
     struct seco_mu_ioctl_shared_mem_cfg cfg;
@@ -217,7 +217,7 @@ int32_t seco_os_abs_configure_shared_buf(struct seco_os_abs_hdl *phdl, uint32_t 
 }
 
 
-uint64_t seco_os_abs_data_buf(struct seco_os_abs_hdl *phdl, uint8_t *src, uint32_t size, uint32_t flags)
+uint64_t plat_os_abs_data_buf(struct plat_os_abs_hdl *phdl, uint8_t *src, uint32_t size, uint32_t flags)
 {
     struct seco_mu_ioctl_setup_iobuf io;
     int32_t err;
@@ -235,23 +235,23 @@ uint64_t seco_os_abs_data_buf(struct seco_os_abs_hdl *phdl, uint8_t *src, uint32
     return io.seco_addr;
 }
 
-uint32_t seco_os_abs_crc(uint8_t *data, uint32_t size)
+uint32_t plat_os_abs_crc(uint8_t *data, uint32_t size)
 {
     return ((uint32_t)crc32(0xFFFFFFFFu, data, size) ^ 0xFFFFFFFFu);
 }
 
 /* Write data in a file located in NVM. Return the size of the written data. */
-int32_t seco_os_abs_storage_write(struct seco_os_abs_hdl *phdl, uint8_t *src, uint32_t size)
+int32_t plat_os_abs_storage_write(struct plat_os_abs_hdl *phdl, uint8_t *src, uint32_t size)
 {
     int32_t fd = -1;
     int32_t l = 0;
     char *path;
 
     switch(phdl->type) {
-    case MU_CHANNEL_SECO_SHE_NVM:
+    case MU_CHANNEL_PLAT_SHE_NVM:
         path = SECO_NVM_SHE_STORAGE_FILE;
         break;
-    case MU_CHANNEL_SECO_HSM_NVM:
+    case MU_CHANNEL_PLAT_HSM_NVM:
         path = SECO_NVM_HSM_STORAGE_FILE;
         break;
     case MU_CHANNEL_V2X_SHE_NVM:
@@ -278,17 +278,17 @@ int32_t seco_os_abs_storage_write(struct seco_os_abs_hdl *phdl, uint8_t *src, ui
     return l;
 }
 
-int32_t seco_os_abs_storage_read(struct seco_os_abs_hdl *phdl, uint8_t *dst, uint32_t size)
+int32_t plat_os_abs_storage_read(struct plat_os_abs_hdl *phdl, uint8_t *dst, uint32_t size)
 {
     int32_t fd = -1;
     int32_t l = 0;
     char *path;
 
     switch(phdl->type) {
-    case MU_CHANNEL_SECO_SHE_NVM:
+    case MU_CHANNEL_PLAT_SHE_NVM:
         path = SECO_NVM_SHE_STORAGE_FILE;
         break;
-    case MU_CHANNEL_SECO_HSM_NVM:
+    case MU_CHANNEL_PLAT_HSM_NVM:
         path = SECO_NVM_HSM_STORAGE_FILE;
         break;
     case MU_CHANNEL_V2X_SHE_NVM:
@@ -316,14 +316,14 @@ int32_t seco_os_abs_storage_read(struct seco_os_abs_hdl *phdl, uint8_t *dst, uin
 }
 
 /* Write data in a file located in NVM. Return the size of the written data. */
-int32_t seco_os_abs_storage_write_chunk(struct seco_os_abs_hdl *phdl, uint8_t *src, uint32_t size, uint64_t blob_id)
+int32_t plat_os_abs_storage_write_chunk(struct plat_os_abs_hdl *phdl, uint8_t *src, uint32_t size, uint64_t blob_id)
 {
     int32_t fd = -1;
     int32_t l = 0;
     int n = -1;
     char *path = NULL;
 
-    if (phdl->type == MU_CHANNEL_SECO_HSM_NVM) {
+    if (phdl->type == MU_CHANNEL_PLAT_HSM_NVM) {
         path = malloc(sizeof(SECO_NVM_HSM_STORAGE_CHUNK_PATH)+16u);
 
         if (path != NULL) {
@@ -358,14 +358,14 @@ int32_t seco_os_abs_storage_write_chunk(struct seco_os_abs_hdl *phdl, uint8_t *s
     return l;
 }
 
-int32_t seco_os_abs_storage_read_chunk(struct seco_os_abs_hdl *phdl, uint8_t *dst, uint32_t size, uint64_t blob_id)
+int32_t plat_os_abs_storage_read_chunk(struct plat_os_abs_hdl *phdl, uint8_t *dst, uint32_t size, uint64_t blob_id)
 {
     int32_t fd = -1;
     int32_t l = 0;
     int n = -1;
     char *path;
 
-    if (phdl->type == MU_CHANNEL_SECO_HSM_NVM) {
+    if (phdl->type == MU_CHANNEL_PLAT_HSM_NVM) {
         path = malloc(sizeof(SECO_NVM_HSM_STORAGE_CHUNK_PATH)+16u);
 
         if (path != NULL) {
@@ -399,27 +399,27 @@ int32_t seco_os_abs_storage_read_chunk(struct seco_os_abs_hdl *phdl, uint8_t *ds
     return l;
 }
 
-void seco_os_abs_memset(uint8_t *dst, uint8_t val, uint32_t len)
+void plat_os_abs_memset(uint8_t *dst, uint8_t val, uint32_t len)
 {
     (void)memset(dst, (int32_t)val, len);
 }
 
-void seco_os_abs_memcpy(uint8_t *dst, uint8_t *src, uint32_t len)
+void plat_os_abs_memcpy(uint8_t *dst, uint8_t *src, uint32_t len)
 {
     (void)memcpy(dst, src, len);
 }
 
-uint8_t *seco_os_abs_malloc(uint32_t size)
+uint8_t *plat_os_abs_malloc(uint32_t size)
 {
     return (uint8_t *)malloc(size);
 }
 
-void seco_os_abs_free(void *ptr)
+void plat_os_abs_free(void *ptr)
 {
     free(ptr);
 }
 
-void seco_os_abs_start_system_rng(struct seco_os_abs_hdl *phdl)
+void plat_os_abs_start_system_rng(struct plat_os_abs_hdl *phdl)
 {
     /*
      * Nothing to do on Linux. The SCU RPC is automatically called at boot time.
@@ -427,7 +427,7 @@ void seco_os_abs_start_system_rng(struct seco_os_abs_hdl *phdl)
      */
 }
 
-int32_t seco_os_abs_send_signed_message(struct seco_os_abs_hdl *phdl, uint8_t *signed_message, uint32_t msg_len)
+int32_t plat_os_abs_send_signed_message(struct plat_os_abs_hdl *phdl, uint8_t *signed_message, uint32_t msg_len)
 {
     /* Send the message to the kernel that will forward to SCU.*/
     struct seco_mu_ioctl_signed_message msg;

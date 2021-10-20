@@ -1,5 +1,5 @@
 /*
- * Copyright 2020 NXP
+ * Copyright 2021 NXP
  *
  * NXP Confidential.
  * This software is owned or controlled by NXP and may only be used strictly
@@ -12,7 +12,7 @@
  */
 
 #include "hsm_api.h"
-#include "seco_nvm.h"
+#include "nvm.h"
 #include <pthread.h>
 #include <stdio.h>
 #include <stdbool.h>
@@ -166,7 +166,7 @@ static uint32_t nvm_status;
 
 static void *v2x_hsm_storage_thread(void *arg)
 {
-    seco_nvm_manager(NVM_FLAGS_V2X | NVM_FLAGS_HSM, &nvm_status);
+    nvm_manager(NVM_FLAGS_V2X | NVM_FLAGS_HSM, &nvm_status);
 }
 
 
@@ -1456,7 +1456,7 @@ int main(int argc, char *argv[])
     if (nvm_status != NVM_STATUS_STOPPED) {
         pthread_cancel(tid);
     }
-    seco_nvm_close_session();
+    nvm_close_session();
 
     return 0;
 }

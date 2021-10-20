@@ -1,5 +1,5 @@
 /*
- * Copyright 2019 NXP
+ * Copyright 2021 NXP
  *
  * NXP Confidential.
  * This software is owned or controlled by NXP and may only be used strictly
@@ -20,7 +20,7 @@
 #include <unistd.h>
 
 #include "hsm_api.h"
-#include "seco_nvm.h"
+#include "nvm.h"
 
 // input  Qx||lsb_Qy
 static uint8_t ECC_P256_Qx[32+1] =
@@ -363,7 +363,7 @@ static uint32_t nvm_status;
 
 static void *hsm_storage_thread(void *arg)
 {
-    seco_nvm_manager(NVM_FLAGS_HSM, &nvm_status);
+    nvm_manager(NVM_FLAGS_HSM, &nvm_status);
 }
 
 
@@ -373,8 +373,8 @@ int main(int argc, char *argv[])
     hsm_hdl_t hsm_session_hdl;
     hsm_hdl_t key_store_hdl;
 
-    open_session_args_t open_session_args;
-    open_svc_key_store_args_t open_svc_key_store_args;
+    open_session_args_t open_session_args = {0};
+    open_svc_key_store_args_t open_svc_key_store_args = {0};
 
     pthread_t tid;
 
@@ -427,7 +427,7 @@ int main(int argc, char *argv[])
 
         (void)pthread_cancel(tid);
 
-        seco_nvm_close_session();
+        nvm_close_session();
 
     } while (0);
     return 0;

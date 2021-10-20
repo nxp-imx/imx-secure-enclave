@@ -15,12 +15,12 @@
 #ifndef SAB_MSG_H
 #define SAB_MSG_H
 
-#include "seco_os_abs.h"
-
+#include <stdint.h>
 
 #define MESSAGING_TAG_COMMAND                   0x17u
 #define MESSAGING_TAG_RESPONSE                  0xe1u
 #define MESSAGING_VERSION_6                     0x06u
+#define MESSAGING_VERSION_7                     0x07u
 
 #define V2X_SV0_API_VER                         0x02u
 #define V2X_SV0_REQ_TAG                         0x18u
@@ -52,6 +52,13 @@
 
 #define SAB_RNG_OPEN_REQ                        0x20u
 #define SAB_RNG_CLOSE_REQ                       0x21u
+
+/* For debug s400, dump messsage
+ * cmd id = 0x21, but version is 0x6
+ */
+#define ROM_DEBUG_DUMP_REQ                      0x21u
+#define ROM_DEBUG_DUMP_MSG_SZ                   0x01u
+
 #define SAB_RNG_GET_RANDOM                      0x22u
 #define SAB_RNG_EXTEND_SEED                     0x23u
 

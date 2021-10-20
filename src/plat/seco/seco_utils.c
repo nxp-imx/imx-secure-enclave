@@ -11,11 +11,11 @@
  * activate or otherwise use the software.
  */
 
-#include "seco_os_abs.h"
-#include "seco_utils.h"
+#include "plat_os_abs.h"
+#include "plat_utils.h"
 
 /* Fill a command message header with a given command ID and length in bytes. */
-void seco_fill_cmd_msg_hdr(struct sab_mu_hdr *hdr, uint8_t cmd, uint32_t len, uint32_t mu_type)
+void plat_fill_cmd_msg_hdr(struct sab_mu_hdr *hdr, uint8_t cmd, uint32_t len, uint32_t mu_type)
 {
     switch (mu_type) {
     case MU_CHANNEL_V2X_SV0:
@@ -50,7 +50,7 @@ void seco_fill_cmd_msg_hdr(struct sab_mu_hdr *hdr, uint8_t cmd, uint32_t len, ui
 };
 
 /* Fill a response message header with a given command ID and length in bytes. */
-void seco_fill_rsp_msg_hdr(struct sab_mu_hdr *hdr, uint8_t cmd, uint32_t len, uint32_t mu_type)
+void plat_fill_rsp_msg_hdr(struct sab_mu_hdr *hdr, uint8_t cmd, uint32_t len, uint32_t mu_type)
 {
     switch (mu_type) {
     case MU_CHANNEL_V2X_SV0:
@@ -85,7 +85,7 @@ void seco_fill_rsp_msg_hdr(struct sab_mu_hdr *hdr, uint8_t cmd, uint32_t len, ui
 };
 
 /* Helper function to send a message and wait for the response. Return 0 on success.*/
-int32_t seco_send_msg_and_get_resp(struct seco_os_abs_hdl *phdl, uint32_t *cmd, uint32_t cmd_len, uint32_t *rsp, uint32_t rsp_len)
+int32_t plat_send_msg_and_get_resp(struct plat_os_abs_hdl *phdl, uint32_t *cmd, uint32_t cmd_len, uint32_t *rsp, uint32_t rsp_len)
 {
     int32_t err = -1;
     int32_t len;
@@ -97,19 +97,19 @@ int32_t seco_send_msg_and_get_resp(struct seco_os_abs_hdl *phdl, uint32_t *cmd, 
         }
 
         /* Send the command. */
-        len = seco_os_abs_send_mu_message(phdl, cmd, cmd_len);
+        len = plat_os_abs_send_mu_message(phdl, cmd, cmd_len);
         if (len != (int32_t)cmd_len) {
             break;
         }
         /* Read the response. */
-        len = seco_os_abs_read_mu_message(phdl, rsp, rsp_len);
+        len = plat_os_abs_read_mu_message(phdl, rsp, rsp_len);
 
         err = 0;
     } while (false);
     return err;
 }
 
-uint32_t seco_compute_msg_crc(uint32_t *msg, uint32_t msg_len)
+uint32_t plat_compute_msg_crc(uint32_t *msg, uint32_t msg_len)
 {
     uint32_t crc;
     uint32_t i;

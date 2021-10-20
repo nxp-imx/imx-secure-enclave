@@ -18,13 +18,13 @@
  * \{
  */
 
-#ifndef SECO_NVM_H
-#define SECO_NVM_H
+#ifndef NVM_H
+#define NVM_H
 
 #include <stdint.h>
 
-void seco_nvm_manager(uint8_t flags, uint32_t *status);
-void seco_nvm_close_session(void);
+void nvm_manager(uint8_t flags, uint32_t *status);
+void nvm_close_session(void);
 
 #define NVM_FLAGS_V2X    (0x02u)
 #define NVM_FLAGS_SHE    (0x01u)

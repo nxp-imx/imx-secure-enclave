@@ -12,13 +12,13 @@
  */
 
 #include "hsm_api.h"
-#include "seco_os_abs.h"
-#include "seco_sab_msg_def.h"
-#include "seco_sab_messaging.h"
-#include "seco_utils.h"
+#include "plat_os_abs.h"
+#include "sab_msg_def.h"
+#include "sab_messaging.h"
+#include "plat_utils.h"
 
 struct hsm_session_hdl_s {
-	struct seco_os_abs_hdl *phdl;
+	struct plat_os_abs_hdl *phdl;
 	uint32_t session_hdl;
 	uint32_t mu_type;
 };
@@ -153,7 +153,7 @@ hsm_err_t hsm_close_session(hsm_hdl_t session_hdl)
 						s_ptr->mu_type);
 		err = sab_rating_to_hsm_err(sab_err);
 
-		seco_os_abs_close_session(s_ptr->phdl);
+		plat_os_abs_close_session(s_ptr->phdl);
 
 		delete_session(s_ptr);
 
@@ -171,8 +171,8 @@ hsm_err_t hsm_close_session(hsm_hdl_t session_hdl)
 #define MU_CONFIG_NB		(8)
 
 static const uint32_t mu_table[MU_CONFIG_NB] = {
-	MU_CHANNEL_SECO_HSM,      // best_effort, low prio, with key store
-	MU_CHANNEL_SECO_HSM_2ND,  // best_effort, low prio, no key store
+	MU_CHANNEL_PLAT_HSM,      // best_effort, low prio, with key store
+	MU_CHANNEL_PLAT_HSM_2ND,  // best_effort, low prio, no key store
 	MU_CHANNEL_UNDEF,         // best_effort, high prio, with key store
 	MU_CHANNEL_UNDEF,         // best_effort, high prio, no key store
 	MU_CHANNEL_V2X_SG1,       // low latency, low prio,  with key store
@@ -184,7 +184,7 @@ static const uint32_t mu_table[MU_CONFIG_NB] = {
 hsm_err_t hsm_open_session(open_session_args_t *args, hsm_hdl_t *session_hdl)
 {
 	struct hsm_session_hdl_s *s_ptr = NULL;
-	struct seco_mu_params mu_params;
+	struct plat_mu_params mu_params;
 	hsm_err_t err = HSM_GENERAL_ERROR;
 	uint32_t sab_err;
 	uint8_t session_priority, operating_mode;
@@ -210,14 +210,14 @@ hsm_err_t hsm_open_session(open_session_args_t *args, hsm_hdl_t *session_hdl)
 			break;
 		}
 
-		if (seco_os_abs_has_v2x_hw() == 0U) {
+		if (plat_os_abs_has_v2x_hw() == 0U) {
 			/* SECO only HW: low latency and high priority not supported. */
 			operating_mode &= ~(uint8_t)HSM_OPEN_SESSION_LOW_LATENCY_MASK;
 			session_priority = HSM_OPEN_SESSION_PRIORITY_LOW;
 		}
 
 		s_ptr->mu_type = mu_table[MU_CONFIG((session_priority), (operating_mode))];
-		s_ptr->phdl = seco_os_abs_open_mu_channel(s_ptr->mu_type, &mu_params);
+		s_ptr->phdl = plat_os_abs_open_mu_channel(s_ptr->mu_type, &mu_params);
 		if (s_ptr->phdl == NULL) {
 			break;
 		}
@@ -244,7 +244,7 @@ hsm_err_t hsm_open_session(open_session_args_t *args, hsm_hdl_t *session_hdl)
 			if (s_ptr->session_hdl != 0u) {
 				(void)hsm_close_session(s_ptr->session_hdl);
 			} else if (s_ptr->phdl != NULL) {
-				seco_os_abs_close_session(s_ptr->phdl);
+				plat_os_abs_close_session(s_ptr->phdl);
 				delete_session(s_ptr);
 			} else {
 				delete_session(s_ptr);
@@ -283,9 +283,9 @@ hsm_err_t hsm_open_key_store_service(hsm_hdl_t session_hdl,
 			break;
 		}
 
-		/* Send the signed message to SECO if provided here. */
+		/* Send the signed message to platform if provided here. */
 		if (args->signed_message != NULL) {
-			(void)seco_os_abs_send_signed_message(sess_ptr->phdl, args->signed_message, args->signed_msg_size);
+			(void)plat_os_abs_send_signed_message(sess_ptr->phdl, args->signed_message, args->signed_msg_size);
 		}
 
 		sab_err = sab_open_key_store_command(sess_ptr->phdl,
@@ -327,7 +327,7 @@ hsm_err_t hsm_close_key_store_service(hsm_hdl_t key_store_hdl)
 						serv_ptr->session->mu_type);
 		err = sab_rating_to_hsm_err(sab_err);
 
-		// TODO: delete even in case of error from SECO ?
+		// TODO: delete even in case of error from platform ?
 		delete_service(serv_ptr);
 
 	} while (false);
@@ -361,7 +361,7 @@ hsm_err_t hsm_open_key_management_service(hsm_hdl_t key_store_hdl,
 			break;
 		}
 
-		seco_fill_cmd_msg_hdr(&cmd.hdr,
+		plat_fill_cmd_msg_hdr(&cmd.hdr,
 			SAB_KEY_MANAGEMENT_OPEN_REQ,
 			(uint32_t)sizeof(struct sab_cmd_key_management_open_msg),
 			key_mgt_serv_ptr->session->mu_type);
@@ -373,10 +373,10 @@ hsm_err_t hsm_open_key_management_service(hsm_hdl_t key_store_hdl,
 		cmd.rsv[1] = 0u;
 		cmd.rsv[2] = 0u;
 		cmd.crc = 0u;
-		cmd.crc = seco_compute_msg_crc((uint32_t*)&cmd,
+		cmd.crc = plat_compute_msg_crc((uint32_t*)&cmd,
 				(uint32_t)(sizeof(cmd) - sizeof(uint32_t)));
 
-		error = seco_send_msg_and_get_resp(key_mgt_serv_ptr->session->phdl,
+		error = plat_send_msg_and_get_resp(key_mgt_serv_ptr->session->phdl,
 			(uint32_t *)&cmd,
 			(uint32_t)sizeof(struct sab_cmd_key_management_open_msg),
 			(uint32_t *)&rsp,
@@ -402,8 +402,8 @@ hsm_err_t hsm_open_key_management_service(hsm_hdl_t key_store_hdl,
 hsm_err_t hsm_generate_key(hsm_hdl_t key_management_hdl,
 				op_generate_key_args_t *args)
 {
-	struct sab_cmd_generate_key_msg cmd;
-	struct sab_cmd_generate_key_rsp rsp;
+	struct sab_cmd_generate_key_msg cmd = {0};
+	struct sab_cmd_generate_key_rsp rsp = {0};
 	int32_t error = 1;
 	struct hsm_service_hdl_s *serv_ptr;
 	hsm_err_t err = HSM_GENERAL_ERROR;
@@ -418,8 +418,8 @@ hsm_err_t hsm_generate_key(hsm_hdl_t key_management_hdl,
 			break;
 		}
 
-		/* Send the keys store open command to Seco. */
-		seco_fill_cmd_msg_hdr(&cmd.hdr,
+		/* Send the keys store open command to platform. */
+		plat_fill_cmd_msg_hdr(&cmd.hdr,
 			SAB_KEY_GENERATE_REQ,
 			(uint32_t)sizeof(struct sab_cmd_generate_key_msg),
 			serv_ptr->session->mu_type);
@@ -430,16 +430,16 @@ hsm_err_t hsm_generate_key(hsm_hdl_t key_management_hdl,
 		cmd.key_type = args->key_type;
 		cmd.key_group = args->key_group;
 		cmd.key_info = args->key_info;
-		cmd.out_key_addr = (uint32_t)seco_os_abs_data_buf(serv_ptr->session->phdl,
+		cmd.out_key_addr = (uint32_t)plat_os_abs_data_buf(serv_ptr->session->phdl,
 				args->out_key,
 				args->out_size,
 				0u);
 		cmd.crc = 0u;
-		cmd.crc = seco_compute_msg_crc((uint32_t*)&cmd,
+		cmd.crc = plat_compute_msg_crc((uint32_t*)&cmd,
 				(uint32_t)(sizeof(cmd) - sizeof(uint32_t)));
 
-		/* Send the message to Seco. */
-		error = seco_send_msg_and_get_resp(serv_ptr->session->phdl,
+		/* Send the message to platform. */
+		error = plat_send_msg_and_get_resp(serv_ptr->session->phdl,
 			(uint32_t *)&cmd,
 			(uint32_t)sizeof(struct sab_cmd_generate_key_msg),
 			(uint32_t *)&rsp,
@@ -480,8 +480,8 @@ hsm_err_t hsm_generate_key_ext(hsm_hdl_t key_management_hdl,
 			break;
 		}
 
-		/* Send the keys store open command to Seco. */
-		seco_fill_cmd_msg_hdr(&cmd.hdr,
+		/* Send the keys store open command to platform. */
+		plat_fill_cmd_msg_hdr(&cmd.hdr,
 			SAB_KEY_GENERATE_EXT_REQ,
 			(uint32_t)sizeof(struct sab_cmd_generate_key_ext_msg),
 			serv_ptr->session->mu_type);
@@ -492,7 +492,7 @@ hsm_err_t hsm_generate_key_ext(hsm_hdl_t key_management_hdl,
 		cmd.key_type = args->key_type;
 		cmd.key_group = args->key_group;
 		cmd.key_info = args->key_info;
-		cmd.out_key_addr = (uint32_t)seco_os_abs_data_buf(serv_ptr->session->phdl,
+		cmd.out_key_addr = (uint32_t)plat_os_abs_data_buf(serv_ptr->session->phdl,
 				args->out_key,
 				args->out_size,
 				0u);
@@ -501,11 +501,11 @@ hsm_err_t hsm_generate_key_ext(hsm_hdl_t key_management_hdl,
 		cmd.reserved[1] = args->reserved[1];
 		cmd.reserved[2] = args->reserved[2];
 		cmd.crc = 0u;
-		cmd.crc = seco_compute_msg_crc((uint32_t*)&cmd,
+		cmd.crc = plat_compute_msg_crc((uint32_t*)&cmd,
 				(uint32_t)(sizeof(cmd) - sizeof(uint32_t)));
 
-		/* Send the message to Seco. */
-		error = seco_send_msg_and_get_resp(serv_ptr->session->phdl,
+		/* Send the message to platform. */
+		error = plat_send_msg_and_get_resp(serv_ptr->session->phdl,
 			(uint32_t *)&cmd,
 			(uint32_t)sizeof(struct sab_cmd_generate_key_ext_msg),
 			(uint32_t *)&rsp,
@@ -546,8 +546,8 @@ hsm_err_t hsm_manage_key(hsm_hdl_t key_management_hdl,
 			break;
 		}
 
-		/* Send the keys store open command to Seco. */
-		seco_fill_cmd_msg_hdr(&cmd.hdr,
+		/* Send the keys store open command to platform. */
+		plat_fill_cmd_msg_hdr(&cmd.hdr,
 			SAB_MANAGE_KEY_REQ,
 			(uint32_t)sizeof(struct sab_cmd_manage_key_msg),
 			serv_ptr->session->mu_type);
@@ -559,16 +559,16 @@ hsm_err_t hsm_manage_key(hsm_hdl_t key_management_hdl,
 		cmd.key_type = args->key_type;
 		cmd.key_group = args->key_group;
 		cmd.key_info = args->key_info;
-		cmd.input_data_addr = (uint32_t)seco_os_abs_data_buf(serv_ptr->session->phdl,
+		cmd.input_data_addr = (uint32_t)plat_os_abs_data_buf(serv_ptr->session->phdl,
 				args->input_data,
 				args->input_size,
 				DATA_BUF_IS_INPUT);
 		cmd.crc = 0u;
-		cmd.crc = seco_compute_msg_crc((uint32_t*)&cmd,
+		cmd.crc = plat_compute_msg_crc((uint32_t*)&cmd,
 				(uint32_t)(sizeof(cmd) - sizeof(uint32_t)));
 
-		/* Send the message to Seco. */
-		error = seco_send_msg_and_get_resp(serv_ptr->session->phdl,
+		/* Send the message to platform. */
+		error = plat_send_msg_and_get_resp(serv_ptr->session->phdl,
 			(uint32_t *)&cmd,
 			(uint32_t)sizeof(struct sab_cmd_manage_key_msg),
 			(uint32_t *)&rsp,
@@ -610,8 +610,8 @@ hsm_err_t hsm_manage_key_ext(hsm_hdl_t key_management_hdl,
 			break;
 		}
 
-		/* Send the keys store open command to Seco. */
-		seco_fill_cmd_msg_hdr(&cmd.hdr,
+		/* Send the keys store open command to platform. */
+		plat_fill_cmd_msg_hdr(&cmd.hdr,
 			SAB_MANAGE_KEY_EXT_REQ,
 			(uint32_t)sizeof(struct sab_cmd_manage_key_ext_msg),
 			serv_ptr->session->mu_type);
@@ -623,7 +623,7 @@ hsm_err_t hsm_manage_key_ext(hsm_hdl_t key_management_hdl,
 		cmd.key_type = args->key_type;
 		cmd.key_group = args->key_group;
 		cmd.key_info = args->key_info;
-		cmd.input_data_addr = (uint32_t)seco_os_abs_data_buf(serv_ptr->session->phdl,
+		cmd.input_data_addr = (uint32_t)plat_os_abs_data_buf(serv_ptr->session->phdl,
 				args->input_data,
 				args->input_size,
 				DATA_BUF_IS_INPUT);
@@ -632,11 +632,11 @@ hsm_err_t hsm_manage_key_ext(hsm_hdl_t key_management_hdl,
 		cmd.reserved[1] = args->reserved[1];
 		cmd.reserved[2] = args->reserved[2];
 		cmd.crc = 0u;
-		cmd.crc = seco_compute_msg_crc((uint32_t*)&cmd,
+		cmd.crc = plat_compute_msg_crc((uint32_t*)&cmd,
 				(uint32_t)(sizeof(cmd) - sizeof(uint32_t)));
 
-		/* Send the message to Seco. */
-		error = seco_send_msg_and_get_resp(serv_ptr->session->phdl,
+		/* Send the message to platform. */
+		error = plat_send_msg_and_get_resp(serv_ptr->session->phdl,
 			(uint32_t *)&cmd,
 			(uint32_t)sizeof(struct sab_cmd_manage_key_ext_msg),
 			(uint32_t *)&rsp,
@@ -678,8 +678,8 @@ hsm_err_t hsm_manage_key_group(hsm_hdl_t key_management_hdl,
 			break;
 		}
 
-		/* Send the keys store open command to Seco. */
-		seco_fill_cmd_msg_hdr(&cmd.hdr,
+		/* Send the keys store open command to platform. */
+		plat_fill_cmd_msg_hdr(&cmd.hdr,
 			SAB_MANAGE_KEY_GROUP_REQ,
 			(uint32_t)sizeof(struct sab_cmd_manage_key_group_msg),
 			serv_ptr->session->mu_type);
@@ -688,8 +688,8 @@ hsm_err_t hsm_manage_key_group(hsm_hdl_t key_management_hdl,
 		cmd.flags = args->flags;
 		cmd.rsv = 0;
 
-		/* Send the message to Seco. */
-		error = seco_send_msg_and_get_resp(serv_ptr->session->phdl,
+		/* Send the message to platform. */
+		error = plat_send_msg_and_get_resp(serv_ptr->session->phdl,
 			(uint32_t *)&cmd,
 			(uint32_t)sizeof(struct sab_cmd_manage_key_group_msg),
 			(uint32_t *)&rsp,
@@ -725,22 +725,22 @@ hsm_err_t hsm_butterfly_key_expansion(hsm_hdl_t key_management_hdl,
 			break;
 		}
 
-		/* Send the keys store open command to Seco. */
-		seco_fill_cmd_msg_hdr(&cmd.hdr,
+		/* Send the keys store open command to platform. */
+		plat_fill_cmd_msg_hdr(&cmd.hdr,
 			SAB_BUT_KEY_EXP_REQ,
 			(uint32_t)sizeof(struct sab_cmd_butterfly_key_exp_msg),
 			serv_ptr->session->mu_type);
 		cmd.key_management_handle = key_management_hdl;
 		cmd.key_identifier = args->key_identifier;
-		cmd.expansion_function_value_addr = (uint32_t)seco_os_abs_data_buf(serv_ptr->session->phdl,
+		cmd.expansion_function_value_addr = (uint32_t)plat_os_abs_data_buf(serv_ptr->session->phdl,
 				args->expansion_function_value,
 				args->expansion_function_value_size,
 				DATA_BUF_IS_INPUT);
-		cmd.hash_value_addr = (uint32_t)seco_os_abs_data_buf(serv_ptr->session->phdl,
+		cmd.hash_value_addr = (uint32_t)plat_os_abs_data_buf(serv_ptr->session->phdl,
 				args->hash_value,
 				args->hash_value_size,
 				DATA_BUF_IS_INPUT);
-		cmd.pr_reconstruction_value_addr = (uint32_t)seco_os_abs_data_buf(serv_ptr->session->phdl,
+		cmd.pr_reconstruction_value_addr = (uint32_t)plat_os_abs_data_buf(serv_ptr->session->phdl,
 				args->pr_reconstruction_value,
 				args->pr_reconstruction_value_size,
 				DATA_BUF_IS_INPUT);
@@ -749,7 +749,7 @@ hsm_err_t hsm_butterfly_key_expansion(hsm_hdl_t key_management_hdl,
 		cmd.pr_reconstruction_value_size = args->pr_reconstruction_value_size;
 		cmd.flags = args->flags;
 		cmd.dest_key_identifier = *(args->dest_key_identifier);
-		cmd.output_address = (uint32_t)seco_os_abs_data_buf(serv_ptr->session->phdl,
+		cmd.output_address = (uint32_t)plat_os_abs_data_buf(serv_ptr->session->phdl,
 				args->output,
 				args->output_size,
 				0u);
@@ -759,11 +759,11 @@ hsm_err_t hsm_butterfly_key_expansion(hsm_hdl_t key_management_hdl,
 		cmd.key_group = args->key_group;
 		cmd.key_info = args->key_info;
 		cmd.crc = 0u;
-		cmd.crc = seco_compute_msg_crc((uint32_t*)&cmd,
+		cmd.crc = plat_compute_msg_crc((uint32_t*)&cmd,
 				(uint32_t)(sizeof(cmd) - sizeof(uint32_t)));
 
-		/* Send the message to Seco. */
-		error = seco_send_msg_and_get_resp(serv_ptr->session->phdl,
+		/* Send the message to platform. */
+		error = plat_send_msg_and_get_resp(serv_ptr->session->phdl,
 			(uint32_t *)&cmd,
 			(uint32_t)sizeof(struct sab_cmd_butterfly_key_exp_msg),
 			(uint32_t *)&rsp,
@@ -800,14 +800,14 @@ hsm_err_t hsm_close_key_management_service(hsm_hdl_t key_management_hdl)
 			break;
 		}
 
-		seco_fill_cmd_msg_hdr(&cmd.hdr,
+		plat_fill_cmd_msg_hdr(&cmd.hdr,
 			SAB_KEY_MANAGEMENT_CLOSE_REQ,
 			(uint32_t)sizeof(struct sab_cmd_key_management_close_msg),
 			serv_ptr->session->mu_type);
 		cmd.key_management_handle = key_management_hdl;
 
 
-		error = seco_send_msg_and_get_resp(serv_ptr->session->phdl,
+		error = plat_send_msg_and_get_resp(serv_ptr->session->phdl,
 			(uint32_t *)&cmd,
 			(uint32_t)sizeof(struct sab_cmd_key_management_close_msg),
 			(uint32_t *)&rsp,
@@ -938,26 +938,26 @@ hsm_err_t hsm_ecies_decryption(hsm_hdl_t cipher_hdl, op_ecies_dec_args_t *args)
 			break;
 		}
 
-		/* Send the keys store open command to Seco. */
-		seco_fill_cmd_msg_hdr(&cmd.hdr,
+		/* Send the keys store open command to platform. */
+		plat_fill_cmd_msg_hdr(&cmd.hdr,
 			SAB_CIPHER_ECIES_DECRYPT_REQ,
 			(uint32_t)sizeof(struct sab_cmd_ecies_decrypt_msg),
 			serv_ptr->session->mu_type);
 		cmd.cipher_handle = cipher_hdl;
 		cmd.key_id = args->key_identifier;
-		cmd.input_address = (uint32_t)seco_os_abs_data_buf(serv_ptr->session->phdl,
+		cmd.input_address = (uint32_t)plat_os_abs_data_buf(serv_ptr->session->phdl,
 				args->input,
 				args->input_size,
 				DATA_BUF_IS_INPUT);
-		cmd.p1_addr = (uint32_t)seco_os_abs_data_buf(serv_ptr->session->phdl,
+		cmd.p1_addr = (uint32_t)plat_os_abs_data_buf(serv_ptr->session->phdl,
 				args->p1,
 				args->p1_size,
 				DATA_BUF_IS_INPUT);
-		cmd.p2_addr = (uint32_t)seco_os_abs_data_buf(serv_ptr->session->phdl,
+		cmd.p2_addr = (uint32_t)plat_os_abs_data_buf(serv_ptr->session->phdl,
 				args->p2,
 				args->p2_size,
 				DATA_BUF_IS_INPUT);
-		cmd.output_address = (uint32_t)seco_os_abs_data_buf(serv_ptr->session->phdl,
+		cmd.output_address = (uint32_t)plat_os_abs_data_buf(serv_ptr->session->phdl,
 				args->output,
 				args->output_size,
 				0u);
@@ -969,11 +969,11 @@ hsm_err_t hsm_ecies_decryption(hsm_hdl_t cipher_hdl, op_ecies_dec_args_t *args)
 		cmd.key_type = args->key_type;
 		cmd.flags = args->flags;
 		cmd.crc = 0u;
-		cmd.crc = seco_compute_msg_crc((uint32_t*)&cmd,
+		cmd.crc = plat_compute_msg_crc((uint32_t*)&cmd,
 				(uint32_t)(sizeof(cmd) - sizeof(uint32_t)));
 
-		/* Send the message to Seco. */
-		error = seco_send_msg_and_get_resp(serv_ptr->session->phdl,
+		/* Send the message to platform. */
+		error = plat_send_msg_and_get_resp(serv_ptr->session->phdl,
 			(uint32_t *)&cmd,
 			(uint32_t)sizeof(struct sab_cmd_ecies_decrypt_msg),
 			(uint32_t *)&rsp,
@@ -1015,7 +1015,7 @@ hsm_err_t hsm_open_signature_generation_service(hsm_hdl_t key_store_hdl,
 			break;
 		}
 
-		seco_fill_cmd_msg_hdr(&cmd.hdr,
+		plat_fill_cmd_msg_hdr(&cmd.hdr,
 			SAB_SIGNATURE_GENERATION_OPEN_REQ,
 			(uint32_t)sizeof(struct sab_signature_gen_open_msg),
 			key_store_serv_ptr->session->mu_type);
@@ -1027,10 +1027,10 @@ hsm_err_t hsm_open_signature_generation_service(hsm_hdl_t key_store_hdl,
 		cmd.reserved[1] = 0u;
 		cmd.reserved[2] = 0u;
 		cmd.crc = 0u;
-		cmd.crc = seco_compute_msg_crc((uint32_t*)&cmd,
+		cmd.crc = plat_compute_msg_crc((uint32_t*)&cmd,
 				(uint32_t)(sizeof(cmd) - sizeof(uint32_t)));
 
-		error = seco_send_msg_and_get_resp(key_store_serv_ptr->session->phdl,
+		error = plat_send_msg_and_get_resp(key_store_serv_ptr->session->phdl,
 			(uint32_t *)&cmd,
 			(uint32_t)sizeof(struct sab_signature_gen_open_msg),
 			(uint32_t *)&rsp,
@@ -1067,14 +1067,14 @@ hsm_err_t hsm_close_signature_generation_service(hsm_hdl_t signature_gen_hdl)
 			break;
 		}
 
-		seco_fill_cmd_msg_hdr(&cmd.hdr,
+		plat_fill_cmd_msg_hdr(&cmd.hdr,
 			SAB_SIGNATURE_GENERATION_CLOSE_REQ,
 			(uint32_t)sizeof(struct sab_signature_gen_close_msg),
 			serv_ptr->session->mu_type);
 		cmd.sig_gen_hdl = signature_gen_hdl;
 
 
-		error = seco_send_msg_and_get_resp(serv_ptr->session->phdl,
+		error = plat_send_msg_and_get_resp(serv_ptr->session->phdl,
 			(uint32_t *)&cmd,
 			(uint32_t)sizeof(struct sab_signature_gen_close_msg),
 			(uint32_t *)&rsp,
@@ -1107,18 +1107,18 @@ hsm_err_t hsm_generate_signature(hsm_hdl_t signature_gen_hdl,
 			break;
 		}
 
-		/* Send the keys store open command to Seco. */
-		seco_fill_cmd_msg_hdr(&cmd.hdr,
+		/* Send the keys store open command to platform. */
+		plat_fill_cmd_msg_hdr(&cmd.hdr,
 			SAB_SIGNATURE_GENERATE_REQ,
 			(uint32_t)sizeof(struct sab_signature_generate_msg),
 			serv_ptr->session->mu_type);
 		cmd.sig_gen_hdl = signature_gen_hdl;
 		cmd.key_identifier = args->key_identifier;
-		cmd.message_addr = (uint32_t)seco_os_abs_data_buf(serv_ptr->session->phdl,
+		cmd.message_addr = (uint32_t)plat_os_abs_data_buf(serv_ptr->session->phdl,
 					args->message,
 					args->message_size,
 					DATA_BUF_IS_INPUT);
-		cmd.signature_addr = (uint32_t)seco_os_abs_data_buf(serv_ptr->session->phdl,
+		cmd.signature_addr = (uint32_t)plat_os_abs_data_buf(serv_ptr->session->phdl,
 					args->signature,
 					args->signature_size,
 					0u);
@@ -1127,11 +1127,11 @@ hsm_err_t hsm_generate_signature(hsm_hdl_t signature_gen_hdl,
 		cmd.scheme_id = args->scheme_id;
 		cmd.flags = args->flags;
 		cmd.crc = 0u;
-		cmd.crc = seco_compute_msg_crc((uint32_t*)&cmd,
+		cmd.crc = plat_compute_msg_crc((uint32_t*)&cmd,
 				(uint32_t)(sizeof(cmd) - sizeof(uint32_t)));
 
-		/* Send the message to Seco. */
-		error = seco_send_msg_and_get_resp(serv_ptr->session->phdl,
+		/* Send the message to platform. */
+		error = plat_send_msg_and_get_resp(serv_ptr->session->phdl,
 			(uint32_t *)&cmd,
 			(uint32_t)sizeof(struct sab_signature_generate_msg),
 			(uint32_t *)&rsp,
@@ -1165,8 +1165,8 @@ hsm_err_t hsm_prepare_signature(hsm_hdl_t signature_gen_hdl,
 			break;
 		}
 
-		/* Send the keys store open command to Seco. */
-		seco_fill_cmd_msg_hdr(&cmd.hdr,
+		/* Send the keys store open command to platform. */
+		plat_fill_cmd_msg_hdr(&cmd.hdr,
 			SAB_SIGNATURE_PREPARE_REQ,
 			(uint32_t)sizeof(struct sab_prepare_signature_msg),
 			serv_ptr->session->mu_type);
@@ -1175,8 +1175,8 @@ hsm_err_t hsm_prepare_signature(hsm_hdl_t signature_gen_hdl,
 		cmd.flags = args->flags;
 		cmd.reserved = 0u;
 
-		/* Send the message to Seco. */
-		error = seco_send_msg_and_get_resp(serv_ptr->session->phdl,
+		/* Send the message to platform. */
+		error = plat_send_msg_and_get_resp(serv_ptr->session->phdl,
 			(uint32_t *)&cmd,
 			(uint32_t)sizeof(struct sab_prepare_signature_msg),
 			(uint32_t *)&rsp,
@@ -1217,7 +1217,7 @@ hsm_err_t hsm_open_signature_verification_service(hsm_hdl_t session_hdl,
 			break;
 		}
 
-		seco_fill_cmd_msg_hdr(&cmd.hdr,
+		plat_fill_cmd_msg_hdr(&cmd.hdr,
 			SAB_SIGNATURE_VERIFICATION_OPEN_REQ,
 			(uint32_t)sizeof(struct sab_signature_verif_open_msg),
 			serv_ptr->session->mu_type);
@@ -1229,10 +1229,10 @@ hsm_err_t hsm_open_signature_verification_service(hsm_hdl_t session_hdl,
 		cmd.reserved[1] = 0u;
 		cmd.reserved[2] = 0u;
 		cmd.crc = 0u;
-		cmd.crc = seco_compute_msg_crc((uint32_t*)&cmd,
+		cmd.crc = plat_compute_msg_crc((uint32_t*)&cmd,
 				(uint32_t)(sizeof(cmd) - sizeof(uint32_t)));
 
-		error = seco_send_msg_and_get_resp(sess_ptr->phdl,
+		error = plat_send_msg_and_get_resp(sess_ptr->phdl,
 			(uint32_t *)&cmd,
 			(uint32_t)sizeof(struct sab_signature_verif_open_msg),
 			(uint32_t *)&rsp,
@@ -1269,13 +1269,13 @@ hsm_err_t hsm_close_signature_verification_service(hsm_hdl_t signature_ver_hdl)
 			break;
 		}
 
-		seco_fill_cmd_msg_hdr(&cmd.hdr,
+		plat_fill_cmd_msg_hdr(&cmd.hdr,
 			SAB_SIGNATURE_VERIFICATION_CLOSE_REQ,
 			(uint32_t)sizeof(struct sab_signature_verif_close_msg),
 			serv_ptr->session->mu_type);
 		cmd.sig_ver_hdl = signature_ver_hdl;
 
-		error = seco_send_msg_and_get_resp(serv_ptr->session->phdl,
+		error = plat_send_msg_and_get_resp(serv_ptr->session->phdl,
 			(uint32_t *)&cmd,
 			(uint32_t)sizeof(struct sab_signature_verif_close_msg),
 			(uint32_t *)&rsp,
@@ -1309,21 +1309,21 @@ hsm_err_t hsm_verify_signature(hsm_hdl_t signature_ver_hdl,
 			break;
 		}
 
-		/* Send the keys store open command to Seco. */
-		seco_fill_cmd_msg_hdr(&cmd.hdr,
+		/* Send the keys store open command to platform. */
+		plat_fill_cmd_msg_hdr(&cmd.hdr,
 			SAB_SIGNATURE_VERIFY_REQ,
 			(uint32_t)sizeof(struct sab_signature_verify_msg),
 			serv_ptr->session->mu_type);
 		cmd.sig_ver_hdl = signature_ver_hdl;
-		cmd.key_addr = (uint32_t)seco_os_abs_data_buf(serv_ptr->session->phdl,
+		cmd.key_addr = (uint32_t)plat_os_abs_data_buf(serv_ptr->session->phdl,
 					args->key,
 					args->key_size,
 					DATA_BUF_IS_INPUT);
-		cmd.msg_addr = (uint32_t)seco_os_abs_data_buf(serv_ptr->session->phdl,
+		cmd.msg_addr = (uint32_t)plat_os_abs_data_buf(serv_ptr->session->phdl,
 					args->message,
 					args->message_size,
 					DATA_BUF_IS_INPUT);
-		cmd.sig_addr = (uint32_t)seco_os_abs_data_buf(serv_ptr->session->phdl,
+		cmd.sig_addr = (uint32_t)plat_os_abs_data_buf(serv_ptr->session->phdl,
 					args->signature,
 					args->signature_size,
 					DATA_BUF_IS_INPUT);
@@ -1334,11 +1334,11 @@ hsm_err_t hsm_verify_signature(hsm_hdl_t signature_ver_hdl,
 		cmd.flags = args->flags;
 		cmd.reserved = 0u;
 		cmd.crc = 0u;
-		cmd.crc = seco_compute_msg_crc((uint32_t*)&cmd,
+		cmd.crc = plat_compute_msg_crc((uint32_t*)&cmd,
 				(uint32_t)(sizeof(cmd) - sizeof(uint32_t)));
 
-		/* Send the message to Seco. */
-		error = seco_send_msg_and_get_resp(serv_ptr->session->phdl,
+		/* Send the message to platform. */
+		error = plat_send_msg_and_get_resp(serv_ptr->session->phdl,
 			(uint32_t *)&cmd,
 			(uint32_t)sizeof(struct sab_signature_verify_msg),
 			(uint32_t *)&rsp,
@@ -1375,13 +1375,13 @@ hsm_err_t hsm_import_public_key(hsm_hdl_t signature_ver_hdl,
 			break;
 		}
 
-		/* Send the keys store open command to Seco. */
-		seco_fill_cmd_msg_hdr(&cmd.hdr,
+		/* Send the keys store open command to platform. */
+		plat_fill_cmd_msg_hdr(&cmd.hdr,
 			SAB_IMPORT_PUB_KEY,
 			(uint32_t)sizeof(struct sab_import_pub_key_msg),
 			serv_ptr->session->mu_type);
 		cmd.sig_ver_hdl = signature_ver_hdl;
-		cmd.key_addr = (uint32_t)seco_os_abs_data_buf(serv_ptr->session->phdl,
+		cmd.key_addr = (uint32_t)plat_os_abs_data_buf(serv_ptr->session->phdl,
 					args->key,
 					args->key_size,
 					DATA_BUF_IS_INPUT);
@@ -1389,8 +1389,8 @@ hsm_err_t hsm_import_public_key(hsm_hdl_t signature_ver_hdl,
 		cmd.key_type = args->key_type;
 		cmd.flags = args->flags;
 
-		/* Send the message to Seco. */
-		error = seco_send_msg_and_get_resp(serv_ptr->session->phdl,
+		/* Send the message to platform. */
+		error = plat_send_msg_and_get_resp(serv_ptr->session->phdl,
 			(uint32_t *)&cmd,
 			(uint32_t)sizeof(struct sab_import_pub_key_msg),
 			(uint32_t *)&rsp,
@@ -1488,20 +1488,20 @@ hsm_err_t hsm_get_random(hsm_hdl_t rng_hdl, op_get_random_args_t *args)
 			break;
 		}
 
-		/* Send the keys store open command to Seco. */
-		seco_fill_cmd_msg_hdr(&cmd.hdr,
+		/* Send the keys store open command to platform. */
+		plat_fill_cmd_msg_hdr(&cmd.hdr,
 			SAB_RNG_GET_RANDOM,
 			(uint32_t)sizeof(struct sab_cmd_get_rnd_msg),
 			serv_ptr->session->mu_type);
 		cmd.rng_handle = rng_hdl;
-		cmd.rnd_addr = (uint32_t)seco_os_abs_data_buf(serv_ptr->session->phdl,
+		cmd.rnd_addr = (uint32_t)plat_os_abs_data_buf(serv_ptr->session->phdl,
 					args->output,
 					args->random_size,
 					0u);
 		cmd.rnd_size = args->random_size;
 
-		/* Send the message to Seco. */
-		error = seco_send_msg_and_get_resp(serv_ptr->session->phdl,
+		/* Send the message to platform. */
+		error = plat_send_msg_and_get_resp(serv_ptr->session->phdl,
 			(uint32_t *)&cmd,
 			(uint32_t)sizeof(struct sab_cmd_get_rnd_msg),
 			(uint32_t *)&rsp,
@@ -1542,7 +1542,7 @@ hsm_err_t hsm_open_hash_service(hsm_hdl_t session_hdl,
 			break;
 		}
 
-		seco_fill_cmd_msg_hdr(&cmd.hdr,
+		plat_fill_cmd_msg_hdr(&cmd.hdr,
 			SAB_HASH_OPEN_REQ,
 			(uint32_t)sizeof(struct sab_hash_open_msg),
 			serv_ptr->session->mu_type);
@@ -1554,10 +1554,10 @@ hsm_err_t hsm_open_hash_service(hsm_hdl_t session_hdl,
 		cmd.reserved[1] = 0u;
 		cmd.reserved[2] = 0u;
 		cmd.crc = 0u;
-		cmd.crc = seco_compute_msg_crc((uint32_t*)&cmd,
+		cmd.crc = plat_compute_msg_crc((uint32_t*)&cmd,
 				(uint32_t)(sizeof(cmd) - sizeof(uint32_t)));
 
-		error = seco_send_msg_and_get_resp(sess_ptr->phdl,
+		error = plat_send_msg_and_get_resp(sess_ptr->phdl,
 			(uint32_t *)&cmd,
 			(uint32_t)sizeof(struct sab_hash_open_msg),
 			(uint32_t *)&rsp,
@@ -1594,14 +1594,14 @@ hsm_err_t hsm_close_hash_service(hsm_hdl_t hash_hdl)
 			break;
 		}
 
-		seco_fill_cmd_msg_hdr(&cmd.hdr,
+		plat_fill_cmd_msg_hdr(&cmd.hdr,
 			SAB_HASH_CLOSE_REQ,
 			(uint32_t)sizeof(struct sab_hash_close_msg),
 			serv_ptr->session->mu_type);
 		cmd.hash_hdl = hash_hdl;
 
 
-		error = seco_send_msg_and_get_resp(serv_ptr->session->phdl,
+		error = plat_send_msg_and_get_resp(serv_ptr->session->phdl,
 			(uint32_t *)&cmd,
 			(uint32_t)sizeof(struct sab_hash_close_msg),
 			(uint32_t *)&rsp,
@@ -1634,18 +1634,18 @@ hsm_err_t hsm_hash_one_go(hsm_hdl_t hash_hdl, op_hash_one_go_args_t *args)
 			break;
 		}
 
-		/* Send the keys store open command to Seco. */
-		seco_fill_cmd_msg_hdr(&cmd.hdr,
+		/* Send the keys store open command to platform. */
+		plat_fill_cmd_msg_hdr(&cmd.hdr,
 			SAB_HASH_ONE_GO_REQ,
 			(uint32_t)sizeof(struct sab_hash_one_go_msg),
 			serv_ptr->session->mu_type);
 
 		cmd.hash_hdl = hash_hdl;
-		cmd.input_addr = (uint32_t)seco_os_abs_data_buf(serv_ptr->session->phdl,
+		cmd.input_addr = (uint32_t)plat_os_abs_data_buf(serv_ptr->session->phdl,
 					args->input,
 					args->input_size,
 					DATA_BUF_IS_INPUT);
-		cmd.output_addr = (uint32_t)seco_os_abs_data_buf(serv_ptr->session->phdl,
+		cmd.output_addr = (uint32_t)plat_os_abs_data_buf(serv_ptr->session->phdl,
 					args->output,
 					args->output_size,
 					0u);
@@ -1655,10 +1655,10 @@ hsm_err_t hsm_hash_one_go(hsm_hdl_t hash_hdl, op_hash_one_go_args_t *args)
 		cmd.flags = args->flags;
 		cmd.reserved = 0u;
 		cmd.crc = 0u;
-		cmd.crc = seco_compute_msg_crc((uint32_t*)&cmd,
+		cmd.crc = plat_compute_msg_crc((uint32_t*)&cmd,
 				(uint32_t)(sizeof(cmd) - sizeof(uint32_t)));
-		/* Send the message to Seco. */
-		error = seco_send_msg_and_get_resp(serv_ptr->session->phdl,
+		/* Send the message to platform. */
+		error = plat_send_msg_and_get_resp(serv_ptr->session->phdl,
 			(uint32_t *)&cmd,
 			(uint32_t)sizeof(struct sab_hash_one_go_msg),
 			(uint32_t *)&rsp,
@@ -1689,29 +1689,29 @@ hsm_err_t hsm_pub_key_reconstruction(hsm_hdl_t session_hdl,
 			break;
 		}
 
-		/* Send the keys store open command to Seco. */
-		seco_fill_cmd_msg_hdr(&cmd.hdr,
+		/* Send the keys store open command to platform. */
+		plat_fill_cmd_msg_hdr(&cmd.hdr,
 			SAB_PUB_KEY_RECONSTRUCTION_REQ,
 			(uint32_t)sizeof(struct sab_public_key_reconstruct_msg),
 			sess_ptr->mu_type);
 		cmd.sesssion_handle = session_hdl;
 		cmd.pu_address_ext = 0u;
-		cmd.pu_address = (uint32_t)seco_os_abs_data_buf(sess_ptr->phdl,
+		cmd.pu_address = (uint32_t)plat_os_abs_data_buf(sess_ptr->phdl,
 					args->pub_rec,
 					args->pub_rec_size,
 					DATA_BUF_IS_INPUT);
 		cmd.hash_address_ext = 0u;
-		cmd.hash_address = (uint32_t)seco_os_abs_data_buf(sess_ptr->phdl,
+		cmd.hash_address = (uint32_t)plat_os_abs_data_buf(sess_ptr->phdl,
 					args->hash,
 					args->hash_size,
 					DATA_BUF_IS_INPUT);
 		cmd.ca_key_address_ext = 0u;
-		cmd.ca_key_address = (uint32_t)seco_os_abs_data_buf(sess_ptr->phdl,
+		cmd.ca_key_address = (uint32_t)plat_os_abs_data_buf(sess_ptr->phdl,
 					args->ca_key,
 					args->ca_key_size,
 					DATA_BUF_IS_INPUT);
 		cmd.out_key_address_ext = 0u;
-		cmd.out_key_address = (uint32_t)seco_os_abs_data_buf(sess_ptr->phdl,
+		cmd.out_key_address = (uint32_t)plat_os_abs_data_buf(sess_ptr->phdl,
 					args->out_key,
 					args->out_key_size,
 					0u);
@@ -1723,11 +1723,11 @@ hsm_err_t hsm_pub_key_reconstruction(hsm_hdl_t session_hdl,
 		cmd.flags = args->flags;
 		cmd.rsv = 0u;
 		cmd.crc = 0u;
-		cmd.crc = seco_compute_msg_crc((uint32_t*)&cmd,
+		cmd.crc = plat_compute_msg_crc((uint32_t*)&cmd,
 				(uint32_t)(sizeof(cmd) - sizeof(uint32_t)));
 
-		/* Send the message to Seco. */
-		error = seco_send_msg_and_get_resp(sess_ptr->phdl,
+		/* Send the message to platform. */
+		error = plat_send_msg_and_get_resp(sess_ptr->phdl,
 			(uint32_t *)&cmd,
 			(uint32_t)sizeof(struct sab_public_key_reconstruct_msg),
 			(uint32_t *)&rsp,
@@ -1758,19 +1758,19 @@ hsm_err_t hsm_pub_key_decompression(hsm_hdl_t session_hdl,
 			break;
 		}
 
-		/* Send the keys store open command to Seco. */
-		seco_fill_cmd_msg_hdr(&cmd.hdr,
+		/* Send the keys store open command to platform. */
+		plat_fill_cmd_msg_hdr(&cmd.hdr,
 			SAB_PUB_KEY_DECOMPRESSION_REQ,
 			(uint32_t)sizeof(struct sab_public_key_decompression_msg),
 			sess_ptr->mu_type);
 		cmd.sesssion_handle = session_hdl;
 		cmd.input_address_ext = 0u;
-		cmd.input_address = (uint32_t)seco_os_abs_data_buf(sess_ptr->phdl,
+		cmd.input_address = (uint32_t)plat_os_abs_data_buf(sess_ptr->phdl,
 					args->key,
 					args->key_size,
 					DATA_BUF_IS_INPUT);
 		cmd.output_address_ext = 0u;
-		cmd.output_address = (uint32_t)seco_os_abs_data_buf(sess_ptr->phdl,
+		cmd.output_address = (uint32_t)plat_os_abs_data_buf(sess_ptr->phdl,
 					args->out_key,
 					args->out_key_size,
 					0u);
@@ -1780,11 +1780,11 @@ hsm_err_t hsm_pub_key_decompression(hsm_hdl_t session_hdl,
 		cmd.flags = args->flags;
 		cmd.rsv = 0u;
 		cmd.crc = 0u;
-		cmd.crc = seco_compute_msg_crc((uint32_t*)&cmd,
+		cmd.crc = plat_compute_msg_crc((uint32_t*)&cmd,
 				(uint32_t)(sizeof(cmd) - sizeof(uint32_t)));
 
-		/* Send the message to Seco. */
-		error = seco_send_msg_and_get_resp(sess_ptr->phdl,
+		/* Send the message to platform. */
+		error = plat_send_msg_and_get_resp(sess_ptr->phdl,
 			(uint32_t *)&cmd,
 			(uint32_t)sizeof(struct sab_public_key_decompression_msg),
 			(uint32_t *)&rsp,
@@ -1801,8 +1801,8 @@ hsm_err_t hsm_pub_key_decompression(hsm_hdl_t session_hdl,
 
 hsm_err_t hsm_ecies_encryption(hsm_hdl_t session_hdl, op_ecies_enc_args_t *args)
 {
-	struct sab_cmd_ecies_encrypt_msg cmd;
-	struct sab_cmd_ecies_encrypt_rsp rsp;
+	struct sab_cmd_ecies_encrypt_msg cmd = {0};
+	struct sab_cmd_ecies_encrypt_rsp rsp = {0};
 	int32_t error = 1;
 	struct hsm_session_hdl_s *sess_ptr;
 	hsm_err_t err = HSM_GENERAL_ERROR;
@@ -1814,34 +1814,34 @@ hsm_err_t hsm_ecies_encryption(hsm_hdl_t session_hdl, op_ecies_enc_args_t *args)
 			break;
 		}
 
-		/* Send the keys store open command to Seco. */
-		seco_fill_cmd_msg_hdr(&cmd.hdr,
+		/* Send the keys store open command to platform. */
+		plat_fill_cmd_msg_hdr(&cmd.hdr,
 			SAB_ECIES_ENC_REQ,
 			(uint32_t)sizeof(struct sab_cmd_ecies_encrypt_msg),
 			sess_ptr->mu_type);
 		cmd.sesssion_handle = session_hdl;
 		cmd.input_addr_ext = 0u;
-		cmd.input_addr = (uint32_t)seco_os_abs_data_buf(sess_ptr->phdl,
+		cmd.input_addr = (uint32_t)plat_os_abs_data_buf(sess_ptr->phdl,
 					args->input,
 					args->input_size,
 					DATA_BUF_IS_INPUT);
 		cmd.key_addr_ext = 0u;
-		cmd.key_addr = (uint32_t)seco_os_abs_data_buf(sess_ptr->phdl,
+		cmd.key_addr = (uint32_t)plat_os_abs_data_buf(sess_ptr->phdl,
 					args->pub_key,
 					args->pub_key_size,
 					DATA_BUF_IS_INPUT);
 		cmd.p1_addr_ext = 0u;
-		cmd.p1_addr = (uint32_t)seco_os_abs_data_buf(sess_ptr->phdl,
+		cmd.p1_addr = (uint32_t)plat_os_abs_data_buf(sess_ptr->phdl,
 					args->p1,
 					args->p1_size,
 					DATA_BUF_IS_INPUT);
 		cmd.p2_addr_ext = 0u;
-		cmd.p2_addr = (uint32_t)seco_os_abs_data_buf(sess_ptr->phdl,
+		cmd.p2_addr = (uint32_t)plat_os_abs_data_buf(sess_ptr->phdl,
 					args->p2,
 					args->p2_size,
 					DATA_BUF_IS_INPUT);
 		cmd.output_addr_ext = 0u;
-		cmd.output_addr = (uint32_t)seco_os_abs_data_buf(sess_ptr->phdl,
+		cmd.output_addr = (uint32_t)plat_os_abs_data_buf(sess_ptr->phdl,
 					args->output,
 					args->out_size,
 					0u);
@@ -1855,11 +1855,11 @@ hsm_err_t hsm_ecies_encryption(hsm_hdl_t session_hdl, op_ecies_enc_args_t *args)
 		cmd.flags = args->flags;
 		cmd.reserved = 0u;
 		cmd.crc = 0u;
-		cmd.crc = seco_compute_msg_crc((uint32_t*)&cmd,
+		cmd.crc = plat_compute_msg_crc((uint32_t*)&cmd,
 				(uint32_t)(sizeof(cmd) - sizeof(uint32_t)));
 
-		/* Send the message to Seco. */
-		error = seco_send_msg_and_get_resp(sess_ptr->phdl,
+		/* Send the message to platform. */
+		error = plat_send_msg_and_get_resp(sess_ptr->phdl,
 			(uint32_t *)&cmd,
 			(uint32_t)sizeof(struct sab_cmd_ecies_encrypt_msg),
 			(uint32_t *)&rsp,
@@ -1889,14 +1889,14 @@ hsm_err_t hsm_pub_key_recovery(hsm_hdl_t key_store_hdl, op_pub_key_recovery_args
 			break;
 		}
 
-		seco_fill_cmd_msg_hdr(&cmd.hdr,
+		plat_fill_cmd_msg_hdr(&cmd.hdr,
 			SAB_PUB_KEY_RECOVERY_REQ,
 			(uint32_t)sizeof(struct sab_cmd_pub_key_recovery_msg),
 			key_store_serv_ptr->session->mu_type);
 		cmd.key_store_handle = key_store_hdl;
 		cmd.key_identifier = args->key_identifier;
 		cmd.out_key_addr_ext = 0u;
-		cmd.out_key_addr = (uint32_t)seco_os_abs_data_buf(key_store_serv_ptr->session->phdl,
+		cmd.out_key_addr = (uint32_t)plat_os_abs_data_buf(key_store_serv_ptr->session->phdl,
 					args->out_key,
 					args->out_key_size,
 					0u);
@@ -1904,11 +1904,11 @@ hsm_err_t hsm_pub_key_recovery(hsm_hdl_t key_store_hdl, op_pub_key_recovery_args
 		cmd.key_type = args->key_type;
 		cmd.flags = args->flags;
 		cmd.crc = 0u;
-		cmd.crc = seco_compute_msg_crc((uint32_t*)&cmd,
+		cmd.crc = plat_compute_msg_crc((uint32_t*)&cmd,
 				(uint32_t)(sizeof(cmd) - sizeof(uint32_t)));
 
-		/* Send the message to Seco. */
-		error = seco_send_msg_and_get_resp(key_store_serv_ptr->session->phdl,
+		/* Send the message to platform. */
+		error = plat_send_msg_and_get_resp(key_store_serv_ptr->session->phdl,
 			(uint32_t *)&cmd,
 			(uint32_t)sizeof(struct sab_cmd_pub_key_recovery_msg),
 			(uint32_t *)&rsp,
@@ -1949,7 +1949,7 @@ hsm_err_t hsm_open_data_storage_service(hsm_hdl_t key_store_hdl,
 			break;
 		}
 
-		seco_fill_cmd_msg_hdr(&cmd.hdr,
+		plat_fill_cmd_msg_hdr(&cmd.hdr,
 			SAB_DATA_STORAGE_OPEN_REQ,
 			(uint32_t)sizeof(struct sab_cmd_data_storage_open_msg),
 			key_store_serv_ptr->session->mu_type);
@@ -1961,10 +1961,10 @@ hsm_err_t hsm_open_data_storage_service(hsm_hdl_t key_store_hdl,
 		cmd.rsv[1] = 0u;
 		cmd.rsv[2] = 0u;
 		cmd.crc = 0u;
-		cmd.crc = seco_compute_msg_crc((uint32_t*)&cmd,
+		cmd.crc = plat_compute_msg_crc((uint32_t*)&cmd,
 				(uint32_t)(sizeof(cmd) - sizeof(uint32_t)));
 
-		error = seco_send_msg_and_get_resp(data_storage_serv_ptr->session->phdl,
+		error = plat_send_msg_and_get_resp(data_storage_serv_ptr->session->phdl,
 			(uint32_t *)&cmd,
 			(uint32_t)sizeof(struct sab_cmd_data_storage_open_msg),
 			(uint32_t *)&rsp,
@@ -2002,14 +2002,14 @@ hsm_err_t hsm_close_data_storage_service(hsm_hdl_t data_storage_hdl)
 			break;
 		}
 
-		seco_fill_cmd_msg_hdr(&cmd.hdr,
+		plat_fill_cmd_msg_hdr(&cmd.hdr,
 			SAB_DATA_STORAGE_CLOSE_REQ,
 			(uint32_t)sizeof(struct sab_cmd_data_storage_close_msg),
 			serv_ptr->session->mu_type);
 		cmd.data_storage_handle = data_storage_hdl;
 
 
-		error = seco_send_msg_and_get_resp(serv_ptr->session->phdl,
+		error = plat_send_msg_and_get_resp(serv_ptr->session->phdl,
 			(uint32_t *)&cmd,
 			(uint32_t)sizeof(struct sab_cmd_data_storage_close_msg),
 			(uint32_t *)&rsp,
@@ -2045,13 +2045,13 @@ hsm_err_t hsm_data_storage(hsm_hdl_t data_storage_hdl,
 			break;
 		}
 
-		/* Send the data storage command to Seco. */
-		seco_fill_cmd_msg_hdr(&cmd.hdr,
+		/* Send the data storage command to platform. */
+		plat_fill_cmd_msg_hdr(&cmd.hdr,
 			SAB_DATA_STORAGE_REQ,
 			(uint32_t)sizeof(struct sab_cmd_data_storage_msg),
 			serv_ptr->session->mu_type);
 		cmd.data_storage_handle = data_storage_hdl;
-		cmd.data_address = (uint32_t)seco_os_abs_data_buf(serv_ptr->session->phdl,
+		cmd.data_address = (uint32_t)plat_os_abs_data_buf(serv_ptr->session->phdl,
 					args->data,
 					args->data_size,
 					(((args->flags & HSM_OP_DATA_STORAGE_FLAGS_STORE)==HSM_OP_DATA_STORAGE_FLAGS_STORE)? DATA_BUF_IS_INPUT : 0u));
@@ -2060,11 +2060,11 @@ hsm_err_t hsm_data_storage(hsm_hdl_t data_storage_hdl,
 		cmd.flags = args->flags;
 		cmd.rsv = 0u;
 		cmd.crc = 0u;
-		cmd.crc = seco_compute_msg_crc((uint32_t*)&cmd,
+		cmd.crc = plat_compute_msg_crc((uint32_t*)&cmd,
 				(uint32_t)(sizeof(cmd) - sizeof(uint32_t)));
 
-		/* Send the message to Seco. */
-		error = seco_send_msg_and_get_resp(serv_ptr->session->phdl,
+		/* Send the message to platform. */
+		error = plat_send_msg_and_get_resp(serv_ptr->session->phdl,
 			(uint32_t *)&cmd,
 			(uint32_t)sizeof(struct sab_cmd_data_storage_msg),
 			(uint32_t *)&rsp,
@@ -2100,7 +2100,7 @@ hsm_err_t hsm_auth_enc(hsm_hdl_t cipher_hdl, op_auth_enc_args_t* args)
 		}
 
 		/* Fill the authenticated encryption command */
-		seco_fill_cmd_msg_hdr(&cmd.hdr,
+		plat_fill_cmd_msg_hdr(&cmd.hdr,
 			SAB_AUTH_ENC_REQ,
 			(uint32_t)sizeof(struct sab_cmd_auth_enc_msg),
 			serv_ptr->session->mu_type);
@@ -2108,14 +2108,14 @@ hsm_err_t hsm_auth_enc(hsm_hdl_t cipher_hdl, op_auth_enc_args_t* args)
 		cmd.cipher_handle = cipher_hdl;
 		cmd.key_id = args->key_identifier;
 		if (args->iv_size != 0) {
-			cmd.iv_address = (uint32_t)seco_os_abs_data_buf(serv_ptr->session->phdl,
+			cmd.iv_address = (uint32_t)plat_os_abs_data_buf(serv_ptr->session->phdl,
 									args->iv, args->iv_size, DATA_BUF_IS_INPUT);
 		}
 		else {
 			cmd.iv_address = 0;
 		}
 		cmd.iv_size = args->iv_size;
-		cmd.aad_address = (uint32_t)seco_os_abs_data_buf(serv_ptr->session->phdl,
+		cmd.aad_address = (uint32_t)plat_os_abs_data_buf(serv_ptr->session->phdl,
 							args->aad,
 							args->aad_size,
 							DATA_BUF_IS_INPUT);
@@ -2123,22 +2123,22 @@ hsm_err_t hsm_auth_enc(hsm_hdl_t cipher_hdl, op_auth_enc_args_t* args)
 		cmd.rsv = 0;
 		cmd.ae_algo = args->ae_algo;
 		cmd.flags = args->flags;
-		cmd.input_address = (uint32_t)seco_os_abs_data_buf(serv_ptr->session->phdl,
+		cmd.input_address = (uint32_t)plat_os_abs_data_buf(serv_ptr->session->phdl,
 							args->input,
 							args->input_size,
 							DATA_BUF_IS_INPUT);
-		cmd.output_address = (uint32_t)seco_os_abs_data_buf(serv_ptr->session->phdl,
+		cmd.output_address = (uint32_t)plat_os_abs_data_buf(serv_ptr->session->phdl,
 							args->output,
 							args->output_size,
 							0u);
 		cmd.input_length = args->input_size;
 		cmd.output_length = args->output_size;
 		cmd.crc = 0u;
-		cmd.crc = seco_compute_msg_crc((uint32_t*)&cmd,
+		cmd.crc = plat_compute_msg_crc((uint32_t*)&cmd,
 				(uint32_t)(sizeof(cmd) - sizeof(uint32_t)));
 
-		/* Send the message to Seco. */
-		error = seco_send_msg_and_get_resp(serv_ptr->session->phdl,
+		/* Send the message to platform. */
+		error = plat_send_msg_and_get_resp(serv_ptr->session->phdl,
 			(uint32_t *)&cmd,
 			(uint32_t)sizeof(struct sab_cmd_auth_enc_msg),
 			(uint32_t *)&rsp,
@@ -2173,18 +2173,18 @@ hsm_err_t hsm_export_root_key_encryption_key (hsm_hdl_t session_hdl,
 			break;
 		}
 
-		/* Send the signed message to SECO if provided here. */
+		/* Send the signed message to platform if provided here. */
 		if (args->signed_message != NULL) {
-			(void)seco_os_abs_send_signed_message(sess_ptr->phdl, args->signed_message, args->signed_msg_size);
+			(void)plat_os_abs_send_signed_message(sess_ptr->phdl, args->signed_message, args->signed_msg_size);
 		}
 
-		seco_fill_cmd_msg_hdr(&cmd.hdr,
+		plat_fill_cmd_msg_hdr(&cmd.hdr,
 			SAB_ROOT_KEK_EXPORT_REQ,
 			(uint32_t)sizeof(struct sab_root_kek_export_msg),
 			sess_ptr->mu_type);
 		cmd.session_handle = session_hdl;
 		cmd.root_kek_address_ext = 0;
-		cmd.root_kek_address = (uint32_t)seco_os_abs_data_buf(sess_ptr->phdl,
+		cmd.root_kek_address = (uint32_t)plat_os_abs_data_buf(sess_ptr->phdl,
 							args->out_root_kek,
 							args->root_kek_size,
 							0u);
@@ -2192,10 +2192,10 @@ hsm_err_t hsm_export_root_key_encryption_key (hsm_hdl_t session_hdl,
 		cmd.root_kek_size = args->root_kek_size;
 		cmd.reserved = 0u;
 		cmd.crc = 0;
-		cmd.crc = seco_compute_msg_crc((uint32_t*)&cmd,
+		cmd.crc = plat_compute_msg_crc((uint32_t*)&cmd,
 				(uint32_t)(sizeof(cmd) - sizeof(uint32_t)));
 
-		error = seco_send_msg_and_get_resp(sess_ptr->phdl,
+		error = plat_send_msg_and_get_resp(sess_ptr->phdl,
 			(uint32_t *)&cmd,
 			(uint32_t)sizeof(struct sab_root_kek_export_msg),
 			(uint32_t *)&rsp,
@@ -2325,7 +2325,7 @@ hsm_err_t hsm_mac_one_go(hsm_hdl_t mac_hdl, op_mac_one_go_args_t* args, hsm_mac_
 		}
 
 		/* Build command message. */
-		seco_fill_cmd_msg_hdr(&cmd.hdr, SAB_MAC_ONE_GO_REQ, (uint32_t)sizeof(struct sab_cmd_mac_one_go_msg), serv_ptr->session->mu_type);
+		plat_fill_cmd_msg_hdr(&cmd.hdr, SAB_MAC_ONE_GO_REQ, (uint32_t)sizeof(struct sab_cmd_mac_one_go_msg), serv_ptr->session->mu_type);
 		cmd.mac_handle = mac_hdl;
 		cmd.key_id = args->key_identifier;
 		cmd.algorithm = args->algorithm;
@@ -2340,18 +2340,18 @@ hsm_err_t hsm_mac_one_go(hsm_hdl_t mac_hdl, op_mac_one_go_args_t* args, hsm_mac_
 			mac_size_bytes = args->mac_size;
 		}
 
-		cmd.payload_address = (uint32_t)seco_os_abs_data_buf(serv_ptr->session->phdl,
+		cmd.payload_address = (uint32_t)plat_os_abs_data_buf(serv_ptr->session->phdl,
 											args->payload,
 											args->payload_size,
 											DATA_BUF_IS_INPUT);
 		if ((args->flags & HSM_OP_MAC_ONE_GO_FLAGS_MAC_GENERATION) == HSM_OP_MAC_ONE_GO_FLAGS_MAC_GENERATION) {
-			cmd.mac_address = (uint32_t)seco_os_abs_data_buf(serv_ptr->session->phdl,
+			cmd.mac_address = (uint32_t)plat_os_abs_data_buf(serv_ptr->session->phdl,
 											args->mac,
 											mac_size_bytes,
 											0u);
 		}
 		else {
-			cmd.mac_address = (uint32_t)seco_os_abs_data_buf(serv_ptr->session->phdl,
+			cmd.mac_address = (uint32_t)plat_os_abs_data_buf(serv_ptr->session->phdl,
 											args->mac,
 											mac_size_bytes,
 											DATA_BUF_IS_INPUT);
@@ -2361,10 +2361,10 @@ hsm_err_t hsm_mac_one_go(hsm_hdl_t mac_hdl, op_mac_one_go_args_t* args, hsm_mac_
 		cmd.rsv[0] = 0u;
 		cmd.rsv[1] = 0u;
 		cmd.crc = 0u;
-		cmd.crc = seco_compute_msg_crc((uint32_t*)&cmd, (uint32_t)(sizeof(cmd) - sizeof(uint32_t)));
+		cmd.crc = plat_compute_msg_crc((uint32_t*)&cmd, (uint32_t)(sizeof(cmd) - sizeof(uint32_t)));
 
-		/* Send the message to Seco. */
-		error = seco_send_msg_and_get_resp(serv_ptr->session->phdl,
+		/* Send the message to platform. */
+		error = plat_send_msg_and_get_resp(serv_ptr->session->phdl,
 					(uint32_t *)&cmd, (uint32_t)sizeof(struct sab_cmd_mac_one_go_msg),
 					(uint32_t *)&rsp, (uint32_t)sizeof(struct sab_cmd_mac_one_go_rsp));
 		if (error != 0) {
@@ -2396,22 +2396,22 @@ hsm_err_t hsm_sm2_get_z(hsm_hdl_t session_hdl, op_sm2_get_z_args_t *args)
 			break;
 		}
 
-		seco_fill_cmd_msg_hdr(&cmd.hdr,
+		plat_fill_cmd_msg_hdr(&cmd.hdr,
 			SAB_SM2_GET_Z_REQ,
 			(uint32_t)sizeof(struct sab_cmd_sm2_get_z_msg),
 			sess_ptr->mu_type);
 		cmd.session_handle = session_hdl;
 		cmd.input_address_ext = 0u;
-		cmd.public_key_address = (uint32_t)seco_os_abs_data_buf(sess_ptr->phdl,
+		cmd.public_key_address = (uint32_t)plat_os_abs_data_buf(sess_ptr->phdl,
 								args->public_key,
 								args->public_key_size,
 								DATA_BUF_IS_INPUT);
-		cmd.id_address = (uint32_t)seco_os_abs_data_buf(sess_ptr->phdl,
+		cmd.id_address = (uint32_t)plat_os_abs_data_buf(sess_ptr->phdl,
 							args->identifier,
 							args->id_size,
 							DATA_BUF_IS_INPUT);
 		cmd.output_address_ext = 0U;
-	    cmd.z_value_address = (uint32_t)seco_os_abs_data_buf(sess_ptr->phdl,
+	    cmd.z_value_address = (uint32_t)plat_os_abs_data_buf(sess_ptr->phdl,
 								args->z_value,
 								args->z_size,
 								0u);
@@ -2422,10 +2422,10 @@ hsm_err_t hsm_sm2_get_z(hsm_hdl_t session_hdl, op_sm2_get_z_args_t *args)
 		cmd.flags = args->flags;
 		cmd.reserved = 0u;
 		cmd.crc = 0u;
-		cmd.crc = seco_compute_msg_crc((uint32_t*)&cmd,
+		cmd.crc = plat_compute_msg_crc((uint32_t*)&cmd,
 				(uint32_t)(sizeof(cmd) - sizeof(uint32_t)));
 
-		error = seco_send_msg_and_get_resp(sess_ptr->phdl,
+		error = plat_send_msg_and_get_resp(sess_ptr->phdl,
 			(uint32_t *)&cmd,
 			(uint32_t)sizeof(struct sab_cmd_sm2_get_z_msg),
 			(uint32_t *)&rsp,
@@ -2455,25 +2455,25 @@ hsm_err_t hsm_sm2_eces_encryption(hsm_hdl_t session_hdl, op_sm2_eces_enc_args_t 
 			break;
 		}
 
-		seco_fill_cmd_msg_hdr(&cmd.hdr,
+		plat_fill_cmd_msg_hdr(&cmd.hdr,
 			SAB_SM2_ECES_ENC_REQ,
 			(uint32_t)sizeof(struct sab_cmd_sm2_eces_enc_msg),
 			sess_ptr->mu_type);
 
 		cmd.session_handle = session_hdl;
 		cmd.input_addr_ext = 0u;
-		cmd.input_addr = (uint32_t)seco_os_abs_data_buf(sess_ptr->phdl,
+		cmd.input_addr = (uint32_t)plat_os_abs_data_buf(sess_ptr->phdl,
 								args->input,
 								args->input_size,
 								DATA_BUF_IS_INPUT);
 		cmd.key_addr_ext = 0U;
-		cmd.key_addr = (uint32_t)seco_os_abs_data_buf(sess_ptr->phdl,
+		cmd.key_addr = (uint32_t)plat_os_abs_data_buf(sess_ptr->phdl,
 							args->pub_key,
 							args->pub_key_size,
 							DATA_BUF_IS_INPUT);
 
 		cmd.output_addr_ext = 0U;
-	    cmd.output_addr = (uint32_t)seco_os_abs_data_buf(sess_ptr->phdl,
+	    cmd.output_addr = (uint32_t)plat_os_abs_data_buf(sess_ptr->phdl,
 								args->output,
 								args->output_size,
 								0u);
@@ -2484,10 +2484,10 @@ hsm_err_t hsm_sm2_eces_encryption(hsm_hdl_t session_hdl, op_sm2_eces_enc_args_t 
 		cmd.key_type = args->key_type;;
 		cmd.flags = args->flags;
 		cmd.crc = 0u;
-		cmd.crc = seco_compute_msg_crc((uint32_t*)&cmd,
+		cmd.crc = plat_compute_msg_crc((uint32_t*)&cmd,
 				(uint32_t)(sizeof(cmd) - sizeof(uint32_t)));
 
-		error = seco_send_msg_and_get_resp(sess_ptr->phdl,
+		error = plat_send_msg_and_get_resp(sess_ptr->phdl,
 			(uint32_t *)&cmd,
 			(uint32_t)sizeof(struct sab_cmd_sm2_eces_enc_msg),
 			(uint32_t *)&rsp,
@@ -2580,7 +2580,7 @@ hsm_err_t hsm_sm2_eces_decryption(hsm_hdl_t sm2_eces_hdl, op_sm2_eces_dec_args_t
 			break;
 		}
 
-		seco_fill_cmd_msg_hdr(&cmd.hdr,
+		plat_fill_cmd_msg_hdr(&cmd.hdr,
 			SAB_SM2_ECES_DEC_REQ,
 			(uint32_t)sizeof(struct sab_cmd_sm2_eces_dec_msg),
 			serv_ptr->session->mu_type);
@@ -2588,12 +2588,12 @@ hsm_err_t hsm_sm2_eces_decryption(hsm_hdl_t sm2_eces_hdl, op_sm2_eces_dec_args_t
 		cmd.key_id = args->key_identifier;
 
 
-		cmd.input_address = (uint32_t)seco_os_abs_data_buf(serv_ptr->session->phdl,
+		cmd.input_address = (uint32_t)plat_os_abs_data_buf(serv_ptr->session->phdl,
 								args->input,
 								args->input_size,
 								DATA_BUF_IS_INPUT);
 
-	    cmd.output_address = (uint32_t)seco_os_abs_data_buf(serv_ptr->session->phdl,
+	    cmd.output_address = (uint32_t)plat_os_abs_data_buf(serv_ptr->session->phdl,
 								args->output,
 								args->output_size,
 								0u);
@@ -2603,10 +2603,10 @@ hsm_err_t hsm_sm2_eces_decryption(hsm_hdl_t sm2_eces_hdl, op_sm2_eces_dec_args_t
 		cmd.flags = args->flags;
 		cmd.rsv =0;
 		cmd.crc = 0u;
-		cmd.crc = seco_compute_msg_crc((uint32_t*)&cmd,
+		cmd.crc = plat_compute_msg_crc((uint32_t*)&cmd,
 				(uint32_t)(sizeof(cmd) - sizeof(uint32_t)));
 
-		error = seco_send_msg_and_get_resp(serv_ptr->session->phdl,
+		error = plat_send_msg_and_get_resp(serv_ptr->session->phdl,
 			(uint32_t *)&cmd,
 			(uint32_t)sizeof(struct sab_cmd_sm2_eces_dec_msg),
 			(uint32_t *)&rsp,
@@ -2639,36 +2639,36 @@ hsm_err_t hsm_key_exchange(hsm_hdl_t key_management_hdl, op_key_exchange_args_t 
 			break;
 		}
 
-		/* Send the signed message to SECO if provided here. */
+		/* Send the signed message to platform if provided here. */
 		if (args->signed_message != NULL) {
-			(void)seco_os_abs_send_signed_message(serv_ptr->session->phdl, args->signed_message, args->signed_msg_size);
+			(void)plat_os_abs_send_signed_message(serv_ptr->session->phdl, args->signed_message, args->signed_msg_size);
 		}
 
-		/* Prepare the seco commmand */
-		seco_fill_cmd_msg_hdr(&cmd.hdr,
+		/* Prepare the plat commmand */
+		plat_fill_cmd_msg_hdr(&cmd.hdr,
 			SAB_KEY_EXCHANGE_REQ,
 			(uint32_t)sizeof(struct sab_cmd_key_exchange_msg),
 			serv_ptr->session->mu_type);
 
 		cmd.key_management_handle = key_management_hdl;
 		cmd.key_identifier = args->key_identifier;
-		cmd.shared_key_identifier_array = (uint32_t)seco_os_abs_data_buf(serv_ptr->session->phdl,
+		cmd.shared_key_identifier_array = (uint32_t)plat_os_abs_data_buf(serv_ptr->session->phdl,
 				args->shared_key_identifier_array,
 				args->shared_key_identifier_array_size,
 				(((args->flags & HSM_OP_KEY_EXCHANGE_FLAGS_UPDATE)==HSM_OP_KEY_EXCHANGE_FLAGS_UPDATE)? DATA_BUF_IS_INPUT : 0u));
-		cmd.ke_input_addr = (uint32_t)seco_os_abs_data_buf(serv_ptr->session->phdl,
+		cmd.ke_input_addr = (uint32_t)plat_os_abs_data_buf(serv_ptr->session->phdl,
 				args->ke_input,
 				args->ke_input_size,
 				DATA_BUF_IS_INPUT);
-		cmd.ke_output_addr = (uint32_t)seco_os_abs_data_buf(serv_ptr->session->phdl,
+		cmd.ke_output_addr = (uint32_t)plat_os_abs_data_buf(serv_ptr->session->phdl,
 				args->ke_output,
 				args->ke_output_size,
 				0u);
-		cmd.kdf_input_data = (uint32_t)seco_os_abs_data_buf(serv_ptr->session->phdl,
+		cmd.kdf_input_data = (uint32_t)plat_os_abs_data_buf(serv_ptr->session->phdl,
 				args->kdf_input,
 				args->kdf_input_size,
 				DATA_BUF_IS_INPUT);
-		cmd.kdf_output_data = (uint32_t)seco_os_abs_data_buf(serv_ptr->session->phdl,
+		cmd.kdf_output_data = (uint32_t)plat_os_abs_data_buf(serv_ptr->session->phdl,
 				args->kdf_output,
 				args->kdf_output_size,
 				0u);
@@ -2685,11 +2685,11 @@ hsm_err_t hsm_key_exchange(hsm_hdl_t key_management_hdl, op_key_exchange_args_t 
 		cmd.kdf_output_size = args->kdf_output_size;
 		cmd.flags = args->flags;
 		cmd.crc = 0u;
-		cmd.crc = seco_compute_msg_crc((uint32_t*)&cmd,
+		cmd.crc = plat_compute_msg_crc((uint32_t*)&cmd,
 				(uint32_t)(sizeof(cmd) - sizeof(uint32_t)));
 
-		/* Send the message to Seco. */
-		error = seco_send_msg_and_get_resp(serv_ptr->session->phdl,
+		/* Send the message to platform. */
+		error = plat_send_msg_and_get_resp(serv_ptr->session->phdl,
 			(uint32_t *)&cmd,
 			(uint32_t)sizeof(struct sab_cmd_key_exchange_msg),
 			(uint32_t *)&rsp,
@@ -2723,19 +2723,19 @@ hsm_err_t hsm_tls_finish(hsm_hdl_t key_management_hdl, op_tls_finish_args_t *arg
 			break;
 		}
 
-		/* Prepare the seco commmand */
-		seco_fill_cmd_msg_hdr(&cmd.hdr,
+		/* Prepare the plat commmand */
+		plat_fill_cmd_msg_hdr(&cmd.hdr,
 			SAB_TLS_FINISH_REQ,
 			(uint32_t)sizeof(struct sab_cmd_tls_finish_msg),
 			serv_ptr->session->mu_type);
 
 		cmd.key_management_handle = key_management_hdl;
 		cmd.key_identifier = args->key_identifier;
-		cmd.handshake_hash_input_addr = (uint32_t)seco_os_abs_data_buf(serv_ptr->session->phdl,
+		cmd.handshake_hash_input_addr = (uint32_t)plat_os_abs_data_buf(serv_ptr->session->phdl,
 				args->handshake_hash_input,
 				args->handshake_hash_input_size,
 				DATA_BUF_IS_INPUT);
-		cmd.verify_data_output_addr = (uint32_t)seco_os_abs_data_buf(serv_ptr->session->phdl,
+		cmd.verify_data_output_addr = (uint32_t)plat_os_abs_data_buf(serv_ptr->session->phdl,
 				args->verify_data_output,
 				args->verify_data_output_size,
 				0u);
@@ -2745,11 +2745,11 @@ hsm_err_t hsm_tls_finish(hsm_hdl_t key_management_hdl, op_tls_finish_args_t *arg
 		cmd.hash_algorithm = args->hash_algorithm;
 		cmd.reserved = 0;
 		cmd.crc = 0u;
-		cmd.crc = seco_compute_msg_crc((uint32_t*)&cmd,
+		cmd.crc = plat_compute_msg_crc((uint32_t*)&cmd,
 				(uint32_t)(sizeof(cmd) - sizeof(uint32_t)));
 
-		/* Send the message to Seco. */
-		error = seco_send_msg_and_get_resp(serv_ptr->session->phdl,
+		/* Send the message to platform. */
+		error = plat_send_msg_and_get_resp(serv_ptr->session->phdl,
 			(uint32_t *)&cmd,
 			(uint32_t)sizeof(struct sab_cmd_tls_finish_msg),
 			(uint32_t *)&rsp,
@@ -2784,23 +2784,23 @@ hsm_err_t hsm_standalone_butterfly_key_expansion(hsm_hdl_t key_management_hdl,
 			break;
 		}
 
-		/* Send the keys store open command to Seco. */
-		seco_fill_cmd_msg_hdr(&cmd.hdr,
+		/* Send the keys store open command to platform. */
+		plat_fill_cmd_msg_hdr(&cmd.hdr,
 			SAB_ST_BUT_KEY_EXP_REQ,
 			(uint32_t)sizeof(struct sab_cmd_st_butterfly_key_exp_msg),
 			serv_ptr->session->mu_type);
 		cmd.key_management_handle = key_management_hdl;
 		cmd.key_identifier = args->key_identifier;
 		cmd.exp_fct_key_identifier = args->expansion_fct_key_identifier;
-		cmd.exp_fct_input_address = (uint32_t)seco_os_abs_data_buf(serv_ptr->session->phdl,
+		cmd.exp_fct_input_address = (uint32_t)plat_os_abs_data_buf(serv_ptr->session->phdl,
 				args->expansion_fct_input,
 				args->expansion_fct_input_size,
 				DATA_BUF_IS_INPUT);
-		cmd.hash_value_address = (uint32_t)seco_os_abs_data_buf(serv_ptr->session->phdl,
+		cmd.hash_value_address = (uint32_t)plat_os_abs_data_buf(serv_ptr->session->phdl,
 				args->hash_value,
 				args->hash_value_size,
 				DATA_BUF_IS_INPUT);
-		cmd.pr_reconst_value_address = (uint32_t)seco_os_abs_data_buf(serv_ptr->session->phdl,
+		cmd.pr_reconst_value_address = (uint32_t)plat_os_abs_data_buf(serv_ptr->session->phdl,
 				args->pr_reconstruction_value,
 				args->pr_reconstruction_value_size,
 				DATA_BUF_IS_INPUT);
@@ -2809,7 +2809,7 @@ hsm_err_t hsm_standalone_butterfly_key_expansion(hsm_hdl_t key_management_hdl,
 		cmd.pr_reconst_value_size = args->pr_reconstruction_value_size;
 		cmd.flags = args->flags;
 		cmd.dest_key_identifier = *(args->dest_key_identifier);
-		cmd.output_address = (uint32_t)seco_os_abs_data_buf(serv_ptr->session->phdl,
+		cmd.output_address = (uint32_t)plat_os_abs_data_buf(serv_ptr->session->phdl,
 				args->output,
 				args->output_size,
 				0u);
@@ -2819,11 +2819,11 @@ hsm_err_t hsm_standalone_butterfly_key_expansion(hsm_hdl_t key_management_hdl,
 		cmd.key_group = args->key_group;
 		cmd.key_info = args->key_info;
 		cmd.crc = 0u;
-		cmd.crc = seco_compute_msg_crc((uint32_t*)&cmd,
+		cmd.crc = plat_compute_msg_crc((uint32_t*)&cmd,
 				(uint32_t)(sizeof(cmd) - sizeof(uint32_t)));
 
-		/* Send the message to Seco. */
-		error = seco_send_msg_and_get_resp(serv_ptr->session->phdl,
+		/* Send the message to platform. */
+		error = plat_send_msg_and_get_resp(serv_ptr->session->phdl,
 			(uint32_t *)&cmd,
 			(uint32_t)sizeof(struct sab_cmd_st_butterfly_key_exp_msg),
 			(uint32_t *)&rsp,
@@ -2871,7 +2871,7 @@ hsm_err_t hsm_open_key_generic_crypto_service(hsm_hdl_t session_hdl,
 			break;
 		}
 
-		seco_fill_cmd_msg_hdr(&cmd.header,
+		plat_fill_cmd_msg_hdr(&cmd.header,
 			SAB_KEY_GENERIC_CRYPTO_SRV_OPEN_REQ,
 			(uint32_t)sizeof(struct sab_key_generic_crypto_srv_open_msg),
 			serv_ptr->session->mu_type);
@@ -2883,10 +2883,10 @@ hsm_err_t hsm_open_key_generic_crypto_service(hsm_hdl_t session_hdl,
 		cmd.rsv[1] = 0u;
 		cmd.rsv[2] = 0u;
 		cmd.crc = 0u;
-		cmd.crc = seco_compute_msg_crc((uint32_t*)&cmd,
+		cmd.crc = plat_compute_msg_crc((uint32_t*)&cmd,
 				(uint32_t)(sizeof(cmd) - sizeof(uint32_t)));
 
-		error = seco_send_msg_and_get_resp(sess_ptr->phdl,
+		error = plat_send_msg_and_get_resp(sess_ptr->phdl,
 			(uint32_t *)&cmd,
 			(uint32_t)sizeof(struct sab_key_generic_crypto_srv_open_msg),
 			(uint32_t *)&rsp,
@@ -2923,14 +2923,14 @@ hsm_err_t hsm_close_key_generic_crypto_service(hsm_hdl_t key_generic_crypto_hdl)
 			break;
 		}
 
-		seco_fill_cmd_msg_hdr(&cmd.header,
+		plat_fill_cmd_msg_hdr(&cmd.header,
 			SAB_KEY_GENERIC_CRYPTO_SRV_CLOSE_REQ,
 			(uint32_t)sizeof(struct sab_key_generic_crypto_srv_close_msg),
 			serv_ptr->session->mu_type);
 		cmd.key_generic_crypto_srv_handle = key_generic_crypto_hdl;
 
 
-		error = seco_send_msg_and_get_resp(serv_ptr->session->phdl,
+		error = plat_send_msg_and_get_resp(serv_ptr->session->phdl,
 			(uint32_t *)&cmd,
 			(uint32_t)sizeof(struct sab_key_generic_crypto_srv_close_msg),
 			(uint32_t *)&rsp,
@@ -2964,24 +2964,24 @@ hsm_err_t hsm_key_generic_crypto(hsm_hdl_t key_generic_crypto_hdl, op_key_generi
 		}
 
 		/* Fill the authenticated encryption command */
-		seco_fill_cmd_msg_hdr(&cmd.header,
+		plat_fill_cmd_msg_hdr(&cmd.header,
 			SAB_KEY_GENERIC_CRYPTO_SRV_REQ,
 			(uint32_t)sizeof(struct sab_key_generic_crypto_srv_msg),
 			serv_ptr->session->mu_type);
 
 		cmd.key_generic_crypto_srv_handle = key_generic_crypto_hdl;
 		cmd.key_size = args->key_size;
-		cmd.key_address = (uint32_t)seco_os_abs_data_buf(serv_ptr->session->phdl,
+		cmd.key_address = (uint32_t)plat_os_abs_data_buf(serv_ptr->session->phdl,
 									args->key, args->key_size, DATA_BUF_IS_INPUT);
 		if (args->iv_size != 0) {
-			cmd.iv_address = (uint32_t)seco_os_abs_data_buf(serv_ptr->session->phdl,
+			cmd.iv_address = (uint32_t)plat_os_abs_data_buf(serv_ptr->session->phdl,
 									args->iv, args->iv_size, DATA_BUF_IS_INPUT);
 		}
 		else {
 			cmd.iv_address = 0;
 		}
 		cmd.iv_size = args->iv_size;
-		cmd.aad_address = (uint32_t)seco_os_abs_data_buf(serv_ptr->session->phdl,
+		cmd.aad_address = (uint32_t)plat_os_abs_data_buf(serv_ptr->session->phdl,
 							args->aad,
 							args->aad_size,
 							DATA_BUF_IS_INPUT);
@@ -2990,11 +2990,11 @@ hsm_err_t hsm_key_generic_crypto(hsm_hdl_t key_generic_crypto_hdl, op_key_generi
 		cmd.crypto_algo = args->crypto_algo;
 		cmd.flags = args->flags;
 		cmd.tag_size = args->tag_size;
-		cmd.input_address = (uint32_t)seco_os_abs_data_buf(serv_ptr->session->phdl,
+		cmd.input_address = (uint32_t)plat_os_abs_data_buf(serv_ptr->session->phdl,
 							args->input,
 							args->input_size,
 							DATA_BUF_IS_INPUT);
-		cmd.output_address = (uint32_t)seco_os_abs_data_buf(serv_ptr->session->phdl,
+		cmd.output_address = (uint32_t)plat_os_abs_data_buf(serv_ptr->session->phdl,
 							args->output,
 							args->output_size,
 							0u);
@@ -3002,11 +3002,11 @@ hsm_err_t hsm_key_generic_crypto(hsm_hdl_t key_generic_crypto_hdl, op_key_generi
 		cmd.output_length = args->output_size;
 		cmd.rsv = args->reserved;
 		cmd.crc = 0u;
-		cmd.crc = seco_compute_msg_crc((uint32_t*)&cmd,
+		cmd.crc = plat_compute_msg_crc((uint32_t*)&cmd,
 				(uint32_t)(sizeof(cmd) - sizeof(uint32_t)));
 
-		/* Send the message to Seco. */
-		error = seco_send_msg_and_get_resp(serv_ptr->session->phdl,
+		/* Send the message to platform. */
+		error = plat_send_msg_and_get_resp(serv_ptr->session->phdl,
 			(uint32_t *)&cmd,
 			(uint32_t)sizeof(struct sab_key_generic_crypto_srv_msg),
 			(uint32_t *)&rsp,

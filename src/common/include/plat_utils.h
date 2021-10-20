@@ -12,18 +12,18 @@
  */
 
 
-#ifndef SECO_UTILS_H
-#define SECO_UTILS_H
+#ifndef PLAT_UTILS_H
+#define PLAT_UTILS_H
 
-#include "seco_sab_msg_def.h"
-#include "seco_os_abs.h"
+#include "sab_msg_def.h"
+#include "plat_os_abs.h"
 
-void seco_fill_cmd_msg_hdr(struct sab_mu_hdr *hdr, uint8_t cmd, uint32_t len, uint32_t mu_type);
+void plat_fill_cmd_msg_hdr(struct sab_mu_hdr *hdr, uint8_t cmd, uint32_t len, uint32_t mu_type);
 
-void seco_fill_rsp_msg_hdr(struct sab_mu_hdr *hdr, uint8_t cmd, uint32_t len, uint32_t mu_type);
+void plat_fill_rsp_msg_hdr(struct sab_mu_hdr *hdr, uint8_t cmd, uint32_t len, uint32_t mu_type);
 
-int32_t seco_send_msg_and_get_resp(struct seco_os_abs_hdl *phdl, uint32_t *cmd, uint32_t cmd_len, uint32_t *rsp, uint32_t rsp_len);
+int32_t plat_send_msg_and_get_resp(struct plat_os_abs_hdl *phdl, uint32_t *cmd, uint32_t cmd_len, uint32_t *rsp, uint32_t rsp_len);
 
-uint32_t seco_compute_msg_crc(uint32_t *msg, uint32_t msg_len);
+uint32_t plat_compute_msg_crc(uint32_t *msg, uint32_t msg_len);
 
 #endif

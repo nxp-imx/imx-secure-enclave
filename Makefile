@@ -28,10 +28,10 @@ PLAT_COMMON_PATH := src/common
 INCLUDE_PATHS := -I${PLAT_PATH}/include -I${PLAT_COMMON_PATH}/include -Iinclude -Iinclude/hsm
 
 OBJECTS	:= \
-	$(PLAT_COMMON_PATH)/$(PLAT)_sab_messaging.o \
+	$(PLAT_COMMON_PATH)/sab_messaging.o \
 	$(PLAT_COMMON_PATH)/she_lib.o \
 	$(PLAT_COMMON_PATH)/hsm_lib.o \
-	$(PLAT_COMMON_PATH)/$(PLAT)_nvm_manager.o
+	$(PLAT_COMMON_PATH)/nvm_manager.o
 
 include $(PLAT_PATH)/$(PLAT).mk
 
@@ -50,19 +50,19 @@ $(SHE_LIB): \
 	$(PLAT_PATH)/$(PLAT)_utils.o \
 	$(PLAT_PATH)/$(PLAT)_os_abs_linux.o \
 	$(PLAT_COMMON_PATH)/she_lib.o \
-	$(PLAT_COMMON_PATH)/$(PLAT)_sab_messaging.o
+	$(PLAT_COMMON_PATH)/sab_messaging.o
 	$(AR) rcs $@ $^
 
 # HSM lib
 $(HSM_LIB): \
 	$(PLAT_COMMON_PATH)/hsm_lib.o \
 	$(PLAT_PATH)/$(PLAT)_utils.o \
-	$(PLAT_COMMON_PATH)/$(PLAT)_sab_messaging.o \
+	$(PLAT_COMMON_PATH)/sab_messaging.o \
 	$(PLAT_PATH)/$(PLAT)_os_abs_linux.o
 	$(AR) rcs $@ $^
 
 # NVM manager lib
-$(NVM_LIB): $(PLAT_COMMON_PATH)/$(PLAT)_nvm_manager.o
+$(NVM_LIB): $(PLAT_COMMON_PATH)/nvm_manager.o
 	$(AR) rcs $@ $^
 
 #SHE test components
@@ -86,7 +86,7 @@ $(V2X_TEST): $(V2X_TEST_OBJ) $(HSM_LIB) $(NVM_LIB)
 clean:
 	rm -rf $(OBJECTS) *.gcno *.a *_test $(TEST_OBJ) $(DESTDIR)
 
-she_doc: include/she_api.h include/$(PLAT)_nvm.h
+she_doc: include/she_api.h include/nvm.h
 	rm -rf doc/latex/
 	doxygen doc/she/Doxyfile
 	make -C ./doc/latex pdf

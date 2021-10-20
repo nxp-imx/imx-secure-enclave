@@ -11,14 +11,15 @@
  * activate or otherwise use the software.
  */
 
-#include "seco_os_abs.h"
-#include "seco_sab_msg_def.h"
-#include "seco_sab_messaging.h"
-#include "seco_utils.h"
+#include "sab_msg_def.h"
+#include "sab_messaging.h"
 #include "she_api.h"
 
+#include "plat_os_abs.h"
+#include "plat_utils.h"
+
 struct she_hdl_s {
-    struct seco_os_abs_hdl *phdl;
+    struct plat_os_abs_hdl *phdl;
     uint32_t session_handle;
     uint32_t key_store_handle;
     uint32_t cipher_handle;
@@ -30,8 +31,8 @@ struct she_hdl_s {
 };
 
 
-/* Convert errors codes reported by Seco to SHE error codes. */
-static she_err_t she_seco_ind_to_she_err_t (uint32_t rsp_code)
+/* Convert errors codes reported by PLATFORM to SHE error codes. */
+static she_err_t she_plat_ind_to_she_err_t (uint32_t rsp_code)
 {
     she_err_t err = ERC_GENERAL_ERROR;
     if (GET_STATUS_CODE(rsp_code) == SAB_SUCCESS_STATUS) {
@@ -78,7 +79,7 @@ static she_err_t she_seco_ind_to_she_err_t (uint32_t rsp_code)
         case SAB_FATAL_FAILURE_RATING :
             err = ERC_FATAL_FAILURE;
             break;
-        /* All other SECO error codes. */
+        /* All other Secure-Enclave Platform's error codes. */
         default:
             err = ERC_GENERAL_ERROR;
             break;
@@ -100,13 +101,13 @@ static she_err_t she_open_utils(struct she_hdl_s *hdl)
         if (hdl->utils_handle != 0u) {
             break;
         }
-        /* Send the keys store open command to Seco. */
-        seco_fill_cmd_msg_hdr(&cmd.hdr, SAB_SHE_UTILS_OPEN, (uint32_t)sizeof(struct sab_cmd_she_utils_open_msg), hdl->mu_type);
+        /* Send the keys store open command to Secure-Enclave Platform. */
+        plat_fill_cmd_msg_hdr(&cmd.hdr, SAB_SHE_UTILS_OPEN, (uint32_t)sizeof(struct sab_cmd_she_utils_open_msg), hdl->mu_type);
         cmd.input_address_ext = 0;
         cmd.output_address_ext = 0;
         cmd.key_store_handle = hdl->key_store_handle;
 
-        error = seco_send_msg_and_get_resp(hdl->phdl,
+        error = plat_send_msg_and_get_resp(hdl->phdl,
                     (uint32_t *)&cmd, (uint32_t)sizeof(struct sab_cmd_she_utils_open_msg),
                     (uint32_t *)&rsp, (uint32_t)sizeof(struct sab_cmd_she_utils_open_rsp));
 
@@ -116,7 +117,7 @@ static she_err_t she_open_utils(struct she_hdl_s *hdl)
 
         hdl->last_rating = rsp.rsp_code;
         if (GET_STATUS_CODE(rsp.rsp_code) != SAB_SUCCESS_STATUS) {
-            ret = she_seco_ind_to_she_err_t(rsp.rsp_code);
+            ret = she_plat_ind_to_she_err_t(rsp.rsp_code);
             break;
         }
 
@@ -137,10 +138,10 @@ static she_err_t she_close_utils(struct she_hdl_s *hdl)
         if (hdl->utils_handle == 0u){
             break;
         }
-        /* Send the keys store open command to Seco. */
-        seco_fill_cmd_msg_hdr(&cmd.hdr, SAB_SHE_UTILS_CLOSE, (uint32_t)sizeof(struct sab_cmd_she_utils_close_msg), hdl->mu_type);
+        /* Send the keys store open command to Secure-Enclave Platform. */
+        plat_fill_cmd_msg_hdr(&cmd.hdr, SAB_SHE_UTILS_CLOSE, (uint32_t)sizeof(struct sab_cmd_she_utils_close_msg), hdl->mu_type);
         cmd.utils_handle = hdl->utils_handle;
-        error = seco_send_msg_and_get_resp(hdl->phdl,
+        error = plat_send_msg_and_get_resp(hdl->phdl,
                     (uint32_t *)&cmd, (uint32_t)sizeof(struct sab_cmd_she_utils_close_msg),
                     (uint32_t *)&rsp, (uint32_t)sizeof(struct sab_cmd_she_utils_close_rsp));
 
@@ -150,7 +151,7 @@ static she_err_t she_close_utils(struct she_hdl_s *hdl)
 
         hdl->last_rating = rsp.rsp_code;
         if (GET_STATUS_CODE(rsp.rsp_code) != SAB_SUCCESS_STATUS) {
-            ret = she_seco_ind_to_she_err_t(rsp.rsp_code);
+            ret = she_plat_ind_to_she_err_t(rsp.rsp_code);
             break;
         }
 
@@ -181,10 +182,10 @@ void she_close_session(struct she_hdl_s *hdl)
                 (void)sab_close_session_command (hdl->phdl, hdl->session_handle, hdl->mu_type);
                 hdl -> session_handle = 0u;
             }
-            seco_os_abs_close_session(hdl->phdl);
+            plat_os_abs_close_session(hdl->phdl);
             hdl->phdl = NULL;
         }
-        seco_os_abs_free(hdl);
+        plat_os_abs_free(hdl);
     }
 }
 
@@ -194,29 +195,29 @@ static uint32_t she_storage_create_generic(uint32_t key_storage_identifier, uint
     struct she_hdl_s *hdl = NULL;
     uint32_t ret = SHE_STORAGE_CREATE_FAIL;
     uint32_t err;
-    struct seco_mu_params mu_params;
+    struct plat_mu_params mu_params;
     uint8_t flags = KEY_STORE_OPEN_FLAGS_CREATE | KEY_STORE_OPEN_FLAGS_SHE;
     do {
         /* allocate the handle (free when closing the session). */
-        hdl = (struct she_hdl_s *)seco_os_abs_malloc((uint32_t)sizeof(struct she_hdl_s));
+        hdl = (struct she_hdl_s *)plat_os_abs_malloc((uint32_t)sizeof(struct she_hdl_s));
         if (hdl == NULL) {
             break;
         }
-        seco_os_abs_memset((uint8_t *)hdl, 0u, (uint32_t)sizeof(struct she_hdl_s));
+        plat_os_abs_memset((uint8_t *)hdl, 0u, (uint32_t)sizeof(struct she_hdl_s));
 
         /* Open the SHE session on the SHE kernel driver */
-        hdl->mu_type = MU_CHANNEL_SECO_SHE;
-        hdl->phdl = seco_os_abs_open_mu_channel(hdl->mu_type, &mu_params);
+        hdl->mu_type = MU_CHANNEL_PLAT_SHE;
+        hdl->phdl = plat_os_abs_open_mu_channel(hdl->mu_type, &mu_params);
         if (hdl->phdl == NULL) {
             break;
         }
 
-        /* Send the signed message to SECO if provided here. */
+        /* Send the signed message to platform if provided here. */
         if (signed_message != NULL) {
-            (void)seco_os_abs_send_signed_message(hdl->phdl, signed_message, msg_len);
+            (void)plat_os_abs_send_signed_message(hdl->phdl, signed_message, msg_len);
         }
 
-        /* Open the SHE session on SECO side */
+        /* Open the SHE session on platform side */
         err = sab_open_session_command(hdl->phdl,
                                        &hdl->session_handle,
                                        hdl->mu_type,
@@ -246,7 +247,7 @@ static uint32_t she_storage_create_generic(uint32_t key_storage_identifier, uint
                                          flags,
                                          min_mac_length);
 
-        /* Interpret Seco status code*/
+        /* Interpret Secure-Enclave Platform status code*/
         if (GET_STATUS_CODE(err) == SAB_SUCCESS_STATUS) {
             if (GET_RATING_CODE(err) == SAB_INVALID_LIFECYCLE_RATING) {
                 ret = SHE_STORAGE_CREATE_WARNING;
@@ -285,7 +286,7 @@ struct she_hdl_s *she_open_session(uint32_t key_storage_identifier, uint32_t aut
 {
     struct she_hdl_s *hdl = NULL;
     uint32_t err = SAB_FAILURE_STATUS;
-    struct seco_mu_params mu_params;
+    struct plat_mu_params mu_params;
 
     do {
         if((async_cb != NULL) || (priv != NULL)) {
@@ -293,20 +294,20 @@ struct she_hdl_s *she_open_session(uint32_t key_storage_identifier, uint32_t aut
             break;
         }
         /* allocate the handle (free when closing the session). */
-        hdl = (struct she_hdl_s *)seco_os_abs_malloc((uint32_t)sizeof(struct she_hdl_s));
+        hdl = (struct she_hdl_s *)plat_os_abs_malloc((uint32_t)sizeof(struct she_hdl_s));
         if (hdl == NULL) {
             break;
         }
-        seco_os_abs_memset((uint8_t *)hdl, 0u, (uint32_t)sizeof(struct she_hdl_s));
+        plat_os_abs_memset((uint8_t *)hdl, 0u, (uint32_t)sizeof(struct she_hdl_s));
 
         /* Open the SHE session on the MU */
-        hdl->mu_type = MU_CHANNEL_SECO_SHE;
-        hdl->phdl = seco_os_abs_open_mu_channel(hdl->mu_type, &mu_params);
+        hdl->mu_type = MU_CHANNEL_PLAT_SHE;
+        hdl->phdl = plat_os_abs_open_mu_channel(hdl->mu_type, &mu_params);
         if (hdl->phdl == NULL) {
             break;
         }
 
-        /* Open the SHE session on SECO side */
+        /* Open the SHE session on Secure-Enclave Platform's side */
         err = sab_open_session_command(hdl->phdl,
                                        &hdl->session_handle,
                                        hdl->mu_type,
@@ -379,22 +380,22 @@ she_err_t she_cmd_generate_mac(struct she_hdl_s *hdl, uint8_t key_ext, uint8_t k
             break;
         }
         /* Build command message. */
-        seco_fill_cmd_msg_hdr(&cmd.hdr, SAB_FAST_MAC_REQ, (uint32_t)sizeof(struct sab_she_fast_mac_msg), hdl->mu_type);
+        plat_fill_cmd_msg_hdr(&cmd.hdr, SAB_FAST_MAC_REQ, (uint32_t)sizeof(struct sab_she_fast_mac_msg), hdl->mu_type);
         cmd.she_utils_handle = hdl->utils_handle;
         cmd.key_id = (uint16_t)key_ext | (uint16_t)key_id;
         cmd.data_length = message_length;
         /* the MAC data is stored right after the input data */
         if (message_length == 0u) {
-            cmd.data_offset = (uint16_t)(seco_os_abs_data_buf(hdl->phdl, mac, SHE_MAC_SIZE, DATA_BUF_USE_SEC_MEM | DATA_BUF_SHORT_ADDR) & SEC_MEM_SHORT_ADDR_MASK);
+            cmd.data_offset = (uint16_t)(plat_os_abs_data_buf(hdl->phdl, mac, SHE_MAC_SIZE, DATA_BUF_USE_SEC_MEM | DATA_BUF_SHORT_ADDR) & SEC_MEM_SHORT_ADDR_MASK);
         } else {
-            cmd.data_offset = (uint16_t)(seco_os_abs_data_buf(hdl->phdl, message, message_length, DATA_BUF_IS_INPUT | DATA_BUF_USE_SEC_MEM | DATA_BUF_SHORT_ADDR) & SEC_MEM_SHORT_ADDR_MASK);
-            (void)(seco_os_abs_data_buf(hdl->phdl, mac, SHE_MAC_SIZE, DATA_BUF_USE_SEC_MEM | DATA_BUF_SHORT_ADDR) & SEC_MEM_SHORT_ADDR_MASK);
+            cmd.data_offset = (uint16_t)(plat_os_abs_data_buf(hdl->phdl, message, message_length, DATA_BUF_IS_INPUT | DATA_BUF_USE_SEC_MEM | DATA_BUF_SHORT_ADDR) & SEC_MEM_SHORT_ADDR_MASK);
+            (void)(plat_os_abs_data_buf(hdl->phdl, mac, SHE_MAC_SIZE, DATA_BUF_USE_SEC_MEM | DATA_BUF_SHORT_ADDR) & SEC_MEM_SHORT_ADDR_MASK);
         }
         cmd.mac_length = 0u;
         cmd.flags = 0u;
 
-        /* Send the message to Seco. */
-        error = seco_send_msg_and_get_resp(hdl->phdl,
+        /* Send the message to Secure-Enclave Platform. */
+        error = plat_send_msg_and_get_resp(hdl->phdl,
                     (uint32_t *)&cmd, (uint32_t)sizeof(struct sab_she_fast_mac_msg),
                     (uint32_t *)&rsp, (uint32_t)sizeof(struct sab_she_fast_mac_rsp));
         if (error != 0) {
@@ -403,8 +404,8 @@ she_err_t she_cmd_generate_mac(struct she_hdl_s *hdl, uint8_t key_ext, uint8_t k
 
         hdl->last_rating = rsp.rsp_code;
         if ((hdl->cancel != 0u) || (GET_STATUS_CODE(rsp.rsp_code) != SAB_SUCCESS_STATUS)) {
-            ret = she_seco_ind_to_she_err_t(rsp.rsp_code);
-            seco_os_abs_memset(mac, 0u, SHE_MAC_SIZE);
+            ret = she_plat_ind_to_she_err_t(rsp.rsp_code);
+            plat_os_abs_memset(mac, 0u, SHE_MAC_SIZE);
             hdl->cancel = 0u;
             break;
         }
@@ -437,16 +438,16 @@ static she_err_t she_cmd_verify_mac_generic(struct she_hdl_s *hdl, uint8_t key_e
             break;
         }
         /* Build command message. */
-        seco_fill_cmd_msg_hdr(&cmd.hdr, SAB_FAST_MAC_REQ, (uint32_t)sizeof(struct sab_she_fast_mac_msg), hdl->mu_type);
+        plat_fill_cmd_msg_hdr(&cmd.hdr, SAB_FAST_MAC_REQ, (uint32_t)sizeof(struct sab_she_fast_mac_msg), hdl->mu_type);
         cmd.she_utils_handle = hdl->utils_handle;
         cmd.key_id = (uint16_t)key_ext | (uint16_t)key_id;
         cmd.data_length = message_length;
         /* the MAC data is stored right after the input data */
         if (message_length == 0u) {
-            cmd.data_offset = (uint16_t)(seco_os_abs_data_buf(hdl->phdl, mac, SHE_MAC_SIZE, DATA_BUF_IS_INPUT |DATA_BUF_USE_SEC_MEM | DATA_BUF_SHORT_ADDR) & SEC_MEM_SHORT_ADDR_MASK);
+            cmd.data_offset = (uint16_t)(plat_os_abs_data_buf(hdl->phdl, mac, SHE_MAC_SIZE, DATA_BUF_IS_INPUT |DATA_BUF_USE_SEC_MEM | DATA_BUF_SHORT_ADDR) & SEC_MEM_SHORT_ADDR_MASK);
         } else {
-            cmd.data_offset = (uint16_t)(seco_os_abs_data_buf(hdl->phdl, message, message_length, DATA_BUF_IS_INPUT | DATA_BUF_USE_SEC_MEM | DATA_BUF_SHORT_ADDR) & SEC_MEM_SHORT_ADDR_MASK);
-            (void)(seco_os_abs_data_buf(hdl->phdl, mac, SHE_MAC_SIZE, DATA_BUF_IS_INPUT | DATA_BUF_USE_SEC_MEM | DATA_BUF_SHORT_ADDR) & SEC_MEM_SHORT_ADDR_MASK);
+            cmd.data_offset = (uint16_t)(plat_os_abs_data_buf(hdl->phdl, message, message_length, DATA_BUF_IS_INPUT | DATA_BUF_USE_SEC_MEM | DATA_BUF_SHORT_ADDR) & SEC_MEM_SHORT_ADDR_MASK);
+            (void)(plat_os_abs_data_buf(hdl->phdl, mac, SHE_MAC_SIZE, DATA_BUF_IS_INPUT | DATA_BUF_USE_SEC_MEM | DATA_BUF_SHORT_ADDR) & SEC_MEM_SHORT_ADDR_MASK);
         }
         cmd.mac_length = mac_length;
         cmd.flags = SAB_SHE_FAST_MAC_FLAGS_VERIFICATION;
@@ -454,8 +455,8 @@ static she_err_t she_cmd_verify_mac_generic(struct she_hdl_s *hdl, uint8_t key_e
             cmd.flags |= SAB_SHE_FAST_MAC_FLAGS_VERIF_BIT_LEN;
         }
 
-        /* Send the message to Seco. */
-        error = seco_send_msg_and_get_resp(hdl->phdl,
+        /* Send the message to Secure-Enclave Platform. */
+        error = plat_send_msg_and_get_resp(hdl->phdl,
                     (uint32_t *)&cmd, (uint32_t)sizeof(struct sab_she_fast_mac_msg),
                     (uint32_t *)&rsp, (uint32_t)sizeof(struct sab_she_fast_mac_rsp));
         if (error != 0) {
@@ -464,7 +465,7 @@ static she_err_t she_cmd_verify_mac_generic(struct she_hdl_s *hdl, uint8_t key_e
 
         hdl->last_rating = rsp.rsp_code;
         if ((hdl->cancel != 0u) || (GET_STATUS_CODE(rsp.rsp_code) != SAB_SUCCESS_STATUS)) {
-            ret = she_seco_ind_to_she_err_t(rsp.rsp_code);
+            ret = she_plat_ind_to_she_err_t(rsp.rsp_code);
             *verification_status = SHE_MAC_VERIFICATION_FAILED;
             hdl->cancel = 0u;
             break;
@@ -505,11 +506,11 @@ she_err_t she_cmd_enc_cbc(struct she_hdl_s *hdl, uint8_t key_ext, uint8_t key_id
                                         data_length);
     hdl->last_rating = sab_error;
     if ((hdl->cancel != 0u) || (GET_STATUS_CODE(sab_error) != SAB_SUCCESS_STATUS)) {
-        seco_os_abs_memset(ciphertext, 0u, data_length);
+        plat_os_abs_memset(ciphertext, 0u, data_length);
         hdl->cancel = 0u;
     }
 
-    ret = she_seco_ind_to_she_err_t(sab_error);
+    ret = she_plat_ind_to_she_err_t(sab_error);
 
     return ret;
 }
@@ -535,11 +536,11 @@ she_err_t she_cmd_dec_cbc(struct she_hdl_s *hdl, uint8_t key_ext, uint8_t key_id
 
     hdl->last_rating = sab_error;
     if ((hdl->cancel != 0u) || (GET_STATUS_CODE(sab_error) != SAB_SUCCESS_STATUS)) {
-        seco_os_abs_memset(plaintext, 0u, data_length);
+        plat_os_abs_memset(plaintext, 0u, data_length);
         hdl->cancel = 0u;
     }
 
-    ret = she_seco_ind_to_she_err_t(sab_error);
+    ret = she_plat_ind_to_she_err_t(sab_error);
 
     return ret;
 }
@@ -565,11 +566,11 @@ she_err_t she_cmd_enc_ecb(struct she_hdl_s *hdl, uint8_t key_ext, uint8_t key_id
 
     hdl->last_rating = sab_error;
     if ((hdl->cancel != 0u) || (GET_STATUS_CODE(sab_error) != SAB_SUCCESS_STATUS)) {
-        seco_os_abs_memset(ciphertext, 0u, SHE_AES_BLOCK_SIZE_128);
+        plat_os_abs_memset(ciphertext, 0u, SHE_AES_BLOCK_SIZE_128);
         hdl->cancel = 0u;
     }
 
-    ret = she_seco_ind_to_she_err_t(sab_error);
+    ret = she_plat_ind_to_she_err_t(sab_error);
 
     return ret;
 }
@@ -595,11 +596,11 @@ she_err_t she_cmd_dec_ecb(struct she_hdl_s *hdl, uint8_t key_ext, uint8_t key_id
 
     hdl->last_rating = sab_error;
     if ((hdl->cancel != 0u) || (GET_STATUS_CODE(sab_error) != SAB_SUCCESS_STATUS)) {
-        seco_os_abs_memset(plaintext, 0u, SHE_AES_BLOCK_SIZE_128);
+        plat_os_abs_memset(plaintext, 0u, SHE_AES_BLOCK_SIZE_128);
         hdl->cancel = 0u;
     }
 
-    ret = she_seco_ind_to_she_err_t(sab_error);
+    ret = she_plat_ind_to_she_err_t(sab_error);
     return ret;
 }
 
@@ -620,16 +621,16 @@ she_err_t she_cmd_load_key(struct she_hdl_s *hdl, uint8_t key_ext, uint8_t key_i
             break;
         }
         /* Build command message. */
-        seco_fill_cmd_msg_hdr(&cmd.hdr, SAB_SHE_KEY_UPDATE, (uint32_t)sizeof(struct sab_she_key_update_msg), hdl->mu_type);
+        plat_fill_cmd_msg_hdr(&cmd.hdr, SAB_SHE_KEY_UPDATE, (uint32_t)sizeof(struct sab_she_key_update_msg), hdl->mu_type);
         cmd.utils_handle = hdl->utils_handle;
         cmd.key_id = (uint32_t)key_ext | (uint32_t)key_id;
-        seco_os_abs_memcpy((uint8_t *)cmd.m1, m1, SHE_KEY_SIZE);
-        seco_os_abs_memcpy((uint8_t *)cmd.m2, m2, 2u * SHE_KEY_SIZE);
-        seco_os_abs_memcpy((uint8_t *)cmd.m3, m3, SHE_KEY_SIZE);
-        cmd.crc = seco_compute_msg_crc((uint32_t*)&cmd, (uint32_t)(sizeof(cmd) - sizeof(uint32_t)));
+        plat_os_abs_memcpy((uint8_t *)cmd.m1, m1, SHE_KEY_SIZE);
+        plat_os_abs_memcpy((uint8_t *)cmd.m2, m2, 2u * SHE_KEY_SIZE);
+        plat_os_abs_memcpy((uint8_t *)cmd.m3, m3, SHE_KEY_SIZE);
+        cmd.crc = plat_compute_msg_crc((uint32_t*)&cmd, (uint32_t)(sizeof(cmd) - sizeof(uint32_t)));
 
-        /* Send the message to Seco. */
-        error = seco_send_msg_and_get_resp(hdl->phdl,
+        /* Send the message to Secure-Enclave Platform. */
+        error = plat_send_msg_and_get_resp(hdl->phdl,
                     (uint32_t *)&cmd, (uint32_t)sizeof(struct sab_she_key_update_msg),
                     (uint32_t *)&rsp, (uint32_t)sizeof(struct sab_she_key_update_rsp));
         if (error != 0) {
@@ -639,17 +640,17 @@ she_err_t she_cmd_load_key(struct she_hdl_s *hdl, uint8_t key_ext, uint8_t key_i
         hdl->last_rating = rsp.rsp_code;
         if ((hdl->cancel != 0u)
             || (GET_STATUS_CODE(rsp.rsp_code)!= SAB_SUCCESS_STATUS)
-            || (rsp.crc != seco_compute_msg_crc((uint32_t*)&rsp, (uint32_t)(sizeof(rsp) - sizeof(uint32_t))))) {
-            ret = she_seco_ind_to_she_err_t(rsp.rsp_code);
-            seco_os_abs_memset(m4, 0u, 2u * SHE_KEY_SIZE);
-            seco_os_abs_memset(m5, 0u, SHE_KEY_SIZE);
+            || (rsp.crc != plat_compute_msg_crc((uint32_t*)&rsp, (uint32_t)(sizeof(rsp) - sizeof(uint32_t))))) {
+            ret = she_plat_ind_to_she_err_t(rsp.rsp_code);
+            plat_os_abs_memset(m4, 0u, 2u * SHE_KEY_SIZE);
+            plat_os_abs_memset(m5, 0u, SHE_KEY_SIZE);
             hdl->cancel = 0u;
             break;
         }
 
-        /* Success: copy m4 and m5 reported by SECO to output.*/
-        seco_os_abs_memcpy(m4, (uint8_t *)rsp.m4, 2u * SHE_KEY_SIZE);
-        seco_os_abs_memcpy(m5, (uint8_t *)rsp.m5, SHE_KEY_SIZE);
+        /* Success: copy m4 and m5 reported by Secure-Enclave Platform, to output.*/
+        plat_os_abs_memcpy(m4, (uint8_t *)rsp.m4, 2u * SHE_KEY_SIZE);
+        plat_os_abs_memcpy(m5, (uint8_t *)rsp.m5, SHE_KEY_SIZE);
 
         /* Success. */
         ret = ERC_NO_ERROR;
@@ -675,21 +676,21 @@ she_err_t she_cmd_load_key_ext(struct she_hdl_s *hdl, uint8_t key_ext, uint8_t k
             break;
         }
         /* Build command message. */
-        seco_fill_cmd_msg_hdr(&cmd.hdr, SAB_SHE_KEY_UPDATE_EXT, (uint32_t)sizeof(struct sab_she_key_update_ext_msg), hdl->mu_type);
+        plat_fill_cmd_msg_hdr(&cmd.hdr, SAB_SHE_KEY_UPDATE_EXT, (uint32_t)sizeof(struct sab_she_key_update_ext_msg), hdl->mu_type);
         cmd.utils_handle = hdl->utils_handle;
         cmd.key_id = (uint32_t)key_ext | (uint32_t)key_id;
-        seco_os_abs_memcpy((uint8_t *)cmd.m1, m1, SHE_KEY_SIZE);
-        seco_os_abs_memcpy((uint8_t *)cmd.m2, m2, 2u * SHE_KEY_SIZE);
-        seco_os_abs_memcpy((uint8_t *)cmd.m3, m3, SHE_KEY_SIZE);
+        plat_os_abs_memcpy((uint8_t *)cmd.m1, m1, SHE_KEY_SIZE);
+        plat_os_abs_memcpy((uint8_t *)cmd.m2, m2, 2u * SHE_KEY_SIZE);
+        plat_os_abs_memcpy((uint8_t *)cmd.m3, m3, SHE_KEY_SIZE);
         cmd.flags = flags;
         cmd.pad[0] = 0u;
         cmd.pad[1] = 0u;
         cmd.pad[2] = 0u;
         cmd.crc = 0u;
-        cmd.crc = seco_compute_msg_crc((uint32_t*)&cmd, (uint32_t)(sizeof(cmd) - sizeof(uint32_t)));
+        cmd.crc = plat_compute_msg_crc((uint32_t*)&cmd, (uint32_t)(sizeof(cmd) - sizeof(uint32_t)));
 
-        /* Send the message to Seco. */
-        error = seco_send_msg_and_get_resp(hdl->phdl,
+        /* Send the message to Secure-Enclave Platform. */
+        error = plat_send_msg_and_get_resp(hdl->phdl,
                     (uint32_t *)&cmd, (uint32_t)sizeof(struct sab_she_key_update_ext_msg),
                     (uint32_t *)&rsp, (uint32_t)sizeof(struct sab_she_key_update_ext_rsp));
         if (error != 0) {
@@ -699,17 +700,17 @@ she_err_t she_cmd_load_key_ext(struct she_hdl_s *hdl, uint8_t key_ext, uint8_t k
         hdl->last_rating = rsp.rsp_code;
         if ((hdl->cancel != 0u)
             || (GET_STATUS_CODE(rsp.rsp_code)!= SAB_SUCCESS_STATUS)
-            || (rsp.crc != seco_compute_msg_crc((uint32_t*)&rsp, (uint32_t)(sizeof(rsp) - sizeof(uint32_t))))) {
-            ret = she_seco_ind_to_she_err_t(rsp.rsp_code);
-            seco_os_abs_memset(m4, 0u, 2u * SHE_KEY_SIZE);
-            seco_os_abs_memset(m5, 0u, SHE_KEY_SIZE);
+            || (rsp.crc != plat_compute_msg_crc((uint32_t*)&rsp, (uint32_t)(sizeof(rsp) - sizeof(uint32_t))))) {
+            ret = she_plat_ind_to_she_err_t(rsp.rsp_code);
+            plat_os_abs_memset(m4, 0u, 2u * SHE_KEY_SIZE);
+            plat_os_abs_memset(m5, 0u, SHE_KEY_SIZE);
             hdl->cancel = 0u;
             break;
         }
 
-        /* Success: copy m4 and m5 reported by SECO to output.*/
-        seco_os_abs_memcpy(m4, (uint8_t *)rsp.m4, 2u * SHE_KEY_SIZE);
-        seco_os_abs_memcpy(m5, (uint8_t *)rsp.m5, SHE_KEY_SIZE);
+        /* Success: copy m4 and m5 reported by Secure-Enclave Platform, to output.*/
+        plat_os_abs_memcpy(m4, (uint8_t *)rsp.m4, 2u * SHE_KEY_SIZE);
+        plat_os_abs_memcpy(m5, (uint8_t *)rsp.m5, SHE_KEY_SIZE);
 
         /* Success. */
         ret = ERC_NO_ERROR;
@@ -730,14 +731,14 @@ she_err_t she_cmd_load_plain_key(struct she_hdl_s *hdl, uint8_t *key)
             break;
         }
         /* Build command message. */
-        seco_fill_cmd_msg_hdr(&cmd.hdr, SAB_SHE_PLAIN_KEY_UPDATE, (uint32_t)sizeof(struct she_cmd_load_plain_key_msg), hdl->mu_type);
+        plat_fill_cmd_msg_hdr(&cmd.hdr, SAB_SHE_PLAIN_KEY_UPDATE, (uint32_t)sizeof(struct she_cmd_load_plain_key_msg), hdl->mu_type);
 
-        seco_os_abs_memcpy(cmd.key, key, SHE_KEY_SIZE);
+        plat_os_abs_memcpy(cmd.key, key, SHE_KEY_SIZE);
         cmd.she_utils_handle = hdl->utils_handle;
-        cmd.crc = seco_compute_msg_crc((uint32_t*)&cmd, (uint32_t)(sizeof(cmd) - sizeof(uint32_t)));
+        cmd.crc = plat_compute_msg_crc((uint32_t*)&cmd, (uint32_t)(sizeof(cmd) - sizeof(uint32_t)));
 
-        /* Send the message to Seco. */
-        error = seco_send_msg_and_get_resp(hdl->phdl,
+        /* Send the message to Secure-Enclave Platform. */
+        error = plat_send_msg_and_get_resp(hdl->phdl,
                     (uint32_t *)&cmd, (uint32_t)sizeof(struct she_cmd_load_plain_key_msg),
                     (uint32_t *)&rsp, (uint32_t)sizeof(struct she_cmd_load_plain_key_rsp));
         if (error != 0) {
@@ -746,7 +747,7 @@ she_err_t she_cmd_load_plain_key(struct she_hdl_s *hdl, uint8_t *key)
 
         hdl->last_rating = rsp.rsp_code;
         if ((hdl->cancel != 0u) || (GET_STATUS_CODE(rsp.rsp_code)!= SAB_SUCCESS_STATUS)) {
-            ret = she_seco_ind_to_she_err_t(rsp.rsp_code);
+            ret = she_plat_ind_to_she_err_t(rsp.rsp_code);
             hdl->cancel = 0u;
             break;
         }
@@ -774,11 +775,11 @@ she_err_t she_cmd_export_ram_key(struct she_hdl_s *hdl, uint8_t *m1, uint8_t *m2
             break;
         }
         /* Build command message. */
-        seco_fill_cmd_msg_hdr(&cmd.hdr, SAB_SHE_PLAIN_KEY_EXPORT, (uint32_t)sizeof(struct sab_she_plain_key_export_msg), hdl->mu_type);
+        plat_fill_cmd_msg_hdr(&cmd.hdr, SAB_SHE_PLAIN_KEY_EXPORT, (uint32_t)sizeof(struct sab_she_plain_key_export_msg), hdl->mu_type);
         cmd.utils_handle = hdl->utils_handle;
 
-        /* Send the message to Seco. */
-        error = seco_send_msg_and_get_resp(hdl->phdl,
+        /* Send the message to Secure-Enclave Platform. */
+        error = plat_send_msg_and_get_resp(hdl->phdl,
                     (uint32_t *)&cmd, (uint32_t)sizeof(struct sab_she_plain_key_export_msg),
                     (uint32_t *)&rsp, (uint32_t)sizeof(struct sab_she_plain_key_export_rsp));
         if (error != 0) {
@@ -788,23 +789,23 @@ she_err_t she_cmd_export_ram_key(struct she_hdl_s *hdl, uint8_t *m1, uint8_t *m2
         hdl->last_rating = rsp.rsp_code;
         if ((hdl->cancel != 0u)
             || (GET_STATUS_CODE(rsp.rsp_code)!= SAB_SUCCESS_STATUS)
-            || (rsp.crc != seco_compute_msg_crc((uint32_t*)&rsp, (uint32_t)(sizeof(rsp) - sizeof(uint32_t))))) {
-            ret = she_seco_ind_to_she_err_t(rsp.rsp_code);
-            seco_os_abs_memset(m1, 0u, SHE_KEY_SIZE);
-            seco_os_abs_memset(m2, 0u, 2u * SHE_KEY_SIZE);
-            seco_os_abs_memset(m3, 0u, SHE_KEY_SIZE);
-            seco_os_abs_memset(m4, 0u, 2u * SHE_KEY_SIZE);
-            seco_os_abs_memset(m5, 0u, SHE_KEY_SIZE);
+            || (rsp.crc != plat_compute_msg_crc((uint32_t*)&rsp, (uint32_t)(sizeof(rsp) - sizeof(uint32_t))))) {
+            ret = she_plat_ind_to_she_err_t(rsp.rsp_code);
+            plat_os_abs_memset(m1, 0u, SHE_KEY_SIZE);
+            plat_os_abs_memset(m2, 0u, 2u * SHE_KEY_SIZE);
+            plat_os_abs_memset(m3, 0u, SHE_KEY_SIZE);
+            plat_os_abs_memset(m4, 0u, 2u * SHE_KEY_SIZE);
+            plat_os_abs_memset(m5, 0u, SHE_KEY_SIZE);
             hdl->cancel = 0u;
             break;
         }
 
-        /* Success: copy m1..m5 reported by SECO to output.*/
-        seco_os_abs_memcpy(m1, (uint8_t *)rsp.m1, SHE_KEY_SIZE);
-        seco_os_abs_memcpy(m2, (uint8_t *)rsp.m2, 2u * SHE_KEY_SIZE);
-        seco_os_abs_memcpy(m3, (uint8_t *)rsp.m3, SHE_KEY_SIZE);
-        seco_os_abs_memcpy(m4, (uint8_t *)rsp.m4, 2u * SHE_KEY_SIZE);
-        seco_os_abs_memcpy(m5, (uint8_t *)rsp.m5, SHE_KEY_SIZE);
+        /* Success: copy m1..m5 reported by Secure-Enclave Platform, to output.*/
+        plat_os_abs_memcpy(m1, (uint8_t *)rsp.m1, SHE_KEY_SIZE);
+        plat_os_abs_memcpy(m2, (uint8_t *)rsp.m2, 2u * SHE_KEY_SIZE);
+        plat_os_abs_memcpy(m3, (uint8_t *)rsp.m3, SHE_KEY_SIZE);
+        plat_os_abs_memcpy(m4, (uint8_t *)rsp.m4, 2u * SHE_KEY_SIZE);
+        plat_os_abs_memcpy(m5, (uint8_t *)rsp.m5, SHE_KEY_SIZE);
 
         /* Success. */
         ret = ERC_NO_ERROR;
@@ -814,7 +815,7 @@ she_err_t she_cmd_export_ram_key(struct she_hdl_s *hdl, uint8_t *m1, uint8_t *m2
 }
 
 she_err_t she_cmd_init_rng(struct she_hdl_s *hdl) {
-    uint32_t seco_rsp_code;
+    uint32_t plat_rsp_code;
     she_err_t ret = ERC_GENERAL_ERROR;
 
     do {
@@ -822,14 +823,14 @@ she_err_t she_cmd_init_rng(struct she_hdl_s *hdl) {
             break;
         }
         /* Start the RNG at system level. */
-        seco_os_abs_start_system_rng(hdl->phdl);
+        plat_os_abs_start_system_rng(hdl->phdl);
 
-        /* Then send the command to SECO so it can perform its own RNG inits. */
-        seco_rsp_code = sab_open_rng(hdl->phdl, hdl->session_handle, &hdl->rng_handle, hdl->mu_type, RNG_OPEN_FLAGS_SHE);
+        /* Then send the command to Secure-Enclave Platform, so it can perform its own RNG inits. */
+        plat_rsp_code = sab_open_rng(hdl->phdl, hdl->session_handle, &hdl->rng_handle, hdl->mu_type, RNG_OPEN_FLAGS_SHE);
 
-        if ((hdl->cancel != 0u) || (GET_STATUS_CODE(seco_rsp_code)!= SAB_SUCCESS_STATUS)) {
+        if ((hdl->cancel != 0u) || (GET_STATUS_CODE(plat_rsp_code)!= SAB_SUCCESS_STATUS)) {
             hdl->rng_handle = 0u;
-            ret = she_seco_ind_to_she_err_t(seco_rsp_code);
+            ret = she_plat_ind_to_she_err_t(plat_rsp_code);
             hdl->cancel = 0u;
             break;
         }
@@ -855,13 +856,13 @@ she_err_t she_cmd_extend_seed(struct she_hdl_s *hdl, uint8_t *entropy) {
             break;
         }
         /* Build command message. */
-        seco_fill_cmd_msg_hdr(&cmd.hdr, SAB_RNG_EXTEND_SEED, (uint32_t)sizeof(struct sab_cmd_extend_seed_msg), hdl->mu_type);
+        plat_fill_cmd_msg_hdr(&cmd.hdr, SAB_RNG_EXTEND_SEED, (uint32_t)sizeof(struct sab_cmd_extend_seed_msg), hdl->mu_type);
         cmd.rng_handle = hdl->rng_handle;
-        seco_os_abs_memcpy((uint8_t *)cmd.entropy, entropy, SHE_ENTROPY_SIZE);
-        cmd.crc = seco_compute_msg_crc((uint32_t*)&cmd, (uint32_t)(sizeof(cmd) - sizeof(uint32_t)));
+        plat_os_abs_memcpy((uint8_t *)cmd.entropy, entropy, SHE_ENTROPY_SIZE);
+        cmd.crc = plat_compute_msg_crc((uint32_t*)&cmd, (uint32_t)(sizeof(cmd) - sizeof(uint32_t)));
 
-        /* Send the message to Seco. */
-        error = seco_send_msg_and_get_resp(hdl->phdl,
+        /* Send the message to Secure-Enclave Platform. */
+        error = plat_send_msg_and_get_resp(hdl->phdl,
                     (uint32_t *)&cmd, (uint32_t)sizeof(struct sab_cmd_extend_seed_msg),
                     (uint32_t *)&rsp, (uint32_t)sizeof(struct sab_cmd_extend_seed_rsp));
         if (error != 0) {
@@ -870,7 +871,7 @@ she_err_t she_cmd_extend_seed(struct she_hdl_s *hdl, uint8_t *entropy) {
 
         hdl->last_rating = rsp.rsp_code;
         if ((hdl->cancel != 0u) || (GET_STATUS_CODE(rsp.rsp_code)!= SAB_SUCCESS_STATUS)) {
-            ret = she_seco_ind_to_she_err_t(rsp.rsp_code);
+            ret = she_plat_ind_to_she_err_t(rsp.rsp_code);
             hdl->cancel = 0u;
             break;
         }
@@ -888,7 +889,7 @@ she_err_t she_cmd_rnd(struct she_hdl_s *hdl, uint8_t *rnd)
     she_err_t ret = ERC_GENERAL_ERROR;
     struct sab_cmd_get_rnd_msg cmd;
     struct sab_cmd_get_rnd_rsp rsp;
-    uint64_t seco_rnd_addr;
+    uint64_t plat_rnd_addr;
     int32_t error;
 
     do {
@@ -901,14 +902,14 @@ she_err_t she_cmd_rnd(struct she_hdl_s *hdl, uint8_t *rnd)
         }
 
         /* Build command message. */
-        seco_fill_cmd_msg_hdr(&cmd.hdr, SAB_RNG_GET_RANDOM, (uint32_t)sizeof(struct sab_cmd_get_rnd_msg), hdl->mu_type);
-        seco_rnd_addr = seco_os_abs_data_buf(hdl->phdl, rnd, SHE_RND_SIZE, 0u);
+        plat_fill_cmd_msg_hdr(&cmd.hdr, SAB_RNG_GET_RANDOM, (uint32_t)sizeof(struct sab_cmd_get_rnd_msg), hdl->mu_type);
+        plat_rnd_addr = plat_os_abs_data_buf(hdl->phdl, rnd, SHE_RND_SIZE, 0u);
         cmd.rng_handle = hdl->rng_handle;
-        cmd.rnd_addr = (uint32_t)(seco_rnd_addr & 0xFFFFFFFFu);
+        cmd.rnd_addr = (uint32_t)(plat_rnd_addr & 0xFFFFFFFFu);
         cmd.rnd_size = SHE_RND_SIZE;
 
-        /* Send the message to Seco. */
-        error = seco_send_msg_and_get_resp(hdl->phdl,
+        /* Send the message to Secure-Enclave Platform. */
+        error = plat_send_msg_and_get_resp(hdl->phdl,
                     (uint32_t *)&cmd, (uint32_t)sizeof(struct sab_cmd_get_rnd_msg),
                     (uint32_t *)&rsp, (uint32_t)sizeof(struct sab_cmd_get_rnd_rsp));
         if (error != 0) {
@@ -917,8 +918,8 @@ she_err_t she_cmd_rnd(struct she_hdl_s *hdl, uint8_t *rnd)
 
         hdl->last_rating = rsp.rsp_code;
         if ((hdl->cancel != 0u) || (GET_STATUS_CODE(rsp.rsp_code)!= SAB_SUCCESS_STATUS)) {
-            ret = she_seco_ind_to_she_err_t(rsp.rsp_code);
-            seco_os_abs_memset(rnd, 0u, SHE_RND_SIZE);
+            ret = she_plat_ind_to_she_err_t(rsp.rsp_code);
+            plat_os_abs_memset(rnd, 0u, SHE_RND_SIZE);
             hdl->cancel = 0u;
             break;
         }
@@ -942,11 +943,11 @@ she_err_t she_cmd_get_status(struct she_hdl_s *hdl, uint8_t *sreg) {
             break;
         }
         /* Build command message. */
-        seco_fill_cmd_msg_hdr(&cmd.hdr, SAB_SHE_GET_STATUS, (uint32_t)sizeof(struct she_cmd_get_status_msg), hdl->mu_type);
+        plat_fill_cmd_msg_hdr(&cmd.hdr, SAB_SHE_GET_STATUS, (uint32_t)sizeof(struct she_cmd_get_status_msg), hdl->mu_type);
         cmd.she_utils_handle = hdl->utils_handle;
 
-        /* Send the message to Seco. */
-        error = seco_send_msg_and_get_resp(hdl->phdl,
+        /* Send the message to Secure-Enclave Platform. */
+        error = plat_send_msg_and_get_resp(hdl->phdl,
                     (uint32_t *)&cmd, (uint32_t)sizeof(struct she_cmd_get_status_msg),
                     (uint32_t *)&rsp, (uint32_t)sizeof(struct she_cmd_get_status_rsp));
         if (error != 0) {
@@ -955,13 +956,13 @@ she_err_t she_cmd_get_status(struct she_hdl_s *hdl, uint8_t *sreg) {
 
         hdl->last_rating = rsp.rsp_code;
         if ((hdl->cancel != 0u) || (GET_STATUS_CODE(rsp.rsp_code)!= SAB_SUCCESS_STATUS)) {
-            ret = she_seco_ind_to_she_err_t(rsp.rsp_code);
+            ret = she_plat_ind_to_she_err_t(rsp.rsp_code);
             *sreg = 0;
             hdl->cancel = 0u;
             break;
         }
 
-        /* Success: write sreg reported by SECO to output.*/
+        /* Success: write sreg reported by Secure-Enclave Platform, to output.*/
         *sreg = rsp.sreg;
 
         /* Success. */
@@ -983,13 +984,13 @@ she_err_t she_cmd_get_id(struct she_hdl_s *hdl, uint8_t *challenge, uint8_t *id,
             break;
         }
         /* Build command message. */
-        seco_fill_cmd_msg_hdr(&cmd.hdr, SAB_SHE_GET_ID, (uint32_t)sizeof(struct she_cmd_get_id_msg), hdl->mu_type);
-        seco_os_abs_memcpy(cmd.challenge, challenge, SHE_CHALLENGE_SIZE);
+        plat_fill_cmd_msg_hdr(&cmd.hdr, SAB_SHE_GET_ID, (uint32_t)sizeof(struct she_cmd_get_id_msg), hdl->mu_type);
+        plat_os_abs_memcpy(cmd.challenge, challenge, SHE_CHALLENGE_SIZE);
         cmd.she_utils_handle = hdl->utils_handle;
-        cmd.crc = seco_compute_msg_crc((uint32_t*)&cmd, (uint32_t)(sizeof(cmd) - sizeof(uint32_t)));
+        cmd.crc = plat_compute_msg_crc((uint32_t*)&cmd, (uint32_t)(sizeof(cmd) - sizeof(uint32_t)));
 
-        /* Send the message to Seco. */
-        error = seco_send_msg_and_get_resp(hdl->phdl,
+        /* Send the message to Secure-Enclave Platform. */
+        error = plat_send_msg_and_get_resp(hdl->phdl,
                     (uint32_t *)&cmd, (uint32_t)sizeof(struct she_cmd_get_id_msg),
                     (uint32_t *)&rsp, (uint32_t)sizeof(struct she_cmd_get_id_rsp));
         if (error != 0) {
@@ -999,19 +1000,19 @@ she_err_t she_cmd_get_id(struct she_hdl_s *hdl, uint8_t *challenge, uint8_t *id,
         hdl->last_rating = rsp.rsp_code;
         if ((hdl->cancel != 0u)
             || (GET_STATUS_CODE(rsp.rsp_code)!= SAB_SUCCESS_STATUS)
-            || (rsp.crc != seco_compute_msg_crc((uint32_t*)&rsp, (uint32_t)(sizeof(rsp) - sizeof(uint32_t))))) {
-            ret = she_seco_ind_to_she_err_t(rsp.rsp_code);
+            || (rsp.crc != plat_compute_msg_crc((uint32_t*)&rsp, (uint32_t)(sizeof(rsp) - sizeof(uint32_t))))) {
+            ret = she_plat_ind_to_she_err_t(rsp.rsp_code);
             *sreg = 0;
-            seco_os_abs_memset(id, 0u, SHE_ID_SIZE);
-            seco_os_abs_memset(mac, 0u, SHE_MAC_SIZE);
+            plat_os_abs_memset(id, 0u, SHE_ID_SIZE);
+            plat_os_abs_memset(mac, 0u, SHE_MAC_SIZE);
             hdl->cancel = 0u;
             break;
         }
 
-        /* Success: copy sreg , id and cmac reported by SECO to output.*/
+        /* Success: copy sreg , id and cmac reported by Secure-Enclave Platform, to output.*/
         *sreg = rsp.sreg;
-        seco_os_abs_memcpy(id, rsp.id, SHE_ID_SIZE);
-        seco_os_abs_memcpy(mac, rsp.mac, SHE_MAC_SIZE);
+        plat_os_abs_memcpy(id, rsp.id, SHE_ID_SIZE);
+        plat_os_abs_memcpy(mac, rsp.mac, SHE_MAC_SIZE);
 
         /* Success. */
         ret = ERC_NO_ERROR;
@@ -1043,7 +1044,7 @@ uint32_t she_get_last_rating_code(struct she_hdl_s *hdl)
 
 
 she_err_t she_get_info(struct she_hdl_s *hdl, uint32_t *user_sab_id, uint8_t *chip_unique_id, uint16_t *chip_monotonic_counter, uint16_t *chip_life_cycle, uint32_t *she_version) {
-    uint32_t seco_rsp_code;
+    uint32_t plat_rsp_code;
     she_err_t ret = ERC_GENERAL_ERROR;
     uint32_t version_ext;
     uint8_t fips_mode;
@@ -1052,11 +1053,11 @@ she_err_t she_get_info(struct she_hdl_s *hdl, uint32_t *user_sab_id, uint8_t *ch
         if ((hdl == NULL) || (user_sab_id == NULL) || (chip_unique_id == NULL) || (chip_monotonic_counter == NULL) || (chip_life_cycle == NULL) || (she_version == NULL)) {
             break;
         }
-        seco_rsp_code = sab_get_info(hdl->phdl, hdl->session_handle, hdl->mu_type, user_sab_id, chip_unique_id, chip_monotonic_counter, chip_life_cycle, she_version, &version_ext, &fips_mode);
+        plat_rsp_code = sab_get_info(hdl->phdl, hdl->session_handle, hdl->mu_type, user_sab_id, chip_unique_id, chip_monotonic_counter, chip_life_cycle, she_version, &version_ext, &fips_mode);
 
-        hdl->last_rating = seco_rsp_code;
-        if (GET_STATUS_CODE(seco_rsp_code) != SAB_SUCCESS_STATUS) {
-            ret = she_seco_ind_to_she_err_t(seco_rsp_code);
+        hdl->last_rating = plat_rsp_code;
+        if (GET_STATUS_CODE(plat_rsp_code) != SAB_SUCCESS_STATUS) {
+            ret = she_plat_ind_to_she_err_t(plat_rsp_code);
             break;
         }
 

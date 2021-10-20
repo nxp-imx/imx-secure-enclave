@@ -18,7 +18,7 @@
 #include <string.h>
 #include <time.h>
 #include <unistd.h>
-#include "seco_nvm.h"
+#include "nvm.h"
 #include "she_test.h"
 #include "she_test_storage_manager.h"
 #include "she_test_macros.h"
@@ -27,7 +27,7 @@ static uint32_t nvm_status;
 
 static void *she_storage_thread(void *arg)
 {
-    seco_nvm_manager(NVM_FLAGS_SHE, &nvm_status);
+    nvm_manager(NVM_FLAGS_SHE, &nvm_status);
 }
 
 
@@ -62,7 +62,7 @@ uint32_t she_test_stop_storage_manager(test_struct_t *testCtx, FILE *fp)
 {
     uint32_t fails = 0;
 
-    seco_nvm_close_session();
+    nvm_close_session();
 
     if (nvm_status != NVM_STATUS_STOPPED) {
         if (pthread_cancel(testCtx->tid) != 0) {
