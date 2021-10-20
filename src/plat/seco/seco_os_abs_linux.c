@@ -1,5 +1,5 @@
 /*
- * Copyright 2019 NXP
+ * Copyright 2019-2021 NXP
  *
  * NXP Confidential.
  * This software is owned or controlled by NXP and may only be used strictly
@@ -31,11 +31,6 @@
 #define SHE_DEFAULT_TZ              0x0u
 #define SHE_DEFAULT_MU              0x1u
 #define SHE_DEFAULT_INTERRUPT_IDX   0x0u
-
-struct seco_os_abs_hdl {
-    int32_t fd;
-    uint32_t type;
-};
 
 /*
  * MU1: SHE user + SHE storage

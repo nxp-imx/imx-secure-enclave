@@ -1,5 +1,5 @@
 /*
- * Copyright 2019 NXP
+ * Copyright 2019-2021 NXP
  *
  * NXP Confidential.
  * This software is owned or controlled by NXP and may only be used strictly
@@ -24,6 +24,8 @@
 #include <stdio.h>
 #include <stdint.h>
 #endif
+
+#include <plat_os_abs_def.h>
 
 /**
  *  @defgroup group800 Abstraction layer
@@ -59,27 +61,6 @@
  *
  * \return pointer to the MU channel handle.
  */
-
-struct seco_mu_params {
-    uint8_t mu_id;				/**< index of the MU as per SECO point of view. */
-    uint8_t interrupt_idx;		/**< Interrupt number of the MU used to indicate data availability. */
-    uint8_t tz;					/**< indicate if current partition has TZ enabled. */
-    uint8_t did;				/**< DID of the calling partition. */
-};
-
-#define MU_CHANNEL_UNDEF          (0x00u)
-#define MU_CHANNEL_SECO_SHE       (0x01u)
-#define MU_CHANNEL_SECO_SHE_NVM   (0x02u)
-#define MU_CHANNEL_SECO_HSM       (0x03u)
-#define MU_CHANNEL_SECO_HSM_2ND   (0x04u)
-#define MU_CHANNEL_SECO_HSM_NVM   (0x05u)
-#define MU_CHANNEL_V2X_SV0        (0x10u)
-#define MU_CHANNEL_V2X_SV1        (0x11u)
-#define MU_CHANNEL_V2X_SHE        (0x12u)
-#define MU_CHANNEL_V2X_SG0        (0x13u)
-#define MU_CHANNEL_V2X_SG1        (0x14u)
-#define MU_CHANNEL_V2X_SHE_NVM    (0x15u)
-#define MU_CHANNEL_V2X_HSM_NVM    (0x16u)
 
 struct seco_os_abs_hdl *seco_os_abs_open_mu_channel(uint32_t type, struct seco_mu_params *mu_params);
 
