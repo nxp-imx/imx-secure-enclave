@@ -103,7 +103,6 @@ hsm_doc: include/hsm/hsm_api.h
 
 install: $(HSM_TEST) $(SHE_TEST) $(SHE_LIB) $(NVM_LIB) $(HSM_LIB)
 	mkdir -p $(DESTDIR)$(BINDIR) $(DESTDIR)$(LIBDIR) $(DESTDIR)$(INCLUDEDIR)
-	cp -a $(NVM_LIB) $(HSM_LIB) $(SHE_LIB) $(DESTDIR)$(LIBDIR)
+	cp $(NVM_LIB) $(HSM_LIB) $(SHE_LIB) $(DESTDIR)$(LIBDIR)
 	cp $(HSM_TEST) $(SHE_TEST) $(DESTDIR)$(BINDIR)
 	cp -a include/* $(DESTDIR)$(INCLUDEDIR)
-
