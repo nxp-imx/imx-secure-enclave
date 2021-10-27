@@ -14,7 +14,8 @@
 CFLAGS := -O1 -Werror -fPIC
 DESTDIR ?= export
 BINDIR ?= /usr/bin
-LIBDIR ?= /usr/lib
+base_libdir ?= /lib
+LIBDIR ?= /usr/$(base_libdir)
 INCLUDEDIR ?= /usr/include
 PLAT ?= seco
 
