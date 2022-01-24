@@ -263,7 +263,7 @@ static void transient_key_tests(hsm_hdl_t sess_hdl, hsm_hdl_t key_store_hdl)
 	memset(&key_mgmt_args, 0, sizeof(key_mgmt_args));
 	hsmret = hsm_open_key_management_service(
 		key_store_hdl, &key_mgmt_args, &key_mgmt_hdl);
-	printf("hsm_open_key_store_service ret:0x%x\n", hsmret);
+	printf("hsm_open_key_management_service ret:0x%x\n", hsmret);
 
 	memset(&key_gen_args, 0, sizeof(key_gen_args));
 	key_gen_args.key_identifier = &master_key_id;
