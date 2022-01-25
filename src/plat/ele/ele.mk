@@ -18,7 +18,7 @@ SHE_LIB := lib$(PLAT)_she.a
 HSM_LIB := lib$(PLAT)_hsm.a
 NVM_LIB := lib$(PLAT)_nvm.a
 
-DEFINES		+=	-DCONFIG_PLAT_ELE
+DEFINES		+=	-DCONFIG_PLAT_ELE -DPLAT_ELE_FEAT_NOT_SUPPORTED=0
 
 PLAT_OBJECTS	:=	$(PLAT_PATH)/ele_os_abs_linux.o \
 			$(PLAT_PATH)/ele_utils.o

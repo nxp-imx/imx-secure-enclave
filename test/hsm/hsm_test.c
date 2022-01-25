@@ -1,5 +1,5 @@
 /*
- * Copyright 2019-2021 NXP
+ * Copyright 2019-2022 NXP
  *
  * NXP Confidential.
  * This software is owned or controlled by NXP and may only be used strictly
@@ -19,6 +19,7 @@
 #include <time.h>
 #include <unistd.h>
 
+#include "common.h"
 #include "hsm_api.h"
 #include "nvm.h"
 
@@ -373,6 +374,10 @@ static void transient_key_tests(hsm_hdl_t sess_hdl, hsm_hdl_t key_store_hdl)
 	key_gen_args.out_key = NULL;
 	hsmret = hsm_generate_key(key_mgmt_hdl, &key_gen_args);
 	printf("hsm_generate_key ret:0x%x\n", hsmret);
+
+	hsmret = do_mac_test(key_store_hdl, key_mgmt_hdl);
+	if (hsmret)
+		printf("Error[0x%x]: MAC test Failed.\n", hsmret);
 
 	memset(&open_cipher_args, 0, sizeof(open_cipher_args));
 	hsmret = hsm_open_cipher_service (key_store_hdl, &open_cipher_args,
