@@ -23,7 +23,7 @@
 #include "hsm_api.h"
 #include "nvm.h"
 
-// input  Qx||lsb_Qy
+/* input  Qx||lsb_Qy */
 static uint8_t ECC_P256_Qx[32+1] =
 { 0xCE, 0x4D, 0xCF, 0xA7, 0x38, 0x4C, 0x83, 0x44, 0x3A, 0xCE, 0x0F, 0xB8, 0x2C, 0x4A, 0xC1, 0xAD,
   0xFA, 0x10, 0x0A, 0x9B, 0x2C, 0x7B, 0xF0, 0x9F, 0x09, 0x3F, 0x8B, 0x6D, 0x08, 0x4E, 0x50, 0xC2, 0x01};
@@ -363,7 +363,6 @@ static void transient_key_tests(hsm_hdl_t sess_hdl, hsm_hdl_t key_store_hdl)
 	hsmret = hsm_manage_key(key_mgmt_hdl, &del_args);
 	printf("hsm_manage_key ret:0x%x\n", hsmret);
 #endif
-
 	memset(&key_gen_args, 0, sizeof(key_gen_args));
 	key_gen_args.key_identifier = &sym_key_id;
 	key_gen_args.out_size = 0;
@@ -491,6 +490,8 @@ int main(int argc, char *argv[])
 #ifdef CONFIG_PLAT_SECO
         ecies_tests(hsm_session_hdl);
 #endif
+
+        hash_test(hsm_session_hdl);
 
         transient_key_tests(hsm_session_hdl, key_store_hdl);
 

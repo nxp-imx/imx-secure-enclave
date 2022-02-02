@@ -17,5 +17,6 @@
 #include "hsm_api.h"
 
 hsm_err_t do_mac_test(hsm_hdl_t key_store_hdl, hsm_hdl_t key_mgmt_hdl);
+void hash_test(hsm_hdl_t hash_sess);
 
 #endif
