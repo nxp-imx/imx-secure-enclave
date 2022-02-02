@@ -492,8 +492,10 @@ int main(int argc, char *argv[])
 #endif
 
         hash_test(hsm_session_hdl);
-
         transient_key_tests(hsm_session_hdl, key_store_hdl);
+#if PLAT_ELE_FEAT_NOT_SUPPORTED
+        data_storage_test(key_store_hdl);
+#endif
 
         err = hsm_close_key_store_service(key_store_hdl);
         printf("hsm_close_key_store_service ret:0x%x\n", err);
