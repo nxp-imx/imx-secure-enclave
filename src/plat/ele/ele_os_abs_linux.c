@@ -1,5 +1,5 @@
 /*
- * Copyright 2021 NXP
+ * Copyright 2021-2022 NXP
  *
  * NXP Confidential.
  * This software is owned or controlled by NXP and may only be used strictly
@@ -38,9 +38,9 @@
  * MU3: unused
  */
 
-static char ELE_MU_HSM_PATH_PRIMARY[] = "/dev/sentnl_mu2_ch0";
-static char ELE_MU_HSM_NVM_PATH[] = "/dev/sentnl_mu2_ch1";
-static char ELE_MU_HSM_PATH_SECONDARY[] = "/dev/sentnl_mu2_ch2";
+static char ELE_MU_HSM_PATH_PRIMARY[] = "/dev/ele_mu2_ch0";
+static char ELE_MU_HSM_NVM_PATH[] = "/dev/ele_mu2_ch1";
+static char ELE_MU_HSM_PATH_SECONDARY[] = "/dev/ele_mu2_ch2";
 
 static char ELE_NVM_HSM_STORAGE_FILE[] = "/etc/ele_hsm/ele_nvm_master";
 static char ELE_NVM_HSM_STORAGE_CHUNK_PATH[] = "/etc/ele_hsm/";
@@ -52,7 +52,7 @@ struct plat_os_abs_hdl *plat_os_abs_open_mu_channel(uint32_t type, struct plat_m
 {
     char *device_path;
     struct plat_os_abs_hdl *phdl = malloc(sizeof(struct plat_os_abs_hdl));
-    struct sentnl_mu_ioctl_get_mu_info info_ioctl;
+    struct ele_mu_ioctl_get_mu_info info_ioctl;
     int32_t error;
     uint8_t is_nvm = 0u;
 
@@ -94,7 +94,7 @@ struct plat_os_abs_hdl *plat_os_abs_open_mu_channel(uint32_t type, struct plat_m
 
             error = ioctl(phdl->fd, ELE_MU_IOCTL_GET_MU_INFO, &info_ioctl);
             if (error == 0) {
-                mu_params->mu_id = info_ioctl.sentnl_mu_id;
+                mu_params->mu_id = info_ioctl.ele_mu_id;
                 mu_params->interrupt_idx = info_ioctl.interrupt_idx;
                 mu_params->tz = info_ioctl.tz;
                 mu_params->did = info_ioctl.did;
@@ -151,7 +151,7 @@ int32_t plat_os_abs_read_mu_message(struct plat_os_abs_hdl *phdl, uint32_t *mess
 int32_t plat_os_abs_configure_shared_buf(struct plat_os_abs_hdl *phdl, uint32_t shared_buf_off, uint32_t size)
 {
     int32_t error;
-    struct sentnl_mu_ioctl_shared_mem_cfg cfg;
+    struct ele_mu_ioctl_shared_mem_cfg cfg;
 
     cfg.base_offset = shared_buf_off;
     cfg.size = size;
@@ -163,7 +163,7 @@ int32_t plat_os_abs_configure_shared_buf(struct plat_os_abs_hdl *phdl, uint32_t 
 
 uint64_t plat_os_abs_data_buf(struct plat_os_abs_hdl *phdl, uint8_t *src, uint32_t size, uint32_t flags)
 {
-    struct sentnl_mu_ioctl_setup_iobuf io;
+    struct ele_mu_ioctl_setup_iobuf io;
     int32_t err;
 
     io.user_buf = src;
@@ -173,10 +173,10 @@ uint64_t plat_os_abs_data_buf(struct plat_os_abs_hdl *phdl, uint8_t *src, uint32
     err = ioctl(phdl->fd, ELE_MU_IOCTL_SETUP_IOBUF, &io);
 
     if (err != 0) {
-        io.sentnl_addr = 0;
+        io.ele_addr = 0;
     }
 
-    return io.sentnl_addr;
+    return io.ele_addr;
 }
 
 uint32_t plat_os_abs_crc(uint8_t *data, uint32_t size)
@@ -339,7 +339,7 @@ void plat_os_abs_start_system_rng(struct plat_os_abs_hdl *phdl)
 int32_t plat_os_abs_send_signed_message(struct plat_os_abs_hdl *phdl, uint8_t *signed_message, uint32_t msg_len)
 {
     /* Send the message to the kernel that will forward to SCU.*/
-    struct sentnl_mu_ioctl_signed_message msg;
+    struct ele_mu_ioctl_signed_message msg;
     int32_t err = 0;
 
     msg.message = signed_message;
