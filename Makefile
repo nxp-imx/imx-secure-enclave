@@ -11,7 +11,7 @@
 # activate or otherwise use the software.
 #
 
-CFLAGS := -O1 -Werror -fPIC
+CFLAGS := -O1 -Werror -Wformat -fPIC
 DESTDIR ?= export
 BINDIR ?= /usr/bin
 base_libdir ?= /lib
