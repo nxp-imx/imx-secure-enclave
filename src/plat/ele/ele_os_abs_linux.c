@@ -291,7 +291,6 @@ int32_t plat_os_abs_storage_read_chunk(struct plat_os_abs_hdl *phdl, uint8_t *ds
             n = snprintf(path, sizeof(ELE_NVM_HSM_STORAGE_CHUNK_PATH)+16u,
                             "%s%016lx", ELE_NVM_HSM_STORAGE_CHUNK_PATH, blob_id);
         }
-        path = NULL;
     }
 
     if (n > 0) {
