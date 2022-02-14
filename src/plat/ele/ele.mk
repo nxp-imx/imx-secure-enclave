@@ -1,5 +1,5 @@
 #
-# Copyright 2021 NXP
+# Copyright 2021-2022 NXP
 #
 # NXP Confidential.
 # This software is owned or controlled by NXP and may only be used strictly
@@ -11,14 +11,17 @@
 # activate or otherwise use the software.
 #
 
+MINOR_VER := 0
+
 HSM_TEST := $(PLAT)_hsm_test
 SHE_TEST := $(PLAT)_she_test
 V2X_TEST := $(PLAT)_v2x_test
 SHE_LIB := lib$(PLAT)_she.a
-HSM_LIB := lib$(PLAT)_hsm.a
-NVM_LIB := lib$(PLAT)_nvm.a
+HSM_LIB := lib$(PLAT)_hsm_$(MAJOR_VER).$(MINOR_VER).a
+NVM_LIB := lib$(PLAT)_nvm_$(MAJOR_VER).$(MINOR_VER).a
 
-DEFINES		+=	-DCONFIG_PLAT_ELE -DPLAT_ELE_FEAT_NOT_SUPPORTED=0
+DEFINES		+=	-DCONFIG_PLAT_ELE -DPLAT_ELE_FEAT_NOT_SUPPORTED=0 \
+			-DLIB_MINOR_VERSION=${MINOR_VER}
 
 PLAT_OBJECTS	:=	$(PLAT_PATH)/ele_os_abs_linux.o \
 			$(PLAT_PATH)/ele_utils.o

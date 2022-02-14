@@ -1,5 +1,5 @@
 /*
- * Copyright 2021 NXP
+ * Copyright 2021-2022 NXP
  *
  * NXP Confidential.
  * This software is owned or controlled by NXP and may only be used strictly
@@ -121,4 +121,9 @@ uint32_t plat_compute_msg_crc(uint32_t *msg, uint32_t msg_len)
         crc ^= *(msg + i);
     }
     return crc;
+}
+
+uint32_t get_lib_version(void)
+{
+	return LIB_MAJOR_VERSION << 8 + LIB_MINOR_VERSION;
 }

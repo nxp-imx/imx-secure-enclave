@@ -18,6 +18,8 @@ base_libdir ?= /lib
 LIBDIR ?= /usr/$(base_libdir)
 INCLUDEDIR ?= /usr/include
 PLAT ?= seco
+MAJOR_VER := 1
+DEFINES += -DLIB_MAJOR_VERSION=${MAJOR_VER}
 
 ifdef COVERAGE
 GCOV_FLAGS :=-fprofile-arcs -ftest-coverage
