@@ -41,9 +41,9 @@ static void test_status(uint8_t *input, uint8_t *output, int len, char *result_s
 	}
 #endif
 	if (memcmp(output, input, len) == 0) {
-		printf("Result --> SUCCESS\n", result_str);
+		printf("Result --> SUCCESS\n");
 	} else {
-		printf("Result --> FAILURE\n", result_str);
+		printf("Result --> FAILURE\n");
 	}
 }
 
