@@ -77,7 +77,7 @@ void plat_fill_rsp_msg_hdr(struct sab_mu_hdr *hdr, uint8_t cmd, uint32_t len, ui
         break;
     default:
         hdr->tag = MESSAGING_TAG_RESPONSE;
-        hdr->ver = MESSAGING_VERSION_6;
+        hdr->ver = MESSAGING_VERSION_7;
         break;
     }
     hdr->command = cmd;
