@@ -17,40 +17,7 @@
 #include <stdint.h>
 
 #include "hsm_handle.h"
-
-/**
- *  @defgroup group0 Error codes
- *  @{
- */
-/**
- * Error codes returned by HSM functions.
- */
-typedef enum {
-    HSM_NO_ERROR                        = 0x0,      /**<    Success. */
-    HSM_INVALID_MESSAGE                 = 0x1,      /**< 	The received message is invalid or unknown. */
-    HSM_INVALID_ADDRESS                 = 0x2,      /**<    The provided address is invalid or doesn’t respect the API requirements. */
-    HSM_UNKNOWN_ID                      = 0x3,      /**< 	The provided identifier is not known. */
-    HSM_INVALID_PARAM                   = 0x4,      /**< 	One of the parameter provided in the command is invalid. */
-    HSM_NVM_ERROR                       = 0x5,      /**< 	NVM generic issue. */
-    HSM_OUT_OF_MEMORY                   = 0x6,      /**< 	There is not enough memory to handle the requested operation. */
-    HSM_UNKNOWN_HANDLE                  = 0x7,      /**< 	Unknown session/service handle. */
-    HSM_UNKNOWN_KEY_STORE               = 0x8,      /**< 	The key store identified by the provided “key store Id” doesn’t exist and the “create” flag is not set. */
-    HSM_KEY_STORE_AUTH                  = 0x9,      /**< 	Key store authentication fails. */
-    HSM_KEY_STORE_ERROR                 = 0xA,      /**< 	An error occurred in the key store internal processing. */
-    HSM_ID_CONFLICT                     = 0xB,      /**< 	An element (key store, key…) with the provided ID already exists. */
-    HSM_RNG_NOT_STARTED                 = 0xC,      /**< 	The internal RNG is not started. */
-    HSM_CMD_NOT_SUPPORTED               = 0xD,      /**< 	The functionality is not supported for the current session/service/key store configuration. */
-    HSM_INVALID_LIFECYCLE               = 0xE,      /**< 	Invalid lifecycle for requested operation. */
-    HSM_KEY_STORE_CONFLICT              = 0xF,      /**< 	A key store with the same attributes already exists. */
-    HSM_KEY_STORE_COUNTER               = 0x10,     /**<    The current key store reaches the max number of monotonic counter updates, updates are still allowed but monotonic counter will not be blown. */
-    HSM_FEATURE_NOT_SUPPORTED           = 0x11,     /**<    The requested feature is not supported by the firwmare. */
-    HSM_SELF_TEST_FAILURE               = 0x12,     /**<    Self tests report an issue */
-    HSM_NOT_READY_RATING                = 0x13,     /**<    The HSM is not ready to handle the current request */
-    HSM_FEATURE_DISABLED                = 0x14,     /**<    The required service/operation is disabled */
-    HSM_FATAL_FAILURE                   = 0x29,     /**<    A fatal failure occured, the HSM goes in unrecoverable error state not replying to further requests */
-    HSM_GENERAL_ERROR                   = 0xFF,     /**<    Error not covered by other codes occured. */
-} hsm_err_t;
-/** @} end of error code group */
+#include "hsm_utils.h"
 
 /**
  *  @defgroup group1 Session

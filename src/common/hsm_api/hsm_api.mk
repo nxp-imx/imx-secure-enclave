@@ -12,6 +12,7 @@
 
 HSM_API_SRC	+= \
 		$(PLAT_COMMON_PATH)/hsm_api/hsm_handle.o \
+		$(PLAT_COMMON_PATH)/hsm_api/hsm_utils.o \
 
 OBJECTS		+= $(HSM_API_SRC)
 

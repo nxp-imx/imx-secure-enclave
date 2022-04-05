@@ -13,6 +13,7 @@
 
 #include "hsm_api.h"
 #include "hsm_handle.h"
+#include "hsm_utils.h"
 #include "plat_os_abs.h"
 #include "sab_msg_def.h"
 #include "sab_messaging.h"
@@ -21,23 +22,6 @@
 static struct hsm_session_hdl_s hsm_sessions[HSM_MAX_SESSIONS] = {};
 static struct hsm_service_hdl_s hsm_services[HSM_MAX_SERVICES] = {};
 
-static hsm_err_t sab_rating_to_hsm_err(uint32_t sab_err)
-{
-	hsm_err_t hsm_err;
-
-	if (GET_STATUS_CODE(sab_err) == SAB_SUCCESS_STATUS) {
-		hsm_err = HSM_NO_ERROR;
-	} else {
-		hsm_err = (hsm_err_t)GET_RATING_CODE(sab_err);
-		if (hsm_err == SAB_NO_MESSAGE_RATING) {
-			hsm_err = HSM_GENERAL_ERROR;
-		} else if (hsm_err == SAB_FATAL_FAILURE_RATING) {
-			hsm_err = HSM_FATAL_FAILURE;
-		}
-	}
-
-	return hsm_err;
-}
 
 hsm_err_t hsm_close_session(hsm_hdl_t session_hdl)
 {
