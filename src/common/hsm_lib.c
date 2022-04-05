@@ -1,5 +1,5 @@
 /*
- * Copyright 2019-2021 NXP
+ * Copyright 2019-2022 NXP
  *
  * NXP Confidential.
  * This software is owned or controlled by NXP and may only be used strictly
@@ -12,110 +12,14 @@
  */
 
 #include "hsm_api.h"
+#include "hsm_handle.h"
 #include "plat_os_abs.h"
 #include "sab_msg_def.h"
 #include "sab_messaging.h"
 #include "plat_utils.h"
 
-struct hsm_session_hdl_s {
-	struct plat_os_abs_hdl *phdl;
-	uint32_t session_hdl;
-	uint32_t mu_type;
-};
-
-struct hsm_service_hdl_s {
-	struct hsm_session_hdl_s *session;
-	uint32_t service_hdl;
-};
-
-#define HSM_MAX_SESSIONS	(8u)
-#define HSM_MAX_SERVICES	(32u)
-
 static struct hsm_session_hdl_s hsm_sessions[HSM_MAX_SESSIONS] = {};
 static struct hsm_service_hdl_s hsm_services[HSM_MAX_SERVICES] = {};
-
-static struct hsm_session_hdl_s *session_hdl_to_ptr(uint32_t hdl)
-{
-	uint32_t i;
-	struct hsm_session_hdl_s *ret;
-
-	ret = NULL;
-	for (i=0u; i<HSM_MAX_SESSIONS; i++) {
-		if (hdl == hsm_sessions[i].session_hdl) {
-			if (hsm_sessions[i].phdl != NULL) {
-				ret = &hsm_sessions[i];
-			}
-			break;
-		}
-	}
-	return ret;
-}
-
-static struct hsm_service_hdl_s *service_hdl_to_ptr(uint32_t hdl)
-{
-	uint32_t i;
-	struct hsm_service_hdl_s *ret;
-
-	ret = NULL;
-	for (i=0u; i<HSM_MAX_SERVICES; i++) {
-		if (hdl == hsm_services[i].service_hdl) {
-			if (hsm_services[i].session != NULL) {
-				ret = &hsm_services[i];
-				break;
-			}
-		}
-	}
-	return ret;
-}
-
-static struct hsm_session_hdl_s *add_session(void)
-{
-	uint32_t i;
-	struct hsm_session_hdl_s *s_ptr = NULL;
-
-	for (i=0u; i<HSM_MAX_SESSIONS; i++) {
-		if ((hsm_sessions[i].phdl == NULL)
-			&& (hsm_sessions[i].session_hdl == 0u)) {
-			/* Found an empty slot. */
-			s_ptr = &hsm_sessions[i];
-			break;
-		}
-	}
-	return s_ptr;
-}
-
-static struct hsm_service_hdl_s *add_service(struct hsm_session_hdl_s *session)
-{
-	uint32_t i;
-	struct hsm_service_hdl_s *s_ptr = NULL;
-
-	for (i=0u; i<HSM_MAX_SERVICES; i++) {
-		if ((hsm_services[i].session == NULL)
-			&& (hsm_services[i].service_hdl == 0u)) {
-			/* Found an empty slot. */
-			s_ptr = &hsm_services[i];
-			s_ptr->session = session;
-			break;
-		}
-	}
-	return s_ptr;
-}
-
-static void delete_session(struct hsm_session_hdl_s *s_ptr)
-{
-	if (s_ptr != NULL) {
-		s_ptr->phdl = NULL;
-		s_ptr->session_hdl = 0u;
-	}
-}
-
-static void delete_service(struct hsm_service_hdl_s *s_ptr)
-{
-	if (s_ptr != NULL) {
-		s_ptr->session = NULL;
-		s_ptr->service_hdl = 0u;
-	}
-}
 
 static hsm_err_t sab_rating_to_hsm_err(uint32_t sab_err)
 {

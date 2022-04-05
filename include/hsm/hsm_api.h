@@ -1,5 +1,5 @@
 /*
- * Copyright 2019-2021 NXP
+ * Copyright 2019-2022 NXP
  *
  * NXP Confidential.
  * This software is owned or controlled by NXP and may only be used strictly
@@ -15,6 +15,8 @@
 #define HSM_API_H
 
 #include <stdint.h>
+
+#include "hsm_handle.h"
 
 /**
  *  @defgroup group0 Error codes
@@ -56,7 +58,6 @@ typedef enum {
  * Once a session is closed all the associated service flows are closed by the HSM.
  *  @{
  */
-typedef uint32_t hsm_hdl_t;
 typedef struct {
     uint8_t session_priority;   //!< Priority of the operations performed in this session. */
     uint8_t operating_mode;     //!< Options for the session to be opened (bitfield). */
