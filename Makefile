@@ -1,5 +1,5 @@
 #
-# Copyright 2021 NXP
+# Copyright 2021, 2022 NXP
 #
 # NXP Confidential.
 # This software is owned or controlled by NXP and may only be used strictly
@@ -36,6 +36,8 @@ OBJECTS	:= \
 	$(PLAT_COMMON_PATH)/hsm_lib.o \
 	$(PLAT_COMMON_PATH)/nvm_manager.o
 
+include $(PLAT_COMMON_PATH)/sab_msg/sab_msg.mk
+include $(PLAT_COMMON_PATH)/hsm_api/hsm_api.mk
 include $(PLAT_PATH)/$(PLAT).mk
 
 PROJECT	:= $(SHE_TEST) $(HSM_TEST) $(V2X_TEST) $(SHE_LIB) $(NVM_LIB) $(HSM_LIB)
@@ -53,6 +55,8 @@ $(SHE_LIB): \
 	$(PLAT_PATH)/$(PLAT)_utils.o \
 	$(PLAT_PATH)/$(PLAT)_os_abs_linux.o \
 	$(PLAT_COMMON_PATH)/she_lib.o \
+	$(SAB_MSG_SRC) \
+	$(HSM_API_SRC) \
 	$(PLAT_COMMON_PATH)/sab_messaging.o
 	$(AR) rcs $@ $^
 
@@ -60,6 +64,8 @@ $(SHE_LIB): \
 $(HSM_LIB): \
 	$(PLAT_COMMON_PATH)/hsm_lib.o \
 	$(PLAT_PATH)/$(PLAT)_utils.o \
+	$(SAB_MSG_SRC) \
+	$(HSM_API_SRC) \
 	$(PLAT_COMMON_PATH)/sab_messaging.o \
 	$(PLAT_PATH)/$(PLAT)_os_abs_linux.o
 	$(AR) rcs $@ $^
