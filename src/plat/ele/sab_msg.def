@@ -10,13 +10,7 @@
 # activate or otherwise use the software.
 #
 
-include $(PLAT_PATH)/sab_msg.def
-
-SAB_MSG_SRC	+= \
-		$(PLAT_COMMON_PATH)/sab_msg/sab_process_msg.o \
-		$(PLAT_COMMON_PATH)/sab_msg/sab_init_proc_msg.o \
-
-OBJECTS		+= $(SAB_MSG_SRC)
-
-INCLUDE_PATHS	+= \
-       		-I${PLAT_COMMON_PATH}/sab_msg/include
+# Message Type (MT)
+NOT_SUPPORTED   := 0x0
+ROM		:= 0x1
+FMW		:= 0x2

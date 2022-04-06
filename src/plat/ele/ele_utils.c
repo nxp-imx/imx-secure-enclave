@@ -14,7 +14,7 @@
 #include "plat_os_abs.h"
 #include "plat_utils.h"
 
-/* Fill a command message header with a given command ID and length in bytes. */
+/* Soon to be depricated to help descriminate between ROM and Firmware API */
 void plat_fill_cmd_msg_hdr(struct sab_mu_hdr *hdr, uint8_t cmd, uint32_t len, uint32_t mu_type)
 {
     switch (mu_type) {
@@ -47,6 +47,44 @@ void plat_fill_cmd_msg_hdr(struct sab_mu_hdr *hdr, uint8_t cmd, uint32_t len, ui
     }
     hdr->command = cmd;
     hdr->size = (uint8_t)(len / sizeof(uint32_t));
+};
+
+/* Fill a command message header with a given command ID and length in bytes. */
+void plat_build_cmd_msg_hdr(struct sab_mu_hdr *hdr, msg_type_t msg_type,
+			uint8_t cmd, uint32_t len, uint32_t mu_type)
+{
+	switch (mu_type) {
+	case MU_CHANNEL_V2X_SV0:
+		hdr->tag = V2X_SV0_REQ_TAG;
+		hdr->ver = V2X_SV0_API_VER;
+		break;
+	case MU_CHANNEL_V2X_SV1:
+		hdr->tag = V2X_SV1_REQ_TAG;
+		hdr->ver = V2X_SV1_API_VER;
+		break;
+	case MU_CHANNEL_V2X_SHE:
+	case MU_CHANNEL_V2X_SHE_NVM:
+		hdr->tag = V2X_SHE_REQ_TAG;
+		hdr->ver = V2X_SHE_API_VER;
+		break;
+	case MU_CHANNEL_V2X_SG0:
+		hdr->tag = V2X_SG0_REQ_TAG;
+		hdr->ver = V2X_SG0_API_VER;
+		break;
+	case MU_CHANNEL_V2X_SG1:
+	case MU_CHANNEL_V2X_HSM_NVM:
+		hdr->tag = V2X_SG1_REQ_TAG;
+		hdr->ver = V2X_SG1_API_VER;
+		break;
+	default:
+		hdr->tag = MESSAGING_TAG_COMMAND;
+		hdr->ver = MESSAGING_VERSION_7;
+		if (msg_type == ROM_MSG)
+			hdr->ver = MESSAGING_VERSION_6;
+		break;
+	}
+	hdr->command = cmd;
+	hdr->size = (uint8_t)(len / sizeof(uint32_t));
 };
 
 /* Fill a response message header with a given command ID and length in bytes. */
@@ -112,15 +150,16 @@ int32_t plat_send_msg_and_get_resp(struct plat_os_abs_hdl *phdl, uint32_t *cmd, 
 
 uint32_t plat_compute_msg_crc(uint32_t *msg, uint32_t msg_len)
 {
-    uint32_t crc;
-    uint32_t i;
-    uint32_t nb_words = msg_len / (uint32_t)sizeof(uint32_t);
+	uint32_t crc;
+	uint32_t i;
+	uint32_t nb_words = msg_len / (uint32_t)sizeof(uint32_t);
 
-    crc = 0u;
-    for (i = 0u; i < nb_words; i++) {
-        crc ^= *(msg + i);
-    }
-    return crc;
+	crc = 0u;
+	for (i = 0u; i < nb_words; i++) {
+		crc ^= *(msg + i);
+	}
+	msg[nb_words] = crc;
+	return crc;
 }
 
 uint32_t get_lib_version(void)

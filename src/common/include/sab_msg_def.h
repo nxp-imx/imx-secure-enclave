@@ -1,5 +1,5 @@
 /*
- * Copyright 2019-2021 NXP
+ * Copyright 2019-2022 NXP
  *
  * NXP Confidential.
  * This software is owned or controlled by NXP and may only be used strictly
@@ -140,8 +140,13 @@
 #define GET_RATING_CODE(rsp_code)               ((uint8_t)((rsp_code) >> 8))
 
 /* Status code definition */
-#define SAB_SUCCESS_STATUS                      0x00u
 #define SAB_FAILURE_STATUS                      0x29u
+#define ROM_SUCCESS_STATUS                      0xD6u
+#define SAB_SUCCESS_STATUS                      0x00u
+
+#define SAB_STATUS_SUCCESS(msg_type)            ((msg_type == ROM_MSG) ? \
+							ROM_SUCCESS_STATUS \
+							: SAB_SUCCESS_STATUS)
 
 /* Rating code definition */
 #define SAB_NO_MESSAGE_RATING                   (0x00u)
@@ -181,6 +186,8 @@
 #define SAB_SHE_GENERAL_ERROR_RATING            (0xDCu)     /**< Error not covered by other codes occured. */
 
 #define SAB_FATAL_FAILURE_RATING                (0xFFu)
+
+#define SAB_MSG_CRC_BIT		(1 << 31)
 
 struct sab_mu_hdr {
     uint8_t ver;

@@ -1,5 +1,5 @@
 /*
- * Copyright 2019-2021 NXP
+ * Copyright 2019-2022 NXP
  *
  * NXP Confidential.
  * This software is owned or controlled by NXP and may only be used strictly
@@ -17,6 +17,18 @@
 
 #include "sab_msg_def.h"
 #include "plat_os_abs.h"
+
+typedef enum {
+	NOT_SUPPORTED,
+	ROM_MSG,
+	SAB_MSG,
+	MAX_MSG_TYPE,
+} msg_type_t;
+
+void plat_build_cmd_msg_hdr(struct sab_mu_hdr *hdr, msg_type_t msg_type,
+			uint8_t cmd, uint32_t len, uint32_t mu_type);
+void plat_build_rsp_msg_hdr(struct sab_mu_hdr *hdr, msg_type_t msg_type,
+			uint8_t cmd, uint32_t len, uint32_t mu_type);
 
 void plat_fill_cmd_msg_hdr(struct sab_mu_hdr *hdr, uint8_t cmd, uint32_t len, uint32_t mu_type);
 
