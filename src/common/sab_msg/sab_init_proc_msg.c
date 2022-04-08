@@ -14,6 +14,9 @@
 #include "sab_msg_def.h"
 #include "sab_process_msg.h"
 
+#if MT_SAB_MANAGE_KEY
+#include "sab_managekey.h"
+#endif
 
 static uint32_t prep_sab_msg_not_supported(void *phdl, void *cmd_buf,
 					   void *rsp_buf, uint32_t *cmd_msg_sz,
@@ -39,6 +42,22 @@ void init_proc_sab_msg_engine(msg_type_t msg_type)
 		ret = NOT_DONE;
 
 		switch (i) {
+#if MT_SAB_MANAGE_KEY
+		case SAB_MANAGE_KEY_REQ:
+			if (msg_type == MT_SAB_MANAGE_KEY) {
+				ret = add_sab_msg_handler(i, MT_SAB_MANAGE_KEY,
+						  prepare_msg_managekey,
+						  proc_msg_rsp_managekey);
+			}
+		break;
+		case SAB_MANAGE_KEY_EXT_REQ:
+			if (msg_type == MT_SAB_MANAGE_KEY) {
+				ret = add_sab_msg_handler(i, MT_SAB_MANAGE_KEY,
+						  prepare_msg_managekey_ext,
+						  proc_msg_rsp_managekey);
+			}
+		break;
+#endif
 		default:
 			if (ret == NOT_DONE) {
 				add_sab_msg_handler(i, SAB_MSG,

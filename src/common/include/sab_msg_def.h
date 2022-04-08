@@ -596,42 +596,6 @@ struct sab_cmd_generate_key_rsp {
     uint32_t key_identifier;
 };
 
-struct sab_cmd_manage_key_msg {
-    struct sab_mu_hdr hdr;
-    uint32_t key_management_handle;
-    uint32_t dest_key_identifier;
-    uint32_t kek_id;
-    uint16_t input_data_size;
-    uint8_t flags;
-    uint8_t key_type;
-    uint16_t key_group;
-    uint16_t key_info;
-    uint32_t input_data_addr;
-    uint32_t crc;
-};
-
-struct sab_cmd_manage_key_ext_msg {
-    struct sab_mu_hdr hdr;
-    uint32_t key_management_handle;
-    uint32_t dest_key_identifier;
-    uint32_t kek_id;
-    uint16_t input_data_size;
-    uint8_t flags;
-    uint8_t key_type;
-    uint16_t key_group;
-    uint16_t key_info;
-    uint32_t input_data_addr;
-    uint8_t min_mac_len;
-    uint8_t reserved[3];
-    uint32_t crc;
-};
-
-struct sab_cmd_manage_key_rsp {
-    struct sab_mu_hdr hdr;
-    uint32_t rsp_code;
-    uint32_t key_identifier;
-};
-
 struct sab_cmd_manage_key_group_msg {
     struct sab_mu_hdr hdr;
     uint32_t key_management_handle;

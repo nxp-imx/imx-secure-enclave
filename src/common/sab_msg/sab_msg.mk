@@ -16,6 +16,12 @@ SAB_MSG_SRC	+= \
 		$(PLAT_COMMON_PATH)/sab_msg/sab_process_msg.o \
 		$(PLAT_COMMON_PATH)/sab_msg/sab_init_proc_msg.o \
 
+ifneq (${MT_SAB_MANAGE_KEY},0x0)
+DEFINES		+=	-DMT_SAB_MANAGE_KEY=${MT_SAB_MANAGE_KEY}
+SAB_MSG_SRC	+= \
+		$(PLAT_COMMON_PATH)/sab_msg/sab_managekey.o
+endif
+
 OBJECTS		+= $(SAB_MSG_SRC)
 
 INCLUDE_PATHS	+= \

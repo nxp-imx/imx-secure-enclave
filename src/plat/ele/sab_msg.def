@@ -14,3 +14,5 @@
 NOT_SUPPORTED   := 0x0
 ROM		:= 0x1
 FMW		:= 0x2
+
+MT_SAB_MANAGE_KEY	:=	${FMW}

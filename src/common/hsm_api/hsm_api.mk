@@ -14,6 +14,12 @@ HSM_API_SRC	+= \
 		$(PLAT_COMMON_PATH)/hsm_api/hsm_handle.o \
 		$(PLAT_COMMON_PATH)/hsm_api/hsm_utils.o \
 
+ifneq (${MT_SAB_MANAGE_KEY},0x0)
+DEFINES		+=	-DHSM_MANAGE_KEY
+HSM_API_SRC	+= \
+		$(PLAT_COMMON_PATH)/hsm_api/hsm_managekey.o
+endif
+
 OBJECTS		+= $(HSM_API_SRC)
 
 INCLUDE_PATHS += \
