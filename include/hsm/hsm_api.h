@@ -17,6 +17,7 @@
 #include <stdint.h>
 
 #include "hsm_handle.h"
+#include "hsm_key.h"
 #include "hsm_utils.h"
 
 /**
@@ -157,11 +158,6 @@ typedef struct {
  * \return error_code error code.
  */
 hsm_err_t hsm_open_key_management_service(hsm_hdl_t key_store_hdl, open_svc_key_management_args_t *args, hsm_hdl_t *key_management_hdl);
-
-typedef uint8_t hsm_op_key_gen_flags_t;
-typedef uint8_t hsm_key_type_t;
-typedef uint16_t hsm_key_info_t;
-typedef uint16_t hsm_key_group_t;
 
 typedef struct {
     uint32_t *key_identifier;           //!< pointer to the identifier of the key to be used for the operation.\n In case of create operation the new key identifier will be stored in this location.
