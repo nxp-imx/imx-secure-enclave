@@ -498,6 +498,12 @@ int main(int argc, char *argv[])
         err = hsm_open_key_store_service(hsm_session_hdl, &open_svc_key_store_args, &key_store_hdl);
         printf("hsm_open_key_store_service ret:0x%x\n", err);
 
+	/* If Data storage test is ran first, it will work
+	 * successfully even for 300 bytes.
+	 * Passing 0 means using the sizeof data array i.e., 300.
+	 */
+        data_storage_test(key_store_hdl, 0);
+
         hsm_rng_test(hsm_session_hdl, &rng_get_random_args);
         public_key_test(hsm_session_hdl);
 
@@ -507,9 +513,11 @@ int main(int argc, char *argv[])
 
         hash_test(hsm_session_hdl);
         transient_key_tests(hsm_session_hdl, key_store_hdl);
-#if PLAT_ELE_FEAT_NOT_SUPPORTED
-        data_storage_test(key_store_hdl);
-#endif
+
+	/* Data size = 4 works fine with all the previous cases occupying the
+	 * firmware heap.
+	 */
+        data_storage_test(key_store_hdl, 4);
 
         err = hsm_close_key_store_service(key_store_hdl);
         printf("hsm_close_key_store_service ret:0x%x\n", err);
