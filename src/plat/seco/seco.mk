@@ -1,5 +1,5 @@
 #
-# Copyright 2021 NXP
+# Copyright 2021-2022 NXP
 #
 # NXP Confidential.
 # This software is owned or controlled by NXP and may only be used strictly
@@ -11,6 +11,8 @@
 # activate or otherwise use the software.
 #
 
+MINOR_VER := 0
+
 HSM_TEST := $(PLAT)_hsm_test
 SHE_TEST := $(PLAT)_she_test
 V2X_TEST := $(PLAT)_v2x_test
@@ -18,7 +20,7 @@ SHE_LIB := she_lib.a
 HSM_LIB := hsm_lib.a
 NVM_LIB := seco_nvm_manager.a
 
-DEFINES		+=	-DCONFIG_PLAT_SECO
+DEFINES		+=	-DCONFIG_PLAT_SECO -DLIB_MINOR_VERSION=${MINOR_VER}
 
 PLAT_OBJECTS	:=	$(PLAT_PATH)/seco_os_abs_linux.o \
 			$(PLAT_PATH)/seco_utils.o

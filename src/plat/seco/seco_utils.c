@@ -121,3 +121,8 @@ uint32_t plat_compute_msg_crc(uint32_t *msg, uint32_t msg_len)
     }
     return crc;
 }
+
+uint32_t get_lib_version(void)
+{
+	return LIB_MAJOR_VERSION << 8 + LIB_MINOR_VERSION;
+}
