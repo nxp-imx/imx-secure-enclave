@@ -16,6 +16,12 @@ SAB_MSG_SRC	+= \
 		$(PLAT_COMMON_PATH)/sab_msg/sab_process_msg.o \
 		$(PLAT_COMMON_PATH)/sab_msg/sab_init_proc_msg.o \
 
+ifneq (${MT_SAB_DEBUG_DUMP},0x0)
+DEFINES		+=	-DMT_SAB_DEBUG_DUMP=${MT_SAB_DEBUG_DUMP}
+SAB_MSG_SRC	+= \
+		$(PLAT_COMMON_PATH)/sab_msg/sab_debug_dump.o
+endif
+
 ifneq (${MT_SAB_MANAGE_KEY},0x0)
 DEFINES		+=	-DMT_SAB_MANAGE_KEY=${MT_SAB_MANAGE_KEY}
 SAB_MSG_SRC	+= \

@@ -238,6 +238,10 @@ hsm_err_t hsm_generate_key_ext(hsm_hdl_t key_management_hdl, op_generate_key_ext
 #include "hsm_managekey.h"
 #endif
 
+#ifdef HSM_DEBUG_DUMP
+#include "hsm_debug_dump.h"
+#endif
+
 typedef uint8_t hsm_op_manage_key_group_flags_t;
 typedef struct {
     hsm_key_group_t key_group;                  //!< it must be a value in the range 0-1023. Keys belonging to the same group can be cached in the HSM local memory through the hsm_manage_key_group API.

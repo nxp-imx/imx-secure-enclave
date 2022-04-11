@@ -14,6 +14,10 @@
 #include "sab_msg_def.h"
 #include "sab_process_msg.h"
 
+#if MT_SAB_DEBUG_DUMP
+#include "sab_debug_dump.h"
+#endif
+
 #if MT_SAB_MANAGE_KEY
 #include "sab_managekey.h"
 #endif
@@ -42,6 +46,15 @@ void init_proc_sab_msg_engine(msg_type_t msg_type)
 		ret = NOT_DONE;
 
 		switch (i) {
+#if MT_SAB_DEBUG_DUMP
+		case ROM_DEBUG_DUMP_REQ:
+			if (msg_type == MT_SAB_DEBUG_DUMP) {
+				ret = add_sab_msg_handler(i, MT_SAB_DEBUG_DUMP,
+						  prepare_msg_debugdump,
+						  proc_msg_rsp_debugdump);
+			}
+		break;
+#endif
 #if MT_SAB_MANAGE_KEY
 		case SAB_MANAGE_KEY_REQ:
 			if (msg_type == MT_SAB_MANAGE_KEY) {

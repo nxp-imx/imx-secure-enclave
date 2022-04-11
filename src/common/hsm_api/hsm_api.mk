@@ -20,6 +20,12 @@ HSM_API_SRC	+= \
 		$(PLAT_COMMON_PATH)/hsm_api/hsm_managekey.o
 endif
 
+ifneq (${MT_SAB_DEBUG_DUMP},0x0)
+DEFINES		+=	-DHSM_DEBUG_DUMP
+HSM_API_SRC	+= \
+		$(PLAT_COMMON_PATH)/hsm_api/hsm_debug_dump.o
+endif
+
 OBJECTS		+= $(HSM_API_SRC)
 
 INCLUDE_PATHS += \

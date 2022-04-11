@@ -16,3 +16,6 @@ ROM		:= 0x1
 FMW		:= 0x2
 
 MT_SAB_MANAGE_KEY	:=	${FMW}
+
+# API(s) supported by ROM
+MT_SAB_DEBUG_DUMP	:=	${ROM}
