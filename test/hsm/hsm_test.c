@@ -23,6 +23,9 @@
 #include "hsm_api.h"
 #include "nvm.h"
 
+hsm_hdl_t hsm_session_hdl;
+int cmdline_arg;
+
 /* input  Qx||lsb_Qy */
 static uint8_t ECC_P256_Qx[32+1] =
 { 0xCE, 0x4D, 0xCF, 0xA7, 0x38, 0x4C, 0x83, 0x44, 0x3A, 0xCE, 0x0F, 0xB8, 0x2C, 0x4A, 0xC1, 0xAD,
@@ -437,11 +440,19 @@ static void *hsm_storage_thread(void *arg)
     nvm_manager(NVM_FLAGS_HSM, &nvm_status);
 }
 
+hsm_hdl_t get_hsm_session_hdl(void)
+{
+	return hsm_session_hdl;
+}
+
+int get_cmdline_arg(void)
+{
+	return cmdline_arg;
+}
 
 /* Test entry function. */
 int main(int argc, char *argv[])
 {
-    hsm_hdl_t hsm_session_hdl;
     hsm_hdl_t key_store_hdl;
 
     open_session_args_t open_session_args = {0};
@@ -451,6 +462,9 @@ int main(int argc, char *argv[])
     pthread_t tid;
 
     hsm_err_t err;
+
+    if (argc > 1)
+	    cmdline_arg = atoi(argv[1]);
 
     do {
         nvm_status = NVM_STATUS_UNDEF;

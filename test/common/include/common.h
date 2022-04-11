@@ -20,4 +20,14 @@ hsm_err_t do_mac_test(hsm_hdl_t key_store_hdl, hsm_hdl_t key_mgmt_hdl);
 void data_storage_test(hsm_hdl_t key_store_hdl);
 void hash_test(hsm_hdl_t hash_sess);
 
+/* To fetch the global session handle
+ * opened as part of the test run
+ */
+hsm_hdl_t get_hsm_session_hdl(void);
+
+/* To send the commmand line
+ * input to any test.
+ */
+int get_cmdline_arg(void);
+
 #endif
