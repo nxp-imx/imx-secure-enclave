@@ -115,7 +115,9 @@ void data_storage_test(hsm_hdl_t key_store_hdl, int arg)
 	if (err) {
 		printf("Err[Store]: 0x%x hsm_data_storage hdl: 0x%08x\n",
 							err, data_storage_hdl);
+#ifdef CONFIG_PLAT_ELE
 		dump_firmware_log(get_hsm_session_hdl());
+#endif
 		return;
 	}
 
@@ -130,7 +132,9 @@ void data_storage_test(hsm_hdl_t key_store_hdl, int arg)
 	if (err) {
 		printf("Err[Re-Store]: 0x%x hsm_data_storage hdl: 0x%08x\n",
 							err, data_storage_hdl);
+#ifdef CONFIG_PLAT_ELE
 		dump_firmware_log(get_hsm_session_hdl());
+#endif
 		return;
 	}
 
