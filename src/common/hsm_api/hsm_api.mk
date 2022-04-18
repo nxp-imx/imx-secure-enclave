@@ -28,5 +28,6 @@ endif
 
 OBJECTS		+= $(HSM_API_SRC)
 
-INCLUDE_PATHS += \
-       		-I${PLAT_COMMON_PATH}/hsm_api/include
+INCLUDE_PATHS	+= \
+		   -Iinclude/hsm \
+		   -I${PLAT_COMMON_PATH}/hsm_api/include

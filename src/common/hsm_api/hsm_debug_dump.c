@@ -11,9 +11,9 @@
  * activate or otherwise use the software.
  */
 
-#include "hsm_utils.h"
-#include "hsm_handle.h"
-#include "hsm_debug_dump.h"
+#include "internal/hsm_utils.h"
+#include "internal/hsm_handle.h"
+#include "internal/hsm_debug_dump.h"
 
 #include "sab_msg_def.h"
 #include "sab_process_msg.h"

@@ -15,6 +15,7 @@
 #define HSM_DEBUG_DUMP_H
 
 #include <stdbool.h>
+#include <stdint.h>
 
 #include "hsm_handle.h"
 #include "hsm_utils.h"

@@ -11,7 +11,7 @@
  * activate or otherwise use the software.
  */
 
-#include "hsm_managekey.h"
+#include "internal/hsm_managekey.h"
 
 #include "sab_managekey.h"
 #include "plat_os_abs.h"

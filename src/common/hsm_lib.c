@@ -12,11 +12,14 @@
  */
 
 #include "hsm_api.h"
-#include "hsm_handle.h"
-#include "hsm_utils.h"
-#include "plat_os_abs.h"
+
+#include "internal/hsm_handle.h"
+#include "internal/hsm_utils.h"
+
 #include "sab_msg_def.h"
 #include "sab_messaging.h"
+
+#include "plat_os_abs.h"
 #include "plat_utils.h"
 
 static struct hsm_session_hdl_s hsm_sessions[HSM_MAX_SESSIONS] = {};

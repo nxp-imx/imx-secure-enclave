@@ -13,11 +13,13 @@
 
 #include "string.h"
 
+#include "internal/hsm_debug_dump.h"
+
+#include "sab_debug_dump.h"
+
 #include "plat_os_abs.h"
 #include "plat_utils.h"
 
-#include "hsm_debug_dump.h"
-#include "sab_debug_dump.h"
 
 uint32_t prepare_msg_debugdump(void *phdl,
 			       void *cmd_buf, void *rsp_buf,

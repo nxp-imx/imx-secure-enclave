@@ -14,7 +14,7 @@
 #include <stdint.h>
 #include <stdlib.h>
 
-#include "hsm_handle.h"
+#include "internal/hsm_handle.h"
 
 static struct hsm_session_hdl_s hsm_sessions[HSM_MAX_SESSIONS] = {};
 static struct hsm_service_hdl_s hsm_services[HSM_MAX_SERVICES] = {};

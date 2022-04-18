@@ -12,7 +12,7 @@
  */
 
 #include "sab_msg_def.h"
-#include "hsm_utils.h"
+#include "internal/hsm_utils.h"
 
 hsm_err_t sab_rating_to_hsm_err(uint32_t sab_err)
 {

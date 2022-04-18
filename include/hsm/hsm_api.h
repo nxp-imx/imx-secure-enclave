@@ -16,9 +16,9 @@
 
 #include <stdint.h>
 
-#include "hsm_handle.h"
-#include "hsm_key.h"
-#include "hsm_utils.h"
+#include "hsm/internal/hsm_handle.h"
+#include "hsm/internal/hsm_key.h"
+#include "hsm/internal/hsm_utils.h"
 
 /**
  *  @defgroup group1 Session
@@ -235,11 +235,11 @@ typedef struct {
 hsm_err_t hsm_generate_key_ext(hsm_hdl_t key_management_hdl, op_generate_key_ext_args_t *args);
 
 #ifdef HSM_MANAGE_KEY
-#include "hsm_managekey.h"
+#include "internal/hsm_managekey.h"
 #endif
 
 #ifdef HSM_DEBUG_DUMP
-#include "hsm_debug_dump.h"
+#include "internal/hsm_debug_dump.h"
 #endif
 
 typedef uint8_t hsm_op_manage_key_group_flags_t;
