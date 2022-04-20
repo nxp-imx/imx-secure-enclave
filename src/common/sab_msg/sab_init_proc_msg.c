@@ -18,6 +18,14 @@
 #include "sab_debug_dump.h"
 #endif
 
+#if MT_SAB_KEY_GENERATE
+#include "sab_key_generate.h"
+#endif
+
+#if MT_SAB_KEY_GEN_EXT
+#include "sab_key_gen_ext.h"
+#endif
+
 #if MT_SAB_MANAGE_KEY
 #include "sab_managekey.h"
 #endif
@@ -52,6 +60,24 @@ void init_proc_sab_msg_engine(msg_type_t msg_type)
 				ret = add_sab_msg_handler(i, MT_SAB_DEBUG_DUMP,
 						  prepare_msg_debugdump,
 						  proc_msg_rsp_debugdump);
+			}
+		break;
+#endif
+#if MT_SAB_KEY_GENERATE
+		case SAB_KEY_GENERATE_REQ:
+			if (msg_type == MT_SAB_KEY_GENERATE) {
+				ret = add_sab_msg_handler(i, MT_SAB_KEY_GENERATE,
+						  prepare_msg_generatekey,
+						  proc_msg_rsp_generatekey);
+			}
+		break;
+#endif
+#if MT_SAB_KEY_GEN_EXT
+		case SAB_KEY_GENERATE_EXT_REQ:
+			if (msg_type == MT_SAB_KEY_GEN_EXT) {
+				ret = add_sab_msg_handler(i, MT_SAB_KEY_GEN_EXT,
+						  prepare_msg_gen_key_ext,
+						  proc_msg_rsp_gen_key_ext);
 			}
 		break;
 #endif

@@ -1,5 +1,5 @@
 /*
- * Copyright 2019-2021 NXP
+ * Copyright 2019-2022 NXP
  *
  * NXP Confidential.
  * This software is owned or controlled by NXP and may only be used strictly
@@ -182,6 +182,7 @@ int32_t plat_os_abs_configure_shared_buf(struct plat_os_abs_hdl *phdl, uint32_t 
  * \return the address to be inserted in the message to Secure-Enclave Platform, to indicate him this buffer.
  */
 uint64_t plat_os_abs_data_buf(struct plat_os_abs_hdl *phdl, uint8_t *src, uint32_t size, uint32_t flags);
+#define DATA_BUF_IS_OUTPUT        0x00u
 #define DATA_BUF_IS_INPUT         0x01u
 #define DATA_BUF_USE_SEC_MEM      0x02u
 #define DATA_BUF_SHORT_ADDR       0x04u

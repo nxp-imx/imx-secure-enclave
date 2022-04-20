@@ -272,9 +272,16 @@ static void transient_key_tests(hsm_hdl_t sess_hdl, hsm_hdl_t key_store_hdl)
 	memset(&key_gen_args, 0, sizeof(key_gen_args));
 	key_gen_args.key_identifier = &master_key_id;
 	key_gen_args.out_size = sizeof(pub_key);
-	key_gen_args.flags = HSM_OP_KEY_GENERATION_FLAGS_CREATE;
 	key_gen_args.key_group = 1;
+#ifdef CONFIG_PLAT_SECO
+	key_gen_args.flags = HSM_OP_KEY_GENERATION_FLAGS_CREATE;
 	key_gen_args.key_info = HSM_KEY_INFO_TRANSIENT | HSM_KEY_INFO_MASTER;
+#else
+	key_gen_args.key_lifetime = HSM_KEY_LIFE_VOLATILE;
+	key_gen_args.key_usage = HSM_KEY_USAGE_SIGN_MSG
+		| HSM_KEY_USAGE_SIGN_MSG;
+	key_gen_args.permitted_algo = PERMITTED_ALGO_ALL_CIPHER;
+#endif
 	key_gen_args.key_type = HSM_KEY_TYPE_ECDSA_NIST_P256;
 	key_gen_args.out_key = pub_key;
 	hsmret = hsm_generate_key(key_mgmt_hdl, &key_gen_args);
@@ -369,9 +376,15 @@ static void transient_key_tests(hsm_hdl_t sess_hdl, hsm_hdl_t key_store_hdl)
 	memset(&key_gen_args, 0, sizeof(key_gen_args));
 	key_gen_args.key_identifier = &sym_key_id;
 	key_gen_args.out_size = 0;
-	key_gen_args.flags = HSM_OP_KEY_GENERATION_FLAGS_CREATE;
 	key_gen_args.key_group = 1001;
+#ifdef CONFIG_PLAT_SECO
+	key_gen_args.flags = HSM_OP_KEY_GENERATION_FLAGS_CREATE;
 	key_gen_args.key_info = HSM_KEY_INFO_TRANSIENT;
+#else
+	key_gen_args.key_lifetime = HSM_KEY_LIFE_VOLATILE;
+	key_gen_args.key_usage = HSM_KEY_USAGE_DERIVE;
+	key_gen_args.permitted_algo = PERMITTED_ALGO_ALL_CIPHER;
+#endif
 	key_gen_args.key_type = HSM_KEY_TYPE_AES_256;
 	key_gen_args.out_key = NULL;
 	hsmret = hsm_generate_key(key_mgmt_hdl, &key_gen_args);

@@ -13,6 +13,19 @@
 HSM_API_SRC	+= \
 		$(PLAT_COMMON_PATH)/hsm_api/hsm_handle.o \
 		$(PLAT_COMMON_PATH)/hsm_api/hsm_utils.o \
+		$(PLAT_COMMON_PATH)/hsm_api/hsm_key.o \
+
+ifneq (${MT_SAB_KEY_GENERATE},0x0)
+DEFINES		+=	-DHSM_KEY_GENERATE
+HSM_API_SRC	+= \
+		$(PLAT_COMMON_PATH)/hsm_api/hsm_key_generate.o
+endif
+
+ifneq (${MT_SAB_KEY_GEN_EXT},0x0)
+DEFINES		+=	-DHSM_KEY_GEN_EXT
+HSM_API_SRC	+= \
+		$(PLAT_COMMON_PATH)/hsm_api/hsm_key_gen_ext.o
+endif
 
 ifneq (${MT_SAB_MANAGE_KEY},0x0)
 DEFINES		+=	-DHSM_MANAGE_KEY

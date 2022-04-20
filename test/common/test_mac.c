@@ -49,7 +49,13 @@ static uint8_t  test_msg[300] = {
 };
 
 static hsm_err_t generate_key(hsm_hdl_t key_mgmt_hdl,
+#ifdef CONFIG_PLAT_SECO
 			      hsm_key_info_t key_info,
+#else
+			      hsm_key_lifetime_t key_lifetime,
+			      hsm_key_usage_t key_usage,
+			      hsm_permitted_algo_t permitted_algo,
+#endif
 			      hsm_key_type_t key_type,
 			      uint32_t *key_identifier)
 {
@@ -57,9 +63,15 @@ static hsm_err_t generate_key(hsm_hdl_t key_mgmt_hdl,
 
 	key_gen_args.key_identifier = key_identifier;
 	key_gen_args.out_size = 0;
-	key_gen_args.flags = HSM_OP_KEY_GENERATION_FLAGS_CREATE;
 	key_gen_args.key_group = MAC_KEY_GROUP;
+#ifdef CONFIG_PLAT_SECO
+	key_gen_args.flags = HSM_OP_KEY_GENERATION_FLAGS_CREATE;
 	key_gen_args.key_info = key_info;
+#else
+	key_gen_args.key_lifetime = 0;
+	key_gen_args.key_usage = 0;
+	key_gen_args.permitted_algo = 0;
+#endif
 	key_gen_args.key_type = key_type;
 	key_gen_args.out_key = NULL;
 
@@ -128,38 +140,80 @@ hsm_err_t do_mac_test(hsm_hdl_t key_store_hdl, hsm_hdl_t key_mgmt_hdl)
 				err, sg0_mac_hdl);
 
 	printf("HSM_KEY_TYPE_AES_256 & HSM_OP_MAC_ONE_GO_ALGO_AES_CMAC:");
-	generate_key(key_mgmt_hdl, HSM_KEY_INFO_TRANSIENT,
+	generate_key(key_mgmt_hdl,
+#ifdef CONFIG_PLAT_SECO
+			HSM_KEY_INFO_TRANSIENT,
+#else
+			HSM_KEY_LIFE_VOLATILE,
+			HSM_KEY_USAGE_ENCRYPT,
+			PERMITTED_ALGO_CMAC,
+#endif
 			HSM_KEY_TYPE_AES_256, &sym_key_id);
 	mac_one_go_test(sym_key_id, sg0_mac_hdl,
 			HSM_OP_MAC_ONE_GO_ALGO_AES_CMAC, 32, 16, 8);
 
 	printf("HSM_KEY_TYPE_AES_128 & HSM_OP_MAC_ONE_GO_ALGO_AES_CMAC:");
-	generate_key(key_mgmt_hdl, HSM_KEY_INFO_TRANSIENT,
+	generate_key(key_mgmt_hdl,
+#ifdef CONFIG_PLAT_SECO
+			HSM_KEY_INFO_TRANSIENT,
+#else
+			HSM_KEY_LIFE_VOLATILE,
+			HSM_KEY_USAGE_ENCRYPT,
+			PERMITTED_ALGO_CMAC,
+#endif
 			HSM_KEY_TYPE_AES_128, &sym_key_id);
 	mac_one_go_test(sym_key_id, sg0_mac_hdl,
 			HSM_OP_MAC_ONE_GO_ALGO_AES_CMAC, 16, 16, 8);
 
 #if PLAT_ELE_FEAT_NOT_SUPPORTED
 	printf("HSM_KEY_TYPE_HMAC_224 & HSM_OP_MAC_ONE_GO_ALGO_HMAC_SHA_224:");
-	generate_key(key_mgmt_hdl, HSM_KEY_INFO_TRANSIENT,
+	generate_key(key_mgmt_hdl,
+#ifdef CONFIG_PLAT_SECO
+			HSM_KEY_INFO_TRANSIENT,
+#else
+			HSM_KEY_LIFE_VOLATILE,
+			HSM_KEY_USAGE_ENCRYPT,
+			PERMITTED_ALGO_HMAC_SHA224, // Not supported on ELE
+#endif
 			HSM_KEY_TYPE_HMAC_224, &sym_key_id);
 	mac_one_go_test(sym_key_id, sg0_mac_hdl,
 			HSM_OP_MAC_ONE_GO_ALGO_HMAC_SHA_224, 28, 28, 28);
 
 	printf("HSM_KEY_TYPE_HMAC_256 & HSM_OP_MAC_ONE_GO_ALGO_HMAC_SHA_256:");
-	generate_key(key_mgmt_hdl, HSM_KEY_INFO_TRANSIENT,
+	generate_key(key_mgmt_hdl,
+#ifdef CONFIG_PLAT_SECO
+			HSM_KEY_INFO_TRANSIENT,
+#else
+			HSM_KEY_LIFE_VOLATILE,
+			HSM_KEY_USAGE_ENCRYPT,
+			PERMITTED_ALGO_HMAC_SHA256,
+#endif
 			HSM_KEY_TYPE_HMAC_256, &sym_key_id);
 	mac_one_go_test(sym_key_id, sg0_mac_hdl,
 			HSM_OP_MAC_ONE_GO_ALGO_HMAC_SHA_256, 32, 32, 32);
 
 	printf("HSM_KEY_TYPE_HMAC_384 & HSM_OP_MAC_ONE_GO_ALGO_HMAC_SHA_384:");
-	generate_key(key_mgmt_hdl, HSM_KEY_INFO_TRANSIENT,
+	generate_key(key_mgmt_hdl,
+#ifdef CONFIG_PLAT_SECO
+			HSM_KEY_INFO_TRANSIENT,
+#else
+			HSM_KEY_LIFE_VOLATILE,
+			HSM_KEY_USAGE_ENCRYPT,
+			PERMITTED_ALGO_HMAC_SHA384,
+#endif
 			HSM_KEY_TYPE_HMAC_384, &sym_key_id);
 	mac_one_go_test(sym_key_id, sg0_mac_hdl,
 			HSM_OP_MAC_ONE_GO_ALGO_HMAC_SHA_384, 32, 16, 8);
 
 	printf("HSM_KEY_TYPE_HMAC_512 & HSM_OP_MAC_ONE_GO_ALGO_HMAC_SHA_512:");
-	generate_key(key_mgmt_hdl, HSM_KEY_INFO_TRANSIENT,
+	generate_key(key_mgmt_hdl,
+#ifdef CONFIG_PLAT_SECO
+			HSM_KEY_INFO_TRANSIENT,
+#else
+			HSM_KEY_LIFE_VOLATILE,
+			HSM_KEY_USAGE_ENCRYPT,
+			PERMITTED_ALGO_HMAC_SHA512, // Not supported on ELE
+#endif
 			HSM_KEY_TYPE_HMAC_512, &sym_key_id);
 	mac_one_go_test(sym_key_id, sg0_mac_hdl,
 			HSM_OP_MAC_ONE_GO_ALGO_HMAC_SHA_512, 32, 16, 8);

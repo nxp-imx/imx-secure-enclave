@@ -160,80 +160,13 @@ typedef struct {
  */
 hsm_err_t hsm_open_key_management_service(hsm_hdl_t key_store_hdl, open_svc_key_management_args_t *args, hsm_hdl_t *key_management_hdl);
 
-typedef struct {
-    uint32_t *key_identifier;           //!< pointer to the identifier of the key to be used for the operation.\n In case of create operation the new key identifier will be stored in this location.
-    uint16_t out_size;                  //!< length in bytes of the generated key. It must be 0 in case of symmetric keys.
-    hsm_op_key_gen_flags_t flags;       //!< bitmap specifying the operation properties.
-    hsm_key_type_t key_type;            //!< indicates which type of key must be generated.
-    hsm_key_group_t key_group;          //!< Key group of the generated key. It must be a value in the range 0-1023. Keys belonging to the same group can be cached in the HSM local memory through the hsm_manage_key_group API.
-    hsm_key_info_t key_info;            //!< bitmap specifying the properties of the key.
-    uint8_t *out_key;                   //!< pointer to the output area where the generated public key must be written.
-} op_generate_key_args_t;
+#ifdef HSM_KEY_GENERATE
+#include "internal/hsm_key_generate.h"
+#endif
 
-/**
- * Generate a key or a key pair. Only the confidential keys (symmetric and private keys) are stored in the internal key store, while the non-confidential keys (public key) are exported.\n
- * The generated key can be stored using a new or existing key identifier with the restriction that an existing key can be replaced only by a key of the same type.\n
- * The hsm_generate_key_ext function (described separately) allows additional settings.  When using the hsm_generate_key function, all additional settings are set to their default values.\n
- * User can call this function only after having opened a key management service flow.
- *
- * \param key_management_hdl handle identifying the key management service flow.
- * \param args pointer to the structure containing the function arguments.
- *
- * \return error code
- */
-hsm_err_t hsm_generate_key(hsm_hdl_t key_management_hdl, op_generate_key_args_t *args);
-#define HSM_KEY_TYPE_ECDSA_NIST_P256                        ((hsm_key_type_t)0x02u)
-#define HSM_KEY_TYPE_ECDSA_NIST_P384                        ((hsm_key_type_t)0x03u)
-#define HSM_KEY_TYPE_ECDSA_NIST_P521                        ((hsm_key_type_t)0x04u)
-#define HSM_KEY_TYPE_ECDSA_BRAINPOOL_R1_256                 ((hsm_key_type_t)0x13u)
-#define HSM_KEY_TYPE_ECDSA_BRAINPOOL_R1_320                 ((hsm_key_type_t)0x14u)
-#define HSM_KEY_TYPE_ECDSA_BRAINPOOL_R1_384                 ((hsm_key_type_t)0x15u)
-#define HSM_KEY_TYPE_ECDSA_BRAINPOOL_R1_512                 ((hsm_key_type_t)0x16u)
-#define HSM_KEY_TYPE_ECDSA_BRAINPOOL_T1_256                 ((hsm_key_type_t)0x23u)
-#define HSM_KEY_TYPE_ECDSA_BRAINPOOL_T1_320                 ((hsm_key_type_t)0x24u)
-#define HSM_KEY_TYPE_ECDSA_BRAINPOOL_T1_384                 ((hsm_key_type_t)0x25u)
-#define HSM_KEY_TYPE_ECDSA_BRAINPOOL_T1_512                 ((hsm_key_type_t)0x26u)
-#define HSM_KEY_TYPE_AES_128                                ((hsm_key_type_t)0x30u)
-#define HSM_KEY_TYPE_AES_192                                ((hsm_key_type_t)0x31u)
-#define HSM_KEY_TYPE_AES_256                                ((hsm_key_type_t)0x32u)
-#define HSM_KEY_TYPE_DSA_SM2_FP_256                         ((hsm_key_type_t)0x42u)
-#define HSM_KEY_TYPE_SM4_128                                ((hsm_key_type_t)0x50u)
-#define HSM_KEY_TYPE_HMAC_224                               ((hsm_key_type_t)0x60u)
-#define HSM_KEY_TYPE_HMAC_256                               ((hsm_key_type_t)0x61u)
-#define HSM_KEY_TYPE_HMAC_384                               ((hsm_key_type_t)0x62u)
-#define HSM_KEY_TYPE_HMAC_512                               ((hsm_key_type_t)0x63u)
-#define HSM_OP_KEY_GENERATION_FLAGS_UPDATE                  ((hsm_op_key_gen_flags_t)(1u << 0))  //!< User can replace an existing key only by generating a key with the same type of the original one.
-#define HSM_OP_KEY_GENERATION_FLAGS_CREATE                  ((hsm_op_key_gen_flags_t)(1u << 1))  //!< Create a new key.
-#define HSM_OP_KEY_GENERATION_FLAGS_STRICT_OPERATION        ((hsm_op_key_gen_flags_t)(1u << 7))  //!< The request is completed only when the new key has been written in the NVM. This applicable for persistent key only.
-#define HSM_KEY_INFO_PERSISTENT                             ((hsm_key_info_t)(0u << 1))          //!< Persistent keys are stored in the external NVM. The entire key group is written in the NVM at the next STRICT operation.
-#define HSM_KEY_INFO_PERMANENT                              ((hsm_key_info_t)(1u << 0))          //!< When set, the key is permanent (write locked). Once created, it will not be possible to update or delete the key anymore. Transient keys will be anyway deleted after a PoR or when the corresponding key store service flow is closed. This bit can never be reset.
-#define HSM_KEY_INFO_TRANSIENT                              ((hsm_key_info_t)(1u << 1))          //!< Transient keys are deleted when the corresponding key store service flow is closed or after a PoR. Transient keys cannot be in the same key group than persistent keys.
-#define HSM_KEY_INFO_MASTER                                 ((hsm_key_info_t)(1u << 2))          //!< When set, the key is considered as a master key. Only master keys can be used as input of key derivation functions (i.e butterfly key expansion).
-#define HSM_KEY_INFO_KEK                                    ((hsm_key_info_t)(1u << 3))          //!< When set, the key is considered as a key encryption key. KEK keys can only be used to wrap and import other keys into the key store, all other operation are not allowed. Only keys imported in the key store through the hsm_mange_key API can get this attribute.
-
-typedef uint8_t hsm_op_key_gen_ext_flags_t;
-typedef struct {
-    uint32_t *key_identifier;           //!< pointer to the identifier of the key to be used for the operation.\n In case of create operation the new key identifier will be stored in this location.
-    uint16_t out_size;                  //!< length in bytes of the generated key. It must be 0 in case of symmetric keys.
-    hsm_op_key_gen_flags_t flags;       //!< bitmap specifying the operation properties.
-    hsm_key_type_t key_type;            //!< indicates which type of key must be generated.
-    hsm_key_group_t key_group;          //!< Key group of the generated key. It must be a value in the range 0-1023. Keys belonging to the same group can be cached in the HSM local memory through the hsm_manage_key_group API.
-    hsm_key_info_t key_info;            //!< bitmap specifying the properties of the key.
-    uint8_t *out_key;                   //!< pointer to the output area where the generated public key must be written.
-    uint8_t min_mac_len;                //!< min mac length in bits to be set for this key, value 0 indicates use default (see op_mac_one_go_args_t for more details).  Only accepted for keys that can be used for mac operations, must not be larger than maximum mac size that can be performed with the key.\n When in FIPS approved mode values < 32 bits are not allowed.
-    uint8_t reserved[3];                //!< It must be 0.
-} op_generate_key_ext_args_t;
-
-/**
- * Generate a key or a key pair with extended settings. Basic operation is identical to hsm_generate_key, but accepts additional settings.
- * Currently the min_mac_len is the only additional setting accepted.
- *
- * \param key_management_hdl handle identifying the key management service flow.
- * \param args pointer to the structure containing the function arguments.
- *
- * \return error code
- */
-hsm_err_t hsm_generate_key_ext(hsm_hdl_t key_management_hdl, op_generate_key_ext_args_t *args);
+#ifdef HSM_KEY_GEN_EXT
+#include "internal/hsm_key_gen_ext.h"
+#endif
 
 #ifdef HSM_MANAGE_KEY
 #include "internal/hsm_managekey.h"

@@ -22,6 +22,18 @@ SAB_MSG_SRC	+= \
 		$(PLAT_COMMON_PATH)/sab_msg/sab_debug_dump.o
 endif
 
+ifneq (${MT_SAB_KEY_GENERATE},0x0)
+DEFINES		+=	-DMT_SAB_KEY_GENERATE=${MT_SAB_KEY_GENERATE}
+SAB_MSG_SRC	+= \
+		$(PLAT_COMMON_PATH)/sab_msg/sab_key_generate.o
+endif
+
+ifneq (${MT_SAB_KEY_GEN_EXT},0x0)
+DEFINES		+=	-DMT_SAB_KEY_GEN_EXT=${MT_SAB_KEY_GEN_EXT}
+SAB_MSG_SRC	+= \
+		$(PLAT_COMMON_PATH)/sab_msg/sab_key_gen_ext.o
+endif
+
 ifneq (${MT_SAB_MANAGE_KEY},0x0)
 DEFINES		+=	-DMT_SAB_MANAGE_KEY=${MT_SAB_MANAGE_KEY}
 SAB_MSG_SRC	+= \

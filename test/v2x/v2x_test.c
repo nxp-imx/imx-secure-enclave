@@ -1,5 +1,5 @@
 /*
- * Copyright 2021 NXP
+ * Copyright 2021, 2022 NXP
  *
  * NXP Confidential.
  * This software is owned or controlled by NXP and may only be used strictly
@@ -200,10 +200,17 @@ static void *sig_loop_thread(void *arg)
         /* generate and verify a SM2 signature - use alternatively create and update flags. */
         gen_key_args.key_identifier = &key_id;
         gen_key_args.out_size = 64;
-        gen_key_args.flags = ((i%4 == 0) ? HSM_OP_KEY_GENERATION_FLAGS_CREATE : HSM_OP_KEY_GENERATION_FLAGS_UPDATE);
         gen_key_args.key_type = HSM_KEY_TYPE_DSA_SM2_FP_256;
         gen_key_args.key_group = 12;
+#ifdef CONFIG_PLAT_SECO
+        gen_key_args.flags = ((i%4 == 0) ? HSM_OP_KEY_GENERATION_FLAGS_CREATE : HSM_OP_KEY_GENERATION_FLAGS_UPDATE);
         gen_key_args.key_info = 0U;
+#else
+        gen_key_args.key_lifetime = 0;
+        gen_key_args.key_usage = 0;
+        gen_key_args.permitted_algo = 0;
+#endif
+
         gen_key_args.out_key = args->pubk_area;
         err = hsm_generate_key(args->key_mgmt_srv, &gen_key_args);
         // printf("%s err: 0x%x hsm_generate_key err: hdl: 0x%08x\n", args->tag, err, args->key_mgmt_srv);
@@ -244,10 +251,16 @@ static void *sig_loop_thread(void *arg)
     /* generate and verify a P256 signature - use alternatively create and update flags. */
     gen_key_args.key_identifier = &key_id;
     gen_key_args.out_size = 64;
-    gen_key_args.flags = HSM_OP_KEY_GENERATION_FLAGS_CREATE;
     gen_key_args.key_type = HSM_KEY_TYPE_ECDSA_NIST_P256;
     gen_key_args.key_group = 12;
+#ifdef CONFIG_PLAT_SECO
+    gen_key_args.flags = HSM_OP_KEY_GENERATION_FLAGS_CREATE;
     gen_key_args.key_info = 0U;
+#else
+    gen_key_args.key_lifetime = 0;
+    gen_key_args.key_usage = 0;
+    gen_key_args.permitted_algo = 0;
+#endif
     gen_key_args.out_key = args->pubk_area;
     err = hsm_generate_key(args->key_mgmt_srv, &gen_key_args);
     //printf("%s err: 0x%x hsm_generate_key err: hdl: 0x%08x\n", args->tag, err, args->key_mgmt_srv);
@@ -312,10 +325,16 @@ static void *cipher_loop_thread(void *arg)
         /* generate and verify a SM2 signature - use alternatively create and update flags. */
         gen_key_args.key_identifier = &key_id;
         gen_key_args.out_size = 0;
-        gen_key_args.flags = ((i%4 == 0) ? HSM_OP_KEY_GENERATION_FLAGS_CREATE : HSM_OP_KEY_GENERATION_FLAGS_UPDATE);
         gen_key_args.key_type = HSM_KEY_TYPE_SM4_128;
         gen_key_args.key_group = 14;
+#ifdef CONFIG_PLAT_SECO
+        gen_key_args.flags = ((i%4 == 0) ? HSM_OP_KEY_GENERATION_FLAGS_CREATE : HSM_OP_KEY_GENERATION_FLAGS_UPDATE);
         gen_key_args.key_info = 0U;
+#else
+        gen_key_args.key_lifetime = 0;
+        gen_key_args.key_usage = 0;
+        gen_key_args.permitted_algo = 0;
+#endif
         gen_key_args.out_key = NULL;
         err = hsm_generate_key(args->key_mgmt_srv, &gen_key_args);
         // printf("%s err: 0x%x hsm_generate_key hdl: 0x%08x\n", args->tag, err, args->key_mgmt_srv);
@@ -671,10 +690,16 @@ int main(int argc, char *argv[])
 
     gen_key_args.key_identifier = &key_id;
     gen_key_args.out_size = 64;
-    gen_key_args.flags = HSM_OP_KEY_GENERATION_FLAGS_CREATE;
     gen_key_args.key_type = HSM_KEY_TYPE_DSA_SM2_FP_256;
     gen_key_args.key_group = 12;
+#ifdef CONFIG_PLAT_SECO
+    gen_key_args.flags = HSM_OP_KEY_GENERATION_FLAGS_CREATE;
     gen_key_args.key_info = 0U;
+#else
+    gen_key_args.key_lifetime = 0;
+    gen_key_args.key_usage = 0;
+    gen_key_args.permitted_algo = 0;
+#endif
     gen_key_args.out_key = work_area2; // public key needed for the encryption
     err = hsm_generate_key(sg0_key_mgmt_srv, &gen_key_args);
     printf("err: 0x%x hsm_generate_key err: hdl: 0x%08x\n", err, sg0_key_mgmt_srv);
@@ -773,10 +798,16 @@ int main(int argc, char *argv[])
 
     gen_key_args.key_identifier = &key_id;
     gen_key_args.out_size = 64;
-    gen_key_args.flags = HSM_OP_KEY_GENERATION_FLAGS_CREATE;
     gen_key_args.key_type = HSM_KEY_TYPE_DSA_SM2_FP_256;
     gen_key_args.key_group = 12;
+#ifdef CONFIG_PLAT_SECO
+    gen_key_args.flags = HSM_OP_KEY_GENERATION_FLAGS_CREATE;
     gen_key_args.key_info = 0U;
+#else
+    gen_key_args.key_lifetime = 0;
+    gen_key_args.key_usage = 0;
+    gen_key_args.permitted_algo = 0;
+#endif
     gen_key_args.out_key = work_area2; // public key needed for the encryption
     err = hsm_generate_key(sg0_key_mgmt_srv, &gen_key_args);
     printf("err: 0x%x hsm_generate_key err: hdl: 0x%08x\n", err, sg0_key_mgmt_srv);
@@ -818,10 +849,16 @@ int main(int argc, char *argv[])
 
     gen_key_args.key_identifier = &key_id;
     gen_key_args.out_size = 64;
-    gen_key_args.flags = HSM_OP_KEY_GENERATION_FLAGS_CREATE;
     gen_key_args.key_type = HSM_KEY_TYPE_ECDSA_NIST_P256;
     gen_key_args.key_group = 12;
+#ifdef CONFIG_PLAT_SECO
+    gen_key_args.flags = HSM_OP_KEY_GENERATION_FLAGS_CREATE;
     gen_key_args.key_info = 0U;
+#else
+    gen_key_args.key_lifetime = 0;
+    gen_key_args.key_usage = 0;
+    gen_key_args.permitted_algo = 0;
+#endif
     gen_key_args.out_key = work_area2; // public key needed for the encryption
     err = hsm_generate_key(sg0_key_mgmt_srv, &gen_key_args);
     printf("err: 0x%x hsm_generate_key err: hdl: 0x%08x\n", err, sg0_key_mgmt_srv);
@@ -914,10 +951,16 @@ int main(int argc, char *argv[])
 
     gen_key_args.key_identifier = &key_id;
     gen_key_args.out_size = 64;
-    gen_key_args.flags = HSM_OP_KEY_GENERATION_FLAGS_CREATE;
     gen_key_args.key_type = HSM_KEY_TYPE_DSA_SM2_FP_256;
     gen_key_args.key_group = 12;
+#ifdef CONFIG_PLAT_SECO
+    gen_key_args.flags = HSM_OP_KEY_GENERATION_FLAGS_CREATE;
     gen_key_args.key_info = 0U;
+#else
+    gen_key_args.key_lifetime = 0;
+    gen_key_args.key_usage = 0;
+    gen_key_args.permitted_algo = 0;
+#endif
     gen_key_args.out_key = work_area2;
     err = hsm_generate_key(sg0_key_mgmt_srv, &gen_key_args);
     printf("err: 0x%x hsm_generate_key err: hdl: 0x%08x\n", err, sg0_key_mgmt_srv);
@@ -1016,10 +1059,16 @@ int main(int argc, char *argv[])
 
     gen_key_args.key_identifier = &key_id;
     gen_key_args.out_size = 0U;
-    gen_key_args.flags = HSM_OP_KEY_GENERATION_FLAGS_CREATE;
     gen_key_args.key_type = HSM_KEY_TYPE_AES_256;
     gen_key_args.key_group = 12;
+#ifdef CONFIG_PLAT_SECO
+    gen_key_args.flags = HSM_OP_KEY_GENERATION_FLAGS_CREATE;
     gen_key_args.key_info = 0U;
+#else
+    gen_key_args.key_lifetime = 0;
+    gen_key_args.key_usage = 0;
+    gen_key_args.permitted_algo = 0;
+#endif
     gen_key_args.out_key = NULL;
     err = hsm_generate_key(sg0_key_mgmt_srv, &gen_key_args);
     printf("err: 0x%x hsm_generate_key err: hdl: 0x%08x\n", err, sg0_key_mgmt_srv);
@@ -1057,10 +1106,16 @@ int main(int argc, char *argv[])
 
     gen_key_args.key_identifier = &key_id;
     gen_key_args.out_size = 0U;
-    gen_key_args.flags = HSM_OP_KEY_GENERATION_FLAGS_CREATE;
     gen_key_args.key_type = HSM_KEY_TYPE_AES_256;
     gen_key_args.key_group = 12;
+#ifdef CONFIG_PLAT_SECO
+    gen_key_args.flags = HSM_OP_KEY_GENERATION_FLAGS_CREATE;
     gen_key_args.key_info = 0U;
+#else
+    gen_key_args.key_lifetime = 0;
+    gen_key_args.key_usage = 0;
+    gen_key_args.permitted_algo = 0;
+#endif
     gen_key_args.out_key = NULL;
     err = hsm_generate_key(sg0_key_mgmt_srv, &gen_key_args);
     printf("err: 0x%x hsm_generate_key err: hdl: 0x%08x\n", err, sg0_key_mgmt_srv);
@@ -1200,20 +1255,32 @@ int main(int argc, char *argv[])
 
     gen_key_args.key_identifier = &master_key_id;
     gen_key_args.out_size = 64;
-    gen_key_args.flags = HSM_OP_KEY_GENERATION_FLAGS_CREATE;
     gen_key_args.key_type = HSM_KEY_TYPE_DSA_SM2_FP_256;
     gen_key_args.key_group = 1;
+#ifdef CONFIG_PLAT_SECO
+    gen_key_args.flags = HSM_OP_KEY_GENERATION_FLAGS_CREATE;
     gen_key_args.key_info = HSM_KEY_INFO_MASTER;
+#else
+    gen_key_args.key_lifetime = 0;
+    gen_key_args.key_usage = 0;
+    gen_key_args.permitted_algo = 0;
+#endif
     gen_key_args.out_key = work_area2;
     err = hsm_generate_key(sg0_key_mgmt_srv, &gen_key_args);
     printf("err: 0x%x hsm_generate_key err: hdl: 0x%08x\n", err, sg0_key_mgmt_srv);
 
     gen_key_args.key_identifier = &exp_fct_key_id;
     gen_key_args.out_size = 0U;
-    gen_key_args.flags = HSM_OP_KEY_GENERATION_FLAGS_CREATE;
     gen_key_args.key_type = HSM_KEY_TYPE_SM4_128;
     gen_key_args.key_group = 1;
+#ifdef CONFIG_PLAT_SECO
+    gen_key_args.flags = HSM_OP_KEY_GENERATION_FLAGS_CREATE;
     gen_key_args.key_info = 0;
+#else
+    gen_key_args.key_lifetime = 0;
+    gen_key_args.key_usage = 0;
+    gen_key_args.permitted_algo = 0;
+#endif
     gen_key_args.out_key = NULL;
     err = hsm_generate_key(sg0_key_mgmt_srv, &gen_key_args);
     printf("err: 0x%x hsm_generate_key err: hdl: 0x%08x\n", err, sg0_key_mgmt_srv);
@@ -1246,20 +1313,32 @@ int main(int argc, char *argv[])
 
     gen_key_args.key_identifier = &master_key_id;
     gen_key_args.out_size = 64;
-    gen_key_args.flags = HSM_OP_KEY_GENERATION_FLAGS_CREATE;
     gen_key_args.key_type = HSM_KEY_TYPE_ECDSA_NIST_P256;
     gen_key_args.key_group = 1;
+#ifdef CONFIG_PLAT_SECO
+    gen_key_args.flags = HSM_OP_KEY_GENERATION_FLAGS_CREATE;
     gen_key_args.key_info = HSM_KEY_INFO_MASTER;
+#else
+    gen_key_args.key_lifetime = 0;
+    gen_key_args.key_usage = 0;
+    gen_key_args.permitted_algo = 0;
+#endif
     gen_key_args.out_key = work_area2;
     err = hsm_generate_key(sg0_key_mgmt_srv, &gen_key_args);
     printf("err: 0x%x hsm_generate_key err: hdl: 0x%08x\n", err, sg0_key_mgmt_srv);
 
     gen_key_args.key_identifier = &exp_fct_key_id;
     gen_key_args.out_size = 0U;
-    gen_key_args.flags = HSM_OP_KEY_GENERATION_FLAGS_CREATE;
     gen_key_args.key_type = HSM_KEY_TYPE_AES_128;
     gen_key_args.key_group = 1;
+#ifdef CONFIG_PLAT_SECO
+    gen_key_args.flags = HSM_OP_KEY_GENERATION_FLAGS_CREATE;
     gen_key_args.key_info = 0;
+#else
+    gen_key_args.key_lifetime = 0;
+    gen_key_args.key_usage = 0;
+    gen_key_args.permitted_algo = 0;
+#endif
     gen_key_args.out_key = NULL;
     err = hsm_generate_key(sg0_key_mgmt_srv, &gen_key_args);
     printf("err: 0x%x hsm_generate_key err: hdl: 0x%08x\n", err, sg0_key_mgmt_srv);
@@ -1297,10 +1376,16 @@ int main(int argc, char *argv[])
 
     gen_key_args.key_identifier = &key_id;
     gen_key_args.out_size = 0U;
-    gen_key_args.flags = HSM_OP_KEY_GENERATION_FLAGS_CREATE;
     gen_key_args.key_type = HSM_KEY_TYPE_SM4_128;
     gen_key_args.key_group = 2U;
+#ifdef CONFIG_PLAT_SECO
+    gen_key_args.flags = HSM_OP_KEY_GENERATION_FLAGS_CREATE;
     gen_key_args.key_info = 0U;
+#else
+    gen_key_args.key_lifetime = 0;
+    gen_key_args.key_usage = 0;
+    gen_key_args.permitted_algo = 0;
+#endif
     gen_key_args.out_key = NULL;
     err = hsm_generate_key(sg0_key_mgmt_srv, &gen_key_args);
     printf("err: 0x%x hsm_generate_key err: hdl: 0x%08x\n", err, sg0_key_mgmt_srv);
