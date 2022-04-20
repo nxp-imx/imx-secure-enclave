@@ -14,7 +14,7 @@
 CFLAGS := -O1 -Werror -Wformat -fPIC
 DESTDIR ?= export
 BINDIR ?= /usr/bin
-base_libdir ?= /lib
+base_libdir ?= lib
 LIBDIR ?= /usr/$(base_libdir)
 INCLUDEDIR ?= /usr/include
 PLAT ?= seco
@@ -40,11 +40,12 @@ include $(PLAT_COMMON_PATH)/sab_msg/sab_msg.mk
 include $(PLAT_COMMON_PATH)/hsm_api/hsm_api.mk
 include $(PLAT_PATH)/$(PLAT).mk
 
-PROJECT	:= $(SHE_TEST) $(HSM_TEST) $(V2X_TEST) $(SHE_LIB) $(NVM_LIB) $(HSM_LIB)
+tests: $(SHE_TEST) $(HSM_TEST) $(V2X_TEST)
+libs: $(SHE_LIB) $(NVM_LIB) $(HSM_LIB)
 
-all: ${PROJECT}
+.PHONY: all $(libs) $(tests) clean
 
-.PHONY: all clean
+all: $(libs) $(tests)
 
 %.o: %.c
 	@echo "  HOSTCC  $<"
@@ -97,7 +98,7 @@ $(V2X_TEST): $(V2X_TEST_OBJ) $(HSM_LIB) $(NVM_LIB)
 	$(CC) $^  -o $@ ${INCLUDE_PATHS} $(CFLAGS) -lpthread -lz $(GCOV_FLAGS)
 
 clean:
-	rm -rf $(OBJECTS) *.gcno *.a *_test $(TEST_OBJ) $(DESTDIR)
+	rm -rf $(OBJECTS) *.gcno *.a *_test $(TEST_OBJ)
 
 she_doc: include/she_api.h include/nvm.h
 	rm -rf doc/latex/
@@ -113,8 +114,11 @@ hsm_doc: include/hsm/hsm_api.h
 	cp doc/latex/refman.pdf doc/hsm_api_document.pdf
 	rm -rf doc/latex/
 
-install: $(HSM_TEST) $(SHE_TEST) $(SHE_LIB) $(NVM_LIB) $(HSM_LIB)
-	mkdir -p $(DESTDIR)$(BINDIR) $(DESTDIR)$(LIBDIR) $(DESTDIR)$(INCLUDEDIR)
+install: $(libs)
+	mkdir -p $(DESTDIR)$(LIBDIR) $(DESTDIR)$(INCLUDEDIR)
 	cp $(NVM_LIB) $(HSM_LIB) $(SHE_LIB) $(DESTDIR)$(LIBDIR)
-	cp $(HSM_TEST) $(SHE_TEST) $(DESTDIR)$(BINDIR)
 	cp -a include/* $(DESTDIR)$(INCLUDEDIR)
+
+install_tests: $(install) $(tests)
+	mkdir -p $(DESTDIR)$(BINDIR)
+	cp $(HSM_TEST) $(SHE_TEST) $(DESTDIR)$(BINDIR)

@@ -16,9 +16,10 @@
 
 #include <stdint.h>
 
-#include "hsm/internal/hsm_handle.h"
-#include "hsm/internal/hsm_key.h"
-#include "hsm/internal/hsm_utils.h"
+#include "internal/hsm_handle.h"
+#include "internal/hsm_key.h"
+#include "internal/hsm_managekey.h"
+#include "internal/hsm_utils.h"
 
 /**
  *  @defgroup group1 Session
