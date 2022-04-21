@@ -27,6 +27,18 @@ HSM_API_SRC	+= \
 		$(PLAT_COMMON_PATH)/hsm_api/hsm_key_gen_ext.o
 endif
 
+ifneq (${MT_SAB_IMPORT_KEY},0x0)
+DEFINES		+=	-DHSM_IMPORT_KEY
+HSM_API_SRC	+= \
+		$(PLAT_COMMON_PATH)/hsm_api/hsm_importkey.o
+endif
+
+ifneq (${MT_SAB_DELETE_KEY},0x0)
+DEFINES		+=	-DHSM_DELETE_KEY
+HSM_API_SRC	+= \
+		$(PLAT_COMMON_PATH)/hsm_api/hsm_delete_key.o
+endif
+
 ifneq (${MT_SAB_MANAGE_KEY},0x0)
 DEFINES		+=	-DHSM_MANAGE_KEY
 HSM_API_SRC	+= \

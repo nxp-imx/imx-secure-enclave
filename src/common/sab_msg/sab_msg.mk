@@ -34,6 +34,18 @@ SAB_MSG_SRC	+= \
 		$(PLAT_COMMON_PATH)/sab_msg/sab_key_gen_ext.o
 endif
 
+ifneq (${MT_SAB_IMPORT_KEY},0x0)
+DEFINES		+=	-DMT_SAB_IMPORT_KEY=${MT_SAB_IMPORT_KEY}
+SAB_MSG_SRC	+= \
+		$(PLAT_COMMON_PATH)/sab_msg/sab_import_key.o
+endif
+
+ifneq (${MT_SAB_DELETE_KEY},0x0)
+DEFINES		+=	-DMT_SAB_DELETE_KEY=${MT_SAB_DELETE_KEY}
+SAB_MSG_SRC	+= \
+		$(PLAT_COMMON_PATH)/sab_msg/sab_delete_key.o
+endif
+
 ifneq (${MT_SAB_MANAGE_KEY},0x0)
 DEFINES		+=	-DMT_SAB_MANAGE_KEY=${MT_SAB_MANAGE_KEY}
 SAB_MSG_SRC	+= \

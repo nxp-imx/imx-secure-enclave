@@ -26,6 +26,9 @@
 hsm_hdl_t hsm_session_hdl;
 int cmdline_arg;
 
+#define DELETE	1
+#define IMPORT	2
+
 /* input  Qx||lsb_Qy */
 static uint8_t ECC_P256_Qx[32+1] =
 { 0xCE, 0x4D, 0xCF, 0xA7, 0x38, 0x4C, 0x83, 0x44, 0x3A, 0xCE, 0x0F, 0xB8, 0x2C, 0x4A, 0xC1, 0xAD,
@@ -225,6 +228,65 @@ static void hsm_rng_test(hsm_hdl_t sess_hdl, op_get_random_args_t *rng_get_rando
 
 }
 
+static void key_management(uint32_t key_op, hsm_hdl_t key_mgmt_hdl,
+			   uint32_t *key_id, hsm_key_group_t key_group,
+			   hsm_key_type_t key_type)
+{
+	hsm_err_t hsmret;
+#ifdef HSM_MANAGE_KEY
+	op_manage_key_args_t mng_args;
+#endif
+#ifdef HSM_DELETE_KEY
+	op_delete_key_args_t del_args;
+#endif
+#ifdef HSM_IMPORT_KEY
+	op_import_key_args_t imp_args;
+#endif
+
+	switch (key_op) {
+	case DELETE:
+#ifdef HSM_MANAGE_KEY
+		memset(&mng_args, 0, sizeof(mng_args));
+		mng_args.key_identifier = key_id;
+		mng_args.flags = HSM_OP_MANAGE_KEY_FLAGS_DELETE;
+		mng_args.key_type = key_type;
+		mng_args.key_group = key_group;
+		hsmret = hsm_manage_key(key_mgmt_hdl, &mng_args);
+		printf("hsm_manage_key ret:0x%x\n", hsmret);
+#endif
+#ifdef HSM_DELETE_KEY
+		memset(&del_args, 0, sizeof(del_args));
+		del_args.key_identifier = key_id;
+		del_args.flags = 0;
+		del_args.key_group = key_group;
+		hsmret = hsm_delete_key(key_mgmt_hdl, &del_args);
+		printf("hsm_delete_key ret:0x%x\n", hsmret);
+#endif
+		break;
+	case IMPORT:
+#ifdef HSM_MANAGE_KEY
+		memset(&mng_args, 0, sizeof(mng_args));
+		mng_args.key_identifier = key_id;
+		mng_args.flags = HSM_OP_MANAGE_KEY_FLAGS_IMPORT_CREATE;
+		mng_args.key_type = key_type;
+		mng_args.key_group = key_group;
+		hsmret = hsm_manage_key(key_mgmt_hdl, &mng_args);
+		printf("hsm_manage_key ret:0x%x\n", hsmret);
+#endif
+#ifdef HSM_IMPORT_KEY
+		memset(&imp_args, 0, sizeof(imp_args));
+		imp_args.key_identifier = key_id;
+		imp_args.flags = 0;
+		imp_args.key_group = key_group;
+		hsmret = hsm_import_key(key_mgmt_hdl, &imp_args);
+		printf("hsm_delete_key ret:0x%x\n", hsmret);
+#endif
+		break;
+	default:
+		break;
+	}
+}
+
 static void transient_key_tests(hsm_hdl_t sess_hdl, hsm_hdl_t key_store_hdl)
 {
 	open_svc_key_management_args_t key_mgmt_args;
@@ -261,7 +323,6 @@ static void transient_key_tests(hsm_hdl_t sess_hdl, hsm_hdl_t key_store_hdl)
 	uint8_t iv_data[16] = {
 		0x00, 0x01, 0x02, 0x03, 0x04, 0x05, 0x06, 0x07,
 		0x08, 0x09, 0x0A, 0x0B, 0x0C, 0x0D, 0x0E, 0x0F };
-	op_manage_key_args_t del_args;
 	hsm_err_t hsmret;
 
 	memset(&key_mgmt_args, 0, sizeof(key_mgmt_args));
@@ -356,22 +417,10 @@ static void transient_key_tests(hsm_hdl_t sess_hdl, hsm_hdl_t key_store_hdl)
 	hsmret = hsm_close_signature_verification_service(sig_ver_hdl);
 	printf("hsm_close_signature_verification_service ret:0x%x\n", hsmret);
 
-	memset(&del_args, 0, sizeof(del_args));
-	del_args.key_identifier = &master_key_id;
-	del_args.flags = HSM_OP_MANAGE_KEY_FLAGS_DELETE;
-	del_args.key_type = HSM_KEY_TYPE_ECDSA_NIST_P256;
-	del_args.key_group = 1;
-	hsmret = hsm_manage_key(key_mgmt_hdl, &del_args);
-	printf("hsm_manage_key ret:0x%x\n", hsmret);
+	key_management(DELETE, key_mgmt_hdl, &master_key_id, 1, HSM_KEY_TYPE_ECDSA_NIST_P256);
 
 #ifdef CONFIG_PLAT_SECO
-	memset(&del_args, 0, sizeof(del_args));
-	del_args.key_identifier = &butterfly_key_id;
-	del_args.flags = HSM_OP_MANAGE_KEY_FLAGS_DELETE;
-	del_args.key_type = HSM_KEY_TYPE_ECDSA_NIST_P256;
-	del_args.key_group = 101;
-	hsmret = hsm_manage_key(key_mgmt_hdl, &del_args);
-	printf("hsm_manage_key ret:0x%x\n", hsmret);
+	key_management(DELETE, key_mgmt_hdl, &butterfly_key_id, 101, HSM_KEY_TYPE_ECDSA_NIST_P256);
 #endif
 	memset(&key_gen_args, 0, sizeof(key_gen_args));
 	key_gen_args.key_identifier = &sym_key_id;
@@ -433,13 +482,7 @@ static void transient_key_tests(hsm_hdl_t sess_hdl, hsm_hdl_t key_store_hdl)
 	hsmret = hsm_close_cipher_service (cipher_hdl);
 	printf("hsm_close_cipher_service ret:0x%x\n", hsmret);
 
-	memset(&del_args, 0, sizeof(del_args));
-	del_args.key_identifier = &sym_key_id;
-	del_args.flags = HSM_OP_MANAGE_KEY_FLAGS_DELETE;
-	del_args.key_type = HSM_KEY_TYPE_AES_256;
-	del_args.key_group = 1001;
-	hsmret = hsm_manage_key(key_mgmt_hdl, &del_args);
-	printf("hsm_manage_key ret:0x%x\n", hsmret);
+	key_management(DELETE, key_mgmt_hdl, &sym_key_id, 1001, HSM_KEY_TYPE_AES_256);
 
 	hsmret = hsm_close_key_management_service(key_mgmt_hdl);
 	printf("hsm_close_key_management_service ret:0x%x\n", hsmret);

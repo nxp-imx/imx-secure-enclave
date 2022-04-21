@@ -26,6 +26,14 @@
 #include "sab_key_gen_ext.h"
 #endif
 
+#if MT_SAB_IMPORT_KEY
+#include "sab_import_key.h"
+#endif
+
+#if MT_SAB_DELETE_KEY
+#include "sab_delete_key.h"
+#endif
+
 #if MT_SAB_MANAGE_KEY
 #include "sab_managekey.h"
 #endif
@@ -78,6 +86,23 @@ void init_proc_sab_msg_engine(msg_type_t msg_type)
 				ret = add_sab_msg_handler(i, MT_SAB_KEY_GEN_EXT,
 						  prepare_msg_gen_key_ext,
 						  proc_msg_rsp_gen_key_ext);
+			}
+#endif
+#if MT_SAB_IMPORT_KEY
+		case SAB_IMPORT_KEY_REQ:
+			if (msg_type == MT_SAB_IMPORT_KEY) {
+				ret = add_sab_msg_handler(i, MT_SAB_IMPORT_KEY,
+						  prepare_msg_importkey,
+						  proc_msg_rsp_importkey);
+			}
+		break;
+#endif
+#if MT_SAB_DELETE_KEY
+		case SAB_DELETE_KEY_REQ:
+			if (msg_type == MT_SAB_DELETE_KEY) {
+				ret = add_sab_msg_handler(i, MT_SAB_DELETE_KEY,
+						  prepare_msg_del_key,
+						  proc_msg_rsp_del_key);
 			}
 		break;
 #endif

@@ -70,6 +70,8 @@
 #define SAB_KEY_MANAGEMENT_CLOSE_REQ            0x41u
 #define SAB_KEY_GENERATE_REQ                    0x42u
 #define SAB_MANAGE_KEY_REQ                      0x43u
+#define SAB_IMPORT_KEY_REQ                      0x43u
+#define SAB_DELETE_KEY_REQ                      0x4Eu
 #define SAB_BUT_KEY_EXP_REQ                     0x44u
 #define SAB_MANAGE_KEY_GROUP_REQ                0x45u
 #define SAB_ROOT_KEK_EXPORT_REQ                 0x46u
@@ -77,6 +79,7 @@
 #define SAB_TLS_FINISH_REQ                      0x48u
 #define SAB_KEY_GENERATE_EXT_REQ                0x49u
 #define SAB_MANAGE_KEY_EXT_REQ                  0x4au
+#define SAB_IMPORT_KEY_EXT_REQ                  0x4au
 #define SAB_ST_BUT_KEY_EXP_REQ                  0x4bu
 
 #define SAB_MAC_OPEN_REQ                        0x50u

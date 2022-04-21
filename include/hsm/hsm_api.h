@@ -168,6 +168,14 @@ hsm_err_t hsm_open_key_management_service(hsm_hdl_t key_store_hdl, open_svc_key_
 #include "internal/hsm_key_gen_ext.h"
 #endif
 
+#ifdef HSM_IMPORT_KEY
+#include "internal/hsm_importkey.h"
+#endif
+
+#ifdef HSM_DELETE_KEY
+#include "internal/hsm_delete_key.h"
+#endif
+
 #ifdef HSM_MANAGE_KEY
 #include "internal/hsm_managekey.h"
 #endif

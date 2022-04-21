@@ -394,7 +394,9 @@ int main(int argc, char *argv[])
     op_sm2_eces_dec_args_t sm2_eces_dec_args;
     op_get_random_args_t rng_get_random_args;
     op_auth_enc_args_t auth_enc_args;
+#ifdef CONFIG_PLAT_SECO
     op_manage_key_args_t mng_key_args;
+#endif
     op_ecies_enc_args_t op_ecies_enc_args;
     op_ecies_dec_args_t op_ecies_dec_args;
 
@@ -761,6 +763,7 @@ int main(int argc, char *argv[])
     printf("key deletion test\n");
     printf("---------------------------------------------------\n");
 
+#ifdef CONFIG_PLAT_SECO
     /* Test deletion of last generated key. */
     mng_key_args.key_identifier = &key_id;
     mng_key_args.kek_identifier = 0;
@@ -773,6 +776,7 @@ int main(int argc, char *argv[])
 
     err = hsm_manage_key(sg0_key_mgmt_srv, &mng_key_args);
     printf("err: 0x%x hsm_manage_key hdl: 0x%08x\n", err, sg0_key_mgmt_srv);
+#endif
 
     /* Try to use again this key: an error is expected. */
     sm2_eces_dec_args.input = work_area;
@@ -812,6 +816,7 @@ int main(int argc, char *argv[])
     err = hsm_generate_key(sg0_key_mgmt_srv, &gen_key_args);
     printf("err: 0x%x hsm_generate_key err: hdl: 0x%08x\n", err, sg0_key_mgmt_srv);
 
+#ifdef CONFIG_PLAT_SECO
     /* Test deletion of last generated key with bad key group */
     mng_key_args.key_identifier = &key_id;
     mng_key_args.kek_identifier = 0;
@@ -846,6 +851,7 @@ int main(int argc, char *argv[])
     printf("\n---------------------------------------------------\n");
     printf("ecies test\n");
     printf("---------------------------------------------------\n");
+#endif
 
     gen_key_args.key_identifier = &key_id;
     gen_key_args.out_size = 64;
