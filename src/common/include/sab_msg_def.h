@@ -136,6 +136,8 @@
 #define SAB_FAST_MAC_REQ                        0xF7u
 #define SAB_SHE_KEY_UPDATE_EXT                  0xF8u
 
+#define SAB_MSG_MAX_ID				0xFFu
+
 #define GET_STATUS_CODE(rsp_code)               ((uint8_t)((rsp_code) & 0xFFu))
 #define GET_RATING_CODE(rsp_code)               ((uint8_t)((rsp_code) >> 8))
 

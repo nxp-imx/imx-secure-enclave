@@ -19,7 +19,6 @@
 #include "plat_os_abs.h"
 #include "plat_utils.h"
 
-#define SAB_MSG_MAX_ID 0x80
 #define MAX_CMD_SZ	1024
 #define MAX_CMD_RSP_SZ	1024
 

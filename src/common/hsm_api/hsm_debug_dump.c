@@ -37,8 +37,8 @@ hsm_err_t dump_firmware_log(hsm_hdl_t session_hdl)
 		error = process_sab_msg(sess_ptr->phdl,
 					sess_ptr->mu_type,
 					ROM_DEBUG_DUMP_REQ,
-					HSM_HANDLE_NONE,
 					MT_SAB_DEBUG_DUMP,
+					HSM_HANDLE_NONE,
 					&args, &rsp_code);
 
 		if (error == 0) {
