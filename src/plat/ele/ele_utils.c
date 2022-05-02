@@ -122,6 +122,17 @@ void plat_fill_rsp_msg_hdr(struct sab_mu_hdr *hdr, uint8_t cmd, uint32_t len, ui
     hdr->size = (uint8_t)(len / sizeof(uint32_t));
 };
 
+static void hexdump(uint32_t buf[], uint32_t size)
+{
+	int i = 0;
+
+	for (; i < size; i++) {
+		if ((i % 10) == 0)
+			printf("\n");
+		printf("%08x ", buf[i]);
+	}
+}
+
 /* Helper function to send a message and wait for the response. Return 0 on success.*/
 int32_t plat_send_msg_and_get_resp(struct plat_os_abs_hdl *phdl, uint32_t *cmd, uint32_t cmd_len, uint32_t *rsp, uint32_t rsp_len)
 {
@@ -139,8 +150,22 @@ int32_t plat_send_msg_and_get_resp(struct plat_os_abs_hdl *phdl, uint32_t *cmd, 
         if (len != (int32_t)cmd_len) {
             break;
         }
+#if DEBUG
+	printf("\n---------- MSG Command with msg id[0x%x] = %d -------------\n",
+			((struct sab_mu_hdr *)cmd)->command,
+			((struct sab_mu_hdr *)cmd)->command);
+	hexdump(cmd, cmd_len);
+	printf("\n-------------------MSG END-----------------------------------\n");
+#endif
         /* Read the response. */
         len = plat_os_abs_read_mu_message(phdl, rsp, rsp_len);
+#if DEBUG
+	printf("\n---------- MSG Command RSP with msg id[0x%x] = %d -------------\n",
+			((struct sab_mu_hdr *)rsp)->command,
+			((struct sab_mu_hdr *)rsp)->command);
+	hexdump(rsp, rsp_len);
+	printf("\n-------------------MSG RSP END-----------------------------------\n");
+#endif
 
         err = 0;
     } while (false);

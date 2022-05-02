@@ -61,6 +61,18 @@ hsm_err_t hsm_generate_key(hsm_hdl_t key_management_hdl,
 					(uint32_t)key_management_hdl,
 					args, &rsp_code);
 
+		if (error) {
+			printf("SAB Engine Error[0x%x]: SAB_KEY_GEN_REQ.\n",
+								error);
+			break;
+		}
+
+		if (rsp_code) {
+			printf("SAB FW Err[0x%x]: SAB_KEY_GEN_REQ.\n",
+								rsp_code);
+			break;
+		}
+
 		err = sab_rating_to_hsm_err(rsp_code);
 
 		if (!error && err != HSM_NO_ERROR) {

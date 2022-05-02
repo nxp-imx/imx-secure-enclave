@@ -119,8 +119,9 @@ uint32_t process_sab_msg(struct plat_os_abs_hdl *phdl,
 	}
 
 #ifdef DEBUG
-	printf("Msg Command with msg id[0x%x] = %d\n", msg_id, msg_id);
+	printf("\n---------- MSG Command with msg id[0x%x] = %d -------------\n", msg_id, msg_id);
 	hexdump(cmd, cmd_msg_sz);
+	printf("\n-------------------MSG END-----------------------------------\n");
 #endif
 
 	/* Send the message to platform. */
@@ -131,8 +132,9 @@ uint32_t process_sab_msg(struct plat_os_abs_hdl *phdl,
 	}
 
 #ifdef DEBUG
-	printf("Msg Command response with msg id[0x%x] = %d\n", msg_id, msg_id);
+	printf("\n--------MSG Command response with msg id[0x%x] = %d ---------\n", msg_id, msg_id);
 	hexdump(rsp, rsp_msg_sz);
+	printf("\n-------------------MSG END-----------------------------------\n");
 #endif
 
 	*rsp_code = (*(rsp + 1));

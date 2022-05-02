@@ -767,9 +767,16 @@ hsm_err_t hsm_generate_signature(hsm_hdl_t signature_gen_hdl,
 			(uint32_t)sizeof(struct sab_signature_generate_msg),
 			(uint32_t *)&rsp,
 			(uint32_t)sizeof(struct sab_signature_generate_rsp));
+
 		if (error != 0) {
+			printf("SAB Send/Recieve Err[0x%x]:SAB_GEN_SIG_REQ.\n",
+								rsp.rsp_code);
 			break;
 		}
+
+		if (rsp.rsp_code)
+			printf("SAB FW Error[0x%x]: SAB_GEN_SIG_REQ.\n",
+								rsp.rsp_code);
 
 		err = sab_rating_to_hsm_err(rsp.rsp_code);
 	} while(false);
@@ -975,8 +982,14 @@ hsm_err_t hsm_verify_signature(hsm_hdl_t signature_ver_hdl,
 			(uint32_t *)&rsp,
 			(uint32_t)sizeof(struct sab_signature_verify_rsp));
 		if (error != 0) {
+			printf("SAB Send/Recieve Err[0x%x]:SAB_VER_SIG_REQ.\n",
+								rsp.rsp_code);
 			break;
 		}
+
+		if (rsp.rsp_code)
+			printf("SAB FW Error[0x%x]: SAB_VER_SIG_REQ.\n",
+								rsp.rsp_code);
 
 		err = sab_rating_to_hsm_err(rsp.rsp_code);
 		*status = rsp.verification_status;
@@ -1295,6 +1308,8 @@ hsm_err_t hsm_hash_one_go(hsm_hdl_t hash_hdl, op_hash_one_go_args_t *args)
 			(uint32_t *)&rsp,
 			(uint32_t)sizeof(struct sab_hash_one_go_rsp));
 		if (error != 0) {
+			printf("SAB Send/Recv Err[0x%x]:SAB_HASH_ONE_GO_REQ.\n",
+								rsp.rsp_code);
 			break;
 		}
 

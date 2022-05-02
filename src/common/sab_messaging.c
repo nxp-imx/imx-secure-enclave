@@ -1,5 +1,5 @@
 /*
- * Copyright 2019-2021 NXP
+ * Copyright 2019-2022 NXP
  *
  * NXP Confidential.
  * This software is owned or controlled by NXP and may only be used strictly
@@ -407,9 +407,15 @@ uint32_t sab_cmd_cipher_one_go(struct plat_os_abs_hdl *phdl,
         error = plat_send_msg_and_get_resp(phdl,
                     (uint32_t *)&cmd, (uint32_t)sizeof(struct sab_cmd_cipher_one_go_msg),
                     (uint32_t *)&rsp, (uint32_t)sizeof(struct sab_cmd_cipher_one_go_rsp));
-        if (error != 0) {
-            break;
-        }
+	if (error != 0) {
+		printf("SAB Send/Recieve Err[0x%x]: SAB_CIPHER_ONE_GO_REQ.\n",
+							rsp.rsp_code);
+		break;
+	}
+
+	if (rsp.rsp_code)
+		printf("SAB FW Error[0x%x]: SAB_CIPHER_ONE_GO_REQ.\n",
+							rsp.rsp_code);
 
         ret = rsp.rsp_code;
     } while (false);
