@@ -21,8 +21,7 @@
 #define HSM_KEY_OP_SUCCESS	0
 #define HSM_KEY_OP_FAIL		0xFFFFFFFF
 
-typedef uint8_t hsm_key_usage_t;
-
+typedef uint16_t hsm_key_usage_t;
 #define HSM_KEY_USAGE_EXPORT		((hsm_key_usage_t) (1u << 0))
 #define HSM_KEY_USAGE_CLOSED		((hsm_key_usage_t) (1u << 4))
 #define HSM_KEY_USAGE_ENCRYPT		((hsm_key_usage_t) (1u << 8))
@@ -31,9 +30,9 @@ typedef uint8_t hsm_key_usage_t;
 #define HSM_KEY_USAGE_VERIFY_MSG	((hsm_key_usage_t) (1u << 11))
 #define HSM_KEY_USAGE_SIGN_HASH		((hsm_key_usage_t) (1u << 12))
 #define HSM_KEY_USAGE_VERIFY_HASH	((hsm_key_usage_t) (1u << 13))
-#define HSM_KEY_USAGE_DERIVE		((hsm_key_usage_t) (1u << 13))
+#define HSM_KEY_USAGE_DERIVE		((hsm_key_usage_t) (1u << 14))
 
-typedef uint16_t hsm_key_lifetime_t;
+typedef uint8_t hsm_key_lifetime_t;
 #define HSM_KEY_LIFE_VOLATILE	((hsm_key_lifetime_t) (0u << 0))
 #define HSM_KEY_LIFE_PERSISTENT	((hsm_key_lifetime_t) (1u << 0))
 #define HSM_KEY_LIFE_PERMANENT	((hsm_key_lifetime_t) (1u << 7))

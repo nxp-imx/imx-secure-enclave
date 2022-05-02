@@ -99,7 +99,7 @@ uint32_t process_sab_msg(struct plat_os_abs_hdl *phdl,
 		goto out;
 	}
 
-	if (msg_id > 0 && msg_id < SAB_MSG_MAX_ID) {
+	if (msg_id > SAB_MSG_MAX_ID) {
 		error = SAB_NO_MESSAGE_RATING;
 		goto out;
 	}
@@ -119,6 +119,7 @@ uint32_t process_sab_msg(struct plat_os_abs_hdl *phdl,
 	}
 
 #ifdef DEBUG
+	printf("Msg Command with msg id[0x%x] = %d\n", msg_id, msg_id);
 	hexdump(cmd, cmd_msg_sz);
 #endif
 
@@ -130,6 +131,7 @@ uint32_t process_sab_msg(struct plat_os_abs_hdl *phdl,
 	}
 
 #ifdef DEBUG
+	printf("Msg Command response with msg id[0x%x] = %d\n", msg_id, msg_id);
 	hexdump(rsp, rsp_msg_sz);
 #endif
 
