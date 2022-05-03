@@ -38,6 +38,10 @@
 #include "sab_managekey.h"
 #endif
 
+#if MT_SAB_HASH_GEN
+#include "sab_hash.h"
+#endif
+
 static uint32_t prep_sab_msg_not_supported(void *phdl, void *cmd_buf,
 					   void *rsp_buf, uint32_t *cmd_msg_sz,
 					   uint32_t *rsp_msg_sz,
@@ -119,6 +123,29 @@ void init_proc_sab_msg_engine(msg_type_t msg_type)
 				ret = add_sab_msg_handler(i, MT_SAB_MANAGE_KEY,
 						  prepare_msg_managekey_ext,
 						  proc_msg_rsp_managekey);
+			}
+		break;
+#endif
+#if MT_SAB_HASH_GEN
+		case SAB_HASH_OPEN_REQ:
+			if (msg_type == MT_SAB_HASH_GEN) {
+				ret = add_sab_msg_handler(i, MT_SAB_HASH_GEN,
+						  prepare_msg_hash_open_req,
+						  proc_msg_rsp_hash_open_req);
+			}
+		break;
+		case SAB_HASH_CLOSE_REQ:
+			if (msg_type == MT_SAB_HASH_GEN) {
+				ret = add_sab_msg_handler(i, MT_SAB_HASH_GEN,
+						  prepare_msg_hash_close_req,
+						  proc_msg_rsp_hash_close_req);
+			}
+		break;
+		case SAB_HASH_ONE_GO_REQ:
+			if (msg_type == MT_SAB_HASH_GEN) {
+				ret = add_sab_msg_handler(i, MT_SAB_HASH_GEN,
+						  prepare_msg_hash_one_go,
+						  proc_msg_rsp_hash_one_go);
 			}
 		break;
 #endif

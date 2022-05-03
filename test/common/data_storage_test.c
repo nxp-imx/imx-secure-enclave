@@ -86,10 +86,7 @@ void data_storage_test(hsm_hdl_t key_store_hdl, int arg)
 	open_svc_data_storage_args_t args;
 	hsm_hdl_t data_storage_hdl;
 	op_data_storage_args_t data_storage_args;
-	open_svc_hash_args_t hash_srv_args;
-	op_hash_one_go_args_t hash_args;
 	hsm_err_t err;
-	int hash_size;
 	int j;
 	uint32_t size = arg ? arg : sizeof(test_data);
 

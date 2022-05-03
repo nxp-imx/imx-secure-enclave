@@ -865,50 +865,6 @@ struct sab_import_pub_key_rsp {
 };
 
 
-struct sab_hash_open_msg {
-    struct sab_mu_hdr hdr;
-    uint32_t session_handle;
-    uint32_t input_address_ext;
-    uint32_t output_address_ext;
-    uint8_t flags;
-    uint8_t reserved[3];
-    uint32_t crc;
-};
-
-struct sab_hash_open_rsp {
-    struct sab_mu_hdr hdr;
-    uint32_t rsp_code;
-    uint32_t hash_hdl;
-};
-
-struct sab_hash_close_msg {
-    struct sab_mu_hdr hdr;
-    uint32_t hash_hdl;
-};
-
-struct sab_hash_close_rsp {
-    struct sab_mu_hdr hdr;
-    uint32_t rsp_code;
-};
-
-struct sab_hash_one_go_msg {
-    struct sab_mu_hdr hdr;
-    uint32_t hash_hdl;
-    uint32_t input_addr;
-    uint32_t output_addr;
-    uint32_t input_size;
-    uint32_t output_size;
-    uint8_t algo;
-    uint8_t flags;
-    uint16_t reserved;
-    uint32_t crc;
-};
-
-struct sab_hash_one_go_rsp {
-    struct sab_mu_hdr hdr;
-    uint32_t rsp_code;
-};
-
 struct sab_public_key_reconstruct_msg {
     struct sab_mu_hdr hdr;
     uint32_t sesssion_handle;

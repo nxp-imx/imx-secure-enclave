@@ -112,12 +112,6 @@ static uint8_t SM3_HASH[32] = {
 	0xf3, 0xe2, 0x8d, 0x8b, 0xde, 0x28, 0x97, 0x8e,
 };
 
-#define HSM_HASH_ALGO_SHA_224      ((hsm_hash_algo_t)(0x0u))
-#define HSM_HASH_ALGO_SHA_256      ((hsm_hash_algo_t)(0x1u))
-#define HSM_HASH_ALGO_SHA_384      ((hsm_hash_algo_t)(0x2u))
-#define HSM_HASH_ALGO_SHA_512      ((hsm_hash_algo_t)(0x3u))
-#define HSM_HASH_ALGO_SM3_256      ((hsm_hash_algo_t)(0x11u))
-
 void hash_test(hsm_hdl_t hash_sess)
 {
 	open_svc_hash_args_t hash_srv_args;

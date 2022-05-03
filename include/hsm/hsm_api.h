@@ -164,6 +164,10 @@ hsm_err_t hsm_open_key_management_service(hsm_hdl_t key_store_hdl, open_svc_key_
 #include "internal/hsm_key_generate.h"
 #endif
 
+#ifdef HSM_HASH_GEN
+#include "internal/hsm_hash.h"
+#endif
+
 #ifdef HSM_KEY_GEN_EXT
 #include "internal/hsm_key_gen_ext.h"
 #endif
@@ -757,75 +761,6 @@ typedef struct {
  */
 hsm_err_t hsm_get_random(hsm_hdl_t rng_hdl, op_get_random_args_t *args);
 /** @} end of rng service flow */
-
-/**
- *  @defgroup group8 Hashing
- * @{
- */
-typedef uint8_t hsm_svc_hash_flags_t;
-typedef struct {
-    hsm_svc_hash_flags_t flags;                      //!< bitmap indicating the service flow properties
-    uint8_t reserved[3];
-} open_svc_hash_args_t;
-
-/**
- * Open an hash service flow\n
- * User can call this function only after having opened a session.\n
- * User must open this service in order to perform hash operations.
- *
- * \param session_hdl handle identifying the current session.
- * \param args pointer to the structure containing the function arguments.
- * \param hash_hdl pointer to where the hash service flow handle must be written.
- *
- * \return error code
- */
-hsm_err_t hsm_open_hash_service(hsm_hdl_t session_hdl, open_svc_hash_args_t *args, hsm_hdl_t *hash_hdl);
-
-/**
- * Terminate a previously opened hash service flow
- *
- * \param hash_hdl handle identifying the hash service flow to be closed.
- *
- * \return error code
- */
-hsm_err_t hsm_close_hash_service(hsm_hdl_t hash_hdl);
-
-typedef uint8_t hsm_hash_algo_t;
-typedef uint8_t hsm_op_hash_one_go_flags_t;
-typedef struct {
-    uint8_t *input;                     //!< pointer to the input data to be hashed
-    uint8_t *output;                    //!< pointer to the output area where the resulting digest must be written
-    uint32_t input_size;                //!< length in bytes of the input
-    uint32_t output_size;               //!< length in bytes of the output
-    hsm_hash_algo_t algo;               //!< hash algorithm to be used for the operation
-    hsm_op_hash_one_go_flags_t flags;   //!< flags bitmap specifying the operation attributes.
-    uint16_t reserved;
-} op_hash_one_go_args_t;
-
-/**
- * Perform the hash operation on a given input\n
- * User can call this function only after having opened a hash service flow
- *
- * \param hash_hdl handle identifying the hash service flow.
- * \param args pointer to the structure containing the function arguments.
- *
- * \return error code
- */
-hsm_err_t hsm_hash_one_go(hsm_hdl_t hash_hdl, op_hash_one_go_args_t *args);
-#define HSM_HASH_ALGO_SHA_224      ((hsm_hash_algo_t)(0x0u))
-#define HSM_HASH_ALGO_SHA_256      ((hsm_hash_algo_t)(0x1u))
-#define HSM_HASH_ALGO_SHA_384      ((hsm_hash_algo_t)(0x2u))
-#define HSM_HASH_ALGO_SHA_512      ((hsm_hash_algo_t)(0x3u))
-#define HSM_HASH_ALGO_SM3_256      ((hsm_hash_algo_t)(0x11u))
-
-/**
- *\addtogroup qxp_specific
- * \ref group5
- *
- * - \ref HSM_HASH_ALGO_SM3_256 is not supported.
- *
- */
-/** @} end of hash service flow */
 
 /**
  *  @defgroup group9 Public key reconstruction

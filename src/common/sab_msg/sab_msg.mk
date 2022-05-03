@@ -22,6 +22,12 @@ SAB_MSG_SRC	+= \
 		$(PLAT_COMMON_PATH)/sab_msg/sab_debug_dump.o
 endif
 
+ifneq (${MT_SAB_HASH_GEN},0x0)
+DEFINES		+=	-DMT_SAB_HASH_GEN=${MT_SAB_HASH_GEN}
+HSM_API_SRC	+= \
+		$(PLAT_COMMON_PATH)/sab_msg/sab_hash.o
+endif
+
 ifneq (${MT_SAB_KEY_GENERATE},0x0)
 DEFINES		+=	-DMT_SAB_KEY_GENERATE=${MT_SAB_KEY_GENERATE}
 SAB_MSG_SRC	+= \
