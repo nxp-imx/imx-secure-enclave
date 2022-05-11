@@ -119,6 +119,6 @@ install: $(libs)
 	cp $(NVM_LIB) $(HSM_LIB) $(SHE_LIB) $(DESTDIR)$(LIBDIR)
 	cp -a include/* $(DESTDIR)$(INCLUDEDIR)
 
-install_tests: $(install) $(tests)
+install_tests: install $(tests)
 	mkdir -p $(DESTDIR)$(BINDIR)
 	cp $(HSM_TEST) $(SHE_TEST) $(DESTDIR)$(BINDIR)
