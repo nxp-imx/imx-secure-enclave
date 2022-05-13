@@ -20,7 +20,8 @@ SHE_LIB := she_lib.a
 HSM_LIB := hsm_lib.a
 NVM_LIB := seco_nvm_manager.a
 
-DEFINES		+=	-DCONFIG_PLAT_SECO -DLIB_MINOR_VERSION=${MINOR_VER}
+DEFINES		+=	-DCONFIG_PLAT_SECO -DLIB_MINOR_VERSION=${MINOR_VER}\
+			-DCONFIG_COMPRESSED_ECC_POINT
 
 PLAT_OBJECTS	:=	$(PLAT_PATH)/seco_os_abs_linux.o \
 			$(PLAT_PATH)/seco_utils.o

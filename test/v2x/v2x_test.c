@@ -270,8 +270,15 @@ static void *sig_loop_thread(void *arg)
     sig_gen_args.signature = args->sig_area;
     sig_gen_args.message_size = 300;
     sig_gen_args.signature_size = 65;
+    sig_gen_args.flags = HSM_OP_GENERATE_SIGN_FLAGS_INPUT_MESSAGE;
+#ifdef CONFIG_COMPRESSED_ECC_POINT
+    sig_gen_args.flags |= HSM_OP_GENERATE_SIGN_FLAGS_COMPRESSED_POINT;
+#endif
+#ifdef PSA_COMPLIANT
+    sig_gen_args.scheme_id = HSM_SIGNATURE_SCHEME_ECDSA_SHA256;
+#else
     sig_gen_args.scheme_id = HSM_SIGNATURE_SCHEME_ECDSA_NIST_P256_SHA_256;
-    sig_gen_args.flags = HSM_OP_GENERATE_SIGN_FLAGS_INPUT_MESSAGE | HSM_OP_GENERATE_SIGN_FLAGS_COMPRESSED_POINT;
+#endif
     err = hsm_generate_signature(args->sig_gen_serv, &sig_gen_args);
     printf("%s err: 0x%x hsm_generate_signature hdl: 0x%08x\n", args->tag, err, args->sig_gen_serv);
 
@@ -281,7 +288,11 @@ static void *sig_loop_thread(void *arg)
     sig_ver_args.key_size = 64;
     sig_ver_args.signature_size = 65;
     sig_ver_args.message_size = 300;
+#ifdef PSA_COMPLIANT
+    sig_gen_args.scheme_id = HSM_SIGNATURE_SCHEME_ECDSA_SHA256;
+#else
     sig_ver_args.scheme_id = HSM_SIGNATURE_SCHEME_ECDSA_NIST_P256_SHA_256;
+#endif
     sig_ver_args.flags = HSM_OP_VERIFY_SIGN_FLAGS_INPUT_MESSAGE;
     err = hsm_verify_signature(args->sig_ver_serv, &sig_ver_args, &status);
     // printf("%s err: 0x%x hsm_verify_signature hdl: 0x%08x status: 0x%x\n", args->tag, err, args->sig_ver_serv, status);

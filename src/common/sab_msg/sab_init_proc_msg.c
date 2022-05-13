@@ -42,6 +42,14 @@
 #include "sab_hash.h"
 #endif
 
+#if MT_SAB_SIGN_GEN
+#include "sab_sign_gen.h"
+#endif
+
+#if MT_SAB_VERIFY_SIGN
+#include "sab_verify_sign.h"
+#endif
+
 static uint32_t prep_sab_msg_not_supported(void *phdl, void *cmd_buf,
 					   void *rsp_buf, uint32_t *cmd_msg_sz,
 					   uint32_t *rsp_msg_sz,
@@ -146,6 +154,59 @@ void init_proc_sab_msg_engine(msg_type_t msg_type)
 				ret = add_sab_msg_handler(i, MT_SAB_HASH_GEN,
 						  prepare_msg_hash_one_go,
 						  proc_msg_rsp_hash_one_go);
+			}
+		break;
+#endif
+#if MT_SAB_SIGN_GEN
+		case SAB_SIGNATURE_GENERATION_OPEN_REQ:
+			if (msg_type == MT_SAB_SIGN_GEN) {
+				ret = add_sab_msg_handler(i, MT_SAB_SIGN_GEN,
+						  prepare_msg_sign_gen_open,
+						  proc_msg_rsp_sign_gen_open);
+			}
+		break;
+		case SAB_SIGNATURE_GENERATION_CLOSE_REQ:
+			if (msg_type == MT_SAB_SIGN_GEN) {
+				ret = add_sab_msg_handler(i, MT_SAB_SIGN_GEN,
+						  prepare_msg_sign_gen_close,
+						  proc_msg_rsp_sign_gen_close);
+			}
+		break;
+		case SAB_SIGNATURE_GENERATE_REQ:
+			if (msg_type == MT_SAB_SIGN_GEN) {
+				ret = add_sab_msg_handler(i, MT_SAB_SIGN_GEN,
+						  prepare_msg_sign_generate,
+						  proc_msg_rsp_sign_generate);
+			}
+		break;
+		case SAB_SIGNATURE_PREPARE_REQ:
+			if (msg_type == MT_SAB_SIGN_GEN) {
+				ret = add_sab_msg_handler(i, MT_SAB_SIGN_GEN,
+						  prepare_msg_prep_signature,
+						  proc_msg_rsp_prep_signature);
+			}
+		break;
+#endif
+#if MT_SAB_VERIFY_SIGN
+		case SAB_SIGNATURE_VERIFICATION_OPEN_REQ:
+			if (msg_type == MT_SAB_VERIFY_SIGN) {
+				ret = add_sab_msg_handler(i, MT_SAB_VERIFY_SIGN,
+						  prepare_msg_verify_sign_open,
+						  proc_msg_rsp_verify_sign_open);
+			}
+		break;
+		case SAB_SIGNATURE_VERIFICATION_CLOSE_REQ:
+			if (msg_type == MT_SAB_VERIFY_SIGN) {
+				ret = add_sab_msg_handler(i, MT_SAB_VERIFY_SIGN,
+						  prepare_msg_verify_sign_close,
+						  proc_msg_rsp_verify_sign_close);
+			}
+		break;
+		case SAB_SIGNATURE_VERIFY_REQ:
+			if (msg_type == MT_SAB_VERIFY_SIGN) {
+				ret = add_sab_msg_handler(i, MT_SAB_VERIFY_SIGN,
+						  prepare_msg_verify_sign,
+						  proc_msg_rsp_verify_sign);
 			}
 		break;
 #endif

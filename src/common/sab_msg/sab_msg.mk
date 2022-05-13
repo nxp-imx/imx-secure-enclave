@@ -16,6 +16,18 @@ SAB_MSG_SRC	+= \
 		$(PLAT_COMMON_PATH)/sab_msg/sab_process_msg.o \
 		$(PLAT_COMMON_PATH)/sab_msg/sab_init_proc_msg.o \
 
+ifneq (${MT_SAB_SIGN_GEN},0x0)
+DEFINES		+=	-DMT_SAB_SIGN_GEN=${MT_SAB_SIGN_GEN}
+HSM_API_SRC	+= \
+		$(PLAT_COMMON_PATH)/sab_msg/sab_sign_gen.o
+endif
+
+ifneq (${MT_SAB_VERIFY_SIGN},0x0)
+DEFINES		+=	-DMT_SAB_VERIFY_SIGN=${MT_SAB_VERIFY_SIGN}
+HSM_API_SRC	+= \
+		$(PLAT_COMMON_PATH)/sab_msg/sab_verify_sign.o
+endif
+
 ifneq (${MT_SAB_DEBUG_DUMP},0x0)
 DEFINES		+=	-DMT_SAB_DEBUG_DUMP=${MT_SAB_DEBUG_DUMP}
 SAB_MSG_SRC	+= \

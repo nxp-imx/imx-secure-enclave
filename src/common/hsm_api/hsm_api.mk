@@ -15,6 +15,18 @@ HSM_API_SRC	+= \
 		$(PLAT_COMMON_PATH)/hsm_api/hsm_utils.o \
 		$(PLAT_COMMON_PATH)/hsm_api/hsm_key.o \
 
+ifneq (${MT_SAB_VERIFY_SIGN},0x0)
+DEFINES		+=	-DHSM_VERIFY_SIGN
+HSM_API_SRC	+= \
+		$(PLAT_COMMON_PATH)/hsm_api/hsm_verify_sign.o
+endif
+
+ifneq (${MT_SAB_SIGN_GEN},0x0)
+DEFINES		+=	-DHSM_SIGN_GEN
+HSM_API_SRC	+= \
+		$(PLAT_COMMON_PATH)/hsm_api/hsm_sign_gen.o
+endif
+
 ifneq (${MT_SAB_HASH_GEN},0x0)
 DEFINES		+=	-DHSM_HASH_GEN
 HSM_API_SRC	+= \

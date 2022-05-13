@@ -309,7 +309,12 @@ static void transient_key_tests(hsm_hdl_t sess_hdl, hsm_hdl_t key_store_hdl)
 		0x08, 0x09, 0x0A, 0x0B, 0x0C, 0x0D, 0x0E, 0x0F,
 		0x10, 0x11, 0x12, 0x13, 0x14, 0x15, 0x16, 0x17,
 		0x18, 0x19, 0x1A, 0x1B, 0x1C, 0x1D, 0x1E, 0x1F };
-	uint8_t signature_data[65];
+#ifdef CONFIG_COMPRESSED_ECC_POINT
+#define SIGNATURE_SIZE	65
+#else
+#define SIGNATURE_SIZE	64
+#endif
+	uint8_t signature_data[SIGNATURE_SIZE];
 	open_svc_sign_ver_args_t open_sig_ver_args;
 	hsm_hdl_t sig_ver_hdl;
 	op_verify_sign_args_t sig_ver_args;
@@ -334,14 +339,14 @@ static void transient_key_tests(hsm_hdl_t sess_hdl, hsm_hdl_t key_store_hdl)
 	key_gen_args.key_identifier = &master_key_id;
 	key_gen_args.out_size = sizeof(pub_key);
 	key_gen_args.key_group = 1;
-#ifdef CONFIG_PLAT_SECO
+#ifdef PSA_COMPLIANT
+	key_gen_args.key_lifetime = HSM_KEY_LIFE_VOLATILE;
+	key_gen_args.key_usage = HSM_KEY_USAGE_SIGN_HASH
+		| HSM_KEY_USAGE_VERIFY_HASH;
+	key_gen_args.permitted_algo = PERMITTED_ALGO_ECDSA_SHA256;
+#else
 	key_gen_args.flags = HSM_OP_KEY_GENERATION_FLAGS_CREATE;
 	key_gen_args.key_info = HSM_KEY_INFO_TRANSIENT | HSM_KEY_INFO_MASTER;
-#else
-	key_gen_args.key_lifetime = HSM_KEY_LIFE_VOLATILE;
-	key_gen_args.key_usage = HSM_KEY_USAGE_SIGN_MSG
-		| HSM_KEY_USAGE_SIGN_MSG;
-	key_gen_args.permitted_algo = PERMITTED_ALGO_ALL_CIPHER;
 #endif
 	key_gen_args.key_type = HSM_KEY_TYPE_ECDSA_NIST_P256;
 	key_gen_args.out_key = pub_key;
@@ -380,11 +385,15 @@ static void transient_key_tests(hsm_hdl_t sess_hdl, hsm_hdl_t key_store_hdl)
 #else
 	sig_gen_args.key_identifier = master_key_id;
 #endif
+#ifdef PSA_COMPLIANT
+	sig_gen_args.scheme_id = HSM_SIGNATURE_SCHEME_ECDSA_SHA256;
+#else
+	sig_gen_args.scheme_id = HSM_SIGNATURE_SCHEME_ECDSA_NIST_P256_SHA_256;
+#endif
 	sig_gen_args.message = hash_data;
 	sig_gen_args.signature = signature_data;
 	sig_gen_args.message_size = sizeof(hash_data);
 	sig_gen_args.signature_size = sizeof(signature_data);
-	sig_gen_args.scheme_id = HSM_SIGNATURE_SCHEME_ECDSA_NIST_P256_SHA_256;
 	sig_gen_args.flags = HSM_OP_GENERATE_SIGN_FLAGS_INPUT_DIGEST;
 	hsmret = hsm_generate_signature(sig_gen_hdl, &sig_gen_args);
 	printf("hsm_generate_signature ret:0x%x\n", hsmret);
@@ -404,7 +413,12 @@ static void transient_key_tests(hsm_hdl_t sess_hdl, hsm_hdl_t key_store_hdl)
 	sig_ver_args.key_size = sizeof(pub_key);
 	sig_ver_args.signature_size = sizeof(signature_data);
 	sig_ver_args.message_size = sizeof(hash_data);
+#ifdef PSA_COMPLIANT
+	sig_ver_args.key_type = HSM_KEY_TYPE_ECDSA_NIST_P256;
+	sig_ver_args.scheme_id = HSM_SIGNATURE_SCHEME_ECDSA_SHA256;
+#else
 	sig_ver_args.scheme_id = HSM_SIGNATURE_SCHEME_ECDSA_NIST_P256_SHA_256;
+#endif
 	sig_ver_args.flags = HSM_OP_VERIFY_SIGN_FLAGS_INPUT_DIGEST;
 	hsmret = hsm_verify_signature (sig_ver_hdl, &sig_ver_args,
 							&verif_status);
@@ -570,10 +584,12 @@ int main(int argc, char *argv[])
         hash_test(hsm_session_hdl);
         transient_key_tests(hsm_session_hdl, key_store_hdl);
 
+#ifdef FW_ISSUE
 	/* Data size = 4 works fine with all the previous cases occupying the
 	 * firmware heap.
 	 */
-        data_storage_test(key_store_hdl, 4);
+	data_storage_test(key_store_hdl, 4);
+#endif
 
         err = hsm_close_key_store_service(key_store_hdl);
         printf("hsm_close_key_store_service ret:0x%x\n", err);
