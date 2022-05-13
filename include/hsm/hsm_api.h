@@ -18,7 +18,6 @@
 
 #include "internal/hsm_handle.h"
 #include "internal/hsm_key.h"
-#include "internal/hsm_managekey.h"
 #include "internal/hsm_utils.h"
 
 /**
@@ -160,33 +159,19 @@ typedef struct {
  */
 hsm_err_t hsm_open_key_management_service(hsm_hdl_t key_store_hdl, open_svc_key_management_args_t *args, hsm_hdl_t *key_management_hdl);
 
-#ifdef HSM_KEY_GENERATE
 #include "internal/hsm_key_generate.h"
-#endif
 
-#ifdef HSM_HASH_GEN
 #include "internal/hsm_hash.h"
-#endif
 
-#ifdef HSM_KEY_GEN_EXT
 #include "internal/hsm_key_gen_ext.h"
-#endif
 
-#ifdef HSM_IMPORT_KEY
 #include "internal/hsm_importkey.h"
-#endif
 
-#ifdef HSM_DELETE_KEY
 #include "internal/hsm_delete_key.h"
-#endif
 
-#ifdef HSM_MANAGE_KEY
 #include "internal/hsm_managekey.h"
-#endif
 
-#ifdef HSM_DEBUG_DUMP
 #include "internal/hsm_debug_dump.h"
-#endif
 
 typedef uint8_t hsm_op_manage_key_group_flags_t;
 typedef struct {

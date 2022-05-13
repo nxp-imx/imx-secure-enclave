@@ -20,7 +20,9 @@
 
 typedef uint8_t hsm_op_key_gen_flags_t;
 
-#ifdef CONFIG_PLAT_SECO
+#ifdef PSA_COMPLIANT
+//!< Reserverd Bits 0 - 6
+#else
 //!< User can replace an existing key only by generating a key with
 //   the same type of the original one.
 #define HSM_OP_KEY_GENERATION_FLAGS_UPDATE \
@@ -29,9 +31,7 @@ typedef uint8_t hsm_op_key_gen_flags_t;
 //!< Create a new key.
 #define HSM_OP_KEY_GENERATION_FLAGS_CREATE \
 		((hsm_op_key_gen_flags_t)(1u << 1))
-#else
-//!< Reserverd Bits 0 - 6
-#endif /* CONFIG_PLAT_SECO */
+#endif /* PSA_COMPLIANT */
 
 //!< The request is completed only when the new key has been written in the NVM.
 //   This applicable for persistent key only.
@@ -59,13 +59,13 @@ typedef struct {
 	//!< pointer to the output area where the generated public key
 	//   must be written.
 	uint8_t *out_key;
-#ifdef CONFIG_PLAT_SECO
-	//!< bitmap specifying the properties of the key.
-	hsm_key_info_t key_info;
-#else
+#ifdef PSA_COMPLIANT
 	hsm_key_lifetime_t key_lifetime;
 	hsm_key_usage_t key_usage;
 	hsm_permitted_algo_t permitted_algo;
+#else
+	//!< bitmap specifying the properties of the key.
+	hsm_key_info_t key_info;
 #endif
 	//!< Derived from key_type.
 	hsm_psa_key_type_t psa_key_type;
