@@ -94,7 +94,7 @@ uint32_t process_sab_msg(struct plat_os_abs_hdl *phdl,
 	memset(cmd, 0x0, MAX_CMD_SZ);
 	memset(rsp, 0x0, MAX_CMD_RSP_SZ);
 
-	if (msg_type > NOT_SUPPORTED && msg_id < MAX_MSG_TYPE) {
+	if (msg_type <= NOT_SUPPORTED && msg_type >= MAX_MSG_TYPE) {
 		error = SAB_INVALID_MESSAGE_RATING;
 		goto out;
 	}
