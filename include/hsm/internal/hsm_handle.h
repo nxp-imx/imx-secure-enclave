@@ -14,6 +14,8 @@
 #ifndef HSM_HANDLE_H
 #define HSM_HANDLE_H
 
+#include <stdint.h>
+
 #define HSM_HANDLE_NONE		(0x0)
 
 typedef uint32_t hsm_hdl_t;

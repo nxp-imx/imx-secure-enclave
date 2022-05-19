@@ -18,13 +18,13 @@ SAB_MSG_SRC	+= \
 
 ifneq (${MT_SAB_SIGN_GEN},0x0)
 DEFINES		+=	-DMT_SAB_SIGN_GEN=${MT_SAB_SIGN_GEN}
-HSM_API_SRC	+= \
+SAB_MSG_SRC	+= \
 		$(PLAT_COMMON_PATH)/sab_msg/sab_sign_gen.o
 endif
 
 ifneq (${MT_SAB_VERIFY_SIGN},0x0)
 DEFINES		+=	-DMT_SAB_VERIFY_SIGN=${MT_SAB_VERIFY_SIGN}
-HSM_API_SRC	+= \
+SAB_MSG_SRC	+= \
 		$(PLAT_COMMON_PATH)/sab_msg/sab_verify_sign.o
 endif
 
@@ -34,9 +34,15 @@ SAB_MSG_SRC	+= \
 		$(PLAT_COMMON_PATH)/sab_msg/sab_debug_dump.o
 endif
 
+ifneq (${MT_SAB_CIPHER},0x0)
+DEFINES		+=	-DMT_SAB_CIPHER=${MT_SAB_CIPHER}
+SAB_MSG_SRC	+= \
+		$(PLAT_COMMON_PATH)/sab_msg/sab_cipher.o
+endif
+
 ifneq (${MT_SAB_HASH_GEN},0x0)
 DEFINES		+=	-DMT_SAB_HASH_GEN=${MT_SAB_HASH_GEN}
-HSM_API_SRC	+= \
+SAB_MSG_SRC	+= \
 		$(PLAT_COMMON_PATH)/sab_msg/sab_hash.o
 endif
 

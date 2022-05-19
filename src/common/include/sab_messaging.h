@@ -43,25 +43,6 @@ uint32_t sab_open_key_store_command(struct plat_os_abs_hdl *phdl, uint32_t sessi
 
 uint32_t sab_close_key_store(struct plat_os_abs_hdl *phdl, uint32_t key_store_handle, uint32_t mu_type);
 
-/* cipher */
-uint32_t sab_open_cipher(struct plat_os_abs_hdl *phdl, uint32_t key_store_handle, uint32_t *cipher_handle, uint32_t mu_type, uint8_t flags);
-#define CIPHER_OPEN_FLAGS_DEFAULT       0x0u
-
-uint32_t sab_close_cipher(struct plat_os_abs_hdl *phdl, uint32_t cipher_handle, uint32_t mu_type);
-
-uint32_t sab_cmd_cipher_one_go(struct plat_os_abs_hdl *phdl,
-                                uint32_t cipher_handle,
-                                uint32_t mu_type,
-                                uint32_t key_id,
-                                uint8_t *iv,
-                                uint16_t iv_size,
-                                uint8_t algo,
-                                uint8_t flags,
-                                uint8_t *input,
-                                uint8_t *output,
-                                uint32_t input_size,
-                                uint32_t output_size);
-
 /* random generation */
 uint32_t sab_open_rng(struct plat_os_abs_hdl *phdl, uint32_t session_handle, uint32_t *rng_handle, uint32_t mu_type, uint8_t flags);
 #define RNG_OPEN_FLAGS_DEFAULT          0x0u

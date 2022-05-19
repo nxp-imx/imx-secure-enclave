@@ -1,5 +1,5 @@
 /*
- * Copyright 2019-2021 NXP
+ * Copyright 2019-2022 NXP
  *
  * NXP Confidential.
  * This software is owned or controlled by NXP and may only be used strictly
@@ -11,8 +11,11 @@
  * activate or otherwise use the software.
  */
 
+#include "internal/hsm_cipher.h"
+
 #include "sab_msg_def.h"
 #include "sab_messaging.h"
+#include "sab_process_msg.h"
 #include "she_api.h"
 
 #include "plat_os_abs.h"
@@ -165,11 +168,23 @@ static she_err_t she_close_utils(struct she_hdl_s *hdl)
 /* Close a previously opened SHE session. */
 void she_close_session(struct she_hdl_s *hdl)
 {
+    int32_t error = 1;
+    uint32_t rsp_code;
+
     if (hdl != NULL) {
         if (hdl->phdl != NULL) {
             (void) she_close_utils(hdl);
             if (hdl->cipher_handle != 0u) {
-                (void)sab_close_cipher(hdl->phdl, hdl->cipher_handle, hdl->mu_type);
+
+                error = process_sab_msg(hdl->phdl,
+                                        hdl->mu_type,
+                                        SAB_CIPHER_CLOSE_REQ,
+                                        MT_SAB_CIPHER,
+                                        (uint32_t)hdl->cipher_handle,
+                                        NULL, &rsp_code);
+		if (rsp_code || (error != SAB_SUCCESS_STATUS))
+			printf("SAB FW Error[0x%x]: SAB_CIPHER_CLOSE_REQ.\n",
+								rsp_code);
             }
             if (hdl->rng_handle != 0u) {
                 (void)sab_close_rng(hdl->phdl, hdl->rng_handle, hdl->mu_type);
@@ -287,6 +302,8 @@ struct she_hdl_s *she_open_session(uint32_t key_storage_identifier, uint32_t aut
     struct she_hdl_s *hdl = NULL;
     uint32_t err = SAB_FAILURE_STATUS;
     struct plat_mu_params mu_params;
+    open_svc_cipher_args_t op_args;
+    uint32_t rsp_code;
 
     do {
         if((async_cb != NULL) || (priv != NULL)) {
@@ -347,16 +364,21 @@ struct she_hdl_s *she_open_session(uint32_t key_storage_identifier, uint32_t aut
             break;
         }
 
+	op_args.flags = CIPHER_OPEN_FLAGS_DEFAULT;
         /* open cipher service. */
-        err = sab_open_cipher(hdl->phdl,
-                              hdl->key_store_handle,
-                              &hdl->cipher_handle,
+        err = process_sab_msg(hdl->phdl,
                               hdl->mu_type,
-                              CIPHER_OPEN_FLAGS_DEFAULT);
-        if (err != SAB_SUCCESS_STATUS) {
+                              SAB_CIPHER_OPEN_REQ,
+                              MT_SAB_CIPHER,
+                              (uint32_t)hdl->key_store_handle,
+                              &op_args, &rsp_code);
+        if (rsp_code || (err != SAB_SUCCESS_STATUS)) {
+	    printf("SAB FW Error[0x%x]: SAB_CIPHER_OPEN_REQ.\n",
+							rsp_code);
             hdl->cipher_handle = 0u;
             break;
         }
+        hdl->cipher_handle = op_args.cipher_hdl;
     } while (false);
 
     /* Clean-up in case of error. */
@@ -489,23 +511,34 @@ she_err_t she_cmd_verify_mac_bit_ext(struct she_hdl_s *hdl, uint8_t key_ext, uin
 /* CBC encrypt command. */
 she_err_t she_cmd_enc_cbc(struct she_hdl_s *hdl, uint8_t key_ext, uint8_t key_id, uint32_t data_length, uint8_t *iv, uint8_t *plaintext, uint8_t *ciphertext)
 {
-    uint32_t sab_error;
+    uint32_t sab_error, rsp_code;
     she_err_t ret = ERC_GENERAL_ERROR;
+    op_cipher_one_go_args_t op_args;
 
-    sab_error =  sab_cmd_cipher_one_go(hdl->phdl,
-                                        hdl->cipher_handle,
-                                        hdl->mu_type,
-                                        (uint32_t)key_ext | (uint32_t)key_id,
-                                        iv,
-                                        SHE_AES_BLOCK_SIZE_128,
-                                        AHAB_CIPHER_ONE_GO_ALGO_CBC,
-                                        AHAB_CIPHER_ONE_GO_FLAGS_ENCRYPT,
-                                        plaintext,
-                                        ciphertext,
-                                        data_length,
-                                        data_length);
+    op_args.key_identifier = (uint32_t)key_ext | (uint32_t)key_id;
+    op_args.iv = iv;
+    op_args.iv_size = SHE_AES_BLOCK_SIZE_128;
+    op_args.cipher_algo = AHAB_CIPHER_ONE_GO_ALGO_CBC;
+    op_args.flags = AHAB_CIPHER_ONE_GO_FLAGS_ENCRYPT;
+    op_args.input = plaintext;
+    op_args.output = ciphertext;
+    op_args.input_size = data_length;
+    op_args.output_size = data_length;
+
+    sab_error = process_sab_msg(hdl->phdl,
+                                hdl->mu_type,
+                                SAB_CIPHER_ONE_GO_REQ,
+                                MT_SAB_CIPHER,
+                                (uint32_t)hdl->cipher_handle,
+                                &op_args, &rsp_code);
+
     hdl->last_rating = sab_error;
-    if ((hdl->cancel != 0u) || (GET_STATUS_CODE(sab_error) != SAB_SUCCESS_STATUS)) {
+
+    if (rsp_code
+        || (sab_error != SAB_SUCCESS_STATUS)
+        || (hdl->cancel != 0u)) {
+        printf("SAB FW Error[0x%x]: SAB_CIPHER_ONE_GO_REQ.\n", rsp_code);
+
         plat_os_abs_memset(ciphertext, 0u, data_length);
         hdl->cancel = 0u;
     }
@@ -518,24 +551,34 @@ she_err_t she_cmd_enc_cbc(struct she_hdl_s *hdl, uint8_t key_ext, uint8_t key_id
 /* CBC decrypt command. */
 she_err_t she_cmd_dec_cbc(struct she_hdl_s *hdl, uint8_t key_ext, uint8_t key_id, uint32_t data_length, uint8_t *iv, uint8_t *ciphertext, uint8_t *plaintext)
 {
-    uint32_t sab_error;
+    uint32_t sab_error, rsp_code;
     she_err_t ret = ERC_GENERAL_ERROR;
+    op_cipher_one_go_args_t op_args;
 
-    sab_error =  sab_cmd_cipher_one_go(hdl->phdl,
-                                        hdl->cipher_handle,
-                                        hdl->mu_type,
-                                        (uint32_t)key_ext | (uint32_t)key_id,
-                                        iv,
-                                        SHE_AES_BLOCK_SIZE_128,
-                                        AHAB_CIPHER_ONE_GO_ALGO_CBC,
-                                        AHAB_CIPHER_ONE_GO_FLAGS_DECRYPT,
-                                        ciphertext,
-                                        plaintext,
-                                        data_length,
-                                        data_length);
+    op_args.key_identifier = (uint32_t)key_ext | (uint32_t)key_id;
+    op_args.iv = iv;
+    op_args.iv_size = SHE_AES_BLOCK_SIZE_128;
+    op_args.cipher_algo = AHAB_CIPHER_ONE_GO_ALGO_CBC;
+    op_args.flags = AHAB_CIPHER_ONE_GO_FLAGS_DECRYPT;
+    op_args.input = ciphertext;
+    op_args.output = plaintext;
+    op_args.input_size = data_length;
+    op_args.output_size = data_length;
+
+    sab_error = process_sab_msg(hdl->phdl,
+                            hdl->mu_type,
+                            SAB_CIPHER_ONE_GO_REQ,
+                            MT_SAB_CIPHER,
+                            (uint32_t)hdl->cipher_handle,
+                            &op_args, &rsp_code);
 
     hdl->last_rating = sab_error;
-    if ((hdl->cancel != 0u) || (GET_STATUS_CODE(sab_error) != SAB_SUCCESS_STATUS)) {
+
+    if (rsp_code
+        || (sab_error != SAB_SUCCESS_STATUS)
+	|| (hdl->cancel != 0u)) {
+        printf("SAB FW Error[0x%x]: SAB_CIPHER_ONE_GO_REQ.\n", rsp_code);
+
         plat_os_abs_memset(plaintext, 0u, data_length);
         hdl->cancel = 0u;
     }
@@ -549,23 +592,31 @@ she_err_t she_cmd_dec_cbc(struct she_hdl_s *hdl, uint8_t key_ext, uint8_t key_id
 she_err_t she_cmd_enc_ecb(struct she_hdl_s *hdl, uint8_t key_ext, uint8_t key_id, uint8_t *plaintext, uint8_t *ciphertext)
 {
     uint32_t sab_error;
+    uint32_t rsp_code;
     she_err_t ret = ERC_GENERAL_ERROR;
+    op_cipher_one_go_args_t op_args;
 
-    sab_error =  sab_cmd_cipher_one_go(hdl->phdl,
-                                        hdl->cipher_handle,
-                                        hdl->mu_type,
-                                        (uint32_t)key_ext | (uint32_t)key_id,
-                                        NULL,
-                                        0u,
-                                        AHAB_CIPHER_ONE_GO_ALGO_ECB,
-                                        AHAB_CIPHER_ONE_GO_FLAGS_ENCRYPT,
-                                        plaintext,
-                                        ciphertext,
-                                        SHE_AES_BLOCK_SIZE_128,
-                                        SHE_AES_BLOCK_SIZE_128);
+    op_args.key_identifier = (uint32_t)key_ext | (uint32_t)key_id;
+    op_args.iv = NULL;
+    op_args.iv_size = 0u;
+    op_args.cipher_algo = AHAB_CIPHER_ONE_GO_ALGO_ECB;
+    op_args.flags = AHAB_CIPHER_ONE_GO_FLAGS_ENCRYPT;
+    op_args.input = plaintext;
+    op_args.output = ciphertext;
+    op_args.input_size = SHE_AES_BLOCK_SIZE_128;
+    op_args.output_size = SHE_AES_BLOCK_SIZE_128;
+
+    sab_error = process_sab_msg(hdl->phdl,
+                            hdl->mu_type,
+                            SAB_CIPHER_ONE_GO_REQ,
+                            MT_SAB_CIPHER,
+                            (uint32_t)hdl->cipher_handle,
+                            &op_args, &rsp_code);
 
     hdl->last_rating = sab_error;
-    if ((hdl->cancel != 0u) || (GET_STATUS_CODE(sab_error) != SAB_SUCCESS_STATUS)) {
+
+    if ((hdl->cancel != 0u) || rsp_code || (sab_error != SAB_SUCCESS_STATUS)) {
+        printf("SAB FW Error[0x%x]: SAB_CIPHER_ONE_GO_REQ.\n", rsp_code);
         plat_os_abs_memset(ciphertext, 0u, SHE_AES_BLOCK_SIZE_128);
         hdl->cancel = 0u;
     }
@@ -579,23 +630,31 @@ she_err_t she_cmd_enc_ecb(struct she_hdl_s *hdl, uint8_t key_ext, uint8_t key_id
 she_err_t she_cmd_dec_ecb(struct she_hdl_s *hdl, uint8_t key_ext, uint8_t key_id, uint8_t *ciphertext, uint8_t *plaintext)
 {
     uint32_t sab_error;
+    uint32_t rsp_code;
     she_err_t ret = ERC_GENERAL_ERROR;
+    op_cipher_one_go_args_t op_args;
 
-    sab_error =  sab_cmd_cipher_one_go(hdl->phdl,
-                                        hdl->cipher_handle,
-                                        hdl->mu_type,
-                                        (uint32_t)key_ext | (uint32_t)key_id,
-                                        NULL,
-                                        0u,
-                                        AHAB_CIPHER_ONE_GO_ALGO_ECB,
-                                        AHAB_CIPHER_ONE_GO_FLAGS_DECRYPT,
-                                        ciphertext,
-                                        plaintext,
-                                        SHE_AES_BLOCK_SIZE_128,
-                                        SHE_AES_BLOCK_SIZE_128);
+    op_args.key_identifier = (uint32_t)key_ext | (uint32_t)key_id;
+    op_args.iv = NULL;
+    op_args.iv_size = 0u;
+    op_args.cipher_algo = AHAB_CIPHER_ONE_GO_ALGO_ECB;
+    op_args.flags = AHAB_CIPHER_ONE_GO_FLAGS_DECRYPT;
+    op_args.input = ciphertext;
+    op_args.output = plaintext;
+    op_args.input_size = SHE_AES_BLOCK_SIZE_128;
+    op_args.output_size = SHE_AES_BLOCK_SIZE_128;
+
+    sab_error = process_sab_msg(hdl->phdl,
+                            hdl->mu_type,
+                            SAB_CIPHER_ONE_GO_REQ,
+                            MT_SAB_CIPHER,
+                            (uint32_t)hdl->cipher_handle,
+                            &op_args, &rsp_code);
 
     hdl->last_rating = sab_error;
-    if ((hdl->cancel != 0u) || (GET_STATUS_CODE(sab_error) != SAB_SUCCESS_STATUS)) {
+
+    if ((hdl->cancel != 0u) || rsp_code || (sab_error != SAB_SUCCESS_STATUS)) {
+        printf("SAB FW Error[0x%x]: SAB_CIPHER_ONE_GO_REQ.\n", rsp_code);
         plat_os_abs_memset(plaintext, 0u, SHE_AES_BLOCK_SIZE_128);
         hdl->cancel = 0u;
     }

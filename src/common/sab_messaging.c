@@ -161,59 +161,6 @@ uint32_t sab_close_key_store(struct plat_os_abs_hdl *phdl, uint32_t key_store_ha
     return ret;
 }
 
-uint32_t sab_open_cipher(struct plat_os_abs_hdl *phdl, uint32_t key_store_handle, uint32_t *cipher_handle, uint32_t mu_type, uint8_t flags)
-{
-    struct sab_cmd_cipher_open_msg cmd;
-    struct sab_cmd_cipher_open_rsp rsp;
-    int32_t error = 1;
-    uint32_t ret = SAB_FAILURE_STATUS;
-
-    do {
-        /* Send the cipher open command to Platform. */
-        plat_fill_cmd_msg_hdr(&cmd.hdr, SAB_CIPHER_OPEN_REQ, (uint32_t)sizeof(struct sab_cmd_cipher_open_msg), mu_type);
-        cmd.input_address_ext = 0;
-        cmd.output_address_ext = 0;
-        cmd.flags = flags;
-        cmd.key_store_handle = key_store_handle;
-        cmd.crc = plat_compute_msg_crc((uint32_t*)&cmd, (uint32_t)(sizeof(cmd) - sizeof(uint32_t)));
-
-        error = plat_send_msg_and_get_resp(phdl,
-                    (uint32_t *)&cmd, (uint32_t)sizeof(struct sab_cmd_cipher_open_msg),
-                    (uint32_t *)&rsp, (uint32_t)sizeof(struct sab_cmd_cipher_open_rsp));
-        if (error != 0) {
-            break;
-        }
-
-        ret = rsp.rsp_code;
-        *cipher_handle = rsp.cipher_handle;
-    } while(false);
-    return ret;
-}
-
-uint32_t sab_close_cipher(struct plat_os_abs_hdl *phdl, uint32_t cipher_handle, uint32_t mu_type)
-{
-    struct sab_cmd_cipher_close_msg cmd;
-    struct sab_cmd_cipher_close_rsp rsp;
-    int32_t error = 1;
-    uint32_t ret = SAB_FAILURE_STATUS;
-
-    do {
-        /* Send the cipher store close command to Platform. */
-        plat_fill_cmd_msg_hdr(&cmd.hdr, SAB_CIPHER_CLOSE_REQ, (uint32_t)sizeof(struct sab_cmd_cipher_close_msg), mu_type);
-        cmd.cipher_handle = cipher_handle;
-        error = plat_send_msg_and_get_resp(phdl,
-                    (uint32_t *)&cmd, (uint32_t)sizeof(struct sab_cmd_cipher_close_msg),
-                    (uint32_t *)&rsp, (uint32_t)sizeof(struct sab_cmd_cipher_close_rsp));
-
-        if (error != 0) {
-            break;
-        }
-
-        ret = rsp.rsp_code;
-    } while(false);
-    return ret;
-}
-
 uint32_t sab_open_rng(struct plat_os_abs_hdl *phdl, uint32_t session_handle, uint32_t *rng_handle, uint32_t mu_type, uint8_t flags)
 {
     struct sab_cmd_rng_open_msg cmd;
@@ -357,68 +304,6 @@ uint32_t sab_get_info(struct plat_os_abs_hdl *phdl, uint32_t session_handle, uin
         *version_ext = rsp.version_ext;
         *fips_mode = rsp.fips_mode;
     } while(false);
-
-    return ret;
-}
-
-/* Generic function for encryption and decryption. */
-uint32_t sab_cmd_cipher_one_go(struct plat_os_abs_hdl *phdl,
-                                uint32_t cipher_handle,
-                                uint32_t mu_type,
-                                uint32_t key_id,
-                                uint8_t *iv,
-                                uint16_t iv_size,
-                                uint8_t algo,
-                                uint8_t flags,
-                                uint8_t *input,
-                                uint8_t *output,
-                                uint32_t input_size,
-                                uint32_t output_size)
-{
-    struct sab_cmd_cipher_one_go_msg cmd;
-    struct sab_cmd_cipher_one_go_rsp rsp;
-    int32_t error;
-    uint32_t ret = SAB_FAILURE_STATUS;
-
-    do {
-        if (phdl == NULL) {
-            break;
-        }
-        /* Build command message. */
-        plat_fill_cmd_msg_hdr(&cmd.hdr, SAB_CIPHER_ONE_GO_REQ, (uint32_t)sizeof(struct sab_cmd_cipher_one_go_msg), mu_type);
-        cmd.cipher_handle = cipher_handle;
-        cmd.key_id = key_id;
-        if (iv == NULL) {
-            cmd.iv_address = 0u;
-        } else {
-            cmd.iv_address = plat_os_abs_data_buf(phdl, iv, iv_size, DATA_BUF_IS_INPUT);
-        }
-        cmd.iv_size = iv_size;
-        cmd.algo = algo;
-        cmd.flags = flags;
-        cmd.input_address = plat_os_abs_data_buf(phdl, input, input_size, DATA_BUF_IS_INPUT);
-        cmd.output_address = plat_os_abs_data_buf(phdl, output, output_size, 0u);
-        cmd.input_size = input_size;
-        cmd.output_size = output_size;
-        cmd.crc = 0u;
-        cmd.crc = plat_compute_msg_crc((uint32_t*)&cmd, (uint32_t)(sizeof(cmd) - sizeof(uint32_t)));
-
-        /* Send the message to Platform. */
-        error = plat_send_msg_and_get_resp(phdl,
-                    (uint32_t *)&cmd, (uint32_t)sizeof(struct sab_cmd_cipher_one_go_msg),
-                    (uint32_t *)&rsp, (uint32_t)sizeof(struct sab_cmd_cipher_one_go_rsp));
-	if (error != 0) {
-		printf("SAB Send/Recieve Err[0x%x]: SAB_CIPHER_ONE_GO_REQ.\n",
-							rsp.rsp_code);
-		break;
-	}
-
-	if (rsp.rsp_code)
-		printf("SAB FW Error[0x%x]: SAB_CIPHER_ONE_GO_REQ.\n",
-							rsp.rsp_code);
-
-        ret = rsp.rsp_code;
-    } while (false);
 
     return ret;
 }

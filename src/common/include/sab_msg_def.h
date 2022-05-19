@@ -620,57 +620,10 @@ struct sab_cmd_key_management_close_rsp {
     uint32_t rsp_code;
 };
 
-struct sab_cmd_cipher_open_msg{
-    struct sab_mu_hdr hdr;
-    uint32_t key_store_handle;
-    uint32_t input_address_ext;
-    uint32_t output_address_ext;
-    uint8_t flags;
-    uint8_t rsv;
-    uint16_t rsv_1;
-    uint32_t crc;
-} ;
-
-struct sab_cmd_cipher_open_rsp{
-    struct sab_mu_hdr hdr;
-    uint32_t rsp_code;
-    uint32_t cipher_handle;
-} ;
-
-struct sab_cmd_cipher_close_msg {
-    struct sab_mu_hdr hdr;
-    uint32_t cipher_handle;
-} ;
-
-struct sab_cmd_cipher_close_rsp {
-    struct sab_mu_hdr hdr;
-    uint32_t rsp_code;
-} ;
-
 #define AHAB_CIPHER_ONE_GO_ALGO_ECB (0x00u)
 #define AHAB_CIPHER_ONE_GO_ALGO_CBC (0x01u)
 #define AHAB_CIPHER_ONE_GO_FLAGS_ENCRYPT (0x01u)
 #define AHAB_CIPHER_ONE_GO_FLAGS_DECRYPT (0x00u)
-
-struct sab_cmd_cipher_one_go_msg {
-    struct sab_mu_hdr hdr;
-    uint32_t cipher_handle;
-    uint32_t key_id;
-    uint32_t iv_address;
-    uint16_t iv_size;
-    uint8_t  algo;
-    uint8_t  flags;
-    uint32_t input_address;
-    uint32_t output_address;
-    uint32_t input_size;
-    uint32_t output_size;
-    uint32_t crc;
-};
-
-struct sab_cmd_cipher_one_go_rsp {
-    struct sab_mu_hdr hdr;
-    uint32_t rsp_code;
-};
 
 #define SAB_AUTH_ENC_ALGO_GCM 0x00
 #define SAB_AUTH_ENC_FLAGS_ENCRYPT (0x01u)

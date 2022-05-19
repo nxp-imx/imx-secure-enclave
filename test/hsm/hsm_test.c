@@ -445,7 +445,8 @@ static void transient_key_tests(hsm_hdl_t sess_hdl, hsm_hdl_t key_store_hdl)
 	key_gen_args.key_info = HSM_KEY_INFO_TRANSIENT;
 #else
 	key_gen_args.key_lifetime = HSM_KEY_LIFE_VOLATILE;
-	key_gen_args.key_usage = HSM_KEY_USAGE_DERIVE;
+	key_gen_args.key_usage = HSM_KEY_USAGE_DERIVE | HSM_KEY_USAGE_ENCRYPT
+				| HSM_KEY_USAGE_DECRYPT;
 	key_gen_args.permitted_algo = PERMITTED_ALGO_ALL_CIPHER;
 #endif
 	key_gen_args.key_type = HSM_KEY_TYPE_AES_256;
@@ -466,7 +467,11 @@ static void transient_key_tests(hsm_hdl_t sess_hdl, hsm_hdl_t key_store_hdl)
 	cipher_args.key_identifier = sym_key_id;
 	cipher_args.iv = iv_data;
 	cipher_args.iv_size = sizeof(iv_data);
+#ifdef PSA_COMPLIANT
+	cipher_args.cipher_algo = HSM_CIPHER_ONE_GO_ALGO_CBC;
+#else
 	cipher_args.cipher_algo = HSM_CIPHER_ONE_GO_ALGO_AES_CBC;
+#endif
 	cipher_args.flags = HSM_CIPHER_ONE_GO_FLAGS_ENCRYPT;
 	cipher_args.input = hash_data;
 	cipher_args.output = ciphered_data;
@@ -480,7 +485,11 @@ static void transient_key_tests(hsm_hdl_t sess_hdl, hsm_hdl_t key_store_hdl)
 	cipher_args.key_identifier = sym_key_id;
 	cipher_args.iv = iv_data;
 	cipher_args.iv_size = sizeof(iv_data);
+#ifdef PSA_COMPLIANT
+	cipher_args.cipher_algo = HSM_CIPHER_ONE_GO_ALGO_CBC;
+#else
 	cipher_args.cipher_algo = HSM_CIPHER_ONE_GO_ALGO_AES_CBC;
+#endif
 	cipher_args.flags = HSM_CIPHER_ONE_GO_FLAGS_DECRYPT;
 	cipher_args.input = ciphered_data;
 	cipher_args.output = deciphered_data;

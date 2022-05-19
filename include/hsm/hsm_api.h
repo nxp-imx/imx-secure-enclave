@@ -162,6 +162,7 @@ hsm_err_t hsm_open_key_management_service(hsm_hdl_t key_store_hdl, open_svc_key_
 #include "internal/hsm_key_generate.h"
 #include "internal/hsm_sign_gen.h"
 #include "internal/hsm_verify_sign.h"
+#include "internal/hsm_cipher.h"
 
 #include "internal/hsm_hash.h"
 
@@ -300,64 +301,6 @@ hsm_err_t hsm_close_key_management_service(hsm_hdl_t key_management_hdl);
  */
 /** @} end of key management service flow */
 
-/**
- *  @defgroup group4 Ciphering
- * @{
- */
-
-typedef uint8_t hsm_svc_cipher_flags_t;
-typedef struct {
-    hsm_svc_cipher_flags_t flags;           //!< bitmap specifying the services properties.
-    uint8_t reserved[3];
-} open_svc_cipher_args_t;
-
-/**
- * Open a cipher service flow\n
- * User can call this function only after having opened a key store service flow.\n
- * User must open this service in order to perform cipher operation\n
- *
- * \param key_store_hdl handle identifying the key store service flow.
- * \param args pointer to the structure containing the function arguments.
- * \param cipher_hdl pointer to where the cipher service flow handle must be written.
- *
- * \return error code
- */
-hsm_err_t hsm_open_cipher_service(hsm_hdl_t key_store_hdl, open_svc_cipher_args_t *args, hsm_hdl_t *cipher_hdl);
-
-
-typedef uint8_t hsm_op_cipher_one_go_algo_t;
-typedef uint8_t hsm_op_cipher_one_go_flags_t;
-typedef struct {
-    uint32_t key_identifier;                    //!< identifier of the key to be used for the operation
-    uint8_t *iv;                                //!< pointer to the initialization vector (nonce in case of AES CCM)
-    uint16_t iv_size;                           //!< length in bytes of the initialization vector\n it must be 0 for algorithms not using the initialization vector.\n It must be 12 for AES in CCM mode
-    hsm_op_cipher_one_go_algo_t cipher_algo;    //!< algorithm to be used for the operation
-    hsm_op_cipher_one_go_flags_t flags;         //!< bitmap specifying the operation attributes
-    uint8_t *input;                             //!< pointer to the input area\n plaintext for encryption\n ciphertext for decryption (in case of CCM is the purported ciphertext)
-    uint8_t *output;                            //!< pointer to the output area\n ciphertext for encryption (in case of CCM is the output of the generation-encryption process)\n plaintext for decryption
-    uint32_t input_size;                        //!< length in bytes of the input. In case of CBC and ECB, the input size should be multiple of a block cipher size (16 bytes).
-    uint32_t output_size;                       //!< length in bytes of the output
-} op_cipher_one_go_args_t;
-
-/**
- * Perform ciphering operation\n
- * User can call this function only after having opened a cipher service flow
- *
- * \param cipher_hdl handle identifying the cipher service flow.
- * \param args pointer to the structure containing the function arguments.
- *
- * \return error code
- */
-
-hsm_err_t hsm_cipher_one_go(hsm_hdl_t cipher_hdl, op_cipher_one_go_args_t* args);
-#define HSM_CIPHER_ONE_GO_ALGO_AES_ECB              ((hsm_op_cipher_one_go_algo_t)(0x00u))
-#define HSM_CIPHER_ONE_GO_ALGO_AES_CBC              ((hsm_op_cipher_one_go_algo_t)(0x01u))
-#define HSM_CIPHER_ONE_GO_ALGO_AES_CCM              ((hsm_op_cipher_one_go_algo_t)(0x04u))       //!< Perform AES CCM with following constraints: AES CCM where Adata = 0, Tlen = 16 bytes, nonce size = 12 bytes
-#define HSM_CIPHER_ONE_GO_ALGO_SM4_ECB              ((hsm_op_cipher_one_go_algo_t)(0x10u))
-#define HSM_CIPHER_ONE_GO_ALGO_SM4_CBC              ((hsm_op_cipher_one_go_algo_t)(0x11u))
-#define HSM_CIPHER_ONE_GO_FLAGS_DECRYPT             ((hsm_op_cipher_one_go_flags_t)(0u << 0))
-#define HSM_CIPHER_ONE_GO_FLAGS_ENCRYPT             ((hsm_op_cipher_one_go_flags_t)(1u << 0))
-
 typedef uint8_t hsm_op_auth_enc_algo_t;
 typedef uint8_t hsm_op_auth_enc_flags_t;
 typedef struct {
@@ -427,36 +370,6 @@ typedef struct {
  */
 hsm_err_t hsm_ecies_decryption(hsm_hdl_t cipher_hdl, op_ecies_dec_args_t *args);
 
-/**
- * Terminate a previously opened cipher service flow
- *
- * \param cipher_hdl pointer to handle identifying the cipher service flow to be closed.
- *
- * \return error code
- */
-hsm_err_t hsm_close_cipher_service(hsm_hdl_t cipher_hdl);
-
-/**
- *\addtogroup qxp_specific
- * \ref group4
- *
- * - \ref HSM_CIPHER_ONE_GO_ALGO_SM4_ECB is not supported.
- * - \ref HSM_CIPHER_ONE_GO_ALGO_SM4_CBC is not supported.
- * - \ref HSM_AUTH_ENC_ALGO_SM4_CCM is not supported.
- *
- * - \ref hsm_ecies_decryption: This feature is disabled when part is running in FIPS approved mode. Any call to this API will results in a HSM_FEATURE_DISABLED error.
- * - \ref hsm_key_type_t of op_ecies_dec_args_t: Only HSM_KEY_TYPE_ECDSA_NIST_P256 and HSM_KEY_TYPE_ECDSA_BRAINPOOL_R1_256 are supported.
- *
- */
-
-/**
- *\addtogroup dxl_specific
- * \ref group4
- *
- * - \ref hsm_key_type_t of op_ecies_dec_args_t: Only HSM_KEY_TYPE_ECDSA_NIST_P256 and HSM_KEY_TYPE_ECDSA_BRAINPOOL_R1_256 are supported.
- *
- */
-/** @} end of cipher service flow */
 
 
 typedef uint8_t hsm_op_import_public_key_flags_t;

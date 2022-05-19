@@ -353,7 +353,12 @@ static void *cipher_loop_thread(void *arg)
         cipher_args.key_identifier = key_id;
         cipher_args.iv = ((i%2 == 0) ? SM2_IDENTIFIER : NULL); // just need 16 bytes somewhere to be used as IV
         cipher_args.iv_size = ((i%2 == 0) ? 16 : 0);
-        cipher_args.cipher_algo = ((i%2 == 0) ? HSM_CIPHER_ONE_GO_ALGO_SM4_CBC : HSM_CIPHER_ONE_GO_ALGO_SM4_ECB);
+        cipher_args.cipher_algo = ((i % 2 == 0) ?
+#ifdef PSA_COMPLIANT
+			HSM_CIPHER_ONE_GO_ALGO_CBC : HSM_CIPHER_ONE_GO_ALGO_ECB);
+#else
+			HSM_CIPHER_ONE_GO_ALGO_SM4_CBC : HSM_CIPHER_ONE_GO_ALGO_SM4_ECB);
+#endif
         cipher_args.flags = HSM_CIPHER_ONE_GO_FLAGS_ENCRYPT;
         cipher_args.input = SM2_test_message;
         cipher_args.output = args->cipher_area;
@@ -1026,7 +1031,11 @@ int main(int argc, char *argv[])
     cipher_args.key_identifier = key_id_sm4;
     cipher_args.iv = 0;
     cipher_args.iv_size = 0;
+#ifdef PSA_COMPLIANT
+    cipher_args.cipher_algo = HSM_CIPHER_ONE_GO_ALGO_CBC;
+#else
     cipher_args.cipher_algo = HSM_CIPHER_ONE_GO_ALGO_SM4_ECB;
+#endif
     cipher_args.flags = HSM_CIPHER_ONE_GO_FLAGS_ENCRYPT;
     cipher_args.input = SM2_test_message;
     cipher_args.output = work_area3;
@@ -1315,7 +1324,9 @@ int main(int argc, char *argv[])
     st_butt_key_expansion.output = work_area;
     st_butt_key_expansion.output_size = 64;
     st_butt_key_expansion.key_type = HSM_KEY_TYPE_DSA_SM2_FP_256;
+#ifndef PSA_COMPLIANT
     st_butt_key_expansion.expansion_fct_algo = HSM_CIPHER_ONE_GO_ALGO_SM4_ECB;
+#endif
     st_butt_key_expansion.key_group = 1;
     st_butt_key_expansion.key_info = 0;
     err = hsm_standalone_butterfly_key_expansion(sg0_key_mgmt_srv, &st_butt_key_expansion);
@@ -1373,7 +1384,9 @@ int main(int argc, char *argv[])
     st_butt_key_expansion.output = work_area;
     st_butt_key_expansion.output_size = 64;
     st_butt_key_expansion.key_type = HSM_KEY_TYPE_ECDSA_NIST_P256;
+#ifndef PSA_COMPLIANT
     st_butt_key_expansion.expansion_fct_algo = HSM_CIPHER_ONE_GO_ALGO_AES_ECB;
+#endif
     st_butt_key_expansion.key_group = 1;
     st_butt_key_expansion.key_info = 0;
     err = hsm_standalone_butterfly_key_expansion(sg0_key_mgmt_srv, &st_butt_key_expansion);
