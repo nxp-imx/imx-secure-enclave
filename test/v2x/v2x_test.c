@@ -1100,7 +1100,11 @@ int main(int argc, char *argv[])
     printf("err: 0x%x hsm_generate_key err: hdl: 0x%08x\n", err, sg0_key_mgmt_srv);
 
     mac_one_go.key_identifier = key_id;
+#ifdef PSA_COMPLIANT
+    mac_one_go.algorithm = PERMITTED_ALGO_CMAC;
+#else
     mac_one_go.algorithm = HSM_OP_MAC_ONE_GO_ALGO_AES_CMAC;
+#endif
     mac_one_go.flags = HSM_OP_MAC_ONE_GO_FLAGS_MAC_GENERATION;
     mac_one_go.payload = SM2_test_message;
     mac_one_go.mac = work_area2;
@@ -1110,7 +1114,11 @@ int main(int argc, char *argv[])
     printf("err: 0x%x hsm_mac_one_go GEN hdl: 0x%08x\n", err, sg0_mac_hdl);
 
     mac_one_go.key_identifier = key_id;
+#ifdef PSA_COMPLIANT
+    mac_one_go.algorithm = PERMITTED_ALGO_CMAC;
+#else
     mac_one_go.algorithm = HSM_OP_MAC_ONE_GO_ALGO_AES_CMAC;
+#endif
     mac_one_go.flags = HSM_OP_MAC_ONE_GO_FLAGS_MAC_VERIFICATION;
     mac_one_go.payload = SM2_test_message;
     mac_one_go.mac = work_area2;

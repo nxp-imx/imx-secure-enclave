@@ -308,63 +308,6 @@ uint32_t sab_get_info(struct plat_os_abs_hdl *phdl, uint32_t session_handle, uin
     return ret;
 }
 
-uint32_t sab_open_mac(struct plat_os_abs_hdl *phdl, uint32_t key_store_handle, uint32_t *mac_handle, uint32_t mu_type, uint8_t flags)
-{
-    struct sab_cmd_mac_open_msg cmd;
-    struct sab_cmd_mac_open_rsp rsp;
-    int32_t error = 1;
-    uint32_t ret = SAB_FAILURE_STATUS;
-
-    do {
-        /* Send the mac open command to Platform. */
-        plat_fill_cmd_msg_hdr(&cmd.hdr, SAB_MAC_OPEN_REQ, (uint32_t)sizeof(struct sab_cmd_mac_open_msg), mu_type);
-        cmd.input_address_ext = 0u;
-        cmd.output_address_ext = 0u;
-        cmd.flags = flags;
-        cmd.key_store_handle = key_store_handle;
-        cmd.rsv[0] = 0u;
-        cmd.rsv[1] = 0u;
-        cmd.rsv[2] = 0u;
-        cmd.crc = 0u;
-        cmd.crc = plat_compute_msg_crc((uint32_t*)&cmd, (uint32_t)(sizeof(cmd) - sizeof(uint32_t)));
-
-        error = plat_send_msg_and_get_resp(phdl,
-                    (uint32_t *)&cmd, (uint32_t)sizeof(struct sab_cmd_mac_open_msg),
-                    (uint32_t *)&rsp, (uint32_t)sizeof(struct sab_cmd_mac_open_rsp));
-        if (error != 0) {
-            break;
-        }
-
-        ret = rsp.rsp_code;
-        *mac_handle = rsp.mac_handle;
-    } while(false);
-    return ret;
-}
-
-uint32_t sab_close_mac(struct plat_os_abs_hdl *phdl, uint32_t mac_handle, uint32_t mu_type)
-{
-    struct sab_cmd_mac_close_msg cmd;
-    struct sab_cmd_mac_close_rsp rsp;
-    int32_t error = 1;
-    uint32_t ret = SAB_FAILURE_STATUS;
-
-    do {
-        /* Send the mac store close command to Platform. */
-        plat_fill_cmd_msg_hdr(&cmd.hdr, SAB_MAC_CLOSE_REQ, (uint32_t)sizeof(struct sab_cmd_mac_close_msg), mu_type);
-        cmd.mac_handle = mac_handle;
-        error = plat_send_msg_and_get_resp(phdl,
-                    (uint32_t *)&cmd, (uint32_t)sizeof(struct sab_cmd_mac_close_msg),
-                    (uint32_t *)&rsp, (uint32_t)sizeof(struct sab_cmd_mac_close_rsp));
-
-        if (error != 0) {
-            break;
-        }
-
-        ret = rsp.rsp_code;
-    } while(false);
-    return ret;
-}
-
 uint32_t sab_open_sm2_eces(struct plat_os_abs_hdl *phdl, uint32_t key_store_handle, uint32_t *sm2_eces_handle, uint32_t mu_type, uint8_t flags)
 {
     struct sab_cmd_sm2_eces_dec_open_msg cmd;

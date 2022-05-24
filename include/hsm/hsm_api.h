@@ -163,6 +163,7 @@ hsm_err_t hsm_open_key_management_service(hsm_hdl_t key_store_hdl, open_svc_key_
 #include "internal/hsm_sign_gen.h"
 #include "internal/hsm_verify_sign.h"
 #include "internal/hsm_cipher.h"
+#include "internal/hsm_mac.h"
 
 #include "internal/hsm_hash.h"
 
@@ -742,102 +743,6 @@ typedef struct {
 hsm_err_t hsm_get_info(hsm_hdl_t session_hdl, op_get_info_args_t *args);
 
 /** @} end of Get info operation */
-
-/**
- *  @defgroup group16 Mac
- * @{
- */
-
-typedef uint8_t hsm_svc_mac_flags_t;
-typedef struct {
-    hsm_svc_mac_flags_t flags;           //!< bitmap specifying the services properties.
-    uint8_t reserved[3];
-} open_svc_mac_args_t;
-
-/**
- * Open a mac service flow\n
- * User can call this function only after having opened a key store service flow.\n
- * User must open this service in order to perform mac operation\n
- *
- * \param key_store_hdl handle identifying the key store service flow.
- * \param args pointer to the structure containing the function arguments.
- * \param mac_hdl pointer to where the mac service flow handle must be written.
- *
- * \return error code
- */
-hsm_err_t hsm_open_mac_service(hsm_hdl_t key_store_hdl, open_svc_mac_args_t *args, hsm_hdl_t *mac_hdl);
-
-
-typedef uint8_t hsm_op_mac_one_go_algo_t;
-typedef uint8_t hsm_op_mac_one_go_flags_t;
-
-typedef struct {
-    uint32_t key_identifier;                    //!< identifier of the key to be used for the operation
-    hsm_op_mac_one_go_algo_t algorithm;         //!< algorithm to be used for the operation
-    hsm_op_mac_one_go_flags_t flags;            //!< bitmap specifying the operation attributes
-    uint8_t *payload;                           //!< pointer to the payload area\n
-    uint8_t *mac;                               //!< pointer to the tag area\n
-    uint16_t payload_size;                      //!< length in bytes of the payload
-    uint16_t mac_size;                          //!< length of the tag. Specified in bytes if HSM_OP_MAC_ONE_GO_FLAGS_MAC_LENGTH_IN_BITS is clear, specified in bits when HSM_OP_MAC_ONE_GO_FLAGS_MAC_LENGTH_IN_BITS is set.\n When specified in bytes the mac size cannot be less than 4 bytes.\n When specified in bits the mac size cannot be less than:\n - the key specific min_mac_len setting if specified for this key when generated/injected or\n - the min_mac_length value if specified at the key store provisioning (if a key specific setting was not specified at key generation/injection) or\n - the default value (32 bit) if a minimum has not been specified using one of the above 2 methods.
-} op_mac_one_go_args_t;
-
-typedef uint32_t hsm_mac_verification_status_t;
-/**
- * Perform mac operation\n
- * User can call this function only after having opened a mac service flow\n
- * For CMAC algorithm, a key of type HSM_KEY_TYPE_AES_XXX must be used\n
- * For HMAC algorithm, a key of type HSM_KEY_TYPE_HMAC_XXX must be used\n
- * For mac verification operations, the verified mac length can be specified in bits by setting the HSM_OP_MAC_ONE_GO_FLAGS_MAC_LENGTH_IN_BITS flag, if this flag is clear then the mac_length is specified in bytes.  For mac generation operations, the mac length must be set in bytes and the HSM_OP_MAC_ONE_GO_FLAGS_MAC_LENGTH_IN_BITS flag must be 0\n
- *
- * \param mac_hdl handle identifying the mac service flow.
- * \param args pointer to the structure containing the function arguments.
- *
- * \return error code
- */
-hsm_err_t hsm_mac_one_go(hsm_hdl_t mac_hdl, op_mac_one_go_args_t* args, hsm_mac_verification_status_t *status);
-
-#define HSM_OP_MAC_ONE_GO_FLAGS_MAC_VERIFICATION       ((hsm_op_mac_one_go_flags_t)(0u << 0))
-#define HSM_OP_MAC_ONE_GO_FLAGS_MAC_GENERATION         ((hsm_op_mac_one_go_flags_t)(1u << 0))
-#define HSM_OP_MAC_ONE_GO_FLAGS_MAC_LENGTH_IN_BITS     ((hsm_op_mac_one_go_flags_t)(1u << 1))
-#define HSM_OP_MAC_ONE_GO_ALGO_AES_CMAC                ((hsm_op_mac_one_go_algo_t)(0x01u))
-#define HSM_OP_MAC_ONE_GO_ALGO_HMAC_SHA_224            ((hsm_op_mac_one_go_algo_t)(0x05u))
-#define HSM_OP_MAC_ONE_GO_ALGO_HMAC_SHA_256            ((hsm_op_mac_one_go_algo_t)(0x06u))
-#define HSM_OP_MAC_ONE_GO_ALGO_HMAC_SHA_384            ((hsm_op_mac_one_go_algo_t)(0x07u))
-#define HSM_OP_MAC_ONE_GO_ALGO_HMAC_SHA_512            ((hsm_op_mac_one_go_algo_t)(0x08u))
-#define HSM_MAC_VERIFICATION_STATUS_SUCCESS            ((hsm_mac_verification_status_t)(0x6C1AA1C6u))
-
-/**
- * Terminate a previously opened mac service flow
- *
- * \param mac_hdl pointer to handle identifying the mac service flow to be closed.
- *
- * \return error code
- */
-hsm_err_t hsm_close_mac_service(hsm_hdl_t mac_hdl);
-
-/**
- *\addtogroup qxp_specific
- * \ref group16
- *
- * - \ref HSM_OP_MAC_ONE_GO_ALGO_HMAC_SHA_224 is not supported.
- * - \ref HSM_OP_MAC_ONE_GO_ALGO_HMAC_SHA_256 is not supported.
- * - \ref HSM_OP_MAC_ONE_GO_ALGO_HMAC_SHA_384 is not supported.
- * - \ref HSM_OP_MAC_ONE_GO_ALGO_HMAC_SHA_512 is not supported.
- *
- */
-
-/**
- *\addtogroup dxl_specific
- * \ref group16
- *
- * - \ref HSM_OP_MAC_ONE_GO_ALGO_HMAC_SHA_224 is not supported.
- * - \ref HSM_OP_MAC_ONE_GO_ALGO_HMAC_SHA_256 is not supported.
- * - \ref HSM_OP_MAC_ONE_GO_ALGO_HMAC_SHA_384 is not supported.
- * - \ref HSM_OP_MAC_ONE_GO_ALGO_HMAC_SHA_512 is not supported.
- *
- */
-
-/** @} end of mac service flow */
 
 /**
  *  @defgroup group17 SM2 Get Z

@@ -21,6 +21,12 @@ HSM_API_SRC	+= \
 		$(PLAT_COMMON_PATH)/hsm_api/hsm_cipher.o
 endif
 
+ifneq (${MT_SAB_MAC},0x0)
+DEFINES		+=	-DHSM_MAC
+HSM_API_SRC	+= \
+		$(PLAT_COMMON_PATH)/hsm_api/hsm_mac.o
+endif
+
 ifneq (${MT_SAB_VERIFY_SIGN},0x0)
 DEFINES		+=	-DHSM_VERIFY_SIGN
 HSM_API_SRC	+= \

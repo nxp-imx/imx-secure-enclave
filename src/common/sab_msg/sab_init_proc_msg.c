@@ -54,6 +54,10 @@
 #include "sab_cipher.h"
 #endif
 
+#if MT_SAB_MAC
+#include "sab_mac.h"
+#endif
+
 static uint32_t prep_sab_msg_not_supported(void *phdl, void *cmd_buf,
 					   void *rsp_buf, uint32_t *cmd_msg_sz,
 					   uint32_t *rsp_msg_sz,
@@ -135,6 +139,29 @@ void init_proc_sab_msg_engine(msg_type_t msg_type)
 				ret = add_sab_msg_handler(i, MT_SAB_MANAGE_KEY,
 						  prepare_msg_managekey_ext,
 						  proc_msg_rsp_managekey);
+			}
+		break;
+#endif
+#if MT_SAB_MAC
+		case SAB_MAC_OPEN_REQ:
+			if (msg_type == MT_SAB_MAC) {
+				ret = add_sab_msg_handler(i, MT_SAB_MAC,
+						  prepare_msg_mac_open_req,
+						  proc_msg_rsp_mac_open_req);
+			}
+		break;
+		case SAB_MAC_CLOSE_REQ:
+			if (msg_type == MT_SAB_MAC) {
+				ret = add_sab_msg_handler(i, MT_SAB_MAC,
+						  prepare_msg_mac_close_req,
+						  proc_msg_rsp_mac_close_req);
+			}
+		break;
+		case SAB_MAC_ONE_GO_REQ:
+			if (msg_type == MT_SAB_MAC) {
+				ret = add_sab_msg_handler(i, MT_SAB_MAC,
+						  prepare_msg_mac_one_go,
+						  proc_msg_rsp_mac_one_go);
 			}
 		break;
 #endif
