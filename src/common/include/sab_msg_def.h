@@ -175,6 +175,13 @@
 #define SAB_SELF_TEST_FAILURE_RATING            (0x12u)
 #define SAB_NOT_READY_RATING                    (0x13u)
 #define SAB_FEATURE_DISABLED_RATING             (0x14u)
+#define SAB_SIGNED_MSG_INVALID_RATING           (0x18u)
+#define SAB_OUT_OF_MEM_TO_STORE_KEY_IN_KEYGRP   (0x19u)
+#define SAB_NOT_POSSIBLE_RETRIEVE_CHUNK         (0x1Au)
+#define SAB_KEY_NOT_SUPPORTED_RATING            (0x1Bu)
+#define SAB_TRYING_TO_DEL_PERM_KEY              (0x1Cu)
+#define SAB_OUT_LEN_TOO_SHORT_RATING            (0x1Du)
+#define SAB_CRC_CHECK_FAIL_RATING               (0xB9u)
 
 /* SHE specific rating */
 #define SAB_SHE_SEQUENCE_ERROR_RATING           (0xD1u)     /**< Invalid sequence of commands. */
