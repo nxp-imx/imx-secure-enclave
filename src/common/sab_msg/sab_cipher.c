@@ -162,7 +162,9 @@ uint32_t proc_msg_rsp_cipher_one_go(void *rsp_buf, void *args)
 		printf("%s", err_str);
 	}
 
+#ifdef PSA_COMPLIANT
 	op_args->output_size = rsp->output_size;
+#endif
 
 	return SAB_SUCCESS_STATUS;
 }
