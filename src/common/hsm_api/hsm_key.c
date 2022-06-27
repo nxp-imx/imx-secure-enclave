@@ -12,6 +12,7 @@
  */
 
 #include <stddef.h>
+#include <stdio.h>
 
 #include "internal/hsm_key.h"
 
@@ -148,8 +149,14 @@ uint32_t set_key_type_n_sz(hsm_key_type_t key_type,
 		*psa_key_type = loc_psa_key_type;
 	}
 
-	if (byte_key_size != NULL) {
-		*byte_key_size = loc_byte_key_size;
+	/* byte_key_size will be equal to zero, if HSM user donot want to
+	 * export the Public Key.
+	 */
+	if (*byte_key_size != 0 && byte_key_size != NULL){
+		if (*byte_key_size != loc_byte_key_size) {
+			printf("Warning: In-Correct length for Public key\n");
+			*byte_key_size = loc_byte_key_size;
+		}
 	}
 
 	return ret;
