@@ -152,11 +152,13 @@ uint32_t set_key_type_n_sz(hsm_key_type_t key_type,
 	/* byte_key_size will be equal to zero, if HSM user donot want to
 	 * export the Public Key.
 	 */
-	if (*byte_key_size != 0 && byte_key_size != NULL){
-		if (*byte_key_size != loc_byte_key_size) {
-			printf("Warning: In-Correct length for Public key\n");
-			*byte_key_size = loc_byte_key_size;
-		}
+	if (byte_key_size == NULL)
+		return ret;
+
+	if ((*byte_key_size != 0)
+			&& (*byte_key_size != loc_byte_key_size)) {
+		printf("Warning: In-Correct length for Public key\n");
+		*byte_key_size = loc_byte_key_size;
 	}
 
 	return ret;
