@@ -161,12 +161,117 @@ hsm_err_t hsm_open_key_management_service(hsm_hdl_t key_store_hdl, open_svc_key_
 
 #include "internal/hsm_key_generate.h"
 #include "internal/hsm_sign_gen.h"
+/**
+ * Secondary API to generate signature on the given message.\n
+ *
+ * This API does the following:
+ * 1. Open a service flow for signature generation.\n
+ * 2. Based on the flag to identify the type of message: Digest or actual message,\n
+ *    generate the signature using the key corresponding to the key id.
+ * 3. Post performing the operation, terminate the previously opened\n
+ *    signature-generation service flow.\n
+ *
+ * User can call this function only after having opened a key-store.\n
+ *
+ * \param key_store_hdl handle identifying the current key-store.
+ * \param args pointer to the structure containing the function arguments.
+ *
+ * \return error code
+ */
+hsm_err_t hsm_do_sign(hsm_hdl_t key_store_hdl,
+			op_generate_sign_args_t *args);
 #include "internal/hsm_verify_sign.h"
+
+/**
+ * Secondary API to verify a message signature.
+ *
+ * This API does the following:
+ * 1. Open a flow for verification of the signature.\n
+ * 2. Based on the flag to identify the type of message: Digest or actual message,\n
+ *    verification of the signature is done using the public key.
+ * 3. Post performing the operation, terminate the previously opened\n
+ *    signature-verification service flow.\n
+ *
+ * User can call this function only after having opened a session.\n
+ *
+ * \param key_store_hdl handle identifying the current key-store.
+ * \param args pointer to the structure containing the function arguments.
+ *
+ * \return error code
+ */
+hsm_err_t hsm_verify_sign(hsm_hdl_t session_hdl,
+			  op_verify_sign_args_t *args,
+			  hsm_verification_status_t *verification_status);
+/**
+ *  @defgroup group4 Ciphering
+ * @{
+ */
 #include "internal/hsm_cipher.h"
+/**
+ * Secondary API to perform ciphering operation\n
+ *
+ * This API does the following:
+ * 1. Open an Cipher Service Flow\n
+ * 2. Perform ciphering operation\n
+ * 3. Terminate a previously opened cipher service flow\n
+ *
+ * User can call this function only after having opened a cipher service flow.\n
+ *
+ * \param key_store_hdl handle identifying the cipher service flow.
+ * \param args pointer to the structure containing the function arguments.
+ *
+ * \return error code
+ */
+hsm_err_t hsm_do_cipher(hsm_hdl_t cipher_hdl,
+			op_cipher_one_go_args_t *cipher_one_go);
+/** @} end of cipher service flow */
+
+/**
+ *  @defgroup group16 Mac
+ * @{
+ */
 #include "internal/hsm_mac.h"
+/**
+ * Secondary API to perform mac operation\n
+ *
+ * This API does the following:
+ * 1. Open an MAC Service Flow\n
+ * 2. Perform mac operation\n
+ * 3. Terminate a previously opened mac service flow\n
+ *
+ * User can call this function only after having opened a key store service flow.\n
+ *
+ * \param key_store_hdl handle identifying the key store service flow.
+ * \param args pointer to the structure containing the function arguments.
+ *
+ * \return error code
+ */
+hsm_err_t hsm_do_mac(hsm_hdl_t key_store_hdl,
+		     op_mac_one_go_args_t *mac_one_go);
+/** @} end of mac service flow */
 
+/**
+ *  @defgroup group8 Hashing
+ * @{
+ */
 #include "internal/hsm_hash.h"
-
+/**
+ * Secondary API to digest a message.\n
+ *
+ * This API does the following:
+ * 1. Open an Hash Service Flow\n
+ * 2. Perform hash\n
+ * 3. Terminate a previously opened hash service flow\n
+ *
+ * User can call this function only after having opened a session.\n
+ *
+ * \param session_hdl handle identifying the current session.
+ * \param args pointer to the structure containing the function arguments.
+ *
+ * \return error code
+ */
+hsm_err_t hsm_do_hash(hsm_hdl_t session_hdl, op_hash_one_go_args_t *args);
+/** @} end of hash service flow */
 #include "internal/hsm_key_gen_ext.h"
 
 #include "internal/hsm_importkey.h"
@@ -459,8 +564,13 @@ hsm_err_t hsm_close_rng_service(hsm_hdl_t rng_hdl);
 
 
 typedef struct {
-    uint8_t *output;                        //!< pointer to the output area where the random number must be written
-    uint32_t random_size;                   //!< length in bytes of the random number to be provided.
+	//!< pointer to the output area where the random number must be written
+	uint8_t *output;
+	//!< length in bytes of the random number to be provided.
+	uint32_t random_size;
+	//!< bitmap indicating the service flow properties
+	hsm_svc_rng_flags_t svc_flags;
+	uint8_t reserved[3];
 } op_get_random_args_t;
 
 /**
@@ -473,6 +583,22 @@ typedef struct {
  * \return error code
  */
 hsm_err_t hsm_get_random(hsm_hdl_t rng_hdl, op_get_random_args_t *args);
+/**
+ * Secondary API to fetch the Random Number\n
+ *
+ * This API does the following:
+ * 1. Opens Random Number Generation Service Flow\n
+ * 2. Get a freshly generated random number\n
+ * 3. Terminate a previously opened rng service flow\n
+ *
+ * User can call this function only after having opened a session.\n
+ *
+ * \param session_hdl handle identifying the current session.
+ * \param args pointer to the structure containing the function arguments.
+ *
+ * \return error code
+ */
+hsm_err_t hsm_do_rng(hsm_hdl_t session_hdl, op_get_random_args_t *args);
 /** @} end of rng service flow */
 
 /**
@@ -662,11 +788,18 @@ hsm_err_t hsm_open_data_storage_service(hsm_hdl_t key_store_hdl, open_svc_data_s
 
 typedef uint8_t hsm_op_data_storage_flags_t;
 typedef struct {
-    uint8_t *data;                       //!< pointer to the data. In case of store request, it will be the input data to store. In case of retrieve, it will be the the pointer where to load data.
-    uint32_t data_size;                  //!< length in bytes of the data
-    uint16_t data_id;                    //!< id of the data
-    hsm_op_data_storage_flags_t flags;   //!< flags bitmap specifying the operation attributes.
-    uint8_t reserved;
+	//!< pointer to the data. In case of store request,
+	//   it will be the input data to store. In case of retrieve,
+	//   it will be the pointer where to load data.
+	uint8_t *data;
+	//!< length in bytes of the data
+	uint32_t data_size;
+	//!< id of the data
+	uint16_t data_id;
+	//!< bitmap specifying the services properties.
+	hsm_svc_data_storage_flags_t flags;
+	//!< flags bitmap specifying the operation attributes.
+	hsm_op_data_storage_flags_t svc_flags;
 } op_data_storage_args_t;
 
 /**
@@ -689,6 +822,28 @@ hsm_err_t hsm_data_storage(hsm_hdl_t data_storage_hdl, op_data_storage_args_t *a
  * \return error code
  */
 hsm_err_t hsm_close_data_storage_service(hsm_hdl_t data_storage_hdl);
+
+/**
+ * Secondary API to store and restoare data from the linux\n
+ * filesystem managed by EdgeLock Enclave Firmware.
+ *
+ * This API does the following:
+ * 1. Open an data storage service Flow\n
+ * 2. Based on the flag for operation attribute: Store or Re-store,\n
+ *    - Store the data
+ *    - Re-store the data, from the non-volatile storage.
+ * 3. Post performing the operation, terminate the previously opened\n
+ *    data-storage service flow.\n
+ *
+ * User can call this function only after having opened a key-store.\n
+ *
+ * \param key_store_hdl handle identifying the current key-store.
+ * \param args pointer to the structure containing the function arguments.
+ *
+ * \return error code
+ */
+hsm_err_t hsm_data_ops(hsm_hdl_t key_store_hdl,
+			 op_data_storage_args_t *args);
 /** @} end of data storage service flow */
 
 /**

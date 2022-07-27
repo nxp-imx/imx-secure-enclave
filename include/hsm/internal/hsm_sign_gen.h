@@ -156,12 +156,14 @@ typedef struct {
 	//!< identifier of the digital signature scheme to be used
 	//   for the operation
 	hsm_signature_scheme_id_t scheme_id;
+	//!< bitmap specifying the svc flow attributes
+	hsm_svc_signature_generation_flags_t svc_flags;
 	//!< bitmap specifying the operation attributes
 	hsm_op_generate_sign_flags_t flags;
 #ifdef PSA_COMPLIANT
-	uint8_t reserved[3];
-#else
 	uint8_t reserved[2];
+#else
+	uint8_t reserved[1];
 #endif
 } op_generate_sign_args_t;
 
