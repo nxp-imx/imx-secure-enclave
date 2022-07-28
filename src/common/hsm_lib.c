@@ -1092,6 +1092,38 @@ hsm_err_t hsm_data_storage(hsm_hdl_t data_storage_hdl,
 	return err;
 }
 
+hsm_err_t hsm_data_ops(hsm_hdl_t key_store_hdl,
+			 op_data_storage_args_t *args)
+{
+	open_svc_data_storage_args_t open_data_args;
+	hsm_hdl_t data_storage_hdl;
+	hsm_err_t err = HSM_GENERAL_ERROR;
+
+	open_data_args.flags = args->svc_flags;
+
+	err = hsm_open_data_storage_service(key_store_hdl, &open_data_args,
+					    &data_storage_hdl);
+	if (err) {
+		printf("err: 0x%x hsm_open_data_storage_service hdl: 0x%08x\n",
+				err, data_storage_hdl);
+		goto exit;
+	}
+
+	err = hsm_data_storage(data_storage_hdl, args);
+	if (err) {
+		printf("Error: 0x%x hsm_data_storage hdl: 0x%08x\n", err,
+			data_storage_hdl);
+	}
+
+	err = hsm_close_data_storage_service(data_storage_hdl);
+	if (err) {
+		printf("err: 0x%x hsm_close_data_storage_service hdl: 0x%08x\n",
+				err, data_storage_hdl);
+	}
+exit:
+	return err;
+}
+
 hsm_err_t hsm_auth_enc(hsm_hdl_t cipher_hdl, op_auth_enc_args_t* args)
 {
 	struct sab_cmd_auth_enc_msg cmd;
