@@ -28,7 +28,7 @@ void hsm_sign_verify_tests(hsm_hdl_t sess_hdl, hsm_hdl_t key_store_hdl,
 			   uint8_t *pub_key, uint32_t pub_key_sz)
 {
 	printf("\n---------------------------------------------------\n");
-	printf("Secondary API Test: HSM_DO_SIGN.\n");
+	printf("Secondary API Test: HSM_DO_SIGN then HSM_VERIFY_SIGN.\n");
 	printf("-----------------------------------------------------\n");
 
 	op_generate_sign_args_t sig_gen_args = {0};
@@ -52,5 +52,28 @@ void hsm_sign_verify_tests(hsm_hdl_t sess_hdl, hsm_hdl_t key_store_hdl,
 	if (hsmret)
 		printf("hsm_do_sign failed ret:0x%x\n", hsmret);
 
+	sig_ver_args.key = pub_key;
+	sig_ver_args.message = hash_data;
+	sig_ver_args.signature = signature_data;
+	sig_ver_args.key_size = pub_key_sz;
+	sig_ver_args.signature_size = sign_data_sz;
+	sig_ver_args.message_size = hash_data_sz;
+#ifdef PSA_COMPLIANT
+	sig_ver_args.key_type = HSM_KEY_TYPE_ECDSA_NIST_P256;
+	sig_ver_args.scheme_id = HSM_SIGNATURE_SCHEME_ECDSA_SHA256;
+#else
+	sig_ver_args.scheme_id = HSM_SIGNATURE_SCHEME_ECDSA_NIST_P256_SHA_256;
+#endif
+	sig_ver_args.flags = HSM_OP_VERIFY_SIGN_FLAGS_INPUT_DIGEST;
+	hsmret = hsm_verify_sign(sess_hdl,
+				 &sig_ver_args,
+				 &verif_status);
+	if (hsmret)
+		printf("hsm_verify_signature ret:0x%x\n", hsmret);
+
+	if (verif_status == HSM_VERIFICATION_STATUS_SUCCESS)
+		printf("Verification PASS\n");
+	else
+		printf("Verification FAIL, status:0x%x\n", verif_status);
 	printf("-----------------------------------------------------\n");
 }
