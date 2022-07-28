@@ -14,11 +14,11 @@
 MINOR_VER := 0
 
 HSM_TEST := $(PLAT)_hsm_test
-SHE_TEST := $(PLAT)_she_test
-V2X_TEST := $(PLAT)_v2x_test
-SHE_LIB := lib$(PLAT)_she.a
-HSM_LIB := lib$(PLAT)_hsm_$(MAJOR_VER).$(MINOR_VER).a
-NVM_LIB := lib$(PLAT)_nvm_$(MAJOR_VER).$(MINOR_VER).a
+SHE_TEST :=
+V2X_TEST :=
+SHE_LIB :=
+HSM_LIB := lib$(PLAT)_hsm.so.$(MAJOR_VER).$(MINOR_VER)
+NVM_LIB := lib$(PLAT)_nvm.so.$(MAJOR_VER).$(MINOR_VER)
 
 DEFINES		+=	-DCONFIG_PLAT_ELE -DPLAT_ELE_FEAT_NOT_SUPPORTED=0 \
 			-DLIB_MINOR_VERSION=${MINOR_VER} -DPSA_COMPLIANT

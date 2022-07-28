@@ -1,5 +1,5 @@
 /*
- * Copyright 2021 NXP
+ * Copyright 2021-2022 NXP
  *
  * NXP Confidential.
  * This software is owned or controlled by NXP and may only be used strictly
@@ -13,6 +13,8 @@
 
 #ifndef PLAT_OS_ABS_DEF_H
 #define PLAT_OS_ABS_DEF_H
+
+#define NO_LENGTH                   0x0u
 
 struct plat_os_abs_hdl {
     int32_t fd;

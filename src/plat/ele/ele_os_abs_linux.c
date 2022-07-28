@@ -42,9 +42,6 @@ static char ELE_MU_HSM_PATH_PRIMARY[] = "/dev/ele_mu2_ch0";
 static char ELE_MU_HSM_NVM_PATH[] = "/dev/ele_mu2_ch1";
 static char ELE_MU_HSM_PATH_SECONDARY[] = "/dev/ele_mu2_ch2";
 
-static char ELE_NVM_HSM_STORAGE_FILE[] = "/etc/ele_hsm/ele_nvm_master";
-static char ELE_NVM_HSM_STORAGE_CHUNK_PATH[] = "/etc/ele_hsm/";
-
 /* Open a session and returns a pointer to the handle or NULL in case of error.
  * Here it consists in opening the decicated seco MU device file.
  */
@@ -184,129 +181,6 @@ uint32_t plat_os_abs_crc(uint8_t *data, uint32_t size)
     return ((uint32_t)crc32(0xFFFFFFFFu, data, size) ^ 0xFFFFFFFFu);
 }
 
-/* Write data in a file located in NVM. Return the size of the written data. */
-int32_t plat_os_abs_storage_write(struct plat_os_abs_hdl *phdl, uint8_t *src, uint32_t size)
-{
-    int32_t fd = -1;
-    int32_t l = 0;
-    char *path;
-
-    switch(phdl->type) {
-    case MU_CHANNEL_PLAT_HSM_NVM:
-        path = ELE_NVM_HSM_STORAGE_FILE;
-        break;
-    default:
-        path = NULL;
-        break;
-    }
-    if (path != NULL) {
-        /* Open or create the file with access reserved to the current user. */
-        fd = open(path, O_CREAT|O_WRONLY|O_SYNC, S_IRUSR|S_IWUSR);
-        if (fd >= 0) {
-            /* Write the data. */
-            l = (int32_t)write(fd, src, size);
-
-            (void)close(fd);
-        }
-    }
-
-    return l;
-}
-
-int32_t plat_os_abs_storage_read(struct plat_os_abs_hdl *phdl, uint8_t *dst, uint32_t size)
-{
-    int32_t fd = -1;
-    int32_t l = 0;
-    char *path;
-
-    switch(phdl->type) {
-    case MU_CHANNEL_PLAT_HSM_NVM:
-        path = ELE_NVM_HSM_STORAGE_FILE;
-        break;
-    default:
-        path = NULL;
-        break;
-    }
-
-    if (path != NULL) {
-        /* Open the file as read only. */
-        fd = open(path, O_RDONLY);
-        if (fd >= 0) {
-            /* Read the data. */
-            l = (int32_t)read(fd, dst, size);
-
-            (void)close(fd);
-        }
-    }
-    return l;
-}
-
-/* Write data in a file located in NVM. Return the size of the written data. */
-int32_t plat_os_abs_storage_write_chunk(struct plat_os_abs_hdl *phdl, uint8_t *src, uint32_t size, uint64_t blob_id)
-{
-    int32_t fd = -1;
-    int32_t l = 0;
-    int n = -1;
-    char *path = NULL;
-
-    if (phdl->type == MU_CHANNEL_PLAT_HSM_NVM) {
-        path = malloc(sizeof(ELE_NVM_HSM_STORAGE_CHUNK_PATH)+16u);
-
-        if (path != NULL) {
-            (void)mkdir(ELE_NVM_HSM_STORAGE_CHUNK_PATH, S_IRUSR|S_IWUSR);
-            n = snprintf(path, sizeof(ELE_NVM_HSM_STORAGE_CHUNK_PATH)+16u,
-                            "%s%016lx", ELE_NVM_HSM_STORAGE_CHUNK_PATH, blob_id);
-        }
-    } else {
-        path = NULL;
-    }
-
-    if (n > 0) {
-        /* Open or create the file with access reserved to the current user. */
-        fd = open(path, O_CREAT|O_WRONLY|O_SYNC, S_IRUSR|S_IWUSR);
-        if (fd >= 0) {
-            /* Write the data. */
-            l = (int32_t)write(fd, src, size);
-
-            (void)close(fd);
-        }
-    }
-
-    free(path);
-    return l;
-}
-
-int32_t plat_os_abs_storage_read_chunk(struct plat_os_abs_hdl *phdl, uint8_t *dst, uint32_t size, uint64_t blob_id)
-{
-    int32_t fd = -1;
-    int32_t l = 0;
-    int n = -1;
-    char *path;
-
-    if (phdl->type == MU_CHANNEL_PLAT_HSM_NVM) {
-        path = malloc(sizeof(ELE_NVM_HSM_STORAGE_CHUNK_PATH)+16u);
-
-        if (path != NULL) {
-            (void)mkdir(ELE_NVM_HSM_STORAGE_CHUNK_PATH, S_IRUSR|S_IWUSR);
-            n = snprintf(path, sizeof(ELE_NVM_HSM_STORAGE_CHUNK_PATH)+16u,
-                            "%s%016lx", ELE_NVM_HSM_STORAGE_CHUNK_PATH, blob_id);
-        }
-    }
-
-    if (n > 0) {
-        /* Open the file as read only. */
-        fd = open(path, O_RDONLY);
-        if (fd >= 0) {
-            /* Read the data. */
-            l = (int32_t)read(fd, dst, size);
-
-            (void)close(fd);
-        }
-    }
-    free(path);
-    return l;
-}
-
 void plat_os_abs_memset(uint8_t *dst, uint8_t val, uint32_t len)
 {
     (void)memset(dst, (int32_t)val, len);
@@ -314,7 +188,10 @@ void plat_os_abs_memset(uint8_t *dst, uint8_t val, uint32_t len)
 
 void plat_os_abs_memcpy(uint8_t *dst, uint8_t *src, uint32_t len)
 {
-    (void)memcpy(dst, src, len);
+	if (len == NO_LENGTH)
+		len = strlen(src);
+
+	(void)memcpy(dst, src, len);
 }
 
 uint8_t *plat_os_abs_malloc(uint32_t size)
