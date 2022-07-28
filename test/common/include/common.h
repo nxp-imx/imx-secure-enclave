@@ -20,6 +20,11 @@ hsm_err_t do_mac_test(hsm_hdl_t key_store_hdl, hsm_hdl_t key_mgmt_hdl);
 void data_storage_test(hsm_hdl_t key_store_hdl, int arg);
 void hash_test(hsm_hdl_t hash_sess);
 
+void hsm_sign_verify_tests(hsm_hdl_t sess_hdl, hsm_hdl_t key_store_hdl,
+			   uint32_t key_id,
+			   uint8_t *signature_data, uint32_t sign_data_sz,
+			   uint8_t *hash_data, uint32_t hash_data_sz,
+			   uint8_t *pub_key, uint32_t pub_key_sz);
 /* To fetch the global session handle
  * opened as part of the test run
  */
