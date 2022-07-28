@@ -11,6 +11,7 @@
  * activate or otherwise use the software.
  */
 
+#include <signal.h>
 #include <stdbool.h>
 #include <stdio.h>
 #include <stdlib.h>
@@ -22,6 +23,7 @@
 #include "hsm_api.h"
 
 hsm_hdl_t hsm_session_hdl;
+hsm_hdl_t key_store_hdl;
 int cmdline_arg;
 
 #define DELETE	1
@@ -519,10 +521,18 @@ int get_cmdline_arg(void)
 	return cmdline_arg;
 }
 
+void hsm_test_sig_handler(int ht_signo, siginfo_t *ht_siginfo, void *ht_sigctx)
+{
+	hsm_close_key_store_service(key_store_hdl);
+	hsm_close_session(hsm_session_hdl);
+
+	exit(EXIT_SUCCESS);
+}
+
 /* Test entry function. */
 int main(int argc, char *argv[])
 {
-    hsm_hdl_t key_store_hdl;
+	struct sigaction hsm_test_sigact = {0};
 
     open_session_args_t open_session_args = {0};
     open_svc_key_store_args_t open_svc_key_store_args = {0};
@@ -534,6 +544,16 @@ int main(int argc, char *argv[])
 
     if (argc > 1)
 	    cmdline_arg = atoi(argv[1]);
+
+	sigemptyset(&hsm_test_sigact.sa_mask);
+	hsm_test_sigact.sa_flags = SA_SIGINFO;
+	hsm_test_sigact.sa_sigaction = hsm_test_sig_handler;
+
+	/* Register hsm test signal handler for SIGINT (CTRL+C) signal. */
+	if (sigaction(SIGINT, &hsm_test_sigact, NULL)) {
+		perror("failed to register hsm_test_sig_handler\n");
+		goto out;
+	}
 
     do {
         open_session_args.session_priority = 0;
@@ -584,5 +604,8 @@ int main(int argc, char *argv[])
         printf("hsm_close_session ret:0x%x\n", err);
 
     } while (0);
+
+out:
+
     return 0;
 }
