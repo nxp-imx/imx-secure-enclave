@@ -157,7 +157,7 @@ uint32_t proc_msg_rsp_cipher_one_go(void *rsp_buf, void *args)
 		(struct sab_cmd_cipher_one_go_rsp *) rsp_buf;
 	uint8_t err_str[256];
 
-	if (rsp->rsp_code) {
+	if (rsp->rsp_code != SAB_SUCCESS_STATUS) {
 		sab_cipher_err_map("SAB_ONE_GO_CIPHER", rsp->rsp_code, err_str);
 		printf("%s", err_str);
 	}

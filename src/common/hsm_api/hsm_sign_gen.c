@@ -121,7 +121,7 @@ hsm_err_t hsm_generate_signature(hsm_hdl_t signature_gen_hdl,
 					(uint32_t)signature_gen_hdl,
 					args, &rsp_code);
 
-		if (rsp_code || (error != 0))
+		if (rsp_code != SAB_SUCCESS_STATUS || (error != 0))
 			printf("SAB_GEN_SIG_REQ: SAB FW Error[0x%x]:"\
 				"SAB Engine Error[0x%x]\n", rsp_code, error);
 
@@ -155,7 +155,7 @@ hsm_err_t hsm_prepare_signature(hsm_hdl_t signature_gen_hdl,
 					(uint32_t)signature_gen_hdl,
 					args, &rsp_code);
 
-		if (rsp_code || (error != 0))
+		if (rsp_code != SAB_SUCCESS_STATUS || (error != 0))
 			printf("SAB FW Error[0x%x]: SAB_PREPARE_SIG_REQ.\n",
 								rsp_code);
 

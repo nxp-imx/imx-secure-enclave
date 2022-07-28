@@ -184,7 +184,7 @@ uint32_t proc_msg_rsp_mac_one_go(void *rsp_buf, void *args)
 		(struct sab_cmd_mac_one_go_rsp *) rsp_buf;
 	uint8_t err_str[512];
 
-	if (rsp->rsp_code) {
+	if (rsp->rsp_code != SAB_SUCCESS_STATUS) {
 		sab_mac_err_map("SAB_MAC_ONE_GO", rsp->rsp_code, err_str);
 		printf("%s", err_str);
 	}

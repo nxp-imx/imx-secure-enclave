@@ -145,7 +145,7 @@ hsm_err_t hsm_verify_signature(hsm_hdl_t signature_ver_hdl,
 			break;
 		}
 
-		if (rsp_code)
+		if (rsp_code != SAB_SUCCESS_STATUS)
 			printf("SAB FW Error[0x%x]: SAB_VER_SIG_REQ.\n",
 								rsp_code);
 

@@ -147,7 +147,7 @@
 /* Status code definition */
 #define SAB_FAILURE_STATUS                      0x29u
 #define ROM_SUCCESS_STATUS                      0xD6u
-#define SAB_SUCCESS_STATUS                      0x00u
+#define SAB_SUCCESS_STATUS                      0xD6u
 
 #define SAB_STATUS_SUCCESS(msg_type)            ((msg_type == ROM_MSG) ? \
 							ROM_SUCCESS_STATUS \

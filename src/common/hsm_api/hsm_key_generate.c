@@ -67,7 +67,7 @@ hsm_err_t hsm_generate_key(hsm_hdl_t key_management_hdl,
 			break;
 		}
 
-		if (rsp_code) {
+		if (rsp_code != SAB_SUCCESS_STATUS) {
 			printf("SAB FW Err[0x%x]: SAB_KEY_GEN_REQ.\n",
 								rsp_code);
 		}

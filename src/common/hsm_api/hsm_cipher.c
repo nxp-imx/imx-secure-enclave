@@ -115,7 +115,7 @@ hsm_err_t hsm_cipher_one_go(hsm_hdl_t cipher_hdl, op_cipher_one_go_args_t *args)
 					(uint32_t)cipher_hdl,
 					args, &rsp_code);
 
-		if (rsp_code || (error != 0))
+		if (rsp_code != SAB_SUCCESS_STATUS || (error != 0))
 			printf("SAB_ONE_GO_CIPHER: SAB FW Error[0x%x]:"\
 				"SAB Engine Error[0x%x]\n", rsp_code, error);
 

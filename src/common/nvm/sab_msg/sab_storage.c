@@ -57,7 +57,8 @@ uint32_t sab_open_storage_command(struct plat_os_abs_hdl *phdl,
 							)
 						   );
 		if (error != 0) {
-			ret = rsp.rsp_code ? rsp.rsp_code : ret;
+			ret = (rsp.rsp_code != SAB_SUCCESS_STATUS)
+				? rsp.rsp_code : ret;
 			break;
 		}
 
@@ -95,7 +96,8 @@ uint32_t sab_close_storage_command(struct plat_os_abs_hdl *phdl,
 						  );
 
 		if (error != 0) {
-			ret = rsp.rsp_code ? rsp.rsp_code : ret;
+			ret = (rsp.rsp_code != SAB_SUCCESS_STATUS)
+				? rsp.rsp_code : ret;
 			break;
 		}
 
