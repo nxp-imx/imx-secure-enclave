@@ -24,10 +24,14 @@
 #include "she_test_macros.h"
 
 static uint32_t nvm_status;
+uint8_t *nvm_fname_dname[] = {
+	"/etc/ele_nvm_she/she_nvm_storage",
+	"/etc/ele_nvm_she/"
+};
 
 static void *she_storage_thread(void *arg)
 {
-    nvm_manager(NVM_FLAGS_SHE, &nvm_status);
+    nvm_manager(NVM_FLAGS_SHE, &nvm_status, nvm_fname_dname[0], nvm_fname_dname[1]);
 }
 
 

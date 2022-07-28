@@ -17,9 +17,14 @@ BINDIR ?= /usr/bin
 base_libdir ?= lib
 LIBDIR ?= /usr/$(base_libdir)
 INCLUDEDIR ?= /usr/include
+SYSTEMD_DIR ?= /etc/systemd/system
+ETC_DIR ?= /etc
 PLAT ?= seco
 MAJOR_VER := 1
 DEFINES += -DLIB_MAJOR_VERSION=${MAJOR_VER}
+NVM_DAEMON := nvm_daemon
+NVMD_CONF_FILE := nvmd.conf
+SYSTEMD_NVM_SERVICE := nvm_daemon.service
 
 ifdef COVERAGE
 GCOV_FLAGS :=-fprofile-arcs -ftest-coverage
@@ -44,8 +49,8 @@ all_tests:= $(SHE_TEST) $(HSM_TEST) $(V2X_TEST)
 all_libs:= $(SHE_LIB) $(NVM_LIB) $(HSM_LIB)
 
 # Make targets, must need NVM-Daemon to run successfully.
-tests: $(all_tests)
-libs: $(all_libs)
+tests: $(all_tests) $(NVM_DAEMON)
+libs: $(all_libs) $(NVM_DAEMON)
 all: $(libs) $(tests)
 
 .PHONY: all clean
@@ -107,8 +112,13 @@ V2X_TEST_OBJ=$(wildcard test/v2x/*.c)
 $(V2X_TEST): $(V2X_TEST_OBJ) $(HSM_LIB) $(NVM_LIB)
 	$(CC) $^  -o $@ ${INCLUDE_PATHS} $(CFLAGS) -lpthread -lz $(GCOV_FLAGS)
 
+# NVM Daemon
+NVM_D_OBJ=$(wildcard src/common/nvm/*.c)
+$(NVM_DAEMON): $(NVM_D_OBJ) $(NVM_LIB)
+	$(CC) $^  -o $@ ${INCLUDE_PATHS} $(CFLAGS) -lpthread -lz $(GCOV_FLAGS)
+
 clean:
-	rm -rf $(OBJECTS) *.gcno *.a *_test $(TEST_OBJ) $(all_libs) $(all_tests)
+	rm -rf $(OBJECTS) *.gcno *.a *_test $(TEST_OBJ) $(all_libs) $(all_tests) $(NVM_DAEMON)
 
 she_doc: include/she_api.h include/nvm.h
 	rm -rf doc/latex/
@@ -127,6 +137,11 @@ hsm_doc: include/hsm/hsm_api.h
 install: $(libs)
 	mkdir -p $(DESTDIR)$(LIBDIR) $(DESTDIR)$(INCLUDEDIR)
 	cp $(NVM_LIB) $(HSM_LIB) $(SHE_LIB) $(DESTDIR)$(LIBDIR)
+	mkdir -p $(DESTDIR)$(BINDIR)
+	cp $(NVM_DAEMON) $(DESTDIR)$(BINDIR)
+	mkdir -p $(DESTDIR)$(SYSTEMD_DIR)
+	cp $(PLAT_COMMON_PATH)/nvm/$(SYSTEMD_NVM_SERVICE) $(DESTDIR)$(SYSTEMD_DIR)
+	cp $(PLAT_COMMON_PATH)/nvm/$(NVMD_CONF_FILE) $(DESTDIR)$(ETC_DIR)
 	cp -a include/* $(DESTDIR)$(INCLUDEDIR)
 
 install_tests: install $(tests)

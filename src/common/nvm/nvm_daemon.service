@@ -1,0 +1,14 @@
+
+[Unit]
+Description=ELE Blob Process
+Before=initrd-root-fs.target initrd-fs.target initrd.target
+
+[Service]
+User=root
+EnvironmentFile=/etc/nvmd.conf
+ExecStart=/usr/bin/nvm_daemon \
+	$NVMD_STORAGE_FILENAME \
+	$NVMD_STORAGE_DIRNAME
+
+[Install]
+WantedBy=basic.target

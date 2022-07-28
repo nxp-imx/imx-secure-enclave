@@ -164,11 +164,18 @@ uint8_t work_area4[128] = {0};
 
 static uint32_t nvm_status;
 
+uint8_t *nvm_fname_dname[] = {
+	"/etc/ele_nvm_v2x/v2x_nvm_storage",
+	"/etc/ele_nvm_v2x/"
+};
+
 static void *v2x_hsm_storage_thread(void *arg)
 {
-    nvm_manager(NVM_FLAGS_V2X | NVM_FLAGS_HSM, &nvm_status);
+	nvm_manager(NVM_FLAGS_V2X | NVM_FLAGS_HSM,
+		    &nvm_status,
+		    nvm_fname_dname[0],
+		    nvm_fname_dname[1]);
 }
-
 
 typedef struct {
     char *tag;

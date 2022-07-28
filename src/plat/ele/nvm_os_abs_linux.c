@@ -26,12 +26,10 @@
 #include "plat_os_abs.h"
 #include "ele_mu_ioctl.h"
 
-static char ELE_NVM_HSM_STORAGE_FILE[] = "/etc/ele_hsm/ele_nvm_master";
-static char ELE_NVM_HSM_STORAGE_CHUNK_PATH[] = "/etc/ele_hsm/";
-
 /* Write data in a file located in NVM. Return the size of the written data. */
 int32_t plat_os_abs_storage_write(struct plat_os_abs_hdl *phdl,
-				  uint8_t *src, uint32_t size)
+				  uint8_t *src, uint32_t size,
+				  uint8_t *nvm_fname)
 {
 	int32_t fd = -1;
 	int32_t l = 0;
@@ -39,7 +37,7 @@ int32_t plat_os_abs_storage_write(struct plat_os_abs_hdl *phdl,
 
 	switch (phdl->type) {
 	case MU_CHANNEL_PLAT_HSM_NVM:
-		path = ELE_NVM_HSM_STORAGE_FILE;
+		path = nvm_fname;
 		break;
 	default:
 		path = NULL;
@@ -62,7 +60,8 @@ int32_t plat_os_abs_storage_write(struct plat_os_abs_hdl *phdl,
 }
 
 int32_t plat_os_abs_storage_read(struct plat_os_abs_hdl *phdl,
-				 uint8_t *dst, uint32_t size)
+				 uint8_t *dst, uint32_t size,
+				 uint8_t *nvm_fname)
 {
 	int32_t fd = -1;
 	int32_t l = 0;
@@ -70,7 +69,7 @@ int32_t plat_os_abs_storage_read(struct plat_os_abs_hdl *phdl,
 
 	switch (phdl->type) {
 	case MU_CHANNEL_PLAT_HSM_NVM:
-		path = ELE_NVM_HSM_STORAGE_FILE;
+		path = nvm_fname;
 		break;
 	default:
 		path = NULL;
@@ -94,7 +93,8 @@ int32_t plat_os_abs_storage_read(struct plat_os_abs_hdl *phdl,
 int32_t plat_os_abs_storage_write_chunk(struct plat_os_abs_hdl *phdl,
 					uint8_t *src,
 					uint32_t size,
-					uint64_t blob_id)
+					uint64_t blob_id,
+					uint8_t *nvm_storage_dname)
 {
 	int32_t fd = -1;
 	int32_t l = 0;
@@ -102,17 +102,17 @@ int32_t plat_os_abs_storage_write_chunk(struct plat_os_abs_hdl *phdl,
 	char *path = NULL;
 
 	if (phdl->type == MU_CHANNEL_PLAT_HSM_NVM) {
-		path = malloc(strlen(ELE_NVM_HSM_STORAGE_CHUNK_PATH) + 16u);
+		path = malloc(strlen(nvm_storage_dname) + 16u);
 		if (path != NULL) {
-			n = mkdir(ELE_NVM_HSM_STORAGE_CHUNK_PATH,
+			n = mkdir(nvm_storage_dname,
 				  S_IRUSR|S_IWUSR);
 			if (n)
 				goto exit;
 
 			n = snprintf(path,
-				     strlen(ELE_NVM_HSM_STORAGE_CHUNK_PATH) + 16u,
+				     strlen(nvm_storage_dname) + 16u,
 				     "%s%016lx",
-				     ELE_NVM_HSM_STORAGE_CHUNK_PATH,
+				     nvm_storage_dname,
 				     blob_id);
 		}
 	} else {
@@ -138,7 +138,8 @@ exit:
 
 int32_t plat_os_abs_storage_read_chunk(struct plat_os_abs_hdl *phdl,
 				       uint8_t *dst, uint32_t size,
-				       uint64_t blob_id)
+				       uint64_t blob_id,
+				       uint8_t *nvm_storage_dname)
 {
 	int32_t fd = -1;
 	int32_t l = 0;
@@ -146,17 +147,17 @@ int32_t plat_os_abs_storage_read_chunk(struct plat_os_abs_hdl *phdl,
 	char *path = NULL;
 
 	if (phdl->type == MU_CHANNEL_PLAT_HSM_NVM) {
-		path = malloc(strlen(ELE_NVM_HSM_STORAGE_CHUNK_PATH) + 16u);
+		path = malloc(strlen(nvm_storage_dname) + 16u);
 
 		if (path != NULL) {
-			n = mkdir(ELE_NVM_HSM_STORAGE_CHUNK_PATH,
+			n = mkdir(nvm_storage_dname,
 				  S_IRUSR|S_IWUSR);
 			if (n)
 				goto exit;
 			n = snprintf(path,
-				     strlen(ELE_NVM_HSM_STORAGE_CHUNK_PATH) + 16u,
+				     strlen(nvm_storage_dname) + 16u,
 				     "%s%016lx",
-				     ELE_NVM_HSM_STORAGE_CHUNK_PATH,
+				     nvm_storage_dname,
 				     blob_id);
 		}
 	}

@@ -247,10 +247,13 @@ void plat_os_abs_free(void *ptr);
  * \param phdl pointer to the session handle for which this data buffer is used.
  * \param src pointer to the data to be written to storage.
  * \param size number of bytes to be written.
+ * \param nvm_storage_fname name of NVM storage file-name
  *
  * \return number of bytes written.
  */
-int32_t plat_os_abs_storage_write(struct plat_os_abs_hdl *phdl, uint8_t *src, uint32_t size);
+int32_t plat_os_abs_storage_write(struct plat_os_abs_hdl *phdl,
+				  uint8_t *src, uint32_t size,
+				  uint8_t *nvm_storage_fname);
 
 /**
  * Read data from the non volatile storage.
@@ -258,10 +261,13 @@ int32_t plat_os_abs_storage_write(struct plat_os_abs_hdl *phdl, uint8_t *src, ui
  * \param phdl pointer to the session handle for which this data buffer is used.
  * \param dst pointer to the data where data read from the storage should be copied.
  * \param size number of bytes to be read.
+ * \param nvm_storage_fname name of NVM storage file-name
  *
  * \return number of bytes read.
  */
-int32_t plat_os_abs_storage_read(struct plat_os_abs_hdl *phdl, uint8_t *dst, uint32_t size);
+int32_t plat_os_abs_storage_read(struct plat_os_abs_hdl *phdl,
+				 uint8_t *dst, uint32_t size,
+				 uint8_t *nvm_storage_fname);
 
 /**
  * Write a subset of data to the non volatile storage.
@@ -275,10 +281,15 @@ int32_t plat_os_abs_storage_read(struct plat_os_abs_hdl *phdl, uint8_t *dst, uin
  * \param src pointer to the data to be written to storage.
  * \param size number of bytes to be written.
  * \patam blob_id unique identifier of the blob corresponding to the storage chunk to be written
+ * \param nvm_storage_dname name of NVM storage directory-name
  *
  * \return number of bytes written.
  */
-int32_t plat_os_abs_storage_write_chunk(struct plat_os_abs_hdl *phdl, uint8_t *src, uint32_t size, uint64_t blob_id);
+int32_t plat_os_abs_storage_write_chunk(struct plat_os_abs_hdl *phdl,
+					uint8_t *src,
+					uint32_t size,
+					uint64_t blob_id,
+					uint8_t *nvm_storage_dname);
 
 /**
  * Read a subset of data from the non volatile storage.
@@ -292,10 +303,14 @@ int32_t plat_os_abs_storage_write_chunk(struct plat_os_abs_hdl *phdl, uint8_t *s
  * \param dst pointer to the data where data read from the storage should be copied.
  * \param size number of bytes to be read.
  * \patam blob_id unique identifier of the blob corresponding to the storage chunk to be read
+ * \param nvm_storage_dname name of NVM storage directory-name
  *
  * \return number of bytes read.
  */
-int32_t plat_os_abs_storage_read_chunk(struct plat_os_abs_hdl *phdl, uint8_t *dst, uint32_t size, uint64_t blob_id);
+int32_t plat_os_abs_storage_read_chunk(struct plat_os_abs_hdl *phdl,
+				       uint8_t *dst, uint32_t size,
+				       uint64_t blob_id,
+				       uint8_t *nvm_storage_dname);
 
 /**
  * Start the RNG from a system point of view.

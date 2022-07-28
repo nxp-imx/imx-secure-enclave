@@ -24,6 +24,8 @@ struct nvm_ctx {
 	uint32_t storage_handle;
 	uint32_t blob_size;
 	uint32_t mu_type;
+	uint8_t nvm_fname[MAX_FNAME_DNAME_SZ];
+	uint8_t nvm_dname[MAX_FNAME_DNAME_SZ];
 };
 
 struct nvm_header_s {
@@ -304,7 +306,8 @@ static uint32_t nvm_manager_export_master(struct nvm_ctx *nvm_ctx_param, struct 
 		/* Data have been provided by platform. Write them in NVM and acknowledge. */
 		if (plat_os_abs_storage_write(nvm_ctx_param->phdl,
 					      data,
-					      data_len)
+					      data_len,
+					      nvm_ctx_param->nvm_fname)
 				== (int32_t)data_len) {
 			/* Success. */
 			(void)nvm_export_finish_rsp(nvm_ctx_param, 0u);
@@ -393,7 +396,8 @@ static uint32_t nvm_manager_export_chunk(struct nvm_ctx *nvm_ctx_param, struct s
 						nvm_ctx_param->phdl,
 						chunk->data,
 						chunk->len,
-						chunk->blob_id)
+						chunk->blob_id,
+						nvm_ctx_param->nvm_dname)
 					!= (int32_t)(chunk->len)) {
 				err = 1;
 			}
@@ -437,7 +441,8 @@ static uint32_t nvm_manager_get_chunk(struct nvm_ctx *nvm_ctx_param, struct sab_
 					nvm_ctx_param->phdl,
 					(uint8_t *)&nvm_hdr,
 					(uint32_t)sizeof(nvm_hdr),
-					blob_id)
+					blob_id,
+					nvm_ctx_param->nvm_dname)
 				== (int32_t)sizeof(nvm_hdr)) {
 			data = plat_os_abs_malloc(nvm_hdr.size);
 			if (data != NULL) {
@@ -445,7 +450,8 @@ static uint32_t nvm_manager_get_chunk(struct nvm_ctx *nvm_ctx_param, struct sab_
 							nvm_ctx_param->phdl,
 							data,
 							nvm_hdr.size,
-							blob_id)
+							blob_id,
+							nvm_ctx_param->nvm_dname)
 					== (int32_t)nvm_hdr.size) {
 					err = 0u;
 				}
@@ -509,7 +515,9 @@ static uint32_t nvm_manager_get_chunk(struct nvm_ctx *nvm_ctx_param, struct sab_
 #define MAX_RCV_MSG_SIZE ((uint32_t)sizeof(struct sab_cmd_key_store_chunk_export_msg))
 
 void nvm_manager(uint8_t flags,
-		 uint32_t *status)
+		 uint32_t *status,
+		 uint8_t *fname,
+		 uint8_t *dname)
 {
 	int32_t len = 0;
 	uint32_t data_len = 0u;
@@ -520,6 +528,8 @@ void nvm_manager(uint8_t flags,
 	uint8_t *data = NULL;
 	uint8_t retry = 0;
 
+	plat_os_abs_memcpy(nvm_ctx.nvm_fname, fname, NO_LENGTH);
+	plat_os_abs_memcpy(nvm_ctx.nvm_dname, dname, NO_LENGTH);
 
 	if (status != NULL) {
 		*status = NVM_STATUS_STARTING;
@@ -535,13 +545,13 @@ void nvm_manager(uint8_t flags,
 
 		/*
 		 * Try to read the storage header which length is known.
-		 * Then if successful extract the full length and
-		 * read the whole storage into an allocated buffer.
+		 * Then if successful extract the full length and read the whole storage into an allocated buffer.
 		 */
 		if (plat_os_abs_storage_read(
 					nvm_ctx.phdl,
 					(uint8_t *)&nvm_hdr,
-					(uint32_t)sizeof(nvm_hdr))
+					(uint32_t)sizeof(nvm_hdr),
+					nvm_ctx.nvm_fname)
 				== (int32_t)sizeof(nvm_hdr)) {
 			data_len = nvm_hdr.size + (uint32_t)sizeof(nvm_hdr);
 			data = plat_os_abs_malloc(data_len);
@@ -549,16 +559,13 @@ void nvm_manager(uint8_t flags,
 				if (plat_os_abs_storage_read(
 							nvm_ctx.phdl,
 							data,
-							data_len)
+							data_len,
+							nvm_ctx.nvm_fname)
 						== (int32_t)data_len) {
-					/* In case of error then start anyway
-					 * the storage manager process so that
-					 * platform can create and export a
-					 * storage.
+					/* In case of error then start anyway the storage manager process so platform can create
+					 * and export a storage.
 					 */
-					(void)nvm_storage_import(&nvm_ctx,
-								 data,
-								 data_len);
+					(void)nvm_storage_import(&nvm_ctx, data, data_len);
 				}
 				plat_os_abs_free(data);
 				data = NULL;

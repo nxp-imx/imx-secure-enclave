@@ -15,6 +15,7 @@
 #define PLAT_OS_ABS_DEF_H
 
 #define NO_LENGTH                   0x0u
+#define MAX_FNAME_DNAME_SZ          256u
 
 struct plat_os_abs_hdl {
     int32_t fd;

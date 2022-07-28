@@ -23,7 +23,10 @@
 
 #include <stdint.h>
 
-void nvm_manager(uint8_t flags, uint32_t *status);
+void nvm_manager(uint8_t flags,
+		 uint32_t *status,
+		 uint8_t *fname,
+		 uint8_t *dname);
 void nvm_close_session(void);
 
 #define NVM_FLAGS_V2X    (0x02u)

@@ -11,7 +11,6 @@
  * activate or otherwise use the software.
  */
 
-#include <pthread.h>
 #include <stdbool.h>
 #include <stdio.h>
 #include <stdlib.h>
@@ -21,7 +20,6 @@
 
 #include "common.h"
 #include "hsm_api.h"
-#include "nvm.h"
 
 hsm_hdl_t hsm_session_hdl;
 int cmdline_arg;
@@ -511,14 +509,6 @@ static void transient_key_tests(hsm_hdl_t sess_hdl, hsm_hdl_t key_store_hdl)
 	printf("hsm_close_key_management_service ret:0x%x\n", hsmret);
 }
 
-
-static uint32_t nvm_status;
-
-static void *hsm_storage_thread(void *arg)
-{
-    nvm_manager(NVM_FLAGS_HSM, &nvm_status);
-}
-
 hsm_hdl_t get_hsm_session_hdl(void)
 {
 	return hsm_session_hdl;
@@ -546,20 +536,6 @@ int main(int argc, char *argv[])
 	    cmdline_arg = atoi(argv[1]);
 
     do {
-        nvm_status = NVM_STATUS_UNDEF;
-
-        (void)pthread_create(&tid, NULL, hsm_storage_thread, NULL);
-
-        /* Wait for the storage manager to be ready to receive commands from SECO. */
-        while (nvm_status <= NVM_STATUS_STARTING) {
-            usleep(1000);
-        }
-        /* Check if it ended because of an error. */
-        if (nvm_status == NVM_STATUS_STOPPED) {
-            printf("nvm manager failed to start\n");
-            break;
-        }
-
         open_session_args.session_priority = 0;
         open_session_args.operating_mode = 0;
         err = hsm_open_session(&open_session_args,
@@ -606,10 +582,6 @@ int main(int argc, char *argv[])
         err = hsm_close_session(hsm_session_hdl);
 
         printf("hsm_close_session ret:0x%x\n", err);
-
-        (void)pthread_cancel(tid);
-
-        nvm_close_session();
 
     } while (0);
     return 0;
