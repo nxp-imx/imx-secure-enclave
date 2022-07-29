@@ -585,7 +585,13 @@ int main(int argc, char *argv[])
 	 */
         data_storage_test(key_store_hdl, 0);
 
+#ifndef SECONDARY_API_SUPPORTED
         hsm_rng_test(hsm_session_hdl, &rng_get_random_args);
+#else
+	err = do_rng_test(hsm_session_hdl);
+	if (err)
+		printf("Error[0x%x]: RNG test Failed.\n", err);
+#endif
         public_key_test(hsm_session_hdl);
 
 #ifdef CONFIG_PLAT_SECO

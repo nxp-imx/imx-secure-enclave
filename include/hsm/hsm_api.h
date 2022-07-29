@@ -534,55 +534,8 @@ hsm_err_t hsm_close_signature_verification_service(hsm_hdl_t signature_ver_hdl);
  * @{
  */
 
-typedef uint8_t hsm_svc_rng_flags_t;
-typedef struct {
-    hsm_svc_rng_flags_t flags;                      //!< bitmap indicating the service flow properties
-    uint8_t reserved[3];
-} open_svc_rng_args_t;
+#include "internal/hsm_rng.h"
 
-/**
- * Open a random number generation service flow\n
- * User can call this function only after having opened a session.\n
- * User must open this service in order to perform rng operations.
- *
- * \param session_hdl handle identifying the current session.
- * \param args pointer to the structure containing the function arguments.
- * \param rng_hdl pointer to where the rng service flow handle must be written.
- *
- * \return error code
- */
-hsm_err_t hsm_open_rng_service(hsm_hdl_t session_hdl, open_svc_rng_args_t *args, hsm_hdl_t *rng_hdl);
-
-/**
- * Terminate a previously opened rng service flow
- *
- * \param rng_hdl handle identifying the rng service flow to be closed.
- *
- * \return error code
- */
-hsm_err_t hsm_close_rng_service(hsm_hdl_t rng_hdl);
-
-
-typedef struct {
-	//!< pointer to the output area where the random number must be written
-	uint8_t *output;
-	//!< length in bytes of the random number to be provided.
-	uint32_t random_size;
-	//!< bitmap indicating the service flow properties
-	hsm_svc_rng_flags_t svc_flags;
-	uint8_t reserved[3];
-} op_get_random_args_t;
-
-/**
- * Get a freshly generated random number\n
- * User can call this function only after having opened a rng service flow
- *
- * \param rng_hdl handle identifying the rng service flow.
- * \param args pointer to the structure containing the function arguments.
- *
- * \return error code
- */
-hsm_err_t hsm_get_random(hsm_hdl_t rng_hdl, op_get_random_args_t *args);
 /**
  * Secondary API to fetch the Random Number\n
  *

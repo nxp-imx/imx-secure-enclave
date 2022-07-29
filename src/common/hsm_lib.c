@@ -685,6 +685,37 @@ hsm_err_t hsm_get_random(hsm_hdl_t rng_hdl, op_get_random_args_t *args)
 	return err;
 }
 
+hsm_err_t hsm_do_rng(hsm_hdl_t session_hdl, op_get_random_args_t *rng_get_random_args)
+{
+	open_svc_rng_args_t rng_srv_args;
+	hsm_hdl_t rng_serv_hdl;
+	hsm_err_t err;
+
+	rng_srv_args.flags = rng_get_random_args->svc_flags;
+
+	printf("\n---------------------------------------------------\n");
+	printf("Secondary API: DO RNG test Start\n");
+	printf("---------------------------------------------------\n");
+
+	err = hsm_open_rng_service(session_hdl, &rng_srv_args, &rng_serv_hdl);
+	if (err)
+		printf("RNG Service Open err: 0x%x :hsm_open_rng_service hdl: 0x%08x\n", err, rng_serv_hdl);
+
+	err =  hsm_get_random(rng_serv_hdl, rng_get_random_args);
+	if (err)
+		printf("Random Number Successfully fetched: error: 0x%x hsm_get_random hdl: 0x%08x, rand size=0x%08x\n", err, rng_serv_hdl, rng_get_random_args->random_size);
+
+	err = hsm_close_rng_service(rng_serv_hdl);
+	if (err)
+		printf("RNG Service Closed err: 0x%x :hsm_close_rng_service hdl: 0x%x\n", err, rng_serv_hdl);
+
+	printf("\n---------------------------------------------------\n");
+	printf("Secondary API: DO RNG test Complete\n");
+	printf("---------------------------------------------------\n");
+
+	return err;
+}
+
 hsm_err_t hsm_pub_key_reconstruction(hsm_hdl_t session_hdl,
 					op_pub_key_rec_args_t *args)
 {
