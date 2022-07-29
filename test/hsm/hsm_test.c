@@ -469,6 +469,11 @@ static void transient_key_tests(hsm_hdl_t sess_hdl, hsm_hdl_t key_store_hdl)
 	if (hsmret)
 		printf("Error[0x%x]: MAC test Failed.\n", hsmret);
 
+#ifdef SECONDARY_API_SUPPORTED
+	hsmret = do_cipher_test(key_store_hdl, key_mgmt_hdl);
+	if (hsmret)
+		printf("Error[0x%x]: CIPHER test Failed.\n", hsmret);
+#else
 	memset(&open_cipher_args, 0, sizeof(open_cipher_args));
 	hsmret = hsm_open_cipher_service (key_store_hdl, &open_cipher_args,
 						&cipher_hdl);
@@ -516,6 +521,7 @@ static void transient_key_tests(hsm_hdl_t sess_hdl, hsm_hdl_t key_store_hdl)
 	hsmret = hsm_close_cipher_service (cipher_hdl);
 	printf("hsm_close_cipher_service ret:0x%x\n", hsmret);
 
+#endif
 	key_management(DELETE, key_mgmt_hdl, &sym_key_id, 1001, HSM_KEY_TYPE_AES_256);
 
 	hsmret = hsm_close_key_management_service(key_mgmt_hdl);
