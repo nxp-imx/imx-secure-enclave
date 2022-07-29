@@ -64,13 +64,12 @@ typedef struct {
 	hsm_bit_key_sz_t key_sz;
 	hsm_psa_key_type_t psa_key_type;
 	hsm_key_type_t key_type;
-#define OP_VERIFY_SIGN_RSV_BYTES	2
-#else
-#define OP_VERIFY_SIGN_RSV_BYTES	2
 #endif
 	//!< bitmap specifying the operation attributes
 	hsm_op_verify_sign_flags_t flags;
-	uint8_t reserved[OP_VERIFY_SIGN_RSV_BYTES];
+	//!< bitmap specifying the svc flow attributes
+	hsm_svc_signature_verification_flags_t svc_flags;
+	uint8_t reserved;
 } op_verify_sign_args_t;
 
 /**

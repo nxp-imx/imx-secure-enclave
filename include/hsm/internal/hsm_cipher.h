@@ -94,9 +94,10 @@ typedef struct {
 	//   it must be 0 for algorithms not using the initialization vector.
 	//   It must be 12 for AES in CCM mode
 	uint16_t iv_size;
+	//!< bitmap specifying the services properties.
+	hsm_svc_cipher_flags_t svc_flags;
 	//!< bitmap specifying the operation attributes
 	hsm_op_cipher_one_go_flags_t flags;
-	uint8_t reserved;
 	//!< algorithm to be used for the operation
 	hsm_op_cipher_one_go_algo_t cipher_algo;
 	//!< pointer to the input area:

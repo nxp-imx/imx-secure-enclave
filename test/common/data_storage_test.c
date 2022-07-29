@@ -83,17 +83,48 @@ uint8_t recieved_data[300];
 
 void data_storage_test(hsm_hdl_t key_store_hdl, int arg)
 {
-	open_svc_data_storage_args_t args;
 	hsm_hdl_t data_storage_hdl;
 	op_data_storage_args_t data_storage_args;
 	hsm_err_t err;
 	int j;
 	uint32_t size = arg ? arg : sizeof(test_data);
 
+#ifdef SECONDARY_API_SUPPORTED
+	printf("\n---------------------------------------------------\n");
+	printf(" Secondary API Test: Data Storage Test\n");
+	printf("---------------------------------------------------\n");
+
+	data_storage_args.svc_flags = 0;
+	data_storage_args.data = test_data;
+	data_storage_args.data_size = size;
+	data_storage_args.data_id = DATA_ID;
+	data_storage_args.flags |= HSM_OP_DATA_STORAGE_FLAGS_STORE;
+	err = hsm_data_ops(key_store_hdl, &data_storage_args);
+	if (err) {
+		printf("Err[Store]: 0x%x hsm_data_ops.\n", err);
+		dump_firmware_log(get_hsm_session_hdl());
+		return;
+	}
+
+	memset(&data_storage_args, 0, sizeof(op_data_storage_args_t));
+	data_storage_args.svc_flags = 0;
+	data_storage_args.data = recieved_data;
+	data_storage_args.data_size = size;
+	data_storage_args.data_id = DATA_ID;
+	data_storage_args.flags |= HSM_OP_DATA_STORAGE_FLAGS_RETRIEVE;
+	err = hsm_data_ops(key_store_hdl, &data_storage_args);
+	if (err) {
+		printf("Err[Re-Store]: 0x%x hsm_data_ops.\n", err);
+		dump_firmware_log(get_hsm_session_hdl());
+		return;
+	}
+
+#else
 	printf("\n---------------------------------------------------\n");
 	printf("Data Storage Test\n");
 	printf("---------------------------------------------------\n");
-	args.flags = 0;
+
+	open_svc_data_storage_args_t args = {0};
 
 	err = hsm_open_data_storage_service(key_store_hdl, &args,
 			&data_storage_hdl);
@@ -112,9 +143,7 @@ void data_storage_test(hsm_hdl_t key_store_hdl, int arg)
 	if (err) {
 		printf("Err[Store]: 0x%x hsm_data_storage hdl: 0x%08x\n",
 							err, data_storage_hdl);
-#ifdef CONFIG_PLAT_ELE
 		dump_firmware_log(get_hsm_session_hdl());
-#endif
 		return;
 	}
 
@@ -129,9 +158,7 @@ void data_storage_test(hsm_hdl_t key_store_hdl, int arg)
 	if (err) {
 		printf("Err[Re-Store]: 0x%x hsm_data_storage hdl: 0x%08x\n",
 							err, data_storage_hdl);
-#ifdef CONFIG_PLAT_ELE
 		dump_firmware_log(get_hsm_session_hdl());
-#endif
 		return;
 	}
 
@@ -144,5 +171,8 @@ void data_storage_test(hsm_hdl_t key_store_hdl, int arg)
 				err, data_storage_hdl);
 		return;
 	}
+#endif
+	test_status(test_data, recieved_data, size,
+			"SAB_DATA_STORAGE_REQ");
 	printf("---------------------------------------------------\n");
 }

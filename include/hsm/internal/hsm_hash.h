@@ -92,7 +92,9 @@ typedef struct {
 	hsm_hash_algo_t algo;
 	//!< flags bitmap specifying the operation attributes.
 	hsm_op_hash_one_go_flags_t flags;
-	uint16_t reserved;
+	//!< flags bitmap specifying the service-flow attributes.
+	hsm_svc_hash_flags_t svc_flags;
+	uint8_t reserved;
 } op_hash_one_go_args_t;
 
 /**

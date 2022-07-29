@@ -20,6 +20,11 @@
 
 hsm_err_t dump_firmware_log(hsm_hdl_t session_hdl)
 {
+/* Firmware dump is not supported by SECO.
+ */
+#ifndef CONFIG_PLAT_ELE
+	return HSM_GENERAL_ERROR;
+#endif
 	struct hsm_session_hdl_s *sess_ptr;
 	int32_t error = 1;
 	hsm_err_t err = HSM_GENERAL_ERROR;

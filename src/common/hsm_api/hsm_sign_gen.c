@@ -164,3 +164,33 @@ hsm_err_t hsm_prepare_signature(hsm_hdl_t signature_gen_hdl,
 
 	return err;
 }
+
+hsm_err_t hsm_do_sign(hsm_hdl_t key_store_hdl,
+			op_generate_sign_args_t *args)
+{
+	hsm_err_t hsmret = HSM_GENERAL_ERROR;
+	hsm_hdl_t sig_gen_hdl;
+	open_svc_sign_gen_args_t open_sig_gen_args = {
+						.flags = args->svc_flags,
+						};
+
+	hsmret = hsm_open_signature_generation_service(key_store_hdl,
+					&open_sig_gen_args, &sig_gen_hdl);
+	if (hsmret) {
+		printf("hsm_open_signature_generation_service ret:0x%x\n",
+				hsmret);
+		goto exit;
+	}
+
+	hsmret = hsm_generate_signature(sig_gen_hdl, args);
+	if (hsmret)
+		printf("hsm_generate_signature ret:0x%x\n", hsmret);
+
+	hsmret = hsm_close_signature_generation_service(sig_gen_hdl);
+	if (hsmret)
+		printf("hsm_close_signature_generation_service ret:0x%x\n",
+				hsmret);
+
+exit:
+	return hsmret;
+}

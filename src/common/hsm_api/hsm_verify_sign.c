@@ -155,3 +155,36 @@ hsm_err_t hsm_verify_signature(hsm_hdl_t signature_ver_hdl,
 
 	return err;
 }
+
+hsm_err_t hsm_verify_sign(hsm_hdl_t session_hdl,
+			  op_verify_sign_args_t *args,
+			  hsm_verification_status_t *status)
+{
+	hsm_err_t hsmret = HSM_GENERAL_ERROR;
+	hsm_hdl_t sig_ver_hdl;
+	open_svc_sign_ver_args_t open_sig_ver_args = {
+						.flags = args->svc_flags,
+						};
+
+	hsmret = hsm_open_signature_verification_service(session_hdl,
+							 &open_sig_ver_args,
+							 &sig_ver_hdl);
+	if (hsmret) {
+		printf("hsm_open_signature_verification_service ret:0x%x\n",
+				hsmret);
+		goto exit;
+	}
+
+	hsmret = hsm_verify_signature(sig_ver_hdl, args, status);
+	if (hsmret)
+		printf("hsm_verify_signature ret:0x%x\n", hsmret);
+
+	hsmret = hsm_close_signature_verification_service(sig_ver_hdl);
+	if (hsmret) {
+		printf("hsm_close_signature_verification_service ret:0x%x\n",
+				hsmret);
+	}
+
+exit:
+	return hsmret;
+}
