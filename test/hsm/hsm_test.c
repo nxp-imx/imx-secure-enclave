@@ -597,8 +597,13 @@ int main(int argc, char *argv[])
 #ifdef CONFIG_PLAT_SECO
         ecies_tests(hsm_session_hdl);
 #endif
-
-        hash_test(hsm_session_hdl);
+#ifndef SECONDARY_API_SUPPORTED
+	hash_test(hsm_session_hdl);
+#else
+	err = do_hash_test(hsm_session_hdl);
+	if (err)
+		printf("Error[0x%x]: HASH test Failed.\n", err);
+#endif
         transient_key_tests(hsm_session_hdl, key_store_hdl);
 
 #ifdef FW_ISSUE
