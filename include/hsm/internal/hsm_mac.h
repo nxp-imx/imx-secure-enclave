@@ -116,6 +116,9 @@ typedef struct {
 	//        using one of the above 2 methods.
 	uint16_t mac_size;
 	hsm_mac_verification_status_t verification_status;
+	//!< bitmap specifying the services properties.
+	hsm_svc_mac_flags_t svc_flags;
+	uint8_t reserved[3];
 } op_mac_one_go_args_t;
 
 /**

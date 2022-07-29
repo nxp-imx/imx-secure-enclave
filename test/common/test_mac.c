@@ -249,3 +249,213 @@ hsm_err_t do_mac_test(hsm_hdl_t key_store_hdl, hsm_hdl_t key_mgmt_hdl)
 	return err;
 
 }
+
+static void status(op_mac_one_go_args_t *mac_one_go)
+{
+	if (mac_one_go->verification_status == HSM_MAC_VERIFICATION_STATUS_SUCCESS)
+		printf(" --> SUCCESS\n");
+	else
+		printf("\t --> FAILURE\n");
+}
+
+hsm_err_t hsm_mac_test(hsm_hdl_t key_store_hdl, hsm_hdl_t key_mgmt_hdl)
+{
+	hsm_err_t err;
+	op_mac_one_go_args_t mac_one_go;
+	hsm_hdl_t sg0_mac_hdl;
+
+	uint8_t work_area[128] = {0};
+	uint32_t sym_key_id;
+
+	mac_one_go.svc_flags = 0u;
+
+	// mac test
+	printf("\n---------------------------------------------------\n");
+	printf("SECONDARY API: DO MAC Test Start\n");
+	printf("---------------------------------------------------\n");
+
+	printf("HSM_KEY_TYPE_AES_256 & HSM_OP_MAC_ONE_GO_ALGO_AES_CMAC:");
+	generate_key(key_mgmt_hdl,
+#ifndef PSA_COMPLIANT
+			HSM_KEY_INFO_TRANSIENT,
+#else
+			HSM_KEY_LIFE_VOLATILE,
+			HSM_KEY_USAGE_SIGN_MSG | HSM_KEY_USAGE_VERIFY_MSG,
+			PERMITTED_ALGO_CMAC,
+#endif
+			HSM_KEY_TYPE_AES_256, &sym_key_id);
+
+	mac_one_go.key_identifier = sym_key_id;
+#ifdef PSA_COMPLIANT
+	mac_one_go.algorithm = PERMITTED_ALGO_CMAC;
+#else
+	mac_one_go.algorithm = HSM_OP_MAC_ONE_GO_ALGO_AES_CMAC;
+#endif
+	mac_one_go.flags = HSM_OP_MAC_ONE_GO_FLAGS_MAC_GENERATION;
+	mac_one_go.payload = test_msg;
+	mac_one_go.mac = work_area;
+	mac_one_go.payload_size = 32;
+	mac_one_go.mac_size = 16;
+
+	err = hsm_do_mac(key_store_hdl, &mac_one_go);
+
+	mac_one_go.flags = HSM_OP_MAC_ONE_GO_FLAGS_MAC_VERIFICATION;
+	mac_one_go.mac_size = 8;
+
+	err = hsm_do_mac(key_store_hdl, &mac_one_go);
+	status(&mac_one_go);
+
+	printf("HSM_KEY_TYPE_AES_128 & HSM_OP_MAC_ONE_GO_ALGO_AES_CMAC:");
+	generate_key(key_mgmt_hdl,
+#ifndef PSA_COMPLIANT
+			HSM_KEY_INFO_TRANSIENT,
+#else
+			HSM_KEY_LIFE_VOLATILE,
+			HSM_KEY_USAGE_SIGN_MSG | HSM_KEY_USAGE_VERIFY_MSG,
+			PERMITTED_ALGO_CMAC,
+#endif
+			HSM_KEY_TYPE_AES_128, &sym_key_id);
+
+	mac_one_go.key_identifier = sym_key_id;
+#ifdef PSA_COMPLIANT
+	mac_one_go.algorithm = PERMITTED_ALGO_CMAC;
+#else
+	mac_one_go.algorithm = HSM_OP_MAC_ONE_GO_ALGO_AES_CMAC;
+#endif
+	mac_one_go.flags = HSM_OP_MAC_ONE_GO_FLAGS_MAC_GENERATION;
+	mac_one_go.payload = test_msg;
+	mac_one_go.mac = work_area;
+	mac_one_go.payload_size = 16;
+	mac_one_go.mac_size = 16;
+
+	err = hsm_do_mac(key_store_hdl, &mac_one_go);
+
+	mac_one_go.flags = HSM_OP_MAC_ONE_GO_FLAGS_MAC_VERIFICATION;
+	mac_one_go.mac_size = 8;
+
+	err = hsm_do_mac(key_store_hdl, &mac_one_go);
+	status(&mac_one_go);
+#if PLAT_ELE_FEAT_NOT_SUPPORTED
+	printf("HSM_KEY_TYPE_HMAC_224 & HSM_OP_MAC_ONE_GO_ALGO_HMAC_SHA_224:");
+	generate_key(key_mgmt_hdl,
+#ifndef PSA_COMPLIANT
+			HSM_KEY_INFO_TRANSIENT,
+#else
+			HSM_KEY_LIFE_VOLATILE,
+			HSM_KEY_USAGE_SIGN_MSG | HSM_KEY_USAGE_VERIFY_MSG,
+			PERMITTED_ALGO_HMAC_SHA224, // Not supported on ELE
+#endif
+			HSM_KEY_TYPE_HMAC_224, &sym_key_id);
+
+	mac_one_go.key_identifier = sym_key_id;
+	mac_one_go.algorithm = HSM_OP_MAC_ONE_GO_ALGO_HMAC_SHA_224;
+	mac_one_go.flags = HSM_OP_MAC_ONE_GO_FLAGS_MAC_GENERATION;
+	mac_one_go.payload = test_msg;
+	mac_one_go.mac = work_area;
+	mac_one_go.payload_size = 28;
+	mac_one_go.mac_size = 28;
+
+	err = hsm_do_mac(key_store_hdl, &mac_one_go);
+
+	mac_one_go.flags = HSM_OP_MAC_ONE_GO_FLAGS_MAC_VERIFICATION;
+	mac_one_go.mac_size = 28;
+
+	err = hsm_do_mac(key_store_hdl, &mac_one_go);
+	status(&mac_one_go);
+#endif
+
+	printf("HSM_KEY_TYPE_HAMC_256 & HSM_OP_MAC_ONE_GO_ALGO_HMAC_SHA_256:");
+	generate_key(key_mgmt_hdl,
+#ifndef PSA_COMPLIANT
+			HSM_KEY_INFO_TRANSIENT,
+#else
+			HSM_KEY_LIFE_VOLATILE,
+			HSM_KEY_USAGE_SIGN_MSG | HSM_KEY_USAGE_VERIFY_MSG,
+			PERMITTED_ALGO_HMAC_SHA256,
+#endif
+			HSM_KEY_TYPE_HMAC_256, &sym_key_id);
+
+	mac_one_go.key_identifier = sym_key_id;
+#ifdef PSA_COMPLIANT
+	mac_one_go.algorithm = PERMITTED_ALGO_HMAC_SHA256;
+#else
+	mac_one_go.algorithm = HSM_OP_MAC_ONE_GO_ALGO_HMAC_SHA_256;
+#endif
+	mac_one_go.flags = HSM_OP_MAC_ONE_GO_FLAGS_MAC_GENERATION;
+	mac_one_go.payload = test_msg;
+	mac_one_go.mac = work_area;
+	mac_one_go.payload_size = 32;
+	mac_one_go.mac_size = 32;
+
+	err = hsm_do_mac(key_store_hdl, &mac_one_go);
+
+	mac_one_go.flags = HSM_OP_MAC_ONE_GO_FLAGS_MAC_VERIFICATION;
+	mac_one_go.mac_size = 32;
+
+	err = hsm_do_mac(key_store_hdl, &mac_one_go);
+	status(&mac_one_go);
+
+	printf("HSM_KEY_TYPE_HAMC_384 & HSM_OP_MAC_ONE_GO_ALGO_HMAC_SHA_384:");
+	generate_key(key_mgmt_hdl,
+#ifndef PSA_COMPLIANT
+			HSM_KEY_INFO_TRANSIENT,
+#else
+			HSM_KEY_LIFE_VOLATILE,
+			HSM_KEY_USAGE_SIGN_MSG | HSM_KEY_USAGE_VERIFY_MSG,
+			PERMITTED_ALGO_HMAC_SHA384,
+#endif
+			HSM_KEY_TYPE_HMAC_384, &sym_key_id);
+
+	mac_one_go.key_identifier = sym_key_id;
+#ifdef PSA_COMPLIANT
+	mac_one_go.algorithm = PERMITTED_ALGO_HMAC_SHA384;
+#else
+	mac_one_go.algorithm = HSM_OP_MAC_ONE_GO_ALGO_HMAC_SHA_384;
+#endif
+	mac_one_go.flags = HSM_OP_MAC_ONE_GO_FLAGS_MAC_GENERATION;
+	mac_one_go.payload = test_msg;
+	mac_one_go.mac = work_area;
+	mac_one_go.payload_size = 32;
+	mac_one_go.mac_size = 16;
+
+	err = hsm_do_mac(key_store_hdl, &mac_one_go);
+
+	mac_one_go.flags = HSM_OP_MAC_ONE_GO_FLAGS_MAC_VERIFICATION;
+	mac_one_go.mac_size = 8;
+
+	err = hsm_do_mac(key_store_hdl, &mac_one_go);
+	status(&mac_one_go);
+#if PLAT_ELE_FEAT_NOT_SUPPORTED
+	printf("HSM_KEY_TYPE_HAMC_512 & HSM_OP_MAC_ONE_GO_ALGO_HMAC_SHA_512:");
+	generate_key(key_mgmt_hdl,
+#ifndef PSA_COMPLIANT
+			HSM_KEY_INFO_TRANSIENT,
+#else
+			HSM_KEY_LIFE_VOLATILE,
+			HSM_KEY_USAGE_SIGN_MSG | HSM_KEY_USAGE_VERIFY_MSG,
+			PERMITTED_ALGO_HMAC_SHA512, // Not supporetd on ELE
+#endif
+			HSM_KEY_TYPE_HMAC_512, &sym_key_id);
+
+	mac_one_go.key_identifier = sym_key_id;
+	mac_one_go.algorithm = HSM_OP_MAC_ONE_GO_ALGO_HMAC_SHA_512;
+	mac_one_go.flags = HSM_OP_MAC_ONE_GO_FLAGS_MAC_GENERATION;
+	mac_one_go.payload = test_msg;
+	mac_one_go.mac = work_area;
+	mac_one_go.payload_size = 32;
+	mac_one_go.mac_size = 16;
+
+	err = hsm_do_mac(key_store_hdl, &mac_one_go);
+
+	mac_one_go.flags = HSM_OP_MAC_ONE_GO_FLAGS_MAC_VERIFICATION;
+	mac_one_go.mac_size = 8;
+
+	err = hsm_do_mac(key_store_hdl, &mac_one_go);
+	status(&mac_one_go);
+#endif
+	printf("\n---------------------------------------------------\n");
+	printf("SECONDARY API: DO MAC Test Complete\n");
+	printf("---------------------------------------------------\n\n");
+
+	return err;
+}

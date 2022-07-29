@@ -460,7 +460,12 @@ static void transient_key_tests(hsm_hdl_t sess_hdl, hsm_hdl_t key_store_hdl)
 	hsmret = hsm_generate_key(key_mgmt_hdl, &key_gen_args);
 	printf("hsm_generate_key ret:0x%x\n", hsmret);
 
+#ifdef SECONDARY_API_SUPPORTED
+	// functiopnal test hsm_mac_test() to verify MAC Secondary API
+	hsmret = hsm_mac_test(key_store_hdl, key_mgmt_hdl);
+#else
 	hsmret = do_mac_test(key_store_hdl, key_mgmt_hdl);
+#endif
 	if (hsmret)
 		printf("Error[0x%x]: MAC test Failed.\n", hsmret);
 
