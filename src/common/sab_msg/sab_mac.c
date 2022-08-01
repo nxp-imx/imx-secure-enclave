@@ -165,8 +165,10 @@ uint32_t prepare_msg_mac_one_go(void *phdl,
 	}
 	cmd->payload_size = op_args->payload_size;
 	cmd->mac_size = op_args->mac_size;
-	cmd->rsv[0] = 0u;
-	cmd->rsv[1] = 0u;
+	/* No need to set the reserved structure member to zero,
+	 * as buffer "cmd_msg_sz", is memset to zero by the caller
+	 * "process_sab_msg".
+	 */
 	cmd->crc = 0u;
 
 	*cmd_msg_sz = sizeof(struct sab_cmd_mac_one_go_msg);

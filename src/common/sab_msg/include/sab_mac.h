@@ -48,17 +48,17 @@ struct sab_cmd_mac_one_go_msg {
 	uint32_t key_id;
 	uint32_t payload_address;
 	uint32_t mac_address;
-	uint16_t payload_size;
+	uint32_t payload_size;
 	uint16_t mac_size;
 	uint8_t  flags;
 #ifdef PSA_COMPLIANT
-#define SAB_CMD_MAC_ONE_GO_RESV_SZ	3
+#define SAB_CMD_MAC_ONE_GO_RESV_SZ     1
 	uint8_t  rsv[SAB_CMD_MAC_ONE_GO_RESV_SZ];
 	uint32_t  algorithm;
 #else
-#define SAB_CMD_MAC_ONE_GO_RESV_SZ	2
-	uint8_t  algorithm;
+#define SAB_CMD_MAC_ONE_GO_RESV_SZ     3
 	uint8_t  rsv[SAB_CMD_MAC_ONE_GO_RESV_SZ];
+	uint8_t  algorithm;
 #endif
 	uint32_t crc;
 };
