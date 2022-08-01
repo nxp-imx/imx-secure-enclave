@@ -53,14 +53,16 @@ hsm_err_t hsm_open_signature_verification_service(hsm_hdl_t session_hdl,
 					(uint32_t)session_hdl,
 					args, &rsp_code);
 
-
-		if (error != 0) {
+		err = sab_rating_to_hsm_err(error);
+		if (err != HSM_NO_ERROR) {
+			printf("HSM Error: SAB_SIGNATURE_VERIFICATION_OPEN_REQ [0x%x].\n", err);
 			delete_service(serv_ptr);
 			break;
 		}
 
 		err = sab_rating_to_hsm_err(rsp_code);
 		if (err != HSM_NO_ERROR) {
+			printf("HSM RSP Error: SAB_SIGNATURE_VERIFICATION_OPEN_REQ [0x%x].\n", err);
 			delete_service(serv_ptr);
 			break;
 		}
@@ -92,8 +94,16 @@ hsm_err_t hsm_close_signature_verification_service(hsm_hdl_t signature_ver_hdl)
 					(uint32_t)signature_ver_hdl,
 					NULL, &rsp_code);
 
-		if (error == 0) {
-			err = sab_rating_to_hsm_err(rsp_code);
+		err = sab_rating_to_hsm_err(error);
+		if (err != HSM_NO_ERROR) {
+			printf("HSM Error: SAB_SIGNATURE_VERIFICATION_CLOSE_REQ [0x%x].\n", err);
+			delete_service(serv_ptr);
+			break;
+		}
+
+		err = sab_rating_to_hsm_err(rsp_code);
+		if (err != HSM_NO_ERROR) {
+			printf("HSM RSP Error: SAB_SIGNATURE_VERIFICATION_CLOSE_REQ [0x%x].\n", err);
 		}
 		delete_service(serv_ptr);
 	} while (false);
@@ -109,6 +119,8 @@ hsm_err_t hsm_verify_signature(hsm_hdl_t signature_ver_hdl,
 	struct hsm_service_hdl_s *serv_ptr;
 	hsm_err_t err = HSM_GENERAL_ERROR;
 	uint32_t rsp_code;
+
+	args->verification_status = HSM_VERIFICATION_STATUS_FAILURE;
 
 	do {
 		if ((args == NULL) || (status == NULL)) {
@@ -126,7 +138,7 @@ hsm_err_t hsm_verify_signature(hsm_hdl_t signature_ver_hdl,
 					&args->psa_key_type,
 					NULL);
 
-		if (error) {
+		if (error != HSM_KEY_OP_SUCCESS) {
 			printf("HSM Error: Invalid Key Type is given [0x%x].\n",
 				args->key_type);
 			break;
@@ -139,17 +151,19 @@ hsm_err_t hsm_verify_signature(hsm_hdl_t signature_ver_hdl,
 					MT_SAB_VERIFY_SIGN,
 					(uint32_t)signature_ver_hdl,
 					args, &rsp_code);
-		if (error != 0) {
-			printf("SAB Send/Receive Err[0x%x]:SAB_VER_SIG_REQ.\n",
-								rsp_code);
+
+		err = sab_rating_to_hsm_err(error);
+		if (err != HSM_NO_ERROR) {
+			printf("HSM Error: SAB_SIGNATURE_VERIFY_REQ [0x%x].\n",
+				err);
 			break;
 		}
-
-		if (rsp_code != SAB_SUCCESS_STATUS)
-			printf("SAB FW Error[0x%x]: SAB_VER_SIG_REQ.\n",
-								rsp_code);
-
 		err = sab_rating_to_hsm_err(rsp_code);
+		if (err != HSM_NO_ERROR) {
+			printf("HSM RSP Error: SAB_SIGNATURE_VERIFY_REQ [0x%x].\n",
+				err);
+		}
+
 		*status = args->verification_status;
 	} while (false);
 

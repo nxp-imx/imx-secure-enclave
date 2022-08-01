@@ -37,5 +37,6 @@ void plat_fill_rsp_msg_hdr(struct sab_mu_hdr *hdr, uint8_t cmd, uint32_t len, ui
 int32_t plat_send_msg_and_get_resp(struct plat_os_abs_hdl *phdl, uint32_t *cmd, uint32_t cmd_len, uint32_t *rsp, uint32_t rsp_len);
 
 uint32_t plat_compute_msg_crc(uint32_t *msg, uint32_t msg_len);
+uint32_t plat_add_msg_crc(uint32_t *msg, uint32_t msg_len);
 
 #endif

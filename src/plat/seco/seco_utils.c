@@ -148,6 +148,22 @@ int32_t plat_send_msg_and_get_resp(struct plat_os_abs_hdl *phdl, uint32_t *cmd, 
     return err;
 }
 
+uint32_t plat_add_msg_crc(uint32_t *msg, uint32_t msg_len)
+{
+	uint32_t err = 0;
+	uint32_t crc;
+	uint32_t i;
+	uint32_t nb_words = msg_len / (uint32_t)sizeof(uint32_t);
+
+	crc = 0u;
+	for (i = 0u; i < nb_words; i++) {
+		crc ^= *(msg + i);
+	}
+	msg[nb_words] = crc;
+
+	return err;
+}
+
 uint32_t plat_compute_msg_crc(uint32_t *msg, uint32_t msg_len)
 {
 	uint32_t crc;

@@ -136,5 +136,7 @@ hsm_err_t hsm_verify_signature(hsm_hdl_t signature_ver_hdl,
 
 #define HSM_VERIFICATION_STATUS_SUCCESS \
 				((hsm_verification_status_t)(0x5A3CC3A5u))
+#define HSM_VERIFICATION_STATUS_FAILURE \
+				((hsm_verification_status_t)(0x2B4DD4B2u))
 
 #endif

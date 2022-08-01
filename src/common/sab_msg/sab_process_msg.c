@@ -75,7 +75,7 @@ uint32_t process_sab_msg(struct plat_os_abs_hdl *phdl,
 			 void *args,
 			 uint32_t *rsp_code)
 {
-	int32_t error = 1;
+	uint32_t error = SAB_SUCCESS_STATUS;
 	int msg_type_id;
 	uint32_t cmd_msg_sz = 0;
 	uint32_t rsp_msg_sz = 0;
@@ -109,13 +109,22 @@ uint32_t process_sab_msg(struct plat_os_abs_hdl *phdl,
 
 	if ((error & SAB_MSG_CRC_BIT) == SAB_MSG_CRC_BIT) {
 		crc_added = true;
+		/* strip-off the crc flag from error*/
+		error &= ~SAB_MSG_CRC_BIT;
+	}
+	if (error) {
+		error = SAB_NO_MESSAGE_RATING;
+		goto out;
 	}
 
 	plat_build_cmd_msg_hdr((struct sab_mu_hdr *)cmd, msg_type,
 				msg_id, cmd_msg_sz, mu_type);
 
 	if (crc_added == true) {
-		plat_compute_msg_crc(cmd, (cmd_msg_sz - sizeof(uint32_t)));
+		if (plat_add_msg_crc(cmd, (cmd_msg_sz - sizeof(uint32_t)))) {
+			error = SAB_NO_MESSAGE_RATING;
+			goto out;
+		}
 	}
 
 #ifdef DEBUG
@@ -128,6 +137,7 @@ uint32_t process_sab_msg(struct plat_os_abs_hdl *phdl,
 	error = plat_send_msg_and_get_resp(phdl,
 		cmd, cmd_msg_sz, rsp, rsp_msg_sz);
 	if (error) {
+		error = SAB_NO_MESSAGE_RATING;
 		goto out;
 	}
 
@@ -139,12 +149,11 @@ uint32_t process_sab_msg(struct plat_os_abs_hdl *phdl,
 
 	*rsp_code = (*(rsp + 1));
 
-	if (SAB_STATUS_SUCCESS(msg_type) == *rsp_code) {
-		error = process_sab_msg_rsp[msg_type - 1][msg_id](&rsp, args);
-	} else {
+	if (SAB_STATUS_SUCCESS(msg_type) != *rsp_code) {
 		printf("ERROR received SAB MSG CMD [0x%x] response[=0x%x]\n",
 						msg_id, *rsp_code);
 	}
+	error = process_sab_msg_rsp[msg_type - 1][msg_id](&rsp, args);
 out:
 	return error;
 }

@@ -50,11 +50,16 @@ hsm_err_t hsm_hash_one_go(hsm_hdl_t hash_hdl,
 					(uint32_t)hash_hdl,
 					args, &rsp_code);
 
-		err = sab_rating_to_hsm_err(rsp_code);
+		err = sab_rating_to_hsm_err(error);
 
-		if (!error && err != HSM_NO_ERROR) {
-			printf("HSM Error: HSM_HASH_ONE_GO_REQ [0x%x].\n", err);
+		if (err != HSM_NO_ERROR) {
+			printf("HSM Error: SAB_HASH_ONE_GO_REQ [0x%x].\n", err);
+			break;
 		}
+		err = sab_rating_to_hsm_err(rsp_code);
+		if (err != HSM_NO_ERROR)
+			printf("HSM RSP Error: SAB_HASH_ONE_GO_REQ [0x%x].\n",
+				err);
 
 	} while (false);
 
@@ -93,10 +98,18 @@ hsm_err_t hsm_open_hash_service(hsm_hdl_t session_hdl,
 					session_hdl,
 					args, &rsp_code);
 
-		err = sab_rating_to_hsm_err(rsp_code);
+		err = sab_rating_to_hsm_err(error);
 
-		if (!error && err != HSM_NO_ERROR) {
-			printf("HSM Error: HSM_HASH_ONE_GO_REQ [0x%x].\n", err);
+		if (err != HSM_NO_ERROR) {
+			printf("HSM Error: SAB_HASH_OPEN_REQ [0x%x].\n", err);
+			delete_service(serv_ptr);
+			break;
+		}
+
+		err = sab_rating_to_hsm_err(rsp_code);
+		if (err != HSM_NO_ERROR) {
+			printf("HSM RSP Error: SAB_HASH_OPEN_REQ [0x%x].\n",
+				err);
 			delete_service(serv_ptr);
 			break;
 		}
@@ -130,9 +143,16 @@ hsm_err_t hsm_close_hash_service(hsm_hdl_t hash_hdl)
 					(uint32_t)hash_hdl,
 					&args, &rsp_code);
 
-		if (error == 0) {
-			err = sab_rating_to_hsm_err(rsp_code);
-		}
+		err = sab_rating_to_hsm_err(error);
+
+		if (err != HSM_NO_ERROR)
+			printf("HSM Error: SAB_HASH_CLOSE_REQ [0x%x].\n", err);
+
+		err = sab_rating_to_hsm_err(rsp_code);
+		if (err != HSM_NO_ERROR)
+			printf("HSM RSP Error: SAB_HASH_CLOSE_REQ [0x%x].\n",
+				err);
+
 		delete_service(serv_ptr);
 	} while (false);
 
@@ -147,11 +167,9 @@ hsm_err_t hsm_do_hash(hsm_hdl_t hash_sess, op_hash_one_go_args_t *hash_args)
 
 	hash_serv_args.flags = hash_args->svc_flags;
 
-	printf("\n---------------------------------------------------\n");
-	printf("Secondary API: DO HASH test Start\n");
-	printf("---------------------------------------------------\n");
 	err = hsm_open_hash_service(hash_sess, &hash_serv_args, &hash_serv);
-
+	if (err)
+		printf("err: 0x%x hsm_open_hash_service.\n", err);;
 
 	err = hsm_hash_one_go(hash_serv, hash_args);
 	if (err)
@@ -161,10 +179,6 @@ hsm_err_t hsm_do_hash(hsm_hdl_t hash_sess, op_hash_one_go_args_t *hash_args)
 	err = hsm_close_hash_service(hash_serv);
 	if (err)
 		printf("err: 0x%x hsm_close_hash_service hdl: 0x%08x\n", err, hash_serv);
-
-	printf("\n---------------------------------------------------\n");
-	printf("Secondary API: DO HASH test Complete\n");
-	printf("---------------------------------------------------\n");
 
 	return err;
 }

@@ -47,10 +47,17 @@ hsm_err_t hsm_mac_one_go(hsm_hdl_t mac_hdl,
 					(uint32_t)mac_hdl,
 					args, &rsp_code);
 
+		err = sab_rating_to_hsm_err(error);
+
+		if (err != HSM_NO_ERROR) {
+			printf("HSM Error: SAB_MAC_ONE_GO_REQ [0x%x].\n", err);
+			break;
+		}
+
 		err = sab_rating_to_hsm_err(rsp_code);
 
-		if (!error && err != HSM_NO_ERROR) {
-			printf("HSM Error: SAB_MAC_ONE_GO_REQ [0x%x].\n", err);
+		if (err != HSM_NO_ERROR) {
+			printf("HSM RSP Error: SAB_MAC_ONE_GO_REQ [0x%x].\n", err);
 		}
 
 		*status = args->verification_status;
@@ -92,10 +99,18 @@ hsm_err_t hsm_open_mac_service(hsm_hdl_t key_store_hdl,
 					(uint32_t)key_store_hdl,
 					args, &rsp_code);
 
+		err = sab_rating_to_hsm_err(error);
+
+		if (err != HSM_NO_ERROR) {
+			printf("HSM Error: SAB_MAC_OPEN_REQ [0x%x].\n", err);
+			delete_service(mac_serv_ptr);
+			break;
+		}
+
 		err = sab_rating_to_hsm_err(rsp_code);
 
-		if (!error && err != HSM_NO_ERROR) {
-			printf("HSM Error: SAB_HASH_ONE_GO_REQ [0x%x].\n", err);
+		if (err != HSM_NO_ERROR) {
+			printf("HSM RSP Error: SAB_MAC_OPEN_REQ [0x%x].\n", err);
 			delete_service(mac_serv_ptr);
 			break;
 		}
@@ -127,10 +142,18 @@ hsm_err_t hsm_close_mac_service(hsm_hdl_t mac_hdl)
 					mac_hdl,
 					NULL, &rsp_code);
 
+		err = sab_rating_to_hsm_err(error);
+
+		if (err != HSM_NO_ERROR) {
+			printf("HSM Error: SAB_MAC_CLOSE_REQ [0x%x].\n", err);
+			delete_service(serv_ptr);
+			break;
+		}
+
 		err = sab_rating_to_hsm_err(rsp_code);
 
-		if (!error && err != HSM_NO_ERROR) {
-			printf("HSM Error: SAB_MAC_CLOSE_REQ [0x%x].\n", err);
+		if (err != HSM_NO_ERROR) {
+			printf("HSM RSP Error: SAB_MAC_CLOSE_REQ [0x%x].\n", err);
 		}
 		delete_service(serv_ptr);
 	} while (false);

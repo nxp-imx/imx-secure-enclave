@@ -52,9 +52,18 @@ hsm_err_t hsm_open_signature_generation_service(hsm_hdl_t key_store_hdl,
 					MT_SAB_SIGN_GEN,
 					(uint32_t)key_store_hdl,
 					args, &rsp_code);
+		err = sab_rating_to_hsm_err(error);
+
+		if (err != HSM_NO_ERROR) {
+			printf("HSM Error: SAB_SIGNATURE_GENERATION_OPEN_REQ [0x%x].\n", err);
+			delete_service(sig_gen_serv_ptr);
+			break;
+		}
+
 		err = sab_rating_to_hsm_err(rsp_code);
 
-		if (!error && err != HSM_NO_ERROR) {
+		if (err != HSM_NO_ERROR) {
+			printf("HSM RSP Error: SAB_SIGNATURE_GENERATION_OPEN_REQ [0x%x].\n", err);
 			delete_service(sig_gen_serv_ptr);
 			break;
 		}
@@ -87,8 +96,16 @@ hsm_err_t hsm_close_signature_generation_service(hsm_hdl_t signature_gen_hdl)
 					(uint32_t)signature_gen_hdl,
 					NULL, &rsp_code);
 
-		if (error == 0) {
-			err = sab_rating_to_hsm_err(rsp_code);
+		err = sab_rating_to_hsm_err(error);
+		if (err != HSM_NO_ERROR) {
+			printf("HSM Error: SAB_SIGNATURE_GENERATION_CLOSE_REQ [0x%x].\n", err);
+			delete_service(serv_ptr);
+			break;
+		}
+
+		err = sab_rating_to_hsm_err(rsp_code);
+		if (err != HSM_NO_ERROR) {
+			printf("HSM RSP Error: SAB_SIGNATURE_GENERATION_CLOSE_REQ [0x%x].\n", err);
 		}
 		delete_service(serv_ptr);
 	} while (false);
@@ -121,11 +138,16 @@ hsm_err_t hsm_generate_signature(hsm_hdl_t signature_gen_hdl,
 					(uint32_t)signature_gen_hdl,
 					args, &rsp_code);
 
-		if (rsp_code != SAB_SUCCESS_STATUS || (error != 0))
-			printf("SAB_GEN_SIG_REQ: SAB FW Error[0x%x]:"\
-				"SAB Engine Error[0x%x]\n", rsp_code, error);
+		err = sab_rating_to_hsm_err(error);
+		if (err != HSM_NO_ERROR) {
+			printf("HSM Error: SAB_SIGNATURE_GENERATE_REQ [0x%x].\n", err);
+			break;
+		}
 
 		err = sab_rating_to_hsm_err(rsp_code);
+		if (err != HSM_NO_ERROR) {
+			printf("HSM RSP Error: SAB_SIGNATURE_GENERATE_REQ [0x%x].\n", err);
+		}
 	} while (false);
 
 	return err;
@@ -155,11 +177,17 @@ hsm_err_t hsm_prepare_signature(hsm_hdl_t signature_gen_hdl,
 					(uint32_t)signature_gen_hdl,
 					args, &rsp_code);
 
-		if (rsp_code != SAB_SUCCESS_STATUS || (error != 0))
-			printf("SAB FW Error[0x%x]: SAB_PREPARE_SIG_REQ.\n",
-								rsp_code);
+		err = sab_rating_to_hsm_err(error);
+		if (err != HSM_NO_ERROR) {
+			printf("HSM Error: SAB_SIGNATURE_PREPARE_REQ [0x%x].\n", err);
+			break;
+		}
 
 		err = sab_rating_to_hsm_err(rsp_code);
+		if (err != HSM_NO_ERROR) {
+			printf("HSM RSP Error: SAB_SIGNATURE_PREPARE_REQ [0x%x].\n", err);
+		}
+
 	} while (false);
 
 	return err;

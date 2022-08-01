@@ -72,11 +72,17 @@ hsm_err_t hsm_import_key(hsm_hdl_t key_management_hdl,
 					(uint32_t)key_management_hdl,
 					args, &rsp_code);
 
+		err = sab_rating_to_hsm_err(error);
+
+		if (err != HSM_NO_ERROR) {
+			printf("HSM Error: SAB_IMPORT_KEY_REQ [0x%x].\n", err);
+			break;
+		}
+
 		err = sab_rating_to_hsm_err(rsp_code);
 
-		if (!error && err != HSM_NO_ERROR) {
-			printf("HSM Error: HSM_IMPORT_KEY_REQ [0x%x].\n", err);
-		}
+		if (err != HSM_NO_ERROR)
+			printf("HSM RSP Error: SAB_IMPORT_KEY_REQ [0x%x].\n", err);
 
 	} while (false);
 
