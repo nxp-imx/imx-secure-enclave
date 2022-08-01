@@ -80,8 +80,8 @@ uint32_t process_sab_msg(struct plat_os_abs_hdl *phdl,
 	uint32_t cmd_msg_sz = 0;
 	uint32_t rsp_msg_sz = 0;
 	bool crc_added = false;
-	uint32_t cmd[MAX_CMD_SZ];
-	uint32_t rsp[MAX_CMD_RSP_SZ];
+	uint32_t cmd[MAX_CMD_WORD_SZ];
+	uint32_t rsp[MAX_CMD_RSP_WORD_SZ];
 
 	if (init_done == false) {
 		for (msg_type_id = ROM_MSG; msg_type_id < MAX_MSG_TYPE;
@@ -91,8 +91,8 @@ uint32_t process_sab_msg(struct plat_os_abs_hdl *phdl,
 		init_done = true;
 	}
 
-	memset(cmd, 0x0, MAX_CMD_SZ);
-	memset(rsp, 0x0, MAX_CMD_RSP_SZ);
+	plat_os_abs_memset((uint8_t *)cmd, 0x0, MAX_CMD_WORD_SZ * WORD_SZ);
+	plat_os_abs_memset((uint8_t *)rsp, 0x0, MAX_CMD_RSP_WORD_SZ * WORD_SZ);
 
 	if (msg_type <= NOT_SUPPORTED && msg_type >= MAX_MSG_TYPE) {
 		error = SAB_INVALID_MESSAGE_RATING;

@@ -19,8 +19,9 @@
 #include "plat_os_abs.h"
 #include "plat_utils.h"
 
-#define MAX_CMD_SZ	1024
-#define MAX_CMD_RSP_SZ	1024
+#define WORD_SZ                 4
+#define MAX_CMD_WORD_SZ         256
+#define MAX_CMD_RSP_WORD_SZ    256
 
 typedef enum {
 	NOT_DONE,
