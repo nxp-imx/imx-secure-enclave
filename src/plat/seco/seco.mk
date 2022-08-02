@@ -16,9 +16,9 @@ MINOR_VER := 0
 HSM_TEST := $(PLAT)_hsm_test
 SHE_TEST := $(PLAT)_she_test
 V2X_TEST := $(PLAT)_v2x_test
-SHE_LIB := lib$(PLAT)_she.so.$(MAJOR_VER).$(MINOR_VER)
-HSM_LIB := lib$(PLAT)_hsm.so.$(MAJOR_VER).$(MINOR_VER)
-NVM_LIB := lib$(PLAT)_nvm.so.$(MAJOR_VER).$(MINOR_VER)
+SHE_LIB_NAME := lib$(PLAT)_she
+HSM_LIB_NAME := lib$(PLAT)_hsm
+NVM_LIB_NAME := lib$(PLAT)_nvm
 
 DEFINES		+=	-DCONFIG_PLAT_SECO -DLIB_MINOR_VERSION=${MINOR_VER}\
 			-DCONFIG_COMPRESSED_ECC_POINT

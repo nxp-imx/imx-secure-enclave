@@ -45,6 +45,17 @@ include $(PLAT_COMMON_PATH)/sab_msg/sab_msg.mk
 include $(PLAT_COMMON_PATH)/hsm_api/hsm_api.mk
 include $(PLAT_PATH)/$(PLAT).mk
 
+LIB_NAMES := $(HSM_LIB_NAME) $(NVM_LIB_NAME) $(SHE_LIB_NAME)
+
+SO_EXT := so.${MAJOR_VER}.${MINOR_VER}
+
+NVM_LIB := $(NVM_LIB_NAME).$(SO_EXT)
+NVM_LIB_MAJOR := $(NVM_LIB_NAME).so.$(MAJOR_VER)
+HSM_LIB := $(HSM_LIB_NAME).$(SO_EXT)
+HSM_LIB_MAJOR := $(HSM_LIB_NAME).so.$(MAJOR_VER)
+SHE_LIB := $(SHE_LIB_NAME).$(SO_EXT)
+SHE_LIB_MAJOR := $(SHE_LIB_NAME).so.$(MAJOR_VER)
+
 all_tests:= $(SHE_TEST) $(HSM_TEST) $(V2X_TEST)
 all_libs:= $(SHE_LIB) $(NVM_LIB) $(HSM_LIB)
 
@@ -68,7 +79,7 @@ $(SHE_LIB): \
 	$(PLAT_COMMON_PATH)/sab_msg/sab_session.o\
 	$(HSM_API_SRC) \
 	$(PLAT_COMMON_PATH)/sab_messaging.o
-	$(AR) rcs $@ $^
+	$(CC) -shared -Wl,-soname,$(SHE_LIB_MAJOR) -fPIC -o $@ $^
 
 # HSM lib
 $(HSM_LIB): \
@@ -79,7 +90,7 @@ $(HSM_LIB): \
 	$(HSM_API_SRC) \
 	$(PLAT_COMMON_PATH)/sab_messaging.o \
 	$(PLAT_PATH)/$(PLAT)_os_abs_linux.o
-	$(CC) -shared -fPIC -o $@ $^
+	$(CC) -shared -Wl,-soname,$(HSM_LIB_MAJOR) -fPIC -o $@ $^
 
 # NVM manager lib
 $(NVM_LIB): $(PLAT_COMMON_PATH)/nvm/nvm_manager.o\
@@ -88,7 +99,7 @@ $(NVM_LIB): $(PLAT_COMMON_PATH)/nvm/nvm_manager.o\
 	$(PLAT_PATH)/nvm_os_abs_linux.o\
 	$(PLAT_PATH)/$(PLAT)_os_abs_linux.o\
 	$(PLAT_PATH)/$(PLAT)_utils.o
-	$(CC) -shared -fPIC -o $@ $^
+	$(CC) -shared -Wl,-soname,$(NVM_LIB_MAJOR) -fPIC -o $@ $^
 
 #SHE test components
 ifdef DEBUG
@@ -118,7 +129,7 @@ $(NVM_DAEMON): $(NVM_D_OBJ) $(NVM_LIB)
 	$(CC) $^  -o $@ ${INCLUDE_PATHS} $(CFLAGS) -lpthread -lz $(GCOV_FLAGS)
 
 clean:
-	rm -rf $(OBJECTS) *.gcno *.a *_test $(TEST_OBJ) $(all_libs) $(all_tests) $(NVM_DAEMON)
+	rm -rf $(OBJECTS) *.gcno *.a *_test $(TEST_OBJ) $(all_libs) *.so* $(all_tests) $(NVM_DAEMON)
 
 she_doc: include/she_api.h include/nvm.h
 	rm -rf doc/latex/
@@ -136,7 +147,10 @@ hsm_doc: include/hsm/hsm_api.h
 
 install: $(libs)
 	mkdir -p $(DESTDIR)$(LIBDIR) $(DESTDIR)$(INCLUDEDIR)
-	cp $(NVM_LIB) $(HSM_LIB) $(SHE_LIB) $(DESTDIR)$(LIBDIR)
+	$(foreach i, $(LIB_NAMES),\
+		ln -s -f $(i).$(SO_EXT) $(i).so.$(MAJOR_VER); \
+		ln -s -f $(i).so.$(MAJOR_VER) $(i).so; \
+		cp "$(i).$(SO_EXT)" "$(i).so.$(MAJOR_VER)" "$(i).so" $(DESTDIR)$(LIBDIR);)
 	mkdir -p $(DESTDIR)$(BINDIR)
 	cp $(NVM_DAEMON) $(DESTDIR)$(BINDIR)
 	mkdir -p $(DESTDIR)$(SYSTEMD_DIR)
