@@ -152,7 +152,7 @@ hsm_err_t do_mac_test(hsm_hdl_t key_store_hdl, hsm_hdl_t key_mgmt_hdl)
 
 	mac_one_go_test(sym_key_id, sg0_mac_hdl,
 #ifdef PSA_COMPLIANT
-			PERMITTED_ALGO_CMAC, 32, 16, 8);
+			PERMITTED_ALGO_CMAC, 32, 16, 16);
 #else
 			HSM_OP_MAC_ONE_GO_ALGO_AES_CMAC, 32, 16, 8);
 #endif
@@ -170,7 +170,7 @@ hsm_err_t do_mac_test(hsm_hdl_t key_store_hdl, hsm_hdl_t key_mgmt_hdl)
 
 	mac_one_go_test(sym_key_id, sg0_mac_hdl,
 #ifdef PSA_COMPLIANT
-			PERMITTED_ALGO_CMAC, 16, 16, 8);
+			PERMITTED_ALGO_CMAC, 16, 16, 16);
 #else
 			HSM_OP_MAC_ONE_GO_ALGO_AES_CMAC, 16, 16, 8);
 #endif
@@ -222,7 +222,7 @@ hsm_err_t do_mac_test(hsm_hdl_t key_store_hdl, hsm_hdl_t key_mgmt_hdl)
 
 	mac_one_go_test(sym_key_id, sg0_mac_hdl,
 #ifdef PSA_COMPLIANT
-			PERMITTED_ALGO_HMAC_SHA384, 32, 16, 8);
+			PERMITTED_ALGO_HMAC_SHA384, 32, 48, 48);
 #else
 			HSM_OP_MAC_ONE_GO_ALGO_HMAC_SHA_384, 32, 16, 8);
 #endif
@@ -300,7 +300,7 @@ hsm_err_t hsm_mac_test(hsm_hdl_t key_store_hdl, hsm_hdl_t key_mgmt_hdl)
 	err = hsm_do_mac(key_store_hdl, &mac_one_go);
 
 	mac_one_go.flags = HSM_OP_MAC_ONE_GO_FLAGS_MAC_VERIFICATION;
-	mac_one_go.mac_size = 8;
+	mac_one_go.mac_size = 16;
 
 	err = hsm_do_mac(key_store_hdl, &mac_one_go);
 	status(&mac_one_go);
@@ -331,7 +331,7 @@ hsm_err_t hsm_mac_test(hsm_hdl_t key_store_hdl, hsm_hdl_t key_mgmt_hdl)
 	err = hsm_do_mac(key_store_hdl, &mac_one_go);
 
 	mac_one_go.flags = HSM_OP_MAC_ONE_GO_FLAGS_MAC_VERIFICATION;
-	mac_one_go.mac_size = 8;
+	mac_one_go.mac_size = 16;
 
 	err = hsm_do_mac(key_store_hdl, &mac_one_go);
 	status(&mac_one_go);
@@ -416,12 +416,12 @@ hsm_err_t hsm_mac_test(hsm_hdl_t key_store_hdl, hsm_hdl_t key_mgmt_hdl)
 	mac_one_go.payload = test_msg;
 	mac_one_go.mac = work_area;
 	mac_one_go.payload_size = 32;
-	mac_one_go.mac_size = 16;
+	mac_one_go.mac_size = 48;
 
 	err = hsm_do_mac(key_store_hdl, &mac_one_go);
 
 	mac_one_go.flags = HSM_OP_MAC_ONE_GO_FLAGS_MAC_VERIFICATION;
-	mac_one_go.mac_size = 8;
+	mac_one_go.mac_size = 48;
 
 	err = hsm_do_mac(key_store_hdl, &mac_one_go);
 	status(&mac_one_go);
