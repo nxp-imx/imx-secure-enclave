@@ -27,6 +27,51 @@
 static struct hsm_session_hdl_s hsm_sessions[HSM_MAX_SESSIONS] = {};
 static struct hsm_service_hdl_s hsm_services[HSM_MAX_SERVICES] = {};
 
+void print_nvmd_conf(void)
+{
+	char *nvmd_conf_file = "/etc/nvmd.conf";
+	FILE *fp = NULL;
+	char *line = NULL;
+	ssize_t ret = -1;
+	size_t n = 0;
+
+	fp = fopen(nvmd_conf_file, "r");
+
+	if (fp == NULL) {
+		printf("Failed to open %s.\n", nvmd_conf_file);
+		return;
+	}
+
+	printf("\nNVM daemon configurations:\n\n");
+
+	while ((ret = getline(&line, &n, fp)) != -1)
+		printf("%s", line);
+
+	printf("\n");
+	free(line);
+	fclose(fp);
+}
+
+void __attribute__((constructor)) libele_hsm_start()
+{
+	int32_t ret = 0;
+
+	printf("\nlibele_hsm constructor\n");
+	print_nvmd_conf();
+
+	ret = system("service nvm_daemon start");
+	printf("service nvm_daemon start ret:%d\n\n", ret);
+}
+
+void __attribute__((destructor)) libele_hsm_end()
+{
+	int32_t ret = 0;
+
+	printf("\nlibele_hsm destructor\n");
+
+	ret = system("service nvm_daemon stop");
+	printf("service nvm_daemon stop ret:%d\n\n", ret);
+}
 
 hsm_err_t hsm_close_session(hsm_hdl_t session_hdl)
 {
