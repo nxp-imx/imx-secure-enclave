@@ -158,16 +158,21 @@ hsm_err_t hsm_do_cipher(hsm_hdl_t key_store_hdl, op_cipher_one_go_args_t *cipher
 
 
 	err = hsm_open_cipher_service(key_store_hdl, &open_cipher_args, &cipher_hdl);
-	if (err)
+	if (err) {
 		printf("hsm_open_cipher_service ret:0x%x\n", err);
+		goto exit;
+	}
 
 	err = hsm_cipher_one_go(cipher_hdl, cipher_args);
-	if (err)
+	if (err) {
 		printf("hsm_cipher_one_go ret:0x%x\n", err);
+	}
 
 	err = hsm_close_cipher_service(cipher_hdl);
-	if (err)
+	if (err) {
 		printf("hsm_close_cipher_service ret:0x%x\n", err);
+	}
 
+exit:
 	return err;
 }

@@ -163,25 +163,29 @@ hsm_err_t hsm_close_mac_service(hsm_hdl_t mac_hdl)
 
 hsm_err_t hsm_do_mac(hsm_hdl_t key_store_hdl, op_mac_one_go_args_t *mac_one_go)
 {
-	hsm_err_t err;
+	hsm_err_t err = HSM_GENERAL_ERROR;
 	hsm_hdl_t sg0_mac_hdl;
 	open_svc_mac_args_t mac_srv_args;
 
 	mac_srv_args.flags = mac_one_go->svc_flags;
 
 	err = hsm_open_mac_service(key_store_hdl, &mac_srv_args, &sg0_mac_hdl);
-	if (err)
+	if (err) {
 		printf("err: 0x%x hsm_open_mac_service err: hdl: 0x%08x\n", err, sg0_mac_hdl);
-
+		goto exit;
+	}
 
 	err = hsm_mac_one_go(sg0_mac_hdl, mac_one_go, &mac_one_go->verification_status);
-	if (err)
+	if (err) {
 		printf("\n\terr: 0x%x hsm_mac_one_go GEN hdl: 0x%08x\n",
 				err, sg0_mac_hdl);
+	}
 
 	err = hsm_close_mac_service(sg0_mac_hdl);
-	if (err)
+	if (err) {
 		printf("0x%x hsm_close_mac_service hdl: 0x%x\n", err, sg0_mac_hdl);
+	}
 
+exit:
 	return err;
 }
