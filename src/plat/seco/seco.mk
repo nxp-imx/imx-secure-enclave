@@ -24,6 +24,7 @@ DEFINES		+=	-DCONFIG_PLAT_SECO -DLIB_MINOR_VERSION=${MINOR_VER}\
 			-DCONFIG_COMPRESSED_ECC_POINT
 
 PLAT_OBJECTS	:=	$(PLAT_PATH)/seco_os_abs_linux.o \
-			$(PLAT_PATH)/seco_utils.o
+			$(PLAT_PATH)/seco_utils.o \
+			$(PLAT_PATH)/plat_err.o
 
 OBJECTS	+= $(PLAT_OBJECTS)

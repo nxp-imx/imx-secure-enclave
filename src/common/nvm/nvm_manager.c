@@ -11,6 +11,7 @@
  * activate or otherwise use the software.
  */
 
+#include "sab_common_err.h"
 #include "sab_msg_def.h"
 #include "sab_messaging.h"
 #include "nvm.h"
@@ -96,6 +97,8 @@ static uint32_t nvm_storage_import(struct nvm_ctx *nvm_ctx_param,
 		if (error != 0) {
 			break;
 		}
+
+		sab_err_map(SAB_STORAGE_MASTER_IMPORT_REQ, rsp.rsp_code);
 		/* report error status from platform. */
 		ret = rsp.rsp_code;
 	} while (false);
@@ -222,6 +225,7 @@ static uint32_t nvm_export_finish_rsp(struct nvm_ctx *nvm_ctx_param,
 					sab_cmd_key_store_export_finish_rsp)) {
 			break;
 		}
+
 		/* success. */
 		ret = SAB_SUCCESS_STATUS;
 	} while (false);

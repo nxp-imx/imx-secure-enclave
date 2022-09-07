@@ -25,6 +25,7 @@ DEFINES		+=	-DCONFIG_PLAT_ELE -DPLAT_ELE_FEAT_NOT_SUPPORTED=0 \
 			-DSECONDARY_API_SUPPORTED
 
 PLAT_OBJECTS	:=	$(PLAT_PATH)/ele_os_abs_linux.o \
-			$(PLAT_PATH)/ele_utils.o
+			$(PLAT_PATH)/ele_utils.o \
+			$(PLAT_PATH)/plat_err.o
 
 OBJECTS	+= $(PLAT_OBJECTS)

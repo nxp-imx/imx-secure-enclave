@@ -11,6 +11,7 @@
  * activate or otherwise use the software.
  */
 
+#include "sab_common_err.h"
 #include "sab_messaging.h"
 #include "sab_msg_def.h"
 
@@ -57,6 +58,8 @@ uint32_t sab_open_session_command(struct plat_os_abs_hdl *phdl,
 			break;
 		}
 
+		sab_err_map(SAB_SESSION_OPEN_REQ, rsp.rsp_code);
+
 		ret = rsp.rsp_code;
 		*session_handle = rsp.session_handle;
 	} while (false);
@@ -92,6 +95,9 @@ uint32_t sab_close_session_command(struct plat_os_abs_hdl *phdl,
 			ret = rsp.rsp_code ? rsp.rsp_code : ret;
 			break;
 		}
+
+		sab_err_map(SAB_SESSION_CLOSE_REQ, rsp.rsp_code);
+
 		ret = rsp.rsp_code;
 	} while (false);
 

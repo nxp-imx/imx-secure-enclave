@@ -11,6 +11,9 @@
  * activate or otherwise use the software.
  */
 
+#include "errno.h"
+#include "string.h"
+
 #include "plat_os_abs.h"
 #include "plat_utils.h"
 
@@ -147,7 +150,9 @@ int32_t plat_send_msg_and_get_resp(struct plat_os_abs_hdl *phdl, uint32_t *cmd, 
 
         /* Send the command. */
         len = plat_os_abs_send_mu_message(phdl, cmd, cmd_len);
-        if (len != (int32_t)cmd_len) {
+		if (len != (int32_t)cmd_len) {
+			printf("SAB CMD[0x%x] PLAT Error[%d]: Write MU MSG failed - %s\n",
+				((struct sab_mu_hdr *)cmd)->command, errno, strerror(errno));
             break;
         }
 #if DEBUG
@@ -159,6 +164,11 @@ int32_t plat_send_msg_and_get_resp(struct plat_os_abs_hdl *phdl, uint32_t *cmd, 
 #endif
         /* Read the response. */
         len = plat_os_abs_read_mu_message(phdl, rsp, rsp_len);
+		if (len != (int32_t)rsp_len) {
+			printf("SAB CMD[0x%x] PLAT Error[%d]: Read MU MSG failed - %s\n",
+				((struct sab_mu_hdr *)cmd)->command, errno, strerror(errno));
+			break;
+		}
 #if DEBUG
 	printf("\n---------- MSG Command RSP with msg id[0x%x] = %d -------------\n",
 			((struct sab_mu_hdr *)rsp)->command,
