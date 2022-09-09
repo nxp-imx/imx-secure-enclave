@@ -47,7 +47,7 @@ hsm_err_t dump_firmware_log(hsm_hdl_t session_hdl)
 					&args, &rsp_code);
 
 		err = sab_rating_to_hsm_err(error);
-		if (err != HSM_NO_ERROR) {
+		if (err == HSM_NO_ERROR) {
 			for (i = 0; i < args.dump_buf_len; i++) {
 				if ((i % 10) == 0)
 					printf("\n");
