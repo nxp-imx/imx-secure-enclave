@@ -82,6 +82,9 @@ void init_proc_sab_msg_engine(msg_type_t msg_type)
 	int i = 0;
 	int ret = NOT_DONE;
 
+	if ((msg_type > NOT_SUPPORTED) && (msg_type >= MAX_MSG_TYPE))
+		return;
+
 	for (i = 0; i < SAB_MSG_MAX_ID; i++) {
 		ret = NOT_DONE;
 
@@ -279,7 +282,7 @@ void init_proc_sab_msg_engine(msg_type_t msg_type)
 #endif
 		default:
 			if (ret == NOT_DONE) {
-				add_sab_msg_handler(i, SAB_MSG,
+				add_sab_msg_handler(i, msg_type,
 						prep_sab_msg_not_supported,
 						proc_sab_msg_rsp_not_supported);
 			}
