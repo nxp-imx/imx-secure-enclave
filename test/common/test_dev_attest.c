@@ -1,0 +1,66 @@
+/*
+ * Copyright 2022 NXP
+ *
+ * NXP Confidential.
+ * This software is owned or controlled by NXP and may only be used strictly
+ * in accordance with the applicable license terms.  By expressly accepting
+ * such terms or by downloading, installing, activating and/or otherwise using
+ * the software, you are agreeing that you have read, and that you agree to
+ * comply with and are bound by, such license terms.  If you do not agree to be
+ * bound by the applicable license terms, then you may not retain, install,
+ * activate or otherwise use the software.
+ */
+
+#include <stdio.h>
+#include <stdint.h>
+
+#include "hsm_api.h"
+#include "common.h"
+
+void perform_dev_attestation(hsm_hdl_t sess_hdl)
+{
+	op_dev_attest_args_t dev_attest_args = {0};
+	hsm_err_t err;
+	int i = 0;
+
+	printf("\n---------------------------------------------------\n");
+	printf("Performing Device Attestation\n");
+	printf("---------------------------------------------------\n");
+
+	dev_attest_args.nounce = 0xdeadbeef;
+	err = hsm_dev_attest(sess_hdl, &dev_attest_args);
+	if (err != HSM_NO_ERROR)
+		printf("hsm_dev_attest failed err:0x%x\n", err);
+	else {
+		printf("hsm_dev_attest exchange Passed.\n\n");
+		printf("SoC ID = 0x%x\n", dev_attest_args.soc_id);
+		printf("SoC Rev = 0x%x\n", dev_attest_args.soc_rev);
+		printf("LMDA Val = 0x%x\n", dev_attest_args.lmda_val);
+		printf("SSM State = 0x%x\n", dev_attest_args.ssm_state);
+		printf("UID:");
+		hexdump((uint32_t *)dev_attest_args.uid,
+			dev_attest_args.uid_sz);
+
+		printf("ROM Patch SHA Digest:");
+		hexdump((uint32_t *)dev_attest_args.sha_rom_patch,
+			dev_attest_args.sha_rom_sz/sizeof(uint32_t));
+
+		printf("FW SHA Digest:");
+		hexdump((uint32_t *)dev_attest_args.sha_fw,
+			dev_attest_args.sha_fw_sz/sizeof(uint32_t));
+
+		printf("USR Nounce = 0x%x\n", dev_attest_args.nounce);
+		printf("FW Nounce = 0x%x\n", dev_attest_args.rsp_nounce);
+		printf("Attest Result = 0x%x\n", dev_attest_args.attest_result);
+		printf("Signature:");
+		hexdump((uint32_t *)dev_attest_args.signature,
+			dev_attest_args.sign_sz/sizeof(uint32_t));
+
+		if (dev_attest_args.attest_result)
+			printf("hsm_dev_attest: Attestation Result = Fail\n");
+		else
+			printf("hsm_dev_attest: Attestation Result = Pass\n");
+	}
+	printf("---------------------------------------------------\n\n");
+
+}

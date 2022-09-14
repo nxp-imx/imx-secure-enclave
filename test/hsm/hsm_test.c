@@ -553,7 +553,7 @@ void hsm_test_sig_handler(int ht_signo, siginfo_t *ht_siginfo, void *ht_sigctx)
 /* Test entry function. */
 int main(int argc, char *argv[])
 {
-	struct sigaction hsm_test_sigact = {0};
+    struct sigaction hsm_test_sigact = {0};
 
     open_session_args_t open_session_args = {0};
     open_svc_key_store_args_t open_svc_key_store_args = {0};
@@ -584,8 +584,10 @@ int main(int argc, char *argv[])
         if (err != HSM_NO_ERROR) {
             printf("hsm_open_session failed err:0x%x\n", err);
             break;
-        }
-        printf("hsm_open_session PASS\n");
+	} else
+		printf("hsm_open_session PASS\n");
+
+	perform_dev_attestation(hsm_session_hdl);
 
         open_svc_key_store_args.key_store_identifier = 0xABCD;
         open_svc_key_store_args.authentication_nonce = 0x1234;

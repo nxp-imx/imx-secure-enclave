@@ -30,10 +30,15 @@ void hsm_sign_verify_tests(hsm_hdl_t sess_hdl, hsm_hdl_t key_store_hdl,
 			   uint8_t *signature_data, uint32_t sign_data_sz,
 			   uint8_t *hash_data, uint32_t hash_data_sz,
 			   uint8_t *pub_key, uint32_t pub_key_sz);
+
+void perform_dev_attestation(hsm_hdl_t sess_hdl);
+
 /* To fetch the global session handle
  * opened as part of the test run
  */
 hsm_hdl_t get_hsm_session_hdl(void);
+
+void hexdump(uint32_t buf[], uint32_t size);
 
 /* To send the commmand line
  * input to any test.
