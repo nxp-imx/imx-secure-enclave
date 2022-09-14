@@ -353,6 +353,10 @@ static void transient_key_tests(hsm_hdl_t sess_hdl, hsm_hdl_t key_store_hdl)
 	hsmret = hsm_generate_key(key_mgmt_hdl, &key_gen_args);
 	printf("hsm_generate_key ret:0x%x\n", hsmret);
 
+	hsmret = do_key_recovery_test(master_key_id, key_store_hdl, key_mgmt_hdl);
+	if (hsmret)
+		printf("Error[0x%x]: PUB KEY RECOVERY test failed.\n\n", hsmret);
+
 #ifdef CONFIG_PLAT_SECO
 	memset(&butterfly_gen_args, 0, sizeof(butterfly_gen_args));
 	butterfly_gen_args.key_identifier = master_key_id;

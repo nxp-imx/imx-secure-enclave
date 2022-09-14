@@ -25,6 +25,7 @@ MT_SAB_DELETE_KEY	:=	${FMW}
 MT_SAB_HASH_GEN		:=	${FMW}
 MT_SAB_CIPHER		:=	${FMW}
 MT_SAB_MAC		:=	${FMW}
+MT_SAB_KEY_RECOVERY	:=	${FMW}
 
 # API(s) supported by ROM
 MT_SAB_DEBUG_DUMP	:=	${ROM}

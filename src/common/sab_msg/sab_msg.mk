@@ -82,6 +82,12 @@ SAB_MSG_SRC	+= \
 		$(PLAT_COMMON_PATH)/sab_msg/sab_managekey.o
 endif
 
+ifneq (${MT_SAB_KEY_RECOVERY},0x0)
+DEFINES		+=	-DMT_SAB_KEY_RECOVERY=${MT_SAB_KEY_RECOVERY}
+SAB_MSG_SRC	+= \
+		$(PLAT_COMMON_PATH)/sab_msg/sab_key_recovery.o
+endif
+
 OBJECTS		+= $(SAB_MSG_SRC)
 
 INCLUDE_PATHS	+= \

@@ -58,6 +58,10 @@
 #include "sab_mac.h"
 #endif
 
+#if MT_SAB_KEY_RECOVERY
+#include "sab_key_recovery.h"
+#endif
+
 static uint32_t prep_sab_msg_not_supported(void *phdl, void *cmd_buf,
 					   void *rsp_buf, uint32_t *cmd_msg_sz,
 					   uint32_t *rsp_msg_sz,
@@ -261,6 +265,15 @@ void init_proc_sab_msg_engine(msg_type_t msg_type)
 				ret = add_sab_msg_handler(i, MT_SAB_VERIFY_SIGN,
 						  prepare_msg_verify_sign,
 						  proc_msg_rsp_verify_sign);
+			}
+		break;
+#endif
+#if MT_SAB_KEY_RECOVERY
+		case SAB_PUB_KEY_RECOVERY_REQ:
+			if (msg_type == MT_SAB_KEY_RECOVERY) {
+				ret = add_sab_msg_handler(i, MT_SAB_KEY_RECOVERY,
+						  prepare_msg_key_recovery,
+						  proc_msg_rsp_key_recovery);
 			}
 		break;
 #endif

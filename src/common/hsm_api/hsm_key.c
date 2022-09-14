@@ -112,7 +112,8 @@ uint32_t set_key_type_n_sz(hsm_key_type_t key_type,
 	case HSM_KEY_TYPE_ECDSA_NIST_P521:
 		loc_key_sz = HSM_KEY_SIZE_ECC_NIST_521;
 		loc_psa_key_type = HSM_KEY_TYPE_ECC_NIST;
-		loc_byte_key_size = 2 * (HSM_KEY_SIZE_ECC_NIST_521 >> 3);
+		loc_byte_key_size = 2 * (HSM_KEY_SIZE_ECC_NIST_521 >> 3) + 2;
+		//Added 2 bytes due to 1 leftout bit during bits to bytes key size conversion
 		break;
 	case HSM_KEY_TYPE_ECDSA_BRAINPOOL_T1_224:
 		loc_key_sz = HSM_KEY_SIZE_ECC_BP_T1_224;
