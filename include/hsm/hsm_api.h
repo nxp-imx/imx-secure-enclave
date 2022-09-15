@@ -284,6 +284,8 @@ hsm_err_t hsm_do_hash(hsm_hdl_t session_hdl, op_hash_one_go_args_t *args);
 
 #include "internal/hsm_key_recovery.h"
 
+#include "internal/hsm_dev_attest.h"
+
 typedef uint8_t hsm_op_manage_key_group_flags_t;
 typedef struct {
     hsm_key_group_t key_group;                  //!< it must be a value in the range 0-1023. Keys belonging to the same group can be cached in the HSM local memory through the hsm_manage_key_group API.

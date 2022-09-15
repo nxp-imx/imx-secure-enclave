@@ -87,6 +87,12 @@ HSM_API_SRC	+= \
 		$(PLAT_COMMON_PATH)/hsm_api/hsm_key_recovery.o
 endif
 
+ifneq (${MT_ROM_DEV_ATTEST},0x0)
+DEFINES		+=	-DHSM_DEV_ATTEST
+HSM_API_SRC	+= \
+		$(PLAT_COMMON_PATH)/hsm_api/hsm_dev_attest.o
+endif
+
 OBJECTS		+= $(HSM_API_SRC)
 
 INCLUDE_PATHS	+= \

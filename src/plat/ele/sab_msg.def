@@ -29,4 +29,5 @@ MT_SAB_KEY_RECOVERY	:=	${FMW}
 
 # API(s) supported by ROM
 MT_SAB_DEBUG_DUMP	:=	${ROM}
+MT_SAB_DEV_ATTEST	:=	${ROM}
 
