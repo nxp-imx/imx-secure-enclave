@@ -587,6 +587,7 @@ int main(int argc, char *argv[])
 	} else
 		printf("hsm_open_session PASS\n");
 
+	get_device_info(hsm_session_hdl);
 	perform_dev_attestation(hsm_session_hdl);
 
         open_svc_key_store_args.key_store_identifier = 0xABCD;
