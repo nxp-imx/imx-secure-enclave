@@ -40,6 +40,12 @@ SAB_MSG_SRC	+= \
 		$(PLAT_COMMON_PATH)/sab_msg/sab_dev_attest.o
 endif
 
+ifneq (${MT_SAB_DEV_GETINFO},0x0)
+DEFINES		+=	-DMT_SAB_DEV_GETINFO=${MT_SAB_DEV_GETINFO}
+SAB_MSG_SRC	+= \
+		$(PLAT_COMMON_PATH)/sab_msg/sab_dev_getinfo.o
+endif
+
 ifneq (${MT_SAB_MAC},0x0)
 DEFINES		+=	-DMT_SAB_MAC=${MT_SAB_MAC}
 SAB_MSG_SRC	+= \

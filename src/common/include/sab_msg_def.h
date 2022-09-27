@@ -120,6 +120,7 @@
 #define SAB_KEY_GENERIC_CRYPTO_SRV_CLOSE_REQ    0xC1U
 #define SAB_KEY_GENERIC_CRYPTO_SRV_REQ          0xC2U
 
+#define ROM_DEV_GETINFO_REQ                     0xDA
 #define ROM_DEV_ATTEST_REQ                      0xDB
 
 #define SAB_STORAGE_OPEN_REQ                    0xE0u

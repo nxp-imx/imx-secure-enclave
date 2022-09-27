@@ -18,6 +18,10 @@
 #include "sab_debug_dump.h"
 #endif
 
+#if MT_SAB_DEV_GETINFO
+#include "sab_dev_getinfo.h"
+#endif
+
 #if MT_SAB_DEV_ATTEST
 #include "sab_dev_attest.h"
 #endif
@@ -99,6 +103,15 @@ void init_proc_sab_msg_engine(msg_type_t msg_type)
 				ret = add_sab_msg_handler(i, MT_SAB_DEBUG_DUMP,
 						  prepare_msg_debugdump,
 						  proc_msg_rsp_debugdump);
+			}
+		break;
+#endif
+#if MT_SAB_DEV_GETINFO
+		case ROM_DEV_GETINFO_REQ:
+			if (msg_type == MT_SAB_DEV_GETINFO) {
+				ret = add_sab_msg_handler(i, MT_SAB_DEV_GETINFO,
+						  prepare_msg_dev_getinfo,
+						  proc_msg_rsp_dev_getinfo);
 			}
 		break;
 #endif

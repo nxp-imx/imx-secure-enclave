@@ -11,8 +11,8 @@
  * activate or otherwise use the software.
  */
 
-#ifndef HSM_DEV_GETINFO_H
-#define HSM_DEV_GETINFO_H
+#ifndef HSM_DEV_ATTEST_H
+#define HSM_DEV_ATTEST_H
 
 #include "internal/hsm_handle.h"
 #include "internal/hsm_utils.h"
@@ -33,14 +33,7 @@ typedef struct {
 	uint16_t sha_fw_sz;
 	uint8_t  *sha_rom_patch;
 	uint8_t  *sha_fw;
-	uint32_t nounce;
-	uint32_t rsp_nounce;
-	/* 0 means pass. 1 means fail. */
-	uint8_t attest_result;
-	uint8_t reserved;
-	uint16_t sign_sz;
-	uint8_t  *signature;
-} op_dev_attest_args_t;
+} op_dev_getinfo_args_t;
 
 /**
  * Perform device attestation operation\n
@@ -52,6 +45,6 @@ typedef struct {
  * \return error code
  */
 
-hsm_err_t hsm_dev_attest(hsm_hdl_t sess_hdl, op_dev_attest_args_t *args);
+hsm_err_t hsm_dev_getinfo(hsm_hdl_t sess_hdl, op_dev_getinfo_args_t *args);
 
 #endif
