@@ -49,14 +49,17 @@ hsm_err_t dump_firmware_log(hsm_hdl_t session_hdl)
 		err = sab_rating_to_hsm_err(error);
 		if (err == HSM_NO_ERROR) {
 			for (i = 0; i < args.dump_buf_len; i++) {
-				if ((i % 10) == 0)
-					printf("\n");
-				printf("%08x ", args.dump_buf[i]);
+				if ((i % 2) == 0)
+					printf("\nS40X: ");
+				printf("0x%08x ", args.dump_buf[i]);
 			}
-		} else
+			printf("\n\n");
+		} else {
+			printf("Dump_Debug_Buffer Error: %x ", error);
 			break;
+		}
 
-	} while (args.dump_buf_len == 20);
+	} while (args.is_dump_pending == true);
 	printf("\n");
 
 	return err;
