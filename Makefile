@@ -119,7 +119,7 @@ COMMON_TEST_OBJ=$(wildcard test/common/*.c)
 COMMON_TEST_INC=-Itest/common/include/
 
 HSM_TEST_OBJ=$(wildcard test/hsm/*.c) $(COMMON_TEST_OBJ)
-$(HSM_TEST): $(HSM_TEST_OBJ) $(HSM_LIB)
+$(HSM_TEST): $(HSM_TEST_OBJ) $(HSM_LIB) $(NVM_LIB)
 	$(CC) $^  -o $@ ${INCLUDE_PATHS} ${COMMON_TEST_INC} $(CFLAGS) $(LDFLAGS) -lpthread -lz $(GCOV_FLAGS)
 
 SHE_TEST_OBJ=$(wildcard test/she/src/*.c)
