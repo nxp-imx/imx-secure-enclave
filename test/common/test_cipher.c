@@ -75,7 +75,7 @@ hsm_err_t do_cipher_test(hsm_hdl_t key_store_hdl, hsm_hdl_t key_mgmt_hdl)
 #ifndef PSA_COMPLIANT
 			HSM_KEY_INFO_TRANSIENT,
 #else
-			HSM_KEY_LIFE_VOLATILE,
+			HSM_HW_INTERN_STORAGE_VOLATILE,
 			HSM_KEY_USAGE_DERIVE | HSM_KEY_USAGE_ENCRYPT | HSM_KEY_USAGE_DECRYPT,
 			PERMITTED_ALGO_ALL_CIPHER,
 #endif

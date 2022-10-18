@@ -120,6 +120,9 @@
 #define SAB_KEY_GENERIC_CRYPTO_SRV_CLOSE_REQ    0xC1U
 #define SAB_KEY_GENERIC_CRYPTO_SRV_REQ          0xC2U
 
+#define ROM_DEV_GETINFO_REQ                     0xDA
+#define ROM_DEV_ATTEST_REQ                      0xDB
+
 #define SAB_STORAGE_OPEN_REQ                    0xE0u
 #define SAB_STORAGE_CLOSE_REQ                   0xE1u
 #define SAB_STORAGE_MASTER_IMPORT_REQ           0xE2u
@@ -815,23 +818,6 @@ struct sab_cmd_get_info_rsp {
     uint8_t  fips_mode;
     uint8_t  rsv[3];
     uint32_t crc;
-};
-
-struct sab_cmd_pub_key_recovery_msg {
-    struct sab_mu_hdr hdr;
-    uint32_t key_store_handle;
-    uint32_t key_identifier;
-    uint32_t out_key_addr_ext;
-    uint32_t out_key_addr;
-    uint16_t out_key_size;
-    uint8_t key_type;
-    uint8_t flags;
-    uint32_t crc;
-};
-
-struct sab_cmd_pub_key_recovery_rsp {
-    struct sab_mu_hdr hdr;
-    uint32_t rsp_code;
 };
 
 struct sab_cmd_data_storage_open_msg{

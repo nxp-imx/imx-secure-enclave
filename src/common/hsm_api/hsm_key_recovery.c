@@ -17,28 +17,24 @@
 
 #include "internal/hsm_handle.h"
 #include "internal/hsm_utils.h"
-#include "internal/hsm_importkey.h"
+#include "internal/hsm_key_recovery.h"
 
 #include "sab_process_msg.h"
 
 #include "plat_utils.h"
 #include "plat_os_abs.h"
 
-hsm_err_t hsm_import_key(hsm_hdl_t key_management_hdl,
-			 op_import_key_args_t *args)
+hsm_err_t hsm_pub_key_recovery(hsm_hdl_t key_store_hdl,
+			       op_pub_key_recovery_args_t *args)
 {
 	int32_t error = 1;
-	struct hsm_service_hdl_s *serv_ptr;
+	struct hsm_service_hdl_s *key_store_serv_ptr;
 	hsm_err_t err = HSM_GENERAL_ERROR;
-	uint16_t unused_out_sz;
 	uint32_t rsp_code;
 
 	do {
-		if ((args == NULL) || (args->key_identifier == NULL)) {
-			break;
-		}
-		serv_ptr = service_hdl_to_ptr(key_management_hdl);
-		if (serv_ptr == NULL) {
+		key_store_serv_ptr = service_hdl_to_ptr(key_store_hdl);
+		if (key_store_serv_ptr == NULL) {
 			err = HSM_UNKNOWN_HANDLE;
 			break;
 		}
@@ -47,45 +43,27 @@ hsm_err_t hsm_import_key(hsm_hdl_t key_management_hdl,
 					&args->bit_key_sz,
 					&args->psa_key_type,
 					NULL,
-					&unused_out_sz);
+					&args->out_key_size);
 
-		if (error) {
+		if (error == HSM_KEY_OP_FAIL) {
 			printf("HSM Error: Invalid Key Type is given [0x%x].\n",
 				args->key_type);
 			break;
 		}
 
-		if ((((args->flags & HSM_OP_IMPORT_KEY_FLAGS_PART_UNIQUE_ROOT_KEK)
-			== HSM_OP_IMPORT_KEY_FLAGS_PART_UNIQUE_ROOT_KEK)
-			|| ((args->flags & HSM_OP_IMPORT_KEY_FLAGS_COMMON_ROOT_KEK)
-			== HSM_OP_IMPORT_KEY_FLAGS_COMMON_ROOT_KEK))
-			&& (args->key_lifetime == 0)
-			&& (args->key_usage == 0)
-			&& (args->psa_key_type == 0)
-			&& (args->bit_key_sz == 0)
-			&& (args->permitted_algo == 0))
-			break;
-
-		error = process_sab_msg(serv_ptr->session->phdl,
-					serv_ptr->session->mu_type,
-					SAB_IMPORT_KEY_REQ,
-					MT_SAB_IMPORT_KEY,
-					(uint32_t)key_management_hdl,
+		error = process_sab_msg(key_store_serv_ptr->session->phdl,
+					key_store_serv_ptr->session->mu_type,
+					SAB_PUB_KEY_RECOVERY_REQ,
+					MT_SAB_KEY_RECOVERY,
+					(uint32_t)key_store_hdl,
 					args, &rsp_code);
 
-		err = sab_rating_to_hsm_err(error);
-
-		if (err != HSM_NO_ERROR) {
-			printf("HSM Error: SAB_IMPORT_KEY_REQ [0x%x].\n", err);
-			break;
-		}
-
 		err = sab_rating_to_hsm_err(rsp_code);
-
-		if (err != HSM_NO_ERROR)
-			printf("HSM RSP Error: SAB_IMPORT_KEY_REQ [0x%x].\n", err);
+		if (err  != HSM_NO_ERROR)
+			printf("HSM Error: HSM_KEY_RECOVERY_REQ [0x%x].\n", err);
 
 	} while (false);
 
 	return err;
 }
+

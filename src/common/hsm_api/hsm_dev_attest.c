@@ -11,26 +11,21 @@
  * activate or otherwise use the software.
  */
 
-#include "internal/hsm_utils.h"
-#include "internal/hsm_handle.h"
-#include "internal/hsm_debug_dump.h"
+#include <stdbool.h>
+#include <stdio.h>
 
-#include "sab_msg_def.h"
+#include "internal/hsm_handle.h"
+#include "internal/hsm_utils.h"
+#include "internal/hsm_dev_attest.h"
+
 #include "sab_process_msg.h"
 
-hsm_err_t dump_firmware_log(hsm_hdl_t session_hdl)
+hsm_err_t hsm_dev_attest(hsm_hdl_t session_hdl, op_dev_attest_args_t *args)
 {
-/* Firmware dump is not supported by SECO.
- */
-#ifndef CONFIG_PLAT_ELE
-	return HSM_GENERAL_ERROR;
-#endif
 	struct hsm_session_hdl_s *sess_ptr;
-	int32_t error = 1;
 	hsm_err_t err = HSM_GENERAL_ERROR;
-	uint32_t rsp_code = 0x0;
-	op_debug_dump_args_t args;
-	int i = 0;
+	uint32_t error;
+	uint32_t rsp_code;
 
 	do {
 		sess_ptr = session_hdl_to_ptr(session_hdl);
@@ -41,26 +36,24 @@ hsm_err_t dump_firmware_log(hsm_hdl_t session_hdl)
 
 		error = process_sab_msg(sess_ptr->phdl,
 					sess_ptr->mu_type,
-					ROM_DEBUG_DUMP_REQ,
-					MT_SAB_DEBUG_DUMP,
+					ROM_DEV_ATTEST_REQ,
+					MT_SAB_DEV_ATTEST,
 					HSM_HANDLE_NONE,
-					&args, &rsp_code);
+					args, &rsp_code);
 
 		err = sab_rating_to_hsm_err(error);
-		if (err == HSM_NO_ERROR) {
-			for (i = 0; i < args.dump_buf_len; i++) {
-				if ((i % 2) == 0)
-					printf("\nS40X: ");
-				printf("0x%08x ", args.dump_buf[i]);
-			}
-			printf("\n\n");
-		} else {
-			printf("Dump_Debug_Buffer Error: %x ", error);
+
+		if (err != HSM_NO_ERROR) {
+			printf("HSM Error: SAB_DEV_ATTEST_REQ [0x%x].\n", err);
 			break;
 		}
+		err = sab_rating_to_hsm_err(rsp_code);
+		if (err != HSM_NO_ERROR) {
+			printf("HSM RSP Error: SAB_DEV_ATTEST_REQ [0x%x].\n",
+				err);
+		}
 
-	} while (args.is_dump_pending == true);
-	printf("\n");
+	} while (false);
 
 	return err;
 }

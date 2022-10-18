@@ -22,6 +22,9 @@
 #include <fcntl.h>
 #include <unistd.h>
 #include <zlib.h>
+
+#include "errno.h"
+
 #include "she_api.h"
 #include "plat_os_abs.h"
 #include "ele_mu_ioctl.h"
@@ -106,7 +109,7 @@ int32_t plat_os_abs_storage_write_chunk(struct plat_os_abs_hdl *phdl,
 		if (path != NULL) {
 			n = mkdir(nvm_storage_dname,
 				  S_IRUSR|S_IWUSR);
-			if (n)
+			if ((n < 0) && (errno != EEXIST))
 				goto exit;
 
 			n = snprintf(path,
@@ -152,7 +155,7 @@ int32_t plat_os_abs_storage_read_chunk(struct plat_os_abs_hdl *phdl,
 		if (path != NULL) {
 			n = mkdir(nvm_storage_dname,
 				  S_IRUSR|S_IWUSR);
-			if (n)
+			if ((n < 0) && (errno != EEXIST))
 				goto exit;
 			n = snprintf(path,
 				     strlen(nvm_storage_dname) + 16u,

@@ -34,6 +34,18 @@ SAB_MSG_SRC	+= \
 		$(PLAT_COMMON_PATH)/sab_msg/sab_debug_dump.o
 endif
 
+ifneq (${MT_SAB_DEV_ATTEST},0x0)
+DEFINES		+=	-DMT_SAB_DEV_ATTEST=${MT_SAB_DEV_ATTEST}
+SAB_MSG_SRC	+= \
+		$(PLAT_COMMON_PATH)/sab_msg/sab_dev_attest.o
+endif
+
+ifneq (${MT_SAB_DEV_GETINFO},0x0)
+DEFINES		+=	-DMT_SAB_DEV_GETINFO=${MT_SAB_DEV_GETINFO}
+SAB_MSG_SRC	+= \
+		$(PLAT_COMMON_PATH)/sab_msg/sab_dev_getinfo.o
+endif
+
 ifneq (${MT_SAB_MAC},0x0)
 DEFINES		+=	-DMT_SAB_MAC=${MT_SAB_MAC}
 SAB_MSG_SRC	+= \
@@ -80,6 +92,12 @@ ifneq (${MT_SAB_MANAGE_KEY},0x0)
 DEFINES		+=	-DMT_SAB_MANAGE_KEY=${MT_SAB_MANAGE_KEY}
 SAB_MSG_SRC	+= \
 		$(PLAT_COMMON_PATH)/sab_msg/sab_managekey.o
+endif
+
+ifneq (${MT_SAB_KEY_RECOVERY},0x0)
+DEFINES		+=	-DMT_SAB_KEY_RECOVERY=${MT_SAB_KEY_RECOVERY}
+SAB_MSG_SRC	+= \
+		$(PLAT_COMMON_PATH)/sab_msg/sab_key_recovery.o
 endif
 
 OBJECTS		+= $(SAB_MSG_SRC)

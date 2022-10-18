@@ -11,6 +11,7 @@
  * activate or otherwise use the software.
  */
 
+#include "sab_common_err.h"
 #include "sab_messaging.h"
 #include "sab_msg_def.h"
 
@@ -62,6 +63,8 @@ uint32_t sab_open_storage_command(struct plat_os_abs_hdl *phdl,
 			break;
 		}
 
+		sab_err_map(SAB_STORAGE_OPEN_REQ, rsp.rsp_code);
+
 		ret = rsp.rsp_code;
 		*storage_handle = rsp.storage_handle;
 
@@ -100,6 +103,8 @@ uint32_t sab_close_storage_command(struct plat_os_abs_hdl *phdl,
 				? rsp.rsp_code : ret;
 			break;
 		}
+
+		sab_err_map(SAB_STORAGE_CLOSE_REQ, rsp.rsp_code);
 
 		ret = rsp.rsp_code;
 	} while (false);

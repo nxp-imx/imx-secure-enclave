@@ -282,6 +282,12 @@ hsm_err_t hsm_do_hash(hsm_hdl_t session_hdl, op_hash_one_go_args_t *args);
 
 #include "internal/hsm_debug_dump.h"
 
+#include "internal/hsm_key_recovery.h"
+
+#include "internal/hsm_dev_getinfo.h"
+
+#include "internal/hsm_dev_attest.h"
+
 typedef uint8_t hsm_op_manage_key_group_flags_t;
 typedef struct {
     hsm_key_group_t key_group;                  //!< it must be a value in the range 0-1023. Keys belonging to the same group can be cached in the HSM local memory through the hsm_manage_key_group API.
@@ -689,31 +695,6 @@ hsm_err_t hsm_ecies_encryption(hsm_hdl_t session_hdl, op_ecies_enc_args_t *args)
  *
  */
 /** @} end of ECIES encryption operation */
-
-/**
- *  @defgroup group12 Public key recovery
- * @{
- */
-typedef uint8_t hsm_op_pub_key_recovery_flags_t;
-typedef struct {
-    uint32_t key_identifier;                //!< pointer to the identifier of the key to be used for the operation
-    uint8_t *out_key;                       //!< pointer to the output area where the generated public key must be written
-    uint16_t out_key_size;                  //!< length in bytes of the output key
-    hsm_key_type_t key_type;                //!< indicates the type of the key to be recovered
-    hsm_op_pub_key_recovery_flags_t flags;  //!< bitmap specifying the operation attributes.
-} op_pub_key_recovery_args_t;
-
-/**
- * Recover Public key from private key present in key store \n
- * User can call this function only after having opened a key store.\n
- *
- * \param key_store_hdl handle identifying the current key store.
- * \param args pointer to the structure containing the function arguments.
- *
- * \return error code
- */
-hsm_err_t hsm_pub_key_recovery(hsm_hdl_t key_store_hdl, op_pub_key_recovery_args_t *args);
-/** @} end of Public key recovery operation */
 
 /**
  *  @defgroup group13 Data storage

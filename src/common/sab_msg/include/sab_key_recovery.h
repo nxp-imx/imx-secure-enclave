@@ -11,54 +11,44 @@
  * activate or otherwise use the software.
  */
 
-#ifndef SAB_KEY_GENERATE_H
-#define SAB_KEY_GENERATE_H
+#ifndef SAB_KEY_RECOVERY_H
+#define SAB_KEY_RECOVERY_H
 
 #include <stdint.h>
 
 #include "sab_msg_def.h"
 
-struct sab_cmd_generate_key_msg {
+struct sab_cmd_pub_key_recovery_msg {
 	struct sab_mu_hdr hdr;
-	uint32_t key_management_handle;
+	uint32_t key_store_handle;
 	uint32_t key_identifier;
-#ifdef CONFIG_PLAT_SECO
-	uint16_t out_pub_key_sz;
-	uint8_t flags;
-	uint8_t key_type;
-	uint16_t key_group;
-	uint16_t key_info;
-#else
-	uint16_t out_pub_key_sz;
-	uint16_t key_group;
-	uint16_t key_type;
-	uint16_t key_sz;
-	uint32_t key_lifetime;
-	uint32_t key_usage;
-	uint32_t permitted_algo;
-	uint8_t flags;
-	uint8_t rsv[3];
-#endif
+	uint32_t out_key_addr_ext;
 	uint32_t out_key_addr;
+	uint16_t out_key_size;
+#ifdef PSA_COMPLIANT
+	uint16_t key_type;
+#else
+	uint8_t key_type;
+	uint8_t flags;
+#endif
 	uint32_t crc;
 };
 
-struct sab_cmd_generate_key_rsp {
+struct sab_cmd_pub_key_recovery_rsp {
 	struct sab_mu_hdr hdr;
 	uint32_t rsp_code;
-	uint32_t key_identifier;
-#ifndef CONFIG_PLAT_SECO
-	uint16_t out_key_sz;
+#ifdef PSA_COMPLIANT
+	uint16_t out_key_size;
 	uint16_t reserved;
 #endif
 };
 
-uint32_t prepare_msg_generatekey(void *phdl,
+uint32_t prepare_msg_key_recovery(void *phdl,
 		void *cmd_buf, void *rsp_buf,
 		uint32_t *cmd_msg_sz,
 		uint32_t *rsp_msg_sz,
 		uint32_t msg_hdl,
 		void *args);
 
-uint32_t proc_msg_rsp_generatekey(void *rsp_buf, void *args);
+uint32_t proc_msg_rsp_key_recovery(void *rsp_buf, void *args);
 #endif

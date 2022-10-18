@@ -20,7 +20,6 @@
 #include "plat_os_abs.h"
 #include "plat_utils.h"
 
-
 uint32_t prepare_msg_debugdump(void *phdl,
 			       void *cmd_buf, void *rsp_buf,
 			       uint32_t *cmd_msg_sz,
@@ -55,9 +54,14 @@ uint32_t proc_msg_rsp_debugdump(void *rsp_buf, void *args)
 		(struct rom_cmd_firmware_dump_rsp *) rsp_buf;
 	op_debug_dump_args_t *op_args = (op_debug_dump_args_t *) args;
 
+	/* 1 word for header
+	 * 2 word for rsp_code
+	 * 3 word for CRC
+	 */
 	op_args->dump_buf_len = rsp->hdr.size - 3;
 
-	memcpy(op_args->dump_buf, rsp->buffer, op_args->dump_buf_len);
+	memcpy(op_args->dump_buf, rsp->buffer,
+	       op_args->dump_buf_len * sizeof(uint32_t));
 
 	if (op_args->dump_buf_len ==  ROM_BUF_DUMP_MAX_WSIZE) {
 		op_args->is_dump_pending = true;

@@ -18,6 +18,14 @@
 #include "sab_debug_dump.h"
 #endif
 
+#if MT_SAB_DEV_GETINFO
+#include "sab_dev_getinfo.h"
+#endif
+
+#if MT_SAB_DEV_ATTEST
+#include "sab_dev_attest.h"
+#endif
+
 #if MT_SAB_KEY_GENERATE
 #include "sab_key_generate.h"
 #endif
@@ -58,6 +66,10 @@
 #include "sab_mac.h"
 #endif
 
+#if MT_SAB_KEY_RECOVERY
+#include "sab_key_recovery.h"
+#endif
+
 static uint32_t prep_sab_msg_not_supported(void *phdl, void *cmd_buf,
 					   void *rsp_buf, uint32_t *cmd_msg_sz,
 					   uint32_t *rsp_msg_sz,
@@ -78,6 +90,9 @@ void init_proc_sab_msg_engine(msg_type_t msg_type)
 	int i = 0;
 	int ret = NOT_DONE;
 
+	if ((msg_type > NOT_SUPPORTED) && (msg_type >= MAX_MSG_TYPE))
+		return;
+
 	for (i = 0; i < SAB_MSG_MAX_ID; i++) {
 		ret = NOT_DONE;
 
@@ -88,6 +103,24 @@ void init_proc_sab_msg_engine(msg_type_t msg_type)
 				ret = add_sab_msg_handler(i, MT_SAB_DEBUG_DUMP,
 						  prepare_msg_debugdump,
 						  proc_msg_rsp_debugdump);
+			}
+		break;
+#endif
+#if MT_SAB_DEV_GETINFO
+		case ROM_DEV_GETINFO_REQ:
+			if (msg_type == MT_SAB_DEV_GETINFO) {
+				ret = add_sab_msg_handler(i, MT_SAB_DEV_GETINFO,
+						  prepare_msg_dev_getinfo,
+						  proc_msg_rsp_dev_getinfo);
+			}
+		break;
+#endif
+#if MT_SAB_DEV_ATTEST
+		case ROM_DEV_ATTEST_REQ:
+			if (msg_type == MT_SAB_DEV_ATTEST) {
+				ret = add_sab_msg_handler(i, MT_SAB_DEV_ATTEST,
+						  prepare_msg_dev_attest,
+						  proc_msg_rsp_dev_attest);
 			}
 		break;
 #endif
@@ -264,9 +297,18 @@ void init_proc_sab_msg_engine(msg_type_t msg_type)
 			}
 		break;
 #endif
+#if MT_SAB_KEY_RECOVERY
+		case SAB_PUB_KEY_RECOVERY_REQ:
+			if (msg_type == MT_SAB_KEY_RECOVERY) {
+				ret = add_sab_msg_handler(i, MT_SAB_KEY_RECOVERY,
+						  prepare_msg_key_recovery,
+						  proc_msg_rsp_key_recovery);
+			}
+		break;
+#endif
 		default:
 			if (ret == NOT_DONE) {
-				add_sab_msg_handler(i, SAB_MSG,
+				add_sab_msg_handler(i, msg_type,
 						prep_sab_msg_not_supported,
 						proc_sab_msg_rsp_not_supported);
 			}

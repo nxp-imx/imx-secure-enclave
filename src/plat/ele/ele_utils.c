@@ -11,6 +11,9 @@
  * activate or otherwise use the software.
  */
 
+#include "errno.h"
+#include "string.h"
+
 #include "plat_os_abs.h"
 #include "plat_utils.h"
 
@@ -133,6 +136,29 @@ static void hexdump(uint32_t buf[], uint32_t size)
 	}
 }
 
+bool val_rcv_rsp_len(uint32_t rcv_len, uint32_t *rcv_buf)
+{
+	/* Received response length is invalid
+	 * if received size is zero.
+	 */
+	if (rcv_len == 0)
+		return false;
+
+	/* Received response length is invalid
+	 * if received size is not equal to the
+	 * size mentioned in the MU header size-tag.
+	 */
+	if (rcv_len != (((struct sab_mu_hdr *)rcv_buf)->size)
+			* sizeof(uint32_t))
+		return false;
+
+	/* if both the above invalidation check fails.
+	 * it means, received response length is valid.
+	 */
+	return true;
+
+}
+
 /* Helper function to send a message and wait for the response. Return 0 on success.*/
 int32_t plat_send_msg_and_get_resp(struct plat_os_abs_hdl *phdl, uint32_t *cmd, uint32_t cmd_len, uint32_t *rsp, uint32_t rsp_len)
 {
@@ -148,6 +174,8 @@ int32_t plat_send_msg_and_get_resp(struct plat_os_abs_hdl *phdl, uint32_t *cmd, 
         /* Send the command. */
         len = plat_os_abs_send_mu_message(phdl, cmd, cmd_len);
         if (len != (int32_t)cmd_len) {
+            printf("SAB CMD[0x%x] PLAT Error[%d]: Write MU MSG failed - %s\n",
+                   ((struct sab_mu_hdr *)cmd)->command, errno, strerror(errno));
             break;
         }
 #if DEBUG
@@ -159,6 +187,11 @@ int32_t plat_send_msg_and_get_resp(struct plat_os_abs_hdl *phdl, uint32_t *cmd, 
 #endif
         /* Read the response. */
         len = plat_os_abs_read_mu_message(phdl, rsp, rsp_len);
+        if (len != (int32_t)rsp_len && val_rcv_rsp_len(len, rsp) == false) {
+	    printf("SAB CMD[0x%x] PLAT Error[%d]: Read MU MSG failed - %s\n",
+		   ((struct sab_mu_hdr *)cmd)->command, errno, strerror(errno));
+            break;
+	}
 #if DEBUG
 	printf("\n---------- MSG Command RSP with msg id[0x%x] = %d -------------\n",
 			((struct sab_mu_hdr *)rsp)->command,

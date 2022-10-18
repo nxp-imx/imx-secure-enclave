@@ -27,6 +27,7 @@ struct rom_cmd_firmware_dump_rsp {
 	struct sab_mu_hdr hdr;
 	uint32_t rsp_code;
 	uint32_t buffer[ROM_BUF_DUMP_MAX_WSIZE];
+	uint32_t crc;
 };
 
 uint32_t proc_msg_rsp_debugdump(void *rsp_buf, void *args);

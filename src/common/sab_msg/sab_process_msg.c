@@ -15,6 +15,7 @@
 #include <stdio.h>
 #include <string.h>
 
+#include "sab_common_err.h"
 #include "sab_process_msg.h"
 
 #include "plat_os_abs.h"
@@ -149,10 +150,9 @@ uint32_t process_sab_msg(struct plat_os_abs_hdl *phdl,
 
 	*rsp_code = (*(rsp + 1));
 
-	if (SAB_STATUS_SUCCESS(msg_type) != *rsp_code) {
-		printf("ERROR received SAB MSG CMD [0x%x] response[=0x%x]\n",
-						msg_id, *rsp_code);
-	}
+	if (SAB_STATUS_SUCCESS(msg_type) != *rsp_code)
+		sab_err_map(msg_id, *rsp_code);
+
 	error = process_sab_msg_rsp[msg_type - 1][msg_id](&rsp, args);
 out:
 	return error;

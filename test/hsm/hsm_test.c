@@ -340,7 +340,7 @@ static void transient_key_tests(hsm_hdl_t sess_hdl, hsm_hdl_t key_store_hdl)
 	key_gen_args.out_size = sizeof(pub_key);
 	key_gen_args.key_group = 1;
 #ifdef PSA_COMPLIANT
-	key_gen_args.key_lifetime = HSM_KEY_LIFE_VOLATILE;
+	key_gen_args.key_lifetime = HSM_HW_INTERN_STORAGE_VOLATILE;
 	key_gen_args.key_usage = HSM_KEY_USAGE_SIGN_HASH
 		| HSM_KEY_USAGE_VERIFY_HASH;
 	key_gen_args.permitted_algo = PERMITTED_ALGO_ECDSA_SHA256;
@@ -352,6 +352,10 @@ static void transient_key_tests(hsm_hdl_t sess_hdl, hsm_hdl_t key_store_hdl)
 	key_gen_args.out_key = pub_key;
 	hsmret = hsm_generate_key(key_mgmt_hdl, &key_gen_args);
 	printf("hsm_generate_key ret:0x%x\n", hsmret);
+
+	hsmret = do_key_recovery_test(master_key_id, key_store_hdl, key_mgmt_hdl);
+	if (hsmret)
+		printf("Error[0x%x]: PUB KEY RECOVERY test failed.\n\n", hsmret);
 
 #ifdef CONFIG_PLAT_SECO
 	memset(&butterfly_gen_args, 0, sizeof(butterfly_gen_args));
@@ -450,7 +454,7 @@ static void transient_key_tests(hsm_hdl_t sess_hdl, hsm_hdl_t key_store_hdl)
 	key_gen_args.flags = HSM_OP_KEY_GENERATION_FLAGS_CREATE;
 	key_gen_args.key_info = HSM_KEY_INFO_TRANSIENT;
 #else
-	key_gen_args.key_lifetime = HSM_KEY_LIFE_VOLATILE;
+	key_gen_args.key_lifetime = HSM_HW_INTERN_STORAGE_VOLATILE;
 	key_gen_args.key_usage = HSM_KEY_USAGE_DERIVE | HSM_KEY_USAGE_ENCRYPT
 				| HSM_KEY_USAGE_DECRYPT;
 	key_gen_args.permitted_algo = PERMITTED_ALGO_ALL_CIPHER;
@@ -549,7 +553,7 @@ void hsm_test_sig_handler(int ht_signo, siginfo_t *ht_siginfo, void *ht_sigctx)
 /* Test entry function. */
 int main(int argc, char *argv[])
 {
-	struct sigaction hsm_test_sigact = {0};
+    struct sigaction hsm_test_sigact = {0};
 
     open_session_args_t open_session_args = {0};
     open_svc_key_store_args_t open_svc_key_store_args = {0};
@@ -580,8 +584,11 @@ int main(int argc, char *argv[])
         if (err != HSM_NO_ERROR) {
             printf("hsm_open_session failed err:0x%x\n", err);
             break;
-        }
-        printf("hsm_open_session PASS\n");
+	} else
+		printf("hsm_open_session PASS\n");
+
+	get_device_info(hsm_session_hdl);
+	perform_dev_attestation(hsm_session_hdl);
 
         open_svc_key_store_args.key_store_identifier = 0xABCD;
         open_svc_key_store_args.authentication_nonce = 0x1234;
@@ -603,9 +610,9 @@ int main(int argc, char *argv[])
 	if (err)
 		printf("Error[0x%x]: RNG test Failed.\n", err);
 #endif
+#ifdef CONFIG_PLAT_SECO
         public_key_test(hsm_session_hdl);
 
-#ifdef CONFIG_PLAT_SECO
         ecies_tests(hsm_session_hdl);
 #endif
 #ifndef SECONDARY_API_SUPPORTED

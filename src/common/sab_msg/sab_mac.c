@@ -19,96 +19,6 @@
 #include "plat_os_abs.h"
 #include "plat_utils.h"
 
-void sab_mac_err_map(uint8_t *api_name,
-		 uint32_t rsp_code,
-		 uint8_t *err_str)
-{
-
-	switch (rsp_code) {
-	case 0x0000:
-		sprintf(err_str,
-			"\n%s: Operation successful.\n",
-			api_name);
-		break;
-	case 0x0029:
-		sprintf(err_str,
-			"\n%s: General error.\n",
-			api_name);
-		break;
-	case 0x0229:
-		sprintf(err_str,
-			"\n%s: Invalid address.\n",
-			api_name);
-		break;
-	case 0x0329:
-		sprintf(err_str,
-			"\n%s: provided key-id, unknown to key store.\n",
-			api_name);
-		break;
-	case 0x0429:
-		sprintf(err_str,
-			"\n%s: One among the following situation:\n"
-			"\t\t- MU sanity check failed.\n"
-			"\t\t- Invalid mac size (0 or < min mac length or"
-				"> max mac length).\n"
-			"\t\t- Size set in bits for generation operation."
-			"\t\t- In/out size is too large(>1024).\n"
-			"\t\t- In size: not a multiple of block len.\n"
-			"\t\t- Invalid IV length.\n"
-			"\t\t- Other invalid parameters.\n",
-			api_name);
-		break;
-	case 0x0629:
-		sprintf(err_str,
-			"\n%s: Internal memory allocation failed.\n",
-			api_name);
-		break;
-	case 0x0729:
-		sprintf(err_str,
-			"\n%s: Unknown mac handle.\n",
-			api_name);
-		break;
-	case 0x0A29:
-		sprintf(err_str,
-			"\n%s: Cannot find key store master.\n",
-			api_name);
-		break;
-	case 0x1129:
-		sprintf(err_str,
-			"\n%s: Algorithm is not supported.\n",
-			api_name);
-		break;
-	case 0x1A29:
-		sprintf(err_str,
-			"\n%s: Impossible to retrieve chunk.\n",
-			api_name);
-		break;
-	case 0x1B29:
-		sprintf(err_str,
-			"\n%s: One among the following situation:\n"
-			"\t\t- Key not supported,\n"
-			"\t\t- Invalid Key attributes (usage,"
-				"permitted algorithm).",
-			api_name);
-		break;
-	case 0x1D29:
-		sprintf(err_str,
-			"\n%s: Output size is too small.\n",
-			api_name);
-		break;
-	case 0xB929:
-		sprintf(err_str,
-			"\n%s: Command CRC check error.\n",
-			api_name);
-		break;
-	default:
-		sprintf(err_str,
-			"\n%s: Un-known error code.\n",
-			api_name);
-	}
-}
-
-
 uint32_t prepare_msg_mac_one_go(void *phdl,
 				void *cmd_buf, void *rsp_buf,
 				uint32_t *cmd_msg_sz,
@@ -184,12 +94,7 @@ uint32_t proc_msg_rsp_mac_one_go(void *rsp_buf, void *args)
 	op_mac_one_go_args_t *op_args = (op_mac_one_go_args_t *) args;
 	struct sab_cmd_mac_one_go_rsp *rsp =
 		(struct sab_cmd_mac_one_go_rsp *) rsp_buf;
-	uint8_t err_str[512];
 
-	if (rsp->rsp_code != SAB_SUCCESS_STATUS) {
-		sab_mac_err_map("SAB_MAC_ONE_GO", rsp->rsp_code, err_str);
-		printf("%s", err_str);
-	}
 	op_args->verification_status = rsp->verification_status;
 
 	return SAB_SUCCESS_STATUS;

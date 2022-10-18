@@ -38,6 +38,7 @@ INCLUDE_PATHS := -I${PLAT_PATH}/include -I${PLAT_COMMON_PATH}/include -Iinclude 
 
 OBJECTS	:= \
 	$(PLAT_COMMON_PATH)/sab_messaging.o \
+	$(PLAT_COMMON_PATH)/sab_common_err.o \
 	$(PLAT_COMMON_PATH)/she_lib.o \
 	$(PLAT_COMMON_PATH)/hsm_lib.o \
 	$(PLAT_COMMON_PATH)/nvm_manager.o
@@ -74,7 +75,9 @@ all: $(libs) $(tests)
 # SHE lib
 $(SHE_LIB): \
 	$(PLAT_PATH)/$(PLAT)_utils.o \
+	$(PLAT_PATH)/plat_err.o \
 	$(PLAT_PATH)/$(PLAT)_os_abs_linux.o \
+	$(PLAT_COMMON_PATH)/sab_common_err.o \
 	$(PLAT_COMMON_PATH)/she_lib.o \
 	$(SAB_MSG_SRC) \
 	$(PLAT_COMMON_PATH)/sab_msg/sab_session.o\
@@ -85,11 +88,13 @@ $(SHE_LIB): \
 # HSM lib
 $(HSM_LIB): \
 	$(PLAT_COMMON_PATH)/hsm_lib.o \
+	$(PLAT_PATH)/plat_err.o \
 	$(PLAT_PATH)/$(PLAT)_utils.o \
 	$(SAB_MSG_SRC) \
 	$(PLAT_COMMON_PATH)/sab_msg/sab_session.o\
 	$(HSM_API_SRC) \
 	$(PLAT_COMMON_PATH)/sab_messaging.o \
+	$(PLAT_COMMON_PATH)/sab_common_err.o \
 	$(PLAT_PATH)/$(PLAT)_os_abs_linux.o
 	$(CC) -shared -Wl,-soname,$(HSM_LIB_MAJOR) -fPIC -o $@ $^
 
@@ -97,7 +102,9 @@ $(HSM_LIB): \
 $(NVM_LIB): $(PLAT_COMMON_PATH)/nvm/nvm_manager.o\
 	$(PLAT_COMMON_PATH)/nvm/sab_msg/sab_storage.o\
 	$(PLAT_COMMON_PATH)/sab_msg/sab_session.o\
+	$(PLAT_COMMON_PATH)/sab_common_err.o\
 	$(PLAT_PATH)/nvm_os_abs_linux.o\
+	$(PLAT_PATH)/plat_err.o \
 	$(PLAT_PATH)/$(PLAT)_os_abs_linux.o\
 	$(PLAT_PATH)/$(PLAT)_utils.o
 	$(CC) -shared -Wl,-soname,$(NVM_LIB_MAJOR) -fPIC -o $@ $^

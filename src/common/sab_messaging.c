@@ -11,6 +11,7 @@
  * activate or otherwise use the software.
  */
 
+#include "sab_common_err.h"
 #include "sab_messaging.h"
 #include "sab_msg_def.h"
 
@@ -35,6 +36,8 @@ uint32_t sab_get_shared_buffer(struct plat_os_abs_hdl *phdl, uint32_t session_ha
         if (error != 0) {
             break;
         }
+
+		sab_err_map(SAB_SHARED_BUF_REQ, rsp.rsp_code);
 
         ret = rsp.rsp_code;
         if (GET_STATUS_CODE(ret) != SAB_SUCCESS_STATUS) {
@@ -78,6 +81,8 @@ uint32_t sab_open_key_store_command(struct plat_os_abs_hdl *phdl, uint32_t sessi
             break;
         }
 
+		sab_err_map(SAB_KEY_STORE_OPEN_REQ, rsp.rsp_code);
+
         ret = rsp.rsp_code;
         *key_store_handle = rsp.key_store_handle;
     } while(false);
@@ -102,6 +107,8 @@ uint32_t sab_close_key_store(struct plat_os_abs_hdl *phdl, uint32_t key_store_ha
         if (error != 0) {
             break;
         }
+
+		sab_err_map(SAB_KEY_STORE_CLOSE_REQ, rsp.rsp_code);
 
         ret = rsp.rsp_code;
 
@@ -133,6 +140,8 @@ uint32_t sab_open_rng(struct plat_os_abs_hdl *phdl, uint32_t session_handle, uin
             break;
         }
 
+		sab_err_map(SAB_RNG_OPEN_REQ, rsp.rsp_code);
+
         ret = rsp.rsp_code;
         *rng_handle = rsp.rng_handle;
     } while(false);
@@ -158,6 +167,8 @@ uint32_t sab_close_rng(struct plat_os_abs_hdl *phdl, uint32_t rng_handle, uint32
         if (error != 0) {
             break;
         }
+
+		sab_err_map(SAB_RNG_CLOSE_REQ, rsp.rsp_code);
 
         ret = rsp.rsp_code;
     } while(false);
@@ -188,6 +199,8 @@ uint32_t sab_open_storage_command(struct plat_os_abs_hdl *phdl, uint32_t session
             break;
         }
 
+		sab_err_map(SAB_STORAGE_OPEN_REQ, rsp.rsp_code);
+
         ret = rsp.rsp_code;
         *storage_handle = rsp.storage_handle;
     } while(false);
@@ -213,6 +226,8 @@ uint32_t sab_close_storage_command(struct plat_os_abs_hdl *phdl, uint32_t storag
         if (error != 0) {
             break;
         }
+
+		sab_err_map(SAB_STORAGE_CLOSE_REQ, rsp.rsp_code);
 
         ret = rsp.rsp_code;
     } while(false);
@@ -241,6 +256,8 @@ uint32_t sab_get_info(struct plat_os_abs_hdl *phdl, uint32_t session_handle, uin
             /*|| (rsp.crc != plat_compute_msg_crc((uint32_t*)&rsp, (uint32_t)(sizeof(rsp) - sizeof(uint32_t)))))*/
             break;
         }
+
+		sab_err_map(SAB_GET_INFO_REQ, rsp.rsp_code);
 
         ret = rsp.rsp_code;
         *user_sab_id = rsp.user_sab_id;
@@ -282,6 +299,8 @@ uint32_t sab_open_sm2_eces(struct plat_os_abs_hdl *phdl, uint32_t key_store_hand
             break;
         }
 
+		sab_err_map(SAB_SM2_ECES_DEC_OPEN_REQ, rsp.rsp_code);
+
         ret = rsp.rsp_code;
         *sm2_eces_handle = rsp.sm2_eces_handle;
     } while(false);
@@ -305,6 +324,8 @@ uint32_t sab_close_sm2_eces(struct plat_os_abs_hdl *phdl, uint32_t sm2_eces_hand
         if (error != 0) {
             break;
         }
+
+		sab_err_map(SAB_SM2_ECES_DEC_CLOSE_REQ, rsp.rsp_code);
 
         ret = rsp.rsp_code;
     } while(false);

@@ -21,7 +21,7 @@
 #define HSM_KEY_OP_SUCCESS	0
 #define HSM_KEY_OP_FAIL		0xFFFFFFFF
 
-typedef uint16_t hsm_key_usage_t;
+typedef uint32_t hsm_key_usage_t;
 #define HSM_KEY_USAGE_EXPORT		((hsm_key_usage_t) (1u << 0))
 #define HSM_KEY_USAGE_CLOSED		((hsm_key_usage_t) (1u << 4))
 #define HSM_KEY_USAGE_ENCRYPT		((hsm_key_usage_t) (1u << 8))
@@ -32,10 +32,42 @@ typedef uint16_t hsm_key_usage_t;
 #define HSM_KEY_USAGE_VERIFY_HASH	((hsm_key_usage_t) (1u << 13))
 #define HSM_KEY_USAGE_DERIVE		((hsm_key_usage_t) (1u << 14))
 
-typedef uint8_t hsm_key_lifetime_t;
-#define HSM_KEY_LIFE_VOLATILE	((hsm_key_lifetime_t) (0u << 0))
-#define HSM_KEY_LIFE_PERSISTENT	((hsm_key_lifetime_t) (1u << 0))
-#define HSM_KEY_LIFE_PERMANENT	((hsm_key_lifetime_t) (1u << 7))
+typedef enum {
+	HSM_HW_INTERNAL_STORAGE = 0x00000000,
+	HSM_HW_EXTERNAL_STORAGE = 0x80000000,
+	HSM_SW_INTERNAL_STORAGE = 0x90000200,
+	HSM_SW_EXTERNAL_STORAGE = 0x90000000,
+} hsm_storage_loc_t;
+
+typedef enum {
+	HSM_VOLATILE_STORAGE = 0x0,
+	HSM_PERSISTENT_STORAGE = 0x1,
+	HSM_VOLT_PERM_STORAGE = 0x80,
+	HSM_PERS_PERM_STORAGE = 0x81,
+} hsm_storage_persist_lvl_t;
+
+typedef enum {
+	HSM_HW_INTERN_STORAGE_VOLATILE = HSM_HW_INTERNAL_STORAGE
+						| HSM_VOLATILE_STORAGE,
+	HSM_HW_INTERN_STORARE_PERSISTENT = HSM_HW_INTERNAL_STORAGE
+						| HSM_PERSISTENT_STORAGE,
+	HSM_HW_INTERN_STORAGE_VOLT_PERM = HSM_HW_INTERNAL_STORAGE
+						| HSM_VOLT_PERM_STORAGE,
+	HSM_HW_INTERN_STORAGE_PERS_PERM = HSM_HW_INTERNAL_STORAGE
+						| HSM_PERS_PERM_STORAGE,
+	HSM_HW_EXTERN_STORAGE_PERSISTENT = HSM_HW_EXTERNAL_STORAGE
+						| HSM_PERSISTENT_STORAGE,
+	HSM_SW_INTERN_STORAGE_VOLATILE = HSM_SW_INTERNAL_STORAGE
+						| HSM_VOLATILE_STORAGE,
+	HSM_SW_INTERN_STORAGE_PERSISTENT = HSM_SW_INTERNAL_STORAGE
+						| HSM_PERSISTENT_STORAGE,
+	HSM_SW_INTERN_STORAGE_VOLT_PERM = HSM_SW_INTERNAL_STORAGE
+						| HSM_VOLT_PERM_STORAGE,
+	HSM_SW_INTERN_STORAGE_PERS_PERM = HSM_SW_INTERNAL_STORAGE
+						| HSM_PERS_PERM_STORAGE,
+	HSM_SW_EXTERN_STORAGE_PERSISTENT = HSM_SW_EXTERNAL_STORAGE
+						| HSM_PERSISTENT_STORAGE,
+} hsm_key_lifetime_t;
 
 typedef enum {
 	HSM_KEY_TYPE_HMAC	= 0x1100,
@@ -46,6 +78,13 @@ typedef enum {
 	HSM_KEY_TYPE_ECC_NIST	= 0x7112,
 	HSM_KEY_TYPE_ECC_BP_T1	= 0xF180,
 } hsm_psa_key_type_t;
+
+typedef enum {
+	HSM_PUBKEY_TYPE_RSA		= 0x4001,
+	HSM_PUBKEY_TYPE_ECC_BP_R1	= 0x4130,
+	HSM_PUBKEY_TYPE_ECC_NIST	= 0x4112,
+	HSM_PUBKEY_TYPE_ECC_BP_T1	= 0xC180,
+} hsm_pubkey_type_t;
 
 typedef uint8_t hsm_key_type_t;
 #define HSM_KEY_TYPE_ECDSA_NIST_P224                        ((hsm_key_type_t)0x01u)
@@ -136,7 +175,7 @@ typedef enum {
 	PERMITTED_ALGO_HMAC_KDF_SHA256			= 0x08000109,
 	PERMITTED_ALGO_TLS_1_2_PRF_SHA256		= 0x08000209,
 	PERMITTED_ALGO_TLS_1_2_PRF_SHA384		= 0x0800020A,
-	PERMITTED_ALGO_ALL_CIPHER			= 0x87C0FF00,
+	PERMITTED_ALGO_ALL_CIPHER			= 0x84C0FF00,
 } hsm_permitted_algo_t;
 
 typedef uint16_t hsm_key_group_t;
@@ -176,8 +215,8 @@ typedef uint16_t hsm_key_info_t;
 		((hsm_key_info_t)(1u << 3))
 
 uint32_t set_key_type_n_sz(hsm_key_type_t key_type,
-		hsm_bit_key_sz_t *key_sz,
-		hsm_psa_key_type_t *psa_key_type,
-		uint16_t *byte_key_size);
-
+			   hsm_bit_key_sz_t *key_sz,
+			   hsm_psa_key_type_t *psa_key_type,
+			   hsm_pubkey_type_t *pkey_type,
+			   uint16_t *byte_key_size);
 #endif

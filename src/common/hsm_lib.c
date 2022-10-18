@@ -18,6 +18,7 @@
 #include "internal/hsm_handle.h"
 #include "internal/hsm_utils.h"
 
+#include "sab_common_err.h"
 #include "sab_msg_def.h"
 #include "sab_messaging.h"
 
@@ -26,52 +27,6 @@
 
 static struct hsm_session_hdl_s hsm_sessions[HSM_MAX_SESSIONS] = {};
 static struct hsm_service_hdl_s hsm_services[HSM_MAX_SERVICES] = {};
-
-void print_nvmd_conf(void)
-{
-	char *nvmd_conf_file = "/etc/nvmd.conf";
-	FILE *fp = NULL;
-	char *line = NULL;
-	ssize_t ret = -1;
-	size_t n = 0;
-
-	fp = fopen(nvmd_conf_file, "r");
-
-	if (fp == NULL) {
-		printf("Failed to open %s.\n", nvmd_conf_file);
-		return;
-	}
-
-	printf("\nNVM daemon configurations:\n\n");
-
-	while ((ret = getline(&line, &n, fp)) != -1)
-		printf("%s", line);
-
-	printf("\n");
-	free(line);
-	fclose(fp);
-}
-
-void __attribute__((constructor)) libele_hsm_start()
-{
-	int32_t ret = 0;
-
-	printf("\nlibele_hsm constructor\n");
-	print_nvmd_conf();
-
-	ret = system("service nvm_daemon start");
-	printf("service nvm_daemon start ret:%d\n\n", ret);
-}
-
-void __attribute__((destructor)) libele_hsm_end()
-{
-	int32_t ret = 0;
-
-	printf("\nlibele_hsm destructor\n");
-
-	ret = system("service nvm_daemon stop");
-	printf("service nvm_daemon stop ret:%d\n\n", ret);
-}
 
 hsm_err_t hsm_close_session(hsm_hdl_t session_hdl)
 {
@@ -324,6 +279,8 @@ hsm_err_t hsm_open_key_management_service(hsm_hdl_t key_store_hdl,
 			break;
 		}
 
+		sab_err_map(SAB_KEY_MANAGEMENT_OPEN_REQ, rsp.rsp_code);
+
 		err = sab_rating_to_hsm_err(rsp.rsp_code);
 		if (err != HSM_NO_ERROR) {
 			delete_service(key_mgt_serv_ptr);
@@ -375,6 +332,8 @@ hsm_err_t hsm_manage_key_group(hsm_hdl_t key_management_hdl,
 		if (error != 0) {
 			break;
 		}
+
+		sab_err_map(SAB_MANAGE_KEY_GROUP_REQ, rsp.rsp_code);
 
 		err = sab_rating_to_hsm_err(rsp.rsp_code);
 
@@ -450,6 +409,8 @@ hsm_err_t hsm_butterfly_key_expansion(hsm_hdl_t key_management_hdl,
 			break;
 		}
 
+		sab_err_map(SAB_BUT_KEY_EXP_REQ, rsp.rsp_code);
+
 		err = sab_rating_to_hsm_err(rsp.rsp_code);
 		if (
 			(err  == HSM_NO_ERROR) &&
@@ -490,7 +451,9 @@ hsm_err_t hsm_close_key_management_service(hsm_hdl_t key_management_hdl)
 			(uint32_t)sizeof(struct sab_cmd_key_management_close_msg),
 			(uint32_t *)&rsp,
 			(uint32_t)sizeof(struct sab_cmd_key_management_close_rsp));
+
 		if (error == 0) {
+			sab_err_map(SAB_KEY_MANAGEMENT_CLOSE_REQ, rsp.rsp_code);
 			err = sab_rating_to_hsm_err(rsp.rsp_code);
 		}
 
@@ -499,6 +462,7 @@ hsm_err_t hsm_close_key_management_service(hsm_hdl_t key_management_hdl)
 
 	return err;
 }
+
 hsm_err_t hsm_ecies_decryption(hsm_hdl_t cipher_hdl, op_ecies_dec_args_t *args)
 {
 	struct sab_cmd_ecies_decrypt_msg cmd;
@@ -561,6 +525,8 @@ hsm_err_t hsm_ecies_decryption(hsm_hdl_t cipher_hdl, op_ecies_dec_args_t *args)
 			break;
 		}
 
+		sab_err_map(SAB_CIPHER_ECIES_DECRYPT_REQ, rsp.rsp_code);
+
 		err = sab_rating_to_hsm_err(rsp.rsp_code);
 
 	} while(false);
@@ -609,9 +575,12 @@ hsm_err_t hsm_import_public_key(hsm_hdl_t signature_ver_hdl,
 			(uint32_t)sizeof(struct sab_import_pub_key_msg),
 			(uint32_t *)&rsp,
 			(uint32_t)sizeof(struct sab_import_pub_key_rsp));
+
 		if (error != 0) {
 			break;
 		}
+
+		sab_err_map(SAB_IMPORT_PUB_KEY, rsp.rsp_code);
 
 		err = sab_rating_to_hsm_err(rsp.rsp_code);
 		*key_ref = rsp.key_ref;
@@ -724,6 +693,8 @@ hsm_err_t hsm_get_random(hsm_hdl_t rng_hdl, op_get_random_args_t *args)
 			break;
 		}
 
+		sab_err_map(SAB_RNG_GET_RANDOM, rsp.rsp_code);
+
 		err = sab_rating_to_hsm_err(rsp.rsp_code);
 	} while(false);
 
@@ -829,6 +800,8 @@ hsm_err_t hsm_pub_key_reconstruction(hsm_hdl_t session_hdl,
 			break;
 		}
 
+		sab_err_map(SAB_PUB_KEY_RECONSTRUCTION_REQ, rsp.rsp_code);
+
 		err = sab_rating_to_hsm_err(rsp.rsp_code);
 	} while(false);
 
@@ -885,6 +858,8 @@ hsm_err_t hsm_pub_key_decompression(hsm_hdl_t session_hdl,
 		if (error != 0) {
 			break;
 		}
+
+		sab_err_map(SAB_PUB_KEY_DECOMPRESSION_REQ, rsp.rsp_code);
 
 		err = sab_rating_to_hsm_err(rsp.rsp_code);
 	} while(false);
@@ -961,54 +936,7 @@ hsm_err_t hsm_ecies_encryption(hsm_hdl_t session_hdl, op_ecies_enc_args_t *args)
 			break;
 		}
 
-		err = sab_rating_to_hsm_err(rsp.rsp_code);
-	} while(false);
-
-	return err;
-}
-
-hsm_err_t hsm_pub_key_recovery(hsm_hdl_t key_store_hdl, op_pub_key_recovery_args_t *args)
-{
-	struct sab_cmd_pub_key_recovery_msg cmd;
-	struct sab_cmd_pub_key_recovery_rsp rsp;
-	int32_t error = 1;
-	struct hsm_service_hdl_s *key_store_serv_ptr;
-	hsm_err_t err = HSM_GENERAL_ERROR;
-
-	do {
-		key_store_serv_ptr = service_hdl_to_ptr(key_store_hdl);
-		if (key_store_serv_ptr == NULL) {
-			err = HSM_UNKNOWN_HANDLE;
-			break;
-		}
-
-		plat_fill_cmd_msg_hdr(&cmd.hdr,
-			SAB_PUB_KEY_RECOVERY_REQ,
-			(uint32_t)sizeof(struct sab_cmd_pub_key_recovery_msg),
-			key_store_serv_ptr->session->mu_type);
-		cmd.key_store_handle = key_store_hdl;
-		cmd.key_identifier = args->key_identifier;
-		cmd.out_key_addr_ext = 0u;
-		cmd.out_key_addr = (uint32_t)plat_os_abs_data_buf(key_store_serv_ptr->session->phdl,
-					args->out_key,
-					args->out_key_size,
-					0u);
-		cmd.out_key_size = args->out_key_size;
-		cmd.key_type = args->key_type;
-		cmd.flags = args->flags;
-		cmd.crc = 0u;
-		cmd.crc = plat_compute_msg_crc((uint32_t*)&cmd,
-				(uint32_t)(sizeof(cmd) - sizeof(uint32_t)));
-
-		/* Send the message to platform. */
-		error = plat_send_msg_and_get_resp(key_store_serv_ptr->session->phdl,
-			(uint32_t *)&cmd,
-			(uint32_t)sizeof(struct sab_cmd_pub_key_recovery_msg),
-			(uint32_t *)&rsp,
-			(uint32_t)sizeof(struct sab_cmd_pub_key_recovery_rsp));
-		if (error != 0) {
-			break;
-		}
+		sab_err_map(SAB_ECIES_ENC_REQ, rsp.rsp_code);
 
 		err = sab_rating_to_hsm_err(rsp.rsp_code);
 	} while(false);
@@ -1067,6 +995,8 @@ hsm_err_t hsm_open_data_storage_service(hsm_hdl_t key_store_hdl,
 			break;
 		}
 
+		sab_err_map(SAB_DATA_STORAGE_OPEN_REQ, rsp.rsp_code);
+
 		err = sab_rating_to_hsm_err(rsp.rsp_code);
 		if (err != HSM_NO_ERROR) {
 			delete_service(data_storage_serv_ptr);
@@ -1107,7 +1037,9 @@ hsm_err_t hsm_close_data_storage_service(hsm_hdl_t data_storage_hdl)
 			(uint32_t)sizeof(struct sab_cmd_data_storage_close_msg),
 			(uint32_t *)&rsp,
 			(uint32_t)sizeof(struct sab_cmd_data_storage_close_rsp));
+
 		if (error == 0) {
+			sab_err_map(SAB_DATA_STORAGE_CLOSE_REQ, rsp.rsp_code);
 			err = sab_rating_to_hsm_err(rsp.rsp_code);
 		}
 
@@ -1165,6 +1097,8 @@ hsm_err_t hsm_data_storage(hsm_hdl_t data_storage_hdl,
 		if (error != 0) {
 			break;
 		}
+
+		sab_err_map(SAB_DATA_STORAGE_REQ, rsp.rsp_code);
 
 		err = sab_rating_to_hsm_err(rsp.rsp_code);
 
@@ -1272,6 +1206,8 @@ hsm_err_t hsm_auth_enc(hsm_hdl_t cipher_hdl, op_auth_enc_args_t* args)
 			break;
 		}
 
+		sab_err_map(SAB_AUTH_ENC_REQ, rsp.rsp_code);
+
 		err = sab_rating_to_hsm_err(rsp.rsp_code);
 
 	} while (false);
@@ -1329,6 +1265,8 @@ hsm_err_t hsm_export_root_key_encryption_key (hsm_hdl_t session_hdl,
 		if (error != 0) {
 			break;
 		}
+
+		sab_err_map(SAB_ROOT_KEK_EXPORT_REQ, rsp.rsp_code);
 
 		err = sab_rating_to_hsm_err(rsp.rsp_code);
 
@@ -1416,6 +1354,8 @@ hsm_err_t hsm_sm2_get_z(hsm_hdl_t session_hdl, op_sm2_get_z_args_t *args)
 			break;
 		}
 
+		sab_err_map(SAB_SM2_GET_Z_REQ, rsp.rsp_code);
+
 		err = sab_rating_to_hsm_err(rsp.rsp_code);
 	} while(false);
 
@@ -1477,6 +1417,8 @@ hsm_err_t hsm_sm2_eces_encryption(hsm_hdl_t session_hdl, op_sm2_eces_enc_args_t 
 		if (error != 0) {
 			break;
 		}
+
+		sab_err_map(SAB_SM2_ECES_ENC_REQ, rsp.rsp_code);
 
 		err = sab_rating_to_hsm_err(rsp.rsp_code);
 	} while(false);
@@ -1597,6 +1539,8 @@ hsm_err_t hsm_sm2_eces_decryption(hsm_hdl_t sm2_eces_hdl, op_sm2_eces_dec_args_t
 			break;
 		}
 
+		sab_err_map(SAB_SM2_ECES_DEC_REQ, rsp.rsp_code);
+
 		err = sab_rating_to_hsm_err(rsp.rsp_code);
 	} while(false);
 
@@ -1680,6 +1624,8 @@ hsm_err_t hsm_key_exchange(hsm_hdl_t key_management_hdl, op_key_exchange_args_t 
 			break;
 		}
 
+		sab_err_map(SAB_KEY_EXCHANGE_REQ, rsp.rsp_code);
+
 		err = sab_rating_to_hsm_err(rsp.rsp_code);
 
 	} while(false);
@@ -1739,6 +1685,8 @@ hsm_err_t hsm_tls_finish(hsm_hdl_t key_management_hdl, op_tls_finish_args_t *arg
 		if (error != 0) {
 			break;
 		}
+
+		sab_err_map(SAB_TLS_FINISH_REQ, rsp.rsp_code);
 
 		err = sab_rating_to_hsm_err(rsp.rsp_code);
 
@@ -1814,6 +1762,8 @@ hsm_err_t hsm_standalone_butterfly_key_expansion(hsm_hdl_t key_management_hdl,
 			break;
 		}
 
+		sab_err_map(SAB_ST_BUT_KEY_EXP_REQ, rsp.rsp_code);
+
 		err = sab_rating_to_hsm_err(rsp.rsp_code);
 		if (
 			(err  == HSM_NO_ERROR) &&
@@ -1878,6 +1828,8 @@ hsm_err_t hsm_open_key_generic_crypto_service(hsm_hdl_t session_hdl,
 			break;
 		}
 
+		sab_err_map(SAB_KEY_GENERIC_CRYPTO_SRV_OPEN_REQ, rsp.rsp_code);
+
 		err = sab_rating_to_hsm_err(rsp.rsp_code);
 		if (err != HSM_NO_ERROR) {
 			delete_service(serv_ptr);
@@ -1918,6 +1870,7 @@ hsm_err_t hsm_close_key_generic_crypto_service(hsm_hdl_t key_generic_crypto_hdl)
 			(uint32_t *)&rsp,
 			(uint32_t)sizeof(struct sab_key_generic_crypto_srv_close_rsp));
 		if (error == 0) {
+			sab_err_map(SAB_KEY_GENERIC_CRYPTO_SRV_CLOSE_REQ, rsp.rsp_code);
 			err = sab_rating_to_hsm_err(rsp.rsp_code);
 		}
 		delete_service(serv_ptr);
@@ -1996,6 +1949,8 @@ hsm_err_t hsm_key_generic_crypto(hsm_hdl_t key_generic_crypto_hdl, op_key_generi
 		if (error != 0) {
 			break;
 		}
+
+		sab_err_map(SAB_KEY_GENERIC_CRYPTO_SRV_REQ, rsp.rsp_code);
 
 		err = sab_rating_to_hsm_err(rsp.rsp_code);
 
