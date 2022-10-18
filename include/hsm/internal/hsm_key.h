@@ -47,6 +47,13 @@ typedef enum {
 	HSM_KEY_TYPE_ECC_BP_T1	= 0xF180,
 } hsm_psa_key_type_t;
 
+typedef enum {
+	HSM_PUBKEY_TYPE_RSA		= 0x4001,
+	HSM_PUBKEY_TYPE_ECC_BP_R1	= 0x4130,
+	HSM_PUBKEY_TYPE_ECC_NIST	= 0x4112,
+	HSM_PUBKEY_TYPE_ECC_BP_T1	= 0xC180,
+} hsm_pubkey_type_t;
+
 typedef uint8_t hsm_key_type_t;
 #define HSM_KEY_TYPE_ECDSA_NIST_P224                        ((hsm_key_type_t)0x01u)
 #define HSM_KEY_TYPE_ECDSA_NIST_P256                        ((hsm_key_type_t)0x02u)
@@ -176,8 +183,8 @@ typedef uint16_t hsm_key_info_t;
 		((hsm_key_info_t)(1u << 3))
 
 uint32_t set_key_type_n_sz(hsm_key_type_t key_type,
-		hsm_bit_key_sz_t *key_sz,
-		hsm_psa_key_type_t *psa_key_type,
-		uint16_t *byte_key_size);
-
+			   hsm_bit_key_sz_t *key_sz,
+			   hsm_psa_key_type_t *psa_key_type,
+			   hsm_pubkey_type_t *pkey_type,
+			   uint16_t *byte_key_size);
 #endif

@@ -42,6 +42,7 @@ hsm_err_t hsm_pub_key_recovery(hsm_hdl_t key_store_hdl,
 		error = set_key_type_n_sz(args->key_type,
 					&args->bit_key_sz,
 					&args->psa_key_type,
+					NULL,
 					&args->out_key_size);
 
 		if (error == HSM_KEY_OP_FAIL) {

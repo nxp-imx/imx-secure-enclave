@@ -19,12 +19,14 @@
 uint32_t set_key_type_n_sz(hsm_key_type_t key_type,
 			   hsm_bit_key_sz_t *key_sz,
 			   hsm_psa_key_type_t *psa_key_type,
+			   hsm_pubkey_type_t *pkey_type,
 			   uint16_t *byte_key_size)
 {
 	int ret = HSM_KEY_OP_SUCCESS;
 	hsm_bit_key_sz_t loc_key_sz;
 	hsm_psa_key_type_t loc_psa_key_type;
 	uint16_t loc_byte_key_size = 0;
+	hsm_pubkey_type_t loc_pkey_type = 0;
 
 	switch (key_type) {
 	case HSM_KEY_TYPE_HMAC_224:
@@ -62,77 +64,92 @@ uint32_t set_key_type_n_sz(hsm_key_type_t key_type,
 	case HSM_KEY_TYPE_RSA_2048:
 		loc_key_sz = HSM_KEY_SIZE_RSA_2048;
 		loc_psa_key_type = HSM_KEY_TYPE_RSA;
+		loc_pkey_type = HSM_PUBKEY_TYPE_RSA;
 		loc_byte_key_size = (HSM_KEY_SIZE_RSA_2048 >> 3);
 		break;
 	case HSM_KEY_TYPE_RSA_4096:
 		loc_key_sz = HSM_KEY_SIZE_RSA_4096;
 		loc_psa_key_type = HSM_KEY_TYPE_RSA;
+		loc_pkey_type = HSM_PUBKEY_TYPE_RSA;
 		loc_byte_key_size = (HSM_KEY_SIZE_RSA_4096 >> 3);
 		break;
 	case HSM_KEY_TYPE_ECDSA_BRAINPOOL_R1_224:
 		loc_key_sz = HSM_KEY_SIZE_ECC_BP_R1_224;
 		loc_psa_key_type = HSM_KEY_TYPE_ECC_BP_R1;
+		loc_pkey_type = HSM_PUBKEY_TYPE_ECC_BP_R1;
 		loc_byte_key_size = 2 * (HSM_KEY_SIZE_ECC_BP_R1_224 >> 3);
 		break;
 	case HSM_KEY_TYPE_ECDSA_BRAINPOOL_R1_256:
 		loc_key_sz = HSM_KEY_SIZE_ECC_BP_R1_256;
 		loc_psa_key_type = HSM_KEY_TYPE_ECC_BP_R1;
+		loc_pkey_type = HSM_PUBKEY_TYPE_ECC_BP_R1;
 		loc_byte_key_size = 2 * (HSM_KEY_SIZE_ECC_BP_R1_256 >> 3);
 		break;
 	case HSM_KEY_TYPE_ECDSA_BRAINPOOL_R1_320:
 		loc_key_sz = HSM_KEY_SIZE_ECC_BP_R1_320;
 		loc_psa_key_type = HSM_KEY_TYPE_ECC_BP_R1;
+		loc_pkey_type = HSM_PUBKEY_TYPE_ECC_BP_R1;
 		loc_byte_key_size = 2 * (HSM_KEY_SIZE_ECC_BP_R1_320 >> 3);
 		break;
 	case HSM_KEY_TYPE_ECDSA_BRAINPOOL_R1_384:
 		loc_key_sz = HSM_KEY_SIZE_ECC_BP_R1_384;
 		loc_psa_key_type = HSM_KEY_TYPE_ECC_BP_R1;
+		loc_pkey_type = HSM_PUBKEY_TYPE_ECC_BP_R1;
 		loc_byte_key_size = 2 * (HSM_KEY_SIZE_ECC_BP_R1_384 >> 3);
 		break;
 	case HSM_KEY_TYPE_ECDSA_BRAINPOOL_R1_512:
 		loc_key_sz = HSM_KEY_SIZE_ECC_BP_R1_512;
 		loc_psa_key_type = HSM_KEY_TYPE_ECC_BP_R1;
+		loc_pkey_type = HSM_PUBKEY_TYPE_ECC_BP_R1;
 		loc_byte_key_size = 2 * (HSM_KEY_SIZE_ECC_BP_R1_512 >> 3);
 		break;
 	case HSM_KEY_TYPE_ECDSA_NIST_P224:
 		loc_key_sz = HSM_KEY_SIZE_ECC_NIST_224;
 		loc_psa_key_type = HSM_KEY_TYPE_ECC_NIST;
+		loc_pkey_type = HSM_PUBKEY_TYPE_ECC_NIST;
 		loc_byte_key_size = 2 * (HSM_KEY_SIZE_ECC_NIST_224 >> 3);
 		break;
 	case HSM_KEY_TYPE_ECDSA_NIST_P256:
 		loc_key_sz = HSM_KEY_SIZE_ECC_NIST_256;
 		loc_psa_key_type = HSM_KEY_TYPE_ECC_NIST;
+		loc_pkey_type = HSM_PUBKEY_TYPE_ECC_NIST;
 		loc_byte_key_size = 2 * (HSM_KEY_SIZE_ECC_NIST_256 >> 3);
 		break;
 	case HSM_KEY_TYPE_ECDSA_NIST_P384:
 		loc_key_sz = HSM_KEY_SIZE_ECC_NIST_384;
 		loc_psa_key_type = HSM_KEY_TYPE_ECC_NIST;
+		loc_pkey_type = HSM_PUBKEY_TYPE_ECC_NIST;
 		loc_byte_key_size = 2 * (HSM_KEY_SIZE_ECC_NIST_384 >> 3);
 		break;
 	case HSM_KEY_TYPE_ECDSA_NIST_P521:
 		loc_key_sz = HSM_KEY_SIZE_ECC_NIST_521;
 		loc_psa_key_type = HSM_KEY_TYPE_ECC_NIST;
+		loc_pkey_type = HSM_PUBKEY_TYPE_ECC_NIST;
 		loc_byte_key_size = 2 * (HSM_KEY_SIZE_ECC_NIST_521 >> 3) + 2;
 		//Added 2 bytes due to 1 leftout bit during bits to bytes key size conversion
 		break;
 	case HSM_KEY_TYPE_ECDSA_BRAINPOOL_T1_224:
 		loc_key_sz = HSM_KEY_SIZE_ECC_BP_T1_224;
 		loc_psa_key_type = HSM_KEY_TYPE_ECC_BP_T1;
+		loc_pkey_type = HSM_PUBKEY_TYPE_ECC_BP_T1;
 		loc_byte_key_size = 2 * (HSM_KEY_SIZE_ECC_BP_T1_224 >> 3);
 		break;
 	case HSM_KEY_TYPE_ECDSA_BRAINPOOL_T1_256:
 		loc_key_sz = HSM_KEY_SIZE_ECC_BP_T1_256;
 		loc_psa_key_type = HSM_KEY_TYPE_ECC_BP_T1;
+		loc_pkey_type = HSM_PUBKEY_TYPE_ECC_BP_T1;
 		loc_byte_key_size = 2 * (HSM_KEY_SIZE_ECC_BP_T1_256 >> 3);
 		break;
 	case HSM_KEY_TYPE_ECDSA_BRAINPOOL_T1_320:
 		loc_key_sz = HSM_KEY_SIZE_ECC_BP_T1_320;
 		loc_psa_key_type = HSM_KEY_TYPE_ECC_BP_T1;
+		loc_pkey_type = HSM_PUBKEY_TYPE_ECC_BP_T1;
 		loc_byte_key_size = 2 * (HSM_KEY_SIZE_ECC_BP_T1_320 >> 3);
 		break;
 	case HSM_KEY_TYPE_ECDSA_BRAINPOOL_T1_384:
 		loc_key_sz = HSM_KEY_SIZE_ECC_BP_T1_384;
 		loc_psa_key_type = HSM_KEY_TYPE_ECC_BP_T1;
+		loc_pkey_type = HSM_PUBKEY_TYPE_ECC_BP_T1;
 		loc_byte_key_size = 2 * (HSM_KEY_SIZE_ECC_BP_T1_384 >> 3);
 		break;
 	default:
@@ -148,6 +165,10 @@ uint32_t set_key_type_n_sz(hsm_key_type_t key_type,
 
 	if (psa_key_type != NULL) {
 		*psa_key_type = loc_psa_key_type;
+	}
+
+	if (pkey_type != NULL) {
+		*pkey_type = loc_pkey_type;
 	}
 
 	/* byte_key_size will be equal to zero, if HSM user donot want to

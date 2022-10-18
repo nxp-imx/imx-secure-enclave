@@ -119,7 +119,7 @@ uint32_t prepare_msg_verify_sign(void *phdl,
 	cmd->sig_scheme = op_args->scheme_id;
 #ifdef PSA_COMPLIANT
 	cmd->key_security_size = op_args->key_sz;
-	cmd->key_type = op_args->psa_key_type;
+	cmd->key_type = op_args->pkey_type;
 #endif
 	cmd->flags = op_args->flags;
 	memset(cmd->reserved, 0, SAB_CMD_VERIFY_SIGN_RESERVED);

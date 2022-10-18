@@ -62,7 +62,7 @@ typedef struct {
 	hsm_signature_scheme_id_t scheme_id;
 #ifdef PSA_COMPLIANT
 	hsm_bit_key_sz_t key_sz;
-	hsm_psa_key_type_t psa_key_type;
+	hsm_pubkey_type_t pkey_type;
 	hsm_key_type_t key_type;
 #endif
 	//!< bitmap specifying the operation attributes
