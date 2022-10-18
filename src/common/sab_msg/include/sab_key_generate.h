@@ -21,8 +21,8 @@
 struct sab_cmd_generate_key_msg {
 	struct sab_mu_hdr hdr;
 	uint32_t key_management_handle;
-#ifdef CONFIG_PLAT_SECO
 	uint32_t key_identifier;
+#ifdef CONFIG_PLAT_SECO
 	uint16_t out_pub_key_sz;
 	uint8_t flags;
 	uint8_t key_type;
@@ -31,12 +31,13 @@ struct sab_cmd_generate_key_msg {
 #else
 	uint16_t out_pub_key_sz;
 	uint16_t key_group;
-	uint8_t flags;
-	uint8_t key_lifetime;
-	uint16_t key_usage;
 	uint16_t key_type;
 	uint16_t key_sz;
+	uint32_t key_lifetime;
+	uint32_t key_usage;
 	uint32_t permitted_algo;
+	uint8_t flags;
+	uint8_t rsv[3];
 #endif
 	uint32_t out_key_addr;
 	uint32_t crc;

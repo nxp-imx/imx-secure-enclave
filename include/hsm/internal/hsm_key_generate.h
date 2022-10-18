@@ -56,6 +56,7 @@ typedef struct {
 	//   Keys belonging to the same group can be cached in the HSM local
 	//   memory through the hsm_manage_key_group API.
 	hsm_key_group_t key_group;
+	uint8_t rsv1[2];
 	//!< pointer to the output area where the generated public key
 	//   must be written.
 	uint8_t *out_key;
@@ -66,6 +67,7 @@ typedef struct {
 #else
 	//!< bitmap specifying the properties of the key.
 	hsm_key_info_t key_info;
+	uint8_t rsv2[2];
 #endif
 	//!< Derived from key_type.
 	hsm_psa_key_type_t psa_key_type;

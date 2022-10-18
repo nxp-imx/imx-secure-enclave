@@ -340,7 +340,7 @@ static void transient_key_tests(hsm_hdl_t sess_hdl, hsm_hdl_t key_store_hdl)
 	key_gen_args.out_size = sizeof(pub_key);
 	key_gen_args.key_group = 1;
 #ifdef PSA_COMPLIANT
-	key_gen_args.key_lifetime = HSM_KEY_LIFE_VOLATILE;
+	key_gen_args.key_lifetime = HSM_HW_INTERN_STORAGE_VOLATILE;
 	key_gen_args.key_usage = HSM_KEY_USAGE_SIGN_HASH
 		| HSM_KEY_USAGE_VERIFY_HASH;
 	key_gen_args.permitted_algo = PERMITTED_ALGO_ECDSA_SHA256;
@@ -454,7 +454,7 @@ static void transient_key_tests(hsm_hdl_t sess_hdl, hsm_hdl_t key_store_hdl)
 	key_gen_args.flags = HSM_OP_KEY_GENERATION_FLAGS_CREATE;
 	key_gen_args.key_info = HSM_KEY_INFO_TRANSIENT;
 #else
-	key_gen_args.key_lifetime = HSM_KEY_LIFE_VOLATILE;
+	key_gen_args.key_lifetime = HSM_HW_INTERN_STORAGE_VOLATILE;
 	key_gen_args.key_usage = HSM_KEY_USAGE_DERIVE | HSM_KEY_USAGE_ENCRYPT
 				| HSM_KEY_USAGE_DECRYPT;
 	key_gen_args.permitted_algo = PERMITTED_ALGO_ALL_CIPHER;
@@ -609,9 +609,9 @@ int main(int argc, char *argv[])
 	if (err)
 		printf("Error[0x%x]: RNG test Failed.\n", err);
 #endif
+#ifdef CONFIG_PLAT_SECO
         public_key_test(hsm_session_hdl);
 
-#ifdef CONFIG_PLAT_SECO
         ecies_tests(hsm_session_hdl);
 #endif
 #ifndef SECONDARY_API_SUPPORTED
