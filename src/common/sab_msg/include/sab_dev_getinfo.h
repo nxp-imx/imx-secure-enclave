@@ -26,7 +26,6 @@ struct sab_cmd_dev_getinfo_msg {
 	uint32_t rsp_data_addr_lo;
 	uint16_t buf_sz;
 	uint16_t reserved;
-	uint32_t crc;
 };
 
 struct dev_info {
@@ -46,6 +45,13 @@ struct dev_info {
 struct sab_cmd_dev_getinfo_rsp {
 	struct sab_mu_hdr hdr;
 	uint32_t rsp_code;
+};
+
+/* device info buffer is allocated
+ * next to the response data buffer.
+ */
+struct sab_cmd_dev_getinfo_rsp_w_data {
+	struct sab_cmd_dev_getinfo_rsp rsp;
 	struct dev_info d_info;
 };
 

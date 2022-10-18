@@ -284,6 +284,8 @@ hsm_err_t hsm_do_hash(hsm_hdl_t session_hdl, op_hash_one_go_args_t *args);
 
 #include "internal/hsm_key_recovery.h"
 
+#include "internal/hsm_dev_getinfo.h"
+
 #include "internal/hsm_dev_attest.h"
 
 typedef uint8_t hsm_op_manage_key_group_flags_t;
