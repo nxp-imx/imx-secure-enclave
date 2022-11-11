@@ -72,10 +72,34 @@ typedef enum {
 	HSM_NOT_READY_RATING                = 0x13,
 	/**<	The required service/operation is disabled */
 	HSM_FEATURE_DISABLED                = 0x14,
+	/**<	Not enough space to store the key in the key group */
+	HSM_KEY_GROUP_FULL                  = 0x19,
+	/**<	Impossible to retrieve key group */
+	HSM_CANNOT_RETRIEVE_KEY_GROUP       = 0x1A,
+	/**<	Key not supported */
+	HSM_KEY_NOT_SUPPORTED               = 0x1B,
+	/**<	Trying to delete a permanent key */
+	HSM_CANNOT_DELETE_PERMANENT_KEY     = 0x1C,
+	/**<	Output buffer size is too small */
+	HSM_OUT_TOO_SMALL                   = 0x1D,
+	/**<	Command CRC check error */
+	HSM_CRC_CHECK_ERR                   = 0xB9,
+	/**<    In OEM closed lifecycle, Signed message signature verification
+	 *      failure
+	 */
+	HSM_OEM_CLOSED_LC_SIGNED_MSG_VERIFICATION_FAIL = 0xF0,
+	/**<    Warning: In OEM open lifecycles, Signed message signature
+	 *      verification failure
+	 */
+	HSM_OEM_OPEN_LC_SIGNED_MSG_VERIFICATION_FAIL = 0xF0,
 	/**<	A fatal failure occurred, the HSM goes in unrecoverable
 	 * 	error state not replying to further requests */
 	HSM_FATAL_FAILURE                   = 0x29,
-	/**<	Error not covered by other codes occurred. */
+	/**<	Message neither handled by ROM nor FW */
+	HSM_SERVICES_DISABLED               = 0xF4,
+	/**<	Unknown errors */
+	HSM_UNKNOWN_ERROR                   = 0xFE,
+	/**<	Error in case General Error is received */
 	HSM_GENERAL_ERROR                   = 0xFF,
 } hsm_err_t;
 /** @} end of error code group */
