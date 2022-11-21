@@ -43,6 +43,9 @@ typedef struct {
 	//   In case of create operation the new key identifier will be stored
 	//   in this location.
 	uint32_t *key_identifier;
+	//!< Wanted Key identifier for the key being generated.
+	//   If it is set to 0, key identifier gets chosen by FW.
+	uint32_t key_id;
 	//!< length in bytes of the generated key.
 	//   It must be 0 in case of symmetric keys.
 	uint16_t out_size;

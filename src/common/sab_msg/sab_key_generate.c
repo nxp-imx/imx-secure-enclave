@@ -43,7 +43,7 @@ uint32_t prepare_msg_generatekey(void *phdl,
 	cmd->key_type = op_args->key_type;
 	cmd->key_info = op_args->key_info;
 #else
-	cmd->key_identifier = 0;
+	cmd->key_identifier = op_args->key_id;
 	cmd->key_lifetime = op_args->key_lifetime;
 	cmd->key_usage = op_args->key_usage;
 	cmd->key_type = op_args->psa_key_type;
