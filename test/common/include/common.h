@@ -34,6 +34,9 @@ void hsm_sign_verify_tests(hsm_hdl_t sess_hdl, hsm_hdl_t key_store_hdl,
 void get_device_info(hsm_hdl_t sess_hdl);
 void perform_dev_attestation(hsm_hdl_t sess_hdl);
 
+/* To run tests of test vector file */
+void tv_tests_run(hsm_hdl_t key_store_hdl, uint8_t *tv_file_path);
+
 /* To fetch the global session handle
  * opened as part of the test run
  */

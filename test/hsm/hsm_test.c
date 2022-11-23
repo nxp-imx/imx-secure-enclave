@@ -228,9 +228,9 @@ static void hsm_rng_test(hsm_hdl_t sess_hdl, op_get_random_args_t *rng_get_rando
 
 }
 
-static void key_management(uint32_t key_op, hsm_hdl_t key_mgmt_hdl,
-			   uint32_t *key_id, hsm_key_group_t key_group,
-			   hsm_key_type_t key_type)
+void key_management(uint32_t key_op, hsm_hdl_t key_mgmt_hdl,
+			uint32_t *key_id, hsm_key_group_t key_group,
+			hsm_key_type_t key_type)
 {
 	hsm_err_t hsmret;
 #ifdef HSM_MANAGE_KEY
@@ -630,6 +630,14 @@ int main(int argc, char *argv[])
 	 */
 	data_storage_test(key_store_hdl, 4);
 #endif
+
+		if (argc > 1) {
+			printf("\n\nTest Vector filename: %s\n", argv[1]);
+			tv_tests_run(key_store_hdl, argv[1]);
+		} else {
+			printf("\nTest Vector Tests Usage: ele_hsm_test <tv_file_path>\n");
+			printf("Skipping. Failed to run Test Vector test cases\n\n");
+		}
 
         err = hsm_close_key_store_service(key_store_hdl);
         printf("hsm_close_key_store_service ret:0x%x\n", err);

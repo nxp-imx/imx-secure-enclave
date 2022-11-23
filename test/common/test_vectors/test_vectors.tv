@@ -1,0 +1,226 @@
+#########################################################################
+#
+# - The test vector filename with full PATH needs to be provided to
+#   ele_hsm_test application with format: ele_hsm_test <tv_file_path>
+#
+# - Read test_add_instructions_tv.txt before for format description and the
+#   steps to be followed while adding new test vectors for supported tests
+#
+# - This file contains Test vectors for ELE HSM API Tests.
+#   Currently Supports test vectors for - KGEN,
+#
+#########################################################################
+
+
+TESTS_START
+
+
+OPEN_KEY_MGMT_SRV
+1234             #Key Management ID, KEY_MGMT_TV_ID to be used by tests
+
+
+
+#Positive Case
+TEST_KGEN_PSA_001
+
+KEY_MGMT_TV_ID    1234       # Key Management ID
+KEY_TV_ID         1          # Key TV ID to use the key later
+KEY_ID            0x0        # Key ID 0 for Volatile Key
+OUT_SIZE          0          # Symmetric Key. So, Public Key Out Size 0
+KEY_TYPE          0x32       # HSM_KEY_TYPE_AES_256
+KEY_GROUP         1          # Key Group b/w 0-1023
+KEY_LIFETIME      0x00000000 # HSM_HW_INTERN_STORAGE_VOLATILE
+KEY_USAGE         0x00000300 # HSM_KEY_USAGE_ENCRYPT | HSM_KEY_USAGE_DECRYPT
+PERMITTED_ALGO    0x84C0FF00 # PERMITTED_ALGO_ALL_CIPHER
+EXPECTED_HSM_RESP 0x00       # HSM_NO_ERROR
+
+TEST_KGEN_END
+
+
+
+#Postive Case
+TEST_KGEN_PSA_002
+
+KEY_MGMT_TV_ID    1234       # Key Management ID
+KEY_TV_ID         2          # Key TV ID to use the key later
+KEY_ID            0x0        # Key ID 0 for Volatile Key
+OUT_SIZE          0          # Symmetric Key. So, Public Key Out Size 0
+KEY_TYPE          0x61       # HSM_KEY_TYPE_HMAC_256
+KEY_GROUP         1          # Key Group b/w 0-1023
+KEY_LIFETIME      0x00000000 # HSM_HW_INTERN_STORAGE_VOLATILE
+KEY_USAGE         0x00000C00 # HSM_KEY_USAGE_SIGN_MSG | HSM_KEY_USAGE_VERIFY_MSG
+PERMITTED_ALGO    0x03800009 # PERMITTED_ALGO_HMAC_SHA256
+EXPECTED_HSM_RESP 0x00       # HSM_NO_ERROR
+
+TEST_KGEN_END
+
+
+
+#Positive Case
+TEST_KGEN_PSA_003
+
+KEY_MGMT_TV_ID    1234       # Key Management ID
+KEY_TV_ID         3          # Key TV ID to use the key later
+KEY_ID            0x0        # Key ID 0 for Volatile Key
+OUT_SIZE          64         # Public Key Out Size
+KEY_TYPE          0x02       # HSM_KEY_TYPE_ECDSA_NIST_P256
+KEY_GROUP         1          # Key Group b/w 0-1023
+KEY_LIFETIME      0x00000000 # HSM_HW_INTERN_STORAGE_VOLATILE
+KEY_USAGE         0x00004000 # HSM_KEY_USAGE_DERIVE
+PERMITTED_ALGO    0x06000609 # PERMITTED_ALGO_ECDSA_SHA256
+EXPECTED_HSM_RESP 0x00       # HSM_NO_ERROR
+
+TEST_KGEN_END
+
+
+
+#Negative Case - Incorrect Key Lifetime value
+TEST_KGEN_PSA_004
+
+KEY_MGMT_TV_ID    1234       # Key Management ID
+KEY_TV_ID         4          # Key TV ID to use the key later
+KEY_ID            0x0        # Key ID 0 for Volatile Key
+OUT_SIZE          0          # Symmetric Key. So, Public Key Out Size 0
+KEY_TYPE          0x32       # HSM_KEY_TYPE_AES_256
+KEY_GROUP         1          # Key Group b/w 0-1023
+KEY_LIFETIME      0x00000012 # Incorrect Value
+KEY_USAGE         0x00004300 # HSM_KEY_USAGE_DERIVE | HSM_KEY_USAGE_ENCRYPT | HSM_KEY_USAGE_DECRYPT
+PERMITTED_ALGO    0x84C0FF00 # PERMITTED_ALGO_ALL_CIPHER
+EXPECTED_HSM_RESP 0x04       # HSM_INVALID_PARAM
+
+TEST_KGEN_END
+
+
+
+#Negative Case - Incompatible Key Usage flags set, for HSM_KEY_TYPE_AES_256
+TEST_KGEN_PSA_005
+
+KEY_MGMT_TV_ID    1234       # Key Management ID
+KEY_TV_ID         5          # Key TV ID to use the key later
+KEY_ID            0x0        # Key ID 0 for Volatile Key
+OUT_SIZE          0          # Symmetric Key. So, Public Key Out Size 0
+KEY_TYPE          0x32       # HSM_KEY_TYPE_AES_256
+KEY_GROUP         1          # Key Group b/w 0-1023
+KEY_LIFETIME      0x00000000 # HSM_HW_INTERN_STORAGE_VOLATILE
+KEY_USAGE         0x00003000 # HSM_KEY_USAGE_SIGN_HASH | HSM_KEY_USAGE_VERIFY_HASH
+PERMITTED_ALGO    0x03C00200 # PERMITTED_ALGO_CMAC
+EXPECTED_HSM_RESP 0x04       # HSM_INVALID_PARAM
+
+TEST_KGEN_END
+
+
+
+#Negative Case - Incompatible Key Usage flags set, for HSM_KEY_TYPE_AES_128
+TEST_KGEN_PSA_006
+
+KEY_MGMT_TV_ID    1234       # Key Management ID
+KEY_TV_ID         6          # Key TV ID to use the key later
+KEY_ID            0x0        # Key ID 0 for Volatile Key
+OUT_SIZE          0          # Symmetric Key. So, Public Key Out Size 0
+KEY_TYPE          0x30       # HSM_KEY_TYPE_AES_128
+KEY_GROUP         1          # Key Group b/w 0-1023
+KEY_LIFETIME      0x00000000 # HSM_HW_INTERN_STORAGE_VOLATILE
+KEY_USAGE         0x00003000 # HSM_KEY_USAGE_SIGN_HASH | HSM_KEY_USAGE_VERIFY_HASH
+PERMITTED_ALGO    0x03C00200 # PERMITTED_ALGO_CMAC
+EXPECTED_HSM_RESP 0x04       # HSM_INVALID_PARAM
+
+TEST_KGEN_END
+
+
+
+#Negative Case - Incorrect Permitted Algo
+TEST_KGEN_PSA_007
+
+KEY_MGMT_TV_ID    1234       # Key Management ID
+KEY_TV_ID         7          # Key TV ID to use the key later
+KEY_ID            0x0        # Key ID 0 for Volatile Key
+OUT_SIZE          64         # Public Key Out Size
+KEY_TYPE          0x02       # HSM_KEY_TYPE_ECDSA_NIST_P256
+KEY_GROUP         1          # Key Group b/w 0-1023
+KEY_LIFETIME      0x00000000 # HSM_HW_INTERN_STORAGE_VOLATILE
+KEY_USAGE         0x00003000 # HSM_KEY_USAGE_SIGN_HASH | HSM_KEY_USAGE_VERIFY_HASH
+PERMITTED_ALGO    0x01108888 # Incorrect Value
+EXPECTED_HSM_RESP 0x04       # HSM_INVALID_PARAM
+
+TEST_KGEN_END
+
+
+
+#Negative Case - Invalid Key Type
+TEST_KGEN_PSA_008
+
+KEY_MGMT_TV_ID    1234       # Key Management ID
+KEY_TV_ID         8          # Key TV ID to use the key later
+KEY_ID            0x0        # Key ID 0 for Volatile Key
+OUT_SIZE          0          # Symmetric Key. So, Public Key Out Size 0
+KEY_TYPE          0x99       # Non-Existent, Incorrect Key Type
+KEY_GROUP         1          # Key Group b/w 0-1023
+KEY_LIFETIME      0x00000000 # HSM_HW_INTERN_STORAGE_VOLATILE
+KEY_USAGE         0x00000C00 # HSM_KEY_USAGE_SIGN_MSG | HSM_KEY_USAGE_VERIFY_MSG
+PERMITTED_ALGO    0x03C00200 # PERMITTED_ALGO_CMAC
+EXPECTED_HSM_RESP 0xFF       # HSM_GENERAL_ERROR from HSM layer
+
+TEST_KGEN_END
+
+
+
+#Negative Case - Incorrect Key Group, for Symmetric Key
+TEST_KGEN_PSA_009
+
+KEY_MGMT_TV_ID    1234       # Key Management ID
+KEY_TV_ID         9          # Key TV ID to use the key later
+KEY_ID            0x0        # Key ID 0 for Volatile Key
+OUT_SIZE          0          # Symmetric Key. So, Public Key Out Size 0
+KEY_TYPE          0x32       # HSM_KEY_TYPE_AES_256
+KEY_GROUP         1024       # Key Group OUT OF RANGE [0-1023]
+KEY_LIFETIME      0x00000000 # HSM_HW_INTERN_STORAGE_VOLATILE
+KEY_USAGE         0x00000C00 # HSM_KEY_USAGE_SIGN_MSG | HSM_KEY_USAGE_VERIFY_MSG
+PERMITTED_ALGO    0x03C00200 # PERMITTED_ALGO_CMAC
+EXPECTED_HSM_RESP 0x04       # HSM_INVALID_PARAM
+
+TEST_KGEN_END
+
+
+
+#Negative Case - Incorrect Key Usage, for Asymmetric Key
+TEST_KGEN_PSA_010
+
+KEY_MGMT_TV_ID    1234       # Key Management ID
+KEY_TV_ID         10         # Key TV ID to use the key later
+KEY_ID            0x0        # Key ID 0 for Volatile Key
+OUT_SIZE          64         # Public Key Out Size
+KEY_TYPE          0x02       # HSM_KEY_TYPE_ECDSA_NIST_P256
+KEY_GROUP         1          # Key Group b/w 0-1023
+KEY_LIFETIME      0x00000000 # HSM_HW_INTERN_STORAGE_VOLATILE
+KEY_USAGE         0x00009000 # Non-Existent, Incorrect KEY USAGE value
+PERMITTED_ALGO    0x06000609 # PERMITTED_ALGO_ECDSA_SHA256
+EXPECTED_HSM_RESP 0x04       # HSM_INVALID_PARAM
+
+TEST_KGEN_END
+
+
+
+#Negative Case - Key Not Supported
+TEST_KGEN_PSA_011
+
+KEY_MGMT_TV_ID    1234       # Key Management ID
+KEY_TV_ID         11         # Key TV ID to use the key later
+KEY_ID            0x0        # Key ID 0 for Volatile Key
+OUT_SIZE          80         # Public Key Out Size
+KEY_TYPE          0x14       # HSM_KEY_TYPE_ECDSA_BRAINPOOL_R1_320
+KEY_GROUP         1          # Key Group b/w 0-1023
+KEY_LIFETIME      0x00000000 # HSM_HW_INTERN_STORAGE_VOLATILE
+KEY_USAGE         0x00003000 # HSM_KEY_USAGE_SIGN_HASH | HSM_KEY_USAGE_VERIFY_HASH
+PERMITTED_ALGO    0x06000608 # PERMITTED_ALGO_ECDSA_SHA224
+EXPECTED_HSM_RESP 0x1B       # HSM_KEY_NOT_SUPPORTED
+
+TEST_KGEN_END
+
+
+
+
+CLOSE_KEY_MGMT_SRV
+1234     #KEY_MGMT_TV_ID
+
+
+TESTS_END

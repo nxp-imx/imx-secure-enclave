@@ -1,0 +1,184 @@
+
+Description Note about the steps/format needed to be followed while
+adding Tests in test vector file.
+
+NOTE: The test vector filename with full PATH needs to be provided when
+running the ele_hsm_test application.
+Format: ele_hsm_test <tv_file_path>
+The file contains tests with the tags and follow the format described here.
+
+NOTE: Currently Supports test vectors for: KGEN
+
+
+The test file is read line by line till EOF, to identify and use certain
+lines/values. The lines which does not contain Recognized tags, get skipped.
+
+The various tags used for representing start and stop of
+services/operations/actions, parameter names etc. currently being used
+are mentioned in below. Later more may get added.
+
+
+Some Limitations about the format:
+
+-	ALl Recognized Tags like TESTS_START, TESTS_END, TEST_KGEN_*, TEST_KGEN_END,
+	KEY_TV_ID, PERMITTED_ALGO, KEY_USAGE, etc. needs to start from very beginning
+	of their line as these tags get read from very start of the line.
+
+-	Only Spaces (Not tabs) need to be used for PARAM_NAME  'space' PARAM_VALUE
+	key value pair.
+
+-	OPEN_KEY_MGMT_SRV, CLOSE_KEY_MGMT_SRV, Buffer Inputs expect the input
+	value in the just immediate next line of these/their tags.
+
+
+
+------------------------------------------------------------------------
+FORMAT for Test start of tests in test vector file:
+------------------------------------------------------------------------
+
+TESTS_START
+
+
+-------------------------------------------------------------------------
+FORMAT for ending the Tests started with TESTS_START:
+-------------------------------------------------------------------------
+
+TESTS_END
+
+
+-------------------------------------------------------------------------
+FORMAT for Opening Key Management service:
+-------------------------------------------------------------------------
+
+OPEN_KEY_MGMT_SRV
+KEY_MGMT_TV_ID (only Value in the next line of the OPEN_KEY_MGMT_SRV tag)
+
+E.g.
+
+OPEN_KEY_MGMT_SRV
+1234           #KEY_MGMT_TV_ID
+
+
+
+-------------------------------------------------------------------------
+FORMAT for Closing Key Management service opened with OPEN_KEY_MGMT_SRV:
+-------------------------------------------------------------------------
+
+CLOSE_KEY_MGMT_SRV
+KEY_MGMT_TV_ID (only Value in the next line of the CLOSE_KEY_MGMT_SRV tag)
+
+E.g.
+
+CLOSE_KEY_MGMT_SRV
+1234           #KEY_MGMT_TV_ID
+
+
+
+------------------------------------------------------------------------
+Tests of different test types/categories like KGEN (Key Generation),
+CIPHER etc. can be added with following FORMAT:
+------------------------------------------------------------------------
+
+TEST_<Test_Type>_<PSA/NON_PSA>_<m><n>   #TEST_<Test_Type> marks Start of Test
+The represents the start of a ELE HSM API test
+
+PARAM_NAME   <spaces>   PARAM_VALUE     #Comments (If any)
+
+NOTE: Space ' ', are important and tabs cannot be used, as Space is tokenizing
+character for getting parameter name and its value
+
+TEST_<Test_Type>_END                    #marks the end of test
+
+
+'m' representing test type
+0 - KGEN
+
+
+'n' representing serial no of test of particular test type/category
+1, 2, 3,...so on
+
+PSA/NON_PSA in Test Name is for checking whether to run test case or skip
+if not compatible with application compliance
+
+E.g.
+
+# KGEN Test
+TEST_KGEN_PSA_001          #TEST_KGEN in beginning marks KGEN test start
+PARAM_NAME PARAM VALUE     #Key-Value pair of Param Names and Values
+PARAM_NAME PARAM VALUE
+...
+TEST_KGEN_END              #End
+
+
+
+------------------------------------------------------------------------
+FORMAT and PARAMETERS for KGEN Tests:
+------------------------------------------------------------------------
+
+
+#Positive/Negative Case - Test Description (Optional line)
+TEST_KGEN_<PSA/NON_PSA>_0n   #Marks Start of this one particular KGEN test
+
+#PARAM_NAME       #PARAM_VALUE    #this line is not part of test
+
+KEY_MGMT_TV_ID    DEC (uint32_t)  #Key Management ID to get Key Management hdl
+KEY_TV_ID         DEC (uint32_t)  #Key TV ID to identify and use the key later
+KEY_ID            HEX (uint32_t)  #Key ID is to be set to 0 in case of Volatile
+OUT_SIZE          DEC (uint16_t)  #Output Public Key Size, 0 bytes for Symmetric Key
+KEY_TYPE          HEX (uint8_t)   #Value of HSM Key Type to be used
+KEY_GROUP         DEC (uint16_t)  #Value of Key Group out of range 0-1023
+KEY_LIFETIME      HEX (uint32_t)  #Value of Key Lifetime
+KEY_USAGE         HEX (uint32_t)  #Calculated combined value of Key Usages needed
+PERMITTED_ALGO    HEX (uint32_t)  #Value of Permitted Algo
+EXPECTED_HSM_RESP HEX (uint8_t)   #Value of Expected HSM Response
+
+TEST_KGEN_END                     #Marks the End of this one particular KGEN test
+
+
+#DEC - DECimal value, HEX - HEXadecimal value (0x...)
+
+
+
+
+-------------------------------------------------------------------------
+Example of a Complete Test:
+-------------------------------------------------------------------------
+
+#TestVector Tests Example
+
+
+TESTS_START
+
+
+OPEN_KEY_MGMT_SRV
+1234     #Key Management ID, KEY_MGMT_TV_ID to be used by tests
+
+
+#Key Generation test
+
+#Positive Case
+TEST_KGEN_PSA_001
+
+KEY_MGMT_TV_ID    1234       # Key Management TV ID to get Key Mgmt hdl
+KEY_TV_ID         1          # Key TV ID to use the key later
+KEY_ID            0x0        # Key ID set to 0 for Volatile
+OUT_SIZE          0          # Symmetric Key. So, Public Key Out Size 0
+KEY_TYPE          0x32       # HSM_KEY_TYPE_AES_256
+KEY_GROUP         1          # Key Group b/w range 0-1023
+KEY_LIFETIME      0x00000000 # HSM_HW_INTERN_STORAGE_VOLATILE
+KEY_USAGE         0x00000300 # HSM_KEY_USAGE_ENCRYPT | HSM_KEY_USAGE_DECRYPT
+PERMITTED_ALGO    0x84C0FF00 # PERMITTED_ALGO_ALL_CIPHER
+EXPECTED_HSM_RESP 0x00       # HSM_NO_ERROR
+
+TEST_KGEN_END
+
+
+
+CLOSE_KEY_MGMT_SRV
+1234     #KEY_MGMT_TV_ID
+
+
+TESTS_END
+
+-------------------------------------------------------------------------
+
