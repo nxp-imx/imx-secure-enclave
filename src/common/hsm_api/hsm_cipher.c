@@ -152,6 +152,9 @@ hsm_err_t hsm_do_cipher(hsm_hdl_t key_store_hdl, op_cipher_one_go_args_t *cipher
 {
 	hsm_hdl_t cipher_hdl;
 	hsm_err_t err = HSM_GENERAL_ERROR;
+	/* Stores the error status of the main operation.
+	 */
+	hsm_err_t op_err = HSM_NO_ERROR;
 	open_svc_cipher_args_t open_cipher_args;
 
 	open_cipher_args.flags = cipher_args->svc_flags;
@@ -164,6 +167,8 @@ hsm_err_t hsm_do_cipher(hsm_hdl_t key_store_hdl, op_cipher_one_go_args_t *cipher
 	}
 
 	err = hsm_cipher_one_go(cipher_hdl, cipher_args);
+	op_err = err;
+
 	if (err) {
 		printf("hsm_cipher_one_go ret:0x%x\n", err);
 	}
@@ -174,5 +179,6 @@ hsm_err_t hsm_do_cipher(hsm_hdl_t key_store_hdl, op_cipher_one_go_args_t *cipher
 	}
 
 exit:
-	return err;
+
+	return ((op_err != HSM_NO_ERROR) ? op_err : err);
 }
