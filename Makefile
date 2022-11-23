@@ -36,12 +36,16 @@ PLAT_COMMON_PATH := src/common
 
 INCLUDE_PATHS := -I${PLAT_PATH}/include -I${PLAT_COMMON_PATH}/include -Iinclude -Iinclude/hsm
 
-OBJECTS	:= \
+NVM_OBJECTS := \
+	$(PLAT_COMMON_PATH)/nvm/nvm_manager.o \
+	$(PLAT_COMMON_PATH)/nvm/sab_msg/sab_storage.o\
+	$(PLAT_PATH)/nvm_os_abs_linux.o
+
+OBJECTS	:= $(NVM_OBJECTS)\
 	$(PLAT_COMMON_PATH)/sab_messaging.o \
 	$(PLAT_COMMON_PATH)/sab_common_err.o \
 	$(PLAT_COMMON_PATH)/she_lib.o \
-	$(PLAT_COMMON_PATH)/hsm_lib.o \
-	$(PLAT_COMMON_PATH)/nvm_manager.o
+	$(PLAT_COMMON_PATH)/hsm_lib.o
 
 include $(PLAT_COMMON_PATH)/sab_msg/sab_msg.mk
 include $(PLAT_COMMON_PATH)/hsm_api/hsm_api.mk
@@ -64,7 +68,7 @@ all_libs:= $(SHE_LIB) $(NVM_LIB) $(HSM_LIB)
 # Make targets, must need NVM-Daemon to run successfully.
 tests: $(all_tests) $(NVM_DAEMON)
 libs: $(all_libs) $(NVM_DAEMON)
-all: $(libs) $(tests)
+all: $(all_libs) $(all_tests) $(NVM_DAEMON)
 
 .PHONY: all clean
 

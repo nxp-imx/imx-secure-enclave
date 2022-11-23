@@ -100,7 +100,8 @@ SAB_MSG_SRC	+= \
 		$(PLAT_COMMON_PATH)/sab_msg/sab_key_recovery.o
 endif
 
-OBJECTS		+= $(SAB_MSG_SRC)
+OBJECTS		+= $(SAB_MSG_SRC) \
+		   $(PLAT_COMMON_PATH)/sab_msg/sab_session.o
 
 INCLUDE_PATHS	+= \
        		-I${PLAT_COMMON_PATH}/sab_msg/include
