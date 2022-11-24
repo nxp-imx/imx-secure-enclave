@@ -7,7 +7,7 @@ running the ele_hsm_test application.
 Format: ele_hsm_test <tv_file_path>
 The file contains tests with the tags and follow the format described here.
 
-NOTE: Currently Supports test vectors for: KGEN
+NOTE: Currently Supports test vectors for: KGEN, CIPHER
 
 
 The test file is read line by line till EOF, to identify and use certain
@@ -21,8 +21,9 @@ are mentioned in below. Later more may get added.
 Some Limitations about the format:
 
 -	ALl Recognized Tags like TESTS_START, TESTS_END, TEST_KGEN_*, TEST_KGEN_END,
-	KEY_TV_ID, PERMITTED_ALGO, KEY_USAGE, etc. needs to start from very beginning
-	of their line as these tags get read from very start of the line.
+	TEST_CIPHER_*, TEST_CIPHER_END, KEY_TV_ID, PERMITTED_ALGO, KEY_USAGE, etc.
+	needs to start from very beginning of their line as these tags get read
+	from very start of the line.
 
 -	Only Spaces (Not tabs) need to be used for PARAM_NAME  'space' PARAM_VALUE
 	key value pair.
@@ -92,7 +93,7 @@ TEST_<Test_Type>_END                    #marks the end of test
 
 'm' representing test type
 0 - KGEN
-
+1 - CIPHER
 
 'n' representing serial no of test of particular test type/category
 1, 2, 3,...so on
@@ -112,12 +113,29 @@ TEST_KGEN_END              #End
 
 
 ------------------------------------------------------------------------
+FORMAT for Test Parameter which is a Input Buffer:
+------------------------------------------------------------------------
+
+INPUT_SIZE         DEC       #Input Size for Buffer
+INPUT_DATA         DEC       #INPUT_DATA DEC value is the same INPUT_SIZE
+Input Buffer with uint8_t (0x01, 0x02,....) separated with ', '
+
+NOTE: The buffer needs to be provided from the immediate next line just
+after INPUT_DATA tag is encountered.
+
+INPUT_DATA/INPUT_SIZE are just placeholders and actual param names has to be
+used according to tests
+
+NOTE: INPUT_SIZE must be given before INPUT_DATA to allocate memory
+
+
+
+------------------------------------------------------------------------
 FORMAT and PARAMETERS for KGEN Tests:
 ------------------------------------------------------------------------
 
-
 #Positive/Negative Case - Test Description (Optional line)
-TEST_KGEN_<PSA/NON_PSA>_0n   #Marks Start of this one particular KGEN test
+TEST_KGEN_<PSA/NON_PSA>_0<n>   #Marks Start of this one particular KGEN test
 
 #PARAM_NAME       #PARAM_VALUE    #this line is not part of test
 
@@ -137,6 +155,43 @@ TEST_KGEN_END                     #Marks the End of this one particular KGEN tes
 
 #DEC - DECimal value, HEX - HEXadecimal value (0x...)
 
+NOTE: The Keys are saved so that it can used later through KEY_TV_ID by tests
+(such as CIPHER, MAC) which may need the same key for their operations.
+
+
+
+-------------------------------------------------------------------------
+FORMAT and PARAMETERS for CIPHER Tests:
+-------------------------------------------------------------------------
+
+#Positive/Negative Case - Test Description (Optional line)
+TEST_CIPHER_<PSA/NON_PSA>_1<n>
+
+KEY_MGMT_TV_ID    DEC (uint32_t)  #Key Management TV ID to get Key Management hdl
+KEY_TV_ID         DEC (uint32_t)  #Key TV ID from KGEN Tests to use the key
+IV_SIZE           DEC (uint16_t)  #IV Size provided before IV data
+
+IV_DATA           DEC (again IV_SIZE) #Next line have ', ' separated values
+0x00, 0x01, 0x02, 0x03, 0x04, 0x05, 0x06, 0x07,
+0x08, 0x09, 0x0A, 0x0B, 0x0C, 0x0D, 0x0E, 0x0F
+
+#(Example of Input buffer format is given as above, buffer of 'uint8_t' values)
+
+INPUT_SIZE        DEC (uint32_t)  #Plaintext/Input size to allocate memory
+
+INPUT_DATA        DEC (again INPUT_SIZE) #Next line have ', ' separated values
+0x00, 0x01, 0x02, 0x03, 0x04, 0x05, 0x06, 0x07,
+0x08, 0x09, 0x0A, 0x0B, 0x0C, 0x0D, 0x0E, 0x0F,
+0x10, 0x11, 0x12, 0x13, 0x14, 0x15, 0x16, 0x17,
+0x18, 0x19, 0x1A, 0x1B, 0x1C, 0x1D, 0x1E, 0x1F
+
+#( buffer of 'uint8_t' values)
+
+OUTPUT_SIZE       DEC (uint32_t)  #Ciphertext/Output size
+CIPHER_ALGO       HEX (uint32_t)  #Value of Cipher Algorithm to be used
+EXPECTED_HSM_RESP HEX (uint8_t)   #Expected HSM Response
+
+TEST_CIPHER_END
 
 
 
@@ -173,12 +228,61 @@ EXPECTED_HSM_RESP 0x00       # HSM_NO_ERROR
 TEST_KGEN_END
 
 
+#Test for Generating Key with KEY_TV_ID 101 to be used by Cipher Test
+
+#Positive Case - Cipher Test KGEN
+TEST_KGEN_PSA_101
+
+KEY_MGMT_TV_ID     1234        # Key Management ID
+KEY_TV_ID          101         # Key TV ID to use the key later
+KEY_ID             0x0         # Key ID set to 0 for Volatile
+OUT_SIZE           0           # Symmetric Key. So, Public Key Out Size 0
+KEY_TYPE           0x32        # HSM_KEY_TYPE_AES_256
+KEY_GROUP          1           # Key Group b/w 0-1023
+KEY_LIFETIME       0x00000000  # HSM_HW_INTERN_STORAGE_VOLATILE
+KEY_USAGE          0x00000300  # HSM_KEY_USAGE_ENCRYPT | HSM_KEY_USAGE_DECRYPT
+PERMITTED_ALGO     0x04404000  # PERMITTED_ALGO_CBC_NO_PADDING
+EXPECTED_HSM_RESP  0x00        # HSM_NO_ERROR
+
+TEST_KGEN_END
+
+
+
+#CIPHER test using the key with KEY_TV_ID 101
+
+#Positive Case
+TEST_CIPHER_PSA_101
+
+KEY_MGMT_TV_ID    1234        # Key Management TV ID
+KEY_TV_ID         101         # Key TV ID from KGEN Tests to use the key
+IV_SIZE           16          # IV Size provided before IV data
+
+IV_DATA           16          # IV data-IV size take input from next line
+0x00, 0x01, 0x02, 0x03, 0x04, 0x05, 0x06, 0x07,
+0x08, 0x09, 0x0A, 0x0B, 0x0C, 0x0D, 0x0E, 0x0F
+
+INPUT_SIZE        32          # Plaintext size to allocate memory
+
+INPUT_DATA        32          # Plaintext size to take input from next line
+0x00, 0x01, 0x02, 0x03, 0x04, 0x05, 0x06, 0x07,
+0x08, 0x09, 0x0A, 0x0B, 0x0C, 0x0D, 0x0E, 0x0F,
+0x10, 0x11, 0x12, 0x13, 0x14, 0x15, 0x16, 0x17,
+0x18, 0x19, 0x1A, 0x1B, 0x1C, 0x1D, 0x1E, 0x1F
+
+OUTPUT_SIZE       32          # Ciphertext/output size
+CIPHER_ALGO       0x04404000  # HSM_CIPHER_ONE_GO_ALGO_CBC
+EXPECTED_HSM_RESP 0x00        # HSM_NO_ERROR
+
+TEST_CIPHER_END
+
+
 
 CLOSE_KEY_MGMT_SRV
 1234     #KEY_MGMT_TV_ID
 
 
 TESTS_END
+
 
 -------------------------------------------------------------------------
 

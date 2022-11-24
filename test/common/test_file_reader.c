@@ -74,7 +74,11 @@ void tv_tests_run(hsm_hdl_t key_store_hdl, uint8_t *tv_file_path)
 				if (memcmp(line, "TEST_KGEN", 9) == 0)
 					generate_key_test_tv(key_store_hdl, fp, line);
 
-				/* Add other test such as CIPHER, MAC etc. tests later */
+				/* Cipher tests */
+				if (memcmp(line, "TEST_CIPHER", 11) == 0)
+					cipher_test_tv(key_store_hdl, fp, line);
+
+				/* Add other test such as MAC, SIGN VERIFY etc. tests later */
 
 				/* Close Key management service */
 				if (memcmp(line, "CLOSE_KEY_MGMT_SRV", 18) == 0) {
