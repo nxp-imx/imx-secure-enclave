@@ -15,11 +15,14 @@
 
 #include "hsm_api.h"
 
-hsm_err_t do_key_recovery_test(uint32_t key_id, hsm_hdl_t key_store_hdl, hsm_hdl_t key_mgmt_hdl)
+hsm_err_t do_key_recovery_test(hsm_hdl_t key_store_hdl, hsm_hdl_t key_mgmt_hdl,
+				uint32_t key_id, uint8_t *pub_key, uint32_t pub_key_sz)
 {
 	op_pub_key_recovery_args_t args = {0};
-	uint8_t pub_key[64];
+	uint8_t loc_pub_key[64];
 	hsm_err_t err;
+
+	memset(loc_pub_key, 0, sizeof(loc_pub_key));
 
 	// key recovery test
 	printf("\n---------------------------------------------------\n");
@@ -27,8 +30,14 @@ hsm_err_t do_key_recovery_test(uint32_t key_id, hsm_hdl_t key_store_hdl, hsm_hdl
 	printf("---------------------------------------------------\n\n");
 
 	args.key_identifier = key_id;
-	args.out_key_size = 64;
-	args.out_key      = pub_key;
+
+	if (pub_key == NULL) {
+		args.out_key_size = sizeof(loc_pub_key);
+		args.out_key      = loc_pub_key;
+	} else {
+		args.out_key_size = pub_key_sz;
+		args.out_key      = pub_key;
+	}
 	args.key_type     = HSM_KEY_TYPE_ECDSA_NIST_P256;
 	args.flags        = 0;
 

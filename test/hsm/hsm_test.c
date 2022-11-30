@@ -292,6 +292,8 @@ static void transient_key_tests(hsm_hdl_t sess_hdl, hsm_hdl_t key_store_hdl)
 	open_svc_key_management_args_t key_mgmt_args;
 	hsm_hdl_t key_mgmt_hdl;
 	uint8_t pub_key[64];
+	uint8_t *pub_key_arg = NULL;
+	uint32_t pub_key_sz = 0;
 	op_generate_key_args_t key_gen_args;
 	uint32_t master_key_id;
 	op_butt_key_exp_args_t butterfly_gen_args;
@@ -331,29 +333,48 @@ static void transient_key_tests(hsm_hdl_t sess_hdl, hsm_hdl_t key_store_hdl)
 	hsm_err_t hsmret;
 
 	memset(&key_mgmt_args, 0, sizeof(key_mgmt_args));
+	memset(pub_key, 0, sizeof(pub_key));
+	memset(signature_data, 0, sizeof(signature_data));
+
 	hsmret = hsm_open_key_management_service(
 		key_store_hdl, &key_mgmt_args, &key_mgmt_hdl);
 	printf("hsm_open_key_management_service ret:0x%x\n", hsmret);
 
 	memset(&key_gen_args, 0, sizeof(key_gen_args));
-	key_gen_args.key_identifier = &master_key_id;
-	key_gen_args.out_size = sizeof(pub_key);
-	key_gen_args.key_group = 1;
-#ifdef PSA_COMPLIANT
-	key_gen_args.key_lifetime = HSM_HW_INTERN_STORAGE_VOLATILE;
-	key_gen_args.key_usage = HSM_KEY_USAGE_SIGN_HASH
-		| HSM_KEY_USAGE_VERIFY_HASH;
-	key_gen_args.permitted_algo = PERMITTED_ALGO_ECDSA_SHA256;
-#else
-	key_gen_args.flags = HSM_OP_KEY_GENERATION_FLAGS_CREATE;
-	key_gen_args.key_info = HSM_KEY_INFO_TRANSIENT | HSM_KEY_INFO_MASTER;
-#endif
-	key_gen_args.key_type = HSM_KEY_TYPE_ECDSA_NIST_P256;
-	key_gen_args.out_key = pub_key;
-	hsmret = hsm_generate_key(key_mgmt_hdl, &key_gen_args);
-	printf("hsm_generate_key ret:0x%x\n", hsmret);
 
-	hsmret = do_key_recovery_test(master_key_id, key_store_hdl, key_mgmt_hdl);
+	if (cmdline_arg == 0) {
+		key_gen_args.key_identifier = &master_key_id;
+		key_gen_args.out_size = sizeof(pub_key);
+		key_gen_args.key_group = 2;
+#ifdef PSA_COMPLIANT
+		key_gen_args.key_lifetime = HSM_HW_INTERN_STORAGE_PERSISTENT;
+		key_gen_args.key_usage = HSM_KEY_USAGE_SIGN_HASH
+			| HSM_KEY_USAGE_VERIFY_HASH;
+		key_gen_args.permitted_algo = PERMITTED_ALGO_ECDSA_SHA256;
+		key_gen_args.flags = HSM_OP_KEY_GENERATION_FLAGS_STRICT_OPERATION;
+#else
+		key_gen_args.flags = HSM_OP_KEY_GENERATION_FLAGS_CREATE;
+		key_gen_args.key_info = HSM_KEY_INFO_TRANSIENT | HSM_KEY_INFO_MASTER;
+#endif
+		key_gen_args.key_type = HSM_KEY_TYPE_ECDSA_NIST_P256;
+		key_gen_args.out_key = pub_key;
+		hsmret = hsm_generate_key(key_mgmt_hdl, &key_gen_args);
+		printf("hsm_generate_key ret:0x%x\n", hsmret);
+
+		printf("\nPersistent key created, Key ID (HEX): 0x%x  (DEC): %u\n",
+				master_key_id, master_key_id);
+
+	} else {
+		master_key_id = cmdline_arg;
+		printf("\nPersistent key Used, Key ID (HEX): 0x%x  (DEC): %u\n",
+				master_key_id, master_key_id);
+
+		pub_key_arg = pub_key;
+		pub_key_sz = sizeof(pub_key);
+	}
+
+	hsmret = do_key_recovery_test(key_store_hdl, key_mgmt_hdl, master_key_id,
+						pub_key_arg, pub_key_sz);
 	if (hsmret)
 		printf("Error[0x%x]: PUB KEY RECOVERY test failed.\n\n", hsmret);
 
@@ -440,8 +461,6 @@ static void transient_key_tests(hsm_hdl_t sess_hdl, hsm_hdl_t key_store_hdl)
 	hsmret = hsm_close_signature_verification_service(sig_ver_hdl);
 	printf("hsm_close_signature_verification_service ret:0x%x\n", hsmret);
 #endif
-
-	key_management(DELETE, key_mgmt_hdl, &master_key_id, 1, HSM_KEY_TYPE_ECDSA_NIST_P256);
 
 #ifdef CONFIG_PLAT_SECO
 	key_management(DELETE, key_mgmt_hdl, &butterfly_key_id, 101, HSM_KEY_TYPE_ECDSA_NIST_P256);
@@ -563,8 +582,8 @@ int main(int argc, char *argv[])
 
     hsm_err_t err;
 
-    if (argc > 1)
-	    cmdline_arg = atoi(argv[1]);
+	if (argc > 2)
+		cmdline_arg = atoi(argv[2]);
 
 	sigemptyset(&hsm_test_sigact.sa_mask);
 	hsm_test_sigact.sa_flags = SA_SIGINFO;
@@ -595,7 +614,15 @@ int main(int argc, char *argv[])
         open_svc_key_store_args.max_updates_number   = 100;
         open_svc_key_store_args.flags                = 1;
         err = hsm_open_key_store_service(hsm_session_hdl, &open_svc_key_store_args, &key_store_hdl);
-        printf("hsm_open_key_store_service ret:0x%x\n", err);
+		printf("hsm_open_key_store_service (create) ret:0x%x\n", err);
+
+	if (err == HSM_KEY_STORE_CONFLICT) {
+		open_svc_key_store_args.flags            = 0;
+		err = hsm_open_key_store_service(hsm_session_hdl,
+								&open_svc_key_store_args,
+								&key_store_hdl);
+		printf("\nhsm_open_key_store_service (load) ret:0x%x\n", err);
+	}
 
 	/* If Data storage test is ran first, it will work
 	 * successfully even for 300 bytes.
