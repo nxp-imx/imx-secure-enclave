@@ -92,6 +92,41 @@ int32_t plat_os_abs_storage_read(struct plat_os_abs_hdl *phdl,
 	return l;
 }
 
+static int get_chunk_file_path(char **path,
+				uint8_t *nvm_storage_dname,
+				uint64_t blob_id)
+{
+	int ret = -1;
+	uint8_t path_len;
+	uint8_t blob_id_sz = sizeof(blob_id);
+
+	/* 1 extra byte in path_len is for accommodating null termination char
+	 * \0 in path string.
+	 */
+	path_len = strlen(nvm_storage_dname) + blob_id_sz * 2 + 1;
+	*path = malloc(path_len);
+
+	if (*path) {
+		ret = mkdir(nvm_storage_dname, S_IRUSR|S_IWUSR);
+
+		if ((ret < 0) && (errno != EEXIST))
+			goto exit;
+
+		ret = snprintf(*path,
+				path_len,
+				"%s%0*lx",
+				nvm_storage_dname,
+				(int)blob_id_sz * 2,
+				blob_id);
+
+		if (ret != (path_len - 1))
+			ret = -1;
+	}
+
+exit:
+	return ret;
+}
+
 /* Write data in a file located in NVM. Return the size of the written data. */
 int32_t plat_os_abs_storage_write_chunk(struct plat_os_abs_hdl *phdl,
 					uint8_t *src,
@@ -104,23 +139,8 @@ int32_t plat_os_abs_storage_write_chunk(struct plat_os_abs_hdl *phdl,
 	int n = -1;
 	char *path = NULL;
 
-	if (phdl->type == MU_CHANNEL_PLAT_HSM_NVM) {
-		path = malloc(strlen(nvm_storage_dname) + 16u);
-		if (path != NULL) {
-			n = mkdir(nvm_storage_dname,
-				  S_IRUSR|S_IWUSR);
-			if ((n < 0) && (errno != EEXIST))
-				goto exit;
-
-			n = snprintf(path,
-				     strlen(nvm_storage_dname) + 16u,
-				     "%s%016lx",
-				     nvm_storage_dname,
-				     blob_id);
-		}
-	} else {
-		path = NULL;
-	}
+	if (phdl->type == MU_CHANNEL_PLAT_HSM_NVM)
+		n = get_chunk_file_path(&path, nvm_storage_dname, blob_id);
 
 	if (n > 0) {
 		/* Open or create the file with access reserved
@@ -135,7 +155,9 @@ int32_t plat_os_abs_storage_write_chunk(struct plat_os_abs_hdl *phdl,
 		}
 	}
 exit:
-	free(path);
+	if (path)
+		free(path);
+
 	return l;
 }
 
@@ -149,21 +171,8 @@ int32_t plat_os_abs_storage_read_chunk(struct plat_os_abs_hdl *phdl,
 	int n = -1;
 	char *path = NULL;
 
-	if (phdl->type == MU_CHANNEL_PLAT_HSM_NVM) {
-		path = malloc(strlen(nvm_storage_dname) + 16u);
-
-		if (path != NULL) {
-			n = mkdir(nvm_storage_dname,
-				  S_IRUSR|S_IWUSR);
-			if ((n < 0) && (errno != EEXIST))
-				goto exit;
-			n = snprintf(path,
-				     strlen(nvm_storage_dname) + 16u,
-				     "%s%016lx",
-				     nvm_storage_dname,
-				     blob_id);
-		}
-	}
+	if (phdl->type == MU_CHANNEL_PLAT_HSM_NVM)
+		n = get_chunk_file_path(&path, nvm_storage_dname, blob_id);
 
 	if (n > 0) {
 		/* Open the file as read only. */
@@ -176,6 +185,8 @@ int32_t plat_os_abs_storage_read_chunk(struct plat_os_abs_hdl *phdl,
 		}
 	}
 exit:
-	free(path);
+	if (path)
+		free(path);
+
 	return l;
 }
