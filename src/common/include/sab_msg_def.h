@@ -541,7 +541,11 @@ struct sab_cmd_key_store_open_msg{
     uint32_t password;
     uint16_t max_updates;
     uint8_t flags;
+#ifndef PSA_COMPLIANT
     uint8_t min_mac_length;
+#else
+    uint8_t rsv;
+#endif
     uint32_t crc;
 } ;
 

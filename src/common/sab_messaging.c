@@ -71,7 +71,9 @@ uint32_t sab_open_key_store_command(struct plat_os_abs_hdl *phdl, uint32_t sessi
         cmd.password = password;
         cmd.flags = flags;
         cmd.max_updates = max_updates;
+#ifndef PSA_COMPLIANT
         cmd.min_mac_length = min_mac_length;
+#endif
         cmd.crc = plat_compute_msg_crc((uint32_t*)&cmd, (uint32_t)(sizeof(cmd) - sizeof(uint32_t)));
 
         error = plat_send_msg_and_get_resp(phdl,
