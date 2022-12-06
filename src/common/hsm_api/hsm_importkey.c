@@ -43,25 +43,13 @@ hsm_err_t hsm_import_key(hsm_hdl_t key_management_hdl,
 			break;
 		}
 
-		error = set_key_type_n_sz(args->key_type,
-					&args->bit_key_sz,
-					&args->psa_key_type,
-					NULL,
-					&unused_out_sz);
-
-		if (error) {
-			printf("HSM Error: Invalid Key Type is given [0x%x].\n",
-				args->key_type);
-			break;
-		}
-
 		if ((((args->flags & HSM_OP_IMPORT_KEY_FLAGS_PART_UNIQUE_ROOT_KEK)
 			== HSM_OP_IMPORT_KEY_FLAGS_PART_UNIQUE_ROOT_KEK)
 			|| ((args->flags & HSM_OP_IMPORT_KEY_FLAGS_COMMON_ROOT_KEK)
 			== HSM_OP_IMPORT_KEY_FLAGS_COMMON_ROOT_KEK))
 			&& (args->key_lifetime == 0)
 			&& (args->key_usage == 0)
-			&& (args->psa_key_type == 0)
+			&& (args->key_type == 0)
 			&& (args->bit_key_sz == 0)
 			&& (args->permitted_algo == 0))
 			break;

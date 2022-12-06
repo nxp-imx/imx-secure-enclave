@@ -38,7 +38,7 @@ hsm_err_t do_key_recovery_test(hsm_hdl_t key_store_hdl, hsm_hdl_t key_mgmt_hdl,
 		args.out_key_size = pub_key_sz;
 		args.out_key      = pub_key;
 	}
-	args.key_type     = HSM_KEY_TYPE_ECDSA_NIST_P256;
+	args.key_type     = HSM_PUBKEY_TYPE_ECC_NIST;
 	args.flags        = 0;
 
 	err = hsm_pub_key_recovery(key_store_hdl, &args);

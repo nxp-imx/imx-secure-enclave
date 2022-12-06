@@ -23,7 +23,6 @@
 
 typedef uint32_t hsm_key_usage_t;
 #define HSM_KEY_USAGE_EXPORT		((hsm_key_usage_t) (1u << 0))
-#define HSM_KEY_USAGE_CLOSED		((hsm_key_usage_t) (1u << 4))
 #define HSM_KEY_USAGE_ENCRYPT		((hsm_key_usage_t) (1u << 8))
 #define HSM_KEY_USAGE_DECRYPT		((hsm_key_usage_t) (1u << 9))
 #define HSM_KEY_USAGE_SIGN_MSG		((hsm_key_usage_t) (1u << 10))
@@ -32,11 +31,10 @@ typedef uint32_t hsm_key_usage_t;
 #define HSM_KEY_USAGE_VERIFY_HASH	((hsm_key_usage_t) (1u << 13))
 #define HSM_KEY_USAGE_DERIVE		((hsm_key_usage_t) (1u << 14))
 
+/* SE stands for Secure Enclave.
+ */
 typedef enum {
-	HSM_HW_INTERNAL_STORAGE = 0x00000000,
-	HSM_HW_EXTERNAL_STORAGE = 0x80000000,
-	HSM_SW_INTERNAL_STORAGE = 0x90000200,
-	HSM_SW_EXTERNAL_STORAGE = 0x90000000,
+	HSM_SE_INTERNAL_STORAGE = 0x00000000,
 } hsm_storage_loc_t;
 
 typedef enum {
@@ -47,37 +45,15 @@ typedef enum {
 } hsm_storage_persist_lvl_t;
 
 typedef enum {
-	HSM_HW_INTERN_STORAGE_VOLATILE = HSM_HW_INTERNAL_STORAGE
+	HSM_SE_INTERN_STORAGE_VOLATILE = HSM_SE_INTERNAL_STORAGE
 						| HSM_VOLATILE_STORAGE,
-	HSM_HW_INTERN_STORAGE_PERSISTENT = HSM_HW_INTERNAL_STORAGE
+	HSM_SE_INTERN_STORAGE_PERSISTENT = HSM_SE_INTERNAL_STORAGE
 						| HSM_PERSISTENT_STORAGE,
-	HSM_HW_INTERN_STORAGE_VOLT_PERM = HSM_HW_INTERNAL_STORAGE
+	HSM_SE_INTERN_STORAGE_VOLT_PERM = HSM_SE_INTERNAL_STORAGE
 						| HSM_VOLT_PERM_STORAGE,
-	HSM_HW_INTERN_STORAGE_PERS_PERM = HSM_HW_INTERNAL_STORAGE
+	HSM_SE_INTERN_STORAGE_PERS_PERM = HSM_SE_INTERNAL_STORAGE
 						| HSM_PERS_PERM_STORAGE,
-	HSM_HW_EXTERN_STORAGE_PERSISTENT = HSM_HW_EXTERNAL_STORAGE
-						| HSM_PERSISTENT_STORAGE,
-	HSM_SW_INTERN_STORAGE_VOLATILE = HSM_SW_INTERNAL_STORAGE
-						| HSM_VOLATILE_STORAGE,
-	HSM_SW_INTERN_STORAGE_PERSISTENT = HSM_SW_INTERNAL_STORAGE
-						| HSM_PERSISTENT_STORAGE,
-	HSM_SW_INTERN_STORAGE_VOLT_PERM = HSM_SW_INTERNAL_STORAGE
-						| HSM_VOLT_PERM_STORAGE,
-	HSM_SW_INTERN_STORAGE_PERS_PERM = HSM_SW_INTERNAL_STORAGE
-						| HSM_PERS_PERM_STORAGE,
-	HSM_SW_EXTERN_STORAGE_PERSISTENT = HSM_SW_EXTERNAL_STORAGE
-						| HSM_PERSISTENT_STORAGE,
 } hsm_key_lifetime_t;
-
-typedef enum {
-	HSM_KEY_TYPE_HMAC	= 0x1100,
-	HSM_KEY_TYPE_AES	= 0x2400,
-	HSM_KEY_TYPE_SM4	= 0x2405,
-	HSM_KEY_TYPE_RSA	= 0x7001,
-	HSM_KEY_TYPE_ECC_BP_R1	= 0x7130,
-	HSM_KEY_TYPE_ECC_NIST	= 0x7112,
-	HSM_KEY_TYPE_ECC_BP_T1	= 0xF180,
-} hsm_psa_key_type_t;
 
 typedef enum {
 	HSM_PUBKEY_TYPE_RSA		= 0x4001,
@@ -86,32 +62,46 @@ typedef enum {
 	HSM_PUBKEY_TYPE_ECC_BP_T1	= 0xC180,
 } hsm_pubkey_type_t;
 
-typedef uint8_t hsm_key_type_t;
-#define HSM_KEY_TYPE_ECDSA_NIST_P224                        ((hsm_key_type_t)0x01u)
-#define HSM_KEY_TYPE_ECDSA_NIST_P256                        ((hsm_key_type_t)0x02u)
-#define HSM_KEY_TYPE_ECDSA_NIST_P384                        ((hsm_key_type_t)0x03u)
-#define HSM_KEY_TYPE_ECDSA_NIST_P521                        ((hsm_key_type_t)0x04u)
-#define HSM_KEY_TYPE_ECDSA_BRAINPOOL_R1_224                 ((hsm_key_type_t)0x12u)
-#define HSM_KEY_TYPE_ECDSA_BRAINPOOL_R1_256                 ((hsm_key_type_t)0x13u)
-#define HSM_KEY_TYPE_ECDSA_BRAINPOOL_R1_320                 ((hsm_key_type_t)0x14u)
-#define HSM_KEY_TYPE_ECDSA_BRAINPOOL_R1_384                 ((hsm_key_type_t)0x15u)
-#define HSM_KEY_TYPE_ECDSA_BRAINPOOL_R1_512                 ((hsm_key_type_t)0x16u)
-#define HSM_KEY_TYPE_ECDSA_BRAINPOOL_T1_224                 ((hsm_key_type_t)0x22u)
-#define HSM_KEY_TYPE_ECDSA_BRAINPOOL_T1_256                 ((hsm_key_type_t)0x23u)
-#define HSM_KEY_TYPE_ECDSA_BRAINPOOL_T1_320                 ((hsm_key_type_t)0x24u)
-#define HSM_KEY_TYPE_ECDSA_BRAINPOOL_T1_384                 ((hsm_key_type_t)0x25u)
-#define HSM_KEY_TYPE_ECDSA_BRAINPOOL_T1_512                 ((hsm_key_type_t)0x26u)
-#define HSM_KEY_TYPE_AES_128                                ((hsm_key_type_t)0x30u)
-#define HSM_KEY_TYPE_AES_192                                ((hsm_key_type_t)0x31u)
-#define HSM_KEY_TYPE_AES_256                                ((hsm_key_type_t)0x32u)
-#define HSM_KEY_TYPE_DSA_SM2_FP_256                         ((hsm_key_type_t)0x42u)
-#define HSM_KEY_TYPE_SM4_128                                ((hsm_key_type_t)0x50u)
-#define HSM_KEY_TYPE_HMAC_224                               ((hsm_key_type_t)0x60u)
-#define HSM_KEY_TYPE_HMAC_256                               ((hsm_key_type_t)0x61u)
-#define HSM_KEY_TYPE_HMAC_384                               ((hsm_key_type_t)0x62u)
-#define HSM_KEY_TYPE_HMAC_512                               ((hsm_key_type_t)0x63u)
-#define HSM_KEY_TYPE_RSA_2048                               ((hsm_key_type_t)0x71u)
-#define HSM_KEY_TYPE_RSA_4096                               ((hsm_key_type_t)0x73u)
+typedef enum {
+#ifdef PSA_COMPLIANT
+	/* PSA Compliant key types.
+	 */
+	HSM_KEY_TYPE_HMAC                   = 0x1100,
+	HSM_KEY_TYPE_AES                    = 0x2400,
+	HSM_KEY_TYPE_SM4                    = 0x2405,
+	HSM_KEY_TYPE_RSA                    = 0x7001,
+	HSM_KEY_TYPE_ECC_BP_R1              = 0x7130,
+	HSM_KEY_TYPE_ECC_NIST               = 0x7112,
+#else
+	/* NON-PSA Compliant key types.
+	 */
+	HSM_KEY_TYPE_ECDSA_NIST_P224          = 0x01,
+	HSM_KEY_TYPE_ECDSA_NIST_P256          = 0x02,
+	HSM_KEY_TYPE_ECDSA_NIST_P384          = 0x03,
+	HSM_KEY_TYPE_ECDSA_NIST_P521          = 0x04,
+	HSM_KEY_TYPE_ECDSA_BRAINPOOL_R1_224   = 0x12,
+	HSM_KEY_TYPE_ECDSA_BRAINPOOL_R1_256   = 0x13,
+	HSM_KEY_TYPE_ECDSA_BRAINPOOL_R1_320   = 0x14,
+	HSM_KEY_TYPE_ECDSA_BRAINPOOL_R1_384   = 0x15,
+	HSM_KEY_TYPE_ECDSA_BRAINPOOL_R1_512   = 0x16,
+	HSM_KEY_TYPE_ECDSA_BRAINPOOL_T1_224   = 0x22,
+	HSM_KEY_TYPE_ECDSA_BRAINPOOL_T1_256   = 0x23,
+	HSM_KEY_TYPE_ECDSA_BRAINPOOL_T1_320   = 0x24,
+	HSM_KEY_TYPE_ECDSA_BRAINPOOL_T1_384   = 0x25,
+	HSM_KEY_TYPE_ECDSA_BRAINPOOL_T1_512   = 0x26,
+	HSM_KEY_TYPE_AES_128                  = 0x30,
+	HSM_KEY_TYPE_AES_192                  = 0x31,
+	HSM_KEY_TYPE_AES_256                  = 0x32,
+	HSM_KEY_TYPE_DSA_SM2_FP_256           = 0x42,
+	HSM_KEY_TYPE_SM4_128                  = 0x50,
+	HSM_KEY_TYPE_HMAC_224                 = 0x60,
+	HSM_KEY_TYPE_HMAC_256                 = 0x61,
+	HSM_KEY_TYPE_HMAC_384                 = 0x62,
+	HSM_KEY_TYPE_HMAC_512                 = 0x63,
+	HSM_KEY_TYPE_RSA_2048                 = 0x71,
+	HSM_KEY_TYPE_RSA_4096                 = 0x73,
+#endif
+} hsm_key_type_t;
 
 typedef enum {
 	HSM_KEY_SIZE_HMAC_224		= 224,
@@ -155,27 +145,13 @@ typedef enum {
 	PERMITTED_ALGO_CBC_NO_PADDING			= 0x04404000,
 	PERMITTED_ALGO_CCM				= 0x05500100,
 	PERMITTED_ALGO_GCM				= 0x05500200,
-	PERMITTED_ALGO_RSA_PKCS1_V15_SHA1		= 0x06000205,
-	PERMITTED_ALGO_RSA_PKCS1_V15_SHA224		= 0x06000208,
-	PERMITTED_ALGO_RSA_PKCS1_V15_SHA256		= 0x06000209,
-	PERMITTED_ALGO_RSA_PKCS1_V15_SHA384		= 0x0600020A,
-	PERMITTED_ALGO_RSA_PKCS1_V15_SHA512		= 0x0600020B,
-	PERMITTED_ALGO_RSA_PKCS1_V15_ANY_HASH		= 0x060002FF,
-	PERMITTED_ALGO_RSA_PKCS1_PSS_MGF1_SHA1		= 0x06000305,
-	PERMITTED_ALGO_RSA_PKCS1_PSS_MGF1_SHA224	= 0x06000308,
-	PERMITTED_ALGO_RSA_PKCS1_PSS_MGF1_SHA256	= 0x06000309,
-	PERMITTED_ALGO_RSA_PKCS1_PSS_MGF1_SHA384	= 0x0600030A,
-	PERMITTED_ALGO_RSA_PKCS1_PSS_MGF1_SHA512	= 0x0600030B,
-	PERMITTED_ALGO_RSA_PKCS1_PSS_MGF1_ANY_HASH	= 0x060003FF,
 	PERMITTED_ALGO_ECDSA_SHA224			= 0x06000608,
 	PERMITTED_ALGO_ECDSA_SHA256			= 0x06000609,
 	PERMITTED_ALGO_ECDSA_SHA384			= 0x0600060A,
 	PERMITTED_ALGO_ECDSA_SHA512			= 0x0600060B,
-	PERMITTED_ALGO_ECDSA_ANY_HASH			= 0x060006FF,
 	PERMITTED_ALGO_HMAC_KDF_SHA256			= 0x08000109,
-	PERMITTED_ALGO_TLS_1_2_PRF_SHA256		= 0x08000209,
-	PERMITTED_ALGO_TLS_1_2_PRF_SHA384		= 0x0800020A,
 	PERMITTED_ALGO_ALL_CIPHER			= 0x84C0FF00,
+	PERMITTED_ALGO_ALL_AEAD				= 0x8550FF00,
 } hsm_permitted_algo_t;
 
 typedef uint16_t hsm_key_group_t;
@@ -214,9 +190,4 @@ typedef uint16_t hsm_key_info_t;
 #define HSM_KEY_INFO_KEK \
 		((hsm_key_info_t)(1u << 3))
 
-uint32_t set_key_type_n_sz(hsm_key_type_t key_type,
-			   hsm_bit_key_sz_t *key_sz,
-			   hsm_psa_key_type_t *psa_key_type,
-			   hsm_pubkey_type_t *pkey_type,
-			   uint16_t *byte_key_size);
 #endif

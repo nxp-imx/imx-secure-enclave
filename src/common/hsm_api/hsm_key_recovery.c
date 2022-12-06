@@ -39,18 +39,6 @@ hsm_err_t hsm_pub_key_recovery(hsm_hdl_t key_store_hdl,
 			break;
 		}
 
-		error = set_key_type_n_sz(args->key_type,
-					&args->bit_key_sz,
-					&args->psa_key_type,
-					NULL,
-					&args->out_key_size);
-
-		if (error == HSM_KEY_OP_FAIL) {
-			printf("HSM Error: Invalid Key Type is given [0x%x].\n",
-				args->key_type);
-			break;
-		}
-
 		error = process_sab_msg(key_store_serv_ptr->session->phdl,
 					key_store_serv_ptr->session->mu_type,
 					SAB_PUB_KEY_RECOVERY_REQ,

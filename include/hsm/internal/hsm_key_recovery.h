@@ -34,8 +34,6 @@ typedef struct {
 	hsm_key_type_t key_type;
 	//!< bitmap specifying the operation attributes, mandatory for non-PSA compliant platforms
 	hsm_op_pub_key_recovery_flags_t flags;
-	 //!< derived from key_type
-	hsm_psa_key_type_t psa_key_type;
 	hsm_bit_key_sz_t bit_key_sz;
 } op_pub_key_recovery_args_t;
 

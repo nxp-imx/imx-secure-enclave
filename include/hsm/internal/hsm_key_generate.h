@@ -23,6 +23,8 @@ typedef uint8_t hsm_op_key_gen_flags_t;
 #ifdef PSA_COMPLIANT
 //!< Reserverd Bits 0 - 6
 #else
+/* Flags for NON-PSA COMPLIANT platforms such as SECO.
+ */
 //!< User can replace an existing key only by generating a key with
 //   the same type of the original one.
 #define HSM_OP_KEY_GENERATION_FLAGS_UPDATE \
@@ -43,9 +45,6 @@ typedef struct {
 	//   In case of create operation the new key identifier will be stored
 	//   in this location.
 	uint32_t *key_identifier;
-	//!< Wanted Key identifier for the key being generated.
-	//   If it is set to 0, key identifier gets chosen by FW.
-	uint32_t key_id;
 	//!< length in bytes of the generated key.
 	//   It must be 0 in case of symmetric keys.
 	uint16_t out_size;
@@ -59,7 +58,6 @@ typedef struct {
 	//   Keys belonging to the same group can be cached in the HSM local
 	//   memory through the hsm_manage_key_group API.
 	hsm_key_group_t key_group;
-	uint8_t rsv1[2];
 	//!< pointer to the output area where the generated public key
 	//   must be written.
 	uint8_t *out_key;
@@ -70,10 +68,7 @@ typedef struct {
 #else
 	//!< bitmap specifying the properties of the key.
 	hsm_key_info_t key_info;
-	uint8_t rsv2[2];
 #endif
-	//!< Derived from key_type.
-	hsm_psa_key_type_t psa_key_type;
 } op_generate_key_args_t;
 
 /**

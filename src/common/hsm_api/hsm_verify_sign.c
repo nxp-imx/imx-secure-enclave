@@ -132,21 +132,6 @@ hsm_err_t hsm_verify_signature(hsm_hdl_t signature_ver_hdl,
 			break;
 		}
 
-#ifdef PSA_COMPLIANT
-		if (args->key_type)
-			error = set_key_type_n_sz(args->key_type,
-						  &args->key_sz,
-						  NULL,
-						  &args->pkey_type,
-						  &args->key_size);
-
-		if (error != HSM_KEY_OP_SUCCESS) {
-			printf("HSM Error: Invalid Key Type is given [0x%x].\n",
-				args->key_type);
-			break;
-		}
-#endif
-
 		error = process_sab_msg(serv_ptr->session->phdl,
 					serv_ptr->session->mu_type,
 					SAB_SIGNATURE_VERIFY_REQ,

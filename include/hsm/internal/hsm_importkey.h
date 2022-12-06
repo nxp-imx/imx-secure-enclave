@@ -77,8 +77,6 @@ typedef struct {
 	hsm_bit_key_sz_t bit_key_sz;
 	//!< Permitted algorithm attribute (PSA values)
 	hsm_permitted_algo_t permitted_algo;
-	//!< It is derived from key_type.
-	hsm_psa_key_type_t psa_key_type;
 	//!< LSB of the address in the requester space where the key can be
 	//   found. This address is combined with the 32 bits MSBI extension
 	//   provided for the service flow.

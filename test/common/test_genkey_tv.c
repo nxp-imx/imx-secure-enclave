@@ -20,7 +20,6 @@
 #include "test_utils_tv.h"
 
 static hsm_err_t generate_key(hsm_hdl_t key_mgmt_hdl,
-				uint32_t key_id,
 #ifdef CONFIG_PLAT_SECO
 				hsm_key_info_t key_info,
 #else
@@ -38,7 +37,6 @@ static hsm_err_t generate_key(hsm_hdl_t key_mgmt_hdl,
 
 	memset(&key_gen_args, 0, sizeof(key_gen_args));
 
-	key_gen_args.key_id = key_id;
 	key_gen_args.key_identifier = key_identifier;
 	key_gen_args.out_size = out_size;
 	key_gen_args.key_group = key_group;
@@ -80,8 +78,7 @@ static int8_t prepare_and_run_genkey_test(FILE *fp)
 
 	uint32_t key_mgmt_tv_id = 0;
 	uint32_t key_tv_id = 0;      // Key TV ID to use the key after generation
-	uint32_t key_id = 0;         // Key ID from Test Vector 0 for Volatile
-	uint32_t key_identifier = 0; // Key Identifier returned for generated key
+	uint32_t key_identifier = 0;
 	uint8_t *out_key = NULL;
 	uint16_t out_size = 0;
 	hsm_key_type_t key_type;
@@ -134,7 +131,7 @@ static int8_t prepare_and_run_genkey_test(FILE *fp)
 
 		} else if (strcmp(param_name, "KEY_ID") == 0) {
 
-			key_id = (uint32_t)parse_param_value(param_value_token,
+			key_identifier = (uint32_t)parse_param_value(param_value_token,
 							param_name, &input_ctr, &invalid_read);
 
 		} else if (strcmp(param_name, "OUT_SIZE") == 0) {
@@ -203,7 +200,7 @@ static int8_t prepare_and_run_genkey_test(FILE *fp)
 	if (call_gen_key == 1) {
 		printf("Key MGMT TV ID : %u\n", key_mgmt_tv_id);
 		printf("Key TV ID      : %u\n", key_tv_id);
-		printf("Key ID         : 0x%x\n", key_id);
+		printf("Key ID         : 0x%x\n", key_identifier);
 		printf("Out Size       : %u\n", out_size);
 		printf("Key Type       : 0x%x\n", key_type);
 		printf("Key Group      : %u\n", key_group);
@@ -220,7 +217,6 @@ static int8_t prepare_and_run_genkey_test(FILE *fp)
 		key_mgmt_hdl = get_key_mgmt_hdl(key_mgmt_tv_id);
 
 		ret = generate_key(key_mgmt_hdl,
-					key_id,
 #ifndef PSA_COMPLIANT
 					key_info,
 #else

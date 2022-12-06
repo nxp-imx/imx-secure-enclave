@@ -42,10 +42,8 @@ uint32_t prepare_msg_key_recovery(void *phdl,
 						DATA_BUF_IS_OUTPUT);
 
 	cmd->out_key_size = op_args->out_key_size;
-#ifdef PSA_COMPLIANT
-	cmd->key_type = op_args->psa_key_type;
-#else
 	cmd->key_type = op_args->key_type;
+#ifndef PSA_COMPLIANT
 	cmd->flags = op_args->flags;
 #endif
 

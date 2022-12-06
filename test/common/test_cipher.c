@@ -35,6 +35,7 @@ static hsm_err_t generate_key(hsm_hdl_t key_mgmt_hdl,
 			      hsm_key_lifetime_t key_lifetime,
 			      hsm_key_usage_t key_usage,
 			      hsm_permitted_algo_t permitted_algo,
+					hsm_bit_key_sz_t bit_key_sz,
 #endif
 			      hsm_key_type_t key_type,
 			      uint32_t *key_identifier)
@@ -51,6 +52,7 @@ static hsm_err_t generate_key(hsm_hdl_t key_mgmt_hdl,
 	key_gen_args.key_lifetime = key_lifetime;
 	key_gen_args.key_usage = key_usage;
 	key_gen_args.permitted_algo = permitted_algo;
+	key_gen_args.bit_key_sz = bit_key_sz;
 #endif
 	key_gen_args.key_type = key_type;
 	key_gen_args.out_key = NULL;
@@ -64,7 +66,7 @@ hsm_err_t do_cipher_test(hsm_hdl_t key_store_hdl, hsm_hdl_t key_mgmt_hdl)
 	hsm_hdl_t cipher_hdl;
 	uint8_t ciphered_data[32] = {0};
 	uint8_t deciphered_data[32] = {0};
-	uint32_t sym_key_id;
+	uint32_t sym_key_id = 0;
 	hsm_err_t hsmret;
 
 	printf("---------------------------------------------------\n");
@@ -74,12 +76,15 @@ hsm_err_t do_cipher_test(hsm_hdl_t key_store_hdl, hsm_hdl_t key_mgmt_hdl)
 	generate_key(key_mgmt_hdl,
 #ifndef PSA_COMPLIANT
 			HSM_KEY_INFO_TRANSIENT,
+			HSM_KEY_TYPE_AES_256,
 #else
-			HSM_HW_INTERN_STORAGE_VOLATILE,
+			HSM_SE_INTERN_STORAGE_VOLATILE,
 			HSM_KEY_USAGE_DERIVE | HSM_KEY_USAGE_ENCRYPT | HSM_KEY_USAGE_DECRYPT,
 			PERMITTED_ALGO_ALL_CIPHER,
+			HSM_KEY_SIZE_AES_256,
+			HSM_KEY_TYPE_AES,
 #endif
-			HSM_KEY_TYPE_AES_256, &sym_key_id);
+			&sym_key_id);
 
 	cipher_args.key_identifier = sym_key_id;
 	cipher_args.iv = iv_data;

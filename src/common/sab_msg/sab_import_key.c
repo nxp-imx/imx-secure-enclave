@@ -39,7 +39,7 @@ uint32_t prepare_msg_importkey(void *phdl,
 	cmd->flags = op_args->flags;
 	cmd->key_lifetime = op_args->key_lifetime;
 	cmd->key_usage = op_args->key_usage;
-	cmd->key_type = op_args->psa_key_type;
+	cmd->key_type = op_args->key_type;
 	cmd->bit_key_sz = op_args->bit_key_sz;
 	cmd->permitted_algo = op_args->permitted_algo;
 

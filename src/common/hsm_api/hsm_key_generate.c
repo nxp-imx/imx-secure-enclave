@@ -43,18 +43,6 @@ hsm_err_t hsm_generate_key(hsm_hdl_t key_management_hdl,
 			break;
 		}
 
-		error = set_key_type_n_sz(args->key_type,
-					&args->bit_key_sz,
-					&args->psa_key_type,
-					NULL,
-					&args->out_size);
-
-		if (error == HSM_KEY_OP_FAIL) {
-			printf("HSM Error: Invalid Key Type is given [0x%x].\n",
-				args->key_type);
-			break;
-		}
-
 		error = process_sab_msg(serv_ptr->session->phdl,
 					serv_ptr->session->mu_type,
 					SAB_KEY_GENERATE_REQ,

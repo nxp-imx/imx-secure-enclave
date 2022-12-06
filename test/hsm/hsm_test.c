@@ -73,7 +73,9 @@ static void public_key_test(hsm_hdl_t hsm_session_hdl)
     hsm_op_pub_key_dec_args.out_key = out;
     hsm_op_pub_key_dec_args.key_size = 33;
     hsm_op_pub_key_dec_args.out_key_size = 2*32;
+#ifndef PSA_COMPLIANT
     hsm_op_pub_key_dec_args.key_type = HSM_KEY_TYPE_ECDSA_NIST_P256;
+#endif
     hsm_op_pub_key_dec_args.flags = 0u;
 
     err = hsm_pub_key_decompression(hsm_session_hdl, &hsm_op_pub_key_dec_args);
@@ -117,7 +119,9 @@ static void public_key_test(hsm_hdl_t hsm_session_hdl)
     hsm_op_pub_key_dec_args.out_key = out_384;
     hsm_op_pub_key_dec_args.key_size = 49;
     hsm_op_pub_key_dec_args.out_key_size = 96;
+#ifndef PSA_COMPLIANT
     hsm_op_pub_key_dec_args.key_type = HSM_KEY_TYPE_ECDSA_NIST_P384;
+#endif
     hsm_op_pub_key_dec_args.flags = 0u;
 
     err = hsm_pub_key_decompression(hsm_session_hdl, &hsm_op_pub_key_dec_args);
@@ -153,7 +157,9 @@ static void ecies_tests(hsm_hdl_t hsm_session_hdl)
     op_ecies_enc_args.pub_key_size = 2*32;
     op_ecies_enc_args.mac_size = 16;
     op_ecies_enc_args.out_size = 3*32;
+#ifndef PSA_COMPLIANT
     op_ecies_enc_args.key_type = HSM_KEY_TYPE_ECDSA_NIST_P256;
+#endif
     op_ecies_enc_args.flags = 0u;
     op_ecies_enc_args.reserved= 0u;
 
@@ -295,7 +301,7 @@ static void transient_key_tests(hsm_hdl_t sess_hdl, hsm_hdl_t key_store_hdl)
 	uint8_t *pub_key_arg = NULL;
 	uint32_t pub_key_sz = 0;
 	op_generate_key_args_t key_gen_args;
-	uint32_t master_key_id;
+	uint32_t master_key_id = 0;
 	op_butt_key_exp_args_t butterfly_gen_args;
 	uint32_t butterfly_key_id;
 	uint8_t exp_data[32] = {
@@ -321,7 +327,7 @@ static void transient_key_tests(hsm_hdl_t sess_hdl, hsm_hdl_t key_store_hdl)
 	hsm_hdl_t sig_ver_hdl;
 	op_verify_sign_args_t sig_ver_args;
 	hsm_verification_status_t verif_status;
-	uint32_t sym_key_id;
+	uint32_t sym_key_id = 0;
 	open_svc_cipher_args_t open_cipher_args;
 	op_cipher_one_go_args_t cipher_args;
 	hsm_hdl_t cipher_hdl;
@@ -347,16 +353,18 @@ static void transient_key_tests(hsm_hdl_t sess_hdl, hsm_hdl_t key_store_hdl)
 		key_gen_args.out_size = sizeof(pub_key);
 		key_gen_args.key_group = 2;
 #ifdef PSA_COMPLIANT
-		key_gen_args.key_lifetime = HSM_HW_INTERN_STORAGE_PERSISTENT;
+		key_gen_args.key_lifetime = HSM_SE_INTERN_STORAGE_PERSISTENT;
 		key_gen_args.key_usage = HSM_KEY_USAGE_SIGN_HASH
 			| HSM_KEY_USAGE_VERIFY_HASH;
 		key_gen_args.permitted_algo = PERMITTED_ALGO_ECDSA_SHA256;
 		key_gen_args.flags = HSM_OP_KEY_GENERATION_FLAGS_STRICT_OPERATION;
+		key_gen_args.key_type = HSM_KEY_TYPE_ECC_NIST;
+		key_gen_args.bit_key_sz = HSM_KEY_SIZE_ECC_NIST_256;
 #else
 		key_gen_args.flags = HSM_OP_KEY_GENERATION_FLAGS_CREATE;
 		key_gen_args.key_info = HSM_KEY_INFO_TRANSIENT | HSM_KEY_INFO_MASTER;
-#endif
 		key_gen_args.key_type = HSM_KEY_TYPE_ECDSA_NIST_P256;
+#endif
 		key_gen_args.out_key = pub_key;
 		hsmret = hsm_generate_key(key_mgmt_hdl, &key_gen_args);
 		printf("hsm_generate_key ret:0x%x\n", hsmret);
@@ -471,14 +479,16 @@ static void transient_key_tests(hsm_hdl_t sess_hdl, hsm_hdl_t key_store_hdl)
 	key_gen_args.key_group = 1001;
 #ifdef CONFIG_PLAT_SECO
 	key_gen_args.flags = HSM_OP_KEY_GENERATION_FLAGS_CREATE;
+	key_gen_args.key_type = HSM_KEY_TYPE_AES_256;
 	key_gen_args.key_info = HSM_KEY_INFO_TRANSIENT;
 #else
-	key_gen_args.key_lifetime = HSM_HW_INTERN_STORAGE_VOLATILE;
+	key_gen_args.key_type = HSM_KEY_TYPE_AES;
+	key_gen_args.bit_key_sz = HSM_KEY_SIZE_AES_256;
+	key_gen_args.key_lifetime = HSM_SE_INTERN_STORAGE_VOLATILE;
 	key_gen_args.key_usage = HSM_KEY_USAGE_DERIVE | HSM_KEY_USAGE_ENCRYPT
 				| HSM_KEY_USAGE_DECRYPT;
 	key_gen_args.permitted_algo = PERMITTED_ALGO_ALL_CIPHER;
 #endif
-	key_gen_args.key_type = HSM_KEY_TYPE_AES_256;
 	key_gen_args.out_key = NULL;
 	hsmret = hsm_generate_key(key_mgmt_hdl, &key_gen_args);
 	printf("hsm_generate_key ret:0x%x\n", hsmret);
@@ -545,8 +555,12 @@ static void transient_key_tests(hsm_hdl_t sess_hdl, hsm_hdl_t key_store_hdl)
 	printf("hsm_close_cipher_service ret:0x%x\n", hsmret);
 
 #endif
-	key_management(DELETE, key_mgmt_hdl, &sym_key_id, 1001, HSM_KEY_TYPE_AES_256);
 
+#ifndef PSA_COMPLIANT
+	key_management(DELETE, key_mgmt_hdl, &sym_key_id, 1001, HSM_KEY_TYPE_AES_256);
+#else
+	key_management(DELETE, key_mgmt_hdl, &sym_key_id, 1001, HSM_KEY_TYPE_AES);
+#endif
 	hsmret = hsm_close_key_management_service(key_mgmt_hdl);
 	printf("hsm_close_key_management_service ret:0x%x\n", hsmret);
 }
@@ -582,8 +596,8 @@ int main(int argc, char *argv[])
 
     hsm_err_t err;
 
-	if (argc > 2)
-		cmdline_arg = atoi(argv[2]);
+	if (argc > 1)
+		cmdline_arg = atoi(argv[1]);
 
 	sigemptyset(&hsm_test_sigact.sa_mask);
 	hsm_test_sigact.sa_flags = SA_SIGINFO;
@@ -658,13 +672,16 @@ int main(int argc, char *argv[])
 	data_storage_test(key_store_hdl, 4);
 #endif
 
-		if (argc > 1) {
-			printf("\n\nTest Vector filename: %s\n", argv[1]);
-			tv_tests_run(key_store_hdl, argv[1]);
-		} else {
-			printf("\nTest Vector Tests Usage: ele_hsm_test <tv_file_path>\n");
-			printf("Skipping. Failed to run Test Vector test cases\n\n");
-		}
+	/*	Test Vectors test cases currently not being used.
+	 *
+	 *	if (argc > 1) {
+	 *		printf("\n\nTest Vector filename: %s\n", argv[1]);
+	 *		tv_tests_run(key_store_hdl, argv[1]);
+	 *	} else {
+	 *		printf("\nTest Vector Tests Usage: ele_hsm_test <tv_file_path>\n");
+	 *		printf("Skipping. Failed to run Test Vector test cases\n\n");
+	 *	}
+	 */
 
         err = hsm_close_key_store_service(key_store_hdl);
         printf("hsm_close_key_store_service ret:0x%x\n", err);

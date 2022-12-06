@@ -37,16 +37,14 @@ uint32_t prepare_msg_generatekey(void *phdl,
 
 	cmd->out_pub_key_sz = op_args->out_size;
 	cmd->flags = op_args->flags;
-	cmd->key_group = op_args->key_group;
-#ifdef CONFIG_PLAT_SECO
-	cmd->key_identifier = *(op_args->key_identifier);
 	cmd->key_type = op_args->key_type;
+	cmd->key_group = op_args->key_group;
+	cmd->key_identifier = *(op_args->key_identifier);
+#ifdef CONFIG_PLAT_SECO
 	cmd->key_info = op_args->key_info;
 #else
-	cmd->key_identifier = op_args->key_id;
 	cmd->key_lifetime = op_args->key_lifetime;
 	cmd->key_usage = op_args->key_usage;
-	cmd->key_type = op_args->psa_key_type;
 	cmd->key_sz = op_args->bit_key_sz;
 	cmd->permitted_algo = op_args->permitted_algo;
 #endif
@@ -77,6 +75,8 @@ uint32_t proc_msg_rsp_generatekey(void *rsp_buf, void *args)
 			== HSM_OP_KEY_GENERATION_FLAGS_CREATE)
 #endif
 		*(op_args->key_identifier) = rsp->key_identifier;
-
+#ifndef CONFIG_PLAT_SECO
+		op_args->out_size = rsp->out_key_sz;
+#endif
 	return SAB_SUCCESS_STATUS;
 }
