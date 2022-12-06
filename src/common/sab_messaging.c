@@ -57,8 +57,8 @@ uint32_t sab_get_shared_buffer(struct plat_os_abs_hdl *phdl, uint32_t session_ha
 
 uint32_t sab_open_key_store_command(struct plat_os_abs_hdl *phdl, uint32_t session_handle, uint32_t *key_store_handle, uint32_t mu_type, uint32_t key_storage_identifier, uint32_t password, uint16_t max_updates, uint8_t flags, uint8_t min_mac_length)
 {
-    struct sab_cmd_key_store_open_msg cmd;
-    struct sab_cmd_key_store_open_rsp rsp;
+    struct sab_cmd_key_store_open_msg cmd = {0};
+    struct sab_cmd_key_store_open_rsp rsp = {0};
 
     uint32_t ret = SAB_FAILURE_STATUS;
     int32_t error = 1;

@@ -50,6 +50,8 @@ hsm_err_t hsm_close_session(hsm_hdl_t session_hdl)
 
 		delete_session(s_ptr);
 
+		memset(hsm_services, 0, HSM_MAX_SERVICES);
+
 		// TODO: should we close all associated services here ?
 		// or sanity check that all services have been closed ?
 	} while (false);
@@ -81,6 +83,8 @@ hsm_err_t hsm_open_session(open_session_args_t *args, hsm_hdl_t *session_hdl)
 	hsm_err_t err = HSM_GENERAL_ERROR;
 	uint32_t sab_err;
 	uint8_t session_priority, operating_mode;
+
+	memset(hsm_services, 0, HSM_MAX_SERVICES);
 
 	do {
 		if ((args == NULL) || (session_hdl == NULL)) {
@@ -220,8 +224,11 @@ hsm_err_t hsm_close_key_store_service(hsm_hdl_t key_store_hdl)
 						serv_ptr->session->mu_type);
 		err = sab_rating_to_hsm_err(sab_err);
 
-		// TODO: delete even in case of error from platform ?
-		delete_service(serv_ptr);
+		/* Do not delete the service if SAB_ERR is 0x0429. */
+		if (!((GET_RATING_CODE(sab_err) == SAB_INVALID_PARAM_RATING) &&
+		    (GET_STATUS_CODE(sab_err) == SAB_FAILURE_STATUS))) {
+			delete_service(serv_ptr);
+		}
 
 	} while (false);
 

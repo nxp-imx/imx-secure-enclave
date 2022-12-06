@@ -25,6 +25,11 @@ struct hsm_session_hdl_s *session_hdl_to_ptr(uint32_t hdl)
 	struct hsm_session_hdl_s *ret;
 
 	ret = NULL;
+
+	if (hdl == 0) {
+		return ret;
+	}
+
 	for (i = 0u; i < HSM_MAX_SESSIONS; i++) {
 		if (hdl == hsm_sessions[i].session_hdl) {
 			if (hsm_sessions[i].phdl != NULL) {
