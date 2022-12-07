@@ -125,6 +125,93 @@ void plat_fill_rsp_msg_hdr(struct sab_mu_hdr *hdr, uint8_t cmd, uint32_t len, ui
     hdr->size = (uint8_t)(len / sizeof(uint32_t));
 };
 
+static void hexdump(uint32_t buf[], uint32_t size)
+{
+	int i = 0;
+
+	for (; i < size; i++) {
+		if ((i % 10) == 0)
+			printf("\n");
+		printf("%08x ", buf[i]);
+	}
+}
+
+bool val_rcv_rsp_len(uint32_t rcv_len, uint32_t *rcv_buf)
+{
+	/* Received response length is invalid
+	 * if received size is zero.
+	 */
+	if (rcv_len == 0)
+		return false;
+
+	/* Received response length is invalid
+	 * if received size is not equal to the
+	 * size mentioned in the MU header size-tag.
+	 */
+	if (rcv_len != (((struct sab_mu_hdr *)rcv_buf)->size)
+			* sizeof(uint32_t))
+		return false;
+
+	/* if both the above invalidation check fails.
+	 * it means, received response length is valid.
+	 */
+	return true;
+
+}
+
+/* Helper function to send a message and wait for the response. Return 0 on success.*/
+int32_t plat_send_msg_and_rcv_resp(struct plat_os_abs_hdl *phdl,
+								uint32_t *cmd,
+								uint32_t cmd_len,
+								uint32_t *rsp,
+								uint32_t *rsp_len)
+{
+	int32_t err = -1;
+	int32_t len;
+
+	do {
+		/* Command and response need to be at least 1 word for the header. */
+		if ((cmd_len < (uint32_t)sizeof(uint32_t)) ||
+			(*rsp_len < (uint32_t)sizeof(uint32_t)))
+			break;
+
+		/* Send the command. */
+		len = plat_os_abs_send_mu_message(phdl, cmd, cmd_len);
+		if (len != (int32_t)cmd_len) {
+			printf("SAB CMD[0x%x] PLAT Error[%d]: Write MU MSG failed - %s\n",
+				((struct sab_mu_hdr *)cmd)->command, errno, strerror(errno));
+			break;
+		}
+#if DEBUG
+	printf("\n---------- MSG Command with msg id[0x%x] = %d -------------\n",
+			((struct sab_mu_hdr *)cmd)->command,
+			((struct sab_mu_hdr *)cmd)->command);
+	hexdump(cmd, cmd_len);
+	printf("\n-------------------MSG END-----------------------------------\n");
+#endif
+		/* Read the response. */
+		len = plat_os_abs_read_mu_message(phdl, rsp, *rsp_len);
+		if (len != (int32_t)(*rsp_len) && val_rcv_rsp_len(len, rsp) == false) {
+			printf("SAB CMD[0x%x] PLAT Error[%d]: Read MU MSG failed - %s\n",
+				((struct sab_mu_hdr *)cmd)->command, errno, strerror(errno));
+			break;
+		}
+
+		*rsp_len = len;
+#if DEBUG
+	printf("\n---------- MSG Command RSP with msg id[0x%x] = %d -------------\n",
+			((struct sab_mu_hdr *)rsp)->command,
+			((struct sab_mu_hdr *)rsp)->command);
+	hexdump(rsp, *rsp_len);
+	printf("\n-------------------MSG RSP END-----------------------------------\n");
+#endif
+
+	err = 0;
+	} while (false);
+
+	return err;
+}
+
 /* Helper function to send a message and wait for the response. Return 0 on success.*/
 int32_t plat_send_msg_and_get_resp(struct plat_os_abs_hdl *phdl, uint32_t *cmd, uint32_t cmd_len, uint32_t *rsp, uint32_t rsp_len)
 {
@@ -144,14 +231,27 @@ int32_t plat_send_msg_and_get_resp(struct plat_os_abs_hdl *phdl, uint32_t *cmd, 
 				((struct sab_mu_hdr *)cmd)->command, errno, strerror(errno));
             break;
         }
+#if DEBUG
+	printf("\n---------- MSG Command with msg id[0x%x] = %d -------------\n",
+			((struct sab_mu_hdr *)cmd)->command,
+			((struct sab_mu_hdr *)cmd)->command);
+	hexdump(cmd, cmd_len);
+	printf("\n-------------------MSG END-----------------------------------\n");
+#endif
         /* Read the response. */
         len = plat_os_abs_read_mu_message(phdl, rsp, rsp_len);
-		if (len != (int32_t)rsp_len) {
+		if (len != (int32_t)rsp_len && val_rcv_rsp_len(len, rsp) == false) {
 			printf("SAB CMD[0x%x] PLAT Error[%d]: Read MU MSG failed - %s\n",
 			((struct sab_mu_hdr *)cmd)->command, errno, strerror(errno));
 			break;
 		}
-
+#if DEBUG
+	printf("\n---------- MSG Command RSP with msg id[0x%x] = %d -------------\n",
+			((struct sab_mu_hdr *)rsp)->command,
+			((struct sab_mu_hdr *)rsp)->command);
+	hexdump(rsp, rsp_len);
+	printf("\n-------------------MSG RSP END-----------------------------------\n");
+#endif
         err = 0;
     } while (false);
 
@@ -166,12 +266,24 @@ uint32_t plat_add_msg_crc(uint32_t *msg, uint32_t msg_len)
 	uint32_t nb_words = msg_len / (uint32_t)sizeof(uint32_t);
 
 	crc = 0u;
-	for (i = 0u; i < nb_words; i++) {
+	for (i = 0u; i < (nb_words - 1); i++)
 		crc ^= *(msg + i);
-	}
-	msg[nb_words] = crc;
+
+	msg[nb_words - 1] = crc;
 
 	return err;
+}
+
+uint8_t plat_validate_msg_crc(uint32_t *msg, uint32_t msg_len)
+{
+	uint32_t computed_msg_crc = 0;
+	uint32_t i;
+	uint32_t nb_words = msg_len / (uint32_t)sizeof(uint32_t);
+
+	for (i = 0; i < (nb_words - 1); i++)
+		computed_msg_crc ^= *(msg + i);
+
+	return (computed_msg_crc ==	msg[nb_words - 1]) ? 1 : 0;
 }
 
 uint32_t plat_compute_msg_crc(uint32_t *msg, uint32_t msg_len)

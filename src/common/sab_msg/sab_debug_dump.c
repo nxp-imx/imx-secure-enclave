@@ -45,7 +45,9 @@ uint32_t prepare_msg_debugdump(void *phdl,
 	*cmd_msg_sz = sizeof(struct rom_cmd_firmware_dump_cmd);
 	*rsp_msg_sz = sizeof(struct rom_cmd_firmware_dump_rsp);
 
-	return 0;
+	ret |= SAB_RSP_CRC_BIT;
+
+	return ret;
 }
 
 uint32_t proc_msg_rsp_debugdump(void *rsp_buf, void *args)
@@ -58,6 +60,14 @@ uint32_t proc_msg_rsp_debugdump(void *rsp_buf, void *args)
 	 * 2 word for rsp_code
 	 * 3 word for CRC
 	 */
+
+	/*
+	 * safe-check. Added check on size as memory op (memcpy) going to use it.
+	 */
+	if ((rsp->hdr.size <= ROM_BUF_DUMP_HDR_MIN_SIZE) ||
+		(rsp->hdr.size > (ROM_BUF_DUMP_MAX_WSIZE + 3)))
+		return SAB_FAILURE_STATUS;
+
 	op_args->dump_buf_len = rsp->hdr.size - 3;
 
 	memcpy(op_args->dump_buf, rsp->buffer,

@@ -203,6 +203,7 @@
 #define SAB_FATAL_FAILURE_RATING                (0xFFu)
 
 #define SAB_MSG_CRC_BIT		(1 << 31)
+#define SAB_RSP_CRC_BIT		(1 << 30)
 
 struct sab_mu_hdr {
     uint8_t ver;

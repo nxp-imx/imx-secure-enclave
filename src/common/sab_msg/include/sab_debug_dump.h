@@ -17,6 +17,7 @@
 #include "stdint.h"
 #include "sab_msg_def.h"
 
+#define ROM_BUF_DUMP_HDR_MIN_SIZE 3u
 #define ROM_BUF_DUMP_MAX_WSIZE 20U
 
 struct rom_cmd_firmware_dump_cmd {

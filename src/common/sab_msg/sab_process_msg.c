@@ -80,7 +80,8 @@ uint32_t process_sab_msg(struct plat_os_abs_hdl *phdl,
 	int msg_type_id;
 	uint32_t cmd_msg_sz = 0;
 	uint32_t rsp_msg_sz = 0;
-	bool crc_added = false;
+	bool cmd_crc_added = false;
+	bool rsp_crc_expected = false;
 	uint32_t cmd[MAX_CMD_WORD_SZ];
 	uint32_t rsp[MAX_CMD_RSP_WORD_SZ];
 
@@ -109,10 +110,17 @@ uint32_t process_sab_msg(struct plat_os_abs_hdl *phdl,
 					&rsp_msg_sz, msg_hdl, args);
 
 	if ((error & SAB_MSG_CRC_BIT) == SAB_MSG_CRC_BIT) {
-		crc_added = true;
+		cmd_crc_added = true;
 		/* strip-off the crc flag from error*/
 		error &= ~SAB_MSG_CRC_BIT;
 	}
+
+	if ((error & SAB_RSP_CRC_BIT) == SAB_RSP_CRC_BIT) {
+		rsp_crc_expected = true;
+		/* strip-off the crc flag from error*/
+		error &= ~SAB_RSP_CRC_BIT;
+	}
+
 	if (error) {
 		error = SAB_NO_MESSAGE_RATING;
 		goto out;
@@ -121,8 +129,8 @@ uint32_t process_sab_msg(struct plat_os_abs_hdl *phdl,
 	plat_build_cmd_msg_hdr((struct sab_mu_hdr *)cmd, msg_type,
 				msg_id, cmd_msg_sz, mu_type);
 
-	if (crc_added == true) {
-		if (plat_add_msg_crc(cmd, (cmd_msg_sz - sizeof(uint32_t)))) {
+	if (cmd_crc_added) {
+		if (plat_add_msg_crc(cmd, cmd_msg_sz)) {
 			error = SAB_NO_MESSAGE_RATING;
 			goto out;
 		}
@@ -134,12 +142,21 @@ uint32_t process_sab_msg(struct plat_os_abs_hdl *phdl,
 	printf("\n-------------------MSG END-----------------------------------\n");
 #endif
 
-	/* Send the message to platform. */
-	error = plat_send_msg_and_get_resp(phdl,
-		cmd, cmd_msg_sz, rsp, rsp_msg_sz);
+	/*
+	 * Send the message to platform.
+	 */
+	error = plat_send_msg_and_rcv_resp(phdl,
+		cmd, cmd_msg_sz, rsp, &rsp_msg_sz);
 	if (error) {
 		error = SAB_NO_MESSAGE_RATING;
 		goto out;
+	}
+
+	if (rsp_crc_expected) {
+		if (!plat_validate_msg_crc(rsp, rsp_msg_sz)) {
+			error = SAB_NO_MESSAGE_RATING;
+			goto out;
+		}
 	}
 
 #ifdef DEBUG
