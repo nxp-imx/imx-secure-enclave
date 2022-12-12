@@ -619,7 +619,6 @@ int main(int argc, char *argv[])
     printf("\n---------------------------------------------------\n");
     printf("SM3 hash test\n");
     printf("---------------------------------------------------\n");
-    hash_srv_args.flags = 0;
     err = hsm_open_hash_service(sv0_sess, &hash_srv_args, &hash_serv);
     printf("err: 0x%x hsm_open_hash_service hdl: 0x%08x\n", err, hash_serv);
 
@@ -628,7 +627,6 @@ int main(int argc, char *argv[])
     hash_args.input_size = sizeof(SM2_test_message);
     hash_args.output_size = 32;
     hash_args.algo = 0x11;
-    hash_args.flags = 0;
 
     err = hsm_hash_one_go(hash_serv, &hash_args);
     printf("err: 0x%x hsm_hash_one_go hdl: 0x%08x\n", err, hash_serv);

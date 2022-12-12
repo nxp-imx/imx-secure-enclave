@@ -165,8 +165,6 @@ hsm_err_t hsm_do_hash(hsm_hdl_t hash_sess, op_hash_one_go_args_t *hash_args)
 	hsm_hdl_t hash_serv;
 	open_svc_hash_args_t hash_serv_args;
 
-	hash_serv_args.flags = hash_args->svc_flags;
-
 	err = hsm_open_hash_service(hash_sess, &hash_serv_args, &hash_serv);
 	if (err) {
 		printf("err: 0x%x hsm_open_hash_service.\n", err);

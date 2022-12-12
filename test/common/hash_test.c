@@ -124,7 +124,6 @@ void hash_test(hsm_hdl_t hash_sess)
 	printf("\n---------------------------------------------------\n");
 	printf("HASH Test\n");
 	printf("---------------------------------------------------\n");
-	hash_srv_args.flags = 0;
 	err = hsm_open_hash_service(hash_sess, &hash_srv_args, &hash_serv);
 	printf("err: 0x%x hsm_open_hash_service hdl: 0x%08x\n", err, hash_serv);
 
@@ -135,7 +134,6 @@ void hash_test(hsm_hdl_t hash_sess)
 	hash_args.algo = HSM_HASH_ALGO_SHA_224;
 	hash_size = 28;
 	hash_args.output_size = hash_size;
-	hash_args.flags = 0;
 
 	err = hsm_hash_one_go(hash_serv, &hash_args);
 	printf("err: 0x%x hsm_hash_one_go hdl: 0x%08x\n", err, hash_serv);
@@ -149,7 +147,6 @@ void hash_test(hsm_hdl_t hash_sess)
 	hash_args.algo = HSM_HASH_ALGO_SHA_256;
 	hash_size = 32;
 	hash_args.output_size = hash_size;
-	hash_args.flags = 0;
 
 	err = hsm_hash_one_go(hash_serv, &hash_args);
 	printf("err: 0x%x hsm_hash_one_go hdl: 0x%08x\n", err, hash_serv);
@@ -162,7 +159,6 @@ void hash_test(hsm_hdl_t hash_sess)
 	hash_args.algo = HSM_HASH_ALGO_SHA_384;
 	hash_size = 48;
 	hash_args.output_size = hash_size;
-	hash_args.flags = 0;
 
 	err = hsm_hash_one_go(hash_serv, &hash_args);
 	printf("err: 0x%x hsm_hash_one_go hdl: 0x%08x\n", err, hash_serv);
@@ -175,7 +171,6 @@ void hash_test(hsm_hdl_t hash_sess)
 	hash_args.algo = HSM_HASH_ALGO_SHA_512;
 	hash_size = 64;
 	hash_args.output_size = hash_size;
-	hash_args.flags = 0;
 
 	err = hsm_hash_one_go(hash_serv, &hash_args);
 	printf("err: 0x%x hsm_hash_one_go hdl: 0x%08x\n", err, hash_serv);
@@ -189,7 +184,6 @@ void hash_test(hsm_hdl_t hash_sess)
 	hash_args.algo = HSM_HASH_ALGO_SM3_256;
 	hash_size = 32;
 	hash_args.output_size = hash_size;
-	hash_args.flags = 0;
 
 	err = hsm_hash_one_go(hash_serv, &hash_args);
 	printf("err: 0x%x hsm_hash_one_go hdl: 0x%08x\n", err, hash_serv);
@@ -211,7 +205,6 @@ hsm_err_t do_hash_test(hsm_hdl_t hash_sess)
 	hash_args.input = hash_test_message;
 	hash_args.output = hash_work_area;
 	hash_args.input_size = sizeof(hash_test_message);
-	hash_args.flags = 0;
 
 	hash_args.algo = HSM_HASH_ALGO_SHA_224;
 	hash_size = 28;

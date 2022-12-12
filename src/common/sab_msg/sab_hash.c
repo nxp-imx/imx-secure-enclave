@@ -46,7 +46,10 @@ uint32_t prepare_msg_hash_one_go(void *phdl,
 	cmd->input_size = op_args->input_size;
 	cmd->output_size = op_args->output_size;
 	cmd->algo = op_args->algo;
-	cmd->flags = op_args->flags;
+	/*
+	 * flags: User input through op args is reserved, as per ELE FW spec.
+	 */
+	cmd->flags = 0u;
 	memset(cmd->reserved, 0, SAB_HASH_RESERVED_BYTES);
 
 	*cmd_msg_sz = sizeof(struct sab_hash_one_go_msg);
@@ -63,8 +66,9 @@ uint32_t proc_msg_rsp_hash_one_go(void *rsp_buf, void *args)
 	op_hash_one_go_args_t *op_args = (op_hash_one_go_args_t *) args;
 	struct sab_hash_one_go_rsp *rsp =
 		(struct sab_hash_one_go_rsp *) rsp_buf;
-
-
+#ifdef PSA_COMPLIANT
+	op_args->output_size = rsp->output_size;
+#endif
 	return SAB_SUCCESS_STATUS;
 }
 
@@ -83,7 +87,10 @@ uint32_t prepare_msg_hash_open_req(void *phdl,
 	cmd->session_handle = msg_hdl;
 	cmd->input_address_ext = 0u;
 	cmd->output_address_ext = 0u;
-	cmd->flags = op_args->flags;
+	/*
+	 * flags: User input through op args is reserved, as per ELE FW spec.
+	 */
+	cmd->flags = 0u;
 	cmd->reserved[0] = 0u;
 	cmd->reserved[1] = 0u;
 	cmd->reserved[2] = 0u;

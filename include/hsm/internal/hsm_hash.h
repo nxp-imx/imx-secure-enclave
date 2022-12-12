@@ -23,12 +23,11 @@
  *  @defgroup group8 Hashing
  * @{
  */
-typedef uint8_t hsm_svc_hash_flags_t;
 typedef struct {
 	hsm_hdl_t hash_hdl;
-	//!< bitmap indicating the service flow properties
-	hsm_svc_hash_flags_t flags;
-	uint8_t reserved[3];
+	/*
+	 * flags: User input through op args is reserved, as per ELE FW spec.
+	 */
 } open_svc_hash_args_t;
 
 /**
@@ -63,7 +62,6 @@ typedef enum {
 	HSM_HASH_ALGO_SHA_256 = 0x02000009,
 	HSM_HASH_ALGO_SHA_384 = 0x0200000A,
 	HSM_HASH_ALGO_SHA_512 = 0x0200000B,
-	HSM_HASH_ALGO_SM3_256 = 0x02000014,
 } hsm_hash_algo_t;
 
 #else
@@ -77,8 +75,6 @@ typedef uint8_t hsm_hash_algo_t;
 
 #endif
 
-typedef uint8_t hsm_op_hash_one_go_flags_t;
-
 typedef struct {
 	//!< pointer to the input data to be hashed
 	uint8_t *input;
@@ -90,11 +86,10 @@ typedef struct {
 	uint32_t output_size;
 	//!< hash algorithm to be used for the operation
 	hsm_hash_algo_t algo;
-	//!< flags bitmap specifying the operation attributes.
-	hsm_op_hash_one_go_flags_t flags;
-	//!< flags bitmap specifying the service-flow attributes.
-	hsm_svc_hash_flags_t svc_flags;
-	uint8_t reserved;
+	/*
+	 * flags: User input through op args is reserved, as per ELE FW spec.
+	 * svc_flags: User input through op args is reserved.
+	 */
 } op_hash_one_go_args_t;
 
 /**

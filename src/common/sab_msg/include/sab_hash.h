@@ -66,6 +66,9 @@ struct sab_hash_one_go_msg {
 struct sab_hash_one_go_rsp {
 	struct sab_mu_hdr hdr;
 	uint32_t rsp_code;
+#ifdef PSA_COMPLIANT
+	uint32_t output_size;
+#endif
 };
 
 uint32_t prepare_msg_hash_one_go(void *phdl,
