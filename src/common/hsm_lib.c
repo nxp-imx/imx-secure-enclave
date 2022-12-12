@@ -50,6 +50,8 @@ hsm_err_t hsm_close_session(hsm_hdl_t session_hdl)
 
 		delete_session(s_ptr);
 
+		memset(hsm_sessions, 0, HSM_MAX_SESSIONS);
+
 		memset(hsm_services, 0, HSM_MAX_SERVICES);
 
 		// TODO: should we close all associated services here ?
@@ -84,6 +86,7 @@ hsm_err_t hsm_open_session(open_session_args_t *args, hsm_hdl_t *session_hdl)
 	uint32_t sab_err;
 	uint8_t session_priority, operating_mode;
 
+	memset(hsm_sessions, 0, HSM_MAX_SESSIONS);
 	memset(hsm_services, 0, HSM_MAX_SERVICES);
 
 	do {

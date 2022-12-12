@@ -35,7 +35,7 @@ uint32_t sab_open_session_command(struct plat_os_abs_hdl *phdl,
 
 	do {
 		/* Send the session open command to Platform. */
-		plat_fill_cmd_msg_hdr((struct sab_mu_hdr *)&cmd,
+		plat_fill_cmd_msg_hdr(&cmd.hdr,
 				      SAB_SESSION_OPEN_REQ,
 				      (uint32_t) sizeof(struct
 							sab_cmd_session_open_msg),
@@ -54,7 +54,6 @@ uint32_t sab_open_session_command(struct plat_os_abs_hdl *phdl,
 						   (uint32_t) sizeof(struct
 									sab_cmd_session_open_rsp));
 		if (error != 0) {
-			ret = rsp.rsp_code ? rsp.rsp_code : ret;
 			break;
 		}
 
