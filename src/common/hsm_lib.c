@@ -467,7 +467,11 @@ hsm_err_t hsm_close_key_management_service(hsm_hdl_t key_management_hdl)
 			err = sab_rating_to_hsm_err(rsp.rsp_code);
 		}
 
-		delete_service(serv_ptr);
+		/* Do not delete the service if SAB_ERR is 0x0429. */
+		if (!((GET_RATING_CODE(rsp.rsp_code) == SAB_INVALID_PARAM_RATING) &&
+		    (GET_STATUS_CODE(rsp.rsp_code) == SAB_FAILURE_STATUS))) {
+			delete_service(serv_ptr);
+		}
 	} while (false);
 
 	return err;
