@@ -1122,7 +1122,7 @@ hsm_err_t hsm_data_ops(hsm_hdl_t key_store_hdl,
 {
 	open_svc_data_storage_args_t open_data_args;
 	hsm_hdl_t data_storage_hdl;
-	hsm_err_t err = HSM_GENERAL_ERROR;
+	hsm_err_t err = HSM_GENERAL_ERROR, tmp_err = HSM_GENERAL_ERROR;
 
 	open_data_args.flags = args->svc_flags;
 
@@ -1140,11 +1140,13 @@ hsm_err_t hsm_data_ops(hsm_hdl_t key_store_hdl,
 			data_storage_hdl);
 	}
 
-	err = hsm_close_data_storage_service(data_storage_hdl);
-	if (err) {
+	tmp_err = hsm_close_data_storage_service(data_storage_hdl);
+	if (tmp_err) {
 		printf("err: 0x%x hsm_close_data_storage_service hdl: 0x%08x\n",
-				err, data_storage_hdl);
+				tmp_err, data_storage_hdl);
 	}
+
+	err = (err) ? err: tmp_err;
 exit:
 	return err;
 }
