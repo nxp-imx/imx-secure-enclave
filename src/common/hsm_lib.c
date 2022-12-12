@@ -1053,7 +1053,9 @@ hsm_err_t hsm_close_data_storage_service(hsm_hdl_t data_storage_hdl)
 			err = sab_rating_to_hsm_err(rsp.rsp_code);
 		}
 
-		if (err == HSM_NO_ERROR) {
+		/* Do not delete the service if SAB_ERR is 0x0429. */
+		if (!((GET_RATING_CODE(rsp.rsp_code) == SAB_INVALID_PARAM_RATING) &&
+		    (GET_STATUS_CODE(rsp.rsp_code) == SAB_FAILURE_STATUS))) {
 			delete_service(serv_ptr);
 		}
 	} while (false);
