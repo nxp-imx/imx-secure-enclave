@@ -91,7 +91,6 @@ uint32_t sab_close_session_command(struct plat_os_abs_hdl *phdl,
 									sab_cmd_session_close_rsp)
 						   );
 		if (error != 0) {
-			ret = rsp.rsp_code ? rsp.rsp_code : ret;
 			break;
 		}
 
