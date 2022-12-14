@@ -33,9 +33,9 @@ hsm_err_t hsm_delete_key(hsm_hdl_t key_management_hdl,
 	uint32_t rsp_code;
 
 	do {
-		if ((args == NULL) || (args->key_identifier == NULL)) {
+		if ((args == NULL) || (args->key_identifier == 0))
 			break;
-		}
+
 		serv_ptr = service_hdl_to_ptr(key_management_hdl);
 		if (serv_ptr == NULL) {
 			err = HSM_UNKNOWN_HANDLE;

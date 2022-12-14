@@ -33,15 +33,11 @@ uint32_t prepare_msg_del_key(void *phdl,
 	op_delete_key_args_t *op_args = (op_delete_key_args_t *) args;
 
 	cmd->key_management_hdl = msg_hdl;
-	cmd->key_identifier = *op_args->key_identifier;
-	cmd->key_group = op_args->key_group;
+	cmd->key_identifier = op_args->key_identifier;
 	cmd->flags = op_args->flags;
 
 	*cmd_msg_sz = sizeof(struct sab_cmd_delete_key_msg);
 	*rsp_msg_sz = sizeof(struct sab_cmd_delete_key_rsp);
-
-	cmd->crc = 0u;
-	ret |= SAB_MSG_CRC_BIT;
 
 	return ret;
 }

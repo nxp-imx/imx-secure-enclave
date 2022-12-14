@@ -25,13 +25,8 @@
 typedef uint8_t hsm_op_delete_key_flags_t;
 
 typedef struct {
-	//!< pointer to the identifier of the key to be used for the operation.
-	uint32_t *key_identifier;
-	//!< - Key group of the imported key. It must be a value in
-	//     the range 0-1023.
-	//   - Keys belonging to the same group can be cached in the
-	//     HSM local memory through the hsm_import_key_group API.
-	hsm_key_group_t key_group;
+	//!< identifier of the key to be used for the operation.
+	uint32_t key_identifier;
 	//!< bitmap specifying the operation properties.
 	hsm_op_delete_key_flags_t flags;
 } op_delete_key_args_t;

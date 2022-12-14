@@ -262,9 +262,8 @@ void key_management(uint32_t key_op, hsm_hdl_t key_mgmt_hdl,
 #endif
 #ifdef HSM_DELETE_KEY
 		memset(&del_args, 0, sizeof(del_args));
-		del_args.key_identifier = key_id;
+		del_args.key_identifier = *key_id;
 		del_args.flags = 0;
-		del_args.key_group = key_group;
 		hsmret = hsm_delete_key(key_mgmt_hdl, &del_args);
 		printf("hsm_delete_key ret:0x%x\n", hsmret);
 #endif

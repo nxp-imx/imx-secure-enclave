@@ -22,9 +22,9 @@ struct sab_cmd_delete_key_msg {
 	struct sab_mu_hdr hdr;//(see Table 10)
 	uint32_t key_management_hdl;
 	uint32_t key_identifier;
-	uint16_t key_group;
-	uint16_t flags;
-	uint32_t crc;
+	uint16_t rsv1;
+	uint8_t flags;
+	uint8_t rsv2;
 };
 
 struct sab_cmd_delete_key_rsp {
