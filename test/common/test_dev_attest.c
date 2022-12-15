@@ -19,6 +19,7 @@
 
 void perform_dev_attestation(hsm_hdl_t sess_hdl)
 {
+#if HSM_DEV_ATTEST
 	op_dev_attest_args_t dev_attest_args = {0};
 	hsm_err_t err;
 	int i = 0;
@@ -62,5 +63,5 @@ void perform_dev_attestation(hsm_hdl_t sess_hdl)
 			printf("hsm_dev_attest: Attestation Result = Pass\n");
 	}
 	printf("---------------------------------------------------\n\n");
-
+#endif
 }

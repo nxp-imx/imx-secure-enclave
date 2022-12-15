@@ -19,6 +19,7 @@
 
 void get_device_info(hsm_hdl_t sess_hdl)
 {
+#if HSM_DEV_GETINFO
 	op_dev_getinfo_args_t dev_getinfo_args = {0};
 	hsm_err_t err;
 
@@ -57,5 +58,5 @@ void get_device_info(hsm_hdl_t sess_hdl)
 		printf("TRNG state = 0x%x.\n", dev_getinfo_args.trng_state);
 	}
 	printf("---------------------------------------------------\n\n");
-
+#endif
 }

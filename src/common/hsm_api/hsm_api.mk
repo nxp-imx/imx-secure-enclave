@@ -86,13 +86,13 @@ HSM_API_SRC	+= \
 		$(PLAT_COMMON_PATH)/hsm_api/hsm_key_recovery.o
 endif
 
-ifneq (${MT_ROM_DEV_ATTEST},0x0)
+ifneq (${MT_SAB_DEV_ATTEST},0x0)
 DEFINES		+=	-DHSM_DEV_ATTEST
 HSM_API_SRC	+= \
 		$(PLAT_COMMON_PATH)/hsm_api/hsm_dev_attest.o
 endif
 
-ifneq (${MT_ROM_DEV_GETINFO},0x0)
+ifneq (${MT_SAB_DEV_GETINFO},0x0)
 DEFINES		+=	-DHSM_DEV_GETINFO
 HSM_API_SRC	+= \
 		$(PLAT_COMMON_PATH)/hsm_api/hsm_dev_getinfo.o
