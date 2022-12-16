@@ -1,5 +1,5 @@
 /*
- * Copyright 2019-2022 NXP
+ * Copyright 2019-2023 NXP
  *
  * NXP Confidential.
  * This software is owned or controlled by NXP and may only be used strictly
@@ -11,6 +11,9 @@
  * activate or otherwise use the software.
  */
 
+#include <errno.h>
+#include <string.h>
+
 #include "sab_common_err.h"
 #include "sab_msg_def.h"
 #include "sab_messaging.h"
@@ -19,7 +22,8 @@
 #include "plat_os_abs.h"
 #include "plat_utils.h"
 
-struct nvm_ctx {
+struct nvm_ctx_st {
+	uint32_t status;
 	struct plat_os_abs_hdl *phdl;
 	uint32_t session_handle;
 	uint32_t storage_handle;
@@ -41,10 +45,8 @@ struct nvm_chunk_hdr {
 	uint8_t *data;
 };
 
-static struct nvm_ctx nvm_ctx = {0};
-
 /* Storage import processing. Return 0 on success.  */
-static uint32_t nvm_storage_import(struct nvm_ctx *nvm_ctx_param,
+static uint32_t nvm_storage_import(struct nvm_ctx_st *nvm_ctx_param,
 		uint8_t *data, uint32_t len)
 {
 	struct sab_cmd_key_store_import_msg msg = {0};
@@ -105,65 +107,72 @@ static uint32_t nvm_storage_import(struct nvm_ctx *nvm_ctx_param,
 	return ret;
 }
 
-void nvm_close_session(void)
+void nvm_close_session(void *ctx)
 {
+	struct nvm_ctx_st *nvm_ctx = (struct nvm_ctx_st *)ctx;
 	uint32_t ret = SAB_FAILURE_STATUS;
 
-	if (nvm_ctx.phdl != NULL) {
-		if (nvm_ctx.storage_handle != 0u) {
-			ret = sab_close_storage_command(nvm_ctx.phdl,
-					nvm_ctx.storage_handle,
-					nvm_ctx.mu_type);
-			nvm_ctx.storage_handle = 0u;
+	if (ctx == NULL) {
+		printf("Error: No active context to close.\n");
+		return;
+	}
+
+	if (nvm_ctx->phdl != NULL) {
+		if (nvm_ctx->storage_handle != 0u) {
+			ret = sab_close_storage_command(nvm_ctx->phdl,
+					nvm_ctx->storage_handle,
+					nvm_ctx->mu_type);
+			nvm_ctx->storage_handle = 0u;
 		}
-		if (nvm_ctx.session_handle != 0u) {
-			(void)sab_close_session_command(nvm_ctx.phdl,
-					nvm_ctx.session_handle,
-					nvm_ctx.mu_type);
-			nvm_ctx.session_handle = 0u;
+		if (nvm_ctx->session_handle != 0u) {
+			(void)sab_close_session_command(nvm_ctx->phdl,
+					nvm_ctx->session_handle,
+					nvm_ctx->mu_type);
+			nvm_ctx->session_handle = 0u;
 		}
 
-		plat_os_abs_close_session(nvm_ctx.phdl);
-		nvm_ctx.phdl = NULL;
+		plat_os_abs_close_session(nvm_ctx->phdl);
+		nvm_ctx->phdl = NULL;
 	}
+
+	plat_os_abs_free(nvm_ctx);
 }
 
-static void nvm_open_session(uint8_t flags)
+static void nvm_open_session(uint8_t flags, struct nvm_ctx_st *nvm_ctx)
 {
 	uint32_t err = SAB_FAILURE_STATUS;
 	struct plat_mu_params mu_params;
 
 	do {
 		/* Check if structure is already in use */
-		if (nvm_ctx.phdl != NULL) {
+		if (nvm_ctx->phdl != NULL)
 			break;
-		}
 
 		/* Open the Storage session on the MU */
 		if ((flags & NVM_FLAGS_V2X) != 0u) {
 			if ((flags & NVM_FLAGS_SHE) != 0u) {
-				nvm_ctx.mu_type = MU_CHANNEL_V2X_SHE_NVM;
+				nvm_ctx->mu_type = MU_CHANNEL_V2X_SHE_NVM;
 			} else {
-				nvm_ctx.mu_type = MU_CHANNEL_V2X_HSM_NVM;
+				nvm_ctx->mu_type = MU_CHANNEL_V2X_HSM_NVM;
 			}
 		} else {
 			if ((flags & NVM_FLAGS_SHE) != 0u) {
-				nvm_ctx.mu_type = MU_CHANNEL_PLAT_SHE_NVM;
+				nvm_ctx->mu_type = MU_CHANNEL_PLAT_SHE_NVM;
 			} else {
-				nvm_ctx.mu_type = MU_CHANNEL_PLAT_HSM_NVM;
+				nvm_ctx->mu_type = MU_CHANNEL_PLAT_HSM_NVM;
 			}
 		}
-		nvm_ctx.phdl = plat_os_abs_open_mu_channel(nvm_ctx.mu_type,
+		nvm_ctx->phdl = plat_os_abs_open_mu_channel(MU_CHANNEL_PLAT_HSM_NVM,
 				&mu_params);
 
-		if (nvm_ctx.phdl == NULL) {
+		if (nvm_ctx->phdl == NULL) {
 			break;
 		}
 
 		/* Open the SAB session on the selected security enclave */
-		err = sab_open_session_command(nvm_ctx.phdl,
-				&nvm_ctx.session_handle,
-				nvm_ctx.mu_type,
+		err = sab_open_session_command(nvm_ctx->phdl,
+				&nvm_ctx->session_handle,
+				nvm_ctx->mu_type,
 				mu_params.mu_id,
 				mu_params.interrupt_idx,
 				mu_params.tz,
@@ -172,30 +181,30 @@ static void nvm_open_session(uint8_t flags)
 				((flags & NVM_FLAGS_V2X) != 0u)
 				? SAB_OPEN_SESSION_LOW_LATENCY_MASK : 0U);
 		if (err != SAB_SUCCESS_STATUS) {
-			nvm_ctx.session_handle = 0u;
+			nvm_ctx->session_handle = 0u;
 			break;
 		}
 
 		/* Open the NVM STORAGE session on the selected security enclave */
-		err = sab_open_storage_command(nvm_ctx.phdl,
-				nvm_ctx.session_handle,
-				&nvm_ctx.storage_handle,
-				nvm_ctx.mu_type,
+		err = sab_open_storage_command(nvm_ctx->phdl,
+				nvm_ctx->session_handle,
+				&nvm_ctx->storage_handle,
+				nvm_ctx->mu_type,
 				flags);
 		if (err != SAB_SUCCESS_STATUS) {
-			nvm_ctx.storage_handle = 0u;
+			nvm_ctx->storage_handle = 0u;
 			break;
 		}
 	} while (false);
 
 	/* Clean-up in case of error. */
 	if (err != SAB_SUCCESS_STATUS) {
-		nvm_close_session();
+		nvm_close_session(nvm_ctx);
 		//clean nvm_ctx
 	}
 }
 
-static uint32_t nvm_export_finish_rsp(struct nvm_ctx *nvm_ctx_param,
+static uint32_t nvm_export_finish_rsp(struct nvm_ctx_st *nvm_ctx_param,
 		uint32_t error)
 {
 	struct sab_cmd_key_store_export_finish_rsp resp;
@@ -233,7 +242,7 @@ static uint32_t nvm_export_finish_rsp(struct nvm_ctx *nvm_ctx_param,
 	return ret;
 }
 
-static uint32_t nvm_manager_export_master(struct nvm_ctx *nvm_ctx_param, struct sab_cmd_key_store_export_start_msg *msg, int32_t msg_len)
+static uint32_t nvm_manager_export_master(struct nvm_ctx_st *nvm_ctx_param, struct sab_cmd_key_store_export_start_msg *msg, int32_t msg_len)
 {
 	uint32_t err = 1u;
 	uint32_t data_len;
@@ -326,7 +335,7 @@ static uint32_t nvm_manager_export_master(struct nvm_ctx *nvm_ctx_param, struct 
 	return err;
 }
 
-static uint32_t nvm_manager_export_chunk(struct nvm_ctx *nvm_ctx_param, struct sab_cmd_key_store_chunk_export_msg *msg, int32_t msg_len)
+static uint32_t nvm_manager_export_chunk(struct nvm_ctx_st *nvm_ctx_param, struct sab_cmd_key_store_chunk_export_msg *msg, int32_t msg_len)
 {
 	uint32_t err = 0u;
 	uint32_t data_len;
@@ -421,7 +430,7 @@ static uint32_t nvm_manager_export_chunk(struct nvm_ctx *nvm_ctx_param, struct s
 	return err;
 }
 
-static uint32_t nvm_manager_get_chunk(struct nvm_ctx *nvm_ctx_param, struct sab_cmd_key_store_chunk_get_msg *msg, int32_t msg_len)
+static uint32_t nvm_manager_get_chunk(struct nvm_ctx_st *nvm_ctx_param, struct sab_cmd_key_store_chunk_get_msg *msg, int32_t msg_len)
 {
 	uint32_t err = 1;
 	struct nvm_header_s nvm_hdr;
@@ -518,8 +527,8 @@ static uint32_t nvm_manager_get_chunk(struct nvm_ctx *nvm_ctx_param, struct sab_
 
 #define MAX_RCV_MSG_SIZE ((uint32_t)sizeof(struct sab_cmd_key_store_chunk_export_msg))
 
-void nvm_manager(uint8_t flags,
-		 uint32_t *status,
+int nvm_manager(uint8_t flags,
+		 void **ctx,
 		 uint8_t *fname,
 		 uint8_t *dname)
 {
@@ -531,19 +540,37 @@ void nvm_manager(uint8_t flags,
 	uint32_t err = 0u;
 	uint8_t *data = NULL;
 	uint8_t retry = 0;
+	struct nvm_ctx_st *nvm_ctx = NULL;
 
-	plat_os_abs_memcpy(nvm_ctx.nvm_fname, fname, NO_LENGTH);
-	plat_os_abs_memcpy(nvm_ctx.nvm_dname, dname, NO_LENGTH);
+	if ((strlen(fname) > MAX_FNAME_DNAME_SZ)
+		|| (strlen(dname) > MAX_FNAME_DNAME_SZ)) {
+		printf("Error: Invalid File or Directory name.\n");
+		err = -EIO;
 
-	if (status != NULL) {
-		*status = NVM_STATUS_STARTING;
+		return err;
 	}
+	nvm_ctx = (struct nvm_ctx_st *)plat_os_abs_malloc(sizeof(struct nvm_ctx_st));
+	if (nvm_ctx == NULL) {
+		printf("Error: Insufficient memory.\n");
+		err = -ENOMEM;
+
+		return err;
+	}
+
+	plat_os_abs_memcpy(nvm_ctx->nvm_fname, fname, NO_LENGTH);
+	plat_os_abs_memcpy(nvm_ctx->nvm_dname, dname, NO_LENGTH);
+
+	*ctx = nvm_ctx;
 
 	do {
 		retry = 0;
-		nvm_open_session(flags);
 
-		if (nvm_ctx.phdl == NULL) {
+		nvm_ctx->status = NVM_STATUS_STARTING;
+
+		nvm_open_session(flags, nvm_ctx);
+
+		if (nvm_ctx->phdl == NULL) {
+			err = 1;
 			break;
 		}
 
@@ -552,55 +579,53 @@ void nvm_manager(uint8_t flags,
 		 * Then if successful extract the full length and read the whole storage into an allocated buffer.
 		 */
 		if (plat_os_abs_storage_read(
-					nvm_ctx.phdl,
+					nvm_ctx->phdl,
 					(uint8_t *)&nvm_hdr,
 					(uint32_t)sizeof(nvm_hdr),
-					nvm_ctx.nvm_fname)
+					nvm_ctx->nvm_fname)
 				== (int32_t)sizeof(nvm_hdr)) {
 			data_len = nvm_hdr.size + (uint32_t)sizeof(nvm_hdr);
 			data = plat_os_abs_malloc(data_len);
 			if (data != NULL) {
 				if (plat_os_abs_storage_read(
-							nvm_ctx.phdl,
+							nvm_ctx->phdl,
 							data,
 							data_len,
-							nvm_ctx.nvm_fname)
+							nvm_ctx->nvm_fname)
 						== (int32_t)data_len) {
 					/* In case of error then start anyway the storage manager process so platform can create
 					 * and export a storage.
 					 */
-					(void)nvm_storage_import(&nvm_ctx, data, data_len);
+					(void)nvm_storage_import(nvm_ctx, data, data_len);
 				}
 				plat_os_abs_free(data);
 				data = NULL;
 				len = 0;
 			}
 		}
-		if (status != NULL) {
-			*status = NVM_STATUS_RUNNING;
-		}
+		nvm_ctx->status = NVM_STATUS_RUNNING;
 
 		/* Infinite loop waiting for platform commands. */
 		while (true) {
 			/* Receive a message from platform and process it according its type. */
-			len = plat_os_abs_read_mu_message(nvm_ctx.phdl, recv_msg, MAX_RCV_MSG_SIZE);
+			len = plat_os_abs_read_mu_message(nvm_ctx->phdl, recv_msg, MAX_RCV_MSG_SIZE);
 			if (len < 0) {
 				retry = 1;
 				/* handle case when platform/V2X are reset */
-				plat_os_abs_close_session(nvm_ctx.phdl);
-				nvm_ctx.phdl = NULL;
+				plat_os_abs_close_session(nvm_ctx->phdl);
+				nvm_ctx->phdl = NULL;
 				break;
 			}
 
 			switch (hdr->command) {
 			case SAB_STORAGE_MASTER_EXPORT_REQ:
-				err = nvm_manager_export_master(&nvm_ctx, (struct sab_cmd_key_store_export_start_msg *)recv_msg, len);
+				err = nvm_manager_export_master(nvm_ctx, (struct sab_cmd_key_store_export_start_msg *)recv_msg, len);
 					break;
 			case SAB_STORAGE_CHUNK_EXPORT_REQ:
-				err = nvm_manager_export_chunk(&nvm_ctx, (struct sab_cmd_key_store_chunk_export_msg *)recv_msg, len);
+				err = nvm_manager_export_chunk(nvm_ctx, (struct sab_cmd_key_store_chunk_export_msg *)recv_msg, len);
 				break;
 			case SAB_STORAGE_CHUNK_GET_REQ:
-				err = nvm_manager_get_chunk(&nvm_ctx, (struct sab_cmd_key_store_chunk_get_msg *)recv_msg, len);
+				err = nvm_manager_get_chunk(nvm_ctx, (struct sab_cmd_key_store_chunk_get_msg *)recv_msg, len);
 				break;
 			default:
 				err = 1u;
@@ -609,11 +634,19 @@ void nvm_manager(uint8_t flags,
 		}
 	} while (retry);
 
-	if (status != NULL) {
-		*status = NVM_STATUS_STOPPED;
+	nvm_ctx->status = NVM_STATUS_STOPPED;
+
+	if (nvm_ctx->phdl != NULL) {
+		nvm_close_session(nvm_ctx);
+	} else {
+		plat_os_abs_free(nvm_ctx);
 	}
 
-	if (nvm_ctx.phdl != NULL) {
-		nvm_close_session();
-	}
+	*ctx = NULL;
+	return err;
+}
+
+uint32_t get_nvmd_status(void *ctx)
+{
+	return ((struct nvm_ctx_st *)ctx)->status;
 }

@@ -1,5 +1,5 @@
 /*
- * Copyright 2022 NXP
+ * Copyright 2022-2023 NXP
  */
 
 /*
@@ -48,7 +48,7 @@
 #include "plat_os_abs.h"
 
 /** Status variable required by nvm_manager call */
-static uint32_t nvm_status;
+static void *nvm_ctx;
 
 /**
  *
@@ -60,7 +60,7 @@ static uint32_t nvm_status;
  */
 void kill_daemon(int ip)
 {
-	nvm_close_session();
+	nvm_close_session(nvm_ctx);
 	exit(0);
 }
 
@@ -85,6 +85,7 @@ int main(int argc, char *argv[])
 {
 	struct sigaction action = {0};
 	int flags = 0;
+	int err = 0;
 
 	if (argc < 3) {
 		printf("Usage: ./nvm_daemon <file_name> <directory>\n");
@@ -98,14 +99,13 @@ int main(int argc, char *argv[])
 
 	flags |= NVM_FLAGS_HSM;
 	if (plat_os_abs_has_v2x_hw()) {
-		printf("calling nvm_manager for V2X\n");
 		flags |= NVM_FLAGS_V2X;
 	}
-	printf("Starting nvm_manager inside the Daemon.\n");
-	nvm_manager(flags, &nvm_status, argv[1], argv[2]);
 
-	printf("nvm_manager() completed. nvm_status = 0x%x\n", nvm_status);
+	err = nvm_manager(flags, &nvm_ctx, argv[1], argv[2]);
+	if (err)
+		printf("Error: NVM Daemon exited with error(0x%x).\n", err);
 
 	/* return an error as the daemon is never supposed to end */
-	return 1;
+	return 0;
 }

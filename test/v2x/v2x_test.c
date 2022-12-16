@@ -1,5 +1,5 @@
 /*
- * Copyright 2021, 2022 NXP
+ * Copyright 2021, 2022, 2023 NXP
  *
  * NXP Confidential.
  * This software is owned or controlled by NXP and may only be used strictly
@@ -162,7 +162,7 @@ uint8_t work_area2[128] = {0};
 uint8_t work_area3[128] = {0};
 uint8_t work_area4[128] = {0};
 
-static uint32_t nvm_status;
+static void *v2x_nvm_ctx = NULL;
 
 uint8_t *nvm_fname_dname[] = {
 	"/etc/ele_nvm_v2x/v2x_nvm_storage",
@@ -172,7 +172,7 @@ uint8_t *nvm_fname_dname[] = {
 static void *v2x_hsm_storage_thread(void *arg)
 {
 	nvm_manager(NVM_FLAGS_V2X | NVM_FLAGS_HSM,
-		    &nvm_status,
+		    &v2x_nvm_ctx,
 		    nvm_fname_dname[0],
 		    nvm_fname_dname[1]);
 }
@@ -467,20 +467,19 @@ int main(int argc, char *argv[])
     printf("\n---------------------------------------------------\n");
     printf("Starting storage manager \n");
     printf("---------------------------------------------------\n");
-    nvm_status = NVM_STATUS_UNDEF;
 
     (void)pthread_create(&tid, NULL, v2x_hsm_storage_thread, NULL);
 
     /* Wait for the storage manager to be ready to receive commands from V2X. */
-    while (nvm_status <= NVM_STATUS_STARTING) {
+    while (get_nvmd_status(v2x_nvm_ctx) <= NVM_STATUS_STARTING) {
         usleep(1000);
     }
     /* Check if it ended because of an error. */
-    if (nvm_status == NVM_STATUS_STOPPED) {
+    if (get_nvmd_status(v2x_nvm_ctx) == NVM_STATUS_STOPPED) {
         printf("nvm manager failed to start\n");
         return 1;
     }
-    printf("nvm manager started: status: 0x%x \n", nvm_status);
+    printf("nvm manager started: status: 0x%x \n", get_nvmd_status(v2x_nvm_ctx));
 
 
     // SG0
@@ -1598,10 +1597,10 @@ int main(int argc, char *argv[])
     err = hsm_close_session(sv1_sess);
     printf("err: 0x%x SV hsm_close_session hdl: 0x%x\n", err, sv1_sess);
 
-    if (nvm_status != NVM_STATUS_STOPPED) {
+    if (get_nvmd_status(v2x_nvm_ctx) != NVM_STATUS_STOPPED) {
         pthread_cancel(tid);
     }
-    nvm_close_session();
+    nvm_close_session(v2x_nvm_ctx);
 
     return 0;
 }

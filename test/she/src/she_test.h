@@ -1,5 +1,5 @@
 /*
- * Copyright 2019 NXP
+ * Copyright 2019-2023 NXP
  *
  * NXP Confidential.
  * This software is owned or controlled by NXP and may only be used strictly
@@ -21,6 +21,7 @@ typedef struct
 	struct she_storage_context *storage_ctx;
     struct she_hdl_s *hdl[16];
     pthread_t tid;
+    uint32_t nvm_status;
 } test_struct_t;
 
 uint32_t read_single_data(FILE *fp);

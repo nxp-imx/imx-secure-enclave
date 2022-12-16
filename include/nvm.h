@@ -1,5 +1,5 @@
 /*
- * Copyright 2019-2020 NXP
+ * Copyright 2019-2023 NXP
  *
  * NXP Confidential.
  * This software is owned or controlled by NXP and may only be used strictly
@@ -23,11 +23,14 @@
 
 #include <stdint.h>
 
-void nvm_manager(uint8_t flags,
-		 uint32_t *status,
-		 uint8_t *fname,
-		 uint8_t *dname);
-void nvm_close_session(void);
+int nvm_manager(uint8_t flags,
+		void **ctx,
+		uint8_t *fname,
+		uint8_t *dname);
+
+void nvm_close_session(void *ctx);
+
+uint32_t get_nvmd_status(void *ctx);
 
 #define NVM_FLAGS_V2X    (0x02u)
 #define NVM_FLAGS_SHE    (0x01u)
