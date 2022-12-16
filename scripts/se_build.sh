@@ -268,7 +268,7 @@ function configure()
 {
     printf "\033[0;32m\n"
     printf "***************************************\n"
-    printf " Configure SMW to %s\n" "${opt_out}"
+    printf " Configure in Secure Enclave not supported\n"
     printf "***************************************\n"
     printf "\033[0m\n"
 
@@ -286,8 +286,8 @@ function configure()
     cmd_script="${cmd_script} ${opt_psa}"
     cmd_script="${cmd_script} ${opt_tls12}"
 
-    printf "Execute %s\n" "${cmd_script}"
-    eval "${cmd_script}"
+    printf "Not Executing %s\n" "${cmd_script}"
+    #eval "${cmd_script}"
 }
 
 function build_tests()
@@ -314,7 +314,7 @@ function build()
 {
     printf "\033[0;32m\n"
     printf "***************************************\n"
-    printf " Build SMW (%s) to %s\n" "${opt_build}" "${opt_out}"
+    printf " Build Secure-Enclave (%s) to %s\n" "${opt_build}" "${opt_out}"
     printf "***************************************\n"
     printf "\033[0m\n"
 
@@ -375,13 +375,34 @@ function install()
     eval "${cmd_make} install ${cmd_script}"
 
     if [[ -n ${opt_jsonc_lib} ]]; then
-    	eval "${cmd_make} install_tests ${cmd_script}"
+        eval "${cmd_make} install_tests ${cmd_script}"
     fi
+}
+
+function se_package()
+{
+    local package_name="libse_package.tar.gz"
+
+    printf "\033[0;32m\n"
+    printf "***************************************\n"
+    printf " Package Secure Enclave(SE) in %s\n" "${opt_out}/${package_name}"
+    printf "***************************************\n"
+    printf "\033[0m\n"
+
+    if [[ -z ${opt_out} ]]; then
+        usage_se_package
+        exit 1
+    fi
+
+    opt_dest="${opt_out}"
+
+    eval "cd ${opt_dest} && tar -czf ../${package_name} . && mv ../${package_name} ."
+    rm -rf "${opt_dest}"
 }
 
 function package()
 {
-    local package_name="libsmw_package.tar.gz"
+    local package_name="libse_package.tar.gz"
     local tmp_inst_dir="tmp_install"
 
     printf "\033[0;32m\n"
@@ -637,6 +658,15 @@ function usage_package()
     printf "\n"
 }
 
+function usage_se_package()
+{
+    printf "\n"
+    printf "To package the Secure Enclave objects\n"
+    printf "  %s package out=[dir]\n" "${script_name}"
+    printf "    out      = Build directory\n"
+    printf "\n"
+}
+
 function usage()
 {
     printf "\n"
@@ -655,6 +685,7 @@ function usage()
     usage_build
     usage_install
     usage_package
+    usage_se_package
 
     exit 1
 }
@@ -881,6 +912,9 @@ case ${opt_action} in
         package
         ;;
 
+    se_package)
+        se_package
+        ;;
     *)
         usage
         ;;
