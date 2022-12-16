@@ -46,7 +46,7 @@ if(NOT ELE_FOUND)
         set(ENV{CPATH} $ENV{CPATH}:${ZLIB_INCLUDE_DIR})
 
         message(STATUS "Building EdgeLock Enclave libs")
-        set(ELE_MAKE_ARGS clean libs install PLAT=ele DESTDIR=${ELE_ROOT}
+        set(ELE_MAKE_ARGS clean all install_tests PLAT=ele DESTDIR=${ELE_ROOT}
             LDFLAGS=-L${ZLIB_LIBRARY_DIR})
         execute_process(COMMAND make ${ELE_MAKE_ARGS}
                         WORKING_DIRECTORY ${ELE_SRC_PATH}
