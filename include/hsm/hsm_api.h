@@ -308,10 +308,35 @@ typedef struct {
  * \return error code
  */
 hsm_err_t hsm_manage_key_group(hsm_hdl_t key_management_hdl, op_manage_key_group_args_t *args);
-#define HSM_OP_MANAGE_KEY_GROUP_FLAGS_CACHE_LOCKDOWN          ((hsm_op_manage_key_group_flags_t)(1u << 0))   //!< The entire key group will be cached in the HSM local memory.
-#define HSM_OP_MANAGE_KEY_GROUP_FLAGS_CACHE_UNLOCK            ((hsm_op_manage_key_group_flags_t)(1u << 1))   //!< HSM may export the key group in the external NVM to free up the local memory. HSM will copy the key group in the local memory again in case of key group usage/update.
-#define HSM_OP_MANAGE_KEY_GROUP_FLAGS_DELETE                  ((hsm_op_manage_key_group_flags_t)(1u << 2))   //!< Delete an existing key group.
-#define HSM_OP_MANAGE_KEY_GROUP_FLAGS_STRICT_OPERATION        ((hsm_op_manage_key_group_flags_t)(1u << 7))   //!< The request is completed only when the update has been written in the NVM. Not applicable for cache lockdown/unlock.
+
+//!< The entire key group will be cached in the HSM local memory.
+#define HSM_OP_MANAGE_KEY_GROUP_FLAGS_CACHE_LOCKDOWN \
+		((hsm_op_manage_key_group_flags_t)(1u << 0))
+
+//!< HSM may export the key group in the external NVM to free up the local
+//	 memory. HSM will copy the key group in the local memory again in case
+//	 of key group usage/update.
+#define HSM_OP_MANAGE_KEY_GROUP_FLAGS_CACHE_UNLOCK \
+		((hsm_op_manage_key_group_flags_t)(1u << 1))
+
+#ifdef PSA_COMPLIANT
+//!< Import the key group.
+#define HSM_OP_MANAGE_KEY_GROUP_FLAGS_IMPORT \
+		((hsm_op_manage_key_group_flags_t)(1u << 2))
+
+//!< Export the key group.
+#define HSM_OP_MANAGE_KEY_GROUP_FLAGS_EXPORT \
+		((hsm_op_manage_key_group_flags_t)(1u << 3))
+#else
+//!< Delete an existing key group.
+#define HSM_OP_MANAGE_KEY_GROUP_FLAGS_DELETE \
+		((hsm_op_manage_key_group_flags_t)(1u << 2))
+#endif
+
+//!< The request is completed only when the update has been written in the NVM.
+//	 Not applicable for cache lockdown/unlock.
+#define HSM_OP_MANAGE_KEY_GROUP_FLAGS_STRICT_OPERATION \
+		((hsm_op_manage_key_group_flags_t)(1u << 7))
 
 
 typedef uint8_t hsm_op_but_key_exp_flags_t;
