@@ -38,13 +38,12 @@ hsm_err_t do_key_recovery_test(hsm_hdl_t key_store_hdl, hsm_hdl_t key_mgmt_hdl,
 		args.out_key_size = pub_key_sz;
 		args.out_key      = pub_key;
 	}
+#ifndef PSA_COMPLIANT
 	args.key_type     = HSM_PUBKEY_TYPE_ECC_NIST;
 	args.flags        = 0;
-
+#endif
 	err = hsm_pub_key_recovery(key_store_hdl, &args);
-
-	if (err)
-		printf("hsm_pub_key_recovery ret:0x%x\n", err);
+	printf("hsm_pub_key_recovery ret:0x%x\n", err);
 
 	printf("\n---------------------------------------------------\n");
 	printf("PUB KEY RECOVERY Test: Complete\n");

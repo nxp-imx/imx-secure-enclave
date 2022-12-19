@@ -42,8 +42,8 @@ uint32_t prepare_msg_key_recovery(void *phdl,
 						DATA_BUF_IS_OUTPUT);
 
 	cmd->out_key_size = op_args->out_key_size;
-	cmd->key_type = op_args->key_type;
 #ifndef PSA_COMPLIANT
+	cmd->key_type = op_args->key_type;
 	cmd->flags = op_args->flags;
 #endif
 
@@ -63,8 +63,6 @@ uint32_t proc_msg_rsp_key_recovery(void *rsp_buf, void *args)
 		(struct sab_cmd_pub_key_recovery_rsp *) rsp_buf;
 
 #ifdef PSA_COMPLIANT
-	printf("op_args->output_size %d, rsp->out_key_size %d\n",
-			op_args->out_key_size, rsp->out_key_size);
 	op_args->out_key_size = rsp->out_key_size;
 #endif
 

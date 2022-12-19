@@ -21,6 +21,11 @@
 /**
  *  @defgroup group12 Public key recovery
  * @{
+ *
+ * Public Key Recovery is now also known as Public Key Exportation, in PSA
+ * compliant APIs. The naming here has been kept unchanged, for backward
+ * compatibility and Non-PSA compliant APIs.\n
+ *
  */
 typedef uint8_t hsm_op_pub_key_recovery_flags_t;
 typedef struct {
@@ -30,11 +35,12 @@ typedef struct {
 	uint8_t *out_key;
 	//!< length in bytes of the output key
 	uint16_t out_key_size;
+#ifndef PSA_COMPLIANT
 	//!< indicates the type of the key to be recovered
 	hsm_key_type_t key_type;
 	//!< bitmap specifying the operation attributes, mandatory for non-PSA compliant platforms
 	hsm_op_pub_key_recovery_flags_t flags;
-	hsm_bit_key_sz_t bit_key_sz;
+#endif
 } op_pub_key_recovery_args_t;
 
 /**

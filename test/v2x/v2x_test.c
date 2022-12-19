@@ -768,9 +768,10 @@ int main(int argc, char *argv[])
     pub_k_rec_args.key_identifier = key_id;
     pub_k_rec_args.out_key = recovered_key;
     pub_k_rec_args.out_key_size = 64;
-    pub_k_rec_args.key_type = HSM_KEY_TYPE_DSA_SM2_FP_256;
-    pub_k_rec_args.flags = 0;
-
+#ifndef PSA_COMPLIANT
+	pub_k_rec_args.key_type = HSM_KEY_TYPE_DSA_SM2_FP_256;
+	pub_k_rec_args.flags = 0;
+#endif
     err = hsm_pub_key_recovery(sg0_key_store_serv, &pub_k_rec_args);
     printf("err: 0x%x hsm_pub_key_recovery\n", err);
     if (memcmp(recovered_key, work_area2, 64) == 0) {

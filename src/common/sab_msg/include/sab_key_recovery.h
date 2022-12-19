@@ -26,7 +26,7 @@ struct sab_cmd_pub_key_recovery_msg {
 	uint32_t out_key_addr;
 	uint16_t out_key_size;
 #ifdef PSA_COMPLIANT
-	uint16_t key_type;
+	uint16_t rsv;
 #else
 	uint8_t key_type;
 	uint8_t flags;
