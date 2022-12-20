@@ -28,8 +28,8 @@ typedef struct {
 	 * Caller of the func hsm_dev_attest(), needs to
 	 * ensure freeing up of this memory.
 	 */
-	uint32_t *uid;
-	uint16_t sha_rom_sz;
+	uint8_t  *uid;
+	uint16_t rom_patch_sha_sz;
 	uint16_t sha_fw_sz;
 	uint8_t  *sha_rom_patch;
 	uint8_t  *sha_fw;

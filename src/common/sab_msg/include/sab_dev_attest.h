@@ -17,9 +17,7 @@
 #include "sab_msg_def.h"
 #include "sab_dev_getinfo.h"
 
-#define MAX_UID_SIZE               (04)
 #define DEV_ATTEST_SIGN_SIZE       (96)
-#define DEV_ATTEST_SHA_SIZE        (32)
 
 struct sab_cmd_dev_attest_msg {
 	struct sab_mu_hdr hdr;

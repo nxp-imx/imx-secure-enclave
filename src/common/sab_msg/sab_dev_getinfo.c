@@ -15,7 +15,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 
-#include "internal/hsm_dev_attest.h"
+#include "internal/hsm_dev_getinfo.h"
 
 #include "sab_dev_getinfo.h"
 
@@ -34,7 +34,7 @@ uint32_t prepare_msg_dev_getinfo(void *phdl, void *cmd_buf, void *rsp_buf,
 	struct sab_cmd_dev_getinfo_rsp *rsp =
 		(struct sab_cmd_dev_getinfo_rsp *) rsp_buf;
 	uint64_t data_addr;
-	op_dev_attest_args_t *op_args = (op_dev_attest_args_t *) args;
+	op_dev_getinfo_args_t *op_args = (op_dev_getinfo_args_t *) args;
 
 	*cmd_msg_sz = sizeof(struct sab_cmd_dev_getinfo_msg);
 	*rsp_msg_sz = sizeof(struct sab_cmd_dev_getinfo_rsp);
@@ -59,7 +59,7 @@ uint32_t prepare_msg_dev_getinfo(void *phdl, void *cmd_buf, void *rsp_buf,
 
 uint32_t proc_msg_rsp_dev_getinfo(void *rsp_buf, void *args)
 {
-	op_dev_attest_args_t *op_args = (op_dev_attest_args_t *) args;
+	op_dev_getinfo_args_t *op_args = (op_dev_getinfo_args_t *) args;
 	struct sab_cmd_dev_getinfo_rsp_w_data *rsp_w_data =
 		(struct sab_cmd_dev_getinfo_rsp_w_data *) rsp_buf;
 	struct sab_cmd_dev_getinfo_rsp *rsp =
@@ -73,7 +73,7 @@ uint32_t proc_msg_rsp_dev_getinfo(void *rsp_buf, void *args)
 	op_args->lmda_val = rsp_w_data->d_info.lmda_val;
 	op_args->ssm_state = rsp_w_data->d_info.ssm_state;
 
-	op_args->uid = (uint32_t *)plat_os_abs_malloc(MAX_UID_SIZE);
+	op_args->uid = plat_os_abs_malloc(MAX_UID_SIZE);
 	if (op_args->uid == NULL)
 		goto exit;
 
@@ -82,26 +82,26 @@ uint32_t proc_msg_rsp_dev_getinfo(void *rsp_buf, void *args)
 			   (uint8_t *)rsp_w_data->d_info.uid,
 			   MAX_UID_SIZE);
 
-	op_args->sha_rom_patch = plat_os_abs_malloc(DEV_ATTEST_SHA_SIZE);
+	op_args->sha_rom_patch = plat_os_abs_malloc(DEV_GETINFO_ROM_PATCH_SHA_SZ);
 	if (op_args->sha_rom_patch == NULL) {
 		plat_os_abs_free(op_args->uid);
 		goto exit;
 	}
 
-	op_args->sha_rom_sz = DEV_ATTEST_SHA_SIZE;
+	op_args->rom_patch_sha_sz = DEV_GETINFO_ROM_PATCH_SHA_SZ;
 	plat_os_abs_memcpy(op_args->sha_rom_patch,
-			   rsp_w_data->d_info.sha_rom_patch, DEV_ATTEST_SHA_SIZE);
+			   rsp_w_data->d_info.sha_rom_patch, DEV_GETINFO_ROM_PATCH_SHA_SZ);
 
-	op_args->sha_fw = plat_os_abs_malloc(DEV_ATTEST_SHA_SIZE);
+	op_args->sha_fw = plat_os_abs_malloc(DEV_GETINFO_FW_SHA_SZ);
 	if (op_args->sha_fw == NULL) {
 		plat_os_abs_free(op_args->uid);
 		plat_os_abs_free(op_args->sha_rom_patch);
 		goto exit;
 	}
 
-	op_args->sha_fw_sz = DEV_ATTEST_SHA_SIZE;
+	op_args->sha_fw_sz = DEV_GETINFO_FW_SHA_SZ;
 	plat_os_abs_memcpy(op_args->sha_fw,
-			   rsp_w_data->d_info.sha_fw, DEV_ATTEST_SHA_SIZE);
+			   rsp_w_data->d_info.sha_fw, DEV_GETINFO_FW_SHA_SZ);
 
 exit:
 	return SAB_SUCCESS_STATUS;

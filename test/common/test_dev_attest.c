@@ -39,11 +39,11 @@ void perform_dev_attestation(hsm_hdl_t sess_hdl)
 		printf("SSM State = 0x%x\n", dev_attest_args.ssm_state);
 		printf("UID:");
 		hexdump((uint32_t *)dev_attest_args.uid,
-			dev_attest_args.uid_sz);
+			dev_attest_args.uid_sz/sizeof(uint32_t));
 
 		printf("ROM Patch SHA Digest:");
 		hexdump((uint32_t *)dev_attest_args.sha_rom_patch,
-			dev_attest_args.sha_rom_sz/sizeof(uint32_t));
+			dev_attest_args.rom_patch_sha_sz/sizeof(uint32_t));
 
 		printf("FW SHA Digest:");
 		hexdump((uint32_t *)dev_attest_args.sha_fw,

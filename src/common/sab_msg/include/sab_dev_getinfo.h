@@ -16,9 +16,10 @@
 
 #include "sab_msg_def.h"
 
-#define MAX_UID_SIZE               (04)
-#define DEV_ATTEST_SIGN_SIZE       (96)
-#define DEV_ATTEST_SHA_SIZE        (32)
+#define MAX_UID_SIZE                     (16)
+#define DEV_GETINFO_ROM_PATCH_SHA_SZ     (32)
+#define DEV_GETINFO_FW_SHA_SZ            (32)
+#define DEV_GETINFO_OEM_SRKH_SZ          (64)
 
 struct sab_cmd_dev_getinfo_msg {
 	struct sab_mu_hdr hdr;
@@ -29,17 +30,17 @@ struct sab_cmd_dev_getinfo_msg {
 };
 
 struct dev_info {
-	uint8_t cmd;
-	uint8_t ver;
+	uint8_t  cmd;
+	uint8_t  ver;
 	uint16_t length;
 	uint16_t soc_id;
 	uint16_t soc_rev;
 	uint16_t lmda_val;
 	uint8_t  ssm_state;
 	uint8_t  reserved;
-	uint32_t uid[MAX_UID_SIZE];
-	uint8_t  sha_rom_patch[DEV_ATTEST_SHA_SIZE];
-	uint8_t  sha_fw[DEV_ATTEST_SHA_SIZE];
+	uint8_t  uid[MAX_UID_SIZE];
+	uint8_t  sha_rom_patch[DEV_GETINFO_ROM_PATCH_SHA_SZ];
+	uint8_t  sha_fw[DEV_GETINFO_FW_SHA_SZ];
 };
 
 struct sab_cmd_dev_getinfo_rsp {

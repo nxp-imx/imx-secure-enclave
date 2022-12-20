@@ -37,11 +37,11 @@ void get_device_info(hsm_hdl_t sess_hdl)
 		printf("SSM State = 0x%x\n", dev_getinfo_args.ssm_state);
 		printf("UID:");
 		hexdump((uint32_t *)dev_getinfo_args.uid,
-			dev_getinfo_args.uid_sz);
+			dev_getinfo_args.uid_sz/sizeof(uint32_t));
 
 		printf("ROM Patch SHA Digest:");
 		hexdump((uint32_t *)dev_getinfo_args.sha_rom_patch,
-			dev_getinfo_args.sha_rom_sz/sizeof(uint32_t));
+			dev_getinfo_args.rom_patch_sha_sz/sizeof(uint32_t));
 
 		printf("FW SHA Digest:");
 		hexdump((uint32_t *)dev_getinfo_args.sha_fw,
