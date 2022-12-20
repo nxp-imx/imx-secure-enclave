@@ -46,6 +46,15 @@ void get_device_info(hsm_hdl_t sess_hdl)
 		printf("FW SHA Digest:");
 		hexdump((uint32_t *)dev_getinfo_args.sha_fw,
 			dev_getinfo_args.sha_fw_sz/sizeof(uint32_t));
+		printf("------------------------------------------------------\n");
+
+		printf("FW OEM SRKH:");
+		hexdump((uint32_t *)dev_getinfo_args.oem_srkh,
+			dev_getinfo_args.oem_srkh_sz/sizeof(uint32_t));
+
+		printf("IMEM state = 0x%x.\n", dev_getinfo_args.imem_state);
+		printf("CSAL state = 0x%x.\n", dev_getinfo_args.csal_state);
+		printf("TRNG state = 0x%x.\n", dev_getinfo_args.trng_state);
 	}
 	printf("---------------------------------------------------\n\n");
 

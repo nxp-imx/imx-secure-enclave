@@ -43,6 +43,14 @@ struct dev_info {
 	uint8_t  sha_fw[DEV_GETINFO_FW_SHA_SZ];
 };
 
+struct dev_addn_info {
+	uint8_t  oem_srkh[DEV_GETINFO_OEM_SRKH_SZ];
+	uint8_t  trng_state;
+	uint8_t  csal_state;
+	uint8_t  imem_state;
+	uint8_t  reserved2;
+};
+
 struct sab_cmd_dev_getinfo_rsp {
 	struct sab_mu_hdr hdr;
 	uint32_t rsp_code;
@@ -54,6 +62,7 @@ struct sab_cmd_dev_getinfo_rsp {
 struct sab_cmd_dev_getinfo_rsp_w_data {
 	struct sab_cmd_dev_getinfo_rsp rsp;
 	struct dev_info d_info;
+	struct dev_addn_info d_addn_info;
 };
 
 uint32_t prepare_msg_dev_getinfo(void *phdl, void *cmd_buf, void *rsp_buf,

@@ -40,9 +40,10 @@ uint32_t prepare_msg_dev_getinfo(void *phdl, void *cmd_buf, void *rsp_buf,
 	*rsp_msg_sz = sizeof(struct sab_cmd_dev_getinfo_rsp);
 
 	/* size of the buffer would be.
-	 * size of device info structure "dev_info".
+	 * size of device info structure "dev_info" and
+	 * size of device info structure "dev_addn_info".
 	 */
-	cmd->buf_sz = sizeof(struct dev_info);
+	cmd->buf_sz = sizeof(struct dev_info) + sizeof(struct dev_addn_info);
 
 	/* Copy the get_info_response to the word,
 	 * next to response.
@@ -103,6 +104,20 @@ uint32_t proc_msg_rsp_dev_getinfo(void *rsp_buf, void *args)
 	plat_os_abs_memcpy(op_args->sha_fw,
 			   rsp_w_data->d_info.sha_fw, DEV_GETINFO_FW_SHA_SZ);
 
+	op_args->oem_srkh_sz = DEV_GETINFO_OEM_SRKH_SZ;
+	op_args->oem_srkh = plat_os_abs_malloc(DEV_GETINFO_OEM_SRKH_SZ);
+	if (op_args->oem_srkh == NULL) {
+		plat_os_abs_free(op_args->uid);
+		plat_os_abs_free(op_args->sha_rom_patch);
+		plat_os_abs_free(op_args->sha_fw);
+		goto exit;
+	}
+	plat_os_abs_memcpy(op_args->oem_srkh,
+			   rsp_w_data->d_addn_info.oem_srkh, DEV_GETINFO_OEM_SRKH_SZ);
+
+	op_args->imem_state = rsp_w_data->d_addn_info.imem_state;
+	op_args->csal_state = rsp_w_data->d_addn_info.csal_state;
+	op_args->trng_state = rsp_w_data->d_addn_info.trng_state;
 exit:
 	return SAB_SUCCESS_STATUS;
 }

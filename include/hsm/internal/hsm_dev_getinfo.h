@@ -33,6 +33,11 @@ typedef struct {
 	uint16_t sha_fw_sz;
 	uint8_t  *sha_rom_patch;
 	uint8_t  *sha_fw;
+	uint16_t oem_srkh_sz;
+	uint8_t  *oem_srkh;
+	uint8_t  imem_state;
+	uint8_t  csal_state;
+	uint8_t  trng_state;
 } op_dev_getinfo_args_t;
 
 /**
