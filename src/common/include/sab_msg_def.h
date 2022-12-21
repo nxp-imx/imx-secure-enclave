@@ -363,7 +363,11 @@ struct sab_cmd_extend_seed_rsp {
 
 struct sab_cmd_get_rnd_msg {
     struct sab_mu_hdr hdr;
+#ifndef PSA_COMPLIANT
     uint32_t rng_handle;
+#else
+    uint32_t rnd_addr_msb;
+#endif
     uint32_t rnd_addr;
     uint32_t rnd_size;
 };

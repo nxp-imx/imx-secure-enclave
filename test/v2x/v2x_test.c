@@ -602,17 +602,33 @@ int main(int argc, char *argv[])
 
     rng_get_random_args.output = rng_out_buff;
     rng_get_random_args.random_size = 3;
+#ifdef PSA_COMPLIANT
+    err =  hsm_get_random(sv0_sess, &rng_get_random_args);
+#else
     err =  hsm_get_random(sv0_rng_serv, &rng_get_random_args);
-    printf("err: 0x%x hsm_get_random hdl: 0x%08x, rand size=0x%08x\n", err, sv0_rng_serv, rng_get_random_args.random_size);
+#endif
+    printf("err: 0x%x hsm_get_random srv_hdl: 0x%08x, rand size=0x%08x\n", err, sv0_rng_serv, rng_get_random_args.random_size);
     rng_get_random_args.random_size = 176;
+#ifdef PSA_COMPLIANT
+    err =  hsm_get_random(sv1_sess, &rng_get_random_args);
+#else
     err =  hsm_get_random(sv1_rng_serv, &rng_get_random_args);
-    printf("err: 0x%x hsm_get_random hdl: 0x%08x, rand size=0x%08x\n", err, sv1_rng_serv, rng_get_random_args.random_size);
+#endif
+    printf("err: 0x%x hsm_get_random srv_hdl: 0x%08x, rand size=0x%08x\n", err, sv1_rng_serv, rng_get_random_args.random_size);
     rng_get_random_args.random_size = 2050;
+#ifdef PSA_COMPLIANT
+    err =  hsm_get_random(sg0_sess, &rng_get_random_args);
+#else
     err =  hsm_get_random(sg0_rng_serv, &rng_get_random_args);
-    printf("err: 0x%x hsm_get_random hdl: 0x%08x, rand size=0x%08x\n", err, sg0_rng_serv, rng_get_random_args.random_size);
+#endif
+    printf("err: 0x%x hsm_get_random srv_hdl: 0x%08x, rand size=0x%08x\n", err, sg0_rng_serv, rng_get_random_args.random_size);
     rng_get_random_args.random_size = 4096;
+#ifdef PSA_COMPLIANT
+    err =  hsm_get_random(sg1_sess, &rng_get_random_args);
+#else
     err =  hsm_get_random(sg1_rng_serv, &rng_get_random_args);
-    printf("err: 0x%x hsm_get_random hdl: 0x%08x, rand size=0x%08x\n", err, sg1_rng_serv, rng_get_random_args.random_size);
+#endif
+    printf("err: 0x%x hsm_get_random srv_hdl: 0x%08x, rand size=0x%08x\n", err, sg1_rng_serv, rng_get_random_args.random_size);
 
     // SM3 hash test
 

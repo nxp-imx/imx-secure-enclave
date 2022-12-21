@@ -195,14 +195,22 @@ static void hsm_rng_test(hsm_hdl_t sess_hdl, op_get_random_args_t *rng_get_rando
     rng_get_random_args->output = rng_out_buff;
 
     rng_get_random_args->random_size = 3;
+#ifdef PSA_COMPLIANT
+    err =  hsm_get_random(sess_hdl, rng_get_random_args);
+#else
     err =  hsm_get_random(rng_serv_hdl, rng_get_random_args);
+#endif
     printf("err: 0x%x hsm_get_random hdl: 0x%08x, rand size=0x%08x\n", err, rng_serv_hdl, rng_get_random_args->random_size);
     for (i = 0; i < rng_get_random_args->random_size; i++)
 	    printf("%02x", rng_out_buff[i]);
     printf("\n");
 
     rng_get_random_args->random_size = 176;
+#ifdef PSA_COMPLIANT
+    err =  hsm_get_random(sess_hdl, rng_get_random_args);
+#else
     err =  hsm_get_random(rng_serv_hdl, rng_get_random_args);
+#endif
     printf("Random Number Successfully fetched: 0x%x hsm_get_random hdl: 0x%08x, rand size=0x%08x\n",
 		    err, rng_serv_hdl, rng_get_random_args->random_size);
     for (i = 0; i < rng_get_random_args->random_size; i++)
@@ -210,7 +218,11 @@ static void hsm_rng_test(hsm_hdl_t sess_hdl, op_get_random_args_t *rng_get_rando
     printf("\n");
 
     rng_get_random_args->random_size = 2050;
+#ifdef PSA_COMPLIANT
+    err =  hsm_get_random(sess_hdl, rng_get_random_args);
+#else
     err =  hsm_get_random(rng_serv_hdl, rng_get_random_args);
+#endif
     printf("Random Number Successfully fetched: 0x%x hsm_get_random hdl: 0x%08x, rand size=0x%08x\n",
 		    err, rng_serv_hdl, rng_get_random_args->random_size);
     for (i = 0; i < rng_get_random_args->random_size; i++)
@@ -218,7 +230,11 @@ static void hsm_rng_test(hsm_hdl_t sess_hdl, op_get_random_args_t *rng_get_rando
     printf("\n");
 
     rng_get_random_args->random_size = 4096;
+#ifdef PSA_COMPLIANT
+    err =  hsm_get_random(sess_hdl, rng_get_random_args);
+#else
     err =  hsm_get_random(rng_serv_hdl, rng_get_random_args);
+#endif
     printf("Random Number Successfully fetched: 0x%x hsm_get_random hdl: 0x%08x, rand size=0x%08x\n",
 		    err, rng_serv_hdl, rng_get_random_args->random_size);
     for (i = 0; i < rng_get_random_args->random_size; i++)

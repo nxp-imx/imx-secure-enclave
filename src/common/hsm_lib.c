@@ -671,30 +671,52 @@ hsm_err_t hsm_get_random(hsm_hdl_t rng_hdl, op_get_random_args_t *args)
 	struct sab_cmd_get_rnd_msg cmd;
 	struct sab_cmd_get_rnd_rsp rsp;
 	int32_t error = 1;
+	uint64_t rnd_addr_ele;
 	struct hsm_service_hdl_s *serv_ptr;
+	struct hsm_session_hdl_s *sess_ptr;
+	hsm_hdl_t session_hdl;
 	hsm_err_t err = HSM_GENERAL_ERROR;
+#ifdef PSA_COMPLIANT
+	session_hdl = rng_hdl;
+#endif
 
 	do {
 		if (args == NULL) {
 			break;
 		}
-
+#ifndef PSA_COMPLIANT
 		serv_ptr = service_hdl_to_ptr(rng_hdl);
 		if (serv_ptr == NULL) {
 			err = HSM_UNKNOWN_HANDLE;
 			break;
 		}
-
+#else
+		sess_ptr = session_hdl_to_ptr(session_hdl);
+		if (sess_ptr == NULL) {
+			err = HSM_UNKNOWN_HANDLE;
+			break;
+		}
+#endif
 		/* Send the keys store open command to platform. */
 		plat_fill_cmd_msg_hdr(&cmd.hdr,
 			SAB_RNG_GET_RANDOM,
 			(uint32_t)sizeof(struct sab_cmd_get_rnd_msg),
 			serv_ptr->session->mu_type);
+#ifndef PSA_COMPLIANT
 		cmd.rng_handle = rng_hdl;
 		cmd.rnd_addr = (uint32_t)plat_os_abs_data_buf(serv_ptr->session->phdl,
 					args->output,
 					args->random_size,
 					0u);
+#else
+		memset((uint8_t *)rnd_addr_ele, 0, sizeof(uint64_t));
+		rnd_addr_ele = plat_os_abs_data_buf(sess_ptr->phdl,
+					args->output,
+					args->random_size,
+					0u);
+		cmd.rnd_addr = (uint32_t) rnd_addr_ele;
+		cmd.rnd_addr_msb = (uint32_t) (rnd_addr_ele >> 32);
+#endif
 		cmd.rnd_size = args->random_size;
 
 		/* Send the message to platform. */
@@ -723,29 +745,26 @@ hsm_err_t hsm_do_rng(hsm_hdl_t session_hdl, op_get_random_args_t *rng_get_random
 
 	rng_srv_args.flags = rng_get_random_args->svc_flags;
 
-	printf("\n---------------------------------------------------\n");
-	printf("Secondary API: DO RNG test Start\n");
-	printf("---------------------------------------------------\n");
-
+#ifndef PSA_COMPLIANT
 	err = hsm_open_rng_service(session_hdl, &rng_srv_args, &rng_serv_hdl);
 	if (err) {
 		printf("RNG Service Open err: 0x%x :hsm_open_rng_service hdl: 0x%08x\n", err, rng_serv_hdl);
 		goto exit;
 	}
-
 	err =  hsm_get_random(rng_serv_hdl, rng_get_random_args);
+#else
+	err =  hsm_get_random(session_hdl, rng_get_random_args);
+#endif
 	if (err) {
-		printf("Random Number Successfully fetched: error: 0x%x hsm_get_random hdl: 0x%08x, rand size=0x%08x\n", err, rng_serv_hdl, rng_get_random_args->random_size);
+		printf("Random Number Successfully fetched: error: 0x%x hsm_get_random srv_hdl: 0x%08x, rand size=0x%08x\n", err, rng_serv_hdl, rng_get_random_args->random_size);
 	}
 
+#ifndef PSA_COMPLIANT
 	err = hsm_close_rng_service(rng_serv_hdl);
 	if (err) {
 		printf("RNG Service Closed err: 0x%x :hsm_close_rng_service hdl: 0x%x\n", err, rng_serv_hdl);
 	}
-
-	printf("\n---------------------------------------------------\n");
-	printf("Secondary API: DO RNG test Complete\n");
-	printf("---------------------------------------------------\n");
+#endif
 
 exit:
 	return err;
