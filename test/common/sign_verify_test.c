@@ -1,5 +1,5 @@
 /*
- * Copyright 2022 NXP
+ * Copyright 2022-2023 NXP
  *
  * NXP Confidential.
  * This software is owned or controlled by NXP and may only be used strictly
@@ -35,8 +35,9 @@ void hsm_sign_verify_tests(hsm_hdl_t sess_hdl, hsm_hdl_t key_store_hdl,
 	op_verify_sign_args_t sig_ver_args;
 	hsm_verification_status_t verif_status;
 	hsm_err_t hsmret;
-
+#ifndef PSA_COMPLIANT
 	sig_gen_args.svc_flags = 0;
+#endif
 	sig_gen_args.key_identifier = key_id;
 #ifdef PSA_COMPLIANT
 	sig_gen_args.scheme_id = HSM_SIGNATURE_SCHEME_ECDSA_SHA256;

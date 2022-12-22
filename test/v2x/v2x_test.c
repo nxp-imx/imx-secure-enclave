@@ -542,8 +542,9 @@ int main(int argc, char *argv[])
     printf("err: 0x%x hsm_open_key_management_service err: hdl: 0x%08x\n", err, sg0_key_mgmt_srv);
     err = hsm_open_key_management_service(sg1_key_store_serv, &key_mgmt_srv_args, &sg1_key_mgmt_srv);
     printf("err: 0x%x hsm_open_key_management_service err: hdl: 0x%08x\n", err, sg1_key_mgmt_srv);
-
+#ifndef PSA_COMPLIANT
     sig_gen_srv_args.flags = 0;
+#endif
     err = hsm_open_signature_generation_service(sg0_key_store_serv, &sig_gen_srv_args, &sg0_sig_gen_serv);
     printf("err: 0x%x hsm_open_signature_generation_service err: hdl: 0x%08x\n", err, sg0_sig_gen_serv);
     err = hsm_open_signature_generation_service(sg1_key_store_serv, &sig_gen_srv_args, &sg1_sig_gen_serv);

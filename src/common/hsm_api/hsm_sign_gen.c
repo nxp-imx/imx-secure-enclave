@@ -1,5 +1,5 @@
 /*
- * Copyright 2022 NXP
+ * Copyright 2022-2023 NXP
  *
  * NXP Confidential.
  * This software is owned or controlled by NXP and may only be used strictly
@@ -197,28 +197,36 @@ hsm_err_t hsm_do_sign(hsm_hdl_t key_store_hdl,
 			op_generate_sign_args_t *args)
 {
 	hsm_err_t hsmret = HSM_GENERAL_ERROR;
+	/* Stores the error status of the main operation.
+	 */
+	hsm_err_t op_err = HSM_NO_ERROR;
 	hsm_hdl_t sig_gen_hdl;
-	open_svc_sign_gen_args_t open_sig_gen_args = {
-						.flags = args->svc_flags,
-						};
+	open_svc_sign_gen_args_t open_sig_gen_args = {0};
 
-	hsmret = hsm_open_signature_generation_service(key_store_hdl,
+#ifndef PSA_COMPLIANT
+	open_sig_gen_args.flags = args->svc_flags;
+#endif
+
+	op_err = hsm_open_signature_generation_service(key_store_hdl,
 					&open_sig_gen_args, &sig_gen_hdl);
-	if (hsmret) {
+	if (op_err) {
 		printf("hsm_open_signature_generation_service ret:0x%x\n",
-				hsmret);
+				op_err);
 		goto exit;
 	}
 
-	hsmret = hsm_generate_signature(sig_gen_hdl, args);
-	if (hsmret)
-		printf("hsm_generate_signature ret:0x%x\n", hsmret);
+	op_err = hsm_generate_signature(sig_gen_hdl, args);
+	if (op_err)
+		printf("hsm_generate_signature ret:0x%x\n", op_err);
 
 	hsmret = hsm_close_signature_generation_service(sig_gen_hdl);
-	if (hsmret)
+	if (hsmret) {
 		printf("hsm_close_signature_generation_service ret:0x%x\n",
 				hsmret);
+		if (op_err == HSM_NO_ERROR)
+			op_err = hsmret;
+	}
 
 exit:
-	return hsmret;
+	return op_err;
 }

@@ -1,5 +1,5 @@
 /*
- * Copyright 2022 NXP
+ * Copyright 2022-2023 NXP
  *
  * NXP Confidential.
  * This software is owned or controlled by NXP and may only be used strictly
@@ -23,12 +23,17 @@
  *  @defgroup group5 Signature generation
  * @{
  */
+
+#ifndef PSA_COMPLIANT
 typedef uint8_t hsm_svc_signature_generation_flags_t;
+#endif
+
 typedef struct {
 	hsm_hdl_t signature_gen_hdl;
+#ifndef PSA_COMPLIANT
 	//!< bitmap specifying the services properties.
 	hsm_svc_signature_generation_flags_t flags;
-	uint8_t reserved[3];
+#endif
 } open_svc_sign_gen_args_t;
 
 /**
@@ -83,18 +88,17 @@ typedef uint8_t hsm_op_generate_sign_flags_t;
 //! Bit 2 to 7: Reserved.
 
 typedef enum {
-	HSM_SIGNATURE_SCHEME_RSA_PKCS1_V15_SHA1		= 0x06000205,
 	HSM_SIGNATURE_SCHEME_RSA_PKCS1_V15_SHA224       = 0x06000208,
 	HSM_SIGNATURE_SCHEME_RSA_PKCS1_V15_SHA256       = 0x06000209,
 	HSM_SIGNATURE_SCHEME_RSA_PKCS1_V15_SHA384       = 0x0600020A,
 	HSM_SIGNATURE_SCHEME_RSA_PKCS1_V15_SHA512       = 0x0600020B,
-	HSM_SIGNATURE_SCHEME_RSA_PKCS1_PSS_MGF1_SHA1    = 0x06000305,
+	HSM_SIGNATURE_SCHEME_RSA_PKCS1_V15_ANY_HASH     = 0x060002FF,
 	HSM_SIGNATURE_SCHEME_RSA_PKCS1_PSS_MGF1_SHA224  = 0x06000308,
 	HSM_SIGNATURE_SCHEME_RSA_PKCS1_PSS_MGF1_SHA256  = 0x06000309,
 	HSM_SIGNATURE_SCHEME_RSA_PKCS1_PSS_MGF1_SHA384  = 0x0600030A,
 	HSM_SIGNATURE_SCHEME_RSA_PKCS1_PSS_MGF1_SHA512  = 0x0600030B,
+	HSM_SIGNATURE_SCHEME_RSA_PKCS1_PSS_MGF1_ANY_HASH = 0x060003FF,
 	HSM_SIGNATURE_SCHEME_ECDSA_ANY                  = 0x06000600,
-	HSM_SIGNATURE_SCHEME_ECDSA_SHA1_NIST_ECC        = 0x06000605,
 	HSM_SIGNATURE_SCHEME_ECDSA_SHA224               = 0x06000608,
 	HSM_SIGNATURE_SCHEME_ECDSA_SHA256               = 0x06000609,
 	HSM_SIGNATURE_SCHEME_ECDSA_SHA384               = 0x0600060A,
@@ -150,22 +154,21 @@ typedef struct {
 	//     Ry has to be considered valid only if
 	//     the HSM_OP_GENERATE_SIGN_FLAGS_COMPRESSED_POINT is set.
 	uint8_t *signature;
-	//!< length in bytes of the output
+	//!< length in bytes of the output. After signature generation operation,
+	//	 this field will contain the expected signature buffer size, if operation
+	//	 failed due to provided output buffer size being too short.
 	uint16_t signature_size;
 	//!< length in bytes of the input
 	uint32_t message_size;
 	//!< identifier of the digital signature scheme to be used
 	//   for the operation
 	hsm_signature_scheme_id_t scheme_id;
+#ifndef PSA_COMPLIANT
 	//!< bitmap specifying the svc flow attributes
 	hsm_svc_signature_generation_flags_t svc_flags;
+#endif
 	//!< bitmap specifying the operation attributes
 	hsm_op_generate_sign_flags_t flags;
-#ifdef PSA_COMPLIANT
-	uint8_t reserved[2];
-#else
-	uint8_t reserved[1];
-#endif
 } op_generate_sign_args_t;
 
 /**

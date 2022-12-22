@@ -1,5 +1,5 @@
 /*
- * Copyright 2022 NXP
+ * Copyright 2022-2023 NXP
  *
  * NXP Confidential.
  * This software is owned or controlled by NXP and may only be used strictly
@@ -35,13 +35,9 @@ uint32_t prepare_msg_sign_gen_open(void *phdl,
 	*rsp_msg_sz = sizeof(struct sab_signature_gen_open_rsp);
 
 	cmd->key_store_hdl = msg_hdl;
-	cmd->input_address_ext = 0u;
-	cmd->output_address_ext = 0u;
+#ifndef PSA_COMPLIANT
 	cmd->flags = op_args->flags;
-	cmd->reserved[0] = 0u;
-	cmd->reserved[1] = 0u;
-	cmd->reserved[2] = 0u;
-	cmd->crc = 0u;
+#endif
 
 	ret |= SAB_MSG_CRC_BIT;
 
@@ -127,6 +123,15 @@ uint32_t prepare_msg_sign_generate(void *phdl,
 
 uint32_t proc_msg_rsp_sign_generate(void *rsp_buf, void *args)
 {
+	op_generate_sign_args_t *op_args =
+			(op_generate_sign_args_t *)args;
+	struct sab_signature_generate_rsp *rsp =
+			(struct sab_signature_generate_rsp *)rsp_buf;
+
+#ifdef PSA_COMPLIANT
+	op_args->signature_size = rsp->signature_size;
+#endif
+
 	return SAB_SUCCESS_STATUS;
 }
 
