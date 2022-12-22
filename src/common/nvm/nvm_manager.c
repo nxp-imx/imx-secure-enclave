@@ -27,7 +27,6 @@ struct nvm_ctx_st {
 	struct plat_os_abs_hdl *phdl;
 	uint32_t session_handle;
 	uint32_t storage_handle;
-	uint32_t blob_size;
 	uint32_t mu_type;
 	uint8_t nvm_fname[MAX_FNAME_DNAME_SZ];
 	uint8_t nvm_dname[MAX_FNAME_DNAME_SZ];
@@ -252,6 +251,7 @@ static uint32_t nvm_manager_export_master(struct nvm_ctx_st *nvm_ctx_param, stru
 	struct sab_cmd_key_store_export_finish_msg finish_msg;
 	uint64_t plat_addr;
 	struct nvm_header_s *blob_hdr;
+	uint32_t blob_size;
 
 	do {
 		/* Consistency check of message length. */
@@ -260,7 +260,7 @@ static uint32_t nvm_manager_export_master(struct nvm_ctx_st *nvm_ctx_param, stru
 		}
 
 		/* Extract length of the blob from the message. */
-		nvm_ctx_param->blob_size = msg->key_store_size;
+		blob_size = msg->key_store_size;
 		data_len = msg->key_store_size + (uint32_t)sizeof(struct nvm_header_s);
 		if ((data_len == 0u) || (data_len > 16u*1024u)) {
 			/* Fixing arbitrary maximum blob size to 16k for sanity checks.*/
@@ -277,7 +277,7 @@ static uint32_t nvm_manager_export_master(struct nvm_ctx_st *nvm_ctx_param, stru
 		if (data != NULL) {
 			plat_addr = plat_os_abs_data_buf(nvm_ctx_param->phdl,
 					data + (uint32_t)sizeof(struct nvm_header_s),
-					nvm_ctx_param->blob_size,
+					blob_size,
 					0u);
 			resp.key_store_export_address = (uint32_t)(plat_addr & 0xFFFFFFFFu);
 			resp.rsp_code = SAB_SUCCESS_STATUS;
@@ -312,10 +312,9 @@ static uint32_t nvm_manager_export_master(struct nvm_ctx_st *nvm_ctx_param, stru
 
 		/* fill header for sanity check when it will be re-loaded. */
 		blob_hdr = (struct nvm_header_s *)data;
-		blob_hdr->size = nvm_ctx_param->blob_size;
-		blob_hdr->crc = plat_os_abs_crc(data + sizeof(struct nvm_header_s),  nvm_ctx_param->blob_size);
+		blob_hdr->size = blob_size;
+		blob_hdr->crc = plat_os_abs_crc(data + sizeof(struct nvm_header_s), blob_size);
 		blob_hdr->blob_id = 0u; /* Used only for chunks. */
-		nvm_ctx_param->blob_size = 0u;
 		/* Data have been provided by platform. Write them in NVM and acknowledge. */
 		if (plat_os_abs_storage_write(nvm_ctx_param->phdl,
 					      data,
@@ -345,6 +344,7 @@ static uint32_t nvm_manager_export_chunk(struct nvm_ctx_st *nvm_ctx_param, struc
 	struct sab_cmd_key_store_export_finish_msg finish_msg;
 	uint64_t plat_addr;
 	struct nvm_header_s *blob_hdr;
+	uint32_t blob_size = 0u;
 
 	do {
 		/* Consistency check of message length. */
@@ -352,7 +352,7 @@ static uint32_t nvm_manager_export_chunk(struct nvm_ctx_st *nvm_ctx_param, struc
 			break;
 		}
 		/* Extract length of the blob from the message. */
-		nvm_ctx_param->blob_size = msg->chunk_size;
+		blob_size = msg->chunk_size;
 		data_len = msg->chunk_size + (uint32_t)sizeof(struct nvm_header_s);
 		if ((data_len == 0u) || (data_len > 16u*1024u)) {
 			/* Fixing arbitrary maximum blob size to 16k for sanity checks.*/
@@ -373,7 +373,7 @@ static uint32_t nvm_manager_export_chunk(struct nvm_ctx_st *nvm_ctx_param, struc
 		if ((chunk != NULL) && (chunk->data != NULL)) {
 			plat_addr = plat_os_abs_data_buf(nvm_ctx_param->phdl,
 					chunk->data + (uint32_t)sizeof(struct nvm_header_s),
-					nvm_ctx_param->blob_size,
+					blob_size,
 					0u);
 			resp.chunk_export_address = (uint32_t)(plat_addr & 0xFFFFFFFFu);
 			resp.rsp_code = SAB_SUCCESS_STATUS;
