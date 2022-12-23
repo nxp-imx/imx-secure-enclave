@@ -1,5 +1,5 @@
 /*
- * Copyright 2019-2022 NXP
+ * Copyright 2019-2023 NXP
  *
  * NXP Confidential.
  * This software is owned or controlled by NXP and may only be used strictly
@@ -473,7 +473,8 @@ static void transient_key_tests(hsm_hdl_t sess_hdl, hsm_hdl_t key_store_hdl)
 	sig_ver_args.signature_size = sizeof(signature_data);
 	sig_ver_args.message_size = sizeof(hash_data);
 #ifdef PSA_COMPLIANT
-	sig_ver_args.key_type = HSM_KEY_TYPE_ECDSA_NIST_P256;
+	sig_ver_args.pkey_type = HSM_PUBKEY_TYPE_ECC_NIST;
+	sig_ver_args.key_sz = HSM_KEY_SIZE_ECC_NIST_256;
 	sig_ver_args.scheme_id = HSM_SIGNATURE_SCHEME_ECDSA_SHA256;
 #else
 	sig_ver_args.scheme_id = HSM_SIGNATURE_SCHEME_ECDSA_NIST_P256_SHA_256;

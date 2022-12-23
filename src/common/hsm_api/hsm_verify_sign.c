@@ -1,5 +1,5 @@
 /*
- * Copyright 2022 NXP
+ * Copyright 2022-2023 NXP
  *
  * NXP Confidential.
  * This software is owned or controlled by NXP and may only be used strictly
@@ -145,13 +145,22 @@ hsm_err_t hsm_verify_signature(hsm_hdl_t signature_ver_hdl,
 				err);
 			break;
 		}
+
+		*status = args->verification_status;
+
 		err = sab_rating_to_hsm_err(rsp_code);
 		if (err != HSM_NO_ERROR) {
 			printf("HSM RSP Error: SAB_SIGNATURE_VERIFY_REQ [0x%x].\n",
 				err);
+			break;
 		}
 
-		*status = args->verification_status;
+		if (args->verification_status != HSM_VERIFICATION_STATUS_SUCCESS) {
+			err = HSM_SIGNATURE_INVALID;
+			printf("\nHSM Error: HSM_SIGNATURE_INVALID (0x%x)\n",
+					HSM_SIGNATURE_INVALID);
+		}
+
 	} while (false);
 
 	return err;
@@ -162,30 +171,35 @@ hsm_err_t hsm_verify_sign(hsm_hdl_t session_hdl,
 			  hsm_verification_status_t *status)
 {
 	hsm_err_t hsmret = HSM_GENERAL_ERROR;
+	/* Stores the error status of the main operation.
+	 */
+	hsm_err_t op_err = HSM_NO_ERROR;
 	hsm_hdl_t sig_ver_hdl;
-	open_svc_sign_ver_args_t open_sig_ver_args = {
-						.flags = args->svc_flags,
-						};
-
-	hsmret = hsm_open_signature_verification_service(session_hdl,
+	open_svc_sign_ver_args_t open_sig_ver_args = {0};
+#ifndef PSA_COMPLIANT
+	open_sig_ver_args.flags = args->svc_flags;
+#endif
+	op_err = hsm_open_signature_verification_service(session_hdl,
 							 &open_sig_ver_args,
 							 &sig_ver_hdl);
-	if (hsmret) {
+	if (op_err) {
 		printf("hsm_open_signature_verification_service ret:0x%x\n",
-				hsmret);
+				op_err);
 		goto exit;
 	}
 
-	hsmret = hsm_verify_signature(sig_ver_hdl, args, status);
-	if (hsmret)
-		printf("hsm_verify_signature ret:0x%x\n", hsmret);
+	op_err = hsm_verify_signature(sig_ver_hdl, args, status);
+	if (op_err)
+		printf("hsm_verify_signature ret:0x%x\n", op_err);
 
 	hsmret = hsm_close_signature_verification_service(sig_ver_hdl);
 	if (hsmret) {
 		printf("hsm_close_signature_verification_service ret:0x%x\n",
 				hsmret);
+		if (op_err == HSM_NO_ERROR)
+			op_err = hsmret;
 	}
 
 exit:
-	return hsmret;
+	return op_err;
 }

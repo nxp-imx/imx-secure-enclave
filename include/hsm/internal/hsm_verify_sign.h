@@ -1,5 +1,5 @@
 /*
- * Copyright 2022 NXP
+ * Copyright 2022-2023 NXP
  *
  * NXP Confidential.
  * This software is owned or controlled by NXP and may only be used strictly
@@ -27,11 +27,14 @@
  *  @defgroup group6 Signature verification
  * @{
  */
+#ifndef PSA_COMPLIANT
 typedef uint8_t hsm_svc_signature_verification_flags_t;
+#endif
 typedef struct {
+#ifndef PSA_COMPLIANT
 	//!< bitmap indicating the service flow properties
 	hsm_svc_signature_verification_flags_t flags;
-	uint8_t reserved[3];
+#endif
 	hsm_hdl_t sig_ver_hdl;
 } open_svc_sign_ver_args_t;
 
@@ -63,13 +66,13 @@ typedef struct {
 #ifdef PSA_COMPLIANT
 	hsm_bit_key_sz_t key_sz;
 	hsm_pubkey_type_t pkey_type;
-	hsm_key_type_t key_type;
 #endif
 	//!< bitmap specifying the operation attributes
 	hsm_op_verify_sign_flags_t flags;
+#ifndef PSA_COMPLIANT
 	//!< bitmap specifying the svc flow attributes
 	hsm_svc_signature_verification_flags_t svc_flags;
-	uint8_t reserved;
+#endif
 } op_verify_sign_args_t;
 
 /**

@@ -1,5 +1,5 @@
 /*
- * Copyright 2022 NXP
+ * Copyright 2022-2023 NXP
  *
  * NXP Confidential.
  * This software is owned or controlled by NXP and may only be used strictly
@@ -34,13 +34,9 @@ uint32_t prepare_msg_verify_sign_open(void *phdl,
 	open_svc_sign_ver_args_t *op_args = (open_svc_sign_ver_args_t *)args;
 
 	cmd->session_handle = msg_hdl;
-	cmd->input_address_ext = 0u;
-	cmd->output_address_ext = 0u;
+#ifndef PSA_COMPLIANT
 	cmd->flags = op_args->flags;
-	cmd->reserved[0] = 0u;
-	cmd->reserved[1] = 0u;
-	cmd->reserved[2] = 0u;
-	cmd->crc = 0u;
+#endif
 
 	*cmd_msg_sz = sizeof(struct sab_signature_verify_open_msg);
 	*rsp_msg_sz = sizeof(struct sab_signature_verify_open_rsp);
