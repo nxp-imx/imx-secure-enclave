@@ -377,6 +377,7 @@ she_err_t she_cmd_export_ram_key(struct she_hdl_s *hdl, uint8_t *m1, uint8_t *m2
  *  \ingroup group600
  *  @{
  */
+#ifndef PSA_COMPLIANT
 /**
  * initializes the seed and derives a key for the PRNG.
  * The function must be called before CMD_RND after every power cycle/reset.
@@ -386,6 +387,7 @@ she_err_t she_cmd_export_ram_key(struct she_hdl_s *hdl, uint8_t *m1, uint8_t *m2
  * \return error code
  */
 she_err_t she_cmd_init_rng(struct she_hdl_s *hdl);
+#endif
 /** @} end of CMD_INIT_RNG group */
 
 /**

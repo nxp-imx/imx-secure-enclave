@@ -179,7 +179,9 @@ static void ecies_tests(hsm_hdl_t hsm_session_hdl)
 
 static void hsm_rng_test(hsm_hdl_t sess_hdl, op_get_random_args_t *rng_get_random_args)
 {
+#ifndef PSA_COMPLIANT
     open_svc_rng_args_t rng_srv_args;
+#endif
     hsm_hdl_t rng_serv_hdl;
     int err, i;
     uint8_t rng_out_buff[4096];
@@ -188,9 +190,11 @@ static void hsm_rng_test(hsm_hdl_t sess_hdl, op_get_random_args_t *rng_get_rando
     printf("RNG test\n");
     printf("---------------------------------------------------\n");
 
+#ifndef PSA_COMPLIANT
     rng_srv_args.flags = 0;
     err = hsm_open_rng_service(sess_hdl, &rng_srv_args, &rng_serv_hdl);
     printf("err: 0x%x hsm_open_rng_service hdl: 0x%08x\n", err, rng_serv_hdl);
+#endif
 
     rng_get_random_args->output = rng_out_buff;
 
@@ -241,8 +245,10 @@ static void hsm_rng_test(hsm_hdl_t sess_hdl, op_get_random_args_t *rng_get_rando
 	    printf("%02x", rng_out_buff[i]);
     printf("\n");
 
+#ifndef PSA_COMPLIANT
     err = hsm_close_rng_service(rng_serv_hdl);
     printf("RNG Service Closed: 0x%x hsm_close_rng_service hdl: 0x%x\n", err, rng_serv_hdl);
+#endif
 
     printf("\n---------------------------------------------------\n");
     printf("RNG test Complete\n");

@@ -23,11 +23,13 @@
  * @{
  */
 
+#ifndef PSA_COMPLIANT
 typedef uint8_t hsm_svc_rng_flags_t;
 typedef struct {
 	//!< bitmap indicating the service flow properties
 	hsm_svc_rng_flags_t flags;
 	uint8_t reserved[3];
+	hsm_hdl_t rng_hdl;
 } open_svc_rng_args_t;
 
 /**
@@ -51,13 +53,16 @@ hsm_err_t hsm_open_rng_service(hsm_hdl_t session_hdl, open_svc_rng_args_t *args,
  * \return error code
  */
 hsm_err_t hsm_close_rng_service(hsm_hdl_t rng_hdl);
+#endif
 
 typedef struct {
 	uint8_t *output;                        //!< pointer to the output area where the random number must be written
 	uint32_t random_size;                   //!< length in bytes of the random number to be provided.
+#ifndef PSA_COMPLIANT
 	//!< bitmap indicating the service flow properties
 	hsm_svc_rng_flags_t svc_flags;
 	uint8_t reserved[3];
+#endif
 } op_get_random_args_t;
 
 /**

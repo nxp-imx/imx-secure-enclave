@@ -21,6 +21,7 @@
 
 /* Tests for RNG */
 
+#ifndef PSA_COMPLIANT
 uint32_t she_test_rng_init(test_struct_t *testCtx, FILE *fp) {
     uint32_t fails = 0;
 
@@ -36,7 +37,7 @@ uint32_t she_test_rng_init(test_struct_t *testCtx, FILE *fp) {
 
     return fails;
 }
-
+#endif
 
 uint32_t she_test_extend_seed(test_struct_t *testCtx, FILE *fp) {
     uint32_t fails = 0;

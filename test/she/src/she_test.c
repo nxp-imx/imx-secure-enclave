@@ -160,7 +160,9 @@ struct test_entry_t she_tests[] = {
     {"SHE_TEST_MAC_GEN", she_test_mac_gen},
     {"SHE_TEST_MAC_VERIF", she_test_mac_verif},
     {"SHE_TEST_OPEN_SESSION", she_test_open_session},
+#ifndef PSA_COMPLIANT
     {"SHE_TEST_RNG_INIT", she_test_rng_init},
+#endif
     {"SHE_TEST_RND", she_test_rnd},
     {"SHE_TEST_START_STORAGE_MANAGER", she_test_start_storage_manager},
     {"SHE_TEST_STOP_STORAGE_MANAGER", she_test_stop_storage_manager},

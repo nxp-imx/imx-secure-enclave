@@ -12,6 +12,7 @@
  */
 
 #include "internal/hsm_cipher.h"
+#include "internal/hsm_rng.h"
 
 #include "sab_msg_def.h"
 #include "sab_messaging.h"
@@ -187,7 +188,15 @@ void she_close_session(struct she_hdl_s *hdl)
 								rsp_code);
             }
             if (hdl->rng_handle != 0u) {
-                (void)sab_close_rng(hdl->phdl, hdl->rng_handle, hdl->mu_type);
+		error = process_sab_msg(hdl->phdl,
+					hdl->mu_type,
+					SAB_RNG_CLOSE_REQ,
+					MT_SAB_RNG,
+					(uint32_t)hdl->rng_handle,
+					NULL, &rsp_code);
+		if (rsp_code || (error != SAB_SUCCESS_STATUS))
+			printf("SAB FW Error[0x%x]: SAB_RNG_CLOSE_REQ.\n",
+								rsp_code);
             }
             if (hdl->key_store_handle != 0u) {
                 (void)sab_close_key_store(hdl->phdl, hdl->key_store_handle, hdl->mu_type);
@@ -873,9 +882,12 @@ she_err_t she_cmd_export_ram_key(struct she_hdl_s *hdl, uint8_t *m1, uint8_t *m2
     return ret;
 }
 
+#ifndef PSA_COMPLIANT
 she_err_t she_cmd_init_rng(struct she_hdl_s *hdl) {
     uint32_t plat_rsp_code;
+    int32_t error;
     she_err_t ret = ERC_GENERAL_ERROR;
+    open_svc_rng_args_t args;
 
     do {
         if (hdl == NULL) {
@@ -884,8 +896,22 @@ she_err_t she_cmd_init_rng(struct she_hdl_s *hdl) {
         /* Start the RNG at system level. */
         plat_os_abs_start_system_rng(hdl->phdl);
 
+#ifndef PSA_COMPLIANT
+	args.flags = 0;
+#endif
         /* Then send the command to Secure-Enclave Platform, so it can perform its own RNG inits. */
-        plat_rsp_code = sab_open_rng(hdl->phdl, hdl->session_handle, &hdl->rng_handle, hdl->mu_type, RNG_OPEN_FLAGS_SHE);
+	error = process_sab_msg(hdl->phdl,
+				hdl->mu_type,
+				SAB_RNG_OPEN_REQ,
+				MT_SAB_RNG,
+				(uint32_t)hdl->session_handle,
+				&args, &plat_rsp_code);
+	if ((plat_rsp_code != SAB_SUCCESS_STATUS) || (error != SAB_SUCCESS_STATUS)) {
+		printf("SAB FW Error[0x%x]: SAB_RNG_CLOSE_REQ.\n",
+							plat_rsp_code);
+		break;
+	}
+	hdl->rng_handle = args.rng_hdl;
 
         if ((hdl->cancel != 0u) || (GET_STATUS_CODE(plat_rsp_code)!= SAB_SUCCESS_STATUS)) {
             hdl->rng_handle = 0u;
@@ -898,6 +924,7 @@ she_err_t she_cmd_init_rng(struct she_hdl_s *hdl) {
     } while(false);
     return ret;
 }
+#endif
 
 
 she_err_t she_cmd_extend_seed(struct she_hdl_s *hdl, uint8_t *entropy) {
@@ -946,10 +973,10 @@ she_err_t she_cmd_extend_seed(struct she_hdl_s *hdl, uint8_t *entropy) {
 she_err_t she_cmd_rnd(struct she_hdl_s *hdl, uint8_t *rnd)
 {
     she_err_t ret = ERC_GENERAL_ERROR;
-    struct sab_cmd_get_rnd_msg cmd;
-    struct sab_cmd_get_rnd_rsp rsp;
     uint64_t plat_rnd_addr;
     int32_t error;
+    op_get_random_args_t *args;
+    uint32_t rsp_code;
 
     do {
         if ((hdl == NULL) || (rnd == NULL)) {
@@ -960,24 +987,32 @@ she_err_t she_cmd_rnd(struct she_hdl_s *hdl, uint8_t *rnd)
             break;
         }
 
-        /* Build command message. */
-        plat_fill_cmd_msg_hdr(&cmd.hdr, SAB_RNG_GET_RANDOM, (uint32_t)sizeof(struct sab_cmd_get_rnd_msg), hdl->mu_type);
-        plat_rnd_addr = plat_os_abs_data_buf(hdl->phdl, rnd, SHE_RND_SIZE, 0u);
-        cmd.rng_handle = hdl->rng_handle;
-        cmd.rnd_addr = (uint32_t)(plat_rnd_addr & 0xFFFFFFFFu);
-        cmd.rnd_size = SHE_RND_SIZE;
+	args->random_size = SHE_RND_SIZE;
+	args->output = rnd;
 
-        /* Send the message to Secure-Enclave Platform. */
-        error = plat_send_msg_and_get_resp(hdl->phdl,
-                    (uint32_t *)&cmd, (uint32_t)sizeof(struct sab_cmd_get_rnd_msg),
-                    (uint32_t *)&rsp, (uint32_t)sizeof(struct sab_cmd_get_rnd_rsp));
-        if (error != 0) {
-            break;
-        }
+	error = process_sab_msg(hdl->phdl,
+				hdl->mu_type,
+				SAB_RNG_GET_RANDOM,
+				MT_SAB_RNG,
+				(uint32_t)hdl->rng_handle,
+				args, &rsp_code);
 
-        hdl->last_rating = rsp.rsp_code;
-        if ((hdl->cancel != 0u) || (GET_STATUS_CODE(rsp.rsp_code)!= SAB_SUCCESS_STATUS)) {
-            ret = she_plat_ind_to_she_err_t(rsp.rsp_code);
+	ret = sab_rating_to_hsm_err(error);
+
+	if (ret != ERC_NO_ERROR) {
+		printf("HSM Error: SAB_RNG_GET_RANDOM [0x%x].\n", ret);
+		break;
+	}
+
+	ret = sab_rating_to_hsm_err(rsp_code);
+
+	if (ret != ERC_NO_ERROR) {
+		printf("HSM RSP Error: SAB_RNG_GET_RANDOM [0x%x].\n", ret);
+	}
+
+        hdl->last_rating = rsp_code;
+        if ((hdl->cancel != 0u) || (GET_STATUS_CODE(rsp_code)!= SAB_SUCCESS_STATUS)) {
+            ret = she_plat_ind_to_she_err_t(rsp_code);
             plat_os_abs_memset(rnd, 0u, SHE_RND_SIZE);
             hdl->cancel = 0u;
             break;

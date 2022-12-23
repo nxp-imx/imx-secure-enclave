@@ -323,31 +323,6 @@ struct sab_cmd_shared_buffer_rsp {
 
 
 /* SHE random generation */
-struct sab_cmd_rng_open_msg{
-    struct sab_mu_hdr hdr;
-    uint32_t session_handle;
-    uint32_t input_address_ext;
-    uint32_t output_address_ext;
-    uint8_t flags;
-    uint8_t pad[3];
-    uint32_t crc;
-};
-
-struct sab_cmd_rng_open_rsp{
-    struct sab_mu_hdr hdr;
-    uint32_t rsp_code;
-    uint32_t rng_handle;
-};
-
-struct sab_cmd_rng_close_msg {
-    struct sab_mu_hdr hdr;
-    uint32_t rng_handle;
-};
-
-struct sab_cmd_rng_close_rsp {
-    struct sab_mu_hdr hdr;
-    uint32_t rsp_code;
-};
 
 struct sab_cmd_extend_seed_msg {
     struct sab_mu_hdr hdr;
@@ -357,22 +332,6 @@ struct sab_cmd_extend_seed_msg {
 };
 
 struct sab_cmd_extend_seed_rsp {
-    struct sab_mu_hdr hdr;
-    uint32_t rsp_code;
-};
-
-struct sab_cmd_get_rnd_msg {
-    struct sab_mu_hdr hdr;
-#ifndef PSA_COMPLIANT
-    uint32_t rng_handle;
-#else
-    uint32_t rnd_addr_msb;
-#endif
-    uint32_t rnd_addr;
-    uint32_t rnd_size;
-};
-
-struct sab_cmd_get_rnd_rsp {
     struct sab_mu_hdr hdr;
     uint32_t rsp_code;
 };

@@ -66,6 +66,10 @@
 #include "sab_mac.h"
 #endif
 
+#if MT_SAB_RNG
+#include "sab_rng.h"
+#endif
+
 #if MT_SAB_KEY_RECOVERY
 #include "sab_key_recovery.h"
 #endif
@@ -172,6 +176,31 @@ void init_proc_sab_msg_engine(msg_type_t msg_type)
 				ret = add_sab_msg_handler(i, MT_SAB_MANAGE_KEY,
 						  prepare_msg_managekey_ext,
 						  proc_msg_rsp_managekey);
+			}
+		break;
+#endif
+#if MT_SAB_RNG
+#ifndef PSA_COMPLIANT
+		case SAB_RNG_OPEN_REQ:
+			if (msg_type == MT_SAB_RNG) {
+				ret = add_sab_msg_handler(i, MT_SAB_RNG,
+						  prepare_msg_rng_open_req,
+						  proc_msg_rsp_rng_open_req);
+			}
+		break;
+		case SAB_RNG_CLOSE_REQ:
+			if (msg_type == MT_SAB_RNG) {
+				ret = add_sab_msg_handler(i, MT_SAB_RNG,
+						  prepare_msg_rng_close_req,
+						  proc_msg_rsp_rng_close_req);
+			}
+		break;
+#endif
+		case SAB_RNG_GET_RANDOM:
+			if (msg_type == MT_SAB_RNG) {
+				ret = add_sab_msg_handler(i, MT_SAB_RNG,
+						  prepare_msg_get_rng,
+						  proc_msg_rsp_get_rng);
 			}
 		break;
 #endif
