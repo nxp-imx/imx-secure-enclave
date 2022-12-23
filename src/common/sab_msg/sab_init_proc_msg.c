@@ -89,13 +89,10 @@ static uint32_t proc_sab_msg_rsp_not_supported(void *rsp_buf, void *args)
 }
 
 
-void init_proc_sab_msg_engine(msg_type_t msg_type)
+static void init_proc_sab_base_msg_engine(msg_type_t msg_type)
 {
 	int i = 0;
 	int ret = NOT_DONE;
-
-	if ((msg_type > NOT_SUPPORTED) && (msg_type >= MAX_MSG_TYPE))
-		return;
 
 	for (i = 0; i < SAB_MSG_MAX_ID; i++) {
 		ret = NOT_DONE;
@@ -128,6 +125,26 @@ void init_proc_sab_msg_engine(msg_type_t msg_type)
 			}
 		break;
 #endif
+		default:
+			if (ret == NOT_DONE) {
+				add_sab_msg_handler(i, msg_type,
+						prep_sab_msg_not_supported,
+						proc_sab_msg_rsp_not_supported);
+			}
+		}
+
+	}
+}
+
+static void init_proc_sab_hsm_msg_engine(msg_type_t msg_type)
+{
+	int i = 0;
+	int ret = NOT_DONE;
+
+	for (i = 0; i < SAB_MSG_MAX_ID; i++) {
+		ret = NOT_DONE;
+
+		switch (i) {
 #if MT_SAB_KEY_GENERATE
 		case SAB_KEY_GENERATE_REQ:
 			if (msg_type == MT_SAB_KEY_GENERATE) {
@@ -345,3 +362,20 @@ void init_proc_sab_msg_engine(msg_type_t msg_type)
 
 	}
 }
+void init_proc_sab_msg_engine(msg_type_t msg_type)
+{
+	int i = 0;
+	int ret = NOT_DONE;
+
+	if ((msg_type > NOT_SUPPORTED) && (msg_type >= MAX_MSG_TYPE))
+		return;
+
+	switch (msg_type) {
+	case 1: init_proc_sab_base_msg_engine(msg_type);
+		break;
+	case 2: init_proc_sab_hsm_msg_engine(msg_type);
+		break;
+	default: return;
+	}
+}
+
