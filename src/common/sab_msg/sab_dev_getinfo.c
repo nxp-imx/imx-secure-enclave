@@ -1,5 +1,5 @@
 /*
- * Copyright 2022 NXP
+ * Copyright 2022-2023 NXP
  *
  * NXP Confidential.
  * This software is owned or controlled by NXP and may only be used strictly
@@ -34,16 +34,13 @@ uint32_t prepare_msg_dev_getinfo(void *phdl, void *cmd_buf, void *rsp_buf,
 	struct sab_cmd_dev_getinfo_rsp *rsp =
 		(struct sab_cmd_dev_getinfo_rsp *) rsp_buf;
 	uint64_t data_addr;
-	op_dev_getinfo_args_t *op_args = (op_dev_getinfo_args_t *) args;
-
-	*cmd_msg_sz = sizeof(struct sab_cmd_dev_getinfo_msg);
-	*rsp_msg_sz = sizeof(struct sab_cmd_dev_getinfo_rsp);
 
 	/* size of the buffer would be.
 	 * size of device info structure "dev_info" and
 	 * size of device info structure "dev_addn_info".
 	 */
-	cmd->buf_sz = sizeof(struct dev_info) + sizeof(struct dev_addn_info);
+	cmd->buf_sz = sizeof(struct dev_info)
+			+ sizeof(struct dev_addn_info);
 
 	/* Copy the get_info_response to the word,
 	 * next to response.
@@ -54,6 +51,9 @@ uint32_t prepare_msg_dev_getinfo(void *phdl, void *cmd_buf, void *rsp_buf,
 
 	cmd->rsp_data_addr_hi = (uint32_t) (data_addr >> 32);
 	cmd->rsp_data_addr_lo = (uint32_t) data_addr;
+
+	*rsp_msg_sz = sizeof(struct sab_cmd_dev_getinfo_rsp);
+	*cmd_msg_sz = sizeof(struct sab_cmd_dev_getinfo_msg);
 
 	return ret;
 }

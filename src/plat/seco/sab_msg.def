@@ -1,4 +1,4 @@
-# Copyright 2022 NXP
+# Copyright 2022-2023 NXP
 #
 # NXP Confidential.
 # This software is owned or controlled by NXP and may only be used strictly
@@ -27,6 +27,7 @@ MT_SAB_CIPHER		:=	${FMW}
 MT_SAB_MAC		:=	${FMW}
 MT_SAB_RNG		:=	${FMW}
 MT_SAB_KEY_RECOVERY	:=	${FMW}
+MT_SAB_GET_INFO		:=	${FMW}
 
 # ROM API(s)
 MT_SAB_DEBUG_DUMP	:=	${ROM}

@@ -1,5 +1,5 @@
 /*
- * Copyright 2022 NXP
+ * Copyright 2022-2023 NXP
  *
  * NXP Confidential.
  * This software is owned or controlled by NXP and may only be used strictly
@@ -11,8 +11,8 @@
  * activate or otherwise use the software.
  */
 
-#ifndef HSM_DEV_GETINFO_H
-#define HSM_DEV_GETINFO_H
+#ifndef HSM_DEV_ATTEST_H
+#define HSM_DEV_ATTEST_H
 
 #include "internal/hsm_handle.h"
 #include "internal/hsm_utils.h"

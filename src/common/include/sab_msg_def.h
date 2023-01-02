@@ -1,5 +1,5 @@
 /*
- * Copyright 2019-2022 NXP
+ * Copyright 2019-2023 NXP
  *
  * NXP Confidential.
  * This software is owned or controlled by NXP and may only be used strictly
@@ -766,26 +766,6 @@ struct sab_cmd_ecies_encrypt_msg {
 struct sab_cmd_ecies_encrypt_rsp {
     struct sab_mu_hdr hdr;
     uint32_t rsp_code;
-};
-
-struct sab_cmd_get_info_msg {
-    struct sab_mu_hdr hdr;
-    uint32_t session_handle;
-};
-
-struct sab_cmd_get_info_rsp {
-    struct sab_mu_hdr hdr;
-    uint32_t rsp_code;
-    uint32_t user_sab_id;
-    uint32_t uid_lower;
-    uint32_t uid_upper;
-    uint16_t monotonic_counter;
-    uint16_t lifecycle;
-    uint32_t version;
-    uint32_t version_ext;
-    uint8_t  fips_mode;
-    uint8_t  rsv[3];
-    uint32_t crc;
 };
 
 struct sab_cmd_data_storage_open_msg{

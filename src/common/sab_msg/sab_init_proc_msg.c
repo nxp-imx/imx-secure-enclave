@@ -1,5 +1,5 @@
 /*
- * Copyright 2022 NXP
+ * Copyright 2022-2023 NXP
  *
  * NXP Confidential.
  * This software is owned or controlled by NXP and may only be used strictly
@@ -24,6 +24,10 @@
 
 #if MT_SAB_DEV_ATTEST
 #include "sab_dev_attest.h"
+#endif
+
+#if MT_SAB_GET_INFO
+#include "sab_get_info.h"
 #endif
 
 #if MT_SAB_KEY_GENERATE
@@ -145,6 +149,15 @@ static void init_proc_sab_hsm_msg_engine(msg_type_t msg_type)
 		ret = NOT_DONE;
 
 		switch (i) {
+#if MT_SAB_GET_INFO
+		case SAB_GET_INFO_REQ:
+			if (msg_type == MT_SAB_GET_INFO) {
+				ret = add_sab_msg_handler(i, MT_SAB_GET_INFO,
+						  prepare_msg_get_info,
+						  proc_msg_rsp_get_info);
+			}
+		break;
+#endif
 #if MT_SAB_KEY_GENERATE
 		case SAB_KEY_GENERATE_REQ:
 			if (msg_type == MT_SAB_KEY_GENERATE) {

@@ -1,4 +1,4 @@
-# Copyright 2022 NXP
+# Copyright 2022-2023 NXP
 #
 # NXP Confidential.
 # This software is owned or controlled by NXP and may only be used strictly
@@ -44,6 +44,12 @@ ifneq (${MT_SAB_DEV_GETINFO},0x0)
 DEFINES		+=	-DMT_SAB_DEV_GETINFO=${MT_SAB_DEV_GETINFO}
 SAB_MSG_SRC	+= \
 		$(PLAT_COMMON_PATH)/sab_msg/sab_dev_getinfo.o
+endif
+
+ifneq (${MT_SAB_GET_INFO},0x0)
+DEFINES		+=	-DMT_SAB_GET_INFO=${MT_SAB_GET_INFO}
+SAB_MSG_SRC	+= \
+		$(PLAT_COMMON_PATH)/sab_msg/sab_get_info.o
 endif
 
 ifneq (${MT_SAB_MAC},0x0)

@@ -1,5 +1,5 @@
 /*
- * Copyright 2019-2022 NXP
+ * Copyright 2019-2023 NXP
  *
  * NXP Confidential.
  * This software is owned or controlled by NXP and may only be used strictly
@@ -1139,32 +1139,6 @@ hsm_err_t hsm_export_root_key_encryption_key (hsm_hdl_t session_hdl,
 		sab_err_map(SAB_ROOT_KEK_EXPORT_REQ, rsp.rsp_code);
 
 		err = sab_rating_to_hsm_err(rsp.rsp_code);
-
-	} while (false);
-
-	return err;
-}
-
-hsm_err_t hsm_get_info(hsm_hdl_t session_hdl, op_get_info_args_t *args) {
-	struct hsm_session_hdl_s *sess_ptr;
-	hsm_err_t err = HSM_GENERAL_ERROR;
-	uint32_t error = 1;
-
-	do {
-
-		sess_ptr = session_hdl_to_ptr(session_hdl);
-		if (sess_ptr == NULL) {
-			err = HSM_UNKNOWN_HANDLE;
-			break;
-		}
-
-		if ((args == NULL) || (args->user_sab_id == NULL) || (args->chip_unique_id == NULL) || (args->chip_monotonic_counter == NULL) || (args->chip_life_cycle == NULL) || (args->version == NULL) || (args->version_ext == NULL) || (args->fips_mode == NULL)) {
-			break;
-		}
-
-		error = sab_get_info(sess_ptr->phdl, session_hdl, sess_ptr->mu_type, args->user_sab_id, args->chip_unique_id, args->chip_monotonic_counter, args->chip_life_cycle, args->version, args->version_ext, args->fips_mode);
-
-		err = sab_rating_to_hsm_err(error);
 
 	} while (false);
 

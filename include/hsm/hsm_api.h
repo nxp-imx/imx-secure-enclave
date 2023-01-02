@@ -1,5 +1,5 @@
 /*
- * Copyright 2019-2022 NXP
+ * Copyright 2019-2023 NXP
  *
  * NXP Confidential.
  * This software is owned or controlled by NXP and may only be used strictly
@@ -286,6 +286,8 @@ hsm_err_t hsm_do_hash(hsm_hdl_t session_hdl, op_hash_one_go_args_t *args);
 #include "internal/hsm_dev_getinfo.h"
 
 #include "internal/hsm_dev_attest.h"
+
+#include "internal/hsm_get_info.h"
 
 typedef uint8_t hsm_op_manage_key_group_flags_t;
 typedef struct {
@@ -831,31 +833,6 @@ hsm_err_t hsm_export_root_key_encryption_key (hsm_hdl_t session_hdl,  op_export_
 #define HSM_OP_EXPORT_ROOT_KEK_FLAGS_COMMON_KEK   ((hsm_op_export_root_kek_flags_t)(1u << 0))
 #define HSM_OP_EXPORT_ROOT_KEK_FLAGS_UNIQUE_KEK   ((hsm_op_export_root_kek_flags_t)(0u << 0))
 /** @} end of export root key encryption key operation */
-
-/**
- *  @defgroup group15 Get info
- * @{
- */
-typedef struct {
-    uint32_t *user_sab_id;              //!< pointer to the output area where the user identifier (32bits) must be written
-    uint8_t  *chip_unique_id;           //!< pointer to the output area where the chip unique identifier (64bits) must be written
-    uint16_t *chip_monotonic_counter;   //!< pointer to the output are where the chip monotonic counter value (16bits) must be written
-    uint16_t *chip_life_cycle;          //!< pointer to the output area where the chip current life cycle bitfield (16bits) must be written
-    uint32_t *version;                  //!< pointer to the output area where the module version (32bits) must be written
-    uint32_t *version_ext;              //!< pointer to the output area where module extended version (32bits) must be written
-    uint8_t  *fips_mode;                //!< pointer to the output area where the FIPS mode bitfield (8bits) must be written. Bitmask definition:\n bit0 - FIPS mode of operation:\n- value 0 - part is running in FIPS non-approved mode.\n- value 1 - part is running in FIPS approved mode.\n bit1 - FIPS certified part:\n- value 0 - part is not FIPS certified.\n- value 1 - part is FIPS certified.\n bit2-7: reserved - 0 value.
-} op_get_info_args_t;
-/**
- *
- * \param session_hdl handle identifying the current session.
- * \param args pointer to the structure containing the function arguments.
- *
- * \return error code
- */
-
-hsm_err_t hsm_get_info(hsm_hdl_t session_hdl, op_get_info_args_t *args);
-
-/** @} end of Get info operation */
 
 /**
  *  @defgroup group17 SM2 Get Z

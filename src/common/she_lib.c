@@ -1,5 +1,5 @@
 /*
- * Copyright 2019-2022 NXP
+ * Copyright 2019-2023 NXP
  *
  * NXP Confidential.
  * This software is owned or controlled by NXP and may only be used strictly
@@ -13,6 +13,7 @@
 
 #include "internal/hsm_cipher.h"
 #include "internal/hsm_rng.h"
+#include "internal/hsm_get_info.h"
 
 #include "sab_msg_def.h"
 #include "sab_messaging.h"
@@ -1137,27 +1138,46 @@ uint32_t she_get_last_rating_code(struct she_hdl_s *hdl)
 }
 
 
-she_err_t she_get_info(struct she_hdl_s *hdl, uint32_t *user_sab_id, uint8_t *chip_unique_id, uint16_t *chip_monotonic_counter, uint16_t *chip_life_cycle, uint32_t *she_version) {
-    uint32_t plat_rsp_code;
-    she_err_t ret = ERC_GENERAL_ERROR;
-    uint32_t version_ext;
-    uint8_t fips_mode;
+she_err_t she_get_info(struct she_hdl_s *hdl,
+		       uint32_t *user_sab_id,
+		       uint8_t *chip_unique_id,
+		       uint16_t *chip_monotonic_counter,
+		       uint16_t *chip_life_cycle,
+		       uint32_t *she_version)
+{
+	uint32_t plat_rsp_code;
+	she_err_t ret = ERC_GENERAL_ERROR;
+	uint32_t version_ext;
+	uint8_t fips_mode;
+	op_get_info_args_t args;
+	int32_t error = 1;
 
-    do {
-        if ((hdl == NULL) || (user_sab_id == NULL) || (chip_unique_id == NULL) || (chip_monotonic_counter == NULL) || (chip_life_cycle == NULL) || (she_version == NULL)) {
-            break;
-        }
-        plat_rsp_code = sab_get_info(hdl->phdl, hdl->session_handle, hdl->mu_type, user_sab_id, chip_unique_id, chip_monotonic_counter, chip_life_cycle, she_version, &version_ext, &fips_mode);
+	do {
+		error = process_sab_msg(hdl->phdl,
+				hdl->mu_type,
+				SAB_GET_INFO_REQ,
+				MT_SAB_GET_INFO,
+				hdl->session_handle,
+				&args, &plat_rsp_code);
 
-        hdl->last_rating = plat_rsp_code;
-        if (GET_STATUS_CODE(plat_rsp_code) != SAB_SUCCESS_STATUS) {
-            ret = she_plat_ind_to_she_err_t(plat_rsp_code);
-            break;
-        }
+		hdl->last_rating = plat_rsp_code;
+		if ((GET_STATUS_CODE(plat_rsp_code) != SAB_SUCCESS_STATUS)
+				|| (error != SAB_SUCCESS_STATUS)) {
+			ret = she_plat_ind_to_she_err_t(plat_rsp_code);
+			break;
+		}
 
-        /* Success. */
-        ret = ERC_NO_ERROR;
-    } while (false);
+		*user_sab_id = args.user_sab_id;
+		plat_os_abs_memcpy(chip_unique_id,
+				   (uint8_t *)(&args.chip_unique_id),
+				   args.chip_unq_id_sz);
+		*chip_monotonic_counter = args.chip_monotonic_counter;
+		*chip_life_cycle = args.chip_life_cycle;
+		*she_version = args.version;
 
-    return ret;
+		/* Success. */
+		ret = ERC_NO_ERROR;
+	} while (false);
+
+	return ret;
 }

@@ -1,5 +1,5 @@
 /*
- * Copyright 2022 NXP
+ * Copyright 2022-2023 NXP
  *
  * NXP Confidential.
  * This software is owned or controlled by NXP and may only be used strictly
@@ -11,8 +11,8 @@
  * activate or otherwise use the software.
  */
 
-#ifndef HSM_DEV_ATTEST_H
-#define HSM_DEV_ATTEST_H
+#ifndef HSM_DEV_GET_INFO_H
+#define HSM_DEV_GET_INFO_H
 
 #include "internal/hsm_handle.h"
 #include "internal/hsm_utils.h"
@@ -25,7 +25,7 @@ typedef struct {
 	uint8_t  uid_sz;
 	/* Memory for storing uid/sha_rom_patch/sha_fw/signature
 	 * will be allocated by HSM library.
-	 * Caller of the func hsm_dev_attest(), needs to
+	 * Caller of the func hsm_dev_getinfo(), needs to
 	 * ensure freeing up of this memory.
 	 */
 	uint8_t  *uid;

@@ -1,4 +1,4 @@
-# Copyright 2022 NXP
+# Copyright 2022-2023 NXP
 #
 # NXP Confidential.
 # This software is owned or controlled by NXP and may only be used strictly
@@ -102,6 +102,12 @@ ifneq (${MT_SAB_DEV_GETINFO},0x0)
 DEFINES		+=	-DHSM_DEV_GETINFO
 HSM_API_SRC	+= \
 		$(PLAT_COMMON_PATH)/hsm_api/hsm_dev_getinfo.o
+endif
+
+ifneq (${MT_SAB_GET_INFO},0x0)
+DEFINES		+=	-DHSM_GET_INFO
+HSM_API_SRC	+= \
+		$(PLAT_COMMON_PATH)/hsm_api/hsm_get_info.o
 endif
 
 OBJECTS		+= $(HSM_API_SRC)
