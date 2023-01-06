@@ -1,5 +1,5 @@
 /*
- * Copyright 2022 NXP
+ * Copyright 2022-2023 NXP
  *
  * NXP Confidential.
  * This software is owned or controlled by NXP and may only be used strictly
@@ -97,6 +97,10 @@ typedef enum {
 	HSM_FATAL_FAILURE                   = 0x29,
 	/**<	Message neither handled by ROM nor FW */
 	HSM_SERVICES_DISABLED               = 0xF4,
+	/**<    Failure in verification status of operations such as
+	 *      MAC verification, Signature verification.
+	 */
+	HSM_SIGNATURE_INVALID               = 0xFD,
 	/**<	Unknown errors */
 	HSM_UNKNOWN_ERROR                   = 0xFE,
 	/**<	Error in case General Error is received */
