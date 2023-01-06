@@ -92,6 +92,12 @@ HSM_API_SRC	+= \
 		$(PLAT_COMMON_PATH)/hsm_api/hsm_key_recovery.o
 endif
 
+ifneq (${MT_SAB_AUTH_ENC},0x0)
+DEFINES		+=	-DHSM_AUTH_ENC
+HSM_API_SRC	+= \
+		$(PLAT_COMMON_PATH)/hsm_api/hsm_auth_enc.o
+endif
+
 ifneq (${MT_SAB_DEV_ATTEST},0x0)
 DEFINES		+=	-DHSM_DEV_ATTEST
 HSM_API_SRC	+= \

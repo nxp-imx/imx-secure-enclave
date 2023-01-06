@@ -578,6 +578,8 @@ static void transient_key_tests(hsm_hdl_t sess_hdl, hsm_hdl_t key_store_hdl)
 
 #endif
 
+	auth_enc_test(key_store_hdl, key_mgmt_hdl);
+
 #ifndef PSA_COMPLIANT
 	key_management(DELETE, key_mgmt_hdl, &sym_key_id, 1001, HSM_KEY_TYPE_AES_256);
 #else

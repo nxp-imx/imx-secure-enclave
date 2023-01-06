@@ -607,29 +607,6 @@ struct sab_cmd_key_management_close_rsp {
 #define SAB_AUTH_ENC_FLAGS_ENCRYPT (0x01u)
 #define SAB_AUTH_ENC_FLAGS_DECRYPT (0x00u)
 
-struct sab_cmd_auth_enc_msg {
-    struct sab_mu_hdr hdr;
-    uint32_t cipher_handle;
-    uint32_t key_id;
-    uint32_t iv_address;
-    uint16_t iv_size;
-    uint8_t  ae_algo;
-    uint8_t  flags;
-    uint32_t aad_address;
-    uint16_t aad_size;
-    uint16_t rsv;
-    uint32_t input_address;
-    uint32_t output_address;
-    uint32_t input_length;
-    uint32_t output_length;
-    uint32_t crc;
-};
-
-struct sab_cmd_auth_enc_rsp {
-    struct sab_mu_hdr hdr;
-    uint32_t rsp_code;
-};
-
 struct sab_cmd_ecies_decrypt_msg {
     struct sab_mu_hdr hdr;
     uint32_t cipher_handle;

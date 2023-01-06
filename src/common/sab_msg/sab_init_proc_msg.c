@@ -78,6 +78,10 @@
 #include "sab_key_recovery.h"
 #endif
 
+#if MT_SAB_AUTH_ENC
+#include "sab_auth_enc.h"
+#endif
+
 static uint32_t prep_sab_msg_not_supported(void *phdl, void *cmd_buf,
 					   void *rsp_buf, uint32_t *cmd_msg_sz,
 					   uint32_t *rsp_msg_sz,
@@ -362,6 +366,15 @@ static void init_proc_sab_hsm_msg_engine(msg_type_t msg_type)
 				ret = add_sab_msg_handler(i, MT_SAB_KEY_RECOVERY,
 						  prepare_msg_key_recovery,
 						  proc_msg_rsp_key_recovery);
+			}
+		break;
+#endif
+#if MT_SAB_AUTH_ENC
+		case SAB_AUTH_ENC_REQ:
+			if (msg_type == MT_SAB_AUTH_ENC) {
+				ret = add_sab_msg_handler(i, MT_SAB_AUTH_ENC,
+						prepare_msg_auth_enc,
+						proc_msg_rsp_auth_enc);
 			}
 		break;
 #endif

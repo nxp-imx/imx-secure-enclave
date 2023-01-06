@@ -1,5 +1,5 @@
 /*
- * Copyright 2022 NXP
+ * Copyright 2022-2023 NXP
  *
  * NXP Confidential.
  * This software is owned or controlled by NXP and may only be used strictly
@@ -33,6 +33,8 @@ void hsm_sign_verify_tests(hsm_hdl_t sess_hdl, hsm_hdl_t key_store_hdl,
 			   uint8_t *signature_data, uint32_t sign_data_sz,
 			   uint8_t *hash_data, uint32_t hash_data_sz,
 			   uint8_t *pub_key, uint32_t pub_key_sz);
+
+hsm_err_t auth_enc_test(hsm_hdl_t key_store_hdl, hsm_hdl_t key_mgmt_hdl);
 
 void get_device_info(hsm_hdl_t sess_hdl);
 void perform_dev_attestation(hsm_hdl_t sess_hdl);

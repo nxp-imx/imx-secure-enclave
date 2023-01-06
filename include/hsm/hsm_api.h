@@ -271,6 +271,33 @@ hsm_err_t hsm_do_mac(hsm_hdl_t key_store_hdl,
  */
 hsm_err_t hsm_do_hash(hsm_hdl_t session_hdl, op_hash_one_go_args_t *args);
 /** @} end of hash service flow */
+
+/**
+ *  @defgroup group15 Authenticated Encryption
+ * @{
+ */
+#include "internal/hsm_auth_enc.h"
+/**
+ * Secondary API to perform Authenticated Encryption\n
+ *
+ * This API does the following:
+ * 1. Opens Cipher Service Flow\n
+ * 2. Perform Authenticated Encryption operation\n
+ * 3. Terminates the previously opened Cipher service flow\n
+ *
+ * User can call this function only after having opened a key store service
+ * flow.\n
+ *
+ * \param key_store_hdl handle identifying the key store service flow.
+ * \param args pointer to the structure containing the function arguments.
+ *
+ * \return error code
+ */
+hsm_err_t hsm_do_auth_enc(hsm_hdl_t key_store_hdl,
+						op_auth_enc_args_t *auth_enc_args);
+/** @} end of authenticated encryption service flow */
+
+
 #include "internal/hsm_key_gen_ext.h"
 
 #include "internal/hsm_importkey.h"
@@ -438,47 +465,6 @@ hsm_err_t hsm_close_key_management_service(hsm_hdl_t key_management_hdl);
  *
  */
 /** @} end of key management service flow */
-
-typedef uint8_t hsm_op_auth_enc_algo_t;
-typedef uint8_t hsm_op_auth_enc_flags_t;
-typedef struct {
-    uint32_t key_identifier;                    //!< identifier of the key to be used for the operation
-    uint8_t *iv;                                //!< pointer to the user supplied part of initialization vector or nonce, when applicable, otherwise 0
-    uint16_t iv_size;                           //!< length in bytes of the fixed part of the initialization vector for encryption (0 or 4 bytes), length in bytes of the full IV for decryption (12 bytes)
-    uint8_t *aad;                               //!< pointer to the additional authentication data
-    uint16_t aad_size;                          //!< length in bytes of the additional authentication data
-    hsm_op_auth_enc_algo_t ae_algo;             //!< algorithm to be used for the operation
-    hsm_op_auth_enc_flags_t flags;              //!< bitmap specifying the operation attributes
-    uint8_t *input;                             //!< pointer to the input area\n plaintext for encryption\n Ciphertext + Tag (16 bytes) for decryption
-    uint8_t *output;                            //!< pointer to the output area\n Ciphertext + Tag (16 bytes) + IV for encryption \n plaintext for decryption if the Tag is verified
-    uint32_t input_size;                        //!< length in bytes of the input
-    uint32_t output_size;                       //!< length in bytes of the output
-} op_auth_enc_args_t;
-
-/**
- * Perform authenticated encryption operation\n
- * User can call this function only after having opened a cipher service flow\n
- *
- *
- * For decryption operations, the full IV is supplied by the caller via the iv and iv_size parameters. HSM_AUTH_ENC_FLAGS_GENERATE_FULL_IV and HSM_AUTH_ENC_FLAGS_GENERATE_COUNTER_IV flags are ignored.\n
- *
- * For encryption operations, either HSM_AUTH_ENC_FLAGS_GENERATE_FULL_IV or HSM_AUTH_ENC_FLAGS_GENERATE_COUNTER_IV must be set when calling this function:
- * - When HSM_AUTH_ENC_FLAGS_GENERATE_FULL_IV is set, the full IV is internally generated, iv and iv_size must be set to 0
- * - When HSM_AUTH_ENC_FLAGS_GENERATE_COUNTER_IV is set, the user supplies a 4 byte fixed part of the IV.  The other IV bytes are internally generated
- *
- * \param cipher_hdl handle identifying the cipher service flow.
- * \param args pointer to the structure containing the function arguments.
- *
- * \return error code
- */
-hsm_err_t hsm_auth_enc(hsm_hdl_t cipher_hdl, op_auth_enc_args_t* args);
-#define HSM_AUTH_ENC_ALGO_AES_GCM              ((hsm_op_auth_enc_algo_t)(0x00u))       //!< Perform AES GCM with following constraints: AES GCM where AAD supported, Tag len = 16 bytes, IV len = 12 bytes
-#define HSM_AUTH_ENC_ALGO_SM4_CCM              ((hsm_op_auth_enc_algo_t)(0x10u))       //!< Perform SM4 CCM with following constraints: SM4 CCM where AAD supported, Tag len = 16 bytes, IV len = 12 bytes
-#define HSM_AUTH_ENC_FLAGS_DECRYPT             ((hsm_op_auth_enc_flags_t)(0u << 0))
-#define HSM_AUTH_ENC_FLAGS_ENCRYPT             ((hsm_op_auth_enc_flags_t)(1u << 0))
-#define HSM_AUTH_ENC_FLAGS_GENERATE_FULL_IV    ((hsm_op_auth_enc_flags_t)(1u << 1))    //!< Full IV is internally generated (only relevant for encryption)
-#define HSM_AUTH_ENC_FLAGS_GENERATE_COUNTER_IV ((hsm_op_auth_enc_flags_t)(1u << 2))    //!< User supplies 4 bytes of the IV (fixed part), the other bytes are internally generated (only relevant for encryption)
-
 
 typedef uint8_t hsm_op_ecies_dec_flags_t;
 typedef struct {
