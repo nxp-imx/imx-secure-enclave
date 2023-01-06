@@ -71,7 +71,7 @@ static uint32_t nvm_storage_import(struct nvm_ctx_st *nvm_ctx_param,
 			break;
 		}
 
-		if (plat_os_abs_crc(data + sizeof(struct nvm_header_s),
+		if (plat_fetch_msg_crc((uint32_t *)(data + sizeof(struct nvm_header_s)),
 					blob_hdr->size) != blob_hdr->crc) {
 			break;
 		}
@@ -342,7 +342,9 @@ static uint32_t nvm_manager_export_master(struct nvm_ctx_st *nvm_ctx_param,
 		/* fill header for sanity check when it will be re-loaded. */
 		blob_hdr = (struct nvm_header_s *)data;
 		blob_hdr->size = blob_size;
-		blob_hdr->crc = plat_os_abs_crc(data + sizeof(struct nvm_header_s), blob_size);
+		blob_hdr->crc = plat_fetch_msg_crc((uint32_t *)(data
+							+ sizeof(struct nvm_header_s)),
+						   blob_size);
 		/* Used only for chunks. */
 		blob_hdr->blob_id = 0u;
 
@@ -458,8 +460,9 @@ static uint32_t nvm_manager_export_chunk(struct nvm_ctx_st *nvm_ctx_param,
 
 			blob_hdr = (struct nvm_header_s *)chunk->data;
 			blob_hdr->size = chunk->len;
-			blob_hdr->crc = plat_os_abs_crc(chunk->data
-					+ sizeof(struct nvm_header_s), chunk->len);
+			blob_hdr->crc = plat_fetch_msg_crc((uint32_t *)(chunk->data
+							     + sizeof(struct nvm_header_s)),
+							   chunk->len);
 			blob_hdr->blob_id = chunk->blob_id;
 
 			if (plat_os_abs_storage_write_chunk(

@@ -286,6 +286,20 @@ uint8_t plat_validate_msg_crc(uint32_t *msg, uint32_t msg_len)
 	return (computed_msg_crc ==	msg[nb_words - 1]) ? 1 : 0;
 }
 
+uint32_t plat_fetch_msg_crc(uint32_t *msg, uint32_t msg_len)
+{
+	uint32_t crc = 0u;
+	uint32_t i;
+	uint32_t nb_words = msg_len / (uint32_t)sizeof(uint32_t);
+
+	crc = 0u;
+	for (i = 0u; i < nb_words; i++) {
+		crc ^= *(msg + i);
+	}
+
+	return crc;
+}
+
 uint32_t plat_compute_msg_crc(uint32_t *msg, uint32_t msg_len)
 {
 	uint32_t crc;

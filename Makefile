@@ -1,5 +1,5 @@
 #
-# Copyright 2021, 2022 NXP
+# Copyright 2021, 2022, 2023 NXP
 #
 # NXP Confidential.
 # This software is owned or controlled by NXP and may only be used strictly
@@ -124,21 +124,21 @@ COMMON_TEST_INC=-Itest/common/include/
 
 HSM_TEST_OBJ=$(wildcard test/hsm/*.c) $(COMMON_TEST_OBJ)
 $(HSM_TEST): $(HSM_TEST_OBJ) $(HSM_LIB)
-	$(CC) $^  -o $@ ${INCLUDE_PATHS} ${COMMON_TEST_INC} $(CFLAGS) $(LDFLAGS) -lpthread -lz $(GCOV_FLAGS)
+	$(CC) $^  -o $@ ${INCLUDE_PATHS} ${COMMON_TEST_INC} $(CFLAGS) $(LDFLAGS) -lpthread $(GCOV_FLAGS)
 
 SHE_TEST_OBJ=$(wildcard test/she/src/*.c)
 #SHE test app
 $(SHE_TEST): $(SHE_TEST_OBJ) $(SHE_LIB) $(NVM_LIB)
-	$(CC) $^  -o $@ ${INCLUDE_PATHS} $(CFLAGS) $(LDFLAGS) -lpthread -lz $(GCOV_FLAGS)
+	$(CC) $^  -o $@ ${INCLUDE_PATHS} $(CFLAGS) $(LDFLAGS) -lpthread $(GCOV_FLAGS)
 
 V2X_TEST_OBJ=$(wildcard test/v2x/*.c)
 $(V2X_TEST): $(V2X_TEST_OBJ) $(HSM_LIB) $(NVM_LIB)
-	$(CC) $^  -o $@ ${INCLUDE_PATHS} $(CFLAGS) $(LDFLAGS) -lpthread -lz $(GCOV_FLAGS)
+	$(CC) $^  -o $@ ${INCLUDE_PATHS} $(CFLAGS) $(LDFLAGS) -lpthread $(GCOV_FLAGS)
 
 # NVM Daemon
 NVM_D_OBJ=$(wildcard src/common/nvm/*.c)
 $(NVM_DAEMON): $(NVM_D_OBJ) $(NVM_LIB)
-	$(CC) $^  -o $@ ${INCLUDE_PATHS} $(CFLAGS) $(LDFLAGS) -lpthread -lz $(GCOV_FLAGS)
+	$(CC) $^  -o $@ ${INCLUDE_PATHS} $(CFLAGS) $(LDFLAGS) -lpthread $(GCOV_FLAGS)
 
 clean:
 	rm -rf $(OBJECTS) *.gcno *.a *_test $(TEST_OBJ) $(all_libs) *.so* $(all_tests) $(NVM_DAEMON)

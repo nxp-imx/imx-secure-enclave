@@ -1,5 +1,5 @@
 /*
- * Copyright 2021-2022 NXP
+ * Copyright 2021-2023 NXP
  *
  * NXP Confidential.
  * This software is owned or controlled by NXP and may only be used strictly
@@ -256,6 +256,20 @@ int32_t plat_send_msg_and_get_resp(struct plat_os_abs_hdl *phdl, uint32_t *cmd, 
     } while (false);
 
     return err;
+}
+
+uint32_t plat_fetch_msg_crc(uint32_t *msg, uint32_t msg_len)
+{
+	uint32_t crc = 0u;
+	uint32_t i;
+	uint32_t nb_words = msg_len / (uint32_t)sizeof(uint32_t);
+
+	crc = 0u;
+	for (i = 0u; i < nb_words; i++) {
+		crc ^= *(msg + i);
+	}
+
+	return crc;
 }
 
 uint32_t plat_add_msg_crc(uint32_t *msg, uint32_t msg_len)

@@ -1,5 +1,5 @@
 /*
- * Copyright 2019-2021 NXP
+ * Copyright 2019-2023 NXP
  *
  * NXP Confidential.
  * This software is owned or controlled by NXP and may only be used strictly
@@ -21,7 +21,6 @@
 #include <sys/stat.h>
 #include <fcntl.h>
 #include <unistd.h>
-#include <zlib.h>
 #include "she_api.h"
 #include "plat_os_abs.h"
 #include "seco_mu_ioctl.h"
@@ -225,11 +224,6 @@ uint64_t plat_os_abs_data_buf(struct plat_os_abs_hdl *phdl, uint8_t *src, uint32
     }
 
     return io.seco_addr;
-}
-
-uint32_t plat_os_abs_crc(uint8_t *data, uint32_t size)
-{
-    return ((uint32_t)crc32(0xFFFFFFFFu, data, size) ^ 0xFFFFFFFFu);
 }
 
 void plat_os_abs_memset(uint8_t *dst, uint8_t val, uint32_t len)
