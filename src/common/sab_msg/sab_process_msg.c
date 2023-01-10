@@ -21,8 +21,6 @@
 #include "plat_os_abs.h"
 #include "plat_utils.h"
 
-static bool init_done;
-
 static uint32_t (*prepare_sab_msg[MAX_MSG_TYPE - 1][SAB_MSG_MAX_ID])
 						(void *phdl, void *cmd_buf,
 						 void *rsp_buf,
@@ -85,14 +83,6 @@ uint32_t process_sab_msg(struct plat_os_abs_hdl *phdl,
 	uint32_t cmd[MAX_CMD_WORD_SZ];
 	uint32_t rsp[MAX_CMD_RSP_WORD_SZ];
 
-	if (init_done == false) {
-		for (msg_type_id = ROM_MSG; msg_type_id < MAX_MSG_TYPE;
-				msg_type_id++) {
-			init_proc_sab_msg_engine(msg_type_id);
-		}
-		init_done = true;
-	}
-
 	plat_os_abs_memset((uint8_t *)cmd, 0x0, MAX_CMD_WORD_SZ * WORD_SZ);
 	plat_os_abs_memset((uint8_t *)rsp, 0x0, MAX_CMD_RSP_WORD_SZ * WORD_SZ);
 
@@ -101,7 +91,12 @@ uint32_t process_sab_msg(struct plat_os_abs_hdl *phdl,
 		goto out;
 	}
 
-	if (msg_id > SAB_MSG_MAX_ID) {
+	if (msg_id == SAB_MSG_MAX_ID) {
+		error = SAB_NO_MESSAGE_RATING;
+		goto out;
+	}
+
+	if (prepare_sab_msg[msg_type - 1][msg_id] == NULL) {
 		error = SAB_NO_MESSAGE_RATING;
 		goto out;
 	}
@@ -169,6 +164,11 @@ uint32_t process_sab_msg(struct plat_os_abs_hdl *phdl,
 
 	if (SAB_STATUS_SUCCESS(msg_type) != *rsp_code)
 		sab_err_map(msg_id, *rsp_code);
+
+	if (process_sab_msg_rsp[msg_type - 1][msg_id] == NULL) {
+		error = SAB_NO_MESSAGE_RATING;
+		goto out;
+	}
 
 	error = process_sab_msg_rsp[msg_type - 1][msg_id](&rsp, args);
 out:
