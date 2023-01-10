@@ -50,14 +50,14 @@ hsm_err_t hsm_mac_one_go(hsm_hdl_t mac_hdl,
 		err = sab_rating_to_hsm_err(error);
 
 		if (err != HSM_NO_ERROR) {
-			printf("HSM Error: SAB_MAC_ONE_GO_REQ [0x%x].\n", err);
+			se_err("HSM Error: SAB_MAC_ONE_GO_REQ [0x%x].\n", err);
 			break;
 		}
 
 		err = sab_rating_to_hsm_err(rsp_code);
 
 		if (err != HSM_NO_ERROR) {
-			printf("HSM RSP Error: SAB_MAC_ONE_GO_REQ [0x%x].\n", err);
+			se_err("HSM RSP Error: SAB_MAC_ONE_GO_REQ [0x%x].\n", err);
 		}
 
 		*status = args->verification_status;
@@ -102,7 +102,7 @@ hsm_err_t hsm_open_mac_service(hsm_hdl_t key_store_hdl,
 		err = sab_rating_to_hsm_err(error);
 
 		if (err != HSM_NO_ERROR) {
-			printf("HSM Error: SAB_MAC_OPEN_REQ [0x%x].\n", err);
+			se_err("HSM Error: SAB_MAC_OPEN_REQ [0x%x].\n", err);
 			delete_service(mac_serv_ptr);
 			break;
 		}
@@ -110,7 +110,7 @@ hsm_err_t hsm_open_mac_service(hsm_hdl_t key_store_hdl,
 		err = sab_rating_to_hsm_err(rsp_code);
 
 		if (err != HSM_NO_ERROR) {
-			printf("HSM RSP Error: SAB_MAC_OPEN_REQ [0x%x].\n", err);
+			se_err("HSM RSP Error: SAB_MAC_OPEN_REQ [0x%x].\n", err);
 			delete_service(mac_serv_ptr);
 			break;
 		}
@@ -145,7 +145,7 @@ hsm_err_t hsm_close_mac_service(hsm_hdl_t mac_hdl)
 		err = sab_rating_to_hsm_err(error);
 
 		if (err != HSM_NO_ERROR) {
-			printf("HSM Error: SAB_MAC_CLOSE_REQ [0x%x].\n", err);
+			se_err("HSM Error: SAB_MAC_CLOSE_REQ [0x%x].\n", err);
 			delete_service(serv_ptr);
 			break;
 		}
@@ -153,7 +153,7 @@ hsm_err_t hsm_close_mac_service(hsm_hdl_t mac_hdl)
 		err = sab_rating_to_hsm_err(rsp_code);
 
 		if (err != HSM_NO_ERROR) {
-			printf("HSM RSP Error: SAB_MAC_CLOSE_REQ [0x%x].\n", err);
+			se_err("HSM RSP Error: SAB_MAC_CLOSE_REQ [0x%x].\n", err);
 		}
 		delete_service(serv_ptr);
 	} while (false);
@@ -171,19 +171,19 @@ hsm_err_t hsm_do_mac(hsm_hdl_t key_store_hdl, op_mac_one_go_args_t *mac_one_go)
 
 	err = hsm_open_mac_service(key_store_hdl, &mac_srv_args, &sg0_mac_hdl);
 	if (err) {
-		printf("err: 0x%x hsm_open_mac_service err: hdl: 0x%08x\n", err, sg0_mac_hdl);
+		se_err("err: 0x%x hsm_open_mac_service err: hdl: 0x%08x\n", err, sg0_mac_hdl);
 		goto exit;
 	}
 
 	err = hsm_mac_one_go(sg0_mac_hdl, mac_one_go, &mac_one_go->verification_status);
 	if (err) {
-		printf("\n\terr: 0x%x hsm_mac_one_go GEN hdl: 0x%08x\n",
+		se_err("\n\terr: 0x%x hsm_mac_one_go GEN hdl: 0x%08x\n",
 				err, sg0_mac_hdl);
 	}
 
 	err = hsm_close_mac_service(sg0_mac_hdl);
 	if (err) {
-		printf("0x%x hsm_close_mac_service hdl: 0x%x\n", err, sg0_mac_hdl);
+		se_err("0x%x hsm_close_mac_service hdl: 0x%x\n", err, sg0_mac_hdl);
 	}
 
 exit:

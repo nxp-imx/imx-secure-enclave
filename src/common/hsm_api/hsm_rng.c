@@ -59,14 +59,14 @@ hsm_err_t hsm_get_random(hsm_hdl_t rng_hdl, op_get_random_args_t *args)
 		err = sab_rating_to_hsm_err(error);
 
 		if (err != HSM_NO_ERROR) {
-			printf("HSM Error: SAB_RNG_GET_RANDOM [0x%x].\n", err);
+			se_err("HSM Error: SAB_RNG_GET_RANDOM [0x%x].\n", err);
 			break;
 		}
 
 		err = sab_rating_to_hsm_err(rsp_code);
 
 		if (err != HSM_NO_ERROR) {
-			printf("HSM RSP Error: SAB_RNG_GET_RANDOM [0x%x].\n", err);
+			se_err("HSM RSP Error: SAB_RNG_GET_RANDOM [0x%x].\n", err);
 		}
 
 	} while (false);
@@ -111,7 +111,7 @@ hsm_err_t hsm_open_rng_service(hsm_hdl_t session_hdl,
 		err = sab_rating_to_hsm_err(error);
 
 		if (err != HSM_NO_ERROR) {
-			printf("HSM Error: SAB_RNG_OPEN_REQ [0x%x].\n", err);
+			se_err("HSM Error: SAB_RNG_OPEN_REQ [0x%x].\n", err);
 			delete_service(serv_ptr);
 			break;
 		}
@@ -119,7 +119,7 @@ hsm_err_t hsm_open_rng_service(hsm_hdl_t session_hdl,
 		err = sab_rating_to_hsm_err(rsp_code);
 
 		if (err != HSM_NO_ERROR) {
-			printf("HSM RSP Error: SAB_RNG_OPEN_REQ [0x%x].\n", err);
+			se_err("HSM RSP Error: SAB_RNG_OPEN_REQ [0x%x].\n", err);
 			delete_service(serv_ptr);
 			break;
 		}
@@ -155,14 +155,14 @@ hsm_err_t hsm_close_rng_service(hsm_hdl_t rng_hdl)
 		err = sab_rating_to_hsm_err(error);
 
 		if (err != HSM_NO_ERROR) {
-			printf("HSM Error: SAB_RNG_CLOE_REQ [0x%x].\n", err);
+			se_err("HSM Error: SAB_RNG_CLOE_REQ [0x%x].\n", err);
 			break;
 		}
 
 		err = sab_rating_to_hsm_err(rsp_code);
 
 		if (err != HSM_NO_ERROR) {
-			printf("HSM RSP Error: SAB_RNG_CLOSE_REQ [0x%x].\n", err);
+			se_err("HSM RSP Error: SAB_RNG_CLOSE_REQ [0x%x].\n", err);
 		}
 
 		delete_service(serv_ptr);
@@ -187,7 +187,7 @@ hsm_err_t hsm_do_rng(hsm_hdl_t session_hdl, op_get_random_args_t *rng_get_random
 
 	err = hsm_open_rng_service(session_hdl, &rng_srv_args, &rng_serv_hdl);
 	if (err) {
-		printf("Error[0x%x]: RNG Service Open failed [0x%08x].\n",
+		se_err("Error[0x%x]: RNG Service Open failed [0x%08x].\n",
 							err, rng_serv_hdl);
 		goto exit;
 	}
@@ -197,14 +197,14 @@ hsm_err_t hsm_do_rng(hsm_hdl_t session_hdl, op_get_random_args_t *rng_get_random
 #endif
 	op_err = err;
 	if (err) {
-		printf("Error[0x%x]: RNG failed for size =%d.\n",
+		se_err("Error[0x%x]: RNG failed for size =%d.\n",
 				err, rng_get_random_args->random_size);
 	}
 
 #ifndef PSA_COMPLIANT
 	err = hsm_close_rng_service(rng_serv_hdl);
 	if (err) {
-		printf("Error[0x%x]: RNG Service Close failed [0x%08x].\n",
+		se_err("Error[0x%x]: RNG Service Close failed [0x%08x].\n",
 							err, rng_serv_hdl);
 	}
 #endif

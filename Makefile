@@ -116,6 +116,7 @@ $(NVM_LIB): $(PLAT_COMMON_PATH)/nvm/nvm_manager.o\
 #SHE test components
 ifdef DEBUG
 DEFINES=-DDEBUG
+DEFINES=-DELE_DEBUG
 endif
 
 CFLAGS += ${DEFINES}

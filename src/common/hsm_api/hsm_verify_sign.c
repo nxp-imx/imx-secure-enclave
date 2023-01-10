@@ -55,14 +55,14 @@ hsm_err_t hsm_open_signature_verification_service(hsm_hdl_t session_hdl,
 
 		err = sab_rating_to_hsm_err(error);
 		if (err != HSM_NO_ERROR) {
-			printf("HSM Error: SAB_SIGNATURE_VERIFICATION_OPEN_REQ [0x%x].\n", err);
+			se_err("HSM Error: SAB_SIGNATURE_VERIFICATION_OPEN_REQ [0x%x].\n", err);
 			delete_service(serv_ptr);
 			break;
 		}
 
 		err = sab_rating_to_hsm_err(rsp_code);
 		if (err != HSM_NO_ERROR) {
-			printf("HSM RSP Error: SAB_SIGNATURE_VERIFICATION_OPEN_REQ [0x%x].\n", err);
+			se_err("HSM RSP Error: SAB_SIGNATURE_VERIFICATION_OPEN_REQ [0x%x].\n", err);
 			delete_service(serv_ptr);
 			break;
 		}
@@ -96,14 +96,14 @@ hsm_err_t hsm_close_signature_verification_service(hsm_hdl_t signature_ver_hdl)
 
 		err = sab_rating_to_hsm_err(error);
 		if (err != HSM_NO_ERROR) {
-			printf("HSM Error: SAB_SIGNATURE_VERIFICATION_CLOSE_REQ [0x%x].\n", err);
+			se_err("HSM Error: SAB_SIGNATURE_VERIFICATION_CLOSE_REQ [0x%x].\n", err);
 			delete_service(serv_ptr);
 			break;
 		}
 
 		err = sab_rating_to_hsm_err(rsp_code);
 		if (err != HSM_NO_ERROR) {
-			printf("HSM RSP Error: SAB_SIGNATURE_VERIFICATION_CLOSE_REQ [0x%x].\n", err);
+			se_err("HSM RSP Error: SAB_SIGNATURE_VERIFICATION_CLOSE_REQ [0x%x].\n", err);
 		}
 		delete_service(serv_ptr);
 	} while (false);
@@ -141,7 +141,7 @@ hsm_err_t hsm_verify_signature(hsm_hdl_t signature_ver_hdl,
 
 		err = sab_rating_to_hsm_err(error);
 		if (err != HSM_NO_ERROR) {
-			printf("HSM Error: SAB_SIGNATURE_VERIFY_REQ [0x%x].\n",
+			se_err("HSM Error: SAB_SIGNATURE_VERIFY_REQ [0x%x].\n",
 				err);
 			break;
 		}
@@ -150,14 +150,14 @@ hsm_err_t hsm_verify_signature(hsm_hdl_t signature_ver_hdl,
 
 		err = sab_rating_to_hsm_err(rsp_code);
 		if (err != HSM_NO_ERROR) {
-			printf("HSM RSP Error: SAB_SIGNATURE_VERIFY_REQ [0x%x].\n",
+			se_err("HSM RSP Error: SAB_SIGNATURE_VERIFY_REQ [0x%x].\n",
 				err);
 			break;
 		}
 
 		if (args->verification_status != HSM_VERIFICATION_STATUS_SUCCESS) {
 			err = HSM_SIGNATURE_INVALID;
-			printf("\nHSM Error: HSM_SIGNATURE_INVALID (0x%x)\n",
+			se_err("\nHSM Error: HSM_SIGNATURE_INVALID (0x%x)\n",
 					HSM_SIGNATURE_INVALID);
 		}
 
@@ -183,18 +183,18 @@ hsm_err_t hsm_verify_sign(hsm_hdl_t session_hdl,
 							 &open_sig_ver_args,
 							 &sig_ver_hdl);
 	if (op_err) {
-		printf("hsm_open_signature_verification_service ret:0x%x\n",
+		se_err("hsm_open_signature_verification_service ret:0x%x\n",
 				op_err);
 		goto exit;
 	}
 
 	op_err = hsm_verify_signature(sig_ver_hdl, args, status);
 	if (op_err)
-		printf("hsm_verify_signature ret:0x%x\n", op_err);
+		se_err("hsm_verify_signature ret:0x%x\n", op_err);
 
 	hsmret = hsm_close_signature_verification_service(sig_ver_hdl);
 	if (hsmret) {
-		printf("hsm_close_signature_verification_service ret:0x%x\n",
+		se_err("hsm_close_signature_verification_service ret:0x%x\n",
 				hsmret);
 		if (op_err == HSM_NO_ERROR)
 			op_err = hsmret;

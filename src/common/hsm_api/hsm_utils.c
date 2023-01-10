@@ -15,6 +15,7 @@
 
 #include "sab_msg_def.h"
 #include "internal/hsm_utils.h"
+#include "plat_utils.h"
 
 #define HSM_ERR_SUPPORT 0
 
@@ -37,15 +38,15 @@ static hsm_err_t sab_success_rating_to_hsm_warning(uint8_t sab_success_rating)
 		break;
 
 	case HSM_KEY_STORE_COUNTER:
-		printf("\nHSM Warning: HSM_KEY_STORE_COUNTER (0x%x)\n", sab_success_rating);
+		se_info("\nHSM Warning: HSM_KEY_STORE_COUNTER (0x%x)\n", sab_success_rating);
 		break;
 
 	case HSM_OEM_OPEN_LC_SIGNED_MSG_VERIFICATION_FAIL:
-		printf("\nHSM Warning: HSM_OEM_OPEN_LC_SIGNED_MSG_VERIFICATION_FAIL (0x%x)\n", sab_success_rating);
+		se_info("\nHSM Warning: HSM_OEM_OPEN_LC_SIGNED_MSG_VERIFICATION_FAIL (0x%x)\n", sab_success_rating);
 		break;
 
 	default:
-		printf("\nHSM Warning: Unknown SAB Warning Rating (0x%x)\n", sab_success_rating);
+		se_info("\nHSM Warning: Unknown SAB Warning Rating (0x%x)\n", sab_success_rating);
 		break;
 	}
 
@@ -190,8 +191,8 @@ static hsm_err_t sab_err_rating_to_hsm_err(uint8_t sab_err_rating)
 
 	default:
 		hsm_err = HSM_UNKNOWN_ERROR;
-		printf("\nHSM Error: HSM_UNKNOWN_ERROR (0x%x)\n", hsm_err);
-		printf("Unknown SAB Error Rating (0x%x)\n", sab_err_rating);
+		se_err("\nHSM Error: HSM_UNKNOWN_ERROR (0x%x)\n", hsm_err);
+		se_err("Unknown SAB Error Rating (0x%x)\n", sab_err_rating);
 		break;
 	}
 

@@ -48,7 +48,7 @@ hsm_err_t hsm_pub_key_recovery(hsm_hdl_t key_store_hdl,
 
 		err = sab_rating_to_hsm_err(rsp_code);
 		if (err  != HSM_NO_ERROR)
-			printf("HSM Error: HSM_KEY_RECOVERY_REQ [0x%x].\n", err);
+			se_err("HSM Error: HSM_KEY_RECOVERY_REQ [0x%x].\n", err);
 
 	} while (false);
 

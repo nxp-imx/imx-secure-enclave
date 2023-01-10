@@ -50,17 +50,17 @@ hsm_err_t dump_firmware_log(hsm_hdl_t session_hdl)
 		if (err == HSM_NO_ERROR) {
 			for (i = 0; i < args.dump_buf_len; i++) {
 				if ((i % 2) == 0)
-					printf("\nS40X: ");
-				printf("0x%08x ", args.dump_buf[i]);
+					se_print("\nS40X: ");
+				se_print("0x%08x ", args.dump_buf[i]);
 			}
-			printf("\n\n");
+			se_print("\n\n");
 		} else {
-			printf("Dump_Debug_Buffer Error: %x ", error);
+			se_err("Dump_Debug_Buffer Error: %x ", error);
 			break;
 		}
 
 	} while (args.is_dump_pending == true);
-	printf("\n");
+	se_print("\n");
 
 	return err;
 }

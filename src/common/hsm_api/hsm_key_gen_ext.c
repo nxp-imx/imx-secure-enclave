@@ -53,14 +53,14 @@ hsm_err_t hsm_generate_key_ext(hsm_hdl_t key_management_hdl,
 		err = sab_rating_to_hsm_err(error);
 
 		if (err != HSM_NO_ERROR) {
-			printf("HSM Error: SAB_KEY_GENERATE_EXT_REQ [0x%x].\n", err);
+			se_err("HSM Error: SAB_KEY_GENERATE_EXT_REQ [0x%x].\n", err);
 			break;
 		}
 
 		err = sab_rating_to_hsm_err(rsp_code);
 
 		if (err != HSM_NO_ERROR) {
-			printf("HSM RSP Error: SAB_KEY_GENERATE_EXT_REQ [0x%x].\n", err);
+			se_err("HSM RSP Error: SAB_KEY_GENERATE_EXT_REQ [0x%x].\n", err);
 		}
 
 	} while (false);

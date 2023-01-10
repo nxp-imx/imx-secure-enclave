@@ -44,12 +44,12 @@ hsm_err_t hsm_dev_getinfo(hsm_hdl_t session_hdl, op_dev_getinfo_args_t *args)
 		err = sab_rating_to_hsm_err(error);
 
 		if (err != HSM_NO_ERROR) {
-			printf("HSM Error: SAB_DEV_GETINFO_REQ [0x%x].\n", err);
+			se_err("HSM Error: SAB_DEV_GETINFO_REQ [0x%x].\n", err);
 			break;
 		}
 		err = sab_rating_to_hsm_err(rsp_code);
 		if (err != HSM_NO_ERROR) {
-			printf("HSM RSP Error: SAB_DEV_GETINFO_REQ [0x%x].\n",
+			se_err("HSM RSP Error: SAB_DEV_GETINFO_REQ [0x%x].\n",
 				err);
 		}
 

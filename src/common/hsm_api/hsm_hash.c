@@ -53,12 +53,12 @@ hsm_err_t hsm_hash_one_go(hsm_hdl_t hash_hdl,
 		err = sab_rating_to_hsm_err(error);
 
 		if (err != HSM_NO_ERROR) {
-			printf("HSM Error: SAB_HASH_ONE_GO_REQ [0x%x].\n", err);
+			se_err("HSM Error: SAB_HASH_ONE_GO_REQ [0x%x].\n", err);
 			break;
 		}
 		err = sab_rating_to_hsm_err(rsp_code);
 		if (err != HSM_NO_ERROR)
-			printf("HSM RSP Error: SAB_HASH_ONE_GO_REQ [0x%x].\n",
+			se_err("HSM RSP Error: SAB_HASH_ONE_GO_REQ [0x%x].\n",
 				err);
 
 	} while (false);
@@ -101,14 +101,14 @@ hsm_err_t hsm_open_hash_service(hsm_hdl_t session_hdl,
 		err = sab_rating_to_hsm_err(error);
 
 		if (err != HSM_NO_ERROR) {
-			printf("HSM Error: SAB_HASH_OPEN_REQ [0x%x].\n", err);
+			se_err("HSM Error: SAB_HASH_OPEN_REQ [0x%x].\n", err);
 			delete_service(serv_ptr);
 			break;
 		}
 
 		err = sab_rating_to_hsm_err(rsp_code);
 		if (err != HSM_NO_ERROR) {
-			printf("HSM RSP Error: SAB_HASH_OPEN_REQ [0x%x].\n",
+			se_err("HSM RSP Error: SAB_HASH_OPEN_REQ [0x%x].\n",
 				err);
 			delete_service(serv_ptr);
 			break;
@@ -146,11 +146,11 @@ hsm_err_t hsm_close_hash_service(hsm_hdl_t hash_hdl)
 		err = sab_rating_to_hsm_err(error);
 
 		if (err != HSM_NO_ERROR)
-			printf("HSM Error: SAB_HASH_CLOSE_REQ [0x%x].\n", err);
+			se_err("HSM Error: SAB_HASH_CLOSE_REQ [0x%x].\n", err);
 
 		err = sab_rating_to_hsm_err(rsp_code);
 		if (err != HSM_NO_ERROR)
-			printf("HSM RSP Error: SAB_HASH_CLOSE_REQ [0x%x].\n",
+			se_err("HSM RSP Error: SAB_HASH_CLOSE_REQ [0x%x].\n",
 				err);
 
 		delete_service(serv_ptr);
@@ -167,18 +167,18 @@ hsm_err_t hsm_do_hash(hsm_hdl_t hash_sess, op_hash_one_go_args_t *hash_args)
 
 	err = hsm_open_hash_service(hash_sess, &hash_serv_args, &hash_serv);
 	if (err) {
-		printf("err: 0x%x hsm_open_hash_service.\n", err);
+		se_err("err: 0x%x hsm_open_hash_service.\n", err);
 		goto exit;
 	}
 
 	err = hsm_hash_one_go(hash_serv, hash_args);
 	if (err) {
-		printf("err: 0x%x hsm_hash_one_go hdl: 0x%08x\n", err, hash_serv);
+		se_err("err: 0x%x hsm_hash_one_go hdl: 0x%08x\n", err, hash_serv);
 	}
 
 	err = hsm_close_hash_service(hash_serv);
 	if (err) {
-		printf("err: 0x%x hsm_close_hash_service hdl: 0x%08x\n", err, hash_serv);
+		se_err("err: 0x%x hsm_close_hash_service hdl: 0x%08x\n", err, hash_serv);
 	}
 
 exit:

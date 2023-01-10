@@ -18,6 +18,19 @@
 #include "sab_msg_def.h"
 #include "plat_os_abs.h"
 
+#define no_printf(...)						\
+{}
+
+#define se_print(a,...) printf("%s(): " a,__func__,##__VA_ARGS__)
+
+#ifdef ELE_DEBUG
+#define se_err(a,...) printf("%s(): " a, __func__, ## __VA_ARGS__)
+#define se_info(a,...) printf("%s(): "  a,__func__, ##__VA_ARGS__)
+#else
+#define se_err(...) no_printf(__VA_ARGS__) /* not debugging */
+#define se_info(...) no_printf(__VA_ARGS__) /* not debugging */
+#endif
+
 typedef enum {
 	NOT_SUPPORTED,
 	ROM_MSG,

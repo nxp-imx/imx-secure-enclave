@@ -55,7 +55,7 @@ hsm_err_t hsm_open_signature_generation_service(hsm_hdl_t key_store_hdl,
 		err = sab_rating_to_hsm_err(error);
 
 		if (err != HSM_NO_ERROR) {
-			printf("HSM Error: SAB_SIGNATURE_GENERATION_OPEN_REQ [0x%x].\n", err);
+			se_err("HSM Error: SAB_SIGNATURE_GENERATION_OPEN_REQ [0x%x].\n", err);
 			delete_service(sig_gen_serv_ptr);
 			break;
 		}
@@ -63,7 +63,7 @@ hsm_err_t hsm_open_signature_generation_service(hsm_hdl_t key_store_hdl,
 		err = sab_rating_to_hsm_err(rsp_code);
 
 		if (err != HSM_NO_ERROR) {
-			printf("HSM RSP Error: SAB_SIGNATURE_GENERATION_OPEN_REQ [0x%x].\n", err);
+			se_err("HSM RSP Error: SAB_SIGNATURE_GENERATION_OPEN_REQ [0x%x].\n", err);
 			delete_service(sig_gen_serv_ptr);
 			break;
 		}
@@ -98,14 +98,14 @@ hsm_err_t hsm_close_signature_generation_service(hsm_hdl_t signature_gen_hdl)
 
 		err = sab_rating_to_hsm_err(error);
 		if (err != HSM_NO_ERROR) {
-			printf("HSM Error: SAB_SIGNATURE_GENERATION_CLOSE_REQ [0x%x].\n", err);
+			se_err("HSM Error: SAB_SIGNATURE_GENERATION_CLOSE_REQ [0x%x].\n", err);
 			delete_service(serv_ptr);
 			break;
 		}
 
 		err = sab_rating_to_hsm_err(rsp_code);
 		if (err != HSM_NO_ERROR) {
-			printf("HSM RSP Error: SAB_SIGNATURE_GENERATION_CLOSE_REQ [0x%x].\n", err);
+			se_err("HSM RSP Error: SAB_SIGNATURE_GENERATION_CLOSE_REQ [0x%x].\n", err);
 		}
 		delete_service(serv_ptr);
 	} while (false);
@@ -140,13 +140,13 @@ hsm_err_t hsm_generate_signature(hsm_hdl_t signature_gen_hdl,
 
 		err = sab_rating_to_hsm_err(error);
 		if (err != HSM_NO_ERROR) {
-			printf("HSM Error: SAB_SIGNATURE_GENERATE_REQ [0x%x].\n", err);
+			se_err("HSM Error: SAB_SIGNATURE_GENERATE_REQ [0x%x].\n", err);
 			break;
 		}
 
 		err = sab_rating_to_hsm_err(rsp_code);
 		if (err != HSM_NO_ERROR) {
-			printf("HSM RSP Error: SAB_SIGNATURE_GENERATE_REQ [0x%x].\n", err);
+			se_err("HSM RSP Error: SAB_SIGNATURE_GENERATE_REQ [0x%x].\n", err);
 		}
 	} while (false);
 
@@ -179,13 +179,13 @@ hsm_err_t hsm_prepare_signature(hsm_hdl_t signature_gen_hdl,
 
 		err = sab_rating_to_hsm_err(error);
 		if (err != HSM_NO_ERROR) {
-			printf("HSM Error: SAB_SIGNATURE_PREPARE_REQ [0x%x].\n", err);
+			se_err("HSM Error: SAB_SIGNATURE_PREPARE_REQ [0x%x].\n", err);
 			break;
 		}
 
 		err = sab_rating_to_hsm_err(rsp_code);
 		if (err != HSM_NO_ERROR) {
-			printf("HSM RSP Error: SAB_SIGNATURE_PREPARE_REQ [0x%x].\n", err);
+			se_err("HSM RSP Error: SAB_SIGNATURE_PREPARE_REQ [0x%x].\n", err);
 		}
 
 	} while (false);
@@ -210,18 +210,18 @@ hsm_err_t hsm_do_sign(hsm_hdl_t key_store_hdl,
 	op_err = hsm_open_signature_generation_service(key_store_hdl,
 					&open_sig_gen_args, &sig_gen_hdl);
 	if (op_err) {
-		printf("hsm_open_signature_generation_service ret:0x%x\n",
+		se_err("hsm_open_signature_generation_service ret:0x%x\n",
 				op_err);
 		goto exit;
 	}
 
 	op_err = hsm_generate_signature(sig_gen_hdl, args);
 	if (op_err)
-		printf("hsm_generate_signature ret:0x%x\n", op_err);
+		se_err("hsm_generate_signature ret:0x%x\n", op_err);
 
 	hsmret = hsm_close_signature_generation_service(sig_gen_hdl);
 	if (hsmret) {
-		printf("hsm_close_signature_generation_service ret:0x%x\n",
+		se_err("hsm_close_signature_generation_service ret:0x%x\n",
 				hsmret);
 		if (op_err == HSM_NO_ERROR)
 			op_err = hsmret;

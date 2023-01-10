@@ -55,12 +55,12 @@ hsm_err_t hsm_open_cipher_service(hsm_hdl_t key_store_hdl,
 		err = sab_rating_to_hsm_err(error);
 
 		if (err != HSM_NO_ERROR) {
-			printf("HSM Error: SAB_CIPHER_OPEN_REQ [0x%x].\n", err);
+			se_err("HSM Error: SAB_CIPHER_OPEN_REQ [0x%x].\n", err);
 			break;
 		}
 		err = sab_rating_to_hsm_err(rsp_code);
 		if (err != HSM_NO_ERROR) {
-			printf("HSM RSP Error: SAB_CIPHER_OPEN_REQ [0x%x].\n",
+			se_err("HSM RSP Error: SAB_CIPHER_OPEN_REQ [0x%x].\n",
 				err);
 			delete_service(cipher_serv_ptr);
 			break;
@@ -96,12 +96,12 @@ hsm_err_t hsm_close_cipher_service(hsm_hdl_t cipher_hdl)
 		err = sab_rating_to_hsm_err(error);
 
 		if (err != HSM_NO_ERROR) {
-			printf("HSM Error: SAB_CIPHER_CLOSE_REQ [0x%x].\n", err);
+			se_err("HSM Error: SAB_CIPHER_CLOSE_REQ [0x%x].\n", err);
 			break;
 		}
 		err = sab_rating_to_hsm_err(rsp_code);
 		if (err != HSM_NO_ERROR) {
-			printf("HSM RSP Error: SAB_CIPHER_CLOSE_REQ [0x%x].\n",
+			se_err("HSM RSP Error: SAB_CIPHER_CLOSE_REQ [0x%x].\n",
 				err);
 		}
 		delete_service(serv_ptr);
@@ -134,12 +134,12 @@ hsm_err_t hsm_cipher_one_go(hsm_hdl_t cipher_hdl, op_cipher_one_go_args_t *args)
 		err = sab_rating_to_hsm_err(error);
 
 		if (err != HSM_NO_ERROR) {
-			printf("HSM Error: SAB_CIPHER_ONE_GO_REQ [0x%x].\n", err);
+			se_err("HSM Error: SAB_CIPHER_ONE_GO_REQ [0x%x].\n", err);
 			break;
 		}
 		err = sab_rating_to_hsm_err(rsp_code);
 		if (err != HSM_NO_ERROR) {
-			printf("HSM RSP Error: SAB_CIPHER_ONE_GO_REQ [0x%x].\n",
+			se_err("HSM RSP Error: SAB_CIPHER_ONE_GO_REQ [0x%x].\n",
 				err);
 		}
 
@@ -162,7 +162,7 @@ hsm_err_t hsm_do_cipher(hsm_hdl_t key_store_hdl, op_cipher_one_go_args_t *cipher
 
 	err = hsm_open_cipher_service(key_store_hdl, &open_cipher_args, &cipher_hdl);
 	if (err) {
-		printf("hsm_open_cipher_service ret:0x%x\n", err);
+		se_err("hsm_open_cipher_service ret:0x%x\n", err);
 		goto exit;
 	}
 
@@ -170,12 +170,12 @@ hsm_err_t hsm_do_cipher(hsm_hdl_t key_store_hdl, op_cipher_one_go_args_t *cipher
 	op_err = err;
 
 	if (err) {
-		printf("hsm_cipher_one_go ret:0x%x\n", err);
+		se_err("hsm_cipher_one_go ret:0x%x\n", err);
 	}
 
 	err = hsm_close_cipher_service(cipher_hdl);
 	if (err) {
-		printf("hsm_close_cipher_service ret:0x%x\n", err);
+		se_err("hsm_close_cipher_service ret:0x%x\n", err);
 	}
 
 exit:
