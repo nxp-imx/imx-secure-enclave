@@ -1,5 +1,5 @@
 /*
- * Copyright 2019-2022 NXP
+ * Copyright 2019-2023 NXP
  *
  * NXP Confidential.
  * This software is owned or controlled by NXP and may only be used strictly
@@ -180,25 +180,24 @@ hsm_err_t hsm_do_rng(hsm_hdl_t session_hdl, op_get_random_args_t *rng_get_random
 	hsm_err_t op_err = HSM_NO_ERROR;
 
 #ifndef PSA_COMPLIANT
-	open_svc_rng_args_t rng_srv_args;
+	open_svc_rng_args_t rng_srv_args = {0};
 	hsm_hdl_t rng_serv_hdl;
 
 	rng_srv_args.flags = rng_get_random_args->svc_flags;
 
-	err = hsm_open_rng_service(session_hdl, &rng_srv_args, &rng_serv_hdl);
-	if (err) {
+	op_err = hsm_open_rng_service(session_hdl, &rng_srv_args, &rng_serv_hdl);
+	if (op_err) {
 		se_err("Error[0x%x]: RNG Service Open failed [0x%08x].\n",
-							err, rng_serv_hdl);
+							op_err, rng_serv_hdl);
 		goto exit;
 	}
-	err =  hsm_get_random(rng_serv_hdl, rng_get_random_args);
+	op_err =  hsm_get_random(rng_serv_hdl, rng_get_random_args);
 #else
-	err =  hsm_get_random(session_hdl, rng_get_random_args);
+	op_err =  hsm_get_random(session_hdl, rng_get_random_args);
 #endif
-	op_err = err;
-	if (err) {
+	if (op_err) {
 		se_err("Error[0x%x]: RNG failed for size =%d.\n",
-				err, rng_get_random_args->random_size);
+				op_err, rng_get_random_args->random_size);
 	}
 
 #ifndef PSA_COMPLIANT
@@ -206,9 +205,11 @@ hsm_err_t hsm_do_rng(hsm_hdl_t session_hdl, op_get_random_args_t *rng_get_random
 	if (err) {
 		se_err("Error[0x%x]: RNG Service Close failed [0x%08x].\n",
 							err, rng_serv_hdl);
+		if (op_err == HSM_NO_ERROR)
+			op_err = err;
 	}
 #endif
 
 exit:
-	return ((op_err != HSM_NO_ERROR) ? op_err : err);
+	return op_err;
 }
