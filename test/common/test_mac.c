@@ -1,5 +1,5 @@
 /*
- * Copyright 2022 NXP
+ * Copyright 2022-2023 NXP
  *
  * NXP Confidential.
  * This software is owned or controlled by NXP and may only be used strictly
@@ -135,7 +135,9 @@ hsm_err_t do_mac_test(hsm_hdl_t key_store_hdl, hsm_hdl_t key_mgmt_hdl)
 	printf("\n---------------------------------------------------\n");
 	printf("MAC ONE GO Test:\n");
 	printf("---------------------------------------------------\n");
+#ifndef PSA_COMPLIANT
 	mac_srv_args.flags = 0u;
+#endif
 	err = hsm_open_mac_service(key_store_hdl, &mac_srv_args, &sg0_mac_hdl);
 	if (err)
 		printf("err: 0x%x hsm_open_mac_service err: hdl: 0x%08x\n",
@@ -291,8 +293,9 @@ hsm_err_t hsm_mac_test(hsm_hdl_t key_store_hdl, hsm_hdl_t key_mgmt_hdl)
 
 	uint8_t work_area[128] = {0};
 	uint32_t sym_key_id = 0;
-
+#ifndef PSA_COMPLIANT
 	mac_one_go.svc_flags = 0u;
+#endif
 
 	// mac test
 	printf("\n---------------------------------------------------\n");

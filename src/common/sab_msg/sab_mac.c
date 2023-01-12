@@ -1,5 +1,5 @@
 /*
- * Copyright 2022 NXP
+ * Copyright 2022-2023 NXP
  *
  * NXP Confidential.
  * This software is owned or controlled by NXP and may only be used strictly
@@ -51,6 +51,10 @@ uint32_t prepare_msg_mac_one_go(void *phdl,
 	} else {
 		mac_size_bytes = op_args->mac_size;
 	}
+
+	if (op_args->payload_size > UINT16_MAX)
+		return SAB_FAILURE_STATUS;
+
 #endif
 
 	cmd->payload_address = (uint32_t)plat_os_abs_data_buf(
@@ -96,7 +100,9 @@ uint32_t proc_msg_rsp_mac_one_go(void *rsp_buf, void *args)
 		(struct sab_cmd_mac_one_go_rsp *) rsp_buf;
 
 	op_args->verification_status = rsp->verification_status;
-
+#ifdef PSA_COMPLIANT
+	op_args->expected_mac_size = rsp->output_mac_size;
+#endif
 	return SAB_SUCCESS_STATUS;
 }
 
@@ -114,15 +120,11 @@ uint32_t prepare_msg_mac_open_req(void *phdl,
 		(struct sab_cmd_mac_open_rsp *) rsp_buf;
 	open_svc_mac_args_t *op_args = (open_svc_mac_args_t *) args;
 
-	cmd->input_address_ext = 0u;
-	cmd->output_address_ext = 0u;
+#ifndef PSA_COMPLIANT
 	cmd->flags = op_args->flags;
+#endif
 	cmd->key_store_handle = msg_hdl;
-	cmd->rsv[0] = 0u;
-	cmd->rsv[1] = 0u;
-	cmd->rsv[2] = 0u;
 
-	cmd->crc = 0u;
 	ret |= SAB_MSG_CRC_BIT;
 
 	*cmd_msg_sz = sizeof(struct sab_cmd_mac_open_msg);

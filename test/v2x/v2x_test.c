@@ -1101,7 +1101,9 @@ int main(int argc, char *argv[])
     printf("\n---------------------------------------------------\n");
     printf("MAC ONE GO Test \n");
     printf("---------------------------------------------------\n");
+#ifndef PSA_COMPLIANT
     mac_srv_args.flags = 0u;
+#endif
     err = hsm_open_mac_service(sg0_key_store_serv, &mac_srv_args, &sg0_mac_hdl);
     printf("err: 0x%x hsm_open_mac_service err: hdl: 0x%08x\n", err, sg0_mac_hdl);
 

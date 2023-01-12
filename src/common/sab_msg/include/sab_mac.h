@@ -1,5 +1,5 @@
 /*
- * Copyright 2022 NXP
+ * Copyright 2022-2023 NXP
  *
  * NXP Confidential.
  * This software is owned or controlled by NXP and may only be used strictly
@@ -48,7 +48,11 @@ struct sab_cmd_mac_one_go_msg {
 	uint32_t key_id;
 	uint32_t payload_address;
 	uint32_t mac_address;
+#ifdef PSA_COMPLIANT
 	uint32_t payload_size;
+#else
+	uint16_t payload_size;
+#endif
 	uint16_t mac_size;
 	uint8_t  flags;
 #ifdef PSA_COMPLIANT
@@ -56,9 +60,9 @@ struct sab_cmd_mac_one_go_msg {
 	uint8_t  rsv[SAB_CMD_MAC_ONE_GO_RESV_SZ];
 	uint32_t  algorithm;
 #else
-#define SAB_CMD_MAC_ONE_GO_RESV_SZ     3
-	uint8_t  rsv[SAB_CMD_MAC_ONE_GO_RESV_SZ];
+#define SAB_CMD_MAC_ONE_GO_RESV_SZ     2
 	uint8_t  algorithm;
+	uint8_t  rsv[SAB_CMD_MAC_ONE_GO_RESV_SZ];
 #endif
 	uint32_t crc;
 };
@@ -67,6 +71,10 @@ struct sab_cmd_mac_one_go_rsp {
 	struct sab_mu_hdr hdr;
 	uint32_t rsp_code;
 	uint32_t verification_status;
+#ifdef PSA_COMPLIANT
+	uint16_t output_mac_size;
+	uint16_t rsv;
+#endif
 };
 
 #define SAB_HSM_MAC_ONE_GO_IND_VERIFICATION_STATUS_OK  (0x6C1AA1C6u)

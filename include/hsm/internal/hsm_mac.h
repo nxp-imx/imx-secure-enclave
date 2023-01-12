@@ -1,5 +1,5 @@
 /*
- * Copyright 2022 NXP
+ * Copyright 2022-2023 NXP
  *
  * NXP Confidential.
  * This software is owned or controlled by NXP and may only be used strictly
@@ -22,12 +22,14 @@
  *  @defgroup group16 Mac
  * @{
  */
-
+#ifndef PSA_COMPLIANT
 typedef uint8_t hsm_svc_mac_flags_t;
+#endif
 typedef struct {
+#ifndef PSA_COMPLIANT
 	//!< bitmap specifying the services properties.
 	hsm_svc_mac_flags_t flags;
-	uint8_t reserved[3];
+#endif
 	hsm_hdl_t mac_serv_hdl;
 } open_svc_mac_args_t;
 
@@ -97,7 +99,7 @@ typedef struct {
 	//!< pointer to the tag area\n
 	uint8_t *mac;
 	//!< length in bytes of the payload
-	uint16_t payload_size;
+	uint32_t payload_size;
 	//!< length of the tag.
 	//   - Specified in bytes if HSM_OP_MAC_ONE_GO_FLAGS_MAC_LENGTH_IN_BITS
 	//     is clear.
@@ -115,10 +117,15 @@ typedef struct {
 	//     -- the default value (32 bit) if a minimum has not been specified
 	//        using one of the above 2 methods.
 	uint16_t mac_size;
+	//!< expected mac size for output, returned by FW in case the mac size
+	//	 provided is less than the expected mac size calculated from MAC
+	//	 algorithm.
+	uint16_t expected_mac_size;
 	hsm_mac_verification_status_t verification_status;
+#ifndef PSA_COMPLIANT
 	//!< bitmap specifying the services properties.
 	hsm_svc_mac_flags_t svc_flags;
-	uint8_t reserved[3];
+#endif
 } op_mac_one_go_args_t;
 
 /**
