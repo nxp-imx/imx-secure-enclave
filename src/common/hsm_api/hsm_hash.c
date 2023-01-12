@@ -1,5 +1,5 @@
 /*
- * Copyright 2022 NXP
+ * Copyright 2022-2023 NXP
  *
  * NXP Confidential.
  * This software is owned or controlled by NXP and may only be used strictly
@@ -162,25 +162,29 @@ hsm_err_t hsm_close_hash_service(hsm_hdl_t hash_hdl)
 hsm_err_t hsm_do_hash(hsm_hdl_t hash_sess, op_hash_one_go_args_t *hash_args)
 {
 	hsm_err_t err = HSM_GENERAL_ERROR;
+	/* Stores the error status of the main operation.
+	 */
+	hsm_err_t op_err = HSM_NO_ERROR;
 	hsm_hdl_t hash_serv;
-	open_svc_hash_args_t hash_serv_args;
+	open_svc_hash_args_t hash_serv_args = {0};
 
-	err = hsm_open_hash_service(hash_sess, &hash_serv_args, &hash_serv);
-	if (err) {
-		se_err("err: 0x%x hsm_open_hash_service.\n", err);
+	op_err = hsm_open_hash_service(hash_sess, &hash_serv_args, &hash_serv);
+	if (op_err) {
+		se_err("err: 0x%x hsm_open_hash_service.\n", op_err);
 		goto exit;
 	}
 
-	err = hsm_hash_one_go(hash_serv, hash_args);
-	if (err) {
-		se_err("err: 0x%x hsm_hash_one_go hdl: 0x%08x\n", err, hash_serv);
-	}
+	op_err = hsm_hash_one_go(hash_serv, hash_args);
+	if (op_err)
+		se_err("err: 0x%x hsm_hash_one_go hdl: 0x%08x\n", op_err, hash_serv);
 
 	err = hsm_close_hash_service(hash_serv);
 	if (err) {
 		se_err("err: 0x%x hsm_close_hash_service hdl: 0x%08x\n", err, hash_serv);
+		if (op_err == HSM_NO_ERROR)
+			op_err = err;
 	}
 
 exit:
-	return err;
+	return op_err;
 }
