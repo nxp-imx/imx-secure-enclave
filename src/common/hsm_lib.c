@@ -978,35 +978,38 @@ hsm_err_t hsm_data_storage(hsm_hdl_t data_storage_hdl,
 hsm_err_t hsm_data_ops(hsm_hdl_t key_store_hdl,
 			 op_data_storage_args_t *args)
 {
-	open_svc_data_storage_args_t open_data_args;
+	open_svc_data_storage_args_t open_data_args = {0};
 	hsm_hdl_t data_storage_hdl;
-	hsm_err_t err = HSM_GENERAL_ERROR, tmp_err = HSM_GENERAL_ERROR;
+	hsm_err_t err = HSM_GENERAL_ERROR;
+	/* Stores the error status of the main operation.
+	 */
+	hsm_err_t op_err = HSM_NO_ERROR;
 
 	open_data_args.flags = args->svc_flags;
 
-	err = hsm_open_data_storage_service(key_store_hdl, &open_data_args,
+	op_err = hsm_open_data_storage_service(key_store_hdl, &open_data_args,
 					    &data_storage_hdl);
-	if (err) {
+	if (op_err) {
 		printf("err: 0x%x hsm_open_data_storage_service hdl: 0x%08x\n",
-				err, data_storage_hdl);
+				op_err, data_storage_hdl);
 		goto exit;
 	}
 
-	err = hsm_data_storage(data_storage_hdl, args);
+	op_err = hsm_data_storage(data_storage_hdl, args);
+	if (op_err)
+		printf("Error: 0x%x %s hdl: 0x%08x\n", op_err, __func__,
+			   data_storage_hdl);
+
+	err = hsm_close_data_storage_service(data_storage_hdl);
 	if (err) {
-		printf("Error: 0x%x hsm_data_storage hdl: 0x%08x\n", err,
-			data_storage_hdl);
-	}
-
-	tmp_err = hsm_close_data_storage_service(data_storage_hdl);
-	if (tmp_err) {
 		printf("err: 0x%x hsm_close_data_storage_service hdl: 0x%08x\n",
-				tmp_err, data_storage_hdl);
+				err, data_storage_hdl);
+		if (op_err == HSM_NO_ERROR)
+			op_err = err;
 	}
 
-	err = (err) ? err: tmp_err;
 exit:
-	return err;
+	return op_err;
 }
 
 hsm_err_t hsm_export_root_key_encryption_key (hsm_hdl_t session_hdl,
