@@ -149,12 +149,25 @@ hsm_err_t hsm_verify_signature(hsm_hdl_t signature_ver_hdl,
 		*status = args->verification_status;
 
 		err = sab_rating_to_hsm_err(rsp_code);
-		if (err != HSM_NO_ERROR) {
+
+		/* In case of verify-signature, the CSAL returns a
+		 * generic error. Could not differentiate when CSAL
+		 * returns generic error.
+		 * - Is the signature invalid?
+		 * - Or any other err?
+		 *
+		 * This same error is forwarded by the FW.
+		 */
+		if ((err != HSM_NO_ERROR) && (err != HSM_GENERAL_ERROR)) {
 			se_err("HSM RSP Error: SAB_SIGNATURE_VERIFY_REQ [0x%x].\n",
 				err);
 			break;
 		}
 
+		/* Since, by default the verification status is invalid at FW,
+		 * verification status would be not equal to
+		 * HSM_VERIFICATION_STATUS_SUCCESS
+		 */
 		if (args->verification_status != HSM_VERIFICATION_STATUS_SUCCESS) {
 			err = HSM_SIGNATURE_INVALID;
 			se_err("\nHSM Error: HSM_SIGNATURE_INVALID (0x%x)\n",
