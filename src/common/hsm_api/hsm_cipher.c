@@ -1,5 +1,5 @@
 /*
- * Copyright 2019-2022 NXP
+ * Copyright 2019-2023 NXP
  *
  * NXP Confidential.
  * This software is owned or controlled by NXP and may only be used strictly
@@ -155,30 +155,28 @@ hsm_err_t hsm_do_cipher(hsm_hdl_t key_store_hdl, op_cipher_one_go_args_t *cipher
 	/* Stores the error status of the main operation.
 	 */
 	hsm_err_t op_err = HSM_NO_ERROR;
-	open_svc_cipher_args_t open_cipher_args;
+	open_svc_cipher_args_t open_cipher_args = {0};
 
 	open_cipher_args.flags = cipher_args->svc_flags;
 
-
-	err = hsm_open_cipher_service(key_store_hdl, &open_cipher_args, &cipher_hdl);
-	if (err) {
-		se_err("hsm_open_cipher_service ret:0x%x\n", err);
+	op_err = hsm_open_cipher_service(key_store_hdl, &open_cipher_args, &cipher_hdl);
+	if (op_err) {
+		se_err("hsm_open_cipher_service ret:0x%x\n", op_err);
 		goto exit;
 	}
 
-	err = hsm_cipher_one_go(cipher_hdl, cipher_args);
-	op_err = err;
-
-	if (err) {
-		se_err("hsm_cipher_one_go ret:0x%x\n", err);
-	}
+	op_err = hsm_cipher_one_go(cipher_hdl, cipher_args);
+	if (op_err)
+		se_err("hsm_cipher_one_go ret:0x%x\n", op_err);
 
 	err = hsm_close_cipher_service(cipher_hdl);
 	if (err) {
 		se_err("hsm_close_cipher_service ret:0x%x\n", err);
+		if (op_err == HSM_NO_ERROR)
+			op_err = err;
 	}
 
 exit:
 
-	return ((op_err != HSM_NO_ERROR) ? op_err : err);
+	return op_err;
 }
