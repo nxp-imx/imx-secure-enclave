@@ -1,5 +1,5 @@
 /*
- * Copyright 2022 NXP
+ * Copyright 2022-2023 NXP
  *
  * NXP Confidential.
  * This software is owned or controlled by NXP and may only be used strictly
@@ -18,6 +18,7 @@
 #include <stdint.h>
 
 #define SAB_ERR_MAP_N 23
+#define SAB_ERR_MAP_SZ 256
 
 struct sab_err_map_s {
 	uint32_t sab_err;
