@@ -307,8 +307,7 @@ void key_management(uint32_t key_op, hsm_hdl_t key_mgmt_hdl,
 #ifdef HSM_IMPORT_KEY
 		memset(&imp_args, 0, sizeof(imp_args));
 		imp_args.key_identifier = key_id;
-		imp_args.flags = 0;
-		imp_args.key_group = key_group;
+		imp_args.flags = HSM_OP_IMPORT_KEY_INPUT_E2GO_TLV;
 		hsmret = hsm_import_key(key_mgmt_hdl, &imp_args);
 		printf("hsm_delete_key ret:0x%x\n", hsmret);
 #endif
