@@ -188,7 +188,7 @@ int32_t plat_send_msg_and_rcv_resp(struct plat_os_abs_hdl *phdl,
 	printf("\n---------- MSG Command with msg id[0x%x] = %d -------------\n",
 			((struct sab_mu_hdr *)cmd)->command,
 			((struct sab_mu_hdr *)cmd)->command);
-	hexdump(cmd, cmd_len);
+	hexdump(cmd, cmd_len/sizeof(uint32_t));
 	printf("\n-------------------MSG END-----------------------------------\n");
 #endif
 		/* Read the response. */
@@ -206,7 +206,7 @@ int32_t plat_send_msg_and_rcv_resp(struct plat_os_abs_hdl *phdl,
 	printf("\n---------- MSG Command RSP with msg id[0x%x] = %d -------------\n",
 			((struct sab_mu_hdr *)rsp)->command,
 			((struct sab_mu_hdr *)rsp)->command);
-	hexdump(rsp, *rsp_len);
+	hexdump(rsp, *rsp_len/sizeof(uint32_t));
 	printf("\n-------------------MSG RSP END-----------------------------------\n");
 #endif
 
@@ -241,7 +241,7 @@ int32_t plat_send_msg_and_get_resp(struct plat_os_abs_hdl *phdl, uint32_t *cmd, 
 	printf("\n---------- MSG Command with msg id[0x%x] = %d -------------\n",
 			((struct sab_mu_hdr *)cmd)->command,
 			((struct sab_mu_hdr *)cmd)->command);
-	hexdump(cmd, cmd_len);
+	hexdump(cmd, cmd_len/sizeof(uint32_t));
 	printf("\n-------------------MSG END-----------------------------------\n");
 #endif
         /* Read the response. */
@@ -257,7 +257,7 @@ int32_t plat_send_msg_and_get_resp(struct plat_os_abs_hdl *phdl, uint32_t *cmd, 
 	printf("\n---------- MSG Command RSP with msg id[0x%x] = %d -------------\n",
 			((struct sab_mu_hdr *)rsp)->command,
 			((struct sab_mu_hdr *)rsp)->command);
-	hexdump(rsp, rsp_len);
+	hexdump(rsp, rsp_len/sizeof(uint32_t));
 	printf("\n-------------------MSG RSP END-----------------------------------\n");
 #endif
         err = 0;

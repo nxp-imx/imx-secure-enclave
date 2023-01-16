@@ -1,5 +1,5 @@
 /*
- * Copyright 2022 NXP
+ * Copyright 2022-2023 NXP
  *
  * NXP Confidential.
  * This software is owned or controlled by NXP and may only be used strictly
@@ -133,7 +133,7 @@ uint32_t process_sab_msg(struct plat_os_abs_hdl *phdl,
 
 #ifdef DEBUG
 	printf("\n---------- MSG Command with msg id[0x%x] = %d -------------\n", msg_id, msg_id);
-	hexdump(cmd, cmd_msg_sz);
+	hexdump(cmd, cmd_msg_sz/sizeof(uint32_t));
 	printf("\n-------------------MSG END-----------------------------------\n");
 #endif
 
@@ -156,7 +156,7 @@ uint32_t process_sab_msg(struct plat_os_abs_hdl *phdl,
 
 #ifdef DEBUG
 	printf("\n--------MSG Command response with msg id[0x%x] = %d ---------\n", msg_id, msg_id);
-	hexdump(rsp, rsp_msg_sz);
+	hexdump(rsp, rsp_msg_sz/sizeof(uint32_t));
 	printf("\n-------------------MSG END-----------------------------------\n");
 #endif
 
