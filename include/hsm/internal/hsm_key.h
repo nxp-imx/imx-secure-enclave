@@ -156,6 +156,13 @@ typedef enum {
 	PERMITTED_ALGO_ALL_AEAD			= ALGO_ALL_AEAD,
 } hsm_permitted_algo_t;
 
+//!< Permitted key lifecycle:
+typedef enum {
+	HSM_KEY_LIFECYCLE_OPEN		= 0x1,
+	HSM_KEY_LIFECYCLE_CLOSED	= 0x2,
+	HSM_KEY_LIFECYCLE_LOCKED	= 0x4,
+} hsm_key_lifecycle_t;
+
 typedef uint16_t hsm_key_group_t;
 
 typedef uint16_t hsm_key_info_t;

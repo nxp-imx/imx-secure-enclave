@@ -50,6 +50,10 @@
 #include "sab_managekey.h"
 #endif
 
+#if MT_SAB_GET_KEY_ATTR
+#include "sab_get_key_attr.h"
+#endif
+
 #if MT_SAB_HASH_GEN
 #include "sab_hash.h"
 #endif
@@ -210,6 +214,15 @@ static void init_proc_sab_hsm_msg_engine(msg_type_t msg_type)
 				ret = add_sab_msg_handler(i, MT_SAB_MANAGE_KEY,
 						  prepare_msg_managekey_ext,
 						  proc_msg_rsp_managekey);
+			}
+		break;
+#endif
+#if MT_SAB_GET_KEY_ATTR
+		case SAB_GET_KEY_ATTR_REQ:
+			if (msg_type == MT_SAB_GET_KEY_ATTR) {
+				ret = add_sab_msg_handler(i,MT_SAB_GET_KEY_ATTR,
+						  prepare_msg_get_key_attr,
+						  proc_msg_rsp_get_key_attr);
 			}
 		break;
 #endif

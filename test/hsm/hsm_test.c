@@ -28,6 +28,7 @@ int cmdline_arg;
 
 #define DELETE	1
 #define IMPORT	2
+#define KEYATTR 3
 
 /* input  Qx||lsb_Qy */
 static uint8_t ECC_P256_Qx[32+1] =
@@ -270,6 +271,9 @@ void key_management(uint32_t key_op, hsm_hdl_t key_mgmt_hdl,
 #ifdef HSM_IMPORT_KEY
 	op_import_key_args_t imp_args;
 #endif
+#ifdef HSM_GET_KEY_ATTR
+	op_get_key_attr_args_t keyattr_args;
+#endif
 
 	switch (key_op) {
 	case DELETE:
@@ -307,6 +311,29 @@ void key_management(uint32_t key_op, hsm_hdl_t key_mgmt_hdl,
 		imp_args.key_group = key_group;
 		hsmret = hsm_import_key(key_mgmt_hdl, &imp_args);
 		printf("hsm_delete_key ret:0x%x\n", hsmret);
+#endif
+		break;
+	case KEYATTR:
+#ifdef HSM_GET_KEY_ATTR
+		memset(&keyattr_args, 0, sizeof(keyattr_args));
+		keyattr_args.key_identifier = key_id;
+		hsmret = hsm_get_key_attr(key_mgmt_hdl, &keyattr_args);
+		if(hsmret != HSM_NO_ERROR)
+			printf("hsm_get_key_attr failed:0x%x\n", hsmret);
+		else {
+			printf("Key Type           : 0x%04x\n",
+						keyattr_args.key_type);
+			printf("Key Size           : 0x%d\n",
+						keyattr_args.bit_key_sz);
+			printf("Key Lifetime       : 0x%08x\n",
+						keyattr_args.key_lifetime);
+			printf("Key Usage          : 0x%08x\n",
+						keyattr_args.key_usage);
+			printf("Key Algorithm      : 0x%08x\n",
+						keyattr_args.permitted_algo);
+			printf("Key Lifecycle      : 0x%08x\n",
+						keyattr_args.lifecycle);
+		}
 #endif
 		break;
 	default:
@@ -579,6 +606,10 @@ static void transient_key_tests(hsm_hdl_t sess_hdl, hsm_hdl_t key_store_hdl)
 #endif
 
 	auth_enc_test(key_store_hdl, key_mgmt_hdl);
+
+#ifdef PSA_COMPLIANT
+	key_management(KEYATTR, key_mgmt_hdl, &sym_key_id, 1001, HSM_KEY_TYPE_AES);
+#endif
 
 #ifndef PSA_COMPLIANT
 	key_management(DELETE, key_mgmt_hdl, &sym_key_id, 1001, HSM_KEY_TYPE_AES_256);
