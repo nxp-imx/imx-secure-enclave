@@ -1,5 +1,5 @@
 /*
- * Copyright 2022 NXP
+ * Copyright 2022-2023 NXP
  *
  * NXP Confidential.
  * This software is owned or controlled by NXP and may only be used strictly
@@ -15,6 +15,9 @@
 #define TEST_COMMON_TV_H
 
 #include "test_utils_tv.h"
+
+#define DEFAULT_TV_FNAME "test_vectors.tv"
+#define DEFAULT_TV_FPATH "/usr/share/se/test_vectors/" DEFAULT_TV_FNAME
 
 void key_management(uint32_t key_op, hsm_hdl_t key_mgmt_hdl,
 				uint32_t *key_id, hsm_key_group_t key_group,

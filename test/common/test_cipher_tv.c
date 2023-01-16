@@ -1,5 +1,5 @@
 /*
- * Copyright 2022 NXP
+ * Copyright 2022-2023 NXP
  *
  * NXP Confidential.
  * This software is owned or controlled by NXP and may only be used strictly
@@ -96,8 +96,11 @@ static hsm_err_t cipher_test(hsm_hdl_t key_store_hdl, hsm_hdl_t key_mgmt_hdl,
 
 out:
 
-	free(ciphered_data);
-	free(deciphered_data);
+	if (ciphered_data)
+		free(ciphered_data);
+
+	if (deciphered_data)
+		free(deciphered_data);
 
 	return hsmret;
 }
@@ -271,9 +274,14 @@ static int8_t prepare_and_run_cipher_test(hsm_hdl_t key_store_hdl, FILE *fp)
 		printf("\nTEST_RESULT: INVALID\n");
 	}
 
-	free(iv_data);
-	free(input_data);
-	free(line);
+	if (iv_data)
+		free(iv_data);
+
+	if (input_data)
+		free(input_data);
+
+	if (line)
+		free(line);
 
 	return test_status;
 }

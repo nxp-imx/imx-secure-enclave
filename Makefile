@@ -20,12 +20,14 @@ LIBDIR ?= /usr/$(base_libdir)
 INCLUDEDIR ?= /usr/include
 SYSTEMD_DIR ?= /etc/systemd/system
 ETC_DIR ?= /etc
+TEST_VECTOR_DEFAULT_DIR ?= /usr/share/se/test_vectors
 PLAT ?= seco
 MAJOR_VER := 1
 DEFINES += -DLIB_MAJOR_VERSION=${MAJOR_VER}
 NVM_DAEMON := nvm_daemon
 NVMD_CONF_FILE := nvmd.conf
 SYSTEMD_NVM_SERVICE := nvm_daemon.service
+TEST_VECTOR_FNAME := test_vectors.tv
 
 ifdef COVERAGE
 GCOV_FLAGS :=-fprofile-arcs -ftest-coverage
@@ -33,6 +35,7 @@ endif
 
 PLAT_PATH := src/plat/$(PLAT)
 PLAT_COMMON_PATH := src/common
+TEST_COMMON_TV_PATH := test/common/test_vectors
 
 INCLUDE_PATHS := -I${PLAT_PATH}/include -I${PLAT_COMMON_PATH}/include -Iinclude -Iinclude/hsm
 
@@ -174,3 +177,5 @@ install: $(libs)
 install_tests: install $(tests)
 	mkdir -p $(DESTDIR)$(BINDIR)
 	cp $(all_tests) $(DESTDIR)$(BINDIR)
+	mkdir -p $(DESTDIR)$(TEST_VECTOR_DEFAULT_DIR)
+	cp $(TEST_COMMON_TV_PATH)/$(TEST_VECTOR_FNAME) $(DESTDIR)$(TEST_VECTOR_DEFAULT_DIR)

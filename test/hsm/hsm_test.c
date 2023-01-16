@@ -651,8 +651,8 @@ int main(int argc, char *argv[])
 
     hsm_err_t err;
 
-	if (argc > 1)
-		cmdline_arg = atoi(argv[1]);
+	if (argc > 2)
+		cmdline_arg = atoi(argv[2]);
 
 	sigemptyset(&hsm_test_sigact.sa_mask);
 	hsm_test_sigact.sa_flags = SA_SIGINFO;
@@ -731,16 +731,12 @@ int main(int argc, char *argv[])
 	data_storage_test(key_store_hdl, 4);
 #endif
 
-	/*	Test Vectors test cases currently not being used.
-	 *
-	 *	if (argc > 1) {
-	 *		printf("\n\nTest Vector filename: %s\n", argv[1]);
-	 *		tv_tests_run(key_store_hdl, argv[1]);
-	 *	} else {
-	 *		printf("\nTest Vector Tests Usage: ele_hsm_test <tv_file_path>\n");
-	 *		printf("Skipping. Failed to run Test Vector test cases\n\n");
-	 *	}
-	 */
+	if (argc > 1) {
+		tv_tests_run(key_store_hdl, argv[1]);
+	} else {
+		printf("\n\nTest Vector Tests Usage: ele_hsm_test <tv_file_path>\n");
+		tv_tests_run(key_store_hdl, NULL);
+	}
 
         err = hsm_close_key_store_service(key_store_hdl);
         printf("hsm_close_key_store_service ret:0x%x\n", err);

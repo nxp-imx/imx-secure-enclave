@@ -1,5 +1,5 @@
 /*
- * Copyright 2022 NXP
+ * Copyright 2022-2023 NXP
  *
  * NXP Confidential.
  * This software is owned or controlled by NXP and may only be used strictly
@@ -29,7 +29,13 @@ void tv_tests_run(hsm_hdl_t key_store_hdl, uint8_t *tv_file_path)
 	FILE *fp = NULL;
 	ssize_t read;
 
+	// open default test vector file as custom tv file path not provided.
+	if (tv_file_path == NULL)
+		tv_file_path = DEFAULT_TV_FPATH;
+
 	fp = fopen(tv_file_path, "r");
+
+	printf("\n\nTest Vector file: %s\n", tv_file_path);
 
 	if (fp == NULL) {
 		printf("\nERROR: Failed to open %s.\n\n", tv_file_path);

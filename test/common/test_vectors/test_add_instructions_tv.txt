@@ -5,6 +5,9 @@ adding Tests in test vector file.
 NOTE: The test vector filename with full PATH needs to be provided when
 running the ele_hsm_test application.
 Format: ele_hsm_test <tv_file_path>
+
+If the <tv_file_path> not provided, then default tv file is used to run tests.
+
 The file contains tests with the tags and follow the format described here.
 
 NOTE: Currently Supports test vectors for: KGEN, CIPHER
@@ -143,7 +146,9 @@ KEY_MGMT_TV_ID    DEC (uint32_t)  #Key Management ID to get Key Management hdl
 KEY_TV_ID         DEC (uint32_t)  #Key TV ID to identify and use the key later
 KEY_ID            HEX (uint32_t)  #Key ID is to be set to 0 in case of Volatile
 OUT_SIZE          DEC (uint16_t)  #Output Public Key Size, 0 bytes for Symmetric Key
-KEY_TYPE          HEX (uint8_t)   #Value of HSM Key Type to be used
+KEY_TYPE          HEX (uint16_t)  #Value of HSM Key Type to be used
+BIT_KEY_SZ        HEX (uint16_t)  #Key Size bits
+FLAGS             HEX (uint8_t)   #Flags for operation
 KEY_GROUP         DEC (uint16_t)  #Value of Key Group out of range 0-1023
 KEY_LIFETIME      HEX (uint32_t)  #Value of Key Lifetime
 KEY_USAGE         HEX (uint32_t)  #Calculated combined value of Key Usages needed
@@ -218,9 +223,11 @@ KEY_MGMT_TV_ID    1234       # Key Management TV ID to get Key Mgmt hdl
 KEY_TV_ID         1          # Key TV ID to use the key later
 KEY_ID            0x0        # Key ID set to 0 for Volatile
 OUT_SIZE          0          # Symmetric Key. So, Public Key Out Size 0
-KEY_TYPE          0x32       # HSM_KEY_TYPE_AES_256
+KEY_TYPE          0x2400     # HSM_KEY_TYPE_AES
+BIT_KEY_SZ        256        # HSM_KEY_SIZE_AES_256
+FLAGS             0          #
 KEY_GROUP         1          # Key Group b/w range 0-1023
-KEY_LIFETIME      0x00000000 # HSM_HW_INTERN_STORAGE_VOLATILE
+KEY_LIFETIME      0x00000000 # HSM_SE_INTERN_STORAGE_VOLATILE
 KEY_USAGE         0x00000300 # HSM_KEY_USAGE_ENCRYPT | HSM_KEY_USAGE_DECRYPT
 PERMITTED_ALGO    0x84C0FF00 # PERMITTED_ALGO_ALL_CIPHER
 EXPECTED_HSM_RESP 0x00       # HSM_NO_ERROR
@@ -237,9 +244,11 @@ KEY_MGMT_TV_ID     1234        # Key Management ID
 KEY_TV_ID          101         # Key TV ID to use the key later
 KEY_ID             0x0         # Key ID set to 0 for Volatile
 OUT_SIZE           0           # Symmetric Key. So, Public Key Out Size 0
-KEY_TYPE           0x32        # HSM_KEY_TYPE_AES_256
+KEY_TYPE           0x2400      # HSM_KEY_TYPE_AES
+BIT_KEY_SZ         256         # HSM_KEY_SIZE_AES_256
+FLAGS              0           #
 KEY_GROUP          1           # Key Group b/w 0-1023
-KEY_LIFETIME       0x00000000  # HSM_HW_INTERN_STORAGE_VOLATILE
+KEY_LIFETIME       0x00000000  # HSM_SE_INTERN_STORAGE_VOLATILE
 KEY_USAGE          0x00000300  # HSM_KEY_USAGE_ENCRYPT | HSM_KEY_USAGE_DECRYPT
 PERMITTED_ALGO     0x04404000  # PERMITTED_ALGO_CBC_NO_PADDING
 EXPECTED_HSM_RESP  0x00        # HSM_NO_ERROR
