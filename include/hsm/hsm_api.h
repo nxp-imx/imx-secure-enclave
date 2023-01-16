@@ -304,6 +304,8 @@ hsm_err_t hsm_do_auth_enc(hsm_hdl_t key_store_hdl,
 
 #include "internal/hsm_delete_key.h"
 
+#include "internal/hsm_get_key_attr.h"
+
 #include "internal/hsm_managekey.h"
 
 #include "internal/hsm_debug_dump.h"

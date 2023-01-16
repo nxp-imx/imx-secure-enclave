@@ -80,6 +80,12 @@ HSM_API_SRC	+= \
 		$(PLAT_COMMON_PATH)/hsm_api/hsm_managekey.o
 endif
 
+ifneq (${MT_SAB_GET_KEY_ATTR},0x0)
+DEFINES		+=	-DHSM_GET_KEY_ATTR
+HSM_API_SRC	+= \
+		$(PLAT_COMMON_PATH)/hsm_api/hsm_get_key_attr.o
+endif
+
 ifneq (${MT_SAB_DEBUG_DUMP},0x0)
 DEFINES		+=	-DHSM_DEBUG_DUMP
 HSM_API_SRC	+= \
