@@ -677,6 +677,10 @@ int main(int argc, char *argv[])
 
 	get_device_info(hsm_session_hdl);
 	perform_dev_attestation(hsm_session_hdl);
+	/* To test this api, customised firmware is used.
+	 * Hence commenting this test.
+	 */
+	//lc_update_info(hsm_session_hdl);
 
         open_svc_key_store_args.key_store_identifier = 0xABCD;
         open_svc_key_store_args.authentication_nonce = 0x1234;

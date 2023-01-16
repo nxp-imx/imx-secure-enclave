@@ -38,6 +38,7 @@ hsm_err_t auth_enc_test(hsm_hdl_t key_store_hdl, hsm_hdl_t key_mgmt_hdl);
 
 void get_device_info(hsm_hdl_t sess_hdl);
 void perform_dev_attestation(hsm_hdl_t sess_hdl);
+void lc_update_info(hsm_hdl_t sess_hdl);
 
 /* To run tests of test vector file */
 void tv_tests_run(hsm_hdl_t key_store_hdl, uint8_t *tv_file_path);
