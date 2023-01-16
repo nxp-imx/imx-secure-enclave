@@ -97,6 +97,8 @@ typedef enum {
 	HSM_FATAL_FAILURE                   = 0x29,
 	/**<	Message neither handled by ROM nor FW */
 	HSM_SERVICES_DISABLED               = 0xF4,
+	/**<	Unknown warnings */
+	HSM_UNKNOWN_WARNING                 = 0xFC,
 	/**<    Failure in verification status of operations such as
 	 *      MAC verification, Signature verification.
 	 */

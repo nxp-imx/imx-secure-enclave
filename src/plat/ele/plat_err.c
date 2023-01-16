@@ -1,5 +1,5 @@
 /*
- * Copyright 2022 NXP
+ * Copyright 2022-2023 NXP
  *
  * NXP Confidential.
  * This software is owned or controlled by NXP and may only be used strictly
@@ -13,7 +13,7 @@
 
 #include "sab_common_err.h"
 
-static struct sab_err_map_s sab_err_str_map[] = {
+static struct sab_err_map_s sab_err_str_map[SAB_ERR_MAP_N] = {
 	{0x00D6, "Operation Successful"},
 	{0x0029, "General Error"},
 	{0x0229, "Invalid Address"},
@@ -38,6 +38,7 @@ static struct sab_err_map_s sab_err_str_map[] = {
 	{0x1D29, "Output public key size is too small"},
 	{0xB929, "Command CRC check error"},
 };
+
 
 struct sab_err_map_s *get_sab_err_str_map(void)
 {
