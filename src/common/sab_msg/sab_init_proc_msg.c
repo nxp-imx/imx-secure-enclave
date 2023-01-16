@@ -14,6 +14,10 @@
 #include "sab_msg_def.h"
 #include "sab_process_msg.h"
 
+#if MT_SAB_LC_UPDATE
+#include "sab_lc_update.h"
+#endif
+
 #if MT_SAB_DEBUG_DUMP
 #include "sab_debug_dump.h"
 #endif
@@ -116,6 +120,21 @@ static void init_proc_sab_base_msg_engine(msg_type_t msg_type)
 				ret = add_sab_msg_handler(i, MT_SAB_DEBUG_DUMP,
 						  prepare_msg_debugdump,
 						  proc_msg_rsp_debugdump);
+			}
+		break;
+#endif
+#if MT_SAB_LC_UPDATE
+		case ROM_DEV_FWD_LC_UPDATE:
+			if (msg_type == MT_SAB_LC_UPDATE) {
+				ret = add_sab_msg_handler(i, MT_SAB_LC_UPDATE,
+						  prepare_msg_fwd_lc_update,
+						  proc_msg_rsp_fwd_lc_update);
+			}
+		case ROM_DEV_RET_LC_UPDATE:
+			if (msg_type == MT_SAB_LC_UPDATE) {
+				ret = add_sab_msg_handler(i, MT_SAB_LC_UPDATE,
+						  prepare_msg_ret_lc_update,
+						  proc_msg_rsp_ret_lc_update);
 			}
 		break;
 #endif

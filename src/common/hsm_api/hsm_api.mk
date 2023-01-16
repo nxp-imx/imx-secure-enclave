@@ -86,6 +86,12 @@ HSM_API_SRC	+= \
 		$(PLAT_COMMON_PATH)/hsm_api/hsm_get_key_attr.o
 endif
 
+ifneq (${MT_SAB_LC_UPDATE},0x0)
+DEFINES		+=	-DHSM_LC_UPDATE
+HSM_API_SRC	+= \
+		$(PLAT_COMMON_PATH)/hsm_api/hsm_lc_update.o
+endif
+
 ifneq (${MT_SAB_DEBUG_DUMP},0x0)
 DEFINES		+=	-DHSM_DEBUG_DUMP
 HSM_API_SRC	+= \

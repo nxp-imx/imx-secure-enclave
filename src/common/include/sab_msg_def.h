@@ -121,6 +121,8 @@
 #define SAB_KEY_GENERIC_CRYPTO_SRV_CLOSE_REQ    0xC1U
 #define SAB_KEY_GENERIC_CRYPTO_SRV_REQ          0xC2U
 
+#define ROM_DEV_FWD_LC_UPDATE                   0x95
+#define ROM_DEV_RET_LC_UPDATE                   0xA0
 #define ROM_DEV_GETINFO_REQ                     0xDA
 #define ROM_DEV_ATTEST_REQ                      0xDB
 

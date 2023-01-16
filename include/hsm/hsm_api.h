@@ -314,6 +314,8 @@ hsm_err_t hsm_do_auth_enc(hsm_hdl_t key_store_hdl,
 
 #include "internal/hsm_dev_getinfo.h"
 
+#include "internal/hsm_lc_update.h"
+
 #include "internal/hsm_dev_attest.h"
 
 #include "internal/hsm_get_info.h"

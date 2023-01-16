@@ -28,6 +28,12 @@ SAB_MSG_SRC	+= \
 		$(PLAT_COMMON_PATH)/sab_msg/sab_verify_sign.o
 endif
 
+ifneq (${MT_SAB_LC_UPDATE},0x0)
+DEFINES		+=	-DMT_SAB_LC_UPDATE=${MT_SAB_LC_UPDATE}
+SAB_MSG_SRC	+= \
+		$(PLAT_COMMON_PATH)/sab_msg/sab_lc_update.o
+endif
+
 ifneq (${MT_SAB_DEBUG_DUMP},0x0)
 DEFINES		+=	-DMT_SAB_DEBUG_DUMP=${MT_SAB_DEBUG_DUMP}
 SAB_MSG_SRC	+= \
