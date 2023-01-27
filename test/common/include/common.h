@@ -49,6 +49,8 @@ void tv_tests_run(hsm_hdl_t key_store_hdl, uint8_t *tv_file_path);
 hsm_hdl_t get_hsm_session_hdl(void);
 
 void hexdump(uint32_t buf[], uint32_t size);
+void hexdump_bb(uint8_t buf[], uint32_t size);
+void word_byteswap(uint32_t *buf, uint32_t buf_len);
 
 /* To send the commmand line
  * input to any test.

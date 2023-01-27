@@ -1,5 +1,5 @@
 /*
- * Copyright 2022 NXP
+ * Copyright 2022-2023 NXP
  *
  * NXP Confidential.
  * This software is owned or controlled by NXP and may only be used strictly
@@ -25,3 +25,35 @@ void hexdump(uint32_t buf[], uint32_t size)
 	}
 	printf("\n\n");
 }
+
+/* hexdump which dumps byte-by-byte.
+ * correctly reflecting the content
+ * at the specific byte location.
+ */
+void hexdump_bb(uint8_t buf[], uint32_t size)
+{
+	int i = 0;
+
+	for (i = 0; i < size; i++) {
+		if ((i != 0) && (i % 16 == 0))
+			printf("\n");
+		printf("%02x ", buf[i]);
+	}
+	printf("\n");
+
+}
+
+void word_byteswap(uint32_t *buf, uint32_t buf_len)
+{
+	int i = 0;
+	uint32_t word;
+
+	for (; i < buf_len; i++) {
+		word = buf[i];
+		buf[i] = ((uint8_t *) &word)[3];
+		buf[i] |= ((uint8_t *) &word)[2] << 8;
+		buf[i] |= ((uint8_t *) &word)[1] << 16;
+		buf[i] |= ((uint8_t *) &word)[0] << 24;
+	}
+}
+
