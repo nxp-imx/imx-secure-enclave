@@ -1,5 +1,5 @@
 /*
- * Copyright 2022 NXP
+ * Copyright 2022,2023 NXP
  *
  * NXP Confidential.
  * This software is owned or controlled by NXP and may only be used strictly
@@ -16,6 +16,7 @@
 
 #include "internal/hsm_handle.h"
 #include "internal/hsm_utils.h"
+#include "internal/hsm_common_def.h"
 
 #define CIPHER_OPEN_FLAGS_DEFAULT       0x0u
 /**
@@ -51,11 +52,11 @@ hsm_err_t hsm_open_cipher_service(hsm_hdl_t key_store_hdl,
 #ifdef PSA_COMPLIANT
 typedef enum {
 	//!< CTR (AES supported).
-	HSM_CIPHER_ONE_GO_ALGO_CTR = 0x04C01000,
+	HSM_CIPHER_ONE_GO_ALGO_CTR = ALGO_CIPHER_CTR,
 	//!< ECB no padding (AES, SM4 supported).
-	HSM_CIPHER_ONE_GO_ALGO_ECB = 0x04404400,
+	HSM_CIPHER_ONE_GO_ALGO_ECB = ALGO_CIPHER_ECB_NO_PAD,
 	//!< CBC no padding (AES, SM4 supported).
-	HSM_CIPHER_ONE_GO_ALGO_CBC = 0x04404000,
+	HSM_CIPHER_ONE_GO_ALGO_CBC = ALGO_CIPHER_CBC_NO_PAD,
 } hsm_op_cipher_one_go_algo_t;
 
 #else
