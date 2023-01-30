@@ -33,7 +33,7 @@ uint32_t prepare_msg_get_key_attr(void *phdl,
 	op_get_key_attr_args_t *op_args = (op_get_key_attr_args_t *) args;
 
 	cmd->key_management_hdl = msg_hdl;
-	cmd->key_identifier = *(op_args->key_identifier);
+	cmd->key_identifier = op_args->key_identifier;
 
 	*cmd_msg_sz = sizeof(struct sab_cmd_get_key_attr_msg);
 	*rsp_msg_sz = sizeof(struct sab_cmd_get_key_attr_rsp);

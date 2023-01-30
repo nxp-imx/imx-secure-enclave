@@ -24,7 +24,7 @@
 
 typedef struct {
 	//!< identifier of the key to be used for the operation.
-	uint32_t *key_identifier;
+	uint32_t key_identifier;
 	//!< indicates which type of key must be generated.
 	hsm_key_type_t key_type;
 	hsm_bit_key_sz_t bit_key_sz;

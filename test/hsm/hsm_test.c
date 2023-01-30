@@ -316,7 +316,7 @@ void key_management(uint32_t key_op, hsm_hdl_t key_mgmt_hdl,
 	case KEYATTR:
 #ifdef HSM_GET_KEY_ATTR
 		memset(&keyattr_args, 0, sizeof(keyattr_args));
-		keyattr_args.key_identifier = key_id;
+		keyattr_args.key_identifier = *key_id;
 		hsmret = hsm_get_key_attr(key_mgmt_hdl, &keyattr_args);
 		if(hsmret != HSM_NO_ERROR)
 			printf("hsm_get_key_attr failed:0x%x\n", hsmret);
