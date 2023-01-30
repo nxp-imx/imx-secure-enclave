@@ -120,35 +120,43 @@ function toolchain()
     eval "${cmd_script}"
 }
 
-function zlib()
+function openssl()
 {
     cmd_script="cmake ${opt_toolchain}"
-    zlib_script="${script_dir}/build_zlib.cmake"
+    #openssl_script="${script_dir}/build_openssl.cmake"
 
     printf "\033[0;32m\n"
     printf "***************************************\n"
-    printf " Install zlib to %s\n" "${opt_export}"
+    printf " Install openssl to %s\n" "${opt_export}"
     printf "***************************************\n"
     printf "\033[0m\n"
 
-    if [[ -z ${opt_export} ]]; then
-        usage_zlib
-        exit 1
-    fi
+#    if [[ -z ${opt_export} ]]; then
+#        usage_openssl
+#        exit 1
+#    fi
 
-    if [[ -n ${opt_src} ]]; then
-        cmd_script="${cmd_script} -DZLIB_SRC_PATH=${opt_src}"
-    fi
+#    if [[ -n ${opt_src} ]]; then
+#        cmd_script="${cmd_script} -DZLIB_SRC_PATH=${opt_src}"
+#    fi
 
-    cmd_script="${cmd_script} -DZLIB_ROOT=${opt_export} -P ${zlib_script}"
+#    cmd_script="${cmd_script} -DZLIB_ROOT=${opt_export} -P ${openssl_script}"
 
+    # Bypassing the "build_openssl.cmake", till it is working.
+    # JIRA# LF-8203 
+    cmd_script="export ARCH=arm64;\
+	        export CROSS_COMPILE=aarch64-linux-gnu-;\
+                ./Configure -I./include linux-${opt_arch} shared --prefix=/usr/local --openssldir=lib/ssl;\
+		make clean; make depend; make -j32"
+
+    cmd_script="cd ../openssl;${cmd_script};cd -;"
     printf "Execute %s\n" "${cmd_script}"
     eval "${cmd_script}"
 }
 
 function seco()
 {
-    cmd_script="cmake ${opt_toolchain} ${opt_zlib}"
+    cmd_script="cmake ${opt_toolchain} ${opt_openssl}"
     seco_script="${script_dir}/build_seco.cmake"
 
     printf "\033[0;32m\n"
@@ -171,7 +179,7 @@ function seco()
 
 function ele()
 {
-    cmd_script="cmake ${opt_toolchain} ${opt_zlib}"
+    cmd_script="cmake ${opt_toolchain} ${opt_openssl}"
     ele_script="${script_dir}/build_ele.cmake"
 
     printf "\033[0;32m\n"
@@ -280,7 +288,7 @@ function configure()
     cmd_script="cmake -S . -B ${opt_out} ${opt_toolchain}"
     cmd_script="${cmd_script} ${opt_coverage}"
     cmd_script="${cmd_script} ${opt_buildtype} ${opt_verbose}"
-    cmd_script="${cmd_script} ${opt_zlib} ${opt_seco} ${opt_ele}"
+    cmd_script="${cmd_script} ${opt_openssl} ${opt_seco} ${opt_ele}"
     cmd_script="${cmd_script} ${opt_teec} ${opt_tadevkit}"
     cmd_script="${cmd_script} ${opt_jsonc} ${opt_psaarchtests}"
     cmd_script="${cmd_script} ${opt_psa}"
@@ -470,11 +478,11 @@ function usage_toolchain()
     printf "\n"
 }
 
-function usage_zlib()
+function usage_openssl()
 {
     printf "\n"
     printf "To build and install the ZLIB Library\n"
-    printf "  %s zlib export=[dir] src=[dir] arch=[arch] " "${script_name}"
+    printf "  %s openssl export=[dir] src=[dir] arch=[arch] " "${script_name}"
     printf "toolpath=[dir] toolname=[name]\n"
     printf "    export   = Export directory\n"
     printf "    src      = [optional] Temporary directory where install sources\n"
@@ -488,11 +496,11 @@ function usage_seco()
 {
     printf "\n"
     printf "To build and install the SECO libraries\n"
-    printf "  %s seco export=[dir] src=[dir] zlib=[root] " "${script_name}"
+    printf "  %s seco export=[dir] src=[dir] openssl=[root] " "${script_name}"
     printf "arch=[arch] toolpath=[dir] toolname=[name]\n"
     printf "    export   = Export directory\n"
     printf "    src      = Source directory\n"
-    printf "    zlib     = [optional] ZLIB library root directory\n"
+    printf "    openssl     = [optional] ZLIB library root directory\n"
     printf "    arch     = [optional] Toolchain architecture (aarch32|aarch64)\n"
     printf "    toolpath = [optional] Toolchain path where installed\n"
     printf "    toolname = [optional] Toolchain name\n"
@@ -503,11 +511,11 @@ function usage_ele()
 {
     printf "\n"
     printf "To build and install the EdgeLock Enclave libraries\n"
-    printf "  %s ele export=[dir] src=[dir] zlib=[root] " "${script_name}"
+    printf "  %s ele export=[dir] src=[dir] openssl=[root] " "${script_name}"
     printf "arch=[arch] toolpath=[dir] toolname=[name]\n"
     printf "    export   = Export directory\n"
     printf "    src      = Source directory\n"
-    printf "    zlib     = [optional] ZLIB library root directory\n"
+    printf "    openssl     = [optional] ZLIB library root directory\n"
     printf "    arch     = [optional] Toolchain architecture (aarch32|aarch64)\n"
     printf "    toolpath = [optional] Toolchain path where installed\n"
     printf "    toolname = [optional] Toolchain name\n"
@@ -563,7 +571,7 @@ function usage_configure()
     printf "To configure the Secure Middleware\n"
     printf " - Note: all dependencies must be present\n"
     printf "  %s configure out=[dir] coverage debug " "${script_name}"
-    printf "verbose=[lvl] zlib=[dir] seco=[dir] "
+    printf "verbose=[lvl] openssl=[dir] seco=[dir] "
     printf "ele=[dir] "
     printf "teec=[dir] tadevkit=[dir] "
     printf "arch=[arch] toolpath=[dir] toolname=[name] jsonc=[dir] "
@@ -577,10 +585,10 @@ function usage_configure()
     printf "    toolname = [optional] Toolchain name\n"
     printf "    format   = [optional] Documentation format\n"
     printf "  To enable HSM subsystem [optional]\n"
-    printf "    zlib     = ZLIB library root directory\n"
+    printf "    openssl     = ZLIB library root directory\n"
     printf "    seco     = SECO export directory\n"
     printf "  To enable ELE subsystem [optional]\n"
-    printf "    zlib     = ZLIB library root directory\n"
+    printf "    openssl     = ZLIB library root directory\n"
     printf "    ele      = ELE export directory\n"
     printf "  To enable TEE subsystem [optional]\n"
     printf "    teec     = OPTEE Client export directory\n"
@@ -674,7 +682,7 @@ function usage()
     printf " Usage of Security Middleware build script \n"
     printf "*******************************************\n"
     usage_toolchain
-    usage_zlib
+    usage_openssl
     usage_seco
     usage_ele
     usage_teec
@@ -734,10 +742,10 @@ do
             check_directory opt_src
             ;;
 
-        zlib=*)
-            opt_zlib="${arg#*=}"
-            check_directory opt_zlib
-            opt_zlib="-DZLIB_ROOT=${opt_zlib}"
+        openssl=*)
+            opt_openssl="${arg#*=}"
+            check_directory opt_openssl
+            opt_openssl="-DZLIB_ROOT=${opt_zlib}"
             ;;
 
         platform=*)
@@ -868,8 +876,8 @@ case ${opt_action} in
         toolchain
         ;;
 
-    zlib)
-        zlib
+    openssl)
+        openssl
         ;;
 
     seco)
