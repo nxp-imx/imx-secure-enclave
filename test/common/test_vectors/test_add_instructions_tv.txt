@@ -10,7 +10,7 @@ If the <tv_file_path> not provided, then default tv file is used to run tests.
 
 The file contains tests with the tags and follow the format described here.
 
-NOTE: Currently Supports test vectors for: KGEN, CIPHER
+NOTE: Currently Supports test vectors for: KGEN, CIPHER, MAC
 
 
 The test file is read line by line till EOF, to identify and use certain
@@ -24,9 +24,9 @@ are mentioned in below. Later more may get added.
 Some Limitations about the format:
 
 -	ALl Recognized Tags like TESTS_START, TESTS_END, TEST_KGEN_*, TEST_KGEN_END,
-	TEST_CIPHER_*, TEST_CIPHER_END, KEY_TV_ID, PERMITTED_ALGO, KEY_USAGE, etc.
-	needs to start from very beginning of their line as these tags get read
-	from very start of the line.
+	TEST_CIPHER_*, TEST_CIPHER_END, TEST_MAC_*, TEST_MAC_END, KEY_TV_ID,
+	PERMITTED_ALGO, KEY_USAGE, etc. needs to start from very beginning of
+	their line as these tags get read from very start of the line.
 
 -	Only Spaces (Not tabs) need to be used for PARAM_NAME  'space' PARAM_VALUE
 	key value pair.
@@ -97,6 +97,7 @@ TEST_<Test_Type>_END                    #marks the end of test
 'm' representing test type
 0 - KGEN
 1 - CIPHER
+2 - MAC
 
 'n' representing serial no of test of particular test type/category
 1, 2, 3,...so on
@@ -201,6 +202,42 @@ TEST_CIPHER_END
 
 
 -------------------------------------------------------------------------
+FORMAT and PARAMETERS for MAC Tests:
+-------------------------------------------------------------------------
+
+#Positive/Negative Case - Test Description (Optional line)
+TEST_MAC_<PSA/NON_PSA>_2<n>
+
+KEY_MGMT_TV_ID    DEC (uint32_t)  # Key Management TV ID to get Key Management hdl
+KEY_TV_ID         DEC (uint32_t)  # Key TV ID from KGEN Tests to use the key
+MAC_ALGO          HEX (uint32_t)  # MAC algorithm to be used
+PAYLOAD_SIZE      DEC (uint32_t)  # Payload size to allocate memory
+
+PAYLOAD_DATA      DEC (uint32_t)  # Payload data-Payload size for input
+0xB2, 0xE1, 0x4C, 0x5C, 0x79, 0xC6, 0xDF, 0x5B,
+0x85, 0xF4, 0xFE, 0x7E, 0xD8, 0xDB, 0x7A, 0x26,
+0x2B, 0x9D, 0xA7, 0xE0, 0x7C, 0xCB, 0x0E, 0xA9,
+0xF4, 0x74, 0x7B, 0x8C, 0xCD, 0xA8, 0xA4, 0xF3
+
+#(Example of Input buffer format is given as above, 'uint8_t' HEX values)
+
+MAC_SIZE     DEC (uint16_t) # MAC buffer size, allocates memory for MAC data
+
+# Expected output MAC size is valid for case, when MAC API MAC Generation Resp
+# (also Expected Resp) is HSM_NO_ERROR, HSM_OUT_TOO_SMALL or HSM_GENERAL_ERROR
+EXP_MAC_SIZE      DEC (uint16_t)  # Expected output MAC size
+
+# Expected MAC Verification status, valid if Verification op flag is set.
+EXP_VERIFICATION_STATUS HEX (uint32_t) # Expected MAC API verification status
+
+EXP_MAC_GEN_HSM_RESP    HEX (uint8_t)  # Expected HSM Resp for MAC Generation
+EXP_MAC_VERIFY_HSM_RESP HEX (uint8_t)  # Expected HSM Resp for MAC Verification
+
+TEST_MAC_END
+
+
+
+-------------------------------------------------------------------------
 Example of a Complete Test:
 -------------------------------------------------------------------------
 
@@ -283,6 +320,57 @@ CIPHER_ALGO       0x04404000  # HSM_CIPHER_ONE_GO_ALGO_CBC
 EXPECTED_HSM_RESP 0x00        # HSM_NO_ERROR
 
 TEST_CIPHER_END
+
+
+
+#Test for Generating Key with KEY_TV_ID 201 to be used by MAC test
+
+
+#Positive Case
+TEST_KGEN_PSA_201
+
+KEY_MGMT_TV_ID    1234       # Key Management ID
+KEY_TV_ID         201        # Key TV ID to use the key later
+KEY_ID            0x0        # Key ID 0 for Volatile Key
+OUT_SIZE          0          # Symmetric Key. So, Public Key Out Size 0
+KEY_TYPE          0x2400     # HSM_KEY_TYPE_AES
+BIT_KEY_SZ        256        # HSM_KEY_SIZE_AES_256
+FLAGS             0          #
+KEY_GROUP         3          # Key Group b/w 0-1023
+KEY_LIFETIME      0x00000000 # HSM_SE_INTERN_STORAGE_VOLATILE
+KEY_USAGE         0x00000C00 # HSM_KEY_USAGE_SIGN_MSG | HSM_KEY_USAGE_VERIFY_MSG
+PERMITTED_ALGO    0x03C00200 # PERMITTED_ALGO_CMAC
+EXPECTED_HSM_RESP 0x00       # HSM_NO_ERROR
+
+TEST_KGEN_END
+
+
+
+#MAC test using the key with KEY_TV_ID 201
+
+#Positive Case:
+#Test MAC operation with CMAC algo using saved AES 256 Key permitted for CMAC
+
+TEST_MAC_PSA_201
+
+KEY_MGMT_TV_ID    1234       # Key Management TV ID
+KEY_TV_ID         201        # Key TV ID from KGEN Tests to use the key
+MAC_ALGO          0x03C00200 # PERMITTED_ALGO_CMAC
+PAYLOAD_SIZE      32         # Payload Size provided before Payload data
+
+PAYLOAD_DATA      32         # Payload data-Payload size, input from next line
+0xB2, 0xE1, 0x4C, 0x5C, 0x79, 0xC6, 0xDF, 0x5B,
+0x85, 0xF4, 0xFE, 0x7E, 0xD8, 0xDB, 0x7A, 0x26,
+0x2B, 0x9D, 0xA7, 0xE0, 0x7C, 0xCB, 0x0E, 0xA9,
+0xF4, 0x74, 0x7B, 0x8C, 0xCD, 0xA8, 0xA4, 0xF3
+
+MAC_SIZE          16         # MAC buffer size
+EXP_MAC_SIZE      16         # Expected MAC size
+EXP_VERIFICATION_STATUS 0x6C1AA1C6u # HSM_MAC_VERIFICATION_STATUS_SUCCESS
+EXP_MAC_GEN_HSM_RESP    0x00 # HSM_NO_ERROR
+EXP_MAC_VERIFY_HSM_RESP 0x00 # HSM_NO_ERROR
+
+TEST_MAC_END
 
 
 
