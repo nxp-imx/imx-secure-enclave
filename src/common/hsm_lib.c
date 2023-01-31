@@ -37,7 +37,7 @@ void __attribute__((constructor)) libele_hsm_start()
 
 	for (msg_type_id = ROM_MSG; msg_type_id < MAX_MSG_TYPE;
 	     msg_type_id++) {
-		init_proc_sab_msg_engine(msg_type_id);
+		init_sab_hsm_msg_engine(msg_type_id);
 	}
 
 }

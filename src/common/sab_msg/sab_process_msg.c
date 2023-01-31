@@ -55,6 +55,40 @@ sab_msg_init_info_t add_sab_msg_handler(uint32_t msg_id, msg_type_t msg_type,
 	return DONE;
 }
 
+static uint32_t prep_sab_msg_not_supported(void *phdl, void *cmd_buf,
+					   void *rsp_buf, uint32_t *cmd_msg_sz,
+					   uint32_t *rsp_msg_sz,
+					   uint32_t msg_hdl, void *args)
+{
+	printf("Error: CMD not supported.\n");
+	return SAB_CMD_NOT_SUPPORTED_RATING;
+}
+
+static uint32_t proc_sab_msg_rsp_not_supported(void *rsp_buf, void *args)
+{
+	return SAB_CMD_NOT_SUPPORTED_RATING;
+}
+
+
+void init_proc_sab_msg_cmd_eng(msg_type_t msg_type,
+			       uint32_t max_msg_id,
+			       int (*func)(msg_type_t msg_type, uint32_t msg_id))
+{
+	int i = 0;
+	int ret = NOT_DONE;
+
+	for (i = 0; i < max_msg_id; i++) {
+		ret = NOT_DONE;
+
+		ret = (func)(msg_type, i);
+		if (ret == NOT_DONE) {
+			add_sab_msg_handler(i, msg_type,
+					    prep_sab_msg_not_supported,
+					    proc_sab_msg_rsp_not_supported);
+		}
+	}
+}
+
 static void hexdump(uint32_t buf[], uint32_t size)
 {
 	int i = 0;

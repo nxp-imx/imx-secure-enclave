@@ -1,5 +1,5 @@
 /*
- * Copyright 2022 NXP
+ * Copyright 2022-2023 NXP
  *
  * NXP Confidential.
  * This software is owned or controlled by NXP and may only be used strictly
@@ -48,5 +48,8 @@ uint32_t process_sab_msg(struct plat_os_abs_hdl *phdl,
 			 void *args,
 			 uint32_t *rsp_code);
 
-void init_proc_sab_msg_engine(msg_type_t msg_type);
+void init_proc_sab_msg_cmd_eng(msg_type_t msg_type,
+			       uint32_t max_msg_id,
+			       int (*func)(msg_type_t msg_type, uint32_t msg_id));
+void init_sab_hsm_msg_engine(msg_type_t msg_type);
 #endif
