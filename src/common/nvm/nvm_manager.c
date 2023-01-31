@@ -18,45 +18,20 @@
 #include "sab_msg_def.h"
 #include "sab_messaging.h"
 #include "nvm.h"
+#include "sab_nvm.h"
+#include "sab_process_msg.h"
 
 #include "plat_os_abs.h"
 #include "plat_utils.h"
-
-#define MAX_RCV_MSG_SIZE \
-	((uint32_t)sizeof(struct sab_cmd_key_store_chunk_export_msg))
-
-struct nvm_ctx_st {
-	uint32_t status;
-	struct plat_os_abs_hdl *phdl;
-	uint32_t session_handle;
-	uint32_t storage_handle;
-	uint32_t mu_type;
-	uint8_t nvm_fname[MAX_FNAME_DNAME_SZ];
-	uint8_t nvm_dname[MAX_FNAME_DNAME_SZ];
-};
-
-struct nvm_header_s {
-	uint32_t size;
-	uint32_t crc;
-	uint64_t blob_id;
-};
-
-struct nvm_chunk_hdr {
-	uint64_t blob_id;
-	uint32_t len;
-	uint8_t *data;
-};
 
 /* Storage import processing. Return 0 on success.  */
 static uint32_t nvm_storage_import(struct nvm_ctx_st *nvm_ctx_param,
 				   uint8_t *data, uint32_t len)
 {
-	struct sab_cmd_key_store_import_msg msg = {0};
-	struct sab_cmd_key_store_import_rsp rsp = {0};
-	uint64_t plat_addr;
 	struct nvm_header_s *blob_hdr;
 	uint32_t ret = SAB_FAILURE_STATUS;
 	int32_t error;
+	uint32_t rsp_code;
 
 	do {
 		if (nvm_ctx_param->storage_handle == 0u) {
@@ -76,35 +51,13 @@ static uint32_t nvm_storage_import(struct nvm_ctx_st *nvm_ctx_param,
 			break;
 		}
 
-		plat_addr = plat_os_abs_data_buf(nvm_ctx_param->phdl,
-				data + sizeof(struct nvm_header_s),
-				blob_hdr->size,
-				DATA_BUF_IS_INPUT);
-
-		/* Prepare command message. */
-		plat_fill_cmd_msg_hdr(&msg.hdr,
-				SAB_STORAGE_MASTER_IMPORT_REQ,
-				(uint32_t)sizeof(struct
-					sab_cmd_key_store_import_msg),
-				nvm_ctx_param->mu_type);
-		msg.storage_handle = nvm_ctx_param->storage_handle;
-		msg.key_store_address = (uint32_t)(plat_addr & 0xFFFFFFFFu);
-		msg.key_store_size = blob_hdr->size;
-
-		error = plat_send_msg_and_get_resp(nvm_ctx_param->phdl,
-				(uint32_t *)&msg,
-				(uint32_t) sizeof(struct
-					sab_cmd_key_store_import_msg),
-				(uint32_t *)&rsp,
-				(uint32_t) sizeof(struct
-					sab_cmd_key_store_import_rsp));
-		if (error != 0) {
-			break;
-		}
-
-		sab_err_map(SAB_STORAGE_MASTER_IMPORT_REQ, rsp.rsp_code);
-		/* report error status from platform. */
-		ret = rsp.rsp_code;
+		error = process_sab_msg(nvm_ctx_param->phdl,
+					nvm_ctx_param->mu_type,
+					SAB_STORAGE_MASTER_IMPORT_REQ,
+					MT_SAB_STORAGE_MASTER_IMPORT,
+					(uint32_t)nvm_ctx_param->storage_handle,
+					data, &rsp_code);
+		ret = rsp_code;
 	} while (false);
 	return ret;
 }
@@ -675,9 +628,11 @@ int nvm_manager(uint8_t flags,
 					 * platform can create and export a
 					 * storage.
 					 */
-					(void)nvm_storage_import(nvm_ctx,
-								 data,
-								 data_len);
+					if (nvm_storage_import(nvm_ctx,
+								data,
+								data_len)
+							!= SAB_SUCCESS_STATUS)
+						se_err("Warn: Failure in Master Storage Data Import.\n");
 				}
 				plat_os_abs_free(data);
 				data = NULL;
@@ -741,3 +696,18 @@ uint32_t get_nvmd_status(void *ctx)
 {
 	return ((struct nvm_ctx_st *)ctx)->status;
 }
+
+void __attribute__((constructor)) libele_nvm_start()
+{
+	int msg_type_id;
+
+	se_info("\nlibele_nvm constructor\n");
+
+	init_sab_nvm_msg_engine(SAB_MSG);
+}
+
+void __attribute__((destructor)) libele_nvm_end()
+{
+	se_info("\nlibele_nvm destructor\n");
+}
+

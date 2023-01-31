@@ -52,4 +52,5 @@ void init_proc_sab_msg_cmd_eng(msg_type_t msg_type,
 			       uint32_t max_msg_id,
 			       int (*func)(msg_type_t msg_type, uint32_t msg_id));
 void init_sab_hsm_msg_engine(msg_type_t msg_type);
+void init_sab_nvm_msg_engine(msg_type_t msg_type);
 #endif

@@ -11,6 +11,15 @@
 #
 
 include $(PLAT_PATH)/sab_msg.def
+SAB_RCVMSG_SRC	+= \
+		$(PLAT_COMMON_PATH)/sab_msg/sab_process_msg.o \
+		$(PLAT_COMMON_PATH)/sab_msg/sab_init_nvm_msg.o
+
+ifneq (${MT_SAB_STORAGE_MASTER_IMPORT},0x0)
+DEFINES		+=	-DMT_SAB_STORAGE_MASTER_IMPORT=${MT_SAB_STORAGE_MASTER_IMPORT}
+SAB_RCVMSG_SRC	+= \
+		$(PLAT_COMMON_PATH)/sab_msg/sab_storage_master_import.o
+endif
 
 SAB_MSG_SRC	+= \
 		$(PLAT_COMMON_PATH)/sab_msg/sab_process_msg.o \

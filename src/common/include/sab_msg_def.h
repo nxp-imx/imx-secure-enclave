@@ -366,18 +366,6 @@ struct sab_cmd_storage_close_rsp {
     uint32_t rsp_code;
 };
 
-struct sab_cmd_key_store_import_msg {
-    struct sab_mu_hdr hdr;
-    uint32_t storage_handle;
-    uint32_t key_store_address;
-    uint32_t key_store_size;
-};
-
-struct sab_cmd_key_store_import_rsp {
-    struct sab_mu_hdr hdr;
-    uint32_t rsp_code;
-};
-
 struct sab_cmd_key_store_export_start_msg {
     struct sab_mu_hdr hdr;
     uint32_t storage_handle;
