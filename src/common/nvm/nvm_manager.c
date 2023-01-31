@@ -200,128 +200,6 @@ static uint32_t nvm_export_finish_rsp(struct nvm_ctx_st *nvm_ctx_param,
 	return ret;
 }
 
-static uint32_t nvm_manager_export_master(struct nvm_ctx_st *nvm_ctx_param,
-					  struct sab_cmd_key_store_export_start_msg *msg,
-					  int32_t msg_len)
-{
-	uint32_t err = 1u;
-	uint32_t data_len;
-	int32_t len = 0;
-	uint8_t *data = NULL;
-	struct sab_cmd_key_store_export_start_rsp resp;
-	struct sab_cmd_key_store_export_finish_msg finish_msg;
-	uint64_t plat_addr;
-	struct nvm_header_s *blob_hdr;
-	uint32_t blob_size;
-
-	do {
-		/* Consistency check of message length. */
-		if (msg_len != (int32_t)sizeof(struct sab_cmd_key_store_export_start_msg)) {
-			break;
-		}
-
-		/* Extract length of the blob from the message. */
-		blob_size = msg->key_store_size;
-		data_len = msg->key_store_size
-				+ (uint32_t)sizeof(struct nvm_header_s);
-
-		if ((data_len == 0u) || (data_len > 16u*1024u)) {
-			/* Fixing arbitrary maximum blob size to 16k
-			 * for sanity checks.
-			 */
-			break;
-		}
-
-		/* Allocate memory for receiving data. */
-		data = plat_os_abs_malloc(data_len);
-		/* If data is NULL the response should be sent to platform
-		 * with an error code. Process is stopped after.
-		 */
-
-		/* Build the response indicating the destination address
-		 * to platform.
-		 */
-		plat_fill_rsp_msg_hdr(&resp.hdr,
-				      SAB_STORAGE_MASTER_EXPORT_REQ,
-				      (uint32_t)sizeof(struct sab_cmd_key_store_export_start_rsp),
-				      nvm_ctx_param->mu_type);
-
-		if (data != NULL) {
-			plat_addr = plat_os_abs_data_buf(nvm_ctx_param->phdl,
-					data + (uint32_t)sizeof(struct nvm_header_s),
-					blob_size,
-					0u);
-			resp.key_store_export_address =
-				(uint32_t)(plat_addr & 0xFFFFFFFFu);
-			resp.rsp_code = SAB_SUCCESS_STATUS;
-		} else {
-			resp.key_store_export_address = 0;
-			resp.rsp_code = SAB_FAILURE_STATUS;
-		}
-		resp.storage_handle = nvm_ctx_param->storage_handle;
-
-		len = plat_os_abs_send_mu_message(nvm_ctx_param->phdl,
-						  (uint32_t *)&resp,
-						  (uint32_t)sizeof(struct sab_cmd_key_store_export_start_rsp));
-		if (len != (int32_t)sizeof(struct sab_cmd_key_store_export_start_rsp)) {
-			break;
-		}
-
-		if (data == NULL) {
-			break;
-		}
-
-		/* Wait for the message from platform indicating that
-		 * the data are available at the specified destination.
-		 */
-		len = plat_os_abs_read_mu_message(nvm_ctx_param->phdl,
-						  (uint32_t *)&finish_msg,
-						  (uint32_t)sizeof(struct sab_cmd_key_store_export_finish_msg));
-
-		if ((finish_msg.hdr.command != SAB_STORAGE_EXPORT_FINISH_REQ)
-			|| (len != (int32_t)sizeof(struct sab_cmd_key_store_export_finish_msg))) {
-			break;
-		}
-
-		if (finish_msg.export_status != SAB_EXPORT_STATUS_SUCCESS) {
-			/* Notification that export failed.
-			 * Acknowledge it but stop write to NVM.
-			 */
-			(void)nvm_export_finish_rsp(nvm_ctx_param, 0u);
-			break;
-		}
-		err = 0;
-
-		/* fill header for sanity check when it will be re-loaded. */
-		blob_hdr = (struct nvm_header_s *)data;
-		blob_hdr->size = blob_size;
-		blob_hdr->crc = plat_fetch_msg_crc((uint32_t *)(data
-							+ sizeof(struct nvm_header_s)),
-						   blob_size);
-		/* Used only for chunks. */
-		blob_hdr->blob_id = 0u;
-
-		/* Data have been provided by platfor.
-		 * Write them in NVM and acknowledge.
-		 */
-		if (plat_os_abs_storage_write(nvm_ctx_param->phdl,
-					      data,
-					      data_len,
-					      nvm_ctx_param->nvm_fname)
-				== (int32_t)data_len) {
-			/* Success. */
-			(void)nvm_export_finish_rsp(nvm_ctx_param, 0u);
-		} else {
-			/* Notify platform of an error during write to NVM. */
-			(void)nvm_export_finish_rsp(nvm_ctx_param, 1u);
-		}
-	} while (false);
-
-	plat_os_abs_free(data);
-
-	return err;
-}
-
 static uint32_t nvm_manager_export_chunk(struct nvm_ctx_st *nvm_ctx_param,
 					 struct sab_cmd_key_store_chunk_export_msg *msg,
 					 int32_t msg_len)
@@ -570,6 +448,7 @@ int nvm_manager(uint8_t flags,
 	uint8_t *data = NULL;
 	uint8_t retry = 0;
 	struct nvm_ctx_st *nvm_ctx = NULL;
+	uint32_t rsp_code;
 
 	if ((strlen(fname) > MAX_FNAME_DNAME_SZ)
 		|| (strlen(dname) > MAX_FNAME_DNAME_SZ)) {
@@ -640,12 +519,14 @@ int nvm_manager(uint8_t flags,
 			}
 		}
 		nvm_ctx->status = NVM_STATUS_RUNNING;
+		nvm_ctx->next_cmd_id = NEXT_EXPECTED_CMD_NONE;
 
 		/* Infinite loop waiting for platform commands. */
 		while (true) {
 			/* Receive a message from platform and
 			 * process it according its type.
 			 */
+			plat_os_abs_memset((uint8_t *)recv_msg, 0u, (uint32_t)sizeof(recv_msg));
 			len = plat_os_abs_read_mu_message(nvm_ctx->phdl,
 							  recv_msg,
 							  MAX_RCV_MSG_SIZE);
@@ -659,10 +540,23 @@ int nvm_manager(uint8_t flags,
 
 			switch (hdr->command) {
 			case SAB_STORAGE_MASTER_EXPORT_REQ:
-				err = nvm_manager_export_master(nvm_ctx,
-								(struct sab_cmd_key_store_export_start_msg *)recv_msg,
-								len);
-					break;
+				err = process_sab_rcv_send_msg(nvm_ctx,
+							       recv_msg,
+							       hdr->command,
+							       &rsp_code, len,
+							       &nvm_ctx->last_data,
+							       &nvm_ctx->last_data_sz,
+							       &nvm_ctx->next_cmd_id);
+				break;
+			case SAB_STORAGE_EXPORT_FINISH_REQ:
+				err = process_sab_rcv_send_msg(nvm_ctx,
+							       recv_msg,
+							       hdr->command,
+							       &rsp_code, len,
+							       &nvm_ctx->last_data,
+							       &nvm_ctx->last_data_sz,
+							       &nvm_ctx->next_cmd_id);
+				break;
 			case SAB_STORAGE_CHUNK_EXPORT_REQ:
 				err = nvm_manager_export_chunk(nvm_ctx,
 							       (struct sab_cmd_key_store_chunk_export_msg *)recv_msg,
@@ -710,4 +604,3 @@ void __attribute__((destructor)) libele_nvm_end()
 {
 	se_info("\nlibele_nvm destructor\n");
 }
-

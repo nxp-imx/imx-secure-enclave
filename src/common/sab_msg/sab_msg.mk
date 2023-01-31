@@ -21,6 +21,18 @@ SAB_RCVMSG_SRC	+= \
 		$(PLAT_COMMON_PATH)/sab_msg/sab_storage_master_import.o
 endif
 
+ifneq (${MT_SAB_STORAGE_MASTER_EXPORT_REQ},0x0)
+DEFINES		+=	-DMT_SAB_STORAGE_MASTER_EXPORT_REQ=${MT_SAB_STORAGE_MASTER_EXPORT_REQ}
+SAB_RCVMSG_SRC	+= \
+		$(PLAT_COMMON_PATH)/sab_msg/sab_storage_master_export.o
+endif
+
+ifneq (${MT_SAB_STORAGE_EXPORT_FINISH_REQ},0x0)
+DEFINES		+=	-DMT_SAB_STORAGE_EXPORT_FINISH_REQ=${MT_SAB_STORAGE_EXPORT_FINISH_REQ}
+SAB_RCVMSG_SRC	+= \
+		$(PLAT_COMMON_PATH)/sab_msg/sab_storage_export_finish.o
+endif
+
 SAB_MSG_SRC	+= \
 		$(PLAT_COMMON_PATH)/sab_msg/sab_process_msg.o \
 		$(PLAT_COMMON_PATH)/sab_msg/sab_init_proc_msg.o \

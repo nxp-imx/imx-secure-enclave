@@ -134,6 +134,11 @@
 #define SAB_STORAGE_CHUNK_EXPORT_REQ            0xE5u
 #define SAB_STORAGE_CHUNK_GET_REQ               0xE6u
 #define SAB_STORAGE_CHUNK_GET_DONE_REQ          0xE7u
+#define SAB_RCVMSG_START_ID                     SAB_STORAGE_OPEN_REQ
+#define SAB_STORAGE_NVM_LAST_CMD                (SAB_STORAGE_CHUNK_GET_DONE_REQ + 1)
+
+#define SAB_RCVMSG_MAX_ID                       (SAB_STORAGE_CHUNK_GET_DONE_REQ \
+							- SAB_RCVMSG_START_ID)
 
 #define SAB_SHE_UTILS_OPEN                      0xF0u
 #define SAB_SHE_UTILS_CLOSE                     0xF1u
@@ -364,19 +369,6 @@ struct sab_cmd_storage_close_msg {
 struct sab_cmd_storage_close_rsp {
     struct sab_mu_hdr hdr;
     uint32_t rsp_code;
-};
-
-struct sab_cmd_key_store_export_start_msg {
-    struct sab_mu_hdr hdr;
-    uint32_t storage_handle;
-    uint32_t key_store_size;
-};
-
-struct sab_cmd_key_store_export_start_rsp {
-    struct sab_mu_hdr hdr;
-    uint32_t storage_handle;
-    uint32_t rsp_code;
-    uint32_t key_store_export_address;
 };
 
 struct sab_cmd_key_store_export_finish_msg {

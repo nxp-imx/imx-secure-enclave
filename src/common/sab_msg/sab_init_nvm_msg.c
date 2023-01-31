@@ -14,9 +14,50 @@
 #include "sab_msg_def.h"
 #include "sab_process_msg.h"
 
+#if MT_SAB_STORAGE_MASTER_EXPORT_REQ
+#include "sab_storage_master_export.h"
+#endif
+#if MT_SAB_STORAGE_EXPORT_FINISH_REQ
+#include "sab_storage_export_finish.h"
+#endif
+
 #if MT_SAB_STORAGE_MASTER_IMPORT
 #include "sab_storage_master_import.h"
 #endif
+
+static int init_sab_nvm_rcvmsg_eng(msg_type_t msg_type,
+				   uint32_t start_msg_id,
+				   uint32_t msg_id)
+{
+	int i = 0;
+	int ret = NOT_DONE;
+
+	ret = NOT_DONE;
+
+	switch (msg_id) {
+#if MT_SAB_STORAGE_MASTER_EXPORT_REQ
+	case SAB_STORAGE_MASTER_EXPORT_REQ:
+		if (msg_type == MT_SAB_STORAGE_MASTER_EXPORT_REQ) {
+			ret = add_sab_rcvmsg_handler((msg_id - start_msg_id),
+					MT_SAB_STORAGE_MASTER_EXPORT_REQ,
+					parse_cmd_prep_rsp_storage_master_export);
+		}
+		break;
+#endif
+#if MT_SAB_STORAGE_EXPORT_FINISH_REQ
+	case SAB_STORAGE_EXPORT_FINISH_REQ:
+		if (msg_type == MT_SAB_STORAGE_EXPORT_FINISH_REQ) {
+			ret = add_sab_rcvmsg_handler((msg_id - start_msg_id),
+					MT_SAB_STORAGE_EXPORT_FINISH_REQ,
+					parse_cmd_prep_rsp_storage_finish_export);
+		}
+		break;
+#endif
+	default:
+		break;
+	}
+	return ret;
+}
 
 static int init_proc_sab_nvm_msg_engine(msg_type_t msg_type, uint32_t msg_id)
 {
@@ -50,5 +91,9 @@ void init_sab_nvm_msg_engine(msg_type_t msg_type)
 	init_proc_sab_msg_cmd_eng(msg_type,
 				  SAB_MSG_MAX_ID,
 				  init_proc_sab_nvm_msg_engine);
+	init_proc_sab_msg_rcv_eng(msg_type,
+				  SAB_RCVMSG_START_ID,
+				  SAB_STORAGE_NVM_LAST_CMD,
+				  init_sab_nvm_rcvmsg_eng);
 }
 

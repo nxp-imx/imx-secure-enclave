@@ -16,6 +16,7 @@
 #include <string.h>
 
 #include "sab_common_err.h"
+#include "sab_msg_def.h"
 #include "sab_process_msg.h"
 
 #include "plat_os_abs.h"
@@ -32,8 +33,19 @@ static uint32_t (*prepare_sab_msg[MAX_MSG_TYPE - 1][SAB_MSG_MAX_ID])
 static uint32_t (*process_sab_msg_rsp[MAX_MSG_TYPE - 1][SAB_MSG_MAX_ID])
 						(void *rsp_buf, void *args);
 
+static uint32_t prep_sab_msg_not_supported(void *phdl, void *cmd_buf,
+					   void *rsp_buf, uint32_t *cmd_msg_sz,
+					   uint32_t *rsp_msg_sz,
+					   uint32_t msg_hdl, void *args)
+{
+	printf("Error: CMD not supported.\n");
+	return SAB_CMD_NOT_SUPPORTED_RATING;
+}
 
-
+static uint32_t proc_sab_msg_rsp_not_supported(void *rsp_buf, void *args)
+{
+	return SAB_CMD_NOT_SUPPORTED_RATING;
+}
 
 sab_msg_init_info_t add_sab_msg_handler(uint32_t msg_id, msg_type_t msg_type,
 			     uint32_t (*prep_sab_msg_handler)(void *phdl,
@@ -54,21 +66,6 @@ sab_msg_init_info_t add_sab_msg_handler(uint32_t msg_id, msg_type_t msg_type,
 
 	return DONE;
 }
-
-static uint32_t prep_sab_msg_not_supported(void *phdl, void *cmd_buf,
-					   void *rsp_buf, uint32_t *cmd_msg_sz,
-					   uint32_t *rsp_msg_sz,
-					   uint32_t msg_hdl, void *args)
-{
-	printf("Error: CMD not supported.\n");
-	return SAB_CMD_NOT_SUPPORTED_RATING;
-}
-
-static uint32_t proc_sab_msg_rsp_not_supported(void *rsp_buf, void *args)
-{
-	return SAB_CMD_NOT_SUPPORTED_RATING;
-}
-
 
 void init_proc_sab_msg_cmd_eng(msg_type_t msg_type,
 			       uint32_t max_msg_id,
@@ -205,6 +202,188 @@ uint32_t process_sab_msg(struct plat_os_abs_hdl *phdl,
 	}
 
 	error = process_sab_msg_rsp[msg_type - 1][msg_id](&rsp, args);
+out:
+	return error;
+}
+
+static uint32_t (*prepare_sab_rcvmsg_rsp[SAB_RCVMSG_MAX_ID])
+						(struct nvm_ctx_st *nvm_param,
+						 void *cmd_buf,
+						 void *rsp_buf,
+						 uint32_t *cmd_msg_sz,
+						 uint32_t *rsp_msg_sz,
+						 void **data,
+						 uint32_t *data_sz,
+						 uint8_t *next_cmd_id);
+
+static uint32_t parse_cmd_prep_rsp_msg_not_supported(struct nvm_ctx_st *nvm_param,
+						    void *cmd_buf, void *rsp_buf,
+						    uint32_t *cmd_msg_sz,
+						    uint32_t *rsp_msg_sz,
+						    void **data, uint32_t *data_sz,
+						    uint8_t *next_cmd_id)
+{
+	printf("Error: CMD not supported.\n");
+	return SAB_CMD_NOT_SUPPORTED_RATING;
+}
+
+sab_msg_init_info_t add_sab_rcvmsg_handler(uint32_t msg_id, msg_type_t msg_type,
+					   uint32_t (*prep_sab_rcvmsg_rsp_handler)
+								(struct nvm_ctx_st *nvm_param,
+								 void *cmd_buf,
+								 void *rsp_buf,
+								 uint32_t *cmd_msg_sz,
+								 uint32_t *rsp_msg_sz,
+								 void **data,
+								 uint32_t *data_sz,
+								 uint8_t *next_cmd_id))
+{
+	/* msg_id offset is set by the caller, after
+	 * doing the subtraction of SAB_RCVMSG_START_ID.
+	 */
+	if (prepare_sab_rcvmsg_rsp[msg_id] != NULL)
+		return ALREADY_DONE;
+
+	prepare_sab_rcvmsg_rsp[msg_id] = prep_sab_rcvmsg_rsp_handler;
+
+	return DONE;
+}
+
+void init_proc_sab_msg_rcv_eng(msg_type_t msg_type,
+			       uint32_t start_msg_id,
+			       uint32_t max_msg_id,
+			       int (*func)(msg_type_t msg_type,
+					   uint32_t start_msg_id,
+					   uint32_t msg_id))
+{
+	int i = 0;
+	int ret = NOT_DONE;
+
+	for (i = 0; i < (max_msg_id - start_msg_id); i++) {
+		ret = NOT_DONE;
+
+		ret = (func)(msg_type, start_msg_id, (start_msg_id + i));
+		if (ret == NOT_DONE) {
+			add_sab_rcvmsg_handler(i, msg_type,
+					       parse_cmd_prep_rsp_msg_not_supported);
+		}
+	}
+}
+
+uint32_t process_sab_rcv_send_msg(struct nvm_ctx_st *nvm_ctx_param,
+				  uint32_t *rcv_msg,
+				  uint8_t msg_id,
+				  uint32_t *rsp_code,
+				  int32_t msg_len,
+				  void **data,
+				  uint32_t *data_sz,
+				  uint8_t *next_cmd_id)
+{
+	uint32_t error = SAB_SUCCESS_STATUS;
+	int msg_type_id;
+	uint32_t rcvmsg_cmd_id;
+	uint32_t cmd_msg_sz = MAX_CMD_WORD_SZ * sizeof(uint32_t);
+	uint32_t rsp_msg_sz = 0;
+	bool rsp_crc_added = false;
+	uint32_t cmd[MAX_CMD_WORD_SZ];
+	uint32_t rsp[MAX_CMD_RSP_WORD_SZ];
+	uint32_t cmd_args[MAX_CMD_RSP_WORD_SZ];
+	msg_type_t msg_type = SAB_MSG;
+
+	if (msg_id == SAB_RCVMSG_MAX_ID) {
+		error = SAB_NO_MESSAGE_RATING;
+		goto out;
+	}
+
+	if (msg_type <= NOT_SUPPORTED && msg_type >= MAX_MSG_TYPE) {
+		error = SAB_INVALID_MESSAGE_RATING;
+		goto out;
+	}
+
+	plat_os_abs_memset((uint8_t *)cmd, 0x0, MAX_CMD_WORD_SZ * WORD_SZ);
+	plat_os_abs_memset((uint8_t *)rsp, 0x0, MAX_CMD_RSP_WORD_SZ * WORD_SZ);
+
+	// adding temporary assignment until read from MU is commented in plat_rcvmsg_cmd()
+	cmd_msg_sz = msg_len;
+	rcvmsg_cmd_id = msg_id;
+	memcpy(cmd, rcv_msg, cmd_msg_sz);
+
+	error = plat_rcvmsg_cmd(nvm_ctx_param->phdl, cmd, &cmd_msg_sz, &rcvmsg_cmd_id);
+
+	if (error) {
+		printf("Error in receiving cmd from FW.\n");
+		error = SAB_NO_MESSAGE_RATING;
+		goto out;
+	}
+
+	if ((*next_cmd_id != NEXT_EXPECTED_CMD_NONE)
+			&& (msg_id != *next_cmd_id)) {
+		if (*data != NULL) {
+			plat_os_abs_free(*data);
+			*data_sz = 0;
+		}
+		*next_cmd_id = NEXT_EXPECTED_CMD_NONE;
+		printf("Expected Command ID mismatch:\n");
+		printf("\tExpected CMD = 0x%x, while Received CMD = 0x%x\n",
+							*next_cmd_id, msg_id);
+		error = SAB_NO_MESSAGE_RATING;
+		goto out;
+	}
+
+	/* parse command prepare response */
+	error = prepare_sab_rcvmsg_rsp[rcvmsg_cmd_id - SAB_RCVMSG_START_ID]
+							(nvm_ctx_param,
+							 &cmd,
+							 &rsp,
+							 &cmd_msg_sz,
+							 &rsp_msg_sz,
+							 data,
+							 data_sz,
+							 next_cmd_id);
+
+	if ((error & SAB_MSG_CRC_BIT) == SAB_MSG_CRC_BIT) {
+		/* strip-off the crc flag from error*/
+		error &= ~SAB_MSG_CRC_BIT;
+		if (!plat_validate_msg_crc(cmd, cmd_msg_sz)) {
+			error = SAB_NO_MESSAGE_RATING;
+			goto out;
+		}
+	}
+
+	if ((error & SAB_RSP_CRC_BIT) == SAB_RSP_CRC_BIT) {
+		rsp_crc_added = true;
+		/* strip-off the crc flag from error*/
+		error &= ~SAB_RSP_CRC_BIT;
+	}
+
+	if (error != SAB_SUCCESS_STATUS) {
+		error = SAB_NO_MESSAGE_RATING;
+		goto out;
+	}
+
+	plat_build_rsp_msg_hdr((struct sab_mu_hdr *)rsp, msg_type,
+				msg_id, rsp_msg_sz, nvm_ctx_param->mu_type);
+
+	if (rsp_crc_added) {
+		if (plat_add_msg_crc(rsp, rsp_msg_sz)) {
+			error = SAB_NO_MESSAGE_RATING;
+			goto out;
+		}
+	}
+
+	error = plat_sndmsg_rsp(nvm_ctx_param->phdl, rsp, rsp_msg_sz);
+	if (error) {
+		printf("Error sending command[0x%x] response.\n",
+							rcvmsg_cmd_id);
+		error = SAB_NO_MESSAGE_RATING;
+		goto out;
+	}
+
+	if (*next_cmd_id == NEXT_EXPECTED_CMD_NONE) {
+		plat_os_abs_free(*data);
+		*data_sz = 0;
+	}
+
 out:
 	return error;
 }
