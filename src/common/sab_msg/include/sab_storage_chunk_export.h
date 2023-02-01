@@ -11,33 +11,35 @@
  * activate or otherwise use the software.
  */
 
-#ifndef SAB_STORAGE_GET_CHUNK_H
-#define SAB_STORAGE_GET_CHUNK_H
+#ifndef SAB_STORAGE_CHUNK_EXPORT_H
+#define SAB_STORAGE_CHUNK_EXPORT_H
 
 #include "sab_nvm.h"
 #include "sab_msg_def.h"
-
-struct sab_cmd_key_store_chunk_get_msg {
+#if 0
+struct sab_cmd_key_store_chunk_export_msg {
 	struct sab_mu_hdr hdr;
 	uint32_t storage_handle;
+	uint32_t chunk_size;
 	uint32_t blob_id;
 	uint32_t blob_id_ext;
+	uint32_t crc;
 };
 
-struct sab_cmd_key_store_chunk_get_rsp {
+struct sab_cmd_key_store_chunk_export_rsp {
 	struct sab_mu_hdr hdr;
-	uint32_t chunk_size;
-	uint32_t chunk_addr;
 	uint32_t rsp_code;
+	uint32_t chunk_export_address;
 };
-
-uint32_t parse_cmd_prep_rsp_storage_get_chunk(struct nvm_ctx_st *nvm_ctx_param,
-					      void *cmd_buf,
-					      void *rsp_buf,
-					      uint32_t *cmd_len,
-					      uint32_t *rsp_len,
-					      void **data,
-					      uint32_t *data_sz,
-					      uint8_t *prev_cmd_id,
-					      uint8_t *next_cmd_id);
 #endif
+uint32_t parse_cmd_prep_rsp_storage_chunk_export(struct nvm_ctx_st *nvm_ctx_param,
+						 void *cmd_buf,
+						 void *rsp_buf,
+						 uint32_t *cmd_len,
+						 uint32_t *rsp_len,
+						 void **data,
+						 uint32_t *data_sz,
+						 uint8_t *prev_cmd_id,
+						 uint8_t *next_cmd_id);
+#endif
+

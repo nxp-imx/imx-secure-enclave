@@ -37,5 +37,6 @@ uint32_t parse_cmd_prep_rsp_storage_get_chunk_done(struct nvm_ctx_st *nvm_ctx_pa
 						  uint32_t *rsp_len,
 						  void **data,
 						  uint32_t *data_sz,
+						  uint8_t *prev_cmd_id,
 						  uint8_t *next_cmd_id);
 #endif

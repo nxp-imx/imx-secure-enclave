@@ -38,6 +38,7 @@ struct nvm_ctx_st {
 	uint8_t nvm_dname[MAX_FNAME_DNAME_SZ];
 	void *last_data;
 	uint32_t last_data_sz;
+	uint8_t prev_cmd_id;
 	uint8_t next_cmd_id;
 };
 

@@ -26,6 +26,9 @@
 #if MT_SAB_STORAGE_CHUNK_GET_DONE_REQ
 #include "sab_storage_get_chunk_done.h"
 #endif
+#if MT_SAB_STORAGE_CHUNK_EXPORT_REQ
+#include "sab_storage_chunk_export.h"
+#endif
 
 #if MT_SAB_STORAGE_MASTER_IMPORT
 #include "sab_storage_master_import.h"
@@ -77,6 +80,15 @@ static int init_sab_nvm_rcvmsg_eng(msg_type_t msg_type,
 		}
 		break;
 #endif
+#if MT_SAB_STORAGE_CHUNK_EXPORT_REQ
+	case SAB_STORAGE_CHUNK_EXPORT_REQ:
+ 		if (msg_type == MT_SAB_STORAGE_CHUNK_EXPORT_REQ) {
+			ret = add_sab_rcvmsg_handler((msg_id - start_msg_id),
+					MT_SAB_STORAGE_CHUNK_EXPORT_REQ,
+					parse_cmd_prep_rsp_storage_chunk_export);
+ 			}
+ 		break;
+ #endif
 	default:
 		break;
 	}

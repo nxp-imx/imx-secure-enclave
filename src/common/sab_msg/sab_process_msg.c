@@ -214,6 +214,7 @@ static uint32_t (*prepare_sab_rcvmsg_rsp[SAB_RCVMSG_MAX_ID])
 						 uint32_t *rsp_msg_sz,
 						 void **data,
 						 uint32_t *data_sz,
+						 uint8_t *prev_cmd_id,
 						 uint8_t *next_cmd_id);
 
 static uint32_t parse_cmd_prep_rsp_msg_not_supported(struct nvm_ctx_st *nvm_param,
@@ -221,6 +222,7 @@ static uint32_t parse_cmd_prep_rsp_msg_not_supported(struct nvm_ctx_st *nvm_para
 						    uint32_t *cmd_msg_sz,
 						    uint32_t *rsp_msg_sz,
 						    void **data, uint32_t *data_sz,
+						    uint8_t *prev_cmd_id,
 						    uint8_t *next_cmd_id)
 {
 	printf("Error: CMD not supported.\n");
@@ -236,6 +238,7 @@ sab_msg_init_info_t add_sab_rcvmsg_handler(uint32_t msg_id, msg_type_t msg_type,
 								 uint32_t *rsp_msg_sz,
 								 void **data,
 								 uint32_t *data_sz,
+								 uint8_t *prev_cmd_id,
 								 uint8_t *next_cmd_id))
 {
 	/* msg_id offset is set by the caller, after
@@ -277,6 +280,7 @@ uint32_t process_sab_rcv_send_msg(struct nvm_ctx_st *nvm_ctx_param,
 				  int32_t msg_len,
 				  void **data,
 				  uint32_t *data_sz,
+				  uint8_t *prev_cmd_id,
 				  uint8_t *next_cmd_id)
 {
 	uint32_t error = SAB_SUCCESS_STATUS;
@@ -289,6 +293,9 @@ uint32_t process_sab_rcv_send_msg(struct nvm_ctx_st *nvm_ctx_param,
 	uint32_t rsp[MAX_CMD_RSP_WORD_SZ];
 	uint32_t cmd_args[MAX_CMD_RSP_WORD_SZ];
 	msg_type_t msg_type = SAB_MSG;
+	struct nvm_chunk_hdr *chunk = NULL;
+
+	chunk = *data;
 
 	if (msg_id == SAB_RCVMSG_MAX_ID) {
 		error = SAB_NO_MESSAGE_RATING;
@@ -319,6 +326,8 @@ uint32_t process_sab_rcv_send_msg(struct nvm_ctx_st *nvm_ctx_param,
 	if ((*next_cmd_id != NEXT_EXPECTED_CMD_NONE)
 			&& (msg_id != *next_cmd_id)) {
 		if (*data != NULL) {
+			if (chunk->data)
+				plat_os_abs_free(chunk->data);
 			plat_os_abs_free(*data);
 			*data_sz = 0;
 		}
@@ -339,6 +348,7 @@ uint32_t process_sab_rcv_send_msg(struct nvm_ctx_st *nvm_ctx_param,
 							 &rsp_msg_sz,
 							 data,
 							 data_sz,
+							 prev_cmd_id,
 							 next_cmd_id);
 
 	if ((error & SAB_MSG_CRC_BIT) == SAB_MSG_CRC_BIT) {
@@ -380,8 +390,14 @@ uint32_t process_sab_rcv_send_msg(struct nvm_ctx_st *nvm_ctx_param,
 	}
 
 	if (*next_cmd_id == NEXT_EXPECTED_CMD_NONE) {
-		plat_os_abs_free(*data);
-		*data_sz = 0;
+		if (*data != NULL) {
+			if (*prev_cmd_id == SAB_STORAGE_CHUNK_EXPORT_REQ) {
+				if (chunk->data)
+					plat_os_abs_free(chunk->data);
+			}
+			plat_os_abs_free(*data);
+			*data_sz = 0;
+		}
 	}
 
 out:

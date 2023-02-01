@@ -49,6 +49,12 @@ SAB_RCVMSG_SRC	+= \
 		$(PLAT_COMMON_PATH)/sab_msg/sab_storage_get_chunk_done.o
 endif
 
+ifneq (${MT_SAB_STORAGE_CHUNK_EXPORT_REQ},0x0)
+DEFINES		+=	-DMT_SAB_STORAGE_CHUNK_EXPORT_REQ=${MT_SAB_STORAGE_CHUNK_EXPORT_REQ}
+SAB_RCVMSG_SRC	+= \
+		$(PLAT_COMMON_PATH)/sab_msg/sab_storage_chunk_export.o
+endif
+
 ifneq (${MT_SAB_SIGN_GEN},0x0)
 DEFINES		+=	-DMT_SAB_SIGN_GEN=${MT_SAB_SIGN_GEN}
 SAB_MSG_SRC	+= \
