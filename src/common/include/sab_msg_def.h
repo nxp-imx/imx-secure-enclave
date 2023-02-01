@@ -208,6 +208,7 @@
 #define SAB_SHE_MEMORY_FAILURE_RATING           (0xDBu)     /**< Memory error (e.g. flipped bits) */
 #define SAB_SHE_GENERAL_ERROR_RATING            (0xDCu)     /**< Error not covered by other codes occured. */
 
+#define SAB_READ_FAILURE_RATING                 (0xFEu)
 #define SAB_FATAL_FAILURE_RATING                (0xFFu)
 
 #define SAB_MSG_CRC_BIT		(1 << 31)
@@ -369,34 +370,6 @@ struct sab_cmd_storage_close_msg {
 struct sab_cmd_storage_close_rsp {
     struct sab_mu_hdr hdr;
     uint32_t rsp_code;
-};
-
-struct sab_cmd_key_store_export_finish_msg {
-    struct sab_mu_hdr hdr;
-    uint32_t storage_handle;
-    uint32_t export_status;
-};
-#define SAB_EXPORT_STATUS_SUCCESS (0xBA2CC2ABu)
-
-struct sab_cmd_key_store_export_finish_rsp {
-    struct sab_mu_hdr hdr;
-    uint32_t storage_handle;
-    uint32_t rsp_code;
-};
-
-struct sab_cmd_key_store_chunk_export_msg {
-    struct sab_mu_hdr hdr;
-    uint32_t storage_handle;
-    uint32_t chunk_size;
-    uint32_t blob_id;
-    uint32_t blob_id_ext;
-    uint32_t crc;
-};
-
-struct sab_cmd_key_store_chunk_export_rsp {
-    struct sab_mu_hdr hdr;
-    uint32_t rsp_code;
-    uint32_t chunk_export_address;
 };
 
 struct she_cmd_get_status_msg {

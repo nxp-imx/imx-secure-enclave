@@ -1,5 +1,5 @@
 /*
- * Copyright 2021-2022 NXP
+ * Copyright 2021-2023 NXP
  *
  * NXP Confidential.
  * This software is owned or controlled by NXP and may only be used strictly
@@ -14,6 +14,8 @@
 #ifndef PLAT_OS_ABS_DEF_H
 #define PLAT_OS_ABS_DEF_H
 
+#include <stdint.h>
+
 #define NO_LENGTH                   0x0u
 #define MAX_FNAME_DNAME_SZ          256u
 
@@ -24,7 +26,7 @@ struct plat_os_abs_hdl {
 
 
 struct plat_mu_params {
-    uint8_t mu_id;		/**< index of the MU as per SENTINEL point of view. */
+    uint8_t mu_id;		/**< index of the MU as per PLAT point of view. */
     uint8_t interrupt_idx;	/**< Interrupt number of the MU used to indicate data availability. */
     uint8_t tz;			/**< indicate if current partition has TZ enabled. */
     uint8_t did;		/**< DID of the calling partition. */

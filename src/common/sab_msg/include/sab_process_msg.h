@@ -64,10 +64,6 @@ sab_msg_init_info_t add_sab_rcvmsg_handler(uint32_t msg_id, msg_type_t msg_type,
 								 uint8_t *next_cmd_id));
 
 uint32_t process_sab_rcv_send_msg(struct nvm_ctx_st *nvm_ctx_param,
-				  uint32_t *rcv_msg,
-				  uint8_t msg_id,
-				  uint32_t *rsp_code,
-				  int32_t msg_len,
 				  void **data,
 				  uint32_t *data_sz,
 				  uint8_t *prev_cmd_id,

@@ -16,7 +16,7 @@
 
 #include "sab_nvm.h"
 #include "sab_msg_def.h"
-#if 0
+
 struct sab_cmd_key_store_chunk_export_msg {
 	struct sab_mu_hdr hdr;
 	uint32_t storage_handle;
@@ -31,7 +31,7 @@ struct sab_cmd_key_store_chunk_export_rsp {
 	uint32_t rsp_code;
 	uint32_t chunk_export_address;
 };
-#endif
+
 uint32_t parse_cmd_prep_rsp_storage_chunk_export(struct nvm_ctx_st *nvm_ctx_param,
 						 void *cmd_buf,
 						 void *rsp_buf,

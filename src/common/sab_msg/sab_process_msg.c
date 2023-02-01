@@ -274,16 +274,12 @@ void init_proc_sab_msg_rcv_eng(msg_type_t msg_type,
 }
 
 uint32_t process_sab_rcv_send_msg(struct nvm_ctx_st *nvm_ctx_param,
-				  uint32_t *rcv_msg,
-				  uint8_t msg_id,
-				  uint32_t *rsp_code,
-				  int32_t msg_len,
 				  void **data,
 				  uint32_t *data_sz,
 				  uint8_t *prev_cmd_id,
 				  uint8_t *next_cmd_id)
 {
-	uint32_t error = SAB_SUCCESS_STATUS;
+	int error = SAB_SUCCESS_STATUS;
 	int msg_type_id;
 	uint32_t rcvmsg_cmd_id;
 	uint32_t cmd_msg_sz = MAX_CMD_WORD_SZ * sizeof(uint32_t);
@@ -297,34 +293,27 @@ uint32_t process_sab_rcv_send_msg(struct nvm_ctx_st *nvm_ctx_param,
 
 	chunk = *data;
 
-	if (msg_id == SAB_RCVMSG_MAX_ID) {
-		error = SAB_NO_MESSAGE_RATING;
-		goto out;
-	}
-
-	if (msg_type <= NOT_SUPPORTED && msg_type >= MAX_MSG_TYPE) {
-		error = SAB_INVALID_MESSAGE_RATING;
-		goto out;
-	}
-
 	plat_os_abs_memset((uint8_t *)cmd, 0x0, MAX_CMD_WORD_SZ * WORD_SZ);
 	plat_os_abs_memset((uint8_t *)rsp, 0x0, MAX_CMD_RSP_WORD_SZ * WORD_SZ);
-
-	// adding temporary assignment until read from MU is commented in plat_rcvmsg_cmd()
-	cmd_msg_sz = msg_len;
-	rcvmsg_cmd_id = msg_id;
-	memcpy(cmd, rcv_msg, cmd_msg_sz);
 
 	error = plat_rcvmsg_cmd(nvm_ctx_param->phdl, cmd, &cmd_msg_sz, &rcvmsg_cmd_id);
 
 	if (error) {
 		printf("Error in receiving cmd from FW.\n");
+		error = (error < 0) ? SAB_READ_FAILURE_RATING
+					: SAB_NO_MESSAGE_RATING;
+		goto out;
+	}
+
+	if (rcvmsg_cmd_id >= SAB_STORAGE_NVM_LAST_CMD) {
 		error = SAB_NO_MESSAGE_RATING;
+
+		printf("Un-Supported Messsage ID [0x%x].\n", rcvmsg_cmd_id);
 		goto out;
 	}
 
 	if ((*next_cmd_id != NEXT_EXPECTED_CMD_NONE)
-			&& (msg_id != *next_cmd_id)) {
+			&& (rcvmsg_cmd_id != *next_cmd_id)) {
 		if (*data != NULL) {
 			if (chunk->data)
 				plat_os_abs_free(chunk->data);
@@ -334,7 +323,8 @@ uint32_t process_sab_rcv_send_msg(struct nvm_ctx_st *nvm_ctx_param,
 		*next_cmd_id = NEXT_EXPECTED_CMD_NONE;
 		printf("Expected Command ID mismatch:\n");
 		printf("\tExpected CMD = 0x%x, while Received CMD = 0x%x\n",
-							*next_cmd_id, msg_id);
+							*next_cmd_id,
+							rcvmsg_cmd_id);
 		error = SAB_NO_MESSAGE_RATING;
 		goto out;
 	}
@@ -372,7 +362,8 @@ uint32_t process_sab_rcv_send_msg(struct nvm_ctx_st *nvm_ctx_param,
 	}
 
 	plat_build_rsp_msg_hdr((struct sab_mu_hdr *)rsp, msg_type,
-				msg_id, rsp_msg_sz, nvm_ctx_param->mu_type);
+				rcvmsg_cmd_id,
+				rsp_msg_sz, nvm_ctx_param->mu_type);
 
 	if (rsp_crc_added) {
 		if (plat_add_msg_crc(rsp, rsp_msg_sz)) {

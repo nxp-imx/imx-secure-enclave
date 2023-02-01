@@ -1,5 +1,5 @@
 /*
- * Copyright 2019-2021 NXP
+ * Copyright 2019-2023 NXP
  *
  * NXP Confidential.
  * This software is owned or controlled by NXP and may only be used strictly
@@ -13,6 +13,8 @@
 
 #ifndef PLAT_OS_ABS_DEF_H
 #define PLAT_OS_ABS_DEF_H
+
+#include <stdint.h>
 
 #define NO_LENGTH                   0x0u
 #define MAX_FNAME_DNAME_SZ          256u

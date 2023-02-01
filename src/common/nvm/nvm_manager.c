@@ -170,8 +170,6 @@ int nvm_manager(uint8_t flags,
 	int32_t len = 0;
 	uint32_t data_len = 0u;
 	struct nvm_header_s nvm_hdr;
-	uint32_t recv_msg[MAX_RCV_MSG_SIZE / sizeof(uint32_t)];
-	struct sab_mu_hdr *hdr = (struct sab_mu_hdr *)recv_msg;
 	uint32_t err = 0u;
 	uint8_t *data = NULL;
 	uint8_t retry = 0;
@@ -255,71 +253,17 @@ int nvm_manager(uint8_t flags,
 			/* Receive a message from platform and
 			 * process it according its type.
 			 */
-			plat_os_abs_memset((uint8_t *)recv_msg, 0u, (uint32_t)sizeof(recv_msg));
-			len = plat_os_abs_read_mu_message(nvm_ctx->phdl,
-							  recv_msg,
-							  MAX_RCV_MSG_SIZE);
-			if (len < 0) {
+
+			err = process_sab_rcv_send_msg(nvm_ctx,
+						       &nvm_ctx->last_data,
+						       &nvm_ctx->last_data_sz,
+						       &nvm_ctx->prev_cmd_id,
+						       &nvm_ctx->next_cmd_id);
+			if (err == SAB_READ_FAILURE_RATING) {
 				retry = 1;
 				/* handle case when platform/V2X are reset */
 				plat_os_abs_close_session(nvm_ctx->phdl);
 				nvm_ctx->phdl = NULL;
-				break;
-			}
-
-			switch (hdr->command) {
-			case SAB_STORAGE_MASTER_EXPORT_REQ:
-				err = process_sab_rcv_send_msg(nvm_ctx,
-							       recv_msg,
-							       hdr->command,
-							       &rsp_code, len,
-							       &nvm_ctx->last_data,
-							       &nvm_ctx->last_data_sz,
-							       &nvm_ctx->prev_cmd_id,
-							       &nvm_ctx->next_cmd_id);
-				break;
-			case SAB_STORAGE_EXPORT_FINISH_REQ:
-				err = process_sab_rcv_send_msg(nvm_ctx,
-							       recv_msg,
-							       hdr->command,
-							       &rsp_code, len,
-							       &nvm_ctx->last_data,
-							       &nvm_ctx->last_data_sz,
-							       &nvm_ctx->prev_cmd_id,
-							       &nvm_ctx->next_cmd_id);
-				break;
-			case SAB_STORAGE_CHUNK_EXPORT_REQ:
-				err = process_sab_rcv_send_msg(nvm_ctx,
-							       recv_msg,
-							       hdr->command,
-							       &rsp_code, len,
-							       &nvm_ctx->last_data,
-							       &nvm_ctx->last_data_sz,
-							       &nvm_ctx->prev_cmd_id,
-							       &nvm_ctx->next_cmd_id);
-				break;
-			case SAB_STORAGE_CHUNK_GET_REQ:
-				err = process_sab_rcv_send_msg(nvm_ctx,
-							       recv_msg,
-							       hdr->command,
-							       &rsp_code, len,
-							       &nvm_ctx->last_data,
-							       &nvm_ctx->last_data_sz,
-							       &nvm_ctx->prev_cmd_id,
-							       &nvm_ctx->next_cmd_id);
-				break;
-			case SAB_STORAGE_CHUNK_GET_DONE_REQ:
-				err = process_sab_rcv_send_msg(nvm_ctx,
-							       recv_msg,
-							       hdr->command,
-							       &rsp_code, len,
-							       &nvm_ctx->last_data,
-							       &nvm_ctx->last_data_sz,
-							       &nvm_ctx->prev_cmd_id,
-							       &nvm_ctx->next_cmd_id);
-				break;
-			default:
-				err = 1u;
 				break;
 			}
 		}

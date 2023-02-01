@@ -88,7 +88,7 @@ void plat_build_cmd_msg_hdr(struct sab_mu_hdr *hdr, msg_type_t msg_type,
 	}
 	hdr->command = cmd;
 	hdr->size = (uint8_t)(len / sizeof(uint32_t));
-};
+}
 
 void plat_build_rsp_msg_hdr(struct sab_mu_hdr *hdr, msg_type_t msg_type,
 			    uint8_t rsp, uint32_t len, uint32_t mu_type)
@@ -103,7 +103,7 @@ void plat_build_rsp_msg_hdr(struct sab_mu_hdr *hdr, msg_type_t msg_type,
 	}
 	hdr->command = rsp;
 	hdr->size = (uint8_t)(len / sizeof(uint32_t));
-};
+}
 
 /* Fill a response message header with a given command ID and length in bytes. */
 void plat_fill_rsp_msg_hdr(struct sab_mu_hdr *hdr, uint8_t cmd, uint32_t len, uint32_t mu_type)
@@ -179,16 +179,21 @@ int32_t plat_rcvmsg_cmd(struct plat_os_abs_hdl *phdl,
 			uint32_t *cmd_len,
 			uint32_t *rcv_msg_cmd_id)
 {
-	int32_t err = -1;
+	int32_t err = 0;
 	int32_t len;
 
 	do {
 		/* Read the response. */
-//		len = plat_os_abs_read_mu_message(phdl, cmd, *cmd_len);
-//		if (len != (((struct sab_mu_hdr *)cmd)->size >> 2)) {
+		len = plat_os_abs_read_mu_message(phdl, cmd, *cmd_len);
+		if (len != (((struct sab_mu_hdr *)cmd)->size << 2)) {
 			/* handle case when platform/V2X are reset */
-//			break;
-//		}
+			se_info("Mismatched in the received message length.\n");
+			if (len < 0) {
+				se_err("Failure in reading messages.\n");
+				err = -1;
+			}
+			break;
+		}
 
 		*cmd_len = ((struct sab_mu_hdr *)cmd)->size << 2;
 		*rcv_msg_cmd_id = ((struct sab_mu_hdr *)cmd)->command;
@@ -198,8 +203,6 @@ int32_t plat_rcvmsg_cmd(struct plat_os_abs_hdl *phdl,
 		hexdump(cmd, *cmd_len);
 		printf("\n-------------------MSG RSP END-----------------------------------\n");
 #endif
-
-		err = 0;
 	} while (false);
 
 	return err;

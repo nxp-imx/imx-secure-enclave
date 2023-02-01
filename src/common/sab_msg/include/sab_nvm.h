@@ -14,13 +14,9 @@
 #ifndef SAB_NVM_H
 #define SAB_NVM_H
 
-#include "sab_msg_def.h"
 #include "plat_os_abs_def.h"
 
 #define	NEXT_EXPECTED_CMD_NONE		SAB_STORAGE_NVM_LAST_CMD
-
-#define MAX_RCV_MSG_SIZE \
-	((uint32_t)sizeof(struct sab_cmd_key_store_chunk_export_msg))
 
 struct nvm_header_s {
 	int32_t size;

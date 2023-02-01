@@ -17,7 +17,6 @@
 #include "sab_nvm.h"
 #include "sab_msg_def.h"
 
-#if 0 // TBD, when NVM Engine is complete.
 struct sab_cmd_key_store_export_finish_msg {
 	struct sab_mu_hdr hdr;
 	uint32_t storage_handle;
@@ -30,7 +29,6 @@ struct sab_cmd_key_store_export_finish_rsp {
 	uint32_t storage_handle;
 	uint32_t rsp_code;
 };
-#endif
 
 uint32_t parse_cmd_prep_rsp_storage_finish_export(struct nvm_ctx_st *nvm_ctx_param,
 						  void *cmd_buf,
