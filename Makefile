@@ -28,6 +28,7 @@ NVM_DAEMON := nvm_daemon
 NVMD_CONF_FILE := nvmd.conf
 SYSTEMD_NVM_SERVICE := nvm_daemon.service
 TEST_VECTOR_FNAME := test_vectors.tv
+OPENSSL_PATH ?= ../openssl/
 
 ifdef COVERAGE
 GCOV_FLAGS :=-fprofile-arcs -ftest-coverage
@@ -128,8 +129,11 @@ COMMON_TEST_OBJ=$(wildcard test/common/*.c)
 COMMON_TEST_INC=-Itest/common/include/
 
 HSM_TEST_OBJ=$(wildcard test/hsm/*.c) $(COMMON_TEST_OBJ)
+TEST_CFLAGS = -Wno-deprecated-declarations $(CFLAGS)
+TEST_LDFLAGS = -L $(OPENSSL_PATH) -lcrypto $(LDFLAGS) -lcrypto -lpthread
+TEST_INCLUDE_PATHS = ${INCLUDE_PATHS} -I$(OPENSSL_PATH)/include
 $(HSM_TEST): $(HSM_TEST_OBJ) $(HSM_LIB)
-	$(CC) $^  -o $@ ${INCLUDE_PATHS} ${COMMON_TEST_INC} $(CFLAGS) $(LDFLAGS) -lpthread $(GCOV_FLAGS)
+	$(CC) $^  -o $@ ${TEST_INCLUDE_PATHS} ${COMMON_TEST_INC} $(TEST_CFLAGS) $(TEST_LDFLAGS) $(GCOV_FLAGS)
 
 SHE_TEST_OBJ=$(wildcard test/she/src/*.c)
 #SHE test app

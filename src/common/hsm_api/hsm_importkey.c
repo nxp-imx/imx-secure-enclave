@@ -1,5 +1,5 @@
 /*
- * Copyright 2022 NXP
+ * Copyright 2022-2023 NXP
  *
  * NXP Confidential.
  * This software is owned or controlled by NXP and may only be used strictly
@@ -15,8 +15,6 @@
 #include <stdlib.h>
 #include <stdio.h>
 
-#include "internal/hsm_handle.h"
-#include "internal/hsm_utils.h"
 #include "internal/hsm_importkey.h"
 
 #include "sab_process_msg.h"
@@ -34,7 +32,7 @@ hsm_err_t hsm_import_key(hsm_hdl_t key_management_hdl,
 	uint32_t rsp_code;
 
 	do {
-		if ((args == NULL) || (args->key_identifier == NULL)) {
+		if (args == NULL) {
 			break;
 		}
 		serv_ptr = service_hdl_to_ptr(key_management_hdl);
@@ -42,17 +40,6 @@ hsm_err_t hsm_import_key(hsm_hdl_t key_management_hdl,
 			err = HSM_UNKNOWN_HANDLE;
 			break;
 		}
-
-		if ((((args->flags & HSM_OP_IMPORT_KEY_FLAGS_PART_UNIQUE_ROOT_KEK)
-			== HSM_OP_IMPORT_KEY_FLAGS_PART_UNIQUE_ROOT_KEK)
-			|| ((args->flags & HSM_OP_IMPORT_KEY_FLAGS_COMMON_ROOT_KEK)
-			== HSM_OP_IMPORT_KEY_FLAGS_COMMON_ROOT_KEK))
-			&& (args->key_lifetime == 0)
-			&& (args->key_usage == 0)
-			&& (args->key_type == 0)
-			&& (args->bit_key_sz == 0)
-			&& (args->permitted_algo == 0))
-			break;
 
 		error = process_sab_msg(serv_ptr->session->phdl,
 					serv_ptr->session->mu_type,
