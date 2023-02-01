@@ -37,6 +37,18 @@ SAB_MSG_SRC	+= \
 		$(PLAT_COMMON_PATH)/sab_msg/sab_process_msg.o \
 		$(PLAT_COMMON_PATH)/sab_msg/sab_init_proc_msg.o \
 
+ifneq (${MT_SAB_STORAGE_CHUNK_GET_REQ},0x0)
+DEFINES		+=	-DMT_SAB_STORAGE_CHUNK_GET_REQ=${MT_SAB_STORAGE_CHUNK_GET_REQ}
+SAB_RCVMSG_SRC	+= \
+		$(PLAT_COMMON_PATH)/sab_msg/sab_storage_get_chunk.o
+endif
+
+ifneq (${MT_SAB_STORAGE_CHUNK_GET_DONE_REQ},0x0)
+DEFINES		+=	-DMT_SAB_STORAGE_CHUNK_GET_DONE_REQ=${MT_SAB_STORAGE_CHUNK_GET_DONE_REQ}
+SAB_RCVMSG_SRC	+= \
+		$(PLAT_COMMON_PATH)/sab_msg/sab_storage_get_chunk_done.o
+endif
+
 ifneq (${MT_SAB_SIGN_GEN},0x0)
 DEFINES		+=	-DMT_SAB_SIGN_GEN=${MT_SAB_SIGN_GEN}
 SAB_MSG_SRC	+= \

@@ -399,33 +399,6 @@ struct sab_cmd_key_store_chunk_export_rsp {
     uint32_t chunk_export_address;
 };
 
-struct sab_cmd_key_store_chunk_get_msg {
-    struct sab_mu_hdr hdr;
-    uint32_t storage_handle;
-    uint32_t blob_id;
-    uint32_t blob_id_ext;
-};
-
-struct sab_cmd_key_store_chunk_get_rsp {
-    struct sab_mu_hdr hdr;
-    uint32_t chunk_size;
-    uint32_t chunk_addr;
-    uint32_t rsp_code;
-};
-
-#define SAB_CHUNK_GET_STATUS_SUCCEEDED (0xCA3BB3ACu)
-
-struct sab_cmd_key_store_chunk_get_done_msg {
-    struct sab_mu_hdr hdr;
-    uint32_t storage_handle;
-    uint32_t get_status;
-};
-
-struct sab_cmd_key_store_chunk_get_done_rsp {
-    struct sab_mu_hdr hdr;
-    uint32_t rsp_code;
-};
-
 struct she_cmd_get_status_msg {
        struct sab_mu_hdr hdr;
        uint32_t she_utils_handle;

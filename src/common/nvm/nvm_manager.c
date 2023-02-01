@@ -321,119 +321,6 @@ static uint32_t nvm_manager_export_chunk(struct nvm_ctx_st *nvm_ctx_param,
 	return err;
 }
 
-static uint32_t nvm_manager_get_chunk(struct nvm_ctx_st *nvm_ctx_param,
-				      struct sab_cmd_key_store_chunk_get_msg *msg,
-				      int32_t msg_len)
-{
-	uint32_t err = 1;
-	struct nvm_header_s nvm_hdr;
-	struct sab_cmd_key_store_chunk_get_rsp resp;
-	struct sab_cmd_key_store_chunk_get_done_msg finish_msg;
-	struct sab_cmd_key_store_chunk_get_done_rsp finish_rsp;
-	uint64_t blob_id;
-	uint64_t plat_addr;
-	int32_t len = 0;
-	uint8_t *data = NULL;
-
-	do {
-		/* Consistency check of message length. */
-		if (msg_len != (int32_t)sizeof(struct sab_cmd_key_store_chunk_get_msg)) {
-			break;
-		}
-
-		blob_id = ((uint64_t)(msg->blob_id_ext) << 32u)
-			  | (uint64_t)msg->blob_id;
-
-		if (plat_os_abs_storage_read_chunk(
-					nvm_ctx_param->phdl,
-					(uint8_t *)&nvm_hdr,
-					(uint32_t)sizeof(nvm_hdr),
-					blob_id,
-					nvm_ctx_param->nvm_dname)
-				== (int32_t)sizeof(nvm_hdr)) {
-			data = plat_os_abs_malloc(nvm_hdr.size);
-			if (data != NULL) {
-				if (plat_os_abs_storage_read_chunk(
-							nvm_ctx_param->phdl,
-							data,
-							nvm_hdr.size,
-							blob_id,
-							nvm_ctx_param->nvm_dname)
-					== (int32_t)nvm_hdr.size) {
-					err = 0u;
-				}
-			}
-		}
-
-		/* Indicate platform that the blob is available for reading. */
-		plat_fill_rsp_msg_hdr(&resp.hdr, SAB_STORAGE_CHUNK_GET_REQ,
-				      (uint32_t)sizeof(struct sab_cmd_key_store_chunk_get_rsp),
-				      nvm_ctx_param->mu_type);
-		if (err == 0u) {
-			resp.chunk_size = nvm_hdr.size
-						- (uint32_t)sizeof(struct nvm_header_s);
-
-			plat_addr = plat_os_abs_data_buf(nvm_ctx_param->phdl,
-							 data + (uint32_t)sizeof(struct nvm_header_s),
-							 nvm_hdr.size - (uint32_t)sizeof(struct nvm_header_s),
-							 DATA_BUF_IS_INPUT);
-
-			resp.chunk_addr =  (uint32_t)(plat_addr & 0xFFFFFFFFu);
-			resp.rsp_code = SAB_SUCCESS_STATUS;
-		} else {
-			resp.chunk_size = 0u;
-			resp.chunk_addr = 0u;
-			resp.rsp_code = SAB_FAILURE_STATUS;
-		}
-
-		err = 1u;
-		len = plat_os_abs_send_mu_message(nvm_ctx_param->phdl,
-						  (uint32_t *)&resp,
-						  (uint32_t)sizeof(struct sab_cmd_key_store_chunk_get_rsp));
-
-		if (len != (int32_t)sizeof(struct sab_cmd_key_store_chunk_get_rsp)) {
-			break;
-		}
-
-		if (resp.rsp_code == SAB_FAILURE_STATUS) {
-			err = 0u; /* not killing due to this error */
-			break;
-		}
-
-		/* Wait for the message from platform indicating that the data are no more in use. */
-		len = plat_os_abs_read_mu_message(nvm_ctx_param->phdl,
-						  (uint32_t *)&finish_msg,
-						  (uint32_t)sizeof(struct sab_cmd_key_store_chunk_get_done_msg));
-
-		if ((finish_msg.hdr.command != SAB_STORAGE_CHUNK_GET_DONE_REQ)
-			|| (len != (int32_t)sizeof(struct sab_cmd_key_store_chunk_get_done_msg))) {
-			break;
-		}
-
-		/* Ackowledge last message. */
-		plat_fill_rsp_msg_hdr(&finish_rsp.hdr,
-				      SAB_STORAGE_CHUNK_GET_DONE_REQ,
-				      (uint32_t)sizeof(struct sab_cmd_key_store_chunk_get_done_rsp),
-				      nvm_ctx_param->mu_type);
-
-		finish_rsp.rsp_code = SAB_SUCCESS_STATUS;
-
-		len = plat_os_abs_send_mu_message(nvm_ctx_param->phdl,
-						  (uint32_t *)&finish_rsp,
-						  (uint32_t)sizeof(struct sab_cmd_key_store_chunk_get_done_rsp));
-		if (len != (int32_t)sizeof(struct sab_cmd_key_store_chunk_get_done_rsp)) {
-			break;
-		}
-
-		err = 0u;
-
-	} while (false);
-
-	plat_os_abs_free(data);
-
-	return err;
-}
-
 int nvm_manager(uint8_t flags,
 		 void **ctx,
 		 uint8_t *fname,
@@ -563,9 +450,22 @@ int nvm_manager(uint8_t flags,
 							       len);
 				break;
 			case SAB_STORAGE_CHUNK_GET_REQ:
-				err = nvm_manager_get_chunk(nvm_ctx,
-							    (struct sab_cmd_key_store_chunk_get_msg *)recv_msg,
-							    len);
+				err = process_sab_rcv_send_msg(nvm_ctx,
+							       recv_msg,
+							       hdr->command,
+							       &rsp_code, len,
+							       &nvm_ctx->last_data,
+							       &nvm_ctx->last_data_sz,
+							       &nvm_ctx->next_cmd_id);
+				break;
+			case SAB_STORAGE_CHUNK_GET_DONE_REQ:
+				err = process_sab_rcv_send_msg(nvm_ctx,
+							       recv_msg,
+							       hdr->command,
+							       &rsp_code, len,
+							       &nvm_ctx->last_data,
+							       &nvm_ctx->last_data_sz,
+							       &nvm_ctx->next_cmd_id);
 				break;
 			default:
 				err = 1u;
