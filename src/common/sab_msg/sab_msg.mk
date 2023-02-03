@@ -67,6 +67,12 @@ SAB_RCVMSG_SRC	+= \
 		$(PLAT_COMMON_PATH)/sab_msg/sab_storage_chunk_export.o
 endif
 
+ifneq (${MT_SAB_STORAGE_KEY_DB_REQ}, 0)
+DEFINES		+=	-DMT_SAB_STORAGE_KEY_DB_REQ=${MT_SAB_STORAGE_KEY_DB_REQ}
+SAB_RCVMSG_SRC	+= \
+		$(PLAT_COMMON_PATH)/sab_msg/sab_storage_key_db.o
+endif
+
 ifneq (${MT_SAB_SIGN_GEN},0x0)
 DEFINES		+=	-DMT_SAB_SIGN_GEN=${MT_SAB_SIGN_GEN}
 SAB_MSG_SRC	+= \

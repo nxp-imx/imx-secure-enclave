@@ -42,6 +42,9 @@
 #if MT_SAB_STORAGE_MASTER_IMPORT
 #include "sab_storage_master_import.h"
 #endif
+#if MT_SAB_STORAGE_KEY_DB_REQ
+#include "sab_storage_key_db.h"
+#endif
 
 static int init_sab_nvm_rcvmsg_eng(msg_type_t msg_type,
 				   uint32_t start_msg_id,
@@ -98,6 +101,15 @@ static int init_sab_nvm_rcvmsg_eng(msg_type_t msg_type,
  			}
  		break;
  #endif
+#if MT_SAB_STORAGE_KEY_DB_REQ
+	case SAB_STORAGE_KEY_DB_REQ:
+		if (msg_type == MT_SAB_STORAGE_KEY_DB_REQ) {
+			ret = add_sab_rcvmsg_handler((msg_id - start_msg_id),
+						     MT_SAB_STORAGE_KEY_DB_REQ,
+						     parse_cmd_prep_rsp_storage_key_db);
+		}
+		break;
+#endif
 	default:
 		break;
 	}

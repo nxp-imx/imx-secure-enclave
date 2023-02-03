@@ -36,6 +36,9 @@ struct nvm_ctx_st {
 	uint32_t last_data_sz;
 	uint8_t prev_cmd_id;
 	uint8_t next_cmd_id;
+#if MT_SAB_STORAGE_KEY_DB_REQ
+	struct key_db_fd key_db[MAX_KEY_STORE];
+#endif
 };
 
 struct nvm_chunk_hdr {
@@ -43,5 +46,11 @@ struct nvm_chunk_hdr {
 	uint32_t len;
 	uint8_t *data;
 };
+
+/* Get the nvm daemon key database context */
+struct key_db_fd *get_nvmd_key_db(void);
+
+/* Get the nvm daemon dname context */
+uint8_t *get_nvmd_dname(void);
 
 #endif

@@ -33,12 +33,22 @@
 #define se_warn(...) no_printf(__VA_ARGS__) /* not debugging */
 #endif
 
+#ifndef BIT
+#define BIT(x) (1 << (x))
+#endif
+
 typedef enum {
 	NOT_SUPPORTED,
 	ROM_MSG,
 	SAB_MSG,
 	MAX_MSG_TYPE,
 } msg_type_t;
+
+/* Count the number of bits set in x */
+static inline uint32_t bf_popcount(uint32_t x)
+{
+	return (uint32_t)(__builtin_popcount(x));
+}
 
 void plat_build_cmd_msg_hdr(struct sab_mu_hdr *hdr, msg_type_t msg_type,
 			uint8_t cmd, uint32_t len, uint32_t mu_type);

@@ -46,4 +46,15 @@ struct plat_mu_params {
 #define MU_CHANNEL_V2X_SHE_NVM    (0x15u)
 #define MU_CHANNEL_V2X_HSM_NVM    (0x16u)
 
+#define MAX_KEY_STORE             (0x02u)
+
+struct key_db_fd {
+	uint32_t key_store_id;
+	int persistent_tmp_fd;
+	int volatile_fd;
+};
+
+int get_chunk_file_path(char **path, uint8_t *nvm_storage_dname,
+			uint64_t blob_id);
+
 #endif /* PLAT_OS_ABS_DEF_H */

@@ -26,6 +26,10 @@
 #include "plat_os_abs.h"
 #include "plat_utils.h"
 
+#if MT_SAB_STORAGE_KEY_DB_REQ
+#include "sab_storage_key_db.h"
+#endif
+
 /* Storage import processing. Return 0 on success.  */
 static uint32_t nvm_storage_import(struct nvm_ctx_st *nvm_ctx_param,
 				   uint8_t *data, uint32_t len)
@@ -241,6 +245,17 @@ int nvm_manager(uint8_t flags,
 	plat_os_abs_memcpy(nvm_ctx->nvm_fname, fname, NO_LENGTH);
 	plat_os_abs_memcpy(nvm_ctx->nvm_dname, dname, NO_LENGTH);
 
+#if MT_SAB_STORAGE_KEY_DB_REQ
+	for (int i = 0; i < MAX_KEY_STORE; i++) {
+		/*
+		 * Key store ID == 0 is a valid ID. Database is not in used if
+		 * both file descriptor are negative
+		 */
+		nvm_ctx->key_db[i].persistent_tmp_fd = -1;
+		nvm_ctx->key_db[i].volatile_fd = -1;
+	}
+#endif
+
 	*ctx = nvm_ctx;
 
 	do {
@@ -316,6 +331,11 @@ int nvm_manager(uint8_t flags,
 
 	if (nvm_ctx) {
 		nvm_ctx->status = NVM_STATUS_STOPPED;
+
+#if MT_SAB_STORAGE_KEY_DB_REQ
+		/* Close all opened key database files */
+		storage_close_key_db_fd(nvm_ctx->key_db);
+#endif
 
 		if (nvm_ctx->phdl)
 			nvm_close_session(nvm_ctx);

@@ -91,9 +91,8 @@ int32_t plat_os_abs_storage_read(struct plat_os_abs_hdl *phdl,
 	return l;
 }
 
-static int get_chunk_file_path(char **path,
-				uint8_t *nvm_storage_dname,
-				uint64_t blob_id)
+int get_chunk_file_path(char **path, uint8_t *nvm_storage_dname,
+			uint64_t blob_id)
 {
 	int ret = -1;
 	int path_len;

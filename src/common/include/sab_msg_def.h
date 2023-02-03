@@ -140,10 +140,11 @@
 #define SAB_STORAGE_CHUNK_EXPORT_REQ            0xE5u
 #define SAB_STORAGE_CHUNK_GET_REQ               0xE6u
 #define SAB_STORAGE_CHUNK_GET_DONE_REQ          0xE7u
+#define SAB_STORAGE_KEY_DB_REQ                  0xE8u
 #define SAB_RCVMSG_START_ID                     SAB_STORAGE_OPEN_REQ
-#define SAB_STORAGE_NVM_LAST_CMD                (SAB_STORAGE_CHUNK_GET_DONE_REQ + 1)
+#define SAB_STORAGE_NVM_LAST_CMD                (SAB_STORAGE_KEY_DB_REQ + 1)
 
-#define SAB_RCVMSG_MAX_ID                       (SAB_STORAGE_CHUNK_GET_DONE_REQ \
+#define SAB_RCVMSG_MAX_ID                       (SAB_STORAGE_KEY_DB_REQ \
 							- SAB_RCVMSG_START_ID)
 
 #define SAB_SHE_UTILS_OPEN                      0xF0u
