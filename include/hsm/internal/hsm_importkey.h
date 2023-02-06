@@ -40,17 +40,23 @@ typedef uint8_t hsm_op_import_key_flags_t;
 typedef struct {
 	//!< Identifier of the KEK used to encrypt the key to be imported
 	//   (Ignored if KEK is not used as set as part of "flags" field).
-	uint32_t key_identifier;
+	uint32_t  key_identifier;
 	//!< Address in the requester space where:
 	//   - EdgeLock 2GO TLV can be found.
 	//   - Ignore this field if not E2GO_TLV.
-	uint32_t *input_lsb_addr;
+	uint8_t   *input_lsb_addr;
 	//!< Size in bytes of:
 	//   - EdgeLock 2GO TLV can be found.
 	//   - Ignore this field if not E2GO_TLV.
-	uint32_t input_size;
+	uint32_t  input_size;
 	//!< bitmap specifying the operation properties.
 	hsm_op_import_key_flags_t flags;
+	uint8_t   *key_blob;
+	uint32_t  key_blob_sz;
+	uint8_t	  *iv;
+	uint16_t  iv_sz;
+	uint16_t  key_group;
+	uint32_t  key_id;
 } op_import_key_args_t;
 
 hsm_err_t hsm_import_key(hsm_hdl_t key_management_hdl,

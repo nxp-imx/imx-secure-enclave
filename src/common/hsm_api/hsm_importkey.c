@@ -35,6 +35,19 @@ hsm_err_t hsm_import_key(hsm_hdl_t key_management_hdl,
 		if (args == NULL) {
 			break;
 		}
+
+		if ((args->input_lsb_addr == NULL) || (args->input_size == 0))
+			break;
+
+		if ((args->flags & HSM_OP_IMPORT_KEY_INPUT_E2GO_TLV)
+			== HSM_OP_IMPORT_KEY_INPUT_SIGNED_MSG) {
+			if ((args->key_blob == NULL)
+					|| (args->key_blob_sz == 0)
+					|| (args->iv == NULL)
+					|| (args->iv_sz == 0))
+				break;
+		}
+
 		serv_ptr = service_hdl_to_ptr(key_management_hdl);
 		if (serv_ptr == NULL) {
 			err = HSM_UNKNOWN_HANDLE;

@@ -338,7 +338,7 @@ static uint32_t import_key(hsm_hdl_t key_store_hdl,
 		printf("Failure generating E2GO TLV payload.\n");
 		return 0;
 	}
-	args.input_lsb_addr = (uint32_t *) buf;
+	args.input_lsb_addr = buf;
 	args.flags = HSM_OP_IMPORT_KEY_INPUT_E2GO_TLV;
 
 	hsmret = hsm_import_key(key_mgmt_hdl, &args);

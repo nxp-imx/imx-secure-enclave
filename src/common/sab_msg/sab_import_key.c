@@ -35,12 +35,27 @@ uint32_t prepare_msg_importkey(void *phdl,
 	cmd->key_management_hdl = msg_hdl;
 	cmd->flags = op_args->flags;
 
-	cmd->input_lsb_addr = plat_os_abs_data_buf(phdl, (uint8_t *)
+	cmd->input_lsb_addr = plat_os_abs_data_buf(phdl,
 						   op_args->input_lsb_addr,
 						   op_args->input_size,
 						   DATA_BUF_IS_INPUT);
 	cmd->input_size = op_args->input_size;
 
+	if ((op_args->flags & HSM_OP_IMPORT_KEY_INPUT_E2GO_TLV)
+			== HSM_OP_IMPORT_KEY_INPUT_SIGNED_MSG) {
+		cmd->sign_msg.key_blob_lsb = plat_os_abs_data_buf(phdl,
+								  op_args->key_blob,
+								  op_args->key_blob_sz,
+								  DATA_BUF_IS_INPUT);
+		cmd->sign_msg.key_blob_size = op_args->key_blob_sz;
+		cmd->sign_msg.iv_lsb = plat_os_abs_data_buf(phdl,
+							    op_args->iv,
+							    op_args->iv_sz,
+							    DATA_BUF_IS_INPUT);
+		cmd->sign_msg.iv_size = op_args->iv_sz;
+		cmd->sign_msg.key_group = op_args->key_group;
+		cmd->sign_msg.key_id = op_args->key_id;
+	}
 	*cmd_msg_sz = sizeof(struct sab_cmd_import_key_msg);
 	*rsp_msg_sz = sizeof(struct sab_cmd_import_key_rsp);
 
