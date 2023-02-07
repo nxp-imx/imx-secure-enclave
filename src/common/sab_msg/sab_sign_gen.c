@@ -129,7 +129,7 @@ uint32_t proc_msg_rsp_sign_generate(void *rsp_buf, void *args)
 			(struct sab_signature_generate_rsp *)rsp_buf;
 
 #ifdef PSA_COMPLIANT
-	op_args->signature_size = rsp->signature_size;
+	op_args->exp_signature_size = rsp->signature_size;
 #endif
 
 	return SAB_SUCCESS_STATUS;

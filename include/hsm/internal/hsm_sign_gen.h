@@ -163,7 +163,11 @@ typedef struct {
 	//!< identifier of the digital signature scheme to be used
 	//   for the operation
 	hsm_signature_scheme_id_t scheme_id;
-#ifndef PSA_COMPLIANT
+#ifdef PSA_COMPLIANT
+	//!< expected signature buffer size for output, returned by FW in case
+	//	 the input signature size provided is less than the required size.
+	uint16_t exp_signature_size;
+#else
 	//!< bitmap specifying the svc flow attributes
 	hsm_svc_signature_generation_flags_t svc_flags;
 #endif
