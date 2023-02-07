@@ -7,7 +7,7 @@
 #   steps to be followed while adding new test vectors for supported tests
 #
 # - This file contains Test vectors for ELE HSM API Tests.
-#   Currently Supports test vectors for - KGEN, CIPHER, MAC
+#   Currently Supports test vectors for - KGEN, CIPHER, MAC, SIGN_VERIFY
 #
 #########################################################################
 
@@ -240,6 +240,9 @@ TEST_KGEN_END
 
 
 
+##########################################################################
+CIPHER Tests
+##########################################################################
 
 #KEY GENERATION Tests for generating keys which can be used in CIPHER TESTS
 
@@ -653,6 +656,9 @@ TEST_CIPHER_END
 
 
 
+##########################################################################
+MAC Tests
+##########################################################################
 
 #KEY GENERATION Tests for generating keys which can be used in MAC TESTS
 
@@ -886,6 +892,282 @@ EXP_MAC_GEN_HSM_RESP    0x1D # HSM_OUT_TOO_SMALL
 EXP_MAC_VERIFY_HSM_RESP 0xFD # HSM_SIGNATURE_INVALID
 
 TEST_MAC_END
+
+
+
+##########################################################################
+SIGNATURE GENERATION & SIGNATURE VERIFICATION Tests
+##########################################################################
+
+
+#KEY GENERATION Tests for generating keys which can be used in Signature
+#Generation & Signature Verification Tests
+
+
+#Positive Case:
+TEST_KGEN_PSA_301
+
+KEY_MGMT_TV_ID    1234       # Key Management ID
+KEY_TV_ID         301        # Key TV ID to use the key later
+KEY_ID            0x0        # Key ID 0 for Volatile Key
+OUT_SIZE          56         # Public Key Out Size
+KEY_TYPE          0x7112     # HSM_KEY_TYPE_ECC_NIST
+BIT_KEY_SZ        224        # HSM_KEY_SIZE_ECC_NIST_224
+FLAGS             0          #
+KEY_GROUP         3          # Key Group b/w 0-1023
+KEY_LIFETIME      0x00000000 # HSM_SE_INTERN_STORAGE_VOLATILE
+KEY_USAGE         0x00003000 # HSM_KEY_USAGE_SIGN_HASH | HSM_KEY_USAGE_VERIFY_HASH
+PERMITTED_ALGO    0x06000608 # PERMITTED_ALGO_ECDSA_SHA224
+EXPECTED_HSM_RESP 0x00       # HSM_NO_ERROR
+
+TEST_KGEN_END
+
+
+#Positive Case:
+TEST_KGEN_PSA_302
+
+KEY_MGMT_TV_ID    1234       # Key Management ID
+KEY_TV_ID         302        # Key TV ID to use the key later
+KEY_ID            0x0        # Key ID 0 for Volatile Key
+OUT_SIZE          64         # Public Key Out Size
+KEY_TYPE          0x7112     # HSM_KEY_TYPE_ECC_NIST
+BIT_KEY_SZ        256        # HSM_KEY_SIZE_ECC_NIST_256
+FLAGS             0          #
+KEY_GROUP         3          # Key Group b/w 0-1023
+KEY_LIFETIME      0x00000000 # HSM_SE_INTERN_STORAGE_VOLATILE
+KEY_USAGE         0x00003000 # HSM_KEY_USAGE_SIGN_HASH | HSM_KEY_USAGE_VERIFY_HASH
+PERMITTED_ALGO    0x06000609 # PERMITTED_ALGO_ECDSA_SHA256
+EXPECTED_HSM_RESP 0x00       # HSM_NO_ERROR
+
+TEST_KGEN_END
+
+
+#Positive Case:
+TEST_KGEN_PSA_303
+
+KEY_MGMT_TV_ID    1234       # Key Management ID
+KEY_TV_ID         303        # Key TV ID to use the key later
+KEY_ID            0x0        # Key ID 0 for Volatile Key
+OUT_SIZE          96         # Public Key Out Size
+KEY_TYPE          0x7112     # HSM_KEY_TYPE_ECC_NIST
+BIT_KEY_SZ        384        # HSM_KEY_SIZE_ECC_NIST_384
+FLAGS             0          #
+KEY_GROUP         3          # Key Group b/w 0-1023
+KEY_LIFETIME      0x00000000 # HSM_SE_INTERN_STORAGE_VOLATILE
+KEY_USAGE         0x00003000 # HSM_KEY_USAGE_SIGN_HASH | HSM_KEY_USAGE_VERIFY_HASH
+PERMITTED_ALGO    0x0600060A # PERMITTED_ALGO_ECDSA_SHA384
+EXPECTED_HSM_RESP 0x00       # HSM_NO_ERROR
+
+TEST_KGEN_END
+
+
+#Positive Case:
+TEST_KGEN_PSA_304
+
+KEY_MGMT_TV_ID    1234       # Key Management ID
+KEY_TV_ID         304        # Key TV ID to use the key later
+KEY_ID            0x0        # Key ID 0 for Volatile Key
+OUT_SIZE          132        # Public Key Out Size
+KEY_TYPE          0x7112     # HSM_KEY_TYPE_ECC_NIST
+BIT_KEY_SZ        521        # HSM_KEY_SIZE_ECC_NIST_521
+FLAGS             0          #
+KEY_GROUP         3          # Key Group b/w 0-1023
+KEY_LIFETIME      0x00000000 # HSM_SE_INTERN_STORAGE_VOLATILE
+KEY_USAGE         0x00003000 # HSM_KEY_USAGE_SIGN_HASH | HSM_KEY_USAGE_VERIFY_HASH
+PERMITTED_ALGO    0x0600060B # PERMITTED_ALGO_ECDSA_SHA512
+EXPECTED_HSM_RESP 0x00       # HSM_NO_ERROR
+
+TEST_KGEN_END
+
+
+
+# Signature Generation & Signature Verification tests using Saved Generated
+# Keys with KEY_TV_ID
+
+
+
+#Positive Case:
+#Test Signature Generation & Verification operation with ECC NIST 224 key,
+#and ECDSA SHA224 algorithm
+TEST_SIGN_VERIFY_PSA_301
+
+KEY_TV_ID         301        # Key TV ID from KGEN Tests to use the key
+MESSAGE_SIZE      28         # Message Size provided before Message buffer
+
+MESSAGE           28         # Message-Message size, input from next line
+0x00, 0x01, 0x02, 0x03, 0x04, 0x05, 0x06, 0x07,
+0x08, 0x09, 0x0A, 0x0B, 0x0C, 0x0D, 0x0E, 0x0F,
+0x10, 0x11, 0x12, 0x13, 0x14, 0x15, 0x16, 0x17,
+0x18, 0x19, 0x1A, 0x1B,
+
+SIGNATURE_SIZE    56         # Signature size
+SCHEME_ID         0x06000608 # HSM_SIGNATURE_SCHEME_ECDSA_SHA224
+SIGN_GEN_FLAGS    0x0        # HSM_OP_GENERATE_SIGN_FLAGS_INPUT_DIGEST
+SIGN_VERIFY_FLAGS 0x0        # HSM_OP_VERIFY_SIGN_FLAGS_INPUT_DIGEST
+PKEY_TYPE         0x4112     # HSM_PUBKEY_TYPE_ECC_NIST
+KEY_SIZE          56         # Public Key Byte Size
+BIT_KEY_SZ        224        # HSM_KEY_SIZE_ECC_NIST_224
+EXP_SIGNATURE_SIZE 56        # Expected Signature Size in API Resp
+EXP_VERIFICATION_STATUS 0x5A3CC3A5 # HSM_VERIFICATION_STATUS_SUCCESS
+EXP_SIGN_GEN_RSP  0x0        # HSM_NO_ERROR
+EXP_SIGN_VERIFY_RSP 0x0      # HSM_NO_ERROR
+
+TEST_SIGN_VERIFY_END
+
+
+
+#Positive Case:
+#Test Signature Generation & Verification operation with ECC NIST 256 key,
+#and ECDSA SHA256 key
+TEST_SIGN_VERIFY_PSA_302
+
+KEY_TV_ID         302        # Key TV ID from KGEN Tests to use the key
+MESSAGE_SIZE      32         # Message Size provided before Message buffer
+
+MESSAGE           32         # Message-Message size, input from next line
+0x00, 0x01, 0x02, 0x03, 0x04, 0x05, 0x06, 0x07,
+0x08, 0x09, 0x0A, 0x0B, 0x0C, 0x0D, 0x0E, 0x0F,
+0x10, 0x11, 0x12, 0x13, 0x14, 0x15, 0x16, 0x17,
+0x18, 0x19, 0x1A, 0x1B, 0x1C, 0x1D, 0x1E, 0x1F
+
+SIGNATURE_SIZE    64         # Signature size
+SCHEME_ID         0x06000609 # HSM_SIGNATURE_SCHEME_ECDSA_SHA256
+SIGN_GEN_FLAGS    0x0        # HSM_OP_GENERATE_SIGN_FLAGS_INPUT_DIGEST
+SIGN_VERIFY_FLAGS 0x0        # HSM_OP_VERIFY_SIGN_FLAGS_INPUT_DIGEST
+PKEY_TYPE         0x4112     # HSM_PUBKEY_TYPE_ECC_NIST
+KEY_SIZE          64         # Publc Key Byte Size
+BIT_KEY_SZ        256        # HSM_KEY_SIZE_ECC_NIST_256
+EXP_SIGNATURE_SIZE 64         # Expected Signature Size in API Resp
+EXP_VERIFICATION_STATUS 0x5A3CC3A5 # HSM_VERIFICATION_STATUS_SUCCESS
+EXP_SIGN_GEN_RSP  0x0        # HSM_NO_ERROR
+EXP_SIGN_VERIFY_RSP 0x0      # HSM_NO_ERROR
+
+TEST_SIGN_VERIFY_END
+
+
+
+#Positive Case:
+#Test Signature Generation & Verification operation with ECC NIST 384 key,
+#and ECDSA SHA384 algorithm
+TEST_SIGN_VERIFY_PSA_303
+
+KEY_TV_ID         303        # Key TV ID from KGEN Tests to use the key
+MESSAGE_SIZE      48         # Message Size provided before Message buffer
+
+MESSAGE           48         # Message-Message size, input from next line
+0x00, 0x01, 0x02, 0x03, 0x04, 0x05, 0x06, 0x07,
+0x08, 0x09, 0x0A, 0x0B, 0x0C, 0x0D, 0x0E, 0x0F,
+0x10, 0x11, 0x12, 0x13, 0x14, 0x15, 0x16, 0x17,
+0x18, 0x19, 0x1A, 0x1B, 0x1C, 0x1D, 0x1E, 0x1F,
+0x20, 0x21, 0x22, 0x23, 0x24, 0x25, 0x26, 0x27,
+0x28, 0x29, 0x2A, 0x2B, 0x2C, 0x2D, 0x2E, 0x2F
+
+SIGNATURE_SIZE    96         # Signature size
+SCHEME_ID         0x0600060A # PERMITTED_ALGO_ECDSA_SHA384
+SIGN_GEN_FLAGS    0x0        # HSM_OP_GENERATE_SIGN_FLAGS_INPUT_DIGEST
+SIGN_VERIFY_FLAGS 0x0        # HSM_OP_VERIFY_SIGN_FLAGS_INPUT_DIGEST
+PKEY_TYPE         0x4112     # HSM_PUBKEY_TYPE_ECC_NIST
+KEY_SIZE          96         # Public Key Byte Size
+BIT_KEY_SZ        384        # HSM_KEY_SIZE_ECC_NIST_384
+EXP_SIGNATURE_SIZE 96        # Expected Signature Size in API Resp
+EXP_VERIFICATION_STATUS 0x5A3CC3A5 # HSM_VERIFICATION_STATUS_SUCCESS
+EXP_SIGN_GEN_RSP  0x0        # HSM_NO_ERROR
+EXP_SIGN_VERIFY_RSP 0x0      # HSM_NO_ERROR
+
+TEST_SIGN_VERIFY_END
+
+
+
+#Positive Case:
+#Test Signature Generation & Verification operation with ECC NIST 521 key,
+#and ECDSA SHA512 algorithm
+TEST_SIGN_VERIFY_PSA_304
+
+KEY_TV_ID         304        # Key TV ID from KGEN Tests to use the key
+MESSAGE_SIZE      64         # Message Size provided before Message buffer
+
+MESSAGE           64         # Message-Message size, input from next line
+0x00, 0x01, 0x02, 0x03, 0x04, 0x05, 0x06, 0x07,
+0x08, 0x09, 0x0A, 0x0B, 0x0C, 0x0D, 0x0E, 0x0F,
+0x10, 0x11, 0x12, 0x13, 0x14, 0x15, 0x16, 0x17,
+0x18, 0x19, 0x1A, 0x1B, 0x1C, 0x1D, 0x1E, 0x1F,
+0x20, 0x21, 0x22, 0x23, 0x24, 0x25, 0x26, 0x27,
+0x28, 0x29, 0x2A, 0x2B, 0x2C, 0x2D, 0x2E, 0x2F,
+0x30, 0x31, 0x32, 0x33, 0x34, 0x35, 0x36, 0x37,
+0x38, 0x39, 0x3A, 0x3B, 0x3C, 0x3D, 0x3E, 0x3F,
+
+SIGNATURE_SIZE    132        # Signature size
+SCHEME_ID         0x0600060B # PERMITTED_ALGO_ECDSA_SHA512
+SIGN_GEN_FLAGS    0x0        # HSM_OP_GENERATE_SIGN_FLAGS_INPUT_DIGEST
+SIGN_VERIFY_FLAGS 0x0        # HSM_OP_VERIFY_SIGN_FLAGS_INPUT_DIGEST
+PKEY_TYPE         0x4112     # HSM_PUBKEY_TYPE_ECC_NIST
+KEY_SIZE          132        # Public Key Byte Size
+BIT_KEY_SZ        521        # HSM_KEY_SIZE_ECC_NIST_521
+EXP_SIGNATURE_SIZE 132       # Expected Signature Size in API Resp
+EXP_VERIFICATION_STATUS 0x5A3CC3A5 # HSM_VERIFICATION_STATUS_SUCCESS
+EXP_SIGN_GEN_RSP    0x0      # HSM_NO_ERROR
+EXP_SIGN_VERIFY_RSP 0x0      # HSM_NO_ERROR
+
+TEST_SIGN_VERIFY_END
+
+
+
+#Negative Case:
+#Test Signature Generation & Verification operation with ECC NIST 224 key,
+#and ECDSA SHA224 algorithm, and Incorrect Input Signature Size
+TEST_SIGN_VERIFY_PSA_305
+
+KEY_TV_ID         301        # Key TV ID from KGEN Tests to use the key
+MESSAGE_SIZE      28         # Message Size provided before Message buffer
+
+MESSAGE           28         # Message-Message size, input from next line
+0x00, 0x01, 0x02, 0x03, 0x04, 0x05, 0x06, 0x07,
+0x08, 0x09, 0x0A, 0x0B, 0x0C, 0x0D, 0x0E, 0x0F,
+0x10, 0x11, 0x12, 0x13, 0x14, 0x15, 0x16, 0x17,
+0x18, 0x19, 0x1A, 0x1B,
+
+SIGNATURE_SIZE    54         # Signature size
+SCHEME_ID         0x06000608 # HSM_SIGNATURE_SCHEME_ECDSA_SHA224
+SIGN_GEN_FLAGS    0x0        # HSM_OP_GENERATE_SIGN_FLAGS_INPUT_DIGEST
+SIGN_VERIFY_FLAGS 0x0        # HSM_OP_VERIFY_SIGN_FLAGS_INPUT_DIGEST
+PKEY_TYPE         0x4112     # HSM_PUBKEY_TYPE_ECC_NIST
+KEY_SIZE          56         # Public Key Byte Size
+BIT_KEY_SZ        224        # HSM_KEY_SIZE_ECC_NIST_224
+EXP_SIGNATURE_SIZE 56        # Expected Signature Size in API Resp
+EXP_VERIFICATION_STATUS 0x2B4DD4B2 # HSM_VERIFICATION_STATUS_FAILURE
+EXP_SIGN_GEN_RSP    0x1D      # HSM_OUT_TOO_SMALL
+EXP_SIGN_VERIFY_RSP 0x04      # HSM_INVALID_PARAM
+
+TEST_SIGN_VERIFY_END
+
+
+
+#Negative Case:
+#Test Signature Generation & Verification operation with ECC NIST 224 key,
+#and ECDSA SHA224 algorithm and Invalid input Message Size
+TEST_SIGN_VERIFY_PSA_306
+
+KEY_TV_ID         301        # Key TV ID from KGEN Tests to use the key
+MESSAGE_SIZE      16         # Message Size provided before Message buffer
+
+MESSAGE           16         # Message-Message size, input from next line
+0x00, 0x01, 0x02, 0x03, 0x04, 0x05, 0x06, 0x07,
+0x08, 0x09, 0x0A, 0x0B, 0x0C, 0x0D, 0x0E, 0x0F,
+
+SIGNATURE_SIZE    56         # Signature size
+SCHEME_ID         0x06000608 # HSM_SIGNATURE_SCHEME_ECDSA_SHA224
+SIGN_GEN_FLAGS    0x0        # HSM_OP_GENERATE_SIGN_FLAGS_INPUT_DIGEST
+SIGN_VERIFY_FLAGS 0x0        # HSM_OP_VERIFY_SIGN_FLAGS_INPUT_DIGEST
+PKEY_TYPE         0x4112     # HSM_PUBKEY_TYPE_ECC_NIST
+KEY_SIZE          56         # Public Key Byte Size
+BIT_KEY_SZ        224        # HSM_KEY_SIZE_ECC_NIST_224
+EXP_SIGNATURE_SIZE 0         # Ignored as expected error HSM_INVALID_PARAM
+EXP_VERIFICATION_STATUS 0x2B4DD4B2 # HSM_VERIFICATION_STATUS_FAILURE
+EXP_SIGN_GEN_RSP    0x04      # HSM_INVALID_PARAM
+EXP_SIGN_VERIFY_RSP 0x04      # HSM_INVALID_PARAM
+
+TEST_SIGN_VERIFY_END
+
 
 
 

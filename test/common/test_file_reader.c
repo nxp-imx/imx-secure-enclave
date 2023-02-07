@@ -88,10 +88,16 @@ void tv_tests_run(hsm_hdl_t key_store_hdl, uint8_t *tv_file_path)
 				if (memcmp(line, "TEST_MAC", 8) == 0)
 					mac_test_tv(key_store_hdl, fp, line);
 
+
+				/* Signature Generation and Verification tests */
+				if (memcmp(line, "TEST_SIGN_VERIFY", 16) == 0)
+					sign_verify_test_tv(key_store_hdl, fp, line);
+
+
 				/*
-				 * Add other test such as Signature Generation and Signature
-				 * Verification etc. tests later.
+				 * Add other tests such as HASH, Data Storage, RNG etc. later
 				 */
+
 
 				/* Close Key management service */
 				if (memcmp(line, "CLOSE_KEY_MGMT_SRV", 18) == 0) {

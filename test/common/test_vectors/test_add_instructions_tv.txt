@@ -10,7 +10,8 @@ If the <tv_file_path> not provided, then default tv file is used to run tests.
 
 The file contains tests with the tags and follow the format described here.
 
-NOTE: Currently Supports test vectors for: KGEN, CIPHER, MAC
+NOTE: Currently Supports test vectors for: KGEN, CIPHER, MAC, Signature
+Generation & Signature Verification
 
 
 The test file is read line by line till EOF, to identify and use certain
@@ -24,9 +25,10 @@ are mentioned in below. Later more may get added.
 Some Limitations about the format:
 
 -	ALl Recognized Tags like TESTS_START, TESTS_END, TEST_KGEN_*, TEST_KGEN_END,
-	TEST_CIPHER_*, TEST_CIPHER_END, TEST_MAC_*, TEST_MAC_END, KEY_TV_ID,
-	PERMITTED_ALGO, KEY_USAGE, etc. needs to start from very beginning of
-	their line as these tags get read from very start of the line.
+	TEST_CIPHER_*, TEST_CIPHER_END, TEST_MAC_*, TEST_MAC_END, TEST_SIGN_VERIFY_*,
+	TEST_SIGN_VERIFY_END, KEY_TV_ID, PERMITTED_ALGO, KEY_USAGE, etc. needs
+	to start from very beginning of their line as these tags get read from
+	very start of the line.
 
 -	Only Spaces (Not tabs) need to be used for PARAM_NAME  'space' PARAM_VALUE
 	key value pair.
@@ -98,6 +100,7 @@ TEST_<Test_Type>_END                    #marks the end of test
 0 - KGEN
 1 - CIPHER
 2 - MAC
+3 - SIGN_VERIFY
 
 'n' representing serial no of test of particular test type/category
 1, 2, 3,...so on
@@ -234,6 +237,49 @@ EXP_MAC_GEN_HSM_RESP    HEX (uint8_t)  # Expected HSM Resp for MAC Generation
 EXP_MAC_VERIFY_HSM_RESP HEX (uint8_t)  # Expected HSM Resp for MAC Verification
 
 TEST_MAC_END
+
+
+
+------------------------------------------------------------------------------
+FORMAT and PARAMETERS for Signature Generation & Signature Verification Tests:
+------------------------------------------------------------------------------
+
+#Positive/Negative Case:
+#Test Description (Optional line)
+
+TEST_SIGN_VERIFY_<PSA/NON_PSA>_3<n>
+
+KEY_TV_ID         DEC (uint32_t)  # Key TV ID from KGEN Tests to use the key
+MESSAGE_SIZE      DEC (uint32_t)  # Message size of input message
+
+MESSAGE           DEC (uint32_t)  # Message-Message size for input buffer
+0xB2, 0xE1, 0x4C, 0x5C, 0x79, 0xC6, 0xDF, 0x5B,
+0x85, 0xF4, 0xFE, 0x7E, 0xD8, 0xDB, 0x7A, 0x26,
+0x2B, 0x9D, 0xA7, 0xE0, 0x7C, 0xCB, 0x0E, 0xA9,
+0xF4, 0x74, 0x7B, 0x8C, 0xCD, 0xA8, 0xA4, 0xF3
+
+#(Example of Input buffer format is given as above, 'uint8_t' HEX values)
+
+SIGNATURE_SIZE    DEC (uint16_t)   # Signature buffer size
+SCHEME_ID         HEX (uint32_t)   # Scheme to be used for the operation
+SIGN_GEN_FLAGS    HEX (uint8_t)    # Signature Generation flags
+SIGN_VERIFY_FLAGS HEX (uint8_t)    # Signature Verification flags
+PKEY_TYPE         HEX (uint32_t    # Public Key Type
+KEY_SIZE          DEC (uint16_t)   # Input public key size in bytes
+BIT_KEY_SZ        DEC (uint16_t)   # Key security size in bits
+
+# Expected output Signature size is valid for case, when Signature Generation
+# API Resp (also Expected Resp) is HSM_NO_ERROR, HSM_OUT_TOO_SMALL
+# or HSM_GENERAL_ERROR
+EXP_SIGNATURE_SIZE      DEC (uint16_t) # Expected output signature size
+
+# Expected Signature Verification status
+EXP_VERIFICATION_STATUS HEX (uint32_t) # Expected Signature Verification status
+
+EXP_SIGN_GEN_RSP    HEX (uint8_t)  # Expected Signature Generation HSM Resp
+EXP_SIGN_VERIFY_RSP HEX (uint8_t)  # Expected Signature Verification HSM Resp
+
+TEST_SIGN_VERIFY_END
 
 
 
@@ -379,6 +425,64 @@ CLOSE_KEY_MGMT_SRV
 
 
 TESTS_END
+
+
+
+
+#Test for Generating Key with KEY_TV_ID 301 to be used by Signature Generation
+#& Signature Verification test
+
+
+
+#Positive Case:
+TEST_KGEN_PSA_301
+
+KEY_MGMT_TV_ID    1234       # Key Management ID
+KEY_TV_ID         301        # Key TV ID to use the key later
+KEY_ID            0x0        # Key ID 0 for Volatile Key
+OUT_SIZE          56         # Public Key Out Size
+KEY_TYPE          0x7112     # HSM_KEY_TYPE_ECC_NIST
+BIT_KEY_SZ        224        # HSM_KEY_SIZE_ECC_NIST_224
+FLAGS             0          #
+KEY_GROUP         3          # Key Group b/w 0-1023
+KEY_LIFETIME      0x00000000 # HSM_SE_INTERN_STORAGE_VOLATILE
+KEY_USAGE         0x00003000 # HSM_KEY_USAGE_SIGN_HASH | HSM_KEY_USAGE_VERIFY_HASH
+PERMITTED_ALGO    0x06000608 # PERMITTED_ALGO_ECDSA_SHA224
+EXPECTED_HSM_RESP 0x00       # HSM_NO_ERROR
+
+TEST_KGEN_END
+
+
+
+#Signature Generation & Signature Verification test using key KEY_TV_ID 301
+
+#Positive Case:
+#Test Signature Generation & Verification operation with ECC NIST 224 key,
+#and ECDSA SHA224 algorithm
+TEST_SIGN_VERIFY_PSA_301
+
+KEY_TV_ID         301        # Key TV ID from KGEN Tests to use the key
+MESSAGE_SIZE      28         # Message Size provided before Payload data
+
+MESSAGE           28         # Message-Message size, input from next line
+0x00, 0x01, 0x02, 0x03, 0x04, 0x05, 0x06, 0x07,
+0x08, 0x09, 0x0A, 0x0B, 0x0C, 0x0D, 0x0E, 0x0F,
+0x10, 0x11, 0x12, 0x13, 0x14, 0x15, 0x16, 0x17,
+0x18, 0x19, 0x1A, 0x1B,
+
+SIGNATURE_SIZE    56         # Signature size
+SCHEME_ID         0x06000608 # HSM_SIGNATURE_SCHEME_ECDSA_SHA224
+SIGN_GEN_FLAGS    0x0        # HSM_OP_GENERATE_SIGN_FLAGS_INPUT_DIGEST
+SIGN_VERIFY_FLAGS 0x0        # HSM_OP_VERIFY_SIGN_FLAGS_INPUT_DIGEST
+PKEY_TYPE         0x4112     # HSM_PUBKEY_TYPE_ECC_NIST
+KEY_SIZE          56         # Public Key Byte Size
+BIT_KEY_SZ        224        # HSM_KEY_SIZE_ECC_NIST_224
+EXP_SIGNATURE_SIZE 56        # Expected Signature Size in API Resp
+EXP_VERIFICATION_STATUS 0x5A3CC3A5 # HSM_VERIFICATION_STATUS_SUCCESS
+EXP_SIGN_GEN_RSP  0x0        # HSM_NO_ERROR
+EXP_SIGN_VERIFY_RSP 0x0      # HSM_NO_ERROR
+
+TEST_SIGN_VERIFY_END
 
 
 -------------------------------------------------------------------------
