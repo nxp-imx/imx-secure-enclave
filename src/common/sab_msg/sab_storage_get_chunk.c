@@ -23,7 +23,7 @@ uint32_t parse_cmd_prep_rsp_storage_get_chunk(struct nvm_ctx_st *nvm_ctx_param,
 					      void *cmd_buf,
 					      void *rsp_buf,
 					      uint32_t *cmd_len,
-					      uint32_t *rsp_len,
+					      uint32_t *rsp_msg_info,
 					      void **data,
 					      uint32_t *data_sz,
 					      uint8_t *prev_cmd_id,
@@ -33,7 +33,6 @@ uint32_t parse_cmd_prep_rsp_storage_get_chunk(struct nvm_ctx_st *nvm_ctx_param,
 	uint64_t plat_addr;
 	uint32_t err = 1u;
 	struct nvm_header_s nvm_hdr;
-	uint32_t ret = SAB_FAILURE_STATUS;
 
 	struct sab_cmd_key_store_chunk_get_rsp *resp =
 			 (struct sab_cmd_key_store_chunk_get_rsp *) rsp_buf;
@@ -41,6 +40,8 @@ uint32_t parse_cmd_prep_rsp_storage_get_chunk(struct nvm_ctx_st *nvm_ctx_param,
 			 (struct sab_cmd_key_store_chunk_get_msg *)cmd_buf;
 
 	*prev_cmd_id = msg->hdr.command;
+	*next_cmd_id = NEXT_EXPECTED_CMD_NONE;
+	resp->rsp_code = SAB_FAILURE_STATUS;
 
 	/* Consistency check of message length. */
 	if (*cmd_len !=
@@ -48,9 +49,16 @@ uint32_t parse_cmd_prep_rsp_storage_get_chunk(struct nvm_ctx_st *nvm_ctx_param,
 		goto out;
 	}
 
+	/* Do not execute operation if error is detected in previous steps */
+	if (*rsp_msg_info != SAB_SUCCESS_STATUS) {
+		resp->rsp_code = *rsp_msg_info;
+		goto out;
+	}
+
 	blob_id = ((uint64_t)(msg->blob_id_ext) << 32u)
 		| (uint64_t)msg->blob_id;
 	if (blob_id == 0u) {
+		resp->rsp_code = SAB_FAILURE_STATUS;
 		goto out;
 	}
 
@@ -73,6 +81,7 @@ uint32_t parse_cmd_prep_rsp_storage_get_chunk(struct nvm_ctx_st *nvm_ctx_param,
 				err = 0u;
 			}
 		} else {
+			resp->rsp_code = SAB_FAILURE_STATUS;
 			goto out;
 		}
 	}
@@ -88,16 +97,16 @@ uint32_t parse_cmd_prep_rsp_storage_get_chunk(struct nvm_ctx_st *nvm_ctx_param,
 
 		resp->chunk_addr =  (uint32_t)(plat_addr & 0xFFFFFFFFu);
 		resp->rsp_code = SAB_SUCCESS_STATUS;
-		ret = resp->rsp_code;
 	} else {
 		resp->chunk_size = 0u;
 		resp->chunk_addr = 0u;
 		resp->rsp_code = SAB_FAILURE_STATUS;
-		ret = resp->rsp_code;
 	}
 
 	*next_cmd_id = SAB_STORAGE_CHUNK_GET_DONE_REQ;
-	*rsp_len = sizeof(struct sab_cmd_key_store_chunk_get_rsp);
+
 out:
-	return ret;
+	*rsp_msg_info = sizeof(struct sab_cmd_key_store_chunk_get_rsp);
+
+	return resp->rsp_code;
 }

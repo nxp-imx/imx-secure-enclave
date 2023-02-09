@@ -23,13 +23,12 @@ uint32_t parse_cmd_prep_rsp_storage_master_export(struct nvm_ctx_st *nvm_ctx_par
 						  void *cmd_buf,
 						  void *rsp_buf,
 						  uint32_t *cmd_len,
-						  uint32_t *rsp_len,
+						  uint32_t *rsp_msg_info,
 						  void **data,
 						  uint32_t *data_sz,
 						  uint8_t *prev_cmd_id,
 						  uint8_t *next_cmd_id)
 {
-	uint32_t ret = SAB_FAILURE_STATUS;
 	uint32_t err = 1u;
 	uint32_t data_len;
 	uint64_t plat_addr;
@@ -39,10 +38,18 @@ uint32_t parse_cmd_prep_rsp_storage_master_export(struct nvm_ctx_st *nvm_ctx_par
 		= (struct sab_cmd_key_store_export_start_msg *)cmd_buf;
 
 	*prev_cmd_id = msg->hdr.command;
+	*next_cmd_id = NEXT_EXPECTED_CMD_NONE;
+	resp->rsp_code = SAB_FAILURE_STATUS;
 
 	/* Consistency check of message length. */
 	err = (uint32_t)sizeof(struct sab_cmd_key_store_export_start_msg);
 	if (*cmd_len != err) {
+		goto out;
+	}
+
+	/* Do not execute operation if error is detected in previous steps */
+	if (*rsp_msg_info != SAB_SUCCESS_STATUS) {
+		resp->rsp_code = *rsp_msg_info;
 		goto out;
 	}
 
@@ -54,6 +61,7 @@ uint32_t parse_cmd_prep_rsp_storage_master_export(struct nvm_ctx_st *nvm_ctx_par
 		/* Fixing arbitrary maximum blob size to 16k
 		 * for sanity checks.
 		 */
+		resp->rsp_code = SAB_FAILURE_STATUS;
 		goto out;
 	}
 
@@ -71,7 +79,6 @@ uint32_t parse_cmd_prep_rsp_storage_master_export(struct nvm_ctx_st *nvm_ctx_par
 		resp->key_store_export_address =
 			(uint32_t)(plat_addr & 0xFFFFFFFFu);
 		resp->rsp_code = SAB_SUCCESS_STATUS;
-		ret = SAB_SUCCESS_STATUS;
 	} else {
 		resp->key_store_export_address = 0;
 		resp->rsp_code = SAB_FAILURE_STATUS;
@@ -80,8 +87,9 @@ uint32_t parse_cmd_prep_rsp_storage_master_export(struct nvm_ctx_st *nvm_ctx_par
 	resp->storage_handle = nvm_ctx_param->storage_handle;
 	*data_sz = msg->key_store_size;
 	*next_cmd_id = SAB_STORAGE_EXPORT_FINISH_REQ;
-	*rsp_len = sizeof(struct sab_cmd_key_store_export_start_rsp);
 
 out:
-	return ret;
+	*rsp_msg_info = sizeof(struct sab_cmd_key_store_export_start_rsp);
+
+	return resp->rsp_code;
 }

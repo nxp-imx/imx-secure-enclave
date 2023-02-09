@@ -129,6 +129,9 @@
 #define ROM_DEV_GETINFO_REQ                     0xDA
 #define ROM_DEV_ATTEST_REQ                      0xDB
 
+/* FW: Maximum number of words without crc in a command */
+#define SAB_STORAGE_NB_WORDS_MAX_WO_CRC         4u
+
 #define SAB_STORAGE_OPEN_REQ                    0xE0u
 #define SAB_STORAGE_CLOSE_REQ                   0xE1u
 #define SAB_STORAGE_MASTER_IMPORT_REQ           0xE2u
@@ -162,6 +165,8 @@
 #define SAB_FAILURE_STATUS                      0x29u
 #define ROM_SUCCESS_STATUS                      0xD6u
 #define SAB_SUCCESS_STATUS                      0xD6u
+#define SAB_CRC_FAILURE_STATUS                  0xB929u
+#define SAB_INVALID_MSG_STATUS                  0xF429u
 
 #define SAB_STATUS_SUCCESS(msg_type)            ((msg_type == ROM_MSG) ? \
 							ROM_SUCCESS_STATUS \

@@ -23,14 +23,13 @@ uint32_t parse_cmd_prep_rsp_storage_finish_export(struct nvm_ctx_st *nvm_ctx_par
 						  void *cmd_buf,
 						  void *rsp_buf,
 						  uint32_t *cmd_len,
-						  uint32_t *rsp_len,
+						  uint32_t *rsp_msg_info,
 						  void **data,
 						  uint32_t *data_sz,
 						  uint8_t *prev_cmd_id,
 						  uint8_t *next_cmd_id)
 {
 	uint32_t err = 1u;
-	uint32_t ret = SAB_FAILURE_STATUS;
 	uint32_t len;
 	struct nvm_header_s *blob_hdr;
 	uint32_t data_len;
@@ -41,17 +40,26 @@ uint32_t parse_cmd_prep_rsp_storage_finish_export(struct nvm_ctx_st *nvm_ctx_par
 	struct sab_cmd_key_store_export_finish_rsp *resp
 			= (struct sab_cmd_key_store_export_finish_rsp *)rsp_buf;
 
+	*next_cmd_id = NEXT_EXPECTED_CMD_NONE;
+	resp->rsp_code = SAB_FAILURE_STATUS;
+
 	/* Consistency check of message length. */
 	if (*cmd_len
-		!= (int32_t)sizeof(struct sab_cmd_key_store_export_finish_msg))
-		return ret;
+		!= (int32_t)sizeof(struct sab_cmd_key_store_export_finish_msg)) {
+		goto out;
+	}
+
+	/* Do not execute operation if error is detected in previous steps */
+	if (*rsp_msg_info != SAB_SUCCESS_STATUS) {
+		resp->rsp_code = *rsp_msg_info;
+		goto out;
+	}
 
 	if (msg->export_status != SAB_EXPORT_STATUS_SUCCESS) {
 		/* Notification that export failed.
 		 * Acknowledge it but stop write to NVM.
 		 */
 		resp->rsp_code = SAB_SUCCESS_STATUS;
-		ret = SAB_SUCCESS_STATUS;
 		goto out;
 	}
 	err = 0;
@@ -108,11 +116,9 @@ uint32_t parse_cmd_prep_rsp_storage_finish_export(struct nvm_ctx_st *nvm_ctx_par
 		}
 	}
 
-	ret = SAB_SUCCESS_STATUS;
-	*next_cmd_id = NEXT_EXPECTED_CMD_NONE;
-	*rsp_len = sizeof(struct sab_cmd_key_store_export_finish_rsp);
-
 out:
 	resp->storage_handle = nvm_ctx_param->storage_handle;
-	return ret;
+	*rsp_msg_info = sizeof(struct sab_cmd_key_store_export_finish_rsp);
+
+	return resp->rsp_code;
 }

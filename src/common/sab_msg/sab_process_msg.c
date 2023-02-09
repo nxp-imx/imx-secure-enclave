@@ -206,12 +206,17 @@ out:
 	return error;
 }
 
+/*
+ * @rsp_msg_info is a in/out parameter:
+ *     [in]: if set, it represents a response error code to send.
+ *     [out]: it represents the response size in bytes.
+ */
 static uint32_t (*prepare_sab_rcvmsg_rsp[SAB_RCVMSG_MAX_ID])
 						(struct nvm_ctx_st *nvm_param,
 						 void *cmd_buf,
 						 void *rsp_buf,
 						 uint32_t *cmd_msg_sz,
-						 uint32_t *rsp_msg_sz,
+						 uint32_t *rsp_msg_info,
 						 void **data,
 						 uint32_t *data_sz,
 						 uint8_t *prev_cmd_id,
@@ -220,7 +225,7 @@ static uint32_t (*prepare_sab_rcvmsg_rsp[SAB_RCVMSG_MAX_ID])
 static uint32_t parse_cmd_prep_rsp_msg_not_supported(struct nvm_ctx_st *nvm_param,
 						    void *cmd_buf, void *rsp_buf,
 						    uint32_t *cmd_msg_sz,
-						    uint32_t *rsp_msg_sz,
+						    uint32_t *rsp_msg_info,
 						    void **data, uint32_t *data_sz,
 						    uint8_t *prev_cmd_id,
 						    uint8_t *next_cmd_id)
@@ -235,7 +240,7 @@ sab_msg_init_info_t add_sab_rcvmsg_handler(uint32_t msg_id, msg_type_t msg_type,
 								 void *cmd_buf,
 								 void *rsp_buf,
 								 uint32_t *cmd_msg_sz,
-								 uint32_t *rsp_msg_sz,
+								 uint32_t *rsp_msg_info,
 								 void **data,
 								 uint32_t *data_sz,
 								 uint8_t *prev_cmd_id,
@@ -288,8 +293,8 @@ uint32_t process_sab_rcv_send_msg(struct nvm_ctx_st *nvm_ctx_param,
 	int msg_type_id;
 	uint32_t rcvmsg_cmd_id;
 	uint32_t cmd_msg_sz = MAX_CMD_WORD_SZ * sizeof(uint32_t);
-	uint32_t rsp_msg_sz = 0;
-	bool rsp_crc_added = false;
+	uint32_t rsp_msg_info = SAB_SUCCESS_STATUS;
+	uint32_t nb_words = 0;
 	uint32_t cmd[MAX_CMD_WORD_SZ];
 	uint32_t rsp[MAX_CMD_RSP_WORD_SZ];
 	uint32_t cmd_args[MAX_CMD_RSP_WORD_SZ];
@@ -298,8 +303,8 @@ uint32_t process_sab_rcv_send_msg(struct nvm_ctx_st *nvm_ctx_param,
 
 	chunk = *data;
 
-	plat_os_abs_memset((uint8_t *)cmd, 0x0, MAX_CMD_WORD_SZ * WORD_SZ);
-	plat_os_abs_memset((uint8_t *)rsp, 0x0, MAX_CMD_RSP_WORD_SZ * WORD_SZ);
+	plat_os_abs_memset((uint8_t *)cmd, 0x0, sizeof(cmd));
+	plat_os_abs_memset((uint8_t *)rsp, 0x0, sizeof(rsp));
 
 	error = plat_rcvmsg_cmd(nvm_ctx_param->phdl, cmd, &cmd_msg_sz, &rcvmsg_cmd_id);
 
@@ -324,6 +329,8 @@ uint32_t process_sab_rcv_send_msg(struct nvm_ctx_st *nvm_ctx_param,
 			if (chunk->data)
 				plat_os_abs_free(chunk->data);
 			plat_os_abs_free(*data);
+			/* Set data pointer to NULL to prevent double free */
+			*data = NULL;
 			*data_sz = 0;
 		}
 		*next_cmd_id = NEXT_EXPECTED_CMD_NONE;
@@ -331,54 +338,57 @@ uint32_t process_sab_rcv_send_msg(struct nvm_ctx_st *nvm_ctx_param,
 		printf("\tExpected CMD = 0x%x, while Received CMD = 0x%x\n",
 							*next_cmd_id,
 							rcvmsg_cmd_id);
-		error = SAB_NO_MESSAGE_RATING;
-		goto out;
+		/* Send error to FW through the command response */
+		rsp_msg_info = SAB_INVALID_MSG_STATUS;
+	} else {
+		nb_words = cmd_msg_sz / (uint32_t)sizeof(uint32_t);
+		if (nb_words > SAB_STORAGE_NB_WORDS_MAX_WO_CRC &&
+		    plat_validate_msg_crc(cmd, cmd_msg_sz) == 1) {
+			/* Send error to FW through the command response */
+			rsp_msg_info = SAB_CRC_FAILURE_STATUS;
+		} else {
+			rsp_msg_info = SAB_SUCCESS_STATUS;
+		}
 	}
 
-	/* parse command prepare response */
+	/*
+	 * parse command prepare response. If @rsp_msg_info is set
+	 * (!= SAB_SUCCESS_STATUS) do not execute operation and send error to FW.
+	 * Function returns rsp msg size in @rsp_msg_info variable.
+	 */
 	error = prepare_sab_rcvmsg_rsp[rcvmsg_cmd_id - SAB_RCVMSG_START_ID]
 							(nvm_ctx_param,
 							 &cmd,
 							 &rsp,
 							 &cmd_msg_sz,
-							 &rsp_msg_sz,
+							 &rsp_msg_info,
 							 data,
 							 data_sz,
 							 prev_cmd_id,
 							 next_cmd_id);
 
-	if ((error & SAB_MSG_CRC_BIT) == SAB_MSG_CRC_BIT) {
-		/* strip-off the crc flag from error*/
-		error &= ~SAB_MSG_CRC_BIT;
-		if (plat_validate_msg_crc(cmd, cmd_msg_sz)) {
-			error = SAB_NO_MESSAGE_RATING;
-			goto out;
-		}
-	}
-
-	if ((error & SAB_RSP_CRC_BIT) == SAB_RSP_CRC_BIT) {
-		rsp_crc_added = true;
-		/* strip-off the crc flag from error*/
-		error &= ~SAB_RSP_CRC_BIT;
-	}
-
-	if (error != SAB_SUCCESS_STATUS) {
-		error = SAB_NO_MESSAGE_RATING;
+	if (rsp_msg_info > MAX_CMD_RSP_WORD_SZ) {
+		/* Exit with failure if response is too big for rsp buffer. (Should not happened) */
+		se_err("Error: Response size is too big: %d\n", rsp_msg_info);
+		error = SAB_FAILURE_STATUS;
 		goto out;
 	}
 
+	if (error != SAB_SUCCESS_STATUS)
+		se_warn("Warn: command 0x%x failed with 0x%x error code.\n", rcvmsg_cmd_id, error);
+
 	plat_build_rsp_msg_hdr((struct sab_mu_hdr *)rsp, msg_type,
 				rcvmsg_cmd_id,
-				rsp_msg_sz, nvm_ctx_param->mu_type);
+				rsp_msg_info, nvm_ctx_param->mu_type);
 
-	if (rsp_crc_added) {
-		if (plat_add_msg_crc(rsp, rsp_msg_sz)) {
-			error = SAB_NO_MESSAGE_RATING;
-			goto out;
-		}
+	/* Add CRC in response if needed */
+	nb_words = rsp_msg_info / (uint32_t)sizeof(uint32_t);
+	if (nb_words > SAB_STORAGE_NB_WORDS_MAX_WO_CRC) {
+		/* Add msg crc function never failed */
+		(void)plat_add_msg_crc(rsp, rsp_msg_info);
 	}
 
-	error = plat_sndmsg_rsp(nvm_ctx_param->phdl, rsp, rsp_msg_sz);
+	error = plat_sndmsg_rsp(nvm_ctx_param->phdl, rsp, rsp_msg_info);
 	if (error) {
 		printf("Error sending command[0x%x] response.\n",
 							rcvmsg_cmd_id);
@@ -393,6 +403,8 @@ uint32_t process_sab_rcv_send_msg(struct nvm_ctx_st *nvm_ctx_param,
 					plat_os_abs_free(chunk->data);
 			}
 			plat_os_abs_free(*data);
+			/* Set data pointer to NULL to prevent double free */
+			*data = NULL;
 			*data_sz = 0;
 		}
 	}
