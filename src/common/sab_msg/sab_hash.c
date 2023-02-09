@@ -1,5 +1,5 @@
 /*
- * Copyright 2022 NXP
+ * Copyright 2022-2023 NXP
  *
  * NXP Confidential.
  * This software is owned or controlled by NXP and may only be used strictly
@@ -67,7 +67,7 @@ uint32_t proc_msg_rsp_hash_one_go(void *rsp_buf, void *args)
 	struct sab_hash_one_go_rsp *rsp =
 		(struct sab_hash_one_go_rsp *) rsp_buf;
 #ifdef PSA_COMPLIANT
-	op_args->output_size = rsp->output_size;
+	op_args->exp_output_size = rsp->output_size;
 #endif
 	return SAB_SUCCESS_STATUS;
 }

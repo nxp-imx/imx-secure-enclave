@@ -1,5 +1,5 @@
 /*
- * Copyright 2022 NXP
+ * Copyright 2022-2023 NXP
  *
  * NXP Confidential.
  * This software is owned or controlled by NXP and may only be used strictly
@@ -90,6 +90,11 @@ typedef struct {
 	 * flags: User input through op args is reserved, as per ELE FW spec.
 	 * svc_flags: User input through op args is reserved.
 	 */
+#ifdef PSA_COMPLIANT
+	//!< expected output digest buffer size, returned by FW in case the
+	//	 provided output size is incorrect.
+	uint32_t exp_output_size;
+#endif
 } op_hash_one_go_args_t;
 
 /**
