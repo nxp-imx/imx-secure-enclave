@@ -94,8 +94,12 @@ void tv_tests_run(hsm_hdl_t key_store_hdl, uint8_t *tv_file_path)
 					sign_verify_test_tv(key_store_hdl, fp, line);
 
 
+				/* Hash tests */
+				if (memcmp(line, "TEST_HASH", 9) == 0)
+					hash_test_tv(fp, line);
+
 				/*
-				 * Add other tests such as HASH, Data Storage, RNG etc. later
+				 * Add other tests such as Data Storage, RNG etc. later
 				 */
 
 

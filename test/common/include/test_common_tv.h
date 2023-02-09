@@ -26,5 +26,6 @@ void generate_key_test_tv(hsm_hdl_t key_store_hdl, FILE *fp, char *line);
 void cipher_test_tv(hsm_hdl_t key_store_hdl, FILE *fp, char *line);
 void mac_test_tv(hsm_hdl_t key_store_hdl, FILE *fp, char *line);
 void sign_verify_test_tv(hsm_hdl_t key_store_hdl, FILE *fp, char *line);
+void hash_test_tv(FILE *fp, char *line);
 
 #endif

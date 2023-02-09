@@ -1,5 +1,5 @@
 /*
- * Copyright 2022 NXP
+ * Copyright 2022-2023 NXP
  *
  * NXP Confidential.
  * This software is owned or controlled by NXP and may only be used strictly
@@ -104,7 +104,7 @@ void print_buffer(uint8_t *buffer_ptr, uint32_t size)
 {
 	printf("[");
 
-	for (uint8_t i = 0; i < size; i++) {
+	for (uint32_t i = 0; i < size; i++) {
 
 		if ((i+1)%10 == 0)
 			printf("\n");
