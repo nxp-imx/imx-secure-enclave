@@ -74,6 +74,10 @@
 #include "sab_cipher.h"
 #endif
 
+#if MT_SAB_DATA_STORAGE
+#include "sab_data_storage.h"
+#endif
+
 #if MT_SAB_MAC
 #include "sab_mac.h"
 #endif
@@ -289,6 +293,29 @@ static  int init_proc_sab_hsm_msg_engine(msg_type_t msg_type,
 			ret = add_sab_msg_handler(msg_id, MT_SAB_CIPHER,
 						  prepare_msg_cipher_one_go,
 						  proc_msg_rsp_cipher_one_go);
+		}
+		break;
+#endif
+#if MT_SAB_DATA_STORAGE
+	case SAB_DATA_STORAGE_OPEN_REQ:
+		if (msg_type == MT_SAB_DATA_STORAGE) {
+			ret = add_sab_msg_handler(msg_id, MT_SAB_DATA_STORAGE,
+						  prepare_msg_data_storage_open_req,
+						  proc_msg_rsp_data_storage_open_req);
+		}
+		break;
+	case SAB_DATA_STORAGE_CLOSE_REQ:
+		if (msg_type == MT_SAB_DATA_STORAGE) {
+			ret = add_sab_msg_handler(msg_id, MT_SAB_DATA_STORAGE,
+						  prepare_msg_data_storage_close_req,
+						  proc_msg_rsp_data_storage_close_req);
+		}
+		break;
+	case SAB_DATA_STORAGE_REQ:
+		if (msg_type == MT_SAB_DATA_STORAGE) {
+			ret = add_sab_msg_handler(msg_id, MT_SAB_DATA_STORAGE,
+						  prepare_msg_data_storage,
+						  proc_msg_rsp_data_storage);
 		}
 		break;
 #endif

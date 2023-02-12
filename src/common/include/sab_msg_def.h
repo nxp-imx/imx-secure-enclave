@@ -674,48 +674,6 @@ struct sab_cmd_ecies_encrypt_rsp {
     uint32_t rsp_code;
 };
 
-struct sab_cmd_data_storage_open_msg{
-    struct sab_mu_hdr hdr;
-    uint32_t key_store_handle;
-    uint32_t input_address_ext;
-    uint32_t output_address_ext;
-    uint8_t flags;
-    uint8_t rsv[3];
-    uint32_t crc;
-};
-
-struct sab_cmd_data_storage_open_rsp {
-    struct sab_mu_hdr hdr;
-    uint32_t rsp_code;
-    uint32_t data_storage_handle;
-};
-
-struct sab_cmd_data_storage_close_msg{
-    struct sab_mu_hdr hdr;
-    uint32_t data_storage_handle;
-};
-
-struct sab_cmd_data_storage_close_rsp {
-    struct sab_mu_hdr hdr;
-    uint32_t rsp_code;
-};
-
-struct sab_cmd_data_storage_msg {
-    struct sab_mu_hdr hdr;
-    uint32_t data_storage_handle;
-    uint32_t data_address;
-    uint32_t data_size;
-    uint16_t data_id;
-    uint8_t flags;
-    uint8_t rsv;
-    uint32_t crc;
-};
-
-struct sab_cmd_data_storage_rsp {
-    struct sab_mu_hdr hdr;
-    uint32_t rsp_code;
-};
-
 struct sab_root_kek_export_msg {
     struct sab_mu_hdr hdr;
     uint32_t session_handle;
