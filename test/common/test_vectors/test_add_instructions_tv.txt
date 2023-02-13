@@ -11,7 +11,7 @@ If the <tv_file_path> not provided, then default tv file is used to run tests.
 The file contains tests with the tags and follow the format described here.
 
 NOTE: Currently Supports test vectors for: KGEN, CIPHER, MAC, Signature
-Generation & Signature Verification, HASH
+Generation & Signature Verification, HASH, Data Storage
 
 
 The test file is read line by line till EOF, to identify and use certain
@@ -26,9 +26,10 @@ Some Limitations about the format:
 
 -	ALl Recognized Tags like TESTS_START, TESTS_END, TEST_KGEN_*, TEST_KGEN_END,
 	TEST_CIPHER_*, TEST_CIPHER_END, TEST_MAC_*, TEST_MAC_END, TEST_SIGN_VERIFY_*,
-	TEST_SIGN_VERIFY_END, TEST_HASH_*, TEST_HASH_END, KEY_TV_ID, PERMITTED_ALGO,
-	KEY_USAGE, etc. needs to start from very beginning of their line as these
-	tags get read from very start of the line.
+	TEST_SIGN_VERIFY_END, TEST_HASH_*, TEST_HASH_END, TEST_DATA_STORAGE_*,
+	TEST_DATA_STORAGE_END, KEY_TV_ID, PERMITTED_ALGO, KEY_USAGE, etc. needs to
+	start from very beginning of their line as these tags get read from very
+	start of the line.
 
 -	Only Spaces (Not tabs) need to be used for PARAM_NAME  'space' PARAM_VALUE
 	key value pair.
@@ -102,6 +103,7 @@ TEST_<Test_Type>_END                    #marks the end of test
 2 - MAC
 3 - SIGN_VERIFY
 4 - HASH
+5 - DATA_STORAGE
 
 'n' representing serial no of test of particular test type/category
 1, 2, 3,...so on
@@ -317,6 +319,39 @@ EXP_OUTPUT_BUF    DEC (Output buffer size) #Next line have ', ' separated values
 EXP_HASH_HSM_RESP   HEX (uint8_t) #Expected HASH API HSM Response
 
 TEST_HASH_END
+
+
+
+
+-------------------------------------------------------------------------
+FORMAT and PARAMETERS for DATA STORAGE Tests:
+-------------------------------------------------------------------------
+
+#Positive/Negative Case:
+#Test Description (Optional line)
+TEST_DATA_STORAGE_<PSA/NON_PSA>_5<n>_<a/b>
+
+DATA_ID           HEX (uint16_t)  #Identifier of the data block
+DATA_SIZE         DEC (uint32_t)  #Data Size provided before input Data buffer
+
+DATA       	DEC (again mention DATA_SIZE) #Next line have ', ' separated values
+0xB2, 0xE1, 0x4C, 0x5C, 0x79, 0xC6, 0xDF, 0x5B,
+0x85, 0xF4, 0xFE, 0x7E, 0xD8, 0xDB, 0x7A, 0x26,
+0x2B, 0x9D, 0xA7, 0xE0, 0x7C, 0xCB, 0x0E, 0xA9,
+0xF4, 0x74, 0x7B, 0x8C, 0xCD, 0xA8, 0xA4, 0xF3,
+
+#(Example of Input buffer format is given as above, buffer of 'uint8_t' values)
+#For STORE flag, it is the Data to be stored, while for RETRIEVE flag, it is
+#the Expected Data to be used for matching with the Retrieved data using Data ID
+
+FLAGS             HEX (uint8_t)  #Flags for operation (0x0 - Retrieve, 0x1 - Store)
+EXP_DATA_STORAGE_HSM_RESP HEX (uint8_t) #Expected Data Storage API HSM Response
+
+TEST_DATA_STORAGE_END
+
+
+NOTE: The last part 'a' and 'b' of Test Identifier string, indicates STORE and
+RETRIEVE Data respectively.
 
 
 
@@ -586,6 +621,57 @@ EXP_OUTPUT_BUF         28      # Expected Output-Buffer Size, input next line
 EXP_HASH_HSM_RESP       0x00   # HSM_NO_ERROR
 
 TEST_HASH_END
+
+
+
+
+#Data Storage Tests
+
+
+
+#Positive Case:
+#Store Data of size 60 bytes
+TEST_DATA_STORAGE_PSA_501_a
+
+DATA_ID       0x02       # Data ID
+DATA_SIZE     60         # Data size in bytes
+DATA          60         # Data-Data size, data buffer next line
+0xB2, 0xE1, 0x4C, 0x5C, 0x79, 0xC6, 0xDF, 0x5B,
+0x85, 0xF4, 0xFE, 0x7E, 0xD8, 0xDB, 0x7A, 0x26,
+0x2B, 0x9D, 0xA7, 0xE0, 0x7C, 0xCB, 0x0E, 0xA9,
+0xF4, 0x74, 0x7B, 0x8C, 0xCD, 0xA8, 0xA4, 0xF3,
+0x6D, 0x65, 0x73, 0x73, 0x61, 0x67, 0x65, 0x20,
+0xB2, 0xE1, 0x4C, 0x5C, 0x79, 0xC6, 0xDF, 0x5B,
+0x85, 0xF4, 0x4C, 0x5C, 0x79, 0xC6, 0xDF, 0x5B,
+0x79, 0xC6, 0xDF, 0xDF
+
+FLAGS          0x1        # HSM_OP_DATA_STORAGE_FLAGS_STORE
+EXP_DATA_STORAGE_HSM_RESP 0x00    # HSM_NO_ERROR
+
+TEST_DATA_STORAGE_END
+
+
+
+#Positive Case:
+#Retrieve Stored Data of size 60 bytes
+TEST_DATA_STORAGE_PSA_501_b
+
+DATA_ID       0x02       # Data ID
+DATA_SIZE     60         # Data size in bytes
+DATA          60         # Data-Data size, data buffer next line
+0xB2, 0xE1, 0x4C, 0x5C, 0x79, 0xC6, 0xDF, 0x5B,
+0x85, 0xF4, 0xFE, 0x7E, 0xD8, 0xDB, 0x7A, 0x26,
+0x2B, 0x9D, 0xA7, 0xE0, 0x7C, 0xCB, 0x0E, 0xA9,
+0xF4, 0x74, 0x7B, 0x8C, 0xCD, 0xA8, 0xA4, 0xF3,
+0x6D, 0x65, 0x73, 0x73, 0x61, 0x67, 0x65, 0x20,
+0xB2, 0xE1, 0x4C, 0x5C, 0x79, 0xC6, 0xDF, 0x5B,
+0x85, 0xF4, 0x4C, 0x5C, 0x79, 0xC6, 0xDF, 0x5B,
+0x79, 0xC6, 0xDF, 0xDF
+
+FLAGS          0x0        # HSM_OP_DATA_STORAGE_FLAGS_RETRIEVE
+EXP_DATA_STORAGE_HSM_RESP 0x00  # HSM_NO_ERROR
+
+TEST_DATA_STORAGE_END
 
 
 -------------------------------------------------------------------------

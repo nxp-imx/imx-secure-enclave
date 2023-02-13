@@ -98,8 +98,12 @@ void tv_tests_run(hsm_hdl_t key_store_hdl, uint8_t *tv_file_path)
 				if (memcmp(line, "TEST_HASH", 9) == 0)
 					hash_test_tv(fp, line);
 
+				/* Data Storage tests*/
+				if (memcmp(line, "TEST_DATA_STORAGE", 17) == 0)
+					data_storage_test_tv(key_store_hdl, fp, line);
+
 				/*
-				 * Add other tests such as Data Storage, RNG etc. later
+				 * Add other tests such as RNG etc. later
 				 */
 
 

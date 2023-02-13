@@ -228,7 +228,7 @@ int32_t plat_sndmsg_rsp(struct plat_os_abs_hdl *phdl,
 		printf("\n---------- MSG Command RSP with msg id[0x%x] = %d -------------\n",
 			((struct sab_mu_hdr *)rsp)->command,
 			((struct sab_mu_hdr *)rsp)->command);
-		hexdump(rsp, *rsp_len);
+		hexdump(rsp, rsp_len);
 		printf("\n-------------------MSG RSP END-----------------------------------\n");
 #endif
 
