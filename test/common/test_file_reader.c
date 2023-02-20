@@ -102,6 +102,10 @@ void tv_tests_run(hsm_hdl_t key_store_hdl, uint8_t *tv_file_path)
 				if (memcmp(line, "TEST_DATA_STORAGE", 17) == 0)
 					data_storage_test_tv(key_store_hdl, fp, line);
 
+				/* Load Peristent Key Details */
+				if (memcmp(line, "LOAD_PERSIST_KEY_INFO", 21) == 0)
+					load_persist_key_info();
+
 				/*
 				 * Add other tests such as RNG etc. later
 				 */
