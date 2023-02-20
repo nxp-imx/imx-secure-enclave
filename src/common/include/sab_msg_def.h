@@ -346,32 +346,6 @@ struct sab_cmd_extend_seed_rsp {
 };
 
 /* SHE Storage */
-struct sab_cmd_storage_open_msg{
-    struct sab_mu_hdr hdr;
-    uint32_t session_handle;
-    uint32_t input_address_ext;
-    uint32_t output_address_ext;
-    uint8_t flags;
-    uint8_t pad[3];
-    uint32_t crc;
-};
-
-struct sab_cmd_storage_open_rsp{
-    struct sab_mu_hdr hdr;
-    uint32_t rsp_code;
-    uint32_t storage_handle;
-};
-
-struct sab_cmd_storage_close_msg {
-    struct sab_mu_hdr hdr;
-    uint32_t storage_handle;
-};
-
-struct sab_cmd_storage_close_rsp {
-    struct sab_mu_hdr hdr;
-    uint32_t rsp_code;
-};
-
 struct she_cmd_get_status_msg {
        struct sab_mu_hdr hdr;
        uint32_t she_utils_handle;

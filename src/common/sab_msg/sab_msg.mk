@@ -15,6 +15,18 @@ SAB_RCVMSG_SRC	+= \
 		$(PLAT_COMMON_PATH)/sab_msg/sab_process_msg.o \
 		$(PLAT_COMMON_PATH)/sab_msg/sab_init_nvm_msg.o
 
+ifneq (${MT_SAB_STORAGE_OPEN},0x0)
+DEFINES		+=	-DMT_SAB_STORAGE_OPEN=${MT_SAB_STORAGE_OPEN}
+SAB_RCVMSG_SRC	+= \
+		$(PLAT_COMMON_PATH)/sab_msg/sab_storage_open.o
+endif
+
+ifneq (${MT_SAB_STORAGE_CLOSE},0x0)
+DEFINES		+=	-DMT_SAB_STORAGE_CLOSE=${MT_SAB_STORAGE_CLOSE}
+SAB_RCVMSG_SRC	+= \
+		$(PLAT_COMMON_PATH)/sab_msg/sab_storage_close.o
+endif
+
 ifneq (${MT_SAB_STORAGE_MASTER_IMPORT},0x0)
 DEFINES		+=	-DMT_SAB_STORAGE_MASTER_IMPORT=${MT_SAB_STORAGE_MASTER_IMPORT}
 SAB_RCVMSG_SRC	+= \

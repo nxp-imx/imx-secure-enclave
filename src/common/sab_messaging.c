@@ -118,65 +118,6 @@ uint32_t sab_close_key_store(struct plat_os_abs_hdl *phdl, uint32_t key_store_ha
     return ret;
 }
 
-uint32_t sab_open_storage_command(struct plat_os_abs_hdl *phdl, uint32_t session_handle, uint32_t *storage_handle, uint32_t mu_type, uint8_t flags)
-{
-    struct sab_cmd_storage_open_msg cmd = {0};
-    struct sab_cmd_storage_open_rsp rsp = {0};
-    int32_t error = 1;
-    uint32_t ret = SAB_FAILURE_STATUS;
-
-    do {
-        /* Send the Storage open command to Platform. */
-        plat_fill_cmd_msg_hdr(&cmd.hdr, SAB_STORAGE_OPEN_REQ, (uint32_t)sizeof(struct sab_cmd_storage_open_msg), mu_type);
-        cmd.session_handle = session_handle;
-        cmd.input_address_ext = 0u;
-        cmd.output_address_ext = 0u;
-        cmd.flags = flags;
-        cmd.crc = plat_compute_msg_crc((uint32_t*)&cmd, (uint32_t)(sizeof(cmd) - sizeof(uint32_t)));
-
-        /* Send the message to Platform. */
-        error = plat_send_msg_and_get_resp(phdl,
-                    (uint32_t *)&cmd, (uint32_t)sizeof(struct sab_cmd_storage_open_msg),
-                    (uint32_t *)&rsp, (uint32_t)sizeof(struct sab_cmd_storage_open_rsp));
-        if (error != 0) {
-            break;
-        }
-
-		sab_err_map(SAB_STORAGE_OPEN_REQ, rsp.rsp_code);
-
-        ret = rsp.rsp_code;
-        *storage_handle = rsp.storage_handle;
-    } while(false);
-
-    return ret;
-}
-
-uint32_t sab_close_storage_command(struct plat_os_abs_hdl *phdl, uint32_t storage_handle, uint32_t mu_type)
-{
-    struct sab_cmd_storage_close_msg cmd;
-    struct sab_cmd_storage_close_rsp rsp;
-    int32_t error = 1;
-    uint32_t ret = SAB_FAILURE_STATUS;
-
-    do {
-        /* Send the Storage close command to Platform. */
-        plat_fill_cmd_msg_hdr(&cmd.hdr, SAB_STORAGE_CLOSE_REQ, (uint32_t)sizeof(struct sab_cmd_storage_close_msg), mu_type);
-        cmd.storage_handle = storage_handle;
-        error = plat_send_msg_and_get_resp(phdl,
-                    (uint32_t *)&cmd, (uint32_t)sizeof(struct sab_cmd_storage_close_msg),
-                    (uint32_t *)&rsp, (uint32_t)sizeof(struct sab_cmd_storage_close_rsp));
-
-        if (error != 0) {
-            break;
-        }
-
-		sab_err_map(SAB_STORAGE_CLOSE_REQ, rsp.rsp_code);
-
-        ret = rsp.rsp_code;
-    } while(false);
-    return ret;
-}
-
 uint32_t sab_open_sm2_eces(struct plat_os_abs_hdl *phdl, uint32_t key_store_handle, uint32_t *sm2_eces_handle, uint32_t mu_type, uint8_t flags)
 {
     struct sab_cmd_sm2_eces_dec_open_msg cmd;

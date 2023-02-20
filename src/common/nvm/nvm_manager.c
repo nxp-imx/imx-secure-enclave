@@ -20,6 +20,7 @@
 #include "nvm.h"
 #include "sab_nvm.h"
 #include "sab_process_msg.h"
+#include "sab_storage_open.h"
 
 #include "plat_os_abs.h"
 #include "plat_utils.h"
@@ -65,6 +66,8 @@ static uint32_t nvm_storage_import(struct nvm_ctx_st *nvm_ctx_param,
 void nvm_close_session(void *ctx)
 {
 	struct nvm_ctx_st *nvm_ctx = (struct nvm_ctx_st *)ctx;
+	op_storage_open_args_t *args = NULL;
+	uint32_t  rsp_code;
 	uint32_t ret = SAB_FAILURE_STATUS;
 
 	if (ctx == NULL) {
@@ -74,9 +77,14 @@ void nvm_close_session(void *ctx)
 
 	if (nvm_ctx->phdl != NULL) {
 		if (nvm_ctx->storage_handle != 0u) {
-			ret = sab_close_storage_command(nvm_ctx->phdl,
-					nvm_ctx->storage_handle,
-					nvm_ctx->mu_type);
+			ret = process_sab_msg(nvm_ctx->phdl,
+					      nvm_ctx->mu_type,
+					      SAB_STORAGE_CLOSE_REQ,
+					      MT_SAB_STORAGE_CLOSE,
+					      (uint32_t)nvm_ctx->storage_handle,
+					      args, &rsp_code);
+			if (rsp_code != SAB_SUCCESS_STATUS)
+				se_err("Warn: Failure in Storage Close.\n");
 			nvm_ctx->storage_handle = 0u;
 		}
 		if (nvm_ctx->session_handle != 0u) {
@@ -93,10 +101,14 @@ void nvm_close_session(void *ctx)
 	plat_os_abs_free(nvm_ctx);
 }
 
-static void nvm_open_session(uint8_t flags, struct nvm_ctx_st *nvm_ctx)
+static int nvm_open_session(uint8_t flags, struct nvm_ctx_st *nvm_ctx)
 {
 	uint32_t err = SAB_FAILURE_STATUS;
 	struct plat_mu_params mu_params;
+	op_storage_open_args_t *args = NULL;
+	uint32_t *storage_handle = NULL;
+	uint32_t  rsp_code;
+	uint32_t ret = SAB_FAILURE_STATUS;
 
 	do {
 		/* Check if structure is already in use */
@@ -144,22 +156,39 @@ static void nvm_open_session(uint8_t flags, struct nvm_ctx_st *nvm_ctx)
 		/* Open the NVM STORAGE session on the selected
 		 * security enclave
 		 */
-		err = sab_open_storage_command(nvm_ctx->phdl,
-				nvm_ctx->session_handle,
-				&nvm_ctx->storage_handle,
-				nvm_ctx->mu_type,
-				flags);
+		args = (op_storage_open_args_t *)
+			plat_os_abs_malloc((uint32_t)sizeof(op_storage_open_args_t));
+		if (args == NULL)
+			break;
+
+		plat_os_abs_memset((uint8_t *)args, 0u, (uint32_t)sizeof(op_storage_open_args_t));
+		args->flags = flags;
+
+		err = process_sab_msg(nvm_ctx->phdl,
+					nvm_ctx->mu_type,
+					SAB_STORAGE_OPEN_REQ,
+					MT_SAB_STORAGE_OPEN,
+					(uint32_t)nvm_ctx->session_handle,
+					args, &rsp_code);
 		if (err != SAB_SUCCESS_STATUS) {
 			nvm_ctx->storage_handle = 0u;
 			break;
+		} else {
+			nvm_ctx->storage_handle = args->storage_handle;
 		}
 	} while (false);
+
+	ret = rsp_code;
+	plat_os_abs_free(args);
+	args = NULL;
 
 	/* Clean-up in case of error. */
 	if (err != SAB_SUCCESS_STATUS) {
 		nvm_close_session(nvm_ctx);
 		//clean nvm_ctx
 	}
+
+	return ret;
 }
 
 int nvm_manager(uint8_t flags,
@@ -201,7 +230,8 @@ int nvm_manager(uint8_t flags,
 
 		nvm_ctx->status = NVM_STATUS_STARTING;
 
-		nvm_open_session(flags, nvm_ctx);
+		if (nvm_open_session(flags, nvm_ctx) != SAB_SUCCESS_STATUS)
+			se_err("Warn: Failure in Storage Open.\n");
 
 		if (nvm_ctx->phdl == NULL) {
 			err = 1;

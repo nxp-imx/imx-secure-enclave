@@ -29,6 +29,12 @@
 #if MT_SAB_STORAGE_CHUNK_EXPORT_REQ
 #include "sab_storage_chunk_export.h"
 #endif
+#if MT_SAB_STORAGE_OPEN
+#include "sab_storage_open.h"
+#endif
+#if MT_SAB_STORAGE_CLOSE
+#include "sab_storage_close.h"
+#endif
 
 #if MT_SAB_STORAGE_MASTER_IMPORT
 #include "sab_storage_master_import.h"
@@ -106,6 +112,24 @@ static int init_proc_sab_nvm_msg_engine(msg_type_t msg_type, uint32_t msg_id)
 			ret = add_sab_msg_handler(msg_id, MT_SAB_STORAGE_MASTER_IMPORT,
 						  prepare_msg_storage_master_import,
 						  proc_msg_rsp_storage_master_import);
+		}
+	break;
+#endif
+#if MT_SAB_STORAGE_OPEN
+	case SAB_STORAGE_OPEN_REQ:
+		if (msg_type == MT_SAB_STORAGE_OPEN) {
+			ret = add_sab_msg_handler(msg_id, MT_SAB_STORAGE_OPEN,
+						  prepare_msg_storage_open,
+						  proc_msg_rsp_storage_open);
+		}
+	break;
+#endif
+#if MT_SAB_STORAGE_CLOSE
+	case SAB_STORAGE_CLOSE_REQ:
+		if (msg_type == MT_SAB_STORAGE_CLOSE) {
+			ret = add_sab_msg_handler(msg_id, MT_SAB_STORAGE_CLOSE,
+						  prepare_msg_storage_close,
+						  proc_msg_rsp_storage_close);
 		}
 	break;
 #endif
