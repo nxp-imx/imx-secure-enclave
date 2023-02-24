@@ -14,6 +14,7 @@
 #include "internal/hsm_cipher.h"
 #include "internal/hsm_rng.h"
 #include "internal/hsm_get_info.h"
+#include "internal/hsm_session.h"
 
 #include "sab_msg_def.h"
 #include "sab_messaging.h"
@@ -204,7 +205,14 @@ void she_close_session(struct she_hdl_s *hdl)
                 hdl->key_store_handle = 0u;
             }
             if (hdl -> session_handle != 0u) {
-                (void)sab_close_session_command (hdl->phdl, hdl->session_handle, hdl->mu_type);
+		error = process_sab_msg(hdl->phdl,
+					hdl->mu_type,
+					SAB_SESSION_CLOSE_REQ,
+					MT_SAB_SESSION,
+					hdl->session_handle,
+					NULL, &rsp_code);
+		if (error != SAB_SUCCESS_STATUS)
+			printf("SAB FW Error[0x%x]: SAB_SESSION_CLOSE_REQ.\n", rsp_code);
                 hdl -> session_handle = 0u;
             }
             plat_os_abs_close_session(hdl->phdl);
@@ -221,6 +229,8 @@ static uint32_t she_storage_create_generic(uint32_t key_storage_identifier, uint
     uint32_t ret = SHE_STORAGE_CREATE_FAIL;
     uint32_t err;
     struct plat_mu_params mu_params;
+	open_session_args_t args;
+	uint32_t rsp_code;
     uint8_t flags = KEY_STORE_OPEN_FLAGS_CREATE | KEY_STORE_OPEN_FLAGS_SHE;
     do {
         /* allocate the handle (free when closing the session). */
@@ -242,20 +252,28 @@ static uint32_t she_storage_create_generic(uint32_t key_storage_identifier, uint
             (void)plat_os_abs_send_signed_message(hdl->phdl, signed_message, msg_len);
         }
 
-        /* Open the SHE session on platform side */
-        err = sab_open_session_command(hdl->phdl,
-                                       &hdl->session_handle,
-                                       hdl->mu_type,
-                                       mu_params.mu_id,
-                                       mu_params.interrupt_idx,
-                                       mu_params.tz,
-                                       mu_params.did,
-                                       0U,
-                                       0U);
-        if (err != SAB_SUCCESS_STATUS) {
-            hdl->session_handle = 0u;
-            break;
-        }
+		/* Open the SHE session on platform side */
+		args.mu_id = mu_params.mu_id;
+		args.interrupt_idx = mu_params.interrupt_idx;
+		args.tz = mu_params.tz;
+		args.did = mu_params.did;
+		args.session_priority = 0U;
+		args.operating_mode = 0U;
+
+		err = process_sab_msg(hdl->phdl,
+				      hdl->mu_type,
+				      SAB_SESSION_OPEN_REQ,
+				      MT_SAB_SESSION,
+				      hdl->session_handle,
+				      &args, &rsp_code);
+		ret = rsp_code;
+		if (err != SAB_SUCCESS_STATUS) {
+			printf("SAB FW Error[0x%x]: SAB_SESSION_OPEN_REQ.\n", rsp_code);
+			hdl->session_handle = 0u;
+			break;
+		}
+
+		hdl->session_handle = args.session_hdl;
 
         if(min_mac_len_setting == MIN_MAC_LEN_SET) {
             flags |= KEY_STORE_OPEN_FLAGS_SET_MAC_LEN;
@@ -314,6 +332,7 @@ struct she_hdl_s *she_open_session(uint32_t key_storage_identifier, uint32_t aut
     struct plat_mu_params mu_params;
     open_svc_cipher_args_t op_args;
     uint32_t rsp_code;
+	open_session_args_t args;
 
     do {
         if((async_cb != NULL) || (priv != NULL)) {
@@ -335,19 +354,26 @@ struct she_hdl_s *she_open_session(uint32_t key_storage_identifier, uint32_t aut
         }
 
         /* Open the SHE session on Secure-Enclave Platform's side */
-        err = sab_open_session_command(hdl->phdl,
-                                       &hdl->session_handle,
-                                       hdl->mu_type,
-                                       mu_params.mu_id,
-                                       mu_params.interrupt_idx,
-                                       mu_params.tz,
-                                       mu_params.did,
-                                       0U,
-                                       0U);
-        if (err != SAB_SUCCESS_STATUS) {
-            hdl->session_handle = 0u;
-            break;
-        }
+		args.mu_id = mu_params.mu_id;
+		args.interrupt_idx = mu_params.interrupt_idx;
+		args.tz = mu_params.tz;
+		args.did = mu_params.did;
+		args.session_priority = 0U;
+		args.operating_mode = 0U;
+
+		err = process_sab_msg(hdl->phdl,
+				      hdl->mu_type,
+				      SAB_SESSION_OPEN_REQ,
+				      MT_SAB_SESSION,
+				      hdl->session_handle,
+				      &args, &rsp_code);
+		if (err != SAB_SUCCESS_STATUS) {
+			printf("SAB FW Error[0x%x]: SAB_SESSION_OPEN_REQ.\n", rsp_code);
+			hdl->session_handle = 0u;
+			break;
+		}
+
+		hdl->session_handle = args.session_hdl;
 
         /* Get a SECURE RAM partition to be used as shared buffer */
         err = sab_get_shared_buffer(hdl->phdl, hdl->session_handle, hdl->mu_type);

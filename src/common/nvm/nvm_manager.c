@@ -21,6 +21,7 @@
 #include "sab_nvm.h"
 #include "sab_process_msg.h"
 #include "sab_storage_open.h"
+#include "internal/hsm_session.h"
 
 #include "plat_os_abs.h"
 #include "plat_utils.h"
@@ -88,9 +89,14 @@ void nvm_close_session(void *ctx)
 			nvm_ctx->storage_handle = 0u;
 		}
 		if (nvm_ctx->session_handle != 0u) {
-			(void)sab_close_session_command(nvm_ctx->phdl,
-					nvm_ctx->session_handle,
-					nvm_ctx->mu_type);
+			ret = process_sab_msg(nvm_ctx->phdl,
+					      nvm_ctx->mu_type,
+					      SAB_SESSION_CLOSE_REQ,
+					      MT_SAB_SESSION,
+					      nvm_ctx->session_handle,
+					      NULL, &rsp_code);
+			if (ret != SAB_SUCCESS_STATUS)
+				se_err("Warn: Failure in Session Close.\n");
 			nvm_ctx->session_handle = 0u;
 		}
 
@@ -106,6 +112,7 @@ static int nvm_open_session(uint8_t flags, struct nvm_ctx_st *nvm_ctx)
 	uint32_t err = SAB_FAILURE_STATUS;
 	struct plat_mu_params mu_params;
 	op_storage_open_args_t *args = NULL;
+	open_session_args_t sess_args;
 	uint32_t *storage_handle = NULL;
 	uint32_t  rsp_code;
 	uint32_t ret = SAB_FAILURE_STATUS;
@@ -138,21 +145,27 @@ static int nvm_open_session(uint8_t flags, struct nvm_ctx_st *nvm_ctx)
 		}
 
 		/* Open the SAB session on the selected security enclave */
-		err = sab_open_session_command(nvm_ctx->phdl,
-				&nvm_ctx->session_handle,
-				nvm_ctx->mu_type,
-				mu_params.mu_id,
-				mu_params.interrupt_idx,
-				mu_params.tz,
-				mu_params.did,
-				SAB_OPEN_SESSION_PRIORITY_LOW,
-				((flags & NVM_FLAGS_V2X) != 0u)
-				? SAB_OPEN_SESSION_LOW_LATENCY_MASK : 0U);
+		sess_args.mu_id = mu_params.mu_id;
+		sess_args.interrupt_idx = mu_params.interrupt_idx;
+		sess_args.tz = mu_params.tz;
+		sess_args.did = mu_params.did;
+		sess_args.session_priority = SAB_OPEN_SESSION_PRIORITY_LOW;
+		sess_args.operating_mode = ((flags & NVM_FLAGS_V2X) != 0u)
+					   ? SAB_OPEN_SESSION_LOW_LATENCY_MASK : 0U;
+
+		err = process_sab_msg(nvm_ctx->phdl,
+				      nvm_ctx->mu_type,
+				      SAB_SESSION_OPEN_REQ,
+				      MT_SAB_SESSION,
+				      (uint32_t)sess_args.session_hdl,
+				      &sess_args, &rsp_code);
+		ret = rsp_code;
 		if (err != SAB_SUCCESS_STATUS) {
 			nvm_ctx->session_handle = 0u;
 			break;
 		}
 
+		nvm_ctx->session_handle = sess_args.session_hdl;
 		/* Open the NVM STORAGE session on the selected
 		 * security enclave
 		 */
@@ -170,6 +183,7 @@ static int nvm_open_session(uint8_t flags, struct nvm_ctx_st *nvm_ctx)
 					MT_SAB_STORAGE_OPEN,
 					(uint32_t)nvm_ctx->session_handle,
 					args, &rsp_code);
+		ret = rsp_code;
 		if (err != SAB_SUCCESS_STATUS) {
 			nvm_ctx->storage_handle = 0u;
 			break;
@@ -178,9 +192,10 @@ static int nvm_open_session(uint8_t flags, struct nvm_ctx_st *nvm_ctx)
 		}
 	} while (false);
 
-	ret = rsp_code;
-	plat_os_abs_free(args);
-	args = NULL;
+	if (args) {
+		plat_os_abs_free(args);
+		args = NULL;
+	}
 
 	/* Clean-up in case of error. */
 	if (err != SAB_SUCCESS_STATUS) {

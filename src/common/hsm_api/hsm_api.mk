@@ -14,6 +14,12 @@ HSM_API_SRC	+= \
 		$(PLAT_COMMON_PATH)/hsm_api/hsm_handle.o \
 		$(PLAT_COMMON_PATH)/hsm_api/hsm_utils.o \
 
+ifneq (${MT_SAB_SESSION},0x0)
+DEFINES		+=	-DHSM_SESSION
+HSM_API_SRC	+= \
+		$(PLAT_COMMON_PATH)/hsm_api/hsm_session.o
+endif
+
 ifneq (${MT_SAB_CIPHER},0x0)
 DEFINES		+=	-DHSM_CIPHER
 HSM_API_SRC	+= \

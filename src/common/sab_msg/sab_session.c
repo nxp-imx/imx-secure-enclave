@@ -1,5 +1,5 @@
 /*
- * Copyright 2022 NXP
+ * Copyright 2023 NXP
  *
  * NXP Confidential.
  * This software is owned or controlled by NXP and may only be used strictly
@@ -11,93 +11,75 @@
  * activate or otherwise use the software.
  */
 
-#include "sab_common_err.h"
-#include "sab_messaging.h"
-#include "sab_msg_def.h"
+#include <string.h>
+
+#include "internal/hsm_session.h"
+
+#include "sab_session.h"
 
 #include "plat_os_abs.h"
 #include "plat_utils.h"
 
-uint32_t sab_open_session_command(struct plat_os_abs_hdl *phdl,
-				  uint32_t *session_handle,
-				  uint32_t mu_type,
-				  uint8_t mu_id,
-				  uint8_t interrupt_idx,
-				  uint8_t tz,
-				  uint8_t did,
-				  uint8_t priority,
-				  uint8_t operating_mode)
+uint32_t prepare_msg_session_open_req(void *phdl,
+				      void *cmd_buf, void *rsp_buf,
+				      uint32_t *cmd_msg_sz,
+				      uint32_t *rsp_msg_sz,
+				      uint32_t msg_hdl,
+				      void *args)
 {
-	struct sab_cmd_session_open_msg cmd = {0};
-	struct sab_cmd_session_open_rsp rsp = {0};
-	int32_t error;
-	uint32_t ret = SAB_FAILURE_STATUS;
+	uint32_t ret = 0;
+	struct sab_cmd_session_open_msg *cmd =
+		(struct sab_cmd_session_open_msg *)cmd_buf;
+	struct sab_cmd_session_open_rsp *rsp =
+		(struct sab_cmd_session_open_rsp *)rsp_buf;
+	open_session_args_t *op_args = (open_session_args_t *)args;
 
-	do {
-		/* Send the session open command to Platform. */
-		plat_fill_cmd_msg_hdr(&cmd.hdr,
-				      SAB_SESSION_OPEN_REQ,
-				      (uint32_t) sizeof(struct
-							sab_cmd_session_open_msg),
-				      mu_type);
-		cmd.mu_id = mu_id;
-		cmd.interrupt_idx = interrupt_idx;
-		cmd.tz = tz;
-		cmd.did = did;
-		cmd.priority = priority;
-		cmd.operating_mode = operating_mode;
+		cmd->mu_id = op_args->mu_id;
+		cmd->interrupt_idx = op_args->interrupt_idx;
+		cmd->tz = op_args->tz;
+		cmd->did = op_args->did;
+		cmd->priority = op_args->session_priority;
+		cmd->operating_mode = op_args->operating_mode;
 
-		error = plat_send_msg_and_get_resp(phdl, (uint32_t *)&cmd,
-						   (uint32_t) sizeof(struct
-									sab_cmd_session_open_msg),
-						   (uint32_t *)&rsp,
-						   (uint32_t) sizeof(struct
-									sab_cmd_session_open_rsp));
-		if (error != 0) {
-			break;
-		}
-
-		sab_err_map(SAB_SESSION_OPEN_REQ, rsp.rsp_code);
-
-		ret = rsp.rsp_code;
-		*session_handle = rsp.session_handle;
-	} while (false);
+	*cmd_msg_sz = sizeof(struct sab_cmd_session_open_msg);
+	*rsp_msg_sz = sizeof(struct sab_cmd_session_open_rsp);
 
 	return ret;
 }
 
-uint32_t sab_close_session_command(struct plat_os_abs_hdl *phdl,
-				    uint32_t session_handle,
-				    uint32_t mu_type)
+uint32_t proc_msg_rsp_session_open_req(void *rsp_buf, void *args)
 {
-	struct sab_cmd_session_close_msg cmd = {0};
-	struct sab_cmd_session_close_rsp rsp = {0};
-	int32_t error;
-	uint32_t ret = SAB_FAILURE_STATUS;
+	struct sab_cmd_session_open_rsp *rsp =
+		(struct sab_cmd_session_open_rsp *)rsp_buf;
+	open_session_args_t *op_args = (open_session_args_t *)args;
 
-	do {
-		plat_fill_cmd_msg_hdr(&cmd.hdr,
-				      SAB_SESSION_CLOSE_REQ,
-				      (uint32_t) sizeof(struct
-							sab_cmd_session_close_msg),
-				      mu_type);
-		cmd.session_handle = session_handle;
+	op_args->session_hdl = rsp->session_handle;
 
-		error =  plat_send_msg_and_get_resp(phdl, (uint32_t *)&cmd,
-						    (uint32_t) sizeof(struct
-									sab_cmd_session_close_msg),
-						    (uint32_t *)&rsp,
-						    (uint32_t) sizeof(struct
-									sab_cmd_session_close_rsp)
-						   );
-		if (error != 0) {
-			break;
-		}
+	return SAB_SUCCESS_STATUS;
+}
 
-		sab_err_map(SAB_SESSION_CLOSE_REQ, rsp.rsp_code);
+uint32_t prepare_msg_session_close_req(void *phdl,
+				       void *cmd_buf, void *rsp_buf,
+				       uint32_t *cmd_msg_sz,
+				       uint32_t *rsp_msg_sz,
+				       uint32_t msg_hdl,
+				       void *args)
+{
+	uint32_t ret = 0;
+	struct sab_cmd_session_close_msg *cmd =
+		(struct sab_cmd_session_close_msg *)cmd_buf;
+	struct sab_cmd_session_close_rsp *rsp =
+		(struct sab_cmd_session_close_rsp *)rsp_buf;
 
-		ret = rsp.rsp_code;
-	} while (false);
+	*cmd_msg_sz = sizeof(struct sab_cmd_session_close_msg);
+	*rsp_msg_sz = sizeof(struct sab_cmd_session_close_rsp);
+
+	cmd->session_handle = msg_hdl;
 
 	return ret;
+}
+
+uint32_t proc_msg_rsp_session_close_req(void *rsp_buf, void *args)
+{
+	return SAB_SUCCESS_STATUS;
 }

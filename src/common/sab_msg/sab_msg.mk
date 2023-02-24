@@ -115,6 +115,12 @@ SAB_MSG_SRC	+= \
 		$(PLAT_COMMON_PATH)/sab_msg/sab_mac.o
 endif
 
+ifneq (${MT_SAB_SESSION},0x0)
+DEFINES		+=	-DMT_SAB_SESSION=${MT_SAB_SESSION}
+SAB_MSG_SRC	+= \
+		$(PLAT_COMMON_PATH)/sab_msg/sab_session.o
+endif
+
 ifneq (${MT_SAB_CIPHER},0x0)
 DEFINES		+=	-DMT_SAB_CIPHER=${MT_SAB_CIPHER}
 SAB_MSG_SRC	+= \
@@ -188,7 +194,7 @@ SAB_MSG_SRC	+= \
 endif
 
 OBJECTS		+= $(SAB_MSG_SRC) \
-		   $(PLAT_COMMON_PATH)/sab_msg/sab_session.o
+		$(PLAT_COMMON_PATH)/sab_msg/sab_session.o
 
 INCLUDE_PATHS	+= \
        		-I${PLAT_COMMON_PATH}/sab_msg/include

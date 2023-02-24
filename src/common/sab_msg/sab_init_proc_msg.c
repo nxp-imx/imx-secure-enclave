@@ -94,6 +94,9 @@
 #include "sab_auth_enc.h"
 #endif
 
+#if MT_SAB_SESSION
+#include "sab_session.h"
+#endif
 
 static int init_proc_sab_base_msg_engine(msg_type_t msg_type,
 					 uint32_t msg_id)
@@ -293,6 +296,22 @@ static  int init_proc_sab_hsm_msg_engine(msg_type_t msg_type,
 			ret = add_sab_msg_handler(msg_id, MT_SAB_CIPHER,
 						  prepare_msg_cipher_one_go,
 						  proc_msg_rsp_cipher_one_go);
+		}
+		break;
+#endif
+#if MT_SAB_SESSION
+	case SAB_SESSION_OPEN_REQ:
+		if (msg_type == MT_SAB_SESSION) {
+			ret = add_sab_msg_handler(msg_id, MT_SAB_SESSION,
+						  prepare_msg_session_open_req,
+						  proc_msg_rsp_session_open_req);
+		}
+		break;
+	case SAB_SESSION_CLOSE_REQ:
+		if (msg_type == MT_SAB_SESSION) {
+			ret = add_sab_msg_handler(msg_id, MT_SAB_SESSION,
+						  prepare_msg_session_close_req,
+						  proc_msg_rsp_session_close_req);
 		}
 		break;
 #endif

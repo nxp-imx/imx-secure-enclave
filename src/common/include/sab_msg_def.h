@@ -374,33 +374,6 @@ struct she_cmd_get_id_rsp {
        uint32_t crc;
 };
 
-struct sab_cmd_session_open_msg {
-    struct sab_mu_hdr hdr;
-    uint8_t mu_id;
-    uint8_t interrupt_idx;
-    uint8_t tz;
-    uint8_t did;
-    uint8_t priority;
-    uint8_t operating_mode;
-    uint16_t pad;
-};
-
-struct sab_cmd_session_open_rsp {
-    struct sab_mu_hdr hdr;
-    uint32_t rsp_code;
-    uint32_t session_handle;
-};
-
-struct sab_cmd_session_close_msg {
-    struct sab_mu_hdr hdr;
-    uint32_t session_handle;
-};
-
-struct sab_cmd_session_close_rsp {
-    struct sab_mu_hdr hdr;
-    uint32_t rsp_code;
-};
-
 struct sab_cmd_key_store_open_msg{
     struct sab_mu_hdr hdr;
     uint32_t session_handle;
