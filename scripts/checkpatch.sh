@@ -76,6 +76,7 @@ function _ex_checkpatch() {
       --ignore CAMELCASE \
       --ignore PREFER_KERNEL_TYPES \
       --ignore CONCATENATED_STRING \
+      --ignore SPDX_LICENSE_TAG \
       --no-tree \
       --strict \
       $typedefs_opt \
