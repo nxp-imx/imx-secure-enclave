@@ -1,5 +1,5 @@
 /*
- * Copyright 2022 NXP
+ * Copyright 2022-2023 NXP
  *
  * NXP Confidential.
  * This software is owned or controlled by NXP and may only be used strictly
@@ -78,7 +78,7 @@ hsm_err_t do_cipher_test(hsm_hdl_t key_store_hdl, hsm_hdl_t key_mgmt_hdl)
 			HSM_KEY_INFO_TRANSIENT,
 			HSM_KEY_TYPE_AES_256,
 #else
-			HSM_SE_INTERN_STORAGE_VOLATILE,
+			HSM_SE_KEY_STORAGE_VOLATILE,
 			HSM_KEY_USAGE_DERIVE | HSM_KEY_USAGE_ENCRYPT | HSM_KEY_USAGE_DECRYPT,
 			PERMITTED_ALGO_ALL_CIPHER,
 			HSM_KEY_SIZE_AES_256,

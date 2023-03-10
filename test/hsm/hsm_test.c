@@ -404,7 +404,7 @@ static void transient_key_tests(hsm_hdl_t sess_hdl, hsm_hdl_t key_store_hdl)
 		key_gen_args.out_size = sizeof(pub_key);
 		key_gen_args.key_group = 2;
 #ifdef PSA_COMPLIANT
-		key_gen_args.key_lifetime = HSM_SE_INTERN_STORAGE_PERSISTENT;
+		key_gen_args.key_lifetime = HSM_SE_KEY_STORAGE_PERSISTENT;
 		key_gen_args.key_usage = HSM_KEY_USAGE_SIGN_HASH
 			| HSM_KEY_USAGE_VERIFY_HASH;
 		key_gen_args.permitted_algo = PERMITTED_ALGO_ECDSA_SHA256;
@@ -536,7 +536,7 @@ static void transient_key_tests(hsm_hdl_t sess_hdl, hsm_hdl_t key_store_hdl)
 #else
 	key_gen_args.key_type = HSM_KEY_TYPE_AES;
 	key_gen_args.bit_key_sz = HSM_KEY_SIZE_AES_256;
-	key_gen_args.key_lifetime = HSM_SE_INTERN_STORAGE_VOLATILE;
+	key_gen_args.key_lifetime = HSM_SE_KEY_STORAGE_VOLATILE;
 	key_gen_args.key_usage = HSM_KEY_USAGE_DERIVE | HSM_KEY_USAGE_ENCRYPT
 				| HSM_KEY_USAGE_DECRYPT;
 	key_gen_args.permitted_algo = PERMITTED_ALGO_ALL_CIPHER;

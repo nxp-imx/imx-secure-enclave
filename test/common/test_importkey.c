@@ -238,7 +238,7 @@ static int populate_wrapkey_e2gostruct(hsm_hdl_t sess_hdl,
 	in_data_for_wrap_key->key_type = HSM_KEY_TYPE_AES;
 	in_data_for_wrap_key->key_usage = HSM_KEY_USAGE_DECRYPT;
 	in_data_for_wrap_key->bit_key_sz = 256;
-	in_data_for_wrap_key->key_lifetime = HSM_SE_INTERN_STORAGE_VOLATILE;
+	in_data_for_wrap_key->key_lifetime = HSM_SE_KEY_STORAGE_VOLATILE;
 	in_data_for_wrap_key->import_key_lc = 0x1;
 	in_data_for_wrap_key->wrap_key_id = 0;
 	in_data_for_wrap_key->wrapping_algo = IMPORT_ALGO_NONE;
@@ -379,7 +379,7 @@ int test_import_key_e2gotlv(struct input_e2go_data *in_data,
 		key_gen_args.key_type = HSM_KEY_TYPE_AES;
 		key_gen_args.key_group = 1;
 		key_gen_args.bit_key_sz = 256;
-		key_gen_args.key_lifetime = HSM_SE_INTERN_STORAGE_VOLATILE;
+		key_gen_args.key_lifetime = HSM_SE_KEY_STORAGE_VOLATILE;
 		key_gen_args.key_usage = HSM_KEY_USAGE_SIGN_MSG
 						| HSM_KEY_USAGE_VERIFY_MSG;
 		key_gen_args.permitted_algo = PERMITTED_ALGO_CMAC;
@@ -490,7 +490,7 @@ int test_import_key(hsm_hdl_t sess_hdl,
 		in_data.key_type = HSM_KEY_TYPE_AES;
 		in_data.key_usage = HSM_KEY_USAGE_ENCRYPT | HSM_KEY_USAGE_DECRYPT;
 		in_data.bit_key_sz = key_size << 3;
-		in_data.key_lifetime = HSM_SE_INTERN_STORAGE_VOLATILE;
+		in_data.key_lifetime = HSM_SE_KEY_STORAGE_VOLATILE;
 		in_data.import_key_lc = 0x1;
 		in_data.wrapping_algo = IMPORT_ALGO_AES_CBC;
 		in_data.iv_size = 16;

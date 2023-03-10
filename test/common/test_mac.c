@@ -149,7 +149,7 @@ hsm_err_t do_mac_test(hsm_hdl_t key_store_hdl, hsm_hdl_t key_mgmt_hdl)
 			HSM_KEY_INFO_TRANSIENT,
 			HSM_KEY_TYPE_AES_256,
 #else
-			HSM_SE_INTERN_STORAGE_VOLATILE,
+			HSM_SE_KEY_STORAGE_VOLATILE,
 			HSM_KEY_USAGE_SIGN_MSG | HSM_KEY_USAGE_VERIFY_MSG,
 			PERMITTED_ALGO_CMAC,
 			HSM_KEY_SIZE_AES_256,
@@ -171,7 +171,7 @@ hsm_err_t do_mac_test(hsm_hdl_t key_store_hdl, hsm_hdl_t key_mgmt_hdl)
 			HSM_KEY_INFO_TRANSIENT,
 			HSM_KEY_TYPE_AES_128,
 #else
-			HSM_SE_INTERN_STORAGE_VOLATILE,
+			HSM_SE_KEY_STORAGE_VOLATILE,
 			HSM_KEY_USAGE_SIGN_MSG | HSM_KEY_USAGE_VERIFY_MSG,
 			PERMITTED_ALGO_CMAC,
 			HSM_KEY_SIZE_AES_128,
@@ -194,7 +194,7 @@ hsm_err_t do_mac_test(hsm_hdl_t key_store_hdl, hsm_hdl_t key_mgmt_hdl)
 			HSM_KEY_INFO_TRANSIENT,
 			HSM_KEY_TYPE_HMAC_224,
 #else
-			HSM_SE_INTERN_STORAGE_VOLATILE,
+			HSM_SE_KEY_STORAGE_VOLATILE,
 			HSM_KEY_USAGE_SIGN_MSG | HSM_KEY_USAGE_VERIFY_MSG,
 			PERMITTED_ALGO_HMAC_SHA224, // Not supported on ELE
 			HSM_KEY_SIZE_HMAC_224,
@@ -213,7 +213,7 @@ hsm_err_t do_mac_test(hsm_hdl_t key_store_hdl, hsm_hdl_t key_mgmt_hdl)
 			HSM_KEY_INFO_TRANSIENT,
 			HSM_KEY_TYPE_HMAC_256,
 #else
-			HSM_SE_INTERN_STORAGE_VOLATILE,
+			HSM_SE_KEY_STORAGE_VOLATILE,
 			HSM_KEY_USAGE_SIGN_MSG | HSM_KEY_USAGE_VERIFY_MSG,
 			PERMITTED_ALGO_HMAC_SHA256,
 			HSM_KEY_SIZE_HMAC_256,
@@ -235,7 +235,7 @@ hsm_err_t do_mac_test(hsm_hdl_t key_store_hdl, hsm_hdl_t key_mgmt_hdl)
 			HSM_KEY_INFO_TRANSIENT,
 			HSM_KEY_TYPE_HMAC_384,
 #else
-			HSM_SE_INTERN_STORAGE_VOLATILE,
+			HSM_SE_KEY_STORAGE_VOLATILE,
 			HSM_KEY_USAGE_SIGN_MSG | HSM_KEY_USAGE_VERIFY_MSG,
 			PERMITTED_ALGO_HMAC_SHA384,
 			HSM_KEY_SIZE_HMAC_384,
@@ -258,7 +258,7 @@ hsm_err_t do_mac_test(hsm_hdl_t key_store_hdl, hsm_hdl_t key_mgmt_hdl)
 			HSM_KEY_INFO_TRANSIENT,
 			HSM_KEY_TYPE_HMAC_512,
 #else
-			HSM_SE_INTERN_STORAGE_VOLATILE,
+			HSM_SE_KEY_STORAGE_VOLATILE,
 			HSM_KEY_USAGE_SIGN_MSG | HSM_KEY_USAGE_VERIFY_MSG,
 			PERMITTED_ALGO_HMAC_SHA512, // Not supported on ELE
 			HSM_KEY_SIZE_HMAC_512,
@@ -308,7 +308,7 @@ hsm_err_t hsm_mac_test(hsm_hdl_t key_store_hdl, hsm_hdl_t key_mgmt_hdl)
 			HSM_KEY_INFO_TRANSIENT,
 			HSM_KEY_TYPE_AES_256,
 #else
-			HSM_SE_INTERN_STORAGE_VOLATILE,
+			HSM_SE_KEY_STORAGE_VOLATILE,
 			HSM_KEY_USAGE_SIGN_MSG | HSM_KEY_USAGE_VERIFY_MSG,
 			PERMITTED_ALGO_CMAC,
 			HSM_KEY_SIZE_AES_256,
@@ -343,7 +343,7 @@ hsm_err_t hsm_mac_test(hsm_hdl_t key_store_hdl, hsm_hdl_t key_mgmt_hdl)
 			HSM_KEY_INFO_TRANSIENT,
 			HSM_KEY_TYPE_AES_128,
 #else
-			HSM_SE_INTERN_STORAGE_VOLATILE,
+			HSM_SE_KEY_STORAGE_VOLATILE,
 			HSM_KEY_USAGE_SIGN_MSG | HSM_KEY_USAGE_VERIFY_MSG,
 			PERMITTED_ALGO_CMAC,
 			HSM_KEY_SIZE_AES_128,
@@ -378,7 +378,7 @@ hsm_err_t hsm_mac_test(hsm_hdl_t key_store_hdl, hsm_hdl_t key_mgmt_hdl)
 			HSM_KEY_INFO_TRANSIENT,
 			HSM_KEY_TYPE_HMAC_224,
 #else
-			HSM_SE_INTERN_STORAGE_VOLATILE,
+			HSM_SE_KEY_STORAGE_VOLATILE,
 			HSM_KEY_USAGE_SIGN_MSG | HSM_KEY_USAGE_VERIFY_MSG,
 			PERMITTED_ALGO_HMAC_SHA224, // Not supported on ELE
 			HSM_KEY_SIZE_HMAC_224,
@@ -410,7 +410,7 @@ hsm_err_t hsm_mac_test(hsm_hdl_t key_store_hdl, hsm_hdl_t key_mgmt_hdl)
 			HSM_KEY_INFO_TRANSIENT,
 			HSM_KEY_TYPE_HMAC_256,
 #else
-			HSM_SE_INTERN_STORAGE_VOLATILE,
+			HSM_SE_KEY_STORAGE_VOLATILE,
 			HSM_KEY_USAGE_SIGN_MSG | HSM_KEY_USAGE_VERIFY_MSG,
 			PERMITTED_ALGO_HMAC_SHA256,
 			HSM_KEY_SIZE_HMAC_256,
@@ -445,7 +445,7 @@ hsm_err_t hsm_mac_test(hsm_hdl_t key_store_hdl, hsm_hdl_t key_mgmt_hdl)
 			HSM_KEY_INFO_TRANSIENT,
 			HSM_KEY_TYPE_HMAC_384,
 #else
-			HSM_SE_INTERN_STORAGE_VOLATILE,
+			HSM_SE_KEY_STORAGE_VOLATILE,
 			HSM_KEY_USAGE_SIGN_MSG | HSM_KEY_USAGE_VERIFY_MSG,
 			PERMITTED_ALGO_HMAC_SHA384,
 			HSM_KEY_SIZE_HMAC_384,
@@ -480,7 +480,7 @@ hsm_err_t hsm_mac_test(hsm_hdl_t key_store_hdl, hsm_hdl_t key_mgmt_hdl)
 			HSM_KEY_INFO_TRANSIENT,
 			HSM_KEY_TYPE_HMAC_512,
 #else
-			HSM_SE_INTERN_STORAGE_VOLATILE,
+			HSM_SE_KEY_STORAGE_VOLATILE,
 			HSM_KEY_USAGE_SIGN_MSG | HSM_KEY_USAGE_VERIFY_MSG,
 			PERMITTED_ALGO_HMAC_SHA512, // Not supporetd on ELE
 			HSM_KEY_SIZE_HMAC_512,
