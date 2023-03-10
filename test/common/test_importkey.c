@@ -383,6 +383,7 @@ int test_import_key_e2gotlv(struct input_e2go_data *in_data,
 		key_gen_args.key_usage = HSM_KEY_USAGE_SIGN_MSG
 						| HSM_KEY_USAGE_VERIFY_MSG;
 		key_gen_args.permitted_algo = PERMITTED_ALGO_CMAC;
+		key_gen_args.key_lifecycle = 0;
 
 		hsmret = hsm_generate_key(key_mgmt_hdl, &key_gen_args);
 

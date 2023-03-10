@@ -15,7 +15,7 @@
 
 #include "hsm_api.h"
 
-#define MAC_KEY_GROUP	1001
+#define MAC_KEY_GROUP	50
 
 static uint8_t  test_msg[300] = {
 	/* Note that the first 32 Bytes are the "Z" value
@@ -56,6 +56,7 @@ static hsm_err_t generate_key(hsm_hdl_t key_mgmt_hdl,
 			      hsm_key_usage_t key_usage,
 			      hsm_permitted_algo_t permitted_algo,
 					hsm_bit_key_sz_t bit_key_sz,
+					hsm_key_lifecycle_t key_lifecycle,
 #endif
 			      hsm_key_type_t key_type,
 			      uint32_t *key_identifier)
@@ -73,6 +74,7 @@ static hsm_err_t generate_key(hsm_hdl_t key_mgmt_hdl,
 	key_gen_args.key_usage = key_usage;
 	key_gen_args.permitted_algo = permitted_algo;
 	key_gen_args.bit_key_sz = bit_key_sz;
+	key_gen_args.key_lifecycle = key_lifecycle;
 #endif
 	key_gen_args.key_type = key_type;
 	key_gen_args.out_key = NULL;
@@ -153,6 +155,7 @@ hsm_err_t do_mac_test(hsm_hdl_t key_store_hdl, hsm_hdl_t key_mgmt_hdl)
 			HSM_KEY_USAGE_SIGN_MSG | HSM_KEY_USAGE_VERIFY_MSG,
 			PERMITTED_ALGO_CMAC,
 			HSM_KEY_SIZE_AES_256,
+			0,
 			HSM_KEY_TYPE_AES,
 #endif
 			&sym_key_id);
@@ -175,6 +178,7 @@ hsm_err_t do_mac_test(hsm_hdl_t key_store_hdl, hsm_hdl_t key_mgmt_hdl)
 			HSM_KEY_USAGE_SIGN_MSG | HSM_KEY_USAGE_VERIFY_MSG,
 			PERMITTED_ALGO_CMAC,
 			HSM_KEY_SIZE_AES_128,
+			0,
 			HSM_KEY_TYPE_AES,
 #endif
 			&sym_key_id);
@@ -198,6 +202,7 @@ hsm_err_t do_mac_test(hsm_hdl_t key_store_hdl, hsm_hdl_t key_mgmt_hdl)
 			HSM_KEY_USAGE_SIGN_MSG | HSM_KEY_USAGE_VERIFY_MSG,
 			PERMITTED_ALGO_HMAC_SHA224, // Not supported on ELE
 			HSM_KEY_SIZE_HMAC_224,
+			0,
 			HSM_KEY_TYPE_HMAC,
 #endif
 			&sym_key_id);
@@ -217,6 +222,7 @@ hsm_err_t do_mac_test(hsm_hdl_t key_store_hdl, hsm_hdl_t key_mgmt_hdl)
 			HSM_KEY_USAGE_SIGN_MSG | HSM_KEY_USAGE_VERIFY_MSG,
 			PERMITTED_ALGO_HMAC_SHA256,
 			HSM_KEY_SIZE_HMAC_256,
+			0,
 			HSM_KEY_TYPE_HMAC,
 #endif
 			&sym_key_id);
@@ -239,6 +245,7 @@ hsm_err_t do_mac_test(hsm_hdl_t key_store_hdl, hsm_hdl_t key_mgmt_hdl)
 			HSM_KEY_USAGE_SIGN_MSG | HSM_KEY_USAGE_VERIFY_MSG,
 			PERMITTED_ALGO_HMAC_SHA384,
 			HSM_KEY_SIZE_HMAC_384,
+			0,
 			HSM_KEY_TYPE_HMAC,
 #endif
 			&sym_key_id);
@@ -262,6 +269,7 @@ hsm_err_t do_mac_test(hsm_hdl_t key_store_hdl, hsm_hdl_t key_mgmt_hdl)
 			HSM_KEY_USAGE_SIGN_MSG | HSM_KEY_USAGE_VERIFY_MSG,
 			PERMITTED_ALGO_HMAC_SHA512, // Not supported on ELE
 			HSM_KEY_SIZE_HMAC_512,
+			0,
 			HSM_KEY_TYPE_HMAC,
 #endif
 			&sym_key_id);
@@ -312,6 +320,7 @@ hsm_err_t hsm_mac_test(hsm_hdl_t key_store_hdl, hsm_hdl_t key_mgmt_hdl)
 			HSM_KEY_USAGE_SIGN_MSG | HSM_KEY_USAGE_VERIFY_MSG,
 			PERMITTED_ALGO_CMAC,
 			HSM_KEY_SIZE_AES_256,
+			0,
 			HSM_KEY_TYPE_AES,
 #endif
 			&sym_key_id);
@@ -347,6 +356,7 @@ hsm_err_t hsm_mac_test(hsm_hdl_t key_store_hdl, hsm_hdl_t key_mgmt_hdl)
 			HSM_KEY_USAGE_SIGN_MSG | HSM_KEY_USAGE_VERIFY_MSG,
 			PERMITTED_ALGO_CMAC,
 			HSM_KEY_SIZE_AES_128,
+			0,
 			HSM_KEY_TYPE_AES,
 #endif
 			&sym_key_id);
@@ -382,6 +392,7 @@ hsm_err_t hsm_mac_test(hsm_hdl_t key_store_hdl, hsm_hdl_t key_mgmt_hdl)
 			HSM_KEY_USAGE_SIGN_MSG | HSM_KEY_USAGE_VERIFY_MSG,
 			PERMITTED_ALGO_HMAC_SHA224, // Not supported on ELE
 			HSM_KEY_SIZE_HMAC_224,
+			0,
 			HSM_KEY_TYPE_HMAC,
 #endif
 			&sym_key_id);
@@ -414,6 +425,7 @@ hsm_err_t hsm_mac_test(hsm_hdl_t key_store_hdl, hsm_hdl_t key_mgmt_hdl)
 			HSM_KEY_USAGE_SIGN_MSG | HSM_KEY_USAGE_VERIFY_MSG,
 			PERMITTED_ALGO_HMAC_SHA256,
 			HSM_KEY_SIZE_HMAC_256,
+			0,
 			HSM_KEY_TYPE_HMAC,
 #endif
 			&sym_key_id);
@@ -449,6 +461,7 @@ hsm_err_t hsm_mac_test(hsm_hdl_t key_store_hdl, hsm_hdl_t key_mgmt_hdl)
 			HSM_KEY_USAGE_SIGN_MSG | HSM_KEY_USAGE_VERIFY_MSG,
 			PERMITTED_ALGO_HMAC_SHA384,
 			HSM_KEY_SIZE_HMAC_384,
+			0,
 			HSM_KEY_TYPE_HMAC,
 #endif
 			&sym_key_id);
@@ -484,6 +497,7 @@ hsm_err_t hsm_mac_test(hsm_hdl_t key_store_hdl, hsm_hdl_t key_mgmt_hdl)
 			HSM_KEY_USAGE_SIGN_MSG | HSM_KEY_USAGE_VERIFY_MSG,
 			PERMITTED_ALGO_HMAC_SHA512, // Not supporetd on ELE
 			HSM_KEY_SIZE_HMAC_512,
+			0,
 			HSM_KEY_TYPE_HMAC,
 #endif
 			&sym_key_id);

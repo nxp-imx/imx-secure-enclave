@@ -411,6 +411,7 @@ static void transient_key_tests(hsm_hdl_t sess_hdl, hsm_hdl_t key_store_hdl)
 		key_gen_args.flags = HSM_OP_KEY_GENERATION_FLAGS_STRICT_OPERATION;
 		key_gen_args.key_type = HSM_KEY_TYPE_ECC_NIST;
 		key_gen_args.bit_key_sz = HSM_KEY_SIZE_ECC_NIST_256;
+		key_gen_args.key_lifecycle = 0;
 #else
 		key_gen_args.flags = HSM_OP_KEY_GENERATION_FLAGS_CREATE;
 		key_gen_args.key_info = HSM_KEY_INFO_TRANSIENT | HSM_KEY_INFO_MASTER;
@@ -528,7 +529,7 @@ static void transient_key_tests(hsm_hdl_t sess_hdl, hsm_hdl_t key_store_hdl)
 	memset(&key_gen_args, 0, sizeof(key_gen_args));
 	key_gen_args.key_identifier = &sym_key_id;
 	key_gen_args.out_size = 0;
-	key_gen_args.key_group = 1001;
+	key_gen_args.key_group = 50;
 #ifdef CONFIG_PLAT_SECO
 	key_gen_args.flags = HSM_OP_KEY_GENERATION_FLAGS_CREATE;
 	key_gen_args.key_type = HSM_KEY_TYPE_AES_256;
@@ -540,6 +541,7 @@ static void transient_key_tests(hsm_hdl_t sess_hdl, hsm_hdl_t key_store_hdl)
 	key_gen_args.key_usage = HSM_KEY_USAGE_DERIVE | HSM_KEY_USAGE_ENCRYPT
 				| HSM_KEY_USAGE_DECRYPT;
 	key_gen_args.permitted_algo = PERMITTED_ALGO_ALL_CIPHER;
+	key_gen_args.key_lifecycle = 0;
 #endif
 	key_gen_args.out_key = NULL;
 	hsmret = hsm_generate_key(key_mgmt_hdl, &key_gen_args);
@@ -611,13 +613,13 @@ static void transient_key_tests(hsm_hdl_t sess_hdl, hsm_hdl_t key_store_hdl)
 	auth_enc_test(key_store_hdl, key_mgmt_hdl);
 
 #ifdef PSA_COMPLIANT
-	key_management(KEYATTR, key_mgmt_hdl, &sym_key_id, 1001, HSM_KEY_TYPE_AES);
+	key_management(KEYATTR, key_mgmt_hdl, &sym_key_id, 50, HSM_KEY_TYPE_AES);
 #endif
 
 #ifndef PSA_COMPLIANT
-	key_management(DELETE, key_mgmt_hdl, &sym_key_id, 1001, HSM_KEY_TYPE_AES_256);
+	key_management(DELETE, key_mgmt_hdl, &sym_key_id, 50, HSM_KEY_TYPE_AES_256);
 #else
-	key_management(DELETE, key_mgmt_hdl, &sym_key_id, 1001, HSM_KEY_TYPE_AES);
+	key_management(DELETE, key_mgmt_hdl, &sym_key_id, 50, HSM_KEY_TYPE_AES);
 #endif
 
 	memset(import_key_buf, 0, import_key_len);

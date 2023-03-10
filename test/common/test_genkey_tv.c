@@ -26,9 +26,10 @@ static hsm_err_t generate_key(hsm_hdl_t key_mgmt_hdl,
 				hsm_key_lifetime_t key_lifetime,
 				hsm_key_usage_t key_usage,
 				hsm_permitted_algo_t permitted_algo,
+				hsm_bit_key_sz_t bit_key_sz,
+				hsm_key_lifecycle_t key_lifecycle,
 #endif
 				hsm_key_type_t key_type,
-				hsm_bit_key_sz_t bit_key_sz,
 				hsm_key_group_t key_group,
 				hsm_op_key_gen_flags_t flags,
 				uint8_t *out_key,
@@ -49,9 +50,10 @@ static hsm_err_t generate_key(hsm_hdl_t key_mgmt_hdl,
 	key_gen_args.key_lifetime = key_lifetime;
 	key_gen_args.key_usage = key_usage;
 	key_gen_args.permitted_algo = permitted_algo;
+	key_gen_args.bit_key_sz = bit_key_sz;
+	key_gen_args.key_lifecycle = key_lifecycle;
 #endif
 	key_gen_args.key_type = key_type;
-	key_gen_args.bit_key_sz = bit_key_sz;
 	key_gen_args.out_key = out_key;
 
 	return hsm_generate_key(key_mgmt_hdl, &key_gen_args);
@@ -63,9 +65,9 @@ static int8_t prepare_and_run_genkey_test(FILE *fp)
 	hsm_hdl_t key_mgmt_hdl = 0;
 
 #ifdef PSA_COMPLIANT
-	uint8_t req_params_n = 12;
+	uint8_t req_params_n = 13;
 #else
-	uint8_t req_params_n = 10;
+	uint8_t req_params_n = 9;
 #endif
 	uint8_t input_ctr = 0;
 	uint8_t invalid_read = 0;
@@ -85,10 +87,11 @@ static int8_t prepare_and_run_genkey_test(FILE *fp)
 	uint8_t *out_key = NULL;
 	uint16_t out_size = 0;
 	hsm_key_type_t key_type;
-	hsm_bit_key_sz_t bit_key_sz;
 	hsm_op_key_gen_flags_t flags;
 	hsm_key_group_t key_group;
- #ifdef PSA_COMPLIANT
+#ifdef PSA_COMPLIANT
+	hsm_bit_key_sz_t bit_key_sz;
+	hsm_key_lifecycle_t key_lifecycle;
 	hsm_key_lifetime_t key_lifetime;
 	hsm_key_usage_t key_usage;
 	hsm_permitted_algo_t permitted_algo;
@@ -166,11 +169,6 @@ static int8_t prepare_and_run_genkey_test(FILE *fp)
 			flags = (hsm_op_key_gen_flags_t)parse_param_value(param_value_token,
 						param_name, &input_ctr, &invalid_read);
 
-		} else if (strcmp(param_name, "BIT_KEY_SZ") == 0) {
-
-			bit_key_sz = (hsm_bit_key_sz_t)parse_param_value(param_value_token,
-							param_name, &input_ctr, &invalid_read);
-
 		}  else if (strcmp(param_name, "KEY_GROUP") == 0) {
 
 			key_group = (hsm_key_group_t)parse_param_value(param_value_token,
@@ -191,6 +189,14 @@ static int8_t prepare_and_run_genkey_test(FILE *fp)
 		} else if (strcmp(param_name, "PERMITTED_ALGO") == 0) {
 
 			permitted_algo = (hsm_permitted_algo_t)parse_param_value(param_value_token,
+							param_name, &input_ctr, &invalid_read);
+
+		} else if (strcmp(param_name, "BIT_KEY_SZ") == 0) {
+			bit_key_sz = (hsm_bit_key_sz_t)parse_param_value(param_value_token,
+							param_name, &input_ctr, &invalid_read);
+
+		} else if (strcmp(param_name, "KEY_LIFECYCLE") == 0) {
+			key_lifecycle = (hsm_key_lifecycle_t)parse_param_value(param_value_token,
 							param_name, &input_ctr, &invalid_read);
 
 #else
@@ -219,12 +225,13 @@ static int8_t prepare_and_run_genkey_test(FILE *fp)
 		printf("Out Size       : %u\n", out_size);
 		printf("Key Type       : 0x%x\n", key_type);
 		printf("Flags          : 0x%x\n", flags);
-		printf("Bit Key Size   : %u\n", bit_key_sz);
 		printf("Key Group      : %u\n", key_group);
 #ifdef PSA_COMPLIANT
 		printf("Key Lifetime   : 0x%x\n", key_lifetime);
 		printf("Key Usage      : 0x%x\n", key_usage);
 		printf("Permitted Algo : 0x%x\n", permitted_algo);
+		printf("Bit Key Size   : %u\n", bit_key_sz);
+		printf("Key Lifecycle  : 0x%x\n", key_lifecycle);
 #else
 		printf("Key Info       : 0x%x\n", key_info);
 #endif
@@ -238,8 +245,9 @@ static int8_t prepare_and_run_genkey_test(FILE *fp)
 					key_info,
 #else
 					key_lifetime, key_usage, permitted_algo,
+					bit_key_sz, key_lifecycle,
 #endif
-					key_type, bit_key_sz, key_group, flags,
+					key_type, key_group, flags,
 					out_key, out_size, &key_identifier);
 
 		if (ret == expected_rsp_code) {

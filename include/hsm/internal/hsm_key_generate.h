@@ -52,7 +52,6 @@ typedef struct {
 	hsm_op_key_gen_flags_t flags;
 	//!< indicates which type of key must be generated.
 	hsm_key_type_t key_type;
-	hsm_bit_key_sz_t bit_key_sz;
 	//!< Key group of the generated key.
 	//   It must be a value in the range 0-1023.
 	//   Keys belonging to the same group can be cached in the HSM local
@@ -62,6 +61,7 @@ typedef struct {
 	//   must be written.
 	uint8_t *out_key;
 #ifdef PSA_COMPLIANT
+	hsm_bit_key_sz_t bit_key_sz;
 	//!< defines the device lifecycle in which the key is usable.
 	//	 If it is set to 0, current device lifecycle is used.
 	hsm_key_lifecycle_t key_lifecycle;

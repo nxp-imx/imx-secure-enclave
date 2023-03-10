@@ -191,7 +191,7 @@ static void *sig_loop_thread(void *arg)
 
     op_generate_sign_args_t sig_gen_args;
     op_verify_sign_args_t sig_ver_args;
-    op_generate_key_args_t gen_key_args;
+	op_generate_key_args_t gen_key_args = {0};
     uint32_t key_id = 0;
     hsm_verification_status_t status;
     hsm_err_t err;
@@ -216,6 +216,7 @@ static void *sig_loop_thread(void *arg)
         gen_key_args.key_lifetime = 0;
         gen_key_args.key_usage = 0;
         gen_key_args.permitted_algo = 0;
+		gen_key_args.key_lifecycle = 0;
 #endif
 
         gen_key_args.out_key = args->pubk_area;
@@ -267,6 +268,7 @@ static void *sig_loop_thread(void *arg)
     gen_key_args.key_lifetime = 0;
     gen_key_args.key_usage = 0;
     gen_key_args.permitted_algo = 0;
+	gen_key_args.key_lifecycle = 0;
 #endif
     gen_key_args.out_key = args->pubk_area;
     err = hsm_generate_key(args->key_mgmt_srv, &gen_key_args);
@@ -325,7 +327,7 @@ static void *cipher_loop_thread(void *arg)
 {
 
     op_cipher_one_go_args_t cipher_args;
-    op_generate_key_args_t gen_key_args;
+	op_generate_key_args_t gen_key_args = {0};
     uint32_t key_id = 0;;
     hsm_verification_status_t status;
     hsm_err_t err;
@@ -352,6 +354,7 @@ static void *cipher_loop_thread(void *arg)
         gen_key_args.key_lifetime = 0;
         gen_key_args.key_usage = 0;
         gen_key_args.permitted_algo = 0;
+		gen_key_args.key_lifecycle = 0;
 #endif
         gen_key_args.out_key = NULL;
         err = hsm_generate_key(args->key_mgmt_srv, &gen_key_args);
@@ -434,7 +437,7 @@ int main(int argc, char *argv[])
     hsm_hdl_t sg0_sm2_eces_hdl, sg1_sm2_eces_hdl;
     hsm_hdl_t key_generic_crypto;
 
-    op_generate_key_args_t gen_key_args;
+	op_generate_key_args_t gen_key_args = {0};
     uint32_t key_id = 0;
     uint32_t key_id_sm4 = 0;
     uint32_t master_key_id = 0;
@@ -738,6 +741,7 @@ int main(int argc, char *argv[])
     gen_key_args.key_lifetime = 0;
     gen_key_args.key_usage = 0;
     gen_key_args.permitted_algo = 0;
+	gen_key_args.key_lifecycle = 0;
 #endif
     gen_key_args.out_key = work_area2; // public key needed for the encryption
     err = hsm_generate_key(sg0_key_mgmt_srv, &gen_key_args);
@@ -849,6 +853,7 @@ int main(int argc, char *argv[])
     gen_key_args.key_lifetime = 0;
     gen_key_args.key_usage = 0;
     gen_key_args.permitted_algo = 0;
+	gen_key_args.key_lifecycle = 0;
 #endif
     gen_key_args.out_key = work_area2; // public key needed for the encryption
     err = hsm_generate_key(sg0_key_mgmt_srv, &gen_key_args);
@@ -902,6 +907,7 @@ int main(int argc, char *argv[])
     gen_key_args.key_lifetime = 0;
     gen_key_args.key_usage = 0;
     gen_key_args.permitted_algo = 0;
+	gen_key_args.key_lifecycle = 0;
 #endif
     gen_key_args.out_key = work_area2; // public key needed for the encryption
     err = hsm_generate_key(sg0_key_mgmt_srv, &gen_key_args);
@@ -1004,6 +1010,7 @@ int main(int argc, char *argv[])
     gen_key_args.key_lifetime = 0;
     gen_key_args.key_usage = 0;
     gen_key_args.permitted_algo = 0;
+	gen_key_args.key_lifecycle = 0;
 #endif
     gen_key_args.out_key = work_area2;
     err = hsm_generate_key(sg0_key_mgmt_srv, &gen_key_args);
@@ -1118,6 +1125,7 @@ int main(int argc, char *argv[])
     gen_key_args.key_lifetime = 0;
     gen_key_args.key_usage = 0;
     gen_key_args.permitted_algo = 0;
+	gen_key_args.key_lifecycle = 0;
 #endif
     gen_key_args.out_key = NULL;
     err = hsm_generate_key(sg0_key_mgmt_srv, &gen_key_args);
@@ -1173,6 +1181,7 @@ int main(int argc, char *argv[])
     gen_key_args.key_lifetime = 0;
     gen_key_args.key_usage = 0;
     gen_key_args.permitted_algo = 0;
+	gen_key_args.key_lifecycle = 0;
 #endif
     gen_key_args.out_key = NULL;
     err = hsm_generate_key(sg0_key_mgmt_srv, &gen_key_args);
@@ -1322,6 +1331,7 @@ int main(int argc, char *argv[])
     gen_key_args.key_lifetime = 0;
     gen_key_args.key_usage = 0;
     gen_key_args.permitted_algo = 0;
+	gen_key_args.key_lifecycle = 0;
 #endif
     gen_key_args.out_key = work_area2;
     err = hsm_generate_key(sg0_key_mgmt_srv, &gen_key_args);
@@ -1338,6 +1348,7 @@ int main(int argc, char *argv[])
     gen_key_args.key_lifetime = 0;
     gen_key_args.key_usage = 0;
     gen_key_args.permitted_algo = 0;
+	gen_key_args.key_lifecycle = 0;
 #endif
     gen_key_args.out_key = NULL;
     err = hsm_generate_key(sg0_key_mgmt_srv, &gen_key_args);
@@ -1382,6 +1393,7 @@ int main(int argc, char *argv[])
     gen_key_args.key_lifetime = 0;
     gen_key_args.key_usage = 0;
     gen_key_args.permitted_algo = 0;
+	gen_key_args.key_lifecycle = 0;
 #endif
     gen_key_args.out_key = work_area2;
     err = hsm_generate_key(sg0_key_mgmt_srv, &gen_key_args);
@@ -1398,6 +1410,7 @@ int main(int argc, char *argv[])
     gen_key_args.key_lifetime = 0;
     gen_key_args.key_usage = 0;
     gen_key_args.permitted_algo = 0;
+	gen_key_args.key_lifecycle = 0;
 #endif
     gen_key_args.out_key = NULL;
     err = hsm_generate_key(sg0_key_mgmt_srv, &gen_key_args);
@@ -1447,6 +1460,7 @@ int main(int argc, char *argv[])
     gen_key_args.key_lifetime = 0;
     gen_key_args.key_usage = 0;
     gen_key_args.permitted_algo = 0;
+	gen_key_args.key_lifecycle = 0;
 #endif
     gen_key_args.out_key = NULL;
     err = hsm_generate_key(sg0_key_mgmt_srv, &gen_key_args);

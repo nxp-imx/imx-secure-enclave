@@ -26,7 +26,7 @@ uint8_t iv_data[16] = {
 	0x00, 0x01, 0x02, 0x03, 0x04, 0x05, 0x06, 0x07,
 	0x08, 0x09, 0x0A, 0x0B, 0x0C, 0x0D, 0x0E, 0x0F };
 
-#define KEY_GROUP	1001
+#define KEY_GROUP	50
 
 static hsm_err_t generate_key(hsm_hdl_t key_mgmt_hdl,
 #ifdef CONFIG_PLAT_SECO
@@ -36,6 +36,7 @@ static hsm_err_t generate_key(hsm_hdl_t key_mgmt_hdl,
 			      hsm_key_usage_t key_usage,
 			      hsm_permitted_algo_t permitted_algo,
 					hsm_bit_key_sz_t bit_key_sz,
+					hsm_key_lifecycle_t key_lifecycle,
 #endif
 			      hsm_key_type_t key_type,
 			      uint32_t *key_identifier)
@@ -53,6 +54,7 @@ static hsm_err_t generate_key(hsm_hdl_t key_mgmt_hdl,
 	key_gen_args.key_usage = key_usage;
 	key_gen_args.permitted_algo = permitted_algo;
 	key_gen_args.bit_key_sz = bit_key_sz;
+	key_gen_args.key_lifecycle = key_lifecycle;
 #endif
 	key_gen_args.key_type = key_type;
 	key_gen_args.out_key = NULL;
@@ -82,6 +84,7 @@ hsm_err_t do_cipher_test(hsm_hdl_t key_store_hdl, hsm_hdl_t key_mgmt_hdl)
 			HSM_KEY_USAGE_DERIVE | HSM_KEY_USAGE_ENCRYPT | HSM_KEY_USAGE_DECRYPT,
 			PERMITTED_ALGO_ALL_CIPHER,
 			HSM_KEY_SIZE_AES_256,
+			0,
 			HSM_KEY_TYPE_AES,
 #endif
 			&sym_key_id);

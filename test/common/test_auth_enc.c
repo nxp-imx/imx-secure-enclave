@@ -39,6 +39,7 @@ static hsm_err_t generate_key(hsm_hdl_t key_mgmt_hdl,
 				hsm_key_usage_t key_usage,
 				hsm_permitted_algo_t permitted_algo,
 				hsm_bit_key_sz_t bit_key_sz,
+				hsm_key_lifecycle_t key_lifecycle,
 #endif
 				hsm_key_type_t key_type,
 				hsm_key_group_t key_group,
@@ -57,6 +58,7 @@ static hsm_err_t generate_key(hsm_hdl_t key_mgmt_hdl,
 	key_gen_args.key_usage = key_usage;
 	key_gen_args.permitted_algo = permitted_algo;
 	key_gen_args.bit_key_sz = bit_key_sz;
+	key_gen_args.key_lifecycle = key_lifecycle;
 #endif
 	key_gen_args.key_type = key_type;
 	key_gen_args.out_key = NULL;
@@ -84,9 +86,10 @@ hsm_err_t auth_enc_test(hsm_hdl_t key_store_hdl, hsm_hdl_t key_mgmt_hdl)
 			HSM_KEY_USAGE_DERIVE | HSM_KEY_USAGE_ENCRYPT | HSM_KEY_USAGE_DECRYPT,
 			PERMITTED_ALGO_CCM,
 			HSM_KEY_SIZE_AES_256,
+			0,
 			HSM_KEY_TYPE_AES,
 #endif
-			1001,
+			50,
 			&key_id);
 
 	auth_enc_args.key_identifier = key_id;
