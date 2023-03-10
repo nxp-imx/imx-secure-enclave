@@ -1,5 +1,5 @@
 /*
- * Copyright 2022 NXP
+ * Copyright 2022-2023 NXP
  *
  * NXP Confidential.
  * This software is owned or controlled by NXP and may only be used strictly
@@ -114,9 +114,11 @@ static uint8_t SM3_HASH[32] = {
 
 void hash_test(hsm_hdl_t hash_sess)
 {
+#ifndef PSA_COMPLIANT
 	open_svc_hash_args_t hash_srv_args;
-	op_hash_one_go_args_t hash_args;
 	hsm_hdl_t hash_serv;
+#endif
+	op_hash_one_go_args_t hash_args;
 	hsm_err_t err;
 	int hash_size;
 	int j;
@@ -124,9 +126,10 @@ void hash_test(hsm_hdl_t hash_sess)
 	printf("\n---------------------------------------------------\n");
 	printf("HASH Test\n");
 	printf("---------------------------------------------------\n");
+#ifndef PSA_COMPLIANT
 	err = hsm_open_hash_service(hash_sess, &hash_srv_args, &hash_serv);
 	printf("err: 0x%x hsm_open_hash_service hdl: 0x%08x\n", err, hash_serv);
-
+#endif
 	memset(hash_work_area, 0, sizeof(hash_work_area));
 	hash_args.input = hash_test_message;
 	hash_args.output = hash_work_area;
@@ -135,8 +138,12 @@ void hash_test(hsm_hdl_t hash_sess)
 	hash_size = 28;
 	hash_args.output_size = hash_size;
 
+#ifndef PSA_COMPLIANT
 	err = hsm_hash_one_go(hash_serv, &hash_args);
-	printf("err: 0x%x hsm_hash_one_go hdl: 0x%08x\n", err, hash_serv);
+#else
+	err = hsm_hash_one_go(hash_sess, &hash_args);
+#endif
+	printf("err: 0x%x hsm_hash_one_go hash size: 0x%08x\n", err, hash_args.output_size);
 
 	test_status(SHA224_HASH, hash_work_area, sizeof(SHA224_HASH), "HSM_HASH_ALGO_SHA_224");
 
@@ -148,8 +155,13 @@ void hash_test(hsm_hdl_t hash_sess)
 	hash_size = 32;
 	hash_args.output_size = hash_size;
 
+#ifndef PSA_COMPLIANT
 	err = hsm_hash_one_go(hash_serv, &hash_args);
-	printf("err: 0x%x hsm_hash_one_go hdl: 0x%08x\n", err, hash_serv);
+#else
+	err = hsm_hash_one_go(hash_sess, &hash_args);
+#endif
+	printf("err: 0x%x hsm_hash_one_go hash size: 0x%08x\n", err, hash_args.output_size);
+
 	test_status(SHA256_HASH, hash_work_area, sizeof(SHA256_HASH), "HSM_HASH_ALGO_SHA_256");
 
 	memset(hash_work_area, 0, sizeof(hash_work_area));
@@ -160,8 +172,13 @@ void hash_test(hsm_hdl_t hash_sess)
 	hash_size = 48;
 	hash_args.output_size = hash_size;
 
+#ifndef PSA_COMPLIANT
 	err = hsm_hash_one_go(hash_serv, &hash_args);
-	printf("err: 0x%x hsm_hash_one_go hdl: 0x%08x\n", err, hash_serv);
+#else
+	err = hsm_hash_one_go(hash_sess, &hash_args);
+#endif
+	printf("err: 0x%x hsm_hash_one_go hash size: 0x%08x\n", err, hash_args.output_size);
+
 	test_status(SHA384_HASH, hash_work_area, sizeof(SHA384_HASH), "HSM_HASH_ALGO_SHA_384");
 
 	memset(hash_work_area, 0, sizeof(hash_work_area));
@@ -172,8 +189,13 @@ void hash_test(hsm_hdl_t hash_sess)
 	hash_size = 64;
 	hash_args.output_size = hash_size;
 
+#ifndef PSA_COMPLIANT
 	err = hsm_hash_one_go(hash_serv, &hash_args);
-	printf("err: 0x%x hsm_hash_one_go hdl: 0x%08x\n", err, hash_serv);
+#else
+	err = hsm_hash_one_go(hash_sess, &hash_args);
+#endif
+	printf("err: 0x%x hsm_hash_one_go hash size: 0x%08x\n", err, hash_args.output_size);
+
 	test_status(SHA512_HASH, hash_work_area, sizeof(SHA512_HASH), "HSM_HASH_ALGO_SHA_512");
 
 #if PLAT_ELE_FEAT_NOT_SUPPORTED
@@ -190,8 +212,11 @@ void hash_test(hsm_hdl_t hash_sess)
 	test_status(SM3_HASH, hash_work_area, sizeof(SM3_HASH), "HSM_HASH_ALGO_SM3_256");
 #endif
 
+#ifndef PSA_COMPLIANT
 	err = hsm_close_hash_service(hash_serv);
 	printf("err: 0x%x hsm_close_hash_service hdl: 0x%08x\n", err, hash_serv);
+#endif
+
 	printf("---------------------------------------------------\n\n");
 }
 

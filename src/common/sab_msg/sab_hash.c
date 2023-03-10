@@ -32,7 +32,17 @@ uint32_t prepare_msg_hash_one_go(void *phdl,
 		(struct sab_hash_one_go_rsp *) rsp_buf;
 	op_hash_one_go_args_t *op_args = (op_hash_one_go_args_t *) args;
 
+#ifndef PSA_COMPLIANT
 	cmd->hash_hdl = msg_hdl;
+#endif
+	/*
+	 * ctx_addr: Address of input context, ignored in case of one shot
+	 * operation.
+	 */
+	cmd->ctx_addr = (uint32_t)plat_os_abs_data_buf((struct plat_os_abs_hdl *)phdl,
+						       op_args->ctx,
+						       op_args->ctx_size,
+						       DATA_BUF_IS_INPUT);
 	cmd->input_addr = (uint32_t)plat_os_abs_data_buf(
 						(struct plat_os_abs_hdl *)phdl,
 						op_args->input,
@@ -49,7 +59,7 @@ uint32_t prepare_msg_hash_one_go(void *phdl,
 	/*
 	 * flags: User input through op args is reserved, as per ELE FW spec.
 	 */
-	cmd->flags = 0u;
+	cmd->flags = 1u;
 	memset(cmd->reserved, 0, SAB_HASH_RESERVED_BYTES);
 
 	*cmd_msg_sz = sizeof(struct sab_hash_one_go_msg);
@@ -68,10 +78,13 @@ uint32_t proc_msg_rsp_hash_one_go(void *rsp_buf, void *args)
 		(struct sab_hash_one_go_rsp *) rsp_buf;
 #ifdef PSA_COMPLIANT
 	op_args->exp_output_size = rsp->output_size;
+	op_args->context_size = rsp->context_size;
 #endif
+
 	return SAB_SUCCESS_STATUS;
 }
 
+#ifndef PSA_COMPLIANT
 uint32_t prepare_msg_hash_open_req(void *phdl,
 				   void *cmd_buf, void *rsp_buf,
 				   uint32_t *cmd_msg_sz,
@@ -138,3 +151,4 @@ uint32_t proc_msg_rsp_hash_close_req(void *rsp_buf, void *args)
 {
 	return SAB_SUCCESS_STATUS;
 }
+#endif

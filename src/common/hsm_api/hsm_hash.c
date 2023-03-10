@@ -28,7 +28,11 @@ hsm_err_t hsm_hash_one_go(hsm_hdl_t hash_hdl,
 			  op_hash_one_go_args_t *args)
 {
 	int32_t error = 1;
+#ifndef PSA_COMPLIANT
 	struct hsm_service_hdl_s *serv_ptr;
+#else
+	struct hsm_session_hdl_s *sess_ptr;
+#endif
 	hsm_err_t err = HSM_GENERAL_ERROR;
 	uint32_t rsp_code;
 
@@ -37,14 +41,25 @@ hsm_err_t hsm_hash_one_go(hsm_hdl_t hash_hdl,
 			break;
 		}
 
+#ifndef PSA_COMPLIANT
 		serv_ptr = service_hdl_to_ptr(hash_hdl);
 		if (serv_ptr == NULL) {
 			err = HSM_UNKNOWN_HANDLE;
 			break;
 		}
-
-		error = process_sab_msg(serv_ptr->session->phdl,
-					serv_ptr->session->mu_type,
+		sess_ptr = serv_ptr->session;
+#else
+		/* For PSA compliant HASH API
+		 * use session handle.
+		 */
+		sess_ptr = session_hdl_to_ptr(hash_hdl);
+		if (!sess_ptr) {
+			err = HSM_UNKNOWN_HANDLE;
+			break;
+		}
+#endif
+		error = process_sab_msg(sess_ptr->phdl,
+					sess_ptr->mu_type,
 					SAB_HASH_ONE_GO_REQ,
 					MT_SAB_HASH_GEN,
 					(uint32_t)hash_hdl,
@@ -66,6 +81,7 @@ hsm_err_t hsm_hash_one_go(hsm_hdl_t hash_hdl,
 	return err;
 }
 
+#ifndef PSA_COMPLIANT
 hsm_err_t hsm_open_hash_service(hsm_hdl_t session_hdl,
 				open_svc_hash_args_t *args,
 				hsm_hdl_t *hash_hdl)
@@ -158,13 +174,17 @@ hsm_err_t hsm_close_hash_service(hsm_hdl_t hash_hdl)
 
 	return err;
 }
+#endif
 
 hsm_err_t hsm_do_hash(hsm_hdl_t hash_sess, op_hash_one_go_args_t *hash_args)
 {
+#ifndef PSA_COMPLIANT
 	hsm_err_t err = HSM_GENERAL_ERROR;
+#endif
 	/* Stores the error status of the main operation.
 	 */
 	hsm_err_t op_err = HSM_NO_ERROR;
+#ifndef PSA_COMPLIANT
 	hsm_hdl_t hash_serv;
 	open_svc_hash_args_t hash_serv_args = {0};
 
@@ -175,16 +195,20 @@ hsm_err_t hsm_do_hash(hsm_hdl_t hash_sess, op_hash_one_go_args_t *hash_args)
 	}
 
 	op_err = hsm_hash_one_go(hash_serv, hash_args);
+#else
+	op_err = hsm_hash_one_go(hash_sess, hash_args);
+#endif
 	if (op_err)
-		se_err("err: 0x%x hsm_hash_one_go hdl: 0x%08x\n", op_err, hash_serv);
+		se_err("err: 0x%x HASH failed hash size: 0x%08x\n", op_err, hash_args.output_size);
 
+#ifndef PSA_COMPLIANT
 	err = hsm_close_hash_service(hash_serv);
 	if (err) {
 		se_err("err: 0x%x hsm_close_hash_service hdl: 0x%08x\n", err, hash_serv);
 		if (op_err == HSM_NO_ERROR)
 			op_err = err;
 	}
-
 exit:
+#endif
 	return op_err;
 }

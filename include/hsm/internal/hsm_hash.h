@@ -76,6 +76,13 @@ typedef uint8_t hsm_hash_algo_t;
 #endif
 
 typedef struct {
+#ifdef PSA_COMPLIANT
+	//!< pointer to the MSB of address in the requester space where buffers
+	//can be found, must be 0 until supported.
+	uint8_t *msb;
+	//!< pointer to the input context buffer to be hashed
+	uint8_t *ctx;
+#endif
 	//!< pointer to the input data to be hashed
 	uint8_t *input;
 	//!< pointer to the output area where the resulting digest must be written
@@ -91,9 +98,15 @@ typedef struct {
 	 * svc_flags: User input through op args is reserved.
 	 */
 #ifdef PSA_COMPLIANT
+	//!< size of context buffer in bytes, ignored in case of one shot
+	//operation.
+	uint8_t ctx_size;
 	//!< expected output digest buffer size, returned by FW in case the
 	//	 provided output size is incorrect.
 	uint32_t exp_output_size;
+	//!< expected context size to allocate in bytes, if flag Get context
+	//	size is set or provided context size is incorrect.
+	uint16_t context_size;
 #endif
 } op_hash_one_go_args_t;
 

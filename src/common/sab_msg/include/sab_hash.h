@@ -1,5 +1,5 @@
 /*
- * Copyright 2022 NXP
+ * Copyright 2022-2023 NXP
  *
  * NXP Confidential.
  * This software is owned or controlled by NXP and may only be used strictly
@@ -44,15 +44,21 @@ struct sab_hash_close_rsp {
 
 struct sab_hash_one_go_msg {
 	struct sab_mu_hdr hdr;
+#ifdef PSA_COMPLIANT
+	uint32_t addr_msb;
+	uint32_t ctx_addr;
+#else
 	uint32_t hash_hdl;
+#endif
 	uint32_t input_addr;
 	uint32_t output_addr;
 	uint32_t input_size;
 	uint32_t output_size;
 #ifdef PSA_COMPLIANT
-#define SAB_HASH_RESERVED_BYTES		3
+#define SAB_HASH_RESERVED_BYTES		1
 	uint8_t flags;
 	uint8_t reserved[SAB_HASH_RESERVED_BYTES];
+	uint16_t ctx_size;
 	uint32_t algo;
 #else
 #define SAB_HASH_RESERVED_BYTES		2
@@ -68,6 +74,8 @@ struct sab_hash_one_go_rsp {
 	uint32_t rsp_code;
 #ifdef PSA_COMPLIANT
 	uint32_t output_size;
+	uint16_t context_size;
+	uint16_t rsv;
 #endif
 };
 
