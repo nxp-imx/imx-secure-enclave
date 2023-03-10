@@ -1,5 +1,5 @@
 /*
- * Copyright 2022 NXP
+ * Copyright 2022-2023 NXP
  *
  * NXP Confidential.
  * This software is owned or controlled by NXP and may only be used strictly
@@ -62,6 +62,9 @@ typedef struct {
 	//   must be written.
 	uint8_t *out_key;
 #ifdef PSA_COMPLIANT
+	//!< defines the device lifecycle in which the key is usable.
+	//	 If it is set to 0, current device lifecycle is used.
+	hsm_key_lifecycle_t key_lifecycle;
 	hsm_key_lifetime_t key_lifetime;
 	hsm_key_usage_t key_usage;
 	hsm_permitted_algo_t permitted_algo;

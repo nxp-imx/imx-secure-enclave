@@ -162,7 +162,7 @@ typedef enum {
 typedef enum {
 	HSM_KEY_LIFECYCLE_OPEN		= 0x1,
 	HSM_KEY_LIFECYCLE_CLOSED	= 0x2,
-	HSM_KEY_LIFECYCLE_LOCKED	= 0x4,
+	HSM_KEY_LIFECYCLE_CLOSED_LOCKED	= 0x4,
 } hsm_key_lifecycle_t;
 
 typedef uint16_t hsm_key_group_t;

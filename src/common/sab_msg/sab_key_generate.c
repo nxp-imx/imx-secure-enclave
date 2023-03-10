@@ -1,5 +1,5 @@
 /*
- * Copyright 2022 NXP
+ * Copyright 2022-2023 NXP
  *
  * NXP Confidential.
  * This software is owned or controlled by NXP and may only be used strictly
@@ -47,6 +47,7 @@ uint32_t prepare_msg_generatekey(void *phdl,
 	cmd->key_usage = op_args->key_usage;
 	cmd->key_sz = op_args->bit_key_sz;
 	cmd->permitted_algo = op_args->permitted_algo;
+	cmd->key_lifecycle = op_args->key_lifecycle;
 #endif
 
 	cmd->out_key_addr = (uint32_t)plat_os_abs_data_buf(

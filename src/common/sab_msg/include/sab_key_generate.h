@@ -1,5 +1,5 @@
 /*
- * Copyright 2022 NXP
+ * Copyright 2022-2023 NXP
  *
  * NXP Confidential.
  * This software is owned or controlled by NXP and may only be used strictly
@@ -36,6 +36,7 @@ struct sab_cmd_generate_key_msg {
 	uint32_t key_lifetime;
 	uint32_t key_usage;
 	uint32_t permitted_algo;
+	uint32_t key_lifecycle;
 	uint8_t flags;
 	uint8_t rsv[3];
 #endif
