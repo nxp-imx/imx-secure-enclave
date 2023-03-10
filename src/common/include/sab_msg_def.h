@@ -16,6 +16,7 @@
 #define SAB_MSG_H
 
 #include <stdint.h>
+#include <plat_sab_msg_def.h>
 
 #define MESSAGING_TAG_COMMAND                   0x17u
 #define MESSAGING_TAG_RESPONSE                  0xe1u
@@ -105,7 +106,9 @@
 
 #define SAB_HASH_OPEN_REQ                       0x90u
 #define SAB_HASH_CLOSE_REQ                      0x91u
-#define SAB_HASH_ONE_GO_REQ                     0x92u
+#ifndef SAB_HASH_ONE_GO_REQ
+#define SAB_HASH_ONE_GO_REQ                     0xCCu
+#endif
 
 #define SAB_DATA_STORAGE_OPEN_REQ               0xA0u
 #define SAB_DATA_STORAGE_CLOSE_REQ              0xA1u
