@@ -14,23 +14,7 @@
 #ifndef HSM_SESSION_H
 #define HSM_SESSION_H
 
-#include "plat_os_abs.h"
-
-#define MU_CONFIG(prio, op_mode) (((op_mode & HSM_OPEN_SESSION_LOW_LATENCY_MASK) != 0U  ? 4U : 0U)\
-				| (prio == HSM_OPEN_SESSION_PRIORITY_HIGH               ? 2U : 0U)\
-				| ((op_mode & HSM_OPEN_SESSION_NO_KEY_STORE_MASK) != 0U ? 1U : 0U))
-#define MU_CONFIG_NB		(8)
-
-static const uint32_t mu_table[MU_CONFIG_NB] = {
-	MU_CHANNEL_PLAT_HSM,      // best_effort, low prio, with key store
-	MU_CHANNEL_PLAT_HSM_2ND,  // best_effort, low prio, no key store
-	MU_CHANNEL_UNDEF,         // best_effort, high prio, with key store
-	MU_CHANNEL_UNDEF,         // best_effort, high prio, no key store
-	MU_CHANNEL_V2X_SG1,       // low latency, low prio,  with key store
-	MU_CHANNEL_V2X_SV1,       // low latency, low prio,  no key store
-	MU_CHANNEL_V2X_SG0,       // low latency, high prio, with key store
-	MU_CHANNEL_V2X_SV0,       // low latency, high prio, no key store
-};
+#include <stdint.h>
 
 /**
  *  @defgroup group1 Session
@@ -51,10 +35,14 @@ typedef struct {
 	uint8_t did;
 		//!< DID of the calling partition.
 } open_session_args_t;
+
+/* Priority Flags */
 #define HSM_OPEN_SESSION_PRIORITY_LOW       (0x00U)
  //!< Low priority. default setting on platforms that doesn't support sessions priorities.
 #define HSM_OPEN_SESSION_PRIORITY_HIGH      (0x01U)
  //!< High Priority session.
+
+/* Operating Mode */
 #define HSM_OPEN_SESSION_FIPS_MODE_MASK     (1u << 0)
  //!< Only FIPS certified operations authorized in this session.
 #define HSM_OPEN_SESSION_EXCLUSIVE_MASK     (1u << 1)
