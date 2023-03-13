@@ -29,6 +29,7 @@ typedef enum {
 
 typedef enum {
 	ALGO_CIPHER_CTR	         = 0x04C01000,
+	ALGO_CIPHER_CFB	         = 0x04C01100,
 	ALGO_CIPHER_ECB_NO_PAD	 = 0x04404400,
 	ALGO_CIPHER_CBC_NO_PAD	 = 0x04404000,
 	ALGO_CIPHER_ALL	         = 0x84C0FF00,
