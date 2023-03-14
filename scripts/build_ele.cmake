@@ -45,9 +45,14 @@ if(NOT ELE_FOUND)
         set(ENV{AR} ${CMAKE_AR})
 	# set(ENV{CPATH} $ENV{CPATH}:${OPENSSL_INCLUDE_DIR})
 
-        message(STATUS "Building EdgeLock Enclave libs")
-        set(ELE_MAKE_ARGS clean all install_tests PLAT=ele DESTDIR=${ELE_ROOT})
-			#LDFLAGS=-L${OPENSSL_LIBRARY_DIR})
+        if(NOT ${ELE_MAKE_FOR_COVERITY} EQUAL 0)
+                message(STATUS "Building EdgeLock Enclave libs")
+                set(ELE_MAKE_ARGS clean libs PLAT=ele DESTDIR=${ELE_ROOT})
+        else()
+                message(STATUS "Building EdgeLock Enclave libs & tests")
+                set(ELE_MAKE_ARGS clean all install_tests PLAT=ele DESTDIR=${ELE_ROOT})
+        endif()
+
         execute_process(COMMAND make ${ELE_MAKE_ARGS}
                         WORKING_DIRECTORY ${ELE_SRC_PATH}
                         RESULT_VARIABLE res)

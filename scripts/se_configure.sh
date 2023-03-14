@@ -33,6 +33,7 @@ fi
 out=$1
 arch="arch=$2"
 platform="$3"
+opt_cov_scan=$4
 
 #
 # Convert platform to optee platform
@@ -76,17 +77,13 @@ psaarchtests_src_path="../psa-arch-tests"
 eval "./scripts/se_build.sh toolchain ${arch} ${toolpath}"
 
 if [[ ${opt_seco} -eq 1 ]]; then
-eval "./scripts/se_build.sh zlib export=${export}/usr \
-      src=../zlib ${arch} ${toolpath}"
 eval "./scripts/smw_build.sh seco export=${export} \
-      src=../seco_libs zlib=${export}/usr ${arch} ${toolpath}"
+      src=../seco_libs cov_scan=$opt_cov_scan ${arch} ${toolpath}"
 fi
 
 if [[ ${opt_ele} -eq 1 ]]; then
-eval "./scripts/se_build.sh zlib export=${export}/usr \
-      src=../zlib ${arch} ${toolpath}"
 eval "./scripts/se_build.sh ele export=${export} \
-      src=../secure_enclave zlib=${export}/usr ${arch} ${toolpath}"
+      src=../secure_enclave cov_scan=$opt_cov_scan ${arch} ${toolpath}"
 fi
 
 

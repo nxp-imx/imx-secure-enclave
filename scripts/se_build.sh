@@ -194,6 +194,9 @@ function ele()
     fi
 
     cmd_script="${cmd_script} -DELE_SRC_PATH=${opt_src}"
+    if [[ ${opt_cov_scan} -eq 1 ]]; then
+        cmd_script="${cmd_script} -DELE_MAKE_FOR_COVERITY=${opt_cov_scan}"
+    fi
     cmd_script="${cmd_script} -DELE_ROOT=${opt_export} -P ${ele_script}"
 
     printf "Execute %s\n" "${cmd_script}"
@@ -740,6 +743,10 @@ do
         src=*)
             opt_src="${arg#*=}"
             check_directory opt_src
+            ;;
+
+        cov_scan=*)
+            opt_cov_scan="${arg#*=}"
             ;;
 
         openssl=*)

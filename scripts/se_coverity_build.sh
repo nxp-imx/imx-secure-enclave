@@ -32,5 +32,6 @@ echo $1
 eval "make PLAT=$1 clean; rm -rf $3"
 
 # Rebuild targets
-eval "./scripts/se_build.sh zlib arch=$2 src=zlib export=zlib"
-eval "./scripts/se_build.sh $1 arch=$2 src=./ zlib=./zlib export=$3"
+echo "*****************se_coverity_build.sh**********************\n"
+eval "./scripts/se_build.sh $1 cov_scan="1" arch=$2 src=./ export=$3"
+echo "*****************se_coverity_build.sh**********************\n"
