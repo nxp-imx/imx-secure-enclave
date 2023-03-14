@@ -55,6 +55,8 @@ typedef enum {
 	HSM_CIPHER_ONE_GO_ALGO_CTR = ALGO_CIPHER_CTR,
 	//!< CFB (AES supported).
 	HSM_CIPHER_ONE_GO_ALGO_CFB = ALGO_CIPHER_CFB,
+	//!< OFB (AES supported).
+	HSM_CIPHER_ONE_GO_ALGO_OFB = ALGO_CIPHER_OFB,
 	//!< ECB no padding (AES, SM4 supported).
 	HSM_CIPHER_ONE_GO_ALGO_ECB = ALGO_CIPHER_ECB_NO_PAD,
 	//!< CBC no padding (AES, SM4 supported).
