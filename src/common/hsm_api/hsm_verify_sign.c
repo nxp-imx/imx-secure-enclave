@@ -120,12 +120,12 @@ hsm_err_t hsm_verify_signature(hsm_hdl_t signature_ver_hdl,
 	hsm_err_t err = HSM_GENERAL_ERROR;
 	uint32_t rsp_code;
 
-	args->verification_status = HSM_VERIFICATION_STATUS_FAILURE;
-
 	do {
 		if ((args == NULL) || (status == NULL)) {
 			break;
 		}
+		args->verification_status = HSM_VERIFICATION_STATUS_FAILURE;
+
 		serv_ptr = service_hdl_to_ptr(signature_ver_hdl);
 		if (serv_ptr == NULL) {
 			err = HSM_UNKNOWN_HANDLE;

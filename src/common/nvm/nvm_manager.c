@@ -43,8 +43,8 @@ static uint32_t nvm_storage_import(struct nvm_ctx_st *nvm_ctx_param,
 		blob_hdr = (struct nvm_header_s *)data;
 
 		/* Sanity check on the provided data. */
-		if (blob_hdr->size
-			+ (uint32_t)sizeof(struct nvm_header_s) != len) {
+		if ((int8_t)(blob_hdr->size
+			+ (uint32_t)sizeof(struct nvm_header_s)) != len) {
 			break;
 		}
 
@@ -119,8 +119,10 @@ static int nvm_open_session(uint8_t flags, struct nvm_ctx_st *nvm_ctx)
 
 	do {
 		/* Check if structure is already in use */
-		if (nvm_ctx->phdl != NULL)
+		if (nvm_ctx->phdl) {
+			err = SAB_SUCCESS_STATUS;
 			break;
+		}
 
 		/* Open the Storage session on the MU */
 		if ((flags & NVM_FLAGS_V2X) != 0u) {
@@ -199,7 +201,8 @@ static int nvm_open_session(uint8_t flags, struct nvm_ctx_st *nvm_ctx)
 
 	/* Clean-up in case of error. */
 	if (err != SAB_SUCCESS_STATUS) {
-		nvm_close_session(nvm_ctx);
+		if (nvm_ctx->session_handle)
+			nvm_close_session(nvm_ctx);
 		//clean nvm_ctx
 	}
 
@@ -245,10 +248,7 @@ int nvm_manager(uint8_t flags,
 
 		nvm_ctx->status = NVM_STATUS_STARTING;
 
-		if (nvm_open_session(flags, nvm_ctx) != SAB_SUCCESS_STATUS)
-			se_err("Warn: Failure in Storage Open.\n");
-
-		if (nvm_ctx->phdl == NULL) {
+		if (nvm_open_session(flags, nvm_ctx) != SAB_SUCCESS_STATUS) {
 			err = 1;
 			break;
 		}
@@ -314,12 +314,13 @@ int nvm_manager(uint8_t flags,
 		}
 	} while (retry);
 
-	nvm_ctx->status = NVM_STATUS_STOPPED;
+	if (nvm_ctx) {
+		nvm_ctx->status = NVM_STATUS_STOPPED;
 
-	if (nvm_ctx->phdl != NULL) {
-		nvm_close_session(nvm_ctx);
-	} else {
-		plat_os_abs_free(nvm_ctx);
+		if (nvm_ctx->phdl)
+			nvm_close_session(nvm_ctx);
+		else
+			plat_os_abs_free(nvm_ctx);
 	}
 
 	*ctx = NULL;

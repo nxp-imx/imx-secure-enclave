@@ -179,7 +179,7 @@ uint32_t process_sab_msg(struct plat_os_abs_hdl *phdl,
 	}
 
 	if (rsp_crc_expected) {
-		if (!plat_validate_msg_crc(rsp, rsp_msg_sz)) {
+		if (plat_validate_msg_crc(rsp, rsp_msg_sz)) {
 			error = SAB_NO_MESSAGE_RATING;
 			goto out;
 		}
@@ -262,6 +262,11 @@ void init_proc_sab_msg_rcv_eng(msg_type_t msg_type,
 	int i = 0;
 	int ret = NOT_DONE;
 
+	if (max_msg_id < start_msg_id) {
+		se_err("Initialization Failure(Range-mismatch).\n");
+		return;
+	}
+
 	for (i = 0; i < (max_msg_id - start_msg_id); i++) {
 		ret = NOT_DONE;
 
@@ -305,7 +310,8 @@ uint32_t process_sab_rcv_send_msg(struct nvm_ctx_st *nvm_ctx_param,
 		goto out;
 	}
 
-	if (rcvmsg_cmd_id >= SAB_STORAGE_NVM_LAST_CMD) {
+	if (rcvmsg_cmd_id >= SAB_STORAGE_NVM_LAST_CMD ||
+	    rcvmsg_cmd_id < SAB_RCVMSG_START_ID) {
 		error = SAB_NO_MESSAGE_RATING;
 
 		printf("Un-Supported Messsage ID [0x%x].\n", rcvmsg_cmd_id);
@@ -344,7 +350,7 @@ uint32_t process_sab_rcv_send_msg(struct nvm_ctx_st *nvm_ctx_param,
 	if ((error & SAB_MSG_CRC_BIT) == SAB_MSG_CRC_BIT) {
 		/* strip-off the crc flag from error*/
 		error &= ~SAB_MSG_CRC_BIT;
-		if (!plat_validate_msg_crc(cmd, cmd_msg_sz)) {
+		if (plat_validate_msg_crc(cmd, cmd_msg_sz)) {
 			error = SAB_NO_MESSAGE_RATING;
 			goto out;
 		}

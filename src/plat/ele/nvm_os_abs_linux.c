@@ -96,13 +96,16 @@ static int get_chunk_file_path(char **path,
 				uint64_t blob_id)
 {
 	int ret = -1;
-	uint8_t path_len;
+	int path_len;
 	uint8_t blob_id_sz = sizeof(blob_id);
 
 	/* 1 extra byte in path_len is for accommodating null termination char
 	 * \0 in path string.
 	 */
 	path_len = strlen(nvm_storage_dname) + blob_id_sz * 2 + 1;
+	if (path_len < 0)
+		return ret;
+
 	*path = malloc(path_len);
 
 	if (*path) {

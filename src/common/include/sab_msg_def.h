@@ -164,6 +164,9 @@
 							ROM_SUCCESS_STATUS \
 							: SAB_SUCCESS_STATUS)
 
+/* 4 word is must for adding CRC. */
+#define NB_BYTES_CRC_MANDATE                    (0x10u)
+
 /* Rating code definition */
 #define SAB_NO_MESSAGE_RATING                   (0x00u)
 #define SAB_INVALID_MESSAGE_RATING              (0x01u)

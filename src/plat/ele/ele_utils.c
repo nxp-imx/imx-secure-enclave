@@ -348,10 +348,18 @@ int32_t plat_send_msg_and_get_resp(struct plat_os_abs_hdl *phdl, uint32_t *cmd, 
 
 uint32_t plat_add_msg_crc(uint32_t *msg, uint32_t msg_len)
 {
-	uint32_t err = 0;
+	uint32_t err = 1;
 	uint32_t crc;
 	uint32_t i;
-	uint32_t nb_words = msg_len / (uint32_t)sizeof(uint32_t);
+	uint32_t nb_words;
+
+	if (msg_len < NB_BYTES_CRC_MANDATE || !msg)
+		return err;
+
+	err = 0;
+	/* Value of nb_words can never be equal to zero.
+	 */
+	nb_words = msg_len / (uint32_t)sizeof(uint32_t);
 
 	crc = 0u;
 	for (i = 0u; i < (nb_words - 1); i++)
@@ -366,12 +374,18 @@ uint8_t plat_validate_msg_crc(uint32_t *msg, uint32_t msg_len)
 {
 	uint32_t computed_msg_crc = 0;
 	uint32_t i;
-	uint32_t nb_words = msg_len / (uint32_t)sizeof(uint32_t);
+	uint32_t nb_words;
 
+	if (msg_len < NB_BYTES_CRC_MANDATE || !msg)
+		return 1;
+
+	/* Value of nb_words can never be equal to zero.
+	 */
+	nb_words = msg_len / (uint32_t)sizeof(uint32_t);
 	for (i = 0; i < (nb_words - 1); i++)
 		computed_msg_crc ^= *(msg + i);
 
-	return (computed_msg_crc ==	msg[nb_words - 1]) ? 1 : 0;
+	return (computed_msg_crc == msg[nb_words - 1]) ? 0 : 1;
 }
 
 uint32_t plat_fetch_msg_crc(uint32_t *msg, uint32_t msg_len)
