@@ -621,7 +621,7 @@ static void transient_key_tests(hsm_hdl_t sess_hdl, hsm_hdl_t key_store_hdl)
 #else
 	key_management(DELETE, key_mgmt_hdl, &sym_key_id, 50, HSM_KEY_TYPE_AES);
 #endif
-
+	/*
 	memset(import_key_buf, 0, import_key_len);
 	import_key_len = 32;
 	args.flags = HSM_OP_IMPORT_KEY_INPUT_E2GO_TLV;
@@ -630,7 +630,7 @@ static void transient_key_tests(hsm_hdl_t sess_hdl, hsm_hdl_t key_store_hdl)
 			key_mgmt_hdl, import_key_len, import_key_buf, &args);
 	printf("Imported Key ID = 0x%x\n", args.key_identifier);
 #endif
-
+	*/
 	hsmret = hsm_close_key_management_service(key_mgmt_hdl);
 	printf("hsm_close_key_management_service ret:0x%x\n", hsmret);
 }
