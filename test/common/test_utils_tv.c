@@ -157,6 +157,82 @@ void save_test_key(uint32_t key_tv_id, uint32_t key_identifier,
 	}
 }
 
+/* Save Persistent Key detail in a file */
+void save_persistent_key(uint32_t key_tv_id, uint32_t key_identifier)
+{
+	FILE *fp = NULL;
+	char create_persist_key_path[128];
+	int8_t ret = -1;
+
+	snprintf(create_persist_key_path, sizeof(create_persist_key_path),
+		 "mkdir -p %s", DEFAULT_TV_PKF_PATH);
+	ret = system(create_persist_key_path);
+
+	fp = fopen(DEFAULT_TV_PKF_FPATH, "a");
+
+	if (!fp) {
+		printf("\nERROR: Failed to open %s.\n\n", DEFAULT_TV_PKF_FPATH);
+		return;
+	}
+
+	fprintf(fp, "%u 0x%x\n", key_tv_id, key_identifier);
+	printf("\nPersistent Key Identifier 0x%x entered in file\n", key_identifier);
+}
+
+/* Load persistent keys details */
+void load_persist_key_info(void)
+{
+	char *line = NULL;
+	size_t len = 0;
+	FILE *fp = NULL;
+	char *key_tv_id_str = NULL;
+	char *key_identifier_str = NULL;
+	char *temp = NULL;
+	char *check_invalid = NULL;
+	ssize_t read = 0;
+
+	uint32_t key_tv_id = 0;
+	uint32_t key_identifier = 0;
+
+	fp = fopen(DEFAULT_TV_PKF_FPATH, "r");
+
+	if (!fp) {
+		printf("\nERROR: Failed to open %s.\n\n", DEFAULT_TV_PKF_FPATH);
+		return;
+	}
+
+	while ((read = getline(&line, &len, fp)) != -1) {
+		key_tv_id_str = strtok_r(line, " ", &temp);
+
+		if (!key_tv_id_str) {
+			continue;
+		} else {
+			key_identifier_str = strtok_r(NULL, " ", &temp);
+
+			if (!key_identifier_str)
+				continue;
+		}
+
+		key_tv_id = (uint32_t)strtoul(key_tv_id_str, &check_invalid, 0);
+
+		if (key_tv_id_str == check_invalid) {
+			printf("\nError: Invalid read for KEY_TV_ID while loading...\n");
+			continue;
+		}
+
+		key_identifier = (uint32_t)strtoul(key_identifier_str, &check_invalid, 0);
+
+		if (key_identifier_str == check_invalid) {
+			printf("\nError: Invalid read for KEY_IDENTIFIER while loading...\n");
+			continue;
+		}
+
+		save_test_key(key_tv_id, key_identifier, 0, 0, 0);
+		printf("\nPersistent Key Info Loaded: KEY_TV_ID %u  Key Identifier 0x%x\n",
+		       key_tv_id, key_identifier);
+	}
+}
+
 /* Get key identifier from key_tv_id */
 uint32_t get_test_key_identifier(uint32_t key_tv_id)
 {
@@ -172,7 +248,7 @@ uint32_t get_test_key_identifier(uint32_t key_tv_id)
 	}
 
 	if (flag == 0)
-		printf("\nFailed: No Key Identifier Exists for given KEY_TV_ID\n");
+		printf("\nNo Existing Key Identifier for given KEY_TV_ID\n");
 	else
 		key_identifier = key_tv_id_map_arr[i].key_identifier;
 

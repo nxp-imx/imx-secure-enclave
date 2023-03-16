@@ -20,6 +20,11 @@
 #include "test_utils_tv.h"
 
 static hsm_err_t generate_key(hsm_hdl_t key_mgmt_hdl,
+				hsm_key_type_t key_type,
+				hsm_key_group_t key_group,
+				hsm_op_key_gen_flags_t flags,
+				uint8_t *out_key,
+				uint16_t out_size,
 #ifdef CONFIG_PLAT_SECO
 				hsm_key_info_t key_info,
 #else
@@ -29,11 +34,6 @@ static hsm_err_t generate_key(hsm_hdl_t key_mgmt_hdl,
 				hsm_bit_key_sz_t bit_key_sz,
 				hsm_key_lifecycle_t key_lifecycle,
 #endif
-				hsm_key_type_t key_type,
-				hsm_key_group_t key_group,
-				hsm_op_key_gen_flags_t flags,
-				uint8_t *out_key,
-				uint16_t out_size,
 				uint32_t *key_identifier)
 {
 	op_generate_key_args_t key_gen_args = {0};
@@ -57,6 +57,31 @@ static hsm_err_t generate_key(hsm_hdl_t key_mgmt_hdl,
 	key_gen_args.out_key = out_key;
 
 	return hsm_generate_key(key_mgmt_hdl, &key_gen_args);
+}
+
+static hsm_err_t get_key_attributes(hsm_hdl_t key_mgmt_hdl, uint32_t key_identifier)
+{
+	hsm_err_t ret = HSM_GENERAL_ERROR;
+#ifdef PSA_COMPLIANT
+	op_get_key_attr_args_t keyattr_args = {0};
+
+	keyattr_args.key_identifier = key_identifier;
+	ret = hsm_get_key_attr(key_mgmt_hdl, &keyattr_args);
+	printf("\nhsm_get_key_attr ret: 0x%x\n", ret);
+
+	printf("\n---------------------------------------------------\n");
+	printf("\nKey Attributes - Key ID (%u / 0x%x)\n",
+	       key_identifier, key_identifier);
+	printf("\n---------------------------------------------------\n");
+
+	printf("Key Type      : 0x%04x\n", keyattr_args.key_type);
+	printf("Key Size      : %d\n", keyattr_args.bit_key_sz);
+	printf("Key Lifetime  : 0x%08x\n", keyattr_args.key_lifetime);
+	printf("Key Usage     : 0x%08x\n", keyattr_args.key_usage);
+	printf("Key Algorithm : 0x%08x\n", keyattr_args.permitted_algo);
+	printf("Key Lifecycle : 0x%08x\n", keyattr_args.lifecycle);
+#endif
+	return ret;
 }
 
 static int8_t prepare_and_run_genkey_test(FILE *fp)
@@ -99,6 +124,8 @@ static int8_t prepare_and_run_genkey_test(FILE *fp)
 	hsm_key_info_t key_info;
 #endif
 	uint32_t expected_rsp_code = 0;
+
+	op_get_key_attr_args_t keyattr_args = {0};
 
 	while ((read = getline(&line, &len, fp)) != -1) {
 
@@ -219,50 +246,77 @@ static int8_t prepare_and_run_genkey_test(FILE *fp)
 	}
 
 	if (call_gen_key == 1) {
-		printf("Key MGMT TV ID : %u\n", key_mgmt_tv_id);
 		printf("Key TV ID      : %u\n", key_tv_id);
 		printf("Key ID         : 0x%x\n", key_identifier);
-		printf("Out Size       : %u\n", out_size);
-		printf("Key Type       : 0x%x\n", key_type);
-		printf("Flags          : 0x%x\n", flags);
-		printf("Key Group      : %u\n", key_group);
-#ifdef PSA_COMPLIANT
-		printf("Key Lifetime   : 0x%x\n", key_lifetime);
-		printf("Key Usage      : 0x%x\n", key_usage);
-		printf("Permitted Algo : 0x%x\n", permitted_algo);
-		printf("Bit Key Size   : %u\n", bit_key_sz);
-		printf("Key Lifecycle  : 0x%x\n", key_lifecycle);
-#else
-		printf("Key Info       : 0x%x\n", key_info);
-#endif
-		printf("Expected Resp  : 0x%x\n\n", expected_rsp_code);
 
 		/* Getting Key Management handle for given Key Mgmt TV ID */
 		key_mgmt_hdl = get_key_mgmt_hdl(key_mgmt_tv_id);
 
-		ret = generate_key(key_mgmt_hdl,
-#ifndef PSA_COMPLIANT
-					key_info,
-#else
-					key_lifetime, key_usage, permitted_algo,
-					bit_key_sz, key_lifecycle,
-#endif
-					key_type, key_group, flags,
-					out_key, out_size, &key_identifier);
+		if (get_test_key_identifier(key_tv_id) != 0) {
+			if (key_identifier != 0x0 &&
+			    key_identifier != get_test_key_identifier(key_tv_id)) {
+				printf("\nFAILED: Key TV ID and Key Identifier pairing Invalid\n");
+				goto out;
+			}
 
-		if (ret == expected_rsp_code) {
-			test_status = 1;
-			printf("\nTEST RESULT: SUCCESS\n");
+			printf("\nPersistent Key used, for Get Key Attributes:\n");
+			ret = get_key_attributes(key_mgmt_hdl, get_test_key_identifier(key_tv_id));
+
+			if (ret == HSM_NO_ERROR)
+				test_status = 1;
+			else
+				test_status = 0;
+
 		} else {
-			test_status = 0;
-			printf("\nTEST RESULT: FAILED\n");
+			printf("\nKey MGMT TV ID : %u\n", key_mgmt_tv_id);
+			printf("Out Size       : %u\n", out_size);
+			printf("Key Type       : 0x%x\n", key_type);
+			printf("Flags          : 0x%x\n", flags);
+			printf("Key Group      : %u\n", key_group);
+#ifdef PSA_COMPLIANT
+			printf("Key Lifetime   : 0x%x\n", key_lifetime);
+			printf("Key Usage      : 0x%x\n", key_usage);
+			printf("Permitted Algo : 0x%x\n", permitted_algo);
+			printf("Bit Key Size   : %u\n", bit_key_sz);
+			printf("Key Lifecycle  : 0x%x\n", key_lifecycle);
+#else
+			printf("Key Info       : 0x%x\n", key_info);
+#endif
+			printf("Expected Resp  : 0x%x\n\n", expected_rsp_code);
+
+			printf("\n\nNew Key Getting Generated:\n");
+			ret = generate_key(key_mgmt_hdl,
+					   key_type, key_group, flags,
+					   out_key, out_size,
+#ifndef PSA_COMPLIANT
+					   key_info,
+#else
+					   key_lifetime, key_usage, permitted_algo,
+					   bit_key_sz, key_lifecycle,
+#endif
+					   &key_identifier);
+
+			if (ret == expected_rsp_code)
+				test_status = 1;
+			else
+				test_status = 0;
+
+			printf("\nhsm_generate_key ret: 0x%x\n", ret);
+
+			if (ret == HSM_NO_ERROR) {
+				get_key_attributes(key_mgmt_hdl, key_identifier);
+
+				save_test_key(key_tv_id, key_identifier, key_mgmt_tv_id,
+					      key_group, key_type);
+#ifdef PSA_COMPLIANT
+				if (((flags & HSM_OP_KEY_GENERATION_FLAGS_STRICT_OPERATION) ==
+					HSM_OP_KEY_GENERATION_FLAGS_STRICT_OPERATION) &&
+					((key_lifetime & HSM_SE_KEY_STORAGE_PERSISTENT) ==
+					HSM_SE_KEY_STORAGE_PERSISTENT))
+					save_persistent_key(key_tv_id, key_identifier);
+#endif
+			}
 		}
-
-		printf("\nhsm_generate_key ret: 0x%x\n", ret);
-
-		if (ret == HSM_NO_ERROR)
-			save_test_key(key_tv_id, key_identifier, key_mgmt_tv_id,
-						key_group, key_type);
 	}
 
 	if (invalid_read == 1 || read == -1) {
@@ -273,9 +327,9 @@ static int8_t prepare_and_run_genkey_test(FILE *fp)
 			printf("\nEOF reached. TEST_KGEN_END not detected.\n");
 
 		printf("\nSkipping this Test Case\n");
-		printf("\nTEST_RESULT: INVALID\n");
 	}
 
+out:
 	if (out_key)
 		free(out_key);
 
@@ -312,12 +366,16 @@ void generate_key_test_tv(hsm_hdl_t key_store_hdl, FILE *fp, char *line)
 #endif
 	test_status = prepare_and_run_genkey_test(fp);
 
-	if (test_status == 1)
+	if (test_status == 1) {
 		++tkgen_passed;
-	else if (test_status == 0)
+		printf("\nTEST RESULT: SUCCESS\n");
+	} else if (test_status == 0) {
 		++tkgen_failed;
-	else if (test_status == -1)
+		printf("\nTEST RESULT: FAILED\n");
+	} else if (test_status == -1) {
 		++tkgen_invalids;
+		printf("\nTEST_RESULT: INVALID\n");
+	}
 
 out:
 

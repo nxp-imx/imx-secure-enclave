@@ -27,9 +27,9 @@ Some Limitations about the format:
 -	ALl Recognized Tags like TESTS_START, TESTS_END, TEST_KGEN_*, TEST_KGEN_END,
 	TEST_CIPHER_*, TEST_CIPHER_END, TEST_MAC_*, TEST_MAC_END, TEST_SIGN_VERIFY_*,
 	TEST_SIGN_VERIFY_END, TEST_HASH_*, TEST_HASH_END, TEST_DATA_STORAGE_*,
-	TEST_DATA_STORAGE_END, KEY_TV_ID, PERMITTED_ALGO, KEY_USAGE, etc. needs to
-	start from very beginning of their line as these tags get read from very
-	start of the line.
+	TEST_DATA_STORAGE_END, LOAD_PERSIST_KEY_INFO, KEY_TV_ID, PERMITTED_ALGO,
+	KEY_USAGE, etc. needs to start from very beginning of their line as these
+	tags get read from very start of the line.
 
 -	Only Spaces (Not tabs) need to be used for PARAM_NAME  'space' PARAM_VALUE
 	key value pair.
@@ -144,6 +144,8 @@ NOTE: INPUT_SIZE must be given before INPUT_DATA to allocate memory
 FORMAT and PARAMETERS for KGEN Tests:
 ------------------------------------------------------------------------
 
+LOAD_PERSIST_KEY_INFO #(optional)If Persistent Keys are being tested
+
 #Positive/Negative Case - Test Description (Optional line)
 TEST_KGEN_<PSA/NON_PSA>_0<n>   #Marks Start of this one particular KGEN test
 
@@ -170,6 +172,33 @@ TEST_KGEN_END                     #Marks the End of this one particular KGEN tes
 
 NOTE: The Keys are saved so that it can used later through KEY_TV_ID by tests
 (such as CIPHER, MAC) which may need the same key for their operations.
+KEY_TV_ID is unique in KGEN test vectors.
+
+
+NOTE:
+
+In Case of Generating Persistent Keys, LOAD_PERSIST_KEY_INFO token is to be
+used before the start of the Test vector of Persistent Key Generation.
+
+The test of Persistent Key needs two runs of ele_hsm_test binary application,
+to confirm the test of Persistent Key being stored and retrieved correctly.
+
+1st run
+Persistent Key gets generated and Get Key Attributes API called.
+For usage of this generated Persistent Key, in later runs, a file carrying
+required information (KEY_TV_ID KEY_IDENTIFIER space separated value pair)
+is created under directory, /var/lib/se/persistent/. The generated persistent
+key details or the content can be viewed using 'cat' command on the stored file.
+
+2nd run
+The Persistent Keys Information is read from the file created under
+/var/lib/se/persistent/ in 1st run. KEY_TV_IDs and KEY_IDENTIFIERs of
+peristent keys generated through test vectors are now known i.e. loaded in the
+array containing records of active test vector generated keys identifiers.
+No key is generated for the test_vectors having one of these KEY_TV_IDs.
+For checking the availability of these Persistent keys, only Get Key
+Attributes API is used. If the API results in SUCCESS, then the Persistent Key
+is available without generating, otherwise test gets FAILED.
 
 
 
@@ -385,6 +414,35 @@ BIT_KEY_SZ        256        # HSM_KEY_SIZE_AES_256
 FLAGS             0          #
 KEY_GROUP         1          # Key Group b/w range 0-1023
 KEY_LIFETIME      0x00000100 # HSM_SE_KEY_STORAGE_VOLATILE
+KEY_LIFECYCLE     0x0        # 0 indicates set to current Device Lifecycle
+KEY_USAGE         0x00000300 # HSM_KEY_USAGE_ENCRYPT | HSM_KEY_USAGE_DECRYPT
+PERMITTED_ALGO    0x84C0FF00 # PERMITTED_ALGO_ALL_CIPHER
+EXPECTED_HSM_RESP 0x00       # HSM_NO_ERROR
+
+TEST_KGEN_END
+
+
+#Key Generation Tests - Persistent Key
+
+#Load Persistent Key Info (KEY_TV_ID, KEY_IDENTIFIER) from persistent key
+#details stored previously
+LOAD_PERSIST_KEY_INFO
+
+
+#Positive Case
+#Test Generate Key API for Persistent Key Generation or Usage in getting
+#Key Attributes if already generated
+TEST_KGEN_PSA_012
+
+KEY_MGMT_TV_ID    1234       # Key Management ID
+KEY_TV_ID         12         # Key TV ID to use the key later
+KEY_ID            0x0        # Key ID 0 for Volatile Key
+OUT_SIZE          0          # Symmetric Key. So, Public Key Out Size 0
+KEY_TYPE          0x2400     # HSM_KEY_TYPE_AES
+BIT_KEY_SZ        256        # HSM_KEY_SIZE_AES_256
+FLAGS             0x80       # HSM_OP_KEY_GENERATION_FLAGS_STRICT_OPERATION
+KEY_GROUP         4          # Key Group b/w 0-1023
+KEY_LIFETIME      0x00000101 # HSM_SE_KEY_STORAGE_PERSISTENT
 KEY_LIFECYCLE     0x0        # 0 indicates set to current Device Lifecycle
 KEY_USAGE         0x00000300 # HSM_KEY_USAGE_ENCRYPT | HSM_KEY_USAGE_DECRYPT
 PERMITTED_ALGO    0x84C0FF00 # PERMITTED_ALGO_ALL_CIPHER

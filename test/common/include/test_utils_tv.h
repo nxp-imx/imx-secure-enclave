@@ -1,5 +1,5 @@
 /*
- * Copyright 2022 NXP
+ * Copyright 2022-2023 NXP
  *
  * NXP Confidential.
  * This software is owned or controlled by NXP and may only be used strictly
@@ -49,5 +49,7 @@ void parse_param_value_buffer(FILE *fp, uint8_t **dst, uint32_t size,
 							uint8_t *invalid_read);
 
 void print_buffer(uint8_t *buffer_ptr, uint32_t size);
+void save_persistent_key(uint32_t key_tv_id, uint32_t key_identifier);
+void load_persist_key_info(void);
 
 #endif

@@ -18,6 +18,9 @@
 
 #define DEFAULT_TV_FNAME "test_vectors.tv"
 #define DEFAULT_TV_FPATH "/usr/share/se/test_vectors/" DEFAULT_TV_FNAME
+#define DEFAULT_TV_PKF_FNAME "tv_keys_perist.pk"
+#define DEFAULT_TV_PKF_PATH "/var/lib/se/persistent/"
+#define DEFAULT_TV_PKF_FPATH (DEFAULT_TV_PKF_PATH DEFAULT_TV_PKF_FNAME)
 
 void key_management(uint32_t key_op, hsm_hdl_t key_mgmt_hdl,
 				uint32_t *key_id, hsm_key_group_t key_group,
