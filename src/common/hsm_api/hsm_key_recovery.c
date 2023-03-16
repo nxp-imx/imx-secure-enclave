@@ -1,5 +1,5 @@
 /*
- * Copyright 2022 NXP
+ * Copyright 2022-2023 NXP
  *
  * NXP Confidential.
  * This software is owned or controlled by NXP and may only be used strictly
@@ -27,7 +27,7 @@
 hsm_err_t hsm_pub_key_recovery(hsm_hdl_t key_store_hdl,
 			       op_pub_key_recovery_args_t *args)
 {
-	int32_t error = 1;
+	int32_t error;
 	struct hsm_service_hdl_s *key_store_serv_ptr;
 	hsm_err_t err = HSM_GENERAL_ERROR;
 	uint32_t rsp_code;
@@ -46,9 +46,16 @@ hsm_err_t hsm_pub_key_recovery(hsm_hdl_t key_store_hdl,
 					(uint32_t)key_store_hdl,
 					args, &rsp_code);
 
+		err = sab_rating_to_hsm_err(error);
+
+		if (err != HSM_NO_ERROR) {
+			se_err("HSM Error: SAB_PUB_KEY_RECOVERY_REQ [0x%x].\n", err);
+			break;
+		}
+
 		err = sab_rating_to_hsm_err(rsp_code);
 		if (err  != HSM_NO_ERROR)
-			se_err("HSM Error: HSM_KEY_RECOVERY_REQ [0x%x].\n", err);
+			se_err("HSM RSP Error: SAB_PUB_KEY_RECOVERY_REQ [0x%x].\n", err);
 
 	} while (false);
 
