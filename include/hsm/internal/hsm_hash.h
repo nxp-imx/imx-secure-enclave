@@ -80,7 +80,7 @@ typedef struct {
 	//!< pointer to the MSB of address in the requester space where buffers
 	//can be found, must be 0 until supported.
 	uint8_t *msb;
-	//!< pointer to the input context buffer to be hashed
+	//!< pointer to the context.
 	uint8_t *ctx;
 #endif
 	//!< pointer to the input data to be hashed
@@ -93,14 +93,13 @@ typedef struct {
 	uint32_t output_size;
 	//!< hash algorithm to be used for the operation
 	hsm_hash_algo_t algo;
-	/*
-	 * flags: User input through op args is reserved, as per ELE FW spec.
-	 * svc_flags: User input through op args is reserved.
-	 */
+	//!< flags identifying the operation init() update(), final() or one shot
+	//operation.
+	uint8_t svc_flags;
 #ifdef PSA_COMPLIANT
 	//!< size of context buffer in bytes, ignored in case of one shot
 	//operation.
-	uint8_t ctx_size;
+	uint16_t ctx_size;
 	//!< expected output digest buffer size, returned by FW in case the
 	//	 provided output size is incorrect.
 	uint32_t exp_output_size;

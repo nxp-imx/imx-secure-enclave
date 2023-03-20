@@ -730,12 +730,25 @@ int main(int argc, char *argv[])
 
         ecies_tests(hsm_session_hdl);
 #endif
-#ifndef SECONDARY_API_SUPPORTED
-	hash_test(hsm_session_hdl);
-#else
+#ifdef SECONDARY_API_SUPPORTED
+#ifdef PSA_COMPLIANT
 	err = do_hash_test(hsm_session_hdl);
 	if (err)
 		printf("Error[0x%x]: HASH test Failed.\n", err);
+	err = do_hash_stream_test(hsm_session_hdl);
+	if (err)
+		printf("Error[0x%x]: HASH init() update final() test Failed.\n", err);
+#else
+	err = do_hash_test(hsm_session_hdl);
+#endif
+#else
+#ifdef PSA_COMPLIANT
+	err = do_hash_stream_test(hsm_session_hdl);
+	if (err)
+		printf("Error[0x%x]: HASH init() update final() test Failed.\n", err);
+#else
+	hash_test(hsm_session_hdl);
+#endif
 #endif
         transient_key_tests(hsm_session_hdl, key_store_hdl);
 

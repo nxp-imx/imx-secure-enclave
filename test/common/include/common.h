@@ -27,6 +27,7 @@ hsm_err_t do_key_recovery_test(hsm_hdl_t key_store_hdl, hsm_hdl_t key_mgmt_hdl,
 void data_storage_test(hsm_hdl_t key_store_hdl, int arg);
 void hash_test(hsm_hdl_t hash_sess);
 hsm_err_t do_hash_test(hsm_hdl_t hash_session_hdl);
+hsm_err_t do_hash_stream_test(hsm_hdl_t hash_session_hdl);
 
 void hsm_sign_verify_tests(hsm_hdl_t sess_hdl, hsm_hdl_t key_store_hdl,
 			   uint32_t key_id,

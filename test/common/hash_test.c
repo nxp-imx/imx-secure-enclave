@@ -220,47 +220,52 @@ void hash_test(hsm_hdl_t hash_sess)
 	printf("---------------------------------------------------\n\n");
 }
 
+// hash_sess is hsm session handle
 hsm_err_t do_hash_test(hsm_hdl_t hash_sess)
 {
 	op_hash_one_go_args_t hash_args = {0};
 	hsm_err_t err;
 	int hash_size;
+	hsm_hash_algo_t alg;
 
 	memset(hash_work_area, 0, sizeof(hash_work_area));
-	hash_args.input = hash_test_message;
-	hash_args.output = hash_work_area;
-	hash_args.input_size = sizeof(hash_test_message);
 
-	hash_args.algo = HSM_HASH_ALGO_SHA_224;
-	hash_size = 28;
-	hash_args.output_size = hash_size;
+	for (alg = HSM_HASH_ALGO_SHA_224; alg <= HSM_HASH_ALGO_SHA_512; alg++) {
+		hash_args.algo = alg;
+		if (hash_args.algo == HSM_HASH_ALGO_SHA_256)
+			hash_size = 32;
+		else if (hash_args.algo == HSM_HASH_ALGO_SHA_224)
+			hash_size = 28;
+		else if (hash_args.algo == HSM_HASH_ALGO_SHA_384)
+			hash_size = 48;
+		else if (hash_args.algo == HSM_HASH_ALGO_SHA_512)
+			hash_size = 64;
 
-	err = hsm_do_hash(hash_sess, &hash_args);
-	test_status(SHA224_HASH, hash_work_area, sizeof(SHA224_HASH), "HSM_HASH_ALGO_SHA_224");
+		hash_args.output_size = hash_size;
+		hash_args.output = hash_work_area;
+		hash_args.input = hash_test_message;
+		hash_args.input_size = sizeof(hash_test_message);
 
-	memset(hash_work_area, 0, sizeof(hash_work_area));
-	hash_args.algo = HSM_HASH_ALGO_SHA_256;
-	hash_size = 32;
-	hash_args.output_size = hash_size;
+#ifdef PSA_COMPLIANT
+		hash_args.svc_flags = 0x1;
+#else
+		hash_args.svc_flags = 0x0;
+#endif
+		err = hsm_do_hash(hash_sess, &hash_args);
 
-	err = hsm_do_hash(hash_sess, &hash_args);
-	test_status(SHA256_HASH, hash_work_area, sizeof(SHA256_HASH), "HSM_HASH_ALGO_SHA_256");
-
-	memset(hash_work_area, 0, sizeof(hash_work_area));
-	hash_args.algo = HSM_HASH_ALGO_SHA_384;
-	hash_size = 48;
-	hash_args.output_size = hash_size;
-
-	err = hsm_do_hash(hash_sess, &hash_args);
-	test_status(SHA384_HASH, hash_work_area, sizeof(SHA384_HASH), "HSM_HASH_ALGO_SHA_384");
-
-	memset(hash_work_area, 0, sizeof(hash_work_area));
-	hash_args.algo = HSM_HASH_ALGO_SHA_512;
-	hash_size = 64;
-	hash_args.output_size = hash_size;
-
-	err = hsm_do_hash(hash_sess, &hash_args);
-	test_status(SHA512_HASH, hash_work_area, sizeof(SHA512_HASH), "HSM_HASH_ALGO_SHA_512");
+		if (hash_args.algo == HSM_HASH_ALGO_SHA_256)
+			test_status(SHA256_HASH, hash_work_area,
+				    sizeof(SHA256_HASH), "HSM_HASH_ALGO_SHA_256");
+		else if (hash_args.algo == HSM_HASH_ALGO_SHA_224)
+			test_status(SHA224_HASH, hash_work_area,
+				    sizeof(SHA224_HASH), "HSM_HASH_ALGO_SHA_224");
+		else if (hash_args.algo == HSM_HASH_ALGO_SHA_384)
+			test_status(SHA384_HASH, hash_work_area,
+				    sizeof(SHA384_HASH), "HSM_HASH_ALGO_SHA_384");
+		else if (hash_args.algo == HSM_HASH_ALGO_SHA_512)
+			test_status(SHA512_HASH, hash_work_area,
+				    sizeof(SHA512_HASH), "HSM_HASH_ALGO_SHA_512");
+	}
 
 #if PLAT_ELE_FEAT_NOT_SUPPORTED
 	memset(hash_work_area, 0, sizeof(hash_work_area));
@@ -271,6 +276,99 @@ hsm_err_t do_hash_test(hsm_hdl_t hash_sess)
 	err = hsm_do_hash(hash_sess, &hash_args);
 	test_status(SM3_HASH, hash_work_area, sizeof(SM3_HASH), "HSM_HASH_ALGO_SM3_256");
 #endif
-	printf("\n---------------------------------------------------\n");
+	printf("\n-----------hash one shot operation end-------------\n");
+	return err;
+}
+
+// hash_sess is hsm session handle
+hsm_err_t do_hash_stream_test(hsm_hdl_t hash_sess)
+{
+	op_hash_one_go_args_t hash_args = {0};
+	hsm_err_t err;
+	int hash_size, i, j;
+	hsm_hash_algo_t alg;
+	uint8_t hash_temp_input1[75];
+	uint8_t hash_temp_input2[75];
+	uint8_t hash_temp_input3[75];
+	uint8_t hash_temp_input4[75];
+	uint8_t ctx_input[256];
+
+	memset(hash_temp_input1, 0, sizeof(hash_temp_input1));
+	memset(hash_temp_input2, 0, sizeof(hash_temp_input2));
+	memset(hash_temp_input3, 0, sizeof(hash_temp_input3));
+	memset(hash_temp_input4, 0, sizeof(hash_temp_input4));
+
+	memset(hash_work_area, 0, sizeof(hash_work_area));
+
+	for (alg = HSM_HASH_ALGO_SHA_224; alg <= HSM_HASH_ALGO_SHA_512; alg++) {
+		hash_args.algo = alg;
+		if (hash_args.algo == HSM_HASH_ALGO_SHA_256)
+			hash_size = 32;
+		else if (hash_args.algo == HSM_HASH_ALGO_SHA_224)
+			hash_size = 28;
+		else if (hash_args.algo == HSM_HASH_ALGO_SHA_384)
+			hash_size = 48;
+		else if (hash_args.algo == HSM_HASH_ALGO_SHA_512)
+			hash_size = 64;
+
+		hash_args.svc_flags = 0x80;
+		err = hsm_do_hash(hash_sess, &hash_args);
+
+		for (i = 0; i < 75; i++)
+			hash_temp_input1[i] = hash_test_message[i];
+
+		memset(ctx_input, 0, sizeof(ctx_input));
+		hash_args.ctx = ctx_input;
+		hash_args.ctx_size = hash_args.context_size;
+		hash_args.input = hash_temp_input1;
+		hash_args.input_size = sizeof(hash_temp_input1);
+		hash_args.svc_flags = 0x2;
+
+		err = hsm_do_hash(hash_sess, &hash_args);
+
+		for (i, j = 0; i < 150; i++, j++)
+			hash_temp_input2[j] = hash_test_message[i];
+
+		hash_args.input = hash_temp_input2;
+		hash_args.input_size = sizeof(hash_temp_input2);
+		hash_args.svc_flags = 0x4;
+
+		err = hsm_do_hash(hash_sess, &hash_args);
+
+		for (i, j = 0; i < 225; i++, j++)
+			hash_temp_input3[j] = hash_test_message[i];
+
+		hash_args.input = hash_temp_input3;
+		hash_args.input_size = sizeof(hash_temp_input3);
+		hash_args.svc_flags = 0x4;
+
+		err = hsm_do_hash(hash_sess, &hash_args);
+
+		for (i, j = 0; i < 300; i++, j++)
+			hash_temp_input4[j] = hash_test_message[i];
+
+		hash_args.output_size = hash_size;
+		hash_args.output = hash_work_area;
+		hash_args.input = hash_temp_input4;
+		hash_args.input_size = sizeof(hash_temp_input4);
+		hash_args.svc_flags = 0x8;
+
+		err = hsm_do_hash(hash_sess, &hash_args);
+
+		if (hash_args.algo == HSM_HASH_ALGO_SHA_256)
+			test_status(SHA256_HASH, hash_work_area,
+				    sizeof(SHA256_HASH), "HSM_HASH_ALGO_SHA_256");
+		else if (hash_args.algo == HSM_HASH_ALGO_SHA_224)
+			test_status(SHA224_HASH, hash_work_area,
+				    sizeof(SHA224_HASH), "HSM_HASH_ALGO_SHA_224");
+		else if (hash_args.algo == HSM_HASH_ALGO_SHA_384)
+			test_status(SHA384_HASH, hash_work_area,
+				    sizeof(SHA384_HASH), "HSM_HASH_ALGO_SHA_384");
+		else if (hash_args.algo == HSM_HASH_ALGO_SHA_512)
+			test_status(SHA512_HASH, hash_work_area,
+				    sizeof(SHA512_HASH), "HSM_HASH_ALGO_SHA_512");
+	}
+
+	printf("\n-----------hash stream operation end---------------\n");
 	return err;
 }
