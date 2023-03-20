@@ -68,6 +68,12 @@ HSM_API_SRC	+= \
 		$(PLAT_COMMON_PATH)/hsm_api/hsm_key_generate.o
 endif
 
+ifneq (${MT_SAB_GC_AKEY_GEN},0x0)
+DEFINES		+=	-DHSM_GC_AKEY_GEN
+HSM_API_SRC	+= \
+		$(PLAT_COMMON_PATH)/hsm_api/hsm_gc_akey_gen.o
+endif
+
 ifneq (${MT_SAB_KEY_GEN_EXT},0x0)
 DEFINES		+=	-DHSM_KEY_GEN_EXT
 HSM_API_SRC	+= \

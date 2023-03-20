@@ -759,6 +759,8 @@ int main(int argc, char *argv[])
 	data_storage_test(key_store_hdl, 4);
 #endif
 
+	gc_akey_gen_test(hsm_session_hdl);
+
 	if (argc > 1) {
 		tv_tests_run(key_store_hdl, argv[1]);
 	} else {
