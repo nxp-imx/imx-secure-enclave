@@ -49,6 +49,12 @@ hsm_err_t hsm_hash_one_go(hsm_hdl_t hash_hdl,
 		}
 		sess_ptr = serv_ptr->session;
 #else
+		if (!(args->svc_flags & HSM_HASH_FLAG_ALLOWED)) {
+			err = HSM_INVALID_PARAM;
+			se_err("HSM Error: Flag mismatch: SAB_HASH_ONE_GO_REQ [0x%x].\n", err);
+			break;
+		}
+
 		/* For PSA compliant HASH API
 		 * use session handle.
 		 */

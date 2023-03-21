@@ -18,6 +18,8 @@
 #include "plat_os_abs.h"
 #include "plat_utils.h"
 
+#define CTX_ADDR_IGNORE 0xF1
+
 uint32_t prepare_msg_hash_one_go(void *phdl,
 				 void *cmd_buf, void *rsp_buf,
 				 uint32_t *cmd_msg_sz,
@@ -36,9 +38,9 @@ uint32_t prepare_msg_hash_one_go(void *phdl,
 	/*
 	 * ctx_addr: context address.
 	 * Context is ignored in case of one shot operation flag = Bit 1
-	 * and get context size operation flag = Bit 8.
+	 * Bit 4-6 reserved and get context size operation flag = Bit 8.
 	 */
-	if (!(op_args->svc_flags & 0x81)) {
+	if (!(op_args->svc_flags & CTX_ADDR_IGNORE)) {
 		cmd->ctx_addr =	(uint32_t)plat_os_abs_data_buf((struct plat_os_abs_hdl *)phdl,
 							       op_args->ctx,
 							       op_args->ctx_size,

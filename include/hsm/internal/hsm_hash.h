@@ -75,6 +75,18 @@ typedef uint8_t hsm_hash_algo_t;
 
 #endif
 
+typedef enum {
+	HSM_HASH_FLAG_ONE_SHOT = 0x1,
+	HSM_HASH_FLAG_INIT = 0x2,
+	HSM_HASH_FLAG_UPDATE = 0x4,
+	HSM_HASH_FLAG_FINAL = 0x8,
+	HSM_HASH_FLAG_GET_CONTEXT = 0x80,
+} hsm_hash_svc_flags_t;
+
+#define HSM_HASH_FLAG_ALLOWED    (HSM_HASH_FLAG_ONE_SHOT | HSM_HASH_FLAG_INIT \
+				  | HSM_HASH_FLAG_UPDATE | HSM_HASH_FLAG_FINAL \
+				  | HSM_HASH_FLAG_GET_CONTEXT)
+
 typedef struct {
 #ifdef PSA_COMPLIANT
 	//!< pointer to the MSB of address in the requester space where buffers
@@ -95,7 +107,7 @@ typedef struct {
 	hsm_hash_algo_t algo;
 	//!< flags identifying the operation init() update(), final() or one shot
 	//operation.
-	uint8_t svc_flags;
+	hsm_hash_svc_flags_t svc_flags;
 #ifdef PSA_COMPLIANT
 	//!< size of context buffer in bytes, ignored in case of one shot
 	//operation.

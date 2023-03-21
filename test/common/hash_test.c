@@ -247,7 +247,7 @@ hsm_err_t do_hash_test(hsm_hdl_t hash_sess)
 		hash_args.input_size = sizeof(hash_test_message);
 
 #ifdef PSA_COMPLIANT
-		hash_args.svc_flags = 0x1;
+		hash_args.svc_flags = HSM_HASH_FLAG_ONE_SHOT;
 #else
 		hash_args.svc_flags = 0x0;
 #endif
@@ -311,7 +311,7 @@ hsm_err_t do_hash_stream_test(hsm_hdl_t hash_sess)
 		else if (hash_args.algo == HSM_HASH_ALGO_SHA_512)
 			hash_size = 64;
 
-		hash_args.svc_flags = 0x80;
+		hash_args.svc_flags = HSM_HASH_FLAG_GET_CONTEXT;
 		err = hsm_do_hash(hash_sess, &hash_args);
 
 		for (i = 0; i < 75; i++)
@@ -322,7 +322,7 @@ hsm_err_t do_hash_stream_test(hsm_hdl_t hash_sess)
 		hash_args.ctx_size = hash_args.context_size;
 		hash_args.input = hash_temp_input1;
 		hash_args.input_size = sizeof(hash_temp_input1);
-		hash_args.svc_flags = 0x2;
+		hash_args.svc_flags = HSM_HASH_FLAG_INIT;
 
 		err = hsm_do_hash(hash_sess, &hash_args);
 
@@ -331,7 +331,7 @@ hsm_err_t do_hash_stream_test(hsm_hdl_t hash_sess)
 
 		hash_args.input = hash_temp_input2;
 		hash_args.input_size = sizeof(hash_temp_input2);
-		hash_args.svc_flags = 0x4;
+		hash_args.svc_flags = HSM_HASH_FLAG_UPDATE;
 
 		err = hsm_do_hash(hash_sess, &hash_args);
 
@@ -340,7 +340,7 @@ hsm_err_t do_hash_stream_test(hsm_hdl_t hash_sess)
 
 		hash_args.input = hash_temp_input3;
 		hash_args.input_size = sizeof(hash_temp_input3);
-		hash_args.svc_flags = 0x4;
+		hash_args.svc_flags = HSM_HASH_FLAG_UPDATE;
 
 		err = hsm_do_hash(hash_sess, &hash_args);
 
@@ -351,7 +351,7 @@ hsm_err_t do_hash_stream_test(hsm_hdl_t hash_sess)
 		hash_args.output = hash_work_area;
 		hash_args.input = hash_temp_input4;
 		hash_args.input_size = sizeof(hash_temp_input4);
-		hash_args.svc_flags = 0x8;
+		hash_args.svc_flags = HSM_HASH_FLAG_FINAL;
 
 		err = hsm_do_hash(hash_sess, &hash_args);
 
