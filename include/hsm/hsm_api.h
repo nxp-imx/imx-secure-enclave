@@ -289,6 +289,8 @@ hsm_err_t hsm_do_auth_enc(hsm_hdl_t key_store_hdl,
 
 #include "internal/hsm_gc_akey_gen.h"
 
+#include "internal/hsm_gc_acrypto.h"
+
 #include "internal/hsm_importkey.h"
 
 #include "internal/hsm_delete_key.h"

@@ -42,6 +42,10 @@
 #include "sab_gc_akey_gen.h"
 #endif
 
+#if MT_SAB_GC_ACRYPTO
+#include "sab_gc_acrypto.h"
+#endif
+
 #if MT_SAB_KEY_GEN_EXT
 #include "sab_key_gen_ext.h"
 #endif
@@ -186,6 +190,15 @@ static  int init_proc_sab_hsm_msg_engine(msg_type_t msg_type,
 			ret = add_sab_msg_handler(msg_id, MT_SAB_GC_AKEY_GEN,
 						  prepare_msg_gc_akey_gen,
 						  proc_msg_gc_akey_gen);
+		}
+		break;
+#endif
+#if MT_SAB_GC_ACRYPTO
+	case SAB_GC_ACRYPTO_REQ:
+		if (msg_type == MT_SAB_GC_ACRYPTO) {
+			ret = add_sab_msg_handler(msg_id, MT_SAB_GC_ACRYPTO,
+						  prepare_msg_gc_acrypto,
+						  proc_msg_gc_acrypto);
 		}
 		break;
 #endif

@@ -761,6 +761,8 @@ int main(int argc, char *argv[])
 
 	gc_akey_gen_test(hsm_session_hdl);
 
+	gc_acrypto_test(hsm_session_hdl);
+
 	if (argc > 1) {
 		tv_tests_run(key_store_hdl, argv[1]);
 	} else {

@@ -163,6 +163,12 @@ SAB_MSG_SRC	+= \
 		$(PLAT_COMMON_PATH)/sab_msg/sab_gc_akey_gen.o
 endif
 
+ifneq (${MT_SAB_GC_ACRYPTO},0x0)
+DEFINES		+=	-DMT_SAB_GC_ACRYPTO=${MT_SAB_GC_ACRYPTO}
+SAB_MSG_SRC	+= \
+		$(PLAT_COMMON_PATH)/sab_msg/sab_gc_acrypto.o
+endif
+
 ifneq (${MT_SAB_KEY_GEN_EXT},0x0)
 DEFINES		+=	-DMT_SAB_KEY_GEN_EXT=${MT_SAB_KEY_GEN_EXT}
 SAB_MSG_SRC	+= \
