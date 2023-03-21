@@ -206,6 +206,7 @@ SAB_MSG_SRC	+= \
 endif
 
 OBJECTS		+= $(SAB_MSG_SRC) \
+		$(SAB_RCVMSG_SRC) \
 		$(PLAT_COMMON_PATH)/sab_msg/sab_session.o
 
 INCLUDE_PATHS	+= \
