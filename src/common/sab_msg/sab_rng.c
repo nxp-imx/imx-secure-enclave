@@ -1,5 +1,5 @@
 /*
- * Copyright 2022 NXP
+ * Copyright 2022-2023 NXP
  *
  * NXP Confidential.
  * This software is owned or controlled by NXP and may only be used strictly
@@ -86,7 +86,6 @@ uint32_t prepare_msg_rng_open_req(void *phdl,
 	cmd->pad[2] = 0u;
 
 	cmd->crc = 0u;
-	ret |= SAB_MSG_CRC_BIT;
 
 	*cmd_msg_sz = sizeof(struct sab_cmd_rng_open_msg);
 	*rsp_msg_sz = sizeof(struct sab_cmd_rng_open_rsp);

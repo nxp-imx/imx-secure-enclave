@@ -88,8 +88,6 @@ uint32_t prepare_msg_mac_one_go(void *phdl,
 	*cmd_msg_sz = sizeof(struct sab_cmd_mac_one_go_msg);
 	*rsp_msg_sz = sizeof(struct sab_cmd_mac_one_go_rsp);
 
-	ret |= SAB_MSG_CRC_BIT;
-
 	return ret;
 }
 
@@ -124,8 +122,6 @@ uint32_t prepare_msg_mac_open_req(void *phdl,
 	cmd->flags = op_args->flags;
 #endif
 	cmd->key_store_handle = msg_hdl;
-
-	ret |= SAB_MSG_CRC_BIT;
 
 	*cmd_msg_sz = sizeof(struct sab_cmd_mac_open_msg);
 	*rsp_msg_sz = sizeof(struct sab_cmd_mac_open_rsp);

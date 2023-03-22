@@ -1,5 +1,5 @@
 /*
- * Copyright 2022 NXP
+ * Copyright 2022-2023 NXP
  *
  * NXP Confidential.
  * This software is owned or controlled by NXP and may only be used strictly
@@ -20,7 +20,6 @@
 #include "sab_dev_attest.h"
 
 #include "plat_os_abs.h"
-#include "plat_utils.h"
 
 uint32_t prepare_msg_dev_attest(void *phdl, void *cmd_buf, void *rsp_buf,
 				uint32_t *cmd_msg_sz, uint32_t *rsp_msg_sz,
@@ -59,7 +58,6 @@ uint32_t prepare_msg_dev_attest(void *phdl, void *cmd_buf, void *rsp_buf,
 	cmd->rsp_data_addr_lo = (uint32_t) data_addr;
 
 	cmd->crc = 0u;
-	ret |= SAB_MSG_CRC_BIT;
 
 	return ret;
 }

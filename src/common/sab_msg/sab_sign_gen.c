@@ -39,8 +39,6 @@ uint32_t prepare_msg_sign_gen_open(void *phdl,
 	cmd->flags = op_args->flags;
 #endif
 
-	ret |= SAB_MSG_CRC_BIT;
-
 	return ret;
 }
 
@@ -117,7 +115,6 @@ uint32_t prepare_msg_sign_generate(void *phdl,
 #endif
 	cmd->crc = 0u;
 
-	ret |= SAB_MSG_CRC_BIT;
 	return ret;
 }
 

@@ -37,8 +37,6 @@ uint32_t prepare_msg_get_info(void *phdl, void *cmd_buf, void *rsp_buf,
 	*cmd_msg_sz = sizeof(struct sab_cmd_get_info_msg);
 	*rsp_msg_sz = sizeof(struct sab_cmd_get_info_rsp);
 
-	ret |= SAB_RSP_CRC_BIT;
-
 	return ret;
 }
 

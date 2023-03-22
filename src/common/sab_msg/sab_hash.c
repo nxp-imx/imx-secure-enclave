@@ -69,7 +69,6 @@ uint32_t prepare_msg_hash_one_go(void *phdl,
 	*rsp_msg_sz = sizeof(struct sab_hash_one_go_rsp);
 
 	cmd->crc = 0u;
-	ret |= SAB_MSG_CRC_BIT;
 
 	return ret;
 }
@@ -115,8 +114,6 @@ uint32_t prepare_msg_hash_open_req(void *phdl,
 	*rsp_msg_sz = sizeof(struct sab_hash_open_rsp);
 
 	cmd->crc = 0u;
-
-	ret |= SAB_MSG_CRC_BIT;
 
 	return ret;
 }

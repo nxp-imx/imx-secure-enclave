@@ -36,7 +36,6 @@ uint32_t prepare_msg_storage_open(void *phdl,
 
 	msg->session_handle = msg_hdl;
 	msg->flags = op_args->flags;
-	ret |= SAB_MSG_CRC_BIT;
 
 	*cmd_msg_sz = sizeof(struct sab_cmd_storage_open_msg);
 	*rsp_msg_sz = sizeof(struct sab_cmd_storage_open_rsp);

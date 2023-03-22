@@ -1,5 +1,5 @@
 /*
- * Copyright 2022 NXP
+ * Copyright 2022-2023 NXP
  *
  * NXP Confidential.
  * This software is owned or controlled by NXP and may only be used strictly
@@ -49,7 +49,6 @@ uint32_t prepare_msg_managekey(void *phdl,
 	*rsp_msg_sz = sizeof(struct sab_cmd_manage_key_rsp);
 
 	cmd->crc = 0u;
-	ret |= SAB_MSG_CRC_BIT;
 
 	return ret;
 }
@@ -105,5 +104,4 @@ uint32_t prepare_msg_managekey_ext(void *phdl,
 	*rsp_msg_sz = sizeof(struct sab_cmd_manage_key_rsp);
 
 	cmd->crc = 0u;
-	ret |= SAB_MSG_CRC_BIT;
 }

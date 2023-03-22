@@ -60,7 +60,6 @@ uint32_t prepare_msg_generatekey(void *phdl,
 	*rsp_msg_sz = sizeof(struct sab_cmd_generate_key_rsp);
 
 	cmd->crc = 0u;
-	ret |= SAB_MSG_CRC_BIT;
 
 	return ret;
 }

@@ -49,8 +49,6 @@ uint32_t prepare_msg_data_storage(void *phdl,
 	*cmd_msg_sz = sizeof(struct sab_cmd_data_storage_msg);
 	*rsp_msg_sz = sizeof(struct sab_cmd_data_storage_rsp);
 
-	ret |= SAB_MSG_CRC_BIT;
-
 	return ret;
 }
 
@@ -78,8 +76,6 @@ uint32_t prepare_msg_data_storage_open_req(void *phdl,
 
 	cmd->key_store_handle = msg_hdl;
 	cmd->flags = op_args->flags;
-
-	ret |= SAB_MSG_CRC_BIT;
 
 	*cmd_msg_sz = sizeof(struct sab_cmd_data_storage_open_msg);
 	*rsp_msg_sz = sizeof(struct sab_cmd_data_storage_open_rsp);

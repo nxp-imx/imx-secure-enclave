@@ -38,8 +38,6 @@ uint32_t prepare_msg_get_key_attr(void *phdl,
 	*cmd_msg_sz = sizeof(struct sab_cmd_get_key_attr_msg);
 	*rsp_msg_sz = sizeof(struct sab_cmd_get_key_attr_rsp);
 
-	ret |= SAB_RSP_CRC_BIT;
-
 	return ret;
 }
 

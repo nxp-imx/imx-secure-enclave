@@ -224,9 +224,6 @@
 #define SAB_READ_FAILURE_RATING                 (0xFEu)
 #define SAB_FATAL_FAILURE_RATING                (0xFFu)
 
-#define SAB_MSG_CRC_BIT		BIT(31)
-#define SAB_RSP_CRC_BIT		BIT(30)
-
 struct sab_mu_hdr {
     uint8_t ver;
     uint8_t size;

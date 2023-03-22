@@ -70,8 +70,6 @@ uint32_t prepare_msg_auth_enc(void *phdl,
 	*cmd_msg_sz = sizeof(struct sab_cmd_auth_enc_msg);
 	*rsp_msg_sz = sizeof(struct sab_cmd_auth_enc_rsp);
 
-	ret |= SAB_MSG_CRC_BIT;
-
 	return ret;
 }
 

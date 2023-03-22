@@ -41,7 +41,6 @@ uint32_t prepare_msg_verify_sign_open(void *phdl,
 	*cmd_msg_sz = sizeof(struct sab_signature_verify_open_msg);
 	*rsp_msg_sz = sizeof(struct sab_signature_verify_open_rsp);
 
-	ret |= SAB_MSG_CRC_BIT;
 	return ret;
 }
 
@@ -124,7 +123,6 @@ uint32_t prepare_msg_verify_sign(void *phdl,
 	*cmd_msg_sz = sizeof(struct sab_signature_verify_msg);
 	*rsp_msg_sz = sizeof(struct sab_signature_verify_rsp);
 
-	ret |= SAB_MSG_CRC_BIT;
 	return ret;
 }
 

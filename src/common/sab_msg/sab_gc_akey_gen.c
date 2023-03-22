@@ -64,8 +64,6 @@ uint32_t prepare_msg_gc_akey_gen(void *phdl,
 	*cmd_msg_sz = sizeof(struct sab_cmd_gc_akey_gen_msg);
 	*rsp_msg_sz = sizeof(struct sab_cmd_gc_akey_gen_rsp);
 
-	ret |= SAB_MSG_CRC_BIT;
-
 	return ret;
 }
 

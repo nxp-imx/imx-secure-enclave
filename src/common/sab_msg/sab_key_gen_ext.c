@@ -1,5 +1,5 @@
 /*
- * Copyright 2022 NXP
+ * Copyright 2022-2023 NXP
  *
  * NXP Confidential.
  * This software is owned or controlled by NXP and may only be used strictly
@@ -68,7 +68,6 @@ uint32_t prepare_msg_gen_key_ext(void *phdl,
 	cmd->reserved[1] = op_args->reserved[1];
 	cmd->reserved[2] = op_args->reserved[2];
 	cmd->crc = 0u;
-	ret |= SAB_MSG_CRC_BIT;
 
 	return ret;
 }

@@ -1,5 +1,5 @@
 /*
- * Copyright 2022 NXP
+ * Copyright 2022-2023 NXP
  *
  * NXP Confidential.
  * This software is owned or controlled by NXP and may only be used strictly
@@ -59,8 +59,6 @@ uint32_t prepare_msg_cipher_one_go(void *phdl,
 	*cmd_msg_sz = sizeof(struct sab_cmd_cipher_one_go_msg);
 	*rsp_msg_sz = sizeof(struct sab_cmd_cipher_one_go_rsp);
 
-	ret |= SAB_MSG_CRC_BIT;
-
 	return ret;
 }
 
@@ -97,7 +95,6 @@ uint32_t prepare_msg_cipher_open_req(void *phdl,
 	cmd->key_store_handle = msg_hdl;
 
 	cmd->crc = 0u;
-	ret |= SAB_MSG_CRC_BIT;
 
 	*cmd_msg_sz = sizeof(struct sab_cmd_cipher_open_msg);
 	*rsp_msg_sz = sizeof(struct sab_cmd_cipher_open_rsp);

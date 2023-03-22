@@ -1,5 +1,5 @@
 /*
- * Copyright 2022 NXP
+ * Copyright 2022-2023 NXP
  *
  * NXP Confidential.
  * This software is owned or controlled by NXP and may only be used strictly
@@ -44,8 +44,6 @@ uint32_t prepare_msg_debugdump(void *phdl,
 	cmd->hdr.tag = 0x17;
 	*cmd_msg_sz = sizeof(struct rom_cmd_firmware_dump_cmd);
 	*rsp_msg_sz = sizeof(struct rom_cmd_firmware_dump_rsp);
-
-	ret |= SAB_RSP_CRC_BIT;
 
 	return ret;
 }
