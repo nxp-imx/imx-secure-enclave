@@ -14,6 +14,7 @@
 #include "internal/hsm_managekey.h"
 
 #include "sab_managekey.h"
+#include "sab_messaging.h"
 #include "plat_os_abs.h"
 #include "plat_utils.h"
 
@@ -39,11 +40,12 @@ uint32_t prepare_msg_managekey(void *phdl,
 	cmd->key_type = op_args->key_type;
 	cmd->key_group = op_args->key_group;
 	cmd->key_info = op_args->key_info;
-	cmd->input_data_addr = (uint32_t)plat_os_abs_data_buf(
-						(struct plat_os_abs_hdl *)phdl,
-						op_args->input_data,
-						op_args->input_size,
-						DATA_BUF_IS_INPUT);
+	set_phy_addr_to_words(&cmd->input_data_addr,
+			      0u,
+			      plat_os_abs_data_buf((struct plat_os_abs_hdl *)phdl,
+						   op_args->input_data,
+						   op_args->input_size,
+						   DATA_BUF_IS_INPUT));
 
 	*cmd_msg_sz = sizeof(struct sab_cmd_manage_key_msg);
 	*rsp_msg_sz = sizeof(struct sab_cmd_manage_key_rsp);
@@ -89,11 +91,12 @@ uint32_t prepare_msg_managekey_ext(void *phdl,
 	cmd->key_type = op_args->key_type;
 	cmd->key_group = op_args->key_group;
 	cmd->key_info = op_args->key_info;
-	cmd->input_data_addr = (uint32_t)plat_os_abs_data_buf(
-						(struct plat_os_abs_hdl *)phdl,
-						op_args->input_data,
-						op_args->input_size,
-						DATA_BUF_IS_INPUT);
+	set_phy_addr_to_words(&cmd->input_data_addr,
+			      0u,
+			      plat_os_abs_data_buf((struct plat_os_abs_hdl *)phdl,
+						   op_args->input_data,
+						   op_args->input_size,
+						   DATA_BUF_IS_INPUT));
 
 	cmd->min_mac_len = op_args->min_mac_len;
 	cmd->reserved[0] = op_args->reserved[0];

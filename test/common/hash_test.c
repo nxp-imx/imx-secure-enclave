@@ -318,8 +318,10 @@ hsm_err_t do_hash_stream_test(hsm_hdl_t hash_sess)
 			hash_temp_input1[i] = hash_test_message[i];
 
 		memset(ctx_input, 0, sizeof(ctx_input));
+#ifdef PSA_COMPLIANT
 		hash_args.ctx = ctx_input;
 		hash_args.ctx_size = hash_args.context_size;
+#endif
 		hash_args.input = hash_temp_input1;
 		hash_args.input_size = sizeof(hash_temp_input1);
 		hash_args.svc_flags = HSM_HASH_FLAG_INIT;

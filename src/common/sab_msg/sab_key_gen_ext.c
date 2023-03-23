@@ -15,6 +15,7 @@
 #include "internal/hsm_key_gen_ext.h"
 
 #include "sab_key_gen_ext.h"
+#include "sab_messaging.h"
 
 #include "plat_os_abs.h"
 #include "plat_utils.h"
@@ -54,11 +55,12 @@ uint32_t prepare_msg_gen_key_ext(void *phdl,
 	cmd->key_type = op_args->key_type;
 	cmd->key_group = op_args->key_group;
 	cmd->key_info = op_args->key_info;
-	cmd->out_key_addr = (uint32_t)plat_os_abs_data_buf(
-						(struct plat_os_abs_hdl *)phdl,
-						op_args->out_key,
-						op_args->out_size,
-						DATA_BUF_IS_OUTPUT);
+	set_phy_addr_to_words(&cmd->out_key_addr,
+			      0u,
+			      plat_os_abs_data_buf((struct plat_os_abs_hdl *)phdl,
+						   op_args->out_key,
+						   op_args->out_size,
+						   DATA_BUF_IS_OUTPUT));
 
 	*cmd_msg_sz = sizeof(struct sab_cmd_generate_key_ext_msg);
 	*rsp_msg_sz = sizeof(struct sab_cmd_generate_key_ext_rsp);

@@ -13,6 +13,7 @@
 
 #include "internal/hsm_sign_gen.h"
 #include "sab_sign_gen.h"
+#include "sab_messaging.h"
 
 #include "plat_os_abs.h"
 #include "plat_utils.h"
@@ -98,14 +99,18 @@ uint32_t prepare_msg_sign_generate(void *phdl,
 
 	cmd->sig_gen_hdl = msg_hdl;
 	cmd->key_identifier = op_args->key_identifier;
-	cmd->message_addr = (uint32_t)plat_os_abs_data_buf(phdl,
-							op_args->message,
-							op_args->message_size,
-							DATA_BUF_IS_INPUT);
-	cmd->signature_addr = (uint32_t)plat_os_abs_data_buf(phdl,
-							op_args->signature,
-							op_args->signature_size,
-							0u);
+	set_phy_addr_to_words(&cmd->message_addr,
+			      0u,
+			      plat_os_abs_data_buf((struct plat_os_abs_hdl *)phdl,
+						   op_args->message,
+						   op_args->message_size,
+						   DATA_BUF_IS_INPUT));
+	set_phy_addr_to_words(&cmd->signature_addr,
+			      0u,
+			      plat_os_abs_data_buf((struct plat_os_abs_hdl *)phdl,
+						   op_args->signature,
+						   op_args->signature_size,
+						   0u));
 	cmd->message_size = op_args->message_size;
 	cmd->signature_size = op_args->signature_size;
 	cmd->scheme_id = op_args->scheme_id;

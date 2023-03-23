@@ -16,6 +16,7 @@
 #include "internal/hsm_cipher.h"
 
 #include "sab_cipher.h"
+#include "sab_messaging.h"
 
 #include "plat_os_abs.h"
 #include "plat_utils.h"
@@ -39,19 +40,28 @@ uint32_t prepare_msg_cipher_one_go(void *phdl,
 	if (op_args->iv == NULL) {
 		cmd->iv_address = 0u;
 	} else {
-		cmd->iv_address = plat_os_abs_data_buf(phdl, op_args->iv,
-						       op_args->iv_size,
-						       DATA_BUF_IS_INPUT);
+		set_phy_addr_to_words(&cmd->iv_address,
+				      0u,
+				      plat_os_abs_data_buf((struct plat_os_abs_hdl *)phdl,
+							   op_args->iv,
+							   op_args->iv_size,
+							   DATA_BUF_IS_INPUT));
 	}
 	cmd->iv_size = op_args->iv_size;
 	cmd->algo = op_args->cipher_algo;
 	cmd->flags = op_args->flags;
-	cmd->input_address = plat_os_abs_data_buf(phdl, op_args->input,
-						  op_args->input_size,
-						  DATA_BUF_IS_INPUT);
-	cmd->output_address = plat_os_abs_data_buf(phdl, op_args->output,
+	set_phy_addr_to_words(&cmd->input_address,
+			      0u,
+			      plat_os_abs_data_buf((struct plat_os_abs_hdl *)phdl,
+						   op_args->input,
+						   op_args->input_size,
+						   DATA_BUF_IS_INPUT));
+	set_phy_addr_to_words(&cmd->output_address,
+			      0u,
+			      plat_os_abs_data_buf((struct plat_os_abs_hdl *)phdl,
+						   op_args->output,
 						   op_args->output_size,
-						   DATA_BUF_IS_OUTPUT);
+						   DATA_BUF_IS_OUTPUT));
 	cmd->input_size = op_args->input_size;
 	cmd->output_size = op_args->output_size;
 	cmd->crc = 0u;

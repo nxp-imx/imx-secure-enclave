@@ -13,6 +13,7 @@
 
 #include "internal/hsm_auth_enc.h"
 #include "sab_auth_enc.h"
+#include "sab_messaging.h"
 
 #include "plat_os_abs.h"
 #include "plat_utils.h"
@@ -36,33 +37,36 @@ uint32_t prepare_msg_auth_enc(void *phdl,
 	cmd->key_id = op_args->key_identifier;
 
 	if (op_args->iv_size != 0 && op_args->iv)
-		cmd->iv_address = (uint32_t)plat_os_abs_data_buf(
-							(struct plat_os_abs_hdl *)phdl,
-							op_args->iv,
-							op_args->iv_size,
-							DATA_BUF_IS_INPUT);
+		set_phy_addr_to_words(&cmd->iv_address,
+				      0u,
+				      plat_os_abs_data_buf((struct plat_os_abs_hdl *)phdl,
+							   op_args->iv,
+							   op_args->iv_size,
+							   DATA_BUF_IS_INPUT));
 
 	cmd->iv_size = op_args->iv_size;
 	cmd->ae_algo = op_args->ae_algo;
 	cmd->flags = op_args->flags;
-	cmd->aad_address = (uint32_t)plat_os_abs_data_buf(
-						(struct plat_os_abs_hdl *)phdl,
-						op_args->aad,
-						op_args->aad_size,
-						DATA_BUF_IS_INPUT);
+	set_phy_addr_to_words(&cmd->aad_address,
+			      0u,
+			      plat_os_abs_data_buf((struct plat_os_abs_hdl *)phdl,
+						   op_args->aad,
+						   op_args->aad_size,
+						   DATA_BUF_IS_INPUT));
 
 	cmd->aad_size = op_args->aad_size;
-	cmd->input_address = (uint32_t)plat_os_abs_data_buf(
-							(struct plat_os_abs_hdl *)phdl,
-							op_args->input,
-							op_args->input_size,
-							DATA_BUF_IS_INPUT);
-
-	cmd->output_address = (uint32_t)plat_os_abs_data_buf(
-							(struct plat_os_abs_hdl *)phdl,
-							op_args->output,
-							op_args->output_size,
-							0u);
+	set_phy_addr_to_words(&cmd->input_address,
+			      0u,
+			      plat_os_abs_data_buf((struct plat_os_abs_hdl *)phdl,
+						   op_args->input,
+						   op_args->input_size,
+						   DATA_BUF_IS_INPUT));
+	set_phy_addr_to_words(&cmd->output_address,
+			      0u,
+			      plat_os_abs_data_buf((struct plat_os_abs_hdl *)phdl,
+						   op_args->output,
+						   op_args->output_size,
+						   0u));
 
 	cmd->input_length = op_args->input_size;
 	cmd->output_length = op_args->output_size;

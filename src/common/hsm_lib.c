@@ -26,9 +26,6 @@
 #include "plat_os_abs.h"
 #include "plat_utils.h"
 
-static struct hsm_session_hdl_s hsm_sessions[HSM_MAX_SESSIONS] = {};
-static struct hsm_service_hdl_s hsm_services[HSM_MAX_SERVICES] = {};
-
 void __attribute__((constructor)) libele_hsm_start()
 {
 	int msg_type_id;
@@ -105,6 +102,9 @@ hsm_err_t hsm_close_key_store_service(hsm_hdl_t key_store_hdl)
 	uint32_t sab_err;
 
 	do {
+		if (!key_store_hdl)
+			break;
+
 		serv_ptr = service_hdl_to_ptr(key_store_hdl);
 		if (serv_ptr == NULL) {
 			err = HSM_UNKNOWN_HANDLE;
@@ -135,7 +135,7 @@ hsm_err_t hsm_open_key_management_service(hsm_hdl_t key_store_hdl,
 	struct sab_cmd_key_management_open_rsp rsp;
 	struct hsm_service_hdl_s *key_store_serv_ptr;
 	struct hsm_service_hdl_s *key_mgt_serv_ptr;
-	int32_t error = 1;
+	int32_t error;
 	hsm_err_t err = HSM_GENERAL_ERROR;
 
 	do {
@@ -198,7 +198,7 @@ hsm_err_t hsm_manage_key_group(hsm_hdl_t key_management_hdl,
 {
 	struct sab_cmd_manage_key_group_msg cmd;
 	struct sab_cmd_manage_key_group_rsp rsp;
-	int32_t error = 1;
+	int32_t error;
 	struct hsm_service_hdl_s *serv_ptr;
 	hsm_err_t err = HSM_GENERAL_ERROR;
 
@@ -247,7 +247,7 @@ hsm_err_t hsm_butterfly_key_expansion(hsm_hdl_t key_management_hdl,
 {
 	struct sab_cmd_butterfly_key_exp_msg cmd;
 	struct sab_cmd_butterfly_key_exp_rsp rsp;
-	int32_t error = 1;
+	int32_t error;
 	struct hsm_service_hdl_s *serv_ptr;
 	hsm_err_t err = HSM_GENERAL_ERROR;
 
@@ -268,27 +268,35 @@ hsm_err_t hsm_butterfly_key_expansion(hsm_hdl_t key_management_hdl,
 			serv_ptr->session->mu_type);
 		cmd.key_management_handle = key_management_hdl;
 		cmd.key_identifier = args->key_identifier;
-		cmd.expansion_function_value_addr = (uint32_t)plat_os_abs_data_buf(serv_ptr->session->phdl,
-				args->expansion_function_value,
-				args->expansion_function_value_size,
-				DATA_BUF_IS_INPUT);
-		cmd.hash_value_addr = (uint32_t)plat_os_abs_data_buf(serv_ptr->session->phdl,
-				args->hash_value,
-				args->hash_value_size,
-				DATA_BUF_IS_INPUT);
-		cmd.pr_reconstruction_value_addr = (uint32_t)plat_os_abs_data_buf(serv_ptr->session->phdl,
-				args->pr_reconstruction_value,
-				args->pr_reconstruction_value_size,
-				DATA_BUF_IS_INPUT);
+		set_phy_addr_to_words(&cmd.expansion_function_value_addr,
+				      0u,
+				      plat_os_abs_data_buf(serv_ptr->session->phdl,
+							   args->expansion_function_value,
+							   args->expansion_function_value_size,
+							   DATA_BUF_IS_INPUT));
+		set_phy_addr_to_words(&cmd.hash_value_addr,
+				      0u,
+				      plat_os_abs_data_buf(serv_ptr->session->phdl,
+							   args->hash_value,
+							   args->hash_value_size,
+							   DATA_BUF_IS_INPUT));
+		set_phy_addr_to_words(&cmd.pr_reconstruction_value_addr,
+				      0u,
+				      plat_os_abs_data_buf(serv_ptr->session->phdl,
+							   args->pr_reconstruction_value,
+							   args->pr_reconstruction_value_size,
+							   DATA_BUF_IS_INPUT));
 		cmd.expansion_function_value_size = args->expansion_function_value_size;
 		cmd.hash_value_size = args->hash_value_size;
 		cmd.pr_reconstruction_value_size = args->pr_reconstruction_value_size;
 		cmd.flags = args->flags;
 		cmd.dest_key_identifier = *(args->dest_key_identifier);
-		cmd.output_address = (uint32_t)plat_os_abs_data_buf(serv_ptr->session->phdl,
-				args->output,
-				args->output_size,
-				0u);
+		set_phy_addr_to_words(&cmd.output_address,
+				      0u,
+				      plat_os_abs_data_buf(serv_ptr->session->phdl,
+							   args->output,
+							   args->output_size,
+							   0u));
 		cmd.output_size = args->output_size;
 		cmd.key_type = args->key_type;
 		cmd.rsv = 0u;
@@ -326,9 +334,9 @@ hsm_err_t hsm_butterfly_key_expansion(hsm_hdl_t key_management_hdl,
 hsm_err_t hsm_close_key_management_service(hsm_hdl_t key_management_hdl)
 {
 	struct sab_cmd_key_management_close_msg cmd;
-	struct sab_cmd_key_management_close_rsp rsp;
+	struct sab_cmd_key_management_close_rsp rsp = {0};
 	struct hsm_service_hdl_s *serv_ptr;
-	int32_t error = 1;
+	int32_t error;
 	hsm_err_t err = HSM_GENERAL_ERROR;
 
 	do {
@@ -370,7 +378,7 @@ hsm_err_t hsm_ecies_decryption(hsm_hdl_t cipher_hdl, op_ecies_dec_args_t *args)
 {
 	struct sab_cmd_ecies_decrypt_msg cmd;
 	struct sab_cmd_ecies_decrypt_rsp rsp;
-	int32_t error = 1;
+	int32_t error;
 	struct hsm_service_hdl_s *serv_ptr;
 	hsm_err_t err = HSM_GENERAL_ERROR;
 
@@ -391,22 +399,30 @@ hsm_err_t hsm_ecies_decryption(hsm_hdl_t cipher_hdl, op_ecies_dec_args_t *args)
 			serv_ptr->session->mu_type);
 		cmd.cipher_handle = cipher_hdl;
 		cmd.key_id = args->key_identifier;
-		cmd.input_address = (uint32_t)plat_os_abs_data_buf(serv_ptr->session->phdl,
-				args->input,
-				args->input_size,
-				DATA_BUF_IS_INPUT);
-		cmd.p1_addr = (uint32_t)plat_os_abs_data_buf(serv_ptr->session->phdl,
-				args->p1,
-				args->p1_size,
-				DATA_BUF_IS_INPUT);
-		cmd.p2_addr = (uint32_t)plat_os_abs_data_buf(serv_ptr->session->phdl,
-				args->p2,
-				args->p2_size,
-				DATA_BUF_IS_INPUT);
-		cmd.output_address = (uint32_t)plat_os_abs_data_buf(serv_ptr->session->phdl,
-				args->output,
-				args->output_size,
-				0u);
+		set_phy_addr_to_words(&cmd.input_address,
+				      0u,
+				      plat_os_abs_data_buf(serv_ptr->session->phdl,
+							   args->input,
+							   args->input_size,
+							   DATA_BUF_IS_INPUT));
+		set_phy_addr_to_words(&cmd.p1_addr,
+				      0u,
+				      plat_os_abs_data_buf(serv_ptr->session->phdl,
+							   args->p1,
+							   args->p1_size,
+							   DATA_BUF_IS_INPUT));
+		set_phy_addr_to_words(&cmd.p2_addr,
+				      0u,
+				      plat_os_abs_data_buf(serv_ptr->session->phdl,
+							   args->p2,
+							   args->p2_size,
+							   DATA_BUF_IS_INPUT));
+		set_phy_addr_to_words(&cmd.output_address,
+				      0u,
+				      plat_os_abs_data_buf(serv_ptr->session->phdl,
+							   args->output,
+							   args->output_size,
+							   0u));
 		cmd.input_size = args->input_size;
 		cmd.output_size = args->output_size;
 		cmd.p1_size = args->p1_size;
@@ -443,7 +459,7 @@ hsm_err_t hsm_import_public_key(hsm_hdl_t signature_ver_hdl,
 {
 	struct sab_import_pub_key_msg cmd;
 	struct sab_import_pub_key_rsp rsp;
-	int32_t error = 1;
+	int32_t error;
 	struct hsm_service_hdl_s *serv_ptr;
 	hsm_err_t err = HSM_GENERAL_ERROR;
 
@@ -464,10 +480,12 @@ hsm_err_t hsm_import_public_key(hsm_hdl_t signature_ver_hdl,
 			(uint32_t)sizeof(struct sab_import_pub_key_msg),
 			serv_ptr->session->mu_type);
 		cmd.sig_ver_hdl = signature_ver_hdl;
-		cmd.key_addr = (uint32_t)plat_os_abs_data_buf(serv_ptr->session->phdl,
-					args->key,
-					args->key_size,
-					DATA_BUF_IS_INPUT);
+		set_phy_addr_to_words(&cmd.key_addr,
+				      0u,
+				      plat_os_abs_data_buf(serv_ptr->session->phdl,
+							   args->key,
+							   args->key_size,
+							   DATA_BUF_IS_INPUT));
 		cmd.key_size = args->key_size;
 		cmd.key_type = args->key_type;
 		cmd.flags = args->flags;
@@ -497,11 +515,14 @@ hsm_err_t hsm_pub_key_reconstruction(hsm_hdl_t session_hdl,
 {
 	struct sab_public_key_reconstruct_msg cmd;
 	struct sab_public_key_reconstruct_rsp rsp;
-	int32_t error = 1;
+	int32_t error;
 	struct hsm_session_hdl_s *sess_ptr;
 	hsm_err_t err = HSM_GENERAL_ERROR;
 
 	do {
+		if (!args || !session_hdl)
+			break;
+
 		sess_ptr = session_hdl_to_ptr(session_hdl);
 		if (sess_ptr == NULL) {
 			err = HSM_UNKNOWN_HANDLE;
@@ -515,25 +536,33 @@ hsm_err_t hsm_pub_key_reconstruction(hsm_hdl_t session_hdl,
 			sess_ptr->mu_type);
 		cmd.sesssion_handle = session_hdl;
 		cmd.pu_address_ext = 0u;
-		cmd.pu_address = (uint32_t)plat_os_abs_data_buf(sess_ptr->phdl,
-					args->pub_rec,
-					args->pub_rec_size,
-					DATA_BUF_IS_INPUT);
+		set_phy_addr_to_words(&cmd.pu_address,
+				      0u,
+				      plat_os_abs_data_buf(sess_ptr->phdl,
+							   args->pub_rec,
+							   args->pub_rec_size,
+							   DATA_BUF_IS_INPUT));
 		cmd.hash_address_ext = 0u;
-		cmd.hash_address = (uint32_t)plat_os_abs_data_buf(sess_ptr->phdl,
-					args->hash,
-					args->hash_size,
-					DATA_BUF_IS_INPUT);
+		set_phy_addr_to_words(&cmd.hash_address,
+				      0u,
+				      plat_os_abs_data_buf(sess_ptr->phdl,
+							   args->hash,
+							   args->hash_size,
+							   DATA_BUF_IS_INPUT));
 		cmd.ca_key_address_ext = 0u;
-		cmd.ca_key_address = (uint32_t)plat_os_abs_data_buf(sess_ptr->phdl,
-					args->ca_key,
-					args->ca_key_size,
-					DATA_BUF_IS_INPUT);
+		set_phy_addr_to_words(&cmd.ca_key_address,
+				      0u,
+				      plat_os_abs_data_buf(sess_ptr->phdl,
+							   args->ca_key,
+							   args->ca_key_size,
+							   DATA_BUF_IS_INPUT));
 		cmd.out_key_address_ext = 0u;
-		cmd.out_key_address = (uint32_t)plat_os_abs_data_buf(sess_ptr->phdl,
-					args->out_key,
-					args->out_key_size,
-					0u);
+		set_phy_addr_to_words(&cmd.out_key_address,
+				      0u,
+				      plat_os_abs_data_buf(sess_ptr->phdl,
+							   args->out_key,
+							   args->out_key_size,
+							   0u));
 		cmd.pu_size = args->pub_rec_size;
 		cmd.hash_size = args->hash_size;
 		cmd.ca_key_size = args->ca_key_size;
@@ -568,11 +597,14 @@ hsm_err_t hsm_pub_key_decompression(hsm_hdl_t session_hdl,
 {
 	struct sab_public_key_decompression_msg cmd;
 	struct sab_public_key_decompression_rsp rsp;
-	int32_t error = 1;
+	int32_t error;
 	struct hsm_session_hdl_s *sess_ptr;
 	hsm_err_t err = HSM_GENERAL_ERROR;
 
 	do {
+		if (!args || !session_hdl)
+			break;
+
 		sess_ptr = session_hdl_to_ptr(session_hdl);
 		if (sess_ptr == NULL) {
 			err = HSM_UNKNOWN_HANDLE;
@@ -586,15 +618,19 @@ hsm_err_t hsm_pub_key_decompression(hsm_hdl_t session_hdl,
 			sess_ptr->mu_type);
 		cmd.sesssion_handle = session_hdl;
 		cmd.input_address_ext = 0u;
-		cmd.input_address = (uint32_t)plat_os_abs_data_buf(sess_ptr->phdl,
-					args->key,
-					args->key_size,
-					DATA_BUF_IS_INPUT);
+		set_phy_addr_to_words(&cmd.input_address,
+				      0u,
+				      plat_os_abs_data_buf(sess_ptr->phdl,
+							   args->key,
+							   args->key_size,
+							   DATA_BUF_IS_INPUT));
 		cmd.output_address_ext = 0u;
-		cmd.output_address = (uint32_t)plat_os_abs_data_buf(sess_ptr->phdl,
-					args->out_key,
-					args->out_key_size,
-					0u);
+		set_phy_addr_to_words(&cmd.output_address,
+				      0u,
+				      plat_os_abs_data_buf(sess_ptr->phdl,
+							   args->out_key,
+							   args->out_key_size,
+							   0u));
 		cmd.input_size = args->key_size;
 		cmd.out_size = args->out_key_size;
 		cmd.key_type = args->key_type;
@@ -626,11 +662,14 @@ hsm_err_t hsm_ecies_encryption(hsm_hdl_t session_hdl, op_ecies_enc_args_t *args)
 {
 	struct sab_cmd_ecies_encrypt_msg cmd = {0};
 	struct sab_cmd_ecies_encrypt_rsp rsp = {0};
-	int32_t error = 1;
+	int32_t error;
 	struct hsm_session_hdl_s *sess_ptr;
 	hsm_err_t err = HSM_GENERAL_ERROR;
 
 	do {
+		if (!args || !session_hdl)
+			break;
+
 		sess_ptr = session_hdl_to_ptr(session_hdl);
 		if (sess_ptr == NULL) {
 			err = HSM_UNKNOWN_HANDLE;
@@ -644,30 +683,40 @@ hsm_err_t hsm_ecies_encryption(hsm_hdl_t session_hdl, op_ecies_enc_args_t *args)
 			sess_ptr->mu_type);
 		cmd.sesssion_handle = session_hdl;
 		cmd.input_addr_ext = 0u;
-		cmd.input_addr = (uint32_t)plat_os_abs_data_buf(sess_ptr->phdl,
-					args->input,
-					args->input_size,
-					DATA_BUF_IS_INPUT);
+		set_phy_addr_to_words(&cmd.input_addr,
+				      0u,
+				      plat_os_abs_data_buf(sess_ptr->phdl,
+							   args->input,
+							   args->input_size,
+							   DATA_BUF_IS_INPUT));
 		cmd.key_addr_ext = 0u;
-		cmd.key_addr = (uint32_t)plat_os_abs_data_buf(sess_ptr->phdl,
-					args->pub_key,
-					args->pub_key_size,
-					DATA_BUF_IS_INPUT);
+		set_phy_addr_to_words(&cmd.key_addr,
+				      0u,
+				      plat_os_abs_data_buf(sess_ptr->phdl,
+							   args->pub_key,
+							   args->pub_key_size,
+							   DATA_BUF_IS_INPUT));
 		cmd.p1_addr_ext = 0u;
-		cmd.p1_addr = (uint32_t)plat_os_abs_data_buf(sess_ptr->phdl,
-					args->p1,
-					args->p1_size,
-					DATA_BUF_IS_INPUT);
+		set_phy_addr_to_words(&cmd.p1_addr,
+				      0u,
+				      plat_os_abs_data_buf(sess_ptr->phdl,
+							   args->p1,
+							   args->p1_size,
+							   DATA_BUF_IS_INPUT));
 		cmd.p2_addr_ext = 0u;
-		cmd.p2_addr = (uint32_t)plat_os_abs_data_buf(sess_ptr->phdl,
-					args->p2,
-					args->p2_size,
-					DATA_BUF_IS_INPUT);
+		set_phy_addr_to_words(&cmd.p2_addr,
+				      0u,
+				      plat_os_abs_data_buf(sess_ptr->phdl,
+							   args->p2,
+							   args->p2_size,
+							   DATA_BUF_IS_INPUT));
 		cmd.output_addr_ext = 0u;
-		cmd.output_addr = (uint32_t)plat_os_abs_data_buf(sess_ptr->phdl,
-					args->output,
-					args->out_size,
-					0u);
+		set_phy_addr_to_words(&cmd.output_addr,
+				      0u,
+				      plat_os_abs_data_buf(sess_ptr->phdl,
+							   args->output,
+							   args->out_size,
+							   0u));
 		cmd.input_size = args->input_size;
 		cmd.p1_size = args->p1_size;
 		cmd.p2_size = args->p2_size;
@@ -705,13 +754,13 @@ hsm_err_t hsm_export_root_key_encryption_key (hsm_hdl_t session_hdl,
 	struct sab_root_kek_export_msg cmd;
 	struct sab_root_kek_export_rsp rsp;
 	struct hsm_session_hdl_s *sess_ptr;
-	int32_t error = 1;
+	int32_t error;
 	hsm_err_t err = HSM_GENERAL_ERROR;
 
 	do {
-		if (args == NULL) {
+		if (!args || !session_hdl)
 			break;
-		}
+
 		sess_ptr = session_hdl_to_ptr(session_hdl);
 		if (sess_ptr == NULL) {
 			err = HSM_UNKNOWN_HANDLE;
@@ -729,10 +778,12 @@ hsm_err_t hsm_export_root_key_encryption_key (hsm_hdl_t session_hdl,
 			sess_ptr->mu_type);
 		cmd.session_handle = session_hdl;
 		cmd.root_kek_address_ext = 0;
-		cmd.root_kek_address = (uint32_t)plat_os_abs_data_buf(sess_ptr->phdl,
-							args->out_root_kek,
-							args->root_kek_size,
-							0u);
+		set_phy_addr_to_words(&cmd.root_kek_address,
+				      0u,
+				      plat_os_abs_data_buf(sess_ptr->phdl,
+							   args->out_root_kek,
+							   args->root_kek_size,
+							   0u));
 		cmd.flags = args->flags;
 		cmd.root_kek_size = args->root_kek_size;
 		cmd.reserved = 0u;
@@ -763,11 +814,14 @@ hsm_err_t hsm_sm2_get_z(hsm_hdl_t session_hdl, op_sm2_get_z_args_t *args)
 {
 	struct sab_cmd_sm2_get_z_msg cmd;
 	struct sab_cmd_sm2_get_z_rsp rsp;
-	int32_t error = 1;
+	int32_t error;
 	struct hsm_session_hdl_s *sess_ptr;
 	hsm_err_t err = HSM_GENERAL_ERROR;
 
 	do {
+		if (!args || !session_hdl)
+			break;
+
 		sess_ptr = session_hdl_to_ptr(session_hdl);
 		if (sess_ptr == NULL) {
 			err = HSM_UNKNOWN_HANDLE;
@@ -780,19 +834,25 @@ hsm_err_t hsm_sm2_get_z(hsm_hdl_t session_hdl, op_sm2_get_z_args_t *args)
 			sess_ptr->mu_type);
 		cmd.session_handle = session_hdl;
 		cmd.input_address_ext = 0u;
-		cmd.public_key_address = (uint32_t)plat_os_abs_data_buf(sess_ptr->phdl,
-								args->public_key,
-								args->public_key_size,
-								DATA_BUF_IS_INPUT);
-		cmd.id_address = (uint32_t)plat_os_abs_data_buf(sess_ptr->phdl,
-							args->identifier,
-							args->id_size,
-							DATA_BUF_IS_INPUT);
+		set_phy_addr_to_words(&cmd.public_key_address,
+				      0u,
+				      plat_os_abs_data_buf(sess_ptr->phdl,
+							   args->public_key,
+							   args->public_key_size,
+							   DATA_BUF_IS_INPUT));
+		set_phy_addr_to_words(&cmd.id_address,
+				      0u,
+				      plat_os_abs_data_buf(sess_ptr->phdl,
+							   args->identifier,
+							   args->id_size,
+							   DATA_BUF_IS_INPUT));
 		cmd.output_address_ext = 0U;
-	    cmd.z_value_address = (uint32_t)plat_os_abs_data_buf(sess_ptr->phdl,
-								args->z_value,
-								args->z_size,
-								0u);
+		set_phy_addr_to_words(&cmd.z_value_address,
+				      0u,
+				      plat_os_abs_data_buf(sess_ptr->phdl,
+							   args->z_value,
+							   args->z_size,
+							   0u));
 		cmd.public_key_size = args->public_key_size;
 		cmd.id_size = args->id_size;
 		cmd.z_size = args-> z_size;
@@ -824,11 +884,14 @@ hsm_err_t hsm_sm2_eces_encryption(hsm_hdl_t session_hdl, op_sm2_eces_enc_args_t 
 {
 	struct sab_cmd_sm2_eces_enc_msg cmd;
 	struct sab_cmd_sm2_eces_enc_rsp rsp;
-	int32_t error = 1;
+	int32_t error;
 	struct hsm_session_hdl_s *sess_ptr;
 	hsm_err_t err = HSM_GENERAL_ERROR;
 
 	do {
+		if (!args || !session_hdl)
+			break;
+
 		sess_ptr = session_hdl_to_ptr(session_hdl);
 		if (sess_ptr == NULL) {
 			err = HSM_UNKNOWN_HANDLE;
@@ -842,21 +905,27 @@ hsm_err_t hsm_sm2_eces_encryption(hsm_hdl_t session_hdl, op_sm2_eces_enc_args_t 
 
 		cmd.session_handle = session_hdl;
 		cmd.input_addr_ext = 0u;
-		cmd.input_addr = (uint32_t)plat_os_abs_data_buf(sess_ptr->phdl,
-								args->input,
-								args->input_size,
-								DATA_BUF_IS_INPUT);
+		set_phy_addr_to_words(&cmd.input_addr,
+				      0u,
+				      plat_os_abs_data_buf(sess_ptr->phdl,
+							   args->input,
+							   args->input_size,
+							   DATA_BUF_IS_INPUT));
 		cmd.key_addr_ext = 0U;
-		cmd.key_addr = (uint32_t)plat_os_abs_data_buf(sess_ptr->phdl,
-							args->pub_key,
-							args->pub_key_size,
-							DATA_BUF_IS_INPUT);
+		set_phy_addr_to_words(&cmd.key_addr,
+				      0u,
+				      plat_os_abs_data_buf(sess_ptr->phdl,
+							   args->pub_key,
+							   args->pub_key_size,
+							   DATA_BUF_IS_INPUT));
 
 		cmd.output_addr_ext = 0U;
-	    cmd.output_addr = (uint32_t)plat_os_abs_data_buf(sess_ptr->phdl,
-								args->output,
-								args->output_size,
-								0u);
+		set_phy_addr_to_words(&cmd.output_addr,
+				      0u,
+				      plat_os_abs_data_buf(sess_ptr->phdl,
+							   args->output,
+							   args->output_size,
+							   0u));
 
 		cmd.input_size = args->input_size;
 		cmd.output_size = args->output_size;
@@ -931,6 +1000,9 @@ hsm_err_t hsm_close_sm2_eces_service(hsm_hdl_t sm2_eces_hdl)
 	uint32_t sab_err;
 
 	do {
+		if (!sm2_eces_hdl)
+			break;
+
 		serv_ptr = service_hdl_to_ptr(sm2_eces_hdl);
 		if (serv_ptr == NULL) {
 			err = HSM_UNKNOWN_HANDLE;
@@ -953,9 +1025,12 @@ hsm_err_t hsm_sm2_eces_decryption(hsm_hdl_t sm2_eces_hdl, op_sm2_eces_dec_args_t
 	struct hsm_service_hdl_s *serv_ptr;
 
 	hsm_err_t err = HSM_GENERAL_ERROR;
-	int32_t error = 1;
+	int32_t error;
 
 	do {
+		if (!args || !sm2_eces_hdl)
+			break;
+
 		serv_ptr = service_hdl_to_ptr(sm2_eces_hdl);
 		if (serv_ptr == NULL) {
 			err = HSM_UNKNOWN_HANDLE;
@@ -969,16 +1044,19 @@ hsm_err_t hsm_sm2_eces_decryption(hsm_hdl_t sm2_eces_hdl, op_sm2_eces_dec_args_t
 		cmd.sm2_eces_handle = sm2_eces_hdl;
 		cmd.key_id = args->key_identifier;
 
+		set_phy_addr_to_words(&cmd.input_address,
+				      0u,
+				      plat_os_abs_data_buf(serv_ptr->session->phdl,
+							   args->input,
+							   args->input_size,
+							   DATA_BUF_IS_INPUT));
+		set_phy_addr_to_words(&cmd.output_address,
+				      0u,
+				      plat_os_abs_data_buf(serv_ptr->session->phdl,
+							   args->output,
+							   args->output_size,
+							   0u));
 
-		cmd.input_address = (uint32_t)plat_os_abs_data_buf(serv_ptr->session->phdl,
-								args->input,
-								args->input_size,
-								DATA_BUF_IS_INPUT);
-
-	    cmd.output_address = (uint32_t)plat_os_abs_data_buf(serv_ptr->session->phdl,
-								args->output,
-								args->output_size,
-								0u);
 		cmd.input_size = args->input_size;
 		cmd.output_size = args->output_size;
 		cmd.key_type = args->key_type;;
@@ -1009,7 +1087,7 @@ hsm_err_t hsm_key_exchange(hsm_hdl_t key_management_hdl, op_key_exchange_args_t 
 {
 	struct sab_cmd_key_exchange_msg cmd;
 	struct sab_cmd_key_exchange_rsp rsp;
-	int32_t error = 1;
+	int32_t error;
 	struct hsm_service_hdl_s *serv_ptr;
 	hsm_err_t err = HSM_GENERAL_ERROR;
 
@@ -1036,26 +1114,39 @@ hsm_err_t hsm_key_exchange(hsm_hdl_t key_management_hdl, op_key_exchange_args_t 
 
 		cmd.key_management_handle = key_management_hdl;
 		cmd.key_identifier = args->key_identifier;
-		cmd.shared_key_identifier_array = (uint32_t)plat_os_abs_data_buf(serv_ptr->session->phdl,
-				args->shared_key_identifier_array,
-				args->shared_key_identifier_array_size,
-				(((args->flags & HSM_OP_KEY_EXCHANGE_FLAGS_UPDATE)==HSM_OP_KEY_EXCHANGE_FLAGS_UPDATE)? DATA_BUF_IS_INPUT : 0u));
-		cmd.ke_input_addr = (uint32_t)plat_os_abs_data_buf(serv_ptr->session->phdl,
-				args->ke_input,
-				args->ke_input_size,
-				DATA_BUF_IS_INPUT);
-		cmd.ke_output_addr = (uint32_t)plat_os_abs_data_buf(serv_ptr->session->phdl,
-				args->ke_output,
-				args->ke_output_size,
-				0u);
-		cmd.kdf_input_data = (uint32_t)plat_os_abs_data_buf(serv_ptr->session->phdl,
-				args->kdf_input,
-				args->kdf_input_size,
-				DATA_BUF_IS_INPUT);
-		cmd.kdf_output_data = (uint32_t)plat_os_abs_data_buf(serv_ptr->session->phdl,
-				args->kdf_output,
-				args->kdf_output_size,
-				0u);
+		set_phy_addr_to_words(&cmd.shared_key_identifier_array,
+				      0u,
+				      plat_os_abs_data_buf(serv_ptr->session->phdl,
+							   args->shared_key_identifier_array,
+							   args->shared_key_identifier_array_size,
+							   (((args->flags
+							      & HSM_OP_KEY_EXCHANGE_FLAGS_UPDATE)
+							      == HSM_OP_KEY_EXCHANGE_FLAGS_UPDATE)
+							      ? DATA_BUF_IS_INPUT : 0u)));
+		set_phy_addr_to_words(&cmd.ke_input_addr,
+				      0u,
+				      plat_os_abs_data_buf(serv_ptr->session->phdl,
+							   args->ke_input,
+							   args->ke_input_size,
+							   DATA_BUF_IS_INPUT));
+		set_phy_addr_to_words(&cmd.ke_output_addr,
+				      0u,
+				      plat_os_abs_data_buf(serv_ptr->session->phdl,
+							   args->ke_output,
+							   args->ke_output_size,
+							   0u));
+		set_phy_addr_to_words(&cmd.kdf_input_data,
+				      0u,
+				      plat_os_abs_data_buf(serv_ptr->session->phdl,
+							   args->kdf_input,
+							   args->kdf_input_size,
+							   DATA_BUF_IS_INPUT));
+		set_phy_addr_to_words(&cmd.kdf_output_data,
+				      0u,
+				      plat_os_abs_data_buf(serv_ptr->session->phdl,
+							   args->kdf_output,
+							   args->kdf_output_size,
+							   0u));
 		cmd.shared_key_group = args->shared_key_group;
 		cmd.shared_key_info = args->shared_key_info;
 		cmd.shared_key_type = args->shared_key_type;
@@ -1095,7 +1186,7 @@ hsm_err_t hsm_tls_finish(hsm_hdl_t key_management_hdl, op_tls_finish_args_t *arg
 {
 	struct sab_cmd_tls_finish_msg cmd;
 	struct sab_cmd_tls_finish_rsp rsp;
-	int32_t error = 1;
+	int32_t error;
 	struct hsm_service_hdl_s *serv_ptr;
 	hsm_err_t err = HSM_GENERAL_ERROR;
 
@@ -1117,14 +1208,18 @@ hsm_err_t hsm_tls_finish(hsm_hdl_t key_management_hdl, op_tls_finish_args_t *arg
 
 		cmd.key_management_handle = key_management_hdl;
 		cmd.key_identifier = args->key_identifier;
-		cmd.handshake_hash_input_addr = (uint32_t)plat_os_abs_data_buf(serv_ptr->session->phdl,
-				args->handshake_hash_input,
-				args->handshake_hash_input_size,
-				DATA_BUF_IS_INPUT);
-		cmd.verify_data_output_addr = (uint32_t)plat_os_abs_data_buf(serv_ptr->session->phdl,
-				args->verify_data_output,
-				args->verify_data_output_size,
-				0u);
+		set_phy_addr_to_words(&cmd.handshake_hash_input_addr,
+				      0u,
+				      plat_os_abs_data_buf(serv_ptr->session->phdl,
+							   args->handshake_hash_input,
+							   args->handshake_hash_input_size,
+							   DATA_BUF_IS_INPUT));
+		set_phy_addr_to_words(&cmd.verify_data_output_addr,
+				      0u,
+				      plat_os_abs_data_buf(serv_ptr->session->phdl,
+							   args->verify_data_output,
+							   args->verify_data_output_size,
+							   0u));
 		cmd.handshake_hash_input_size = args->handshake_hash_input_size;
 		cmd.verify_data_output_size = args->verify_data_output_size;
 		cmd.flags = args->flags;
@@ -1158,7 +1253,7 @@ hsm_err_t hsm_standalone_butterfly_key_expansion(hsm_hdl_t key_management_hdl,
 {
 	struct sab_cmd_st_butterfly_key_exp_msg cmd;
 	struct sab_cmd_st_butterfly_key_exp_rsp rsp;
-	int32_t error = 1;
+	int32_t error;
 	struct hsm_service_hdl_s *serv_ptr;
 	hsm_err_t err = HSM_GENERAL_ERROR;
 
@@ -1180,27 +1275,35 @@ hsm_err_t hsm_standalone_butterfly_key_expansion(hsm_hdl_t key_management_hdl,
 		cmd.key_management_handle = key_management_hdl;
 		cmd.key_identifier = args->key_identifier;
 		cmd.exp_fct_key_identifier = args->expansion_fct_key_identifier;
-		cmd.exp_fct_input_address = (uint32_t)plat_os_abs_data_buf(serv_ptr->session->phdl,
-				args->expansion_fct_input,
-				args->expansion_fct_input_size,
-				DATA_BUF_IS_INPUT);
-		cmd.hash_value_address = (uint32_t)plat_os_abs_data_buf(serv_ptr->session->phdl,
-				args->hash_value,
-				args->hash_value_size,
-				DATA_BUF_IS_INPUT);
-		cmd.pr_reconst_value_address = (uint32_t)plat_os_abs_data_buf(serv_ptr->session->phdl,
-				args->pr_reconstruction_value,
-				args->pr_reconstruction_value_size,
-				DATA_BUF_IS_INPUT);
+		set_phy_addr_to_words(&cmd.exp_fct_input_address,
+				      0u,
+				      plat_os_abs_data_buf(serv_ptr->session->phdl,
+							   args->expansion_fct_input,
+							   args->expansion_fct_input_size,
+							   DATA_BUF_IS_INPUT));
+		set_phy_addr_to_words(&cmd.hash_value_address,
+				      0u,
+				      plat_os_abs_data_buf(serv_ptr->session->phdl,
+							   args->hash_value,
+							   args->hash_value_size,
+							   DATA_BUF_IS_INPUT));
+		set_phy_addr_to_words(&cmd.pr_reconst_value_address,
+				      0u,
+				      plat_os_abs_data_buf(serv_ptr->session->phdl,
+							   args->pr_reconstruction_value,
+							   args->pr_reconstruction_value_size,
+							   DATA_BUF_IS_INPUT));
 		cmd.exp_fct_input_size = args->expansion_fct_input_size;
 		cmd.hash_value_size = args->hash_value_size;
 		cmd.pr_reconst_value_size = args->pr_reconstruction_value_size;
 		cmd.flags = args->flags;
 		cmd.dest_key_identifier = *(args->dest_key_identifier);
-		cmd.output_address = (uint32_t)plat_os_abs_data_buf(serv_ptr->session->phdl,
-				args->output,
-				args->output_size,
-				0u);
+		set_phy_addr_to_words(&cmd.output_address,
+				      0u,
+				      plat_os_abs_data_buf(serv_ptr->session->phdl,
+							   args->output,
+							   args->output_size,
+							   0u));
 		cmd.output_size = args->output_size;
 		cmd.key_type = args->key_type;
 		cmd.exp_fct_algorithm = args->expansion_fct_algo;
@@ -1243,7 +1346,7 @@ hsm_err_t hsm_open_key_generic_crypto_service(hsm_hdl_t session_hdl,
 	struct sab_key_generic_crypto_srv_open_rsp rsp;
 	struct hsm_session_hdl_s *sess_ptr;
 	struct hsm_service_hdl_s *serv_ptr;
-	int32_t error = 1;
+	int32_t error;
 	hsm_err_t err = HSM_GENERAL_ERROR;
 
 	do {
@@ -1305,10 +1408,13 @@ hsm_err_t hsm_close_key_generic_crypto_service(hsm_hdl_t key_generic_crypto_hdl)
 	struct sab_key_generic_crypto_srv_close_msg cmd;
 	struct sab_key_generic_crypto_srv_close_rsp rsp;
 	struct hsm_service_hdl_s *serv_ptr;
-	int32_t error = 1;
+	int32_t error;
 	hsm_err_t err = HSM_GENERAL_ERROR;
 
 	do {
+		if (!key_generic_crypto_hdl)
+			break;
+
 		serv_ptr = service_hdl_to_ptr(key_generic_crypto_hdl);
 		if (serv_ptr == NULL) {
 			err = HSM_UNKNOWN_HANDLE;
@@ -1343,7 +1449,7 @@ hsm_err_t hsm_key_generic_crypto(hsm_hdl_t key_generic_crypto_hdl, op_key_generi
 	struct sab_key_generic_crypto_srv_rsp rsp;
 	struct hsm_service_hdl_s *serv_ptr;
 	hsm_err_t err = HSM_GENERAL_ERROR;
-	int32_t error = 1;
+	int32_t error;
 
 	do {
 		if (args == NULL) {
@@ -1364,33 +1470,47 @@ hsm_err_t hsm_key_generic_crypto(hsm_hdl_t key_generic_crypto_hdl, op_key_generi
 
 		cmd.key_generic_crypto_srv_handle = key_generic_crypto_hdl;
 		cmd.key_size = args->key_size;
-		cmd.key_address = (uint32_t)plat_os_abs_data_buf(serv_ptr->session->phdl,
-									args->key, args->key_size, DATA_BUF_IS_INPUT);
+		set_phy_addr_to_words(&cmd.key_address,
+				      0u,
+				      plat_os_abs_data_buf(serv_ptr->session->phdl,
+							   args->key,
+							   args->key_size,
+							   DATA_BUF_IS_INPUT));
 		if (args->iv_size != 0) {
-			cmd.iv_address = (uint32_t)plat_os_abs_data_buf(serv_ptr->session->phdl,
-									args->iv, args->iv_size, DATA_BUF_IS_INPUT);
+			set_phy_addr_to_words(&cmd.iv_address,
+					      0u,
+					      plat_os_abs_data_buf(serv_ptr->session->phdl,
+								   args->iv,
+								   args->iv_size,
+								   DATA_BUF_IS_INPUT));
 		}
 		else {
 			cmd.iv_address = 0;
 		}
 		cmd.iv_size = args->iv_size;
-		cmd.aad_address = (uint32_t)plat_os_abs_data_buf(serv_ptr->session->phdl,
-							args->aad,
-							args->aad_size,
-							DATA_BUF_IS_INPUT);
+		set_phy_addr_to_words(&cmd.aad_address,
+				      0u,
+				      plat_os_abs_data_buf(serv_ptr->session->phdl,
+							   args->aad,
+							   args->aad_size,
+							   DATA_BUF_IS_INPUT));
 		cmd.aad_size = args->aad_size;
 		cmd.rsv = 0;
 		cmd.crypto_algo = args->crypto_algo;
 		cmd.flags = args->flags;
 		cmd.tag_size = args->tag_size;
-		cmd.input_address = (uint32_t)plat_os_abs_data_buf(serv_ptr->session->phdl,
-							args->input,
-							args->input_size,
-							DATA_BUF_IS_INPUT);
-		cmd.output_address = (uint32_t)plat_os_abs_data_buf(serv_ptr->session->phdl,
-							args->output,
-							args->output_size,
-							0u);
+		set_phy_addr_to_words(&cmd.input_address,
+				      0u,
+				      plat_os_abs_data_buf(serv_ptr->session->phdl,
+							   args->input,
+							   args->input_size,
+							   DATA_BUF_IS_INPUT));
+		set_phy_addr_to_words(&cmd.output_address,
+				      0u,
+				      plat_os_abs_data_buf(serv_ptr->session->phdl,
+							   args->output,
+							   args->output_size,
+							   0u));
 		cmd.input_length = args->input_size;
 		cmd.output_length = args->output_size;
 		cmd.rsv = args->reserved;

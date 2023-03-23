@@ -18,6 +18,7 @@
 #include "internal/hsm_dev_attest.h"
 
 #include "sab_dev_attest.h"
+#include "sab_messaging.h"
 
 #include "plat_os_abs.h"
 
@@ -32,7 +33,6 @@ uint32_t prepare_msg_dev_attest(void *phdl, void *cmd_buf, void *rsp_buf,
 		(struct sab_cmd_dev_attest_rsp_w_data *) rsp_buf;
 	struct sab_cmd_dev_attest_rsp *rsp =
 		(struct sab_cmd_dev_attest_rsp *) rsp_buf;
-	uint64_t data_addr;
 	op_dev_attest_args_t *op_args = (op_dev_attest_args_t *) args;
 
 	*cmd_msg_sz = sizeof(struct sab_cmd_dev_attest_msg);
@@ -50,12 +50,12 @@ uint32_t prepare_msg_dev_attest(void *phdl, void *cmd_buf, void *rsp_buf,
 	/* Copy the get_info_response to the word,
 	 * next to response.
 	 */
-	data_addr = plat_os_abs_data_buf(phdl, (uint8_t *)&rsp_w_data->d_info,
-					 cmd->buf_sz,
-					 DATA_BUF_IS_OUTPUT);
-
-	cmd->rsp_data_addr_hi = (uint32_t) (data_addr >> 32);
-	cmd->rsp_data_addr_lo = (uint32_t) data_addr;
+	set_phy_addr_to_words(&cmd->rsp_data_addr_lo,
+			      &cmd->rsp_data_addr_hi,
+			      plat_os_abs_data_buf((struct plat_os_abs_hdl *)phdl,
+						   (uint8_t *)&rsp_w_data->d_info,
+						   cmd->buf_sz,
+						   DATA_BUF_IS_OUTPUT));
 
 	cmd->crc = 0u;
 

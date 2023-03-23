@@ -14,6 +14,7 @@
 #include "internal/hsm_gc_acrypto.h"
 
 #include "sab_gc_acrypto.h"
+#include "sab_messaging.h"
 
 #include "plat_os_abs.h"
 #include "plat_utils.h"
@@ -30,7 +31,6 @@ uint32_t prepare_msg_gc_acrypto(void *phdl,
 			(struct sab_cmd_gc_acrypto_msg *)cmd_buf;
 	op_gc_acrypto_args_t *op_args =
 			(op_gc_acrypto_args_t *)args;
-	uint64_t plat_addr;
 
 	cmd->buffers_addr_msb = 0u;
 	cmd->algorithm = op_args->algorithm;
@@ -38,57 +38,61 @@ uint32_t prepare_msg_gc_acrypto(void *phdl,
 	cmd->key_size = op_args->bit_key_sz;
 
 	if (cmd->op_mode == HSM_GC_ACRYPTO_OP_MODE_DECRYPT)
-		plat_addr = plat_os_abs_data_buf((struct plat_os_abs_hdl *)phdl,
-						 op_args->data_buff1,
-						 op_args->data_buff1_size,
-						 DATA_BUF_IS_OUTPUT);
+		set_phy_addr_to_words(&cmd->data_buff1_addr,
+				      0u,
+				      plat_os_abs_data_buf((struct plat_os_abs_hdl *)phdl,
+							   op_args->data_buff1,
+							   op_args->data_buff1_size,
+							   DATA_BUF_IS_OUTPUT));
 	else
-		plat_addr = plat_os_abs_data_buf((struct plat_os_abs_hdl *)phdl,
-						 op_args->data_buff1,
-						 op_args->data_buff1_size,
-						 DATA_BUF_IS_INPUT);
-	if (plat_addr <= UINT32_MAX)
-		cmd->data_buff1_addr = (uint32_t)plat_addr;
+		set_phy_addr_to_words(&cmd->data_buff1_addr,
+				      0u,
+				      plat_os_abs_data_buf((struct plat_os_abs_hdl *)phdl,
+							   op_args->data_buff1,
+							   op_args->data_buff1_size,
+							   DATA_BUF_IS_INPUT));
 
 	if (cmd->op_mode == HSM_GC_ACRYPTO_OP_MODE_DECRYPT ||
 	    cmd->op_mode == HSM_GC_ACRYPTO_OP_MODE_SIGN_VER)
-		plat_addr = plat_os_abs_data_buf((struct plat_os_abs_hdl *)phdl,
-						 op_args->data_buff2,
-						 op_args->data_buff2_size,
-						 DATA_BUF_IS_INPUT);
+		set_phy_addr_to_words(&cmd->data_buff2_addr,
+				      0u,
+				      plat_os_abs_data_buf((struct plat_os_abs_hdl *)phdl,
+							   op_args->data_buff2,
+							   op_args->data_buff2_size,
+							   DATA_BUF_IS_INPUT));
 	else
-		plat_addr = plat_os_abs_data_buf((struct plat_os_abs_hdl *)phdl,
-						 op_args->data_buff2,
-						 op_args->data_buff2_size,
-						 DATA_BUF_IS_OUTPUT);
-	if (plat_addr <= UINT32_MAX)
-		cmd->data_buff2_addr = (uint32_t)plat_addr;
+		set_phy_addr_to_words(&cmd->data_buff2_addr,
+				      0u,
+				      plat_os_abs_data_buf((struct plat_os_abs_hdl *)phdl,
+							   op_args->data_buff2,
+							   op_args->data_buff2_size,
+							   DATA_BUF_IS_OUTPUT));
 
-	plat_addr = plat_os_abs_data_buf((struct plat_os_abs_hdl *)phdl,
-					 op_args->key_buff1,
-					 op_args->key_buff1_size,
-					 DATA_BUF_IS_INPUT);
-	if (plat_addr <= UINT32_MAX)
-		cmd->key_buff1_addr = (uint32_t)plat_addr;
+	set_phy_addr_to_words(&cmd->key_buff1_addr,
+			      0u,
+			      plat_os_abs_data_buf((struct plat_os_abs_hdl *)phdl,
+						   op_args->key_buff1,
+						   op_args->key_buff1_size,
+						   DATA_BUF_IS_INPUT));
 
-	plat_addr = plat_os_abs_data_buf((struct plat_os_abs_hdl *)phdl,
-					 op_args->key_buff2,
-					 op_args->key_buff2_size,
-					 DATA_BUF_IS_INPUT);
-	if (plat_addr <= UINT32_MAX)
-		cmd->key_buff2_addr = (uint32_t)plat_addr;
+	set_phy_addr_to_words(&cmd->key_buff2_addr,
+			      0u,
+			      plat_os_abs_data_buf((struct plat_os_abs_hdl *)phdl,
+						   op_args->key_buff2,
+						   op_args->key_buff2_size,
+						   DATA_BUF_IS_INPUT));
 
 	cmd->data_buff1_size = op_args->data_buff1_size;
 	cmd->data_buff2_size = op_args->data_buff2_size;
 	cmd->key_buff1_size = op_args->key_buff1_size;
 	cmd->key_buff2_size = op_args->key_buff2_size;
 
-	plat_addr = plat_os_abs_data_buf((struct plat_os_abs_hdl *)phdl,
-					 op_args->rsa_label,
-					 op_args->rsa_label_size,
-					 DATA_BUF_IS_INPUT);
-	if (plat_addr <= UINT32_MAX)
-		cmd->rsa_label_addr = (uint32_t)plat_addr;
+	set_phy_addr_to_words(&cmd->rsa_label_addr,
+			      0u,
+			      plat_os_abs_data_buf((struct plat_os_abs_hdl *)phdl,
+						   op_args->rsa_label,
+						   op_args->rsa_label_size,
+						   DATA_BUF_IS_INPUT));
 
 	cmd->rsa_label_size = op_args->rsa_label_size;
 	cmd->rsa_salt_len = op_args->rsa_salt_len;

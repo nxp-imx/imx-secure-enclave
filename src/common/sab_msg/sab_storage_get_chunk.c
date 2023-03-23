@@ -15,6 +15,7 @@
 #include <string.h>
 
 #include "sab_storage_get_chunk.h"
+#include "sab_messaging.h"
 
 #include "plat_os_abs.h"
 #include "plat_utils.h"
@@ -30,7 +31,6 @@ uint32_t parse_cmd_prep_rsp_storage_get_chunk(struct nvm_ctx_st *nvm_ctx_param,
 					      uint8_t *next_cmd_id)
 {
 	uint64_t blob_id;
-	uint64_t plat_addr;
 	uint32_t err = 1u;
 	struct nvm_header_s nvm_hdr;
 
@@ -89,13 +89,15 @@ uint32_t parse_cmd_prep_rsp_storage_get_chunk(struct nvm_ctx_st *nvm_ctx_param,
 	if (err == 0u) {
 		resp->chunk_size = nvm_hdr.size
 			- (uint32_t)sizeof(struct nvm_header_s);
+		set_phy_addr_to_words(&resp->chunk_addr,
+				      0u,
+				      plat_os_abs_data_buf(nvm_ctx_param->phdl,
+							   *data +
+							   (uint32_t)sizeof(struct nvm_header_s),
+							   nvm_hdr.size -
+							   (uint32_t)sizeof(struct nvm_header_s),
+							   DATA_BUF_IS_INPUT));
 
-		plat_addr = plat_os_abs_data_buf(nvm_ctx_param->phdl,
-				*data + (uint32_t)sizeof(struct nvm_header_s),
-				nvm_hdr.size - (uint32_t)sizeof(struct nvm_header_s),
-				DATA_BUF_IS_INPUT);
-
-		resp->chunk_addr =  (uint32_t)(plat_addr & 0xFFFFFFFFu);
 		resp->rsp_code = SAB_SUCCESS_STATUS;
 	} else {
 		resp->chunk_size = 0u;

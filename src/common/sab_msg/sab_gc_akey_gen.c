@@ -14,6 +14,7 @@
 #include "internal/hsm_gc_akey_gen.h"
 
 #include "sab_gc_akey_gen.h"
+#include "sab_messaging.h"
 
 #include "plat_os_abs.h"
 #include "plat_utils.h"
@@ -30,30 +31,29 @@ uint32_t prepare_msg_gc_akey_gen(void *phdl,
 			(struct sab_cmd_gc_akey_gen_msg *)cmd_buf;
 	op_gc_akey_gen_args_t *op_args =
 			(op_gc_akey_gen_args_t *)args;
-	uint64_t plat_addr;
 
 	cmd->buffers_addr_msb = 0u;
 
-	plat_addr = plat_os_abs_data_buf((struct plat_os_abs_hdl *)phdl,
-					 op_args->modulus,
-					 op_args->modulus_size,
-					 DATA_BUF_IS_OUTPUT);
-	if (plat_addr <= UINT32_MAX)
-		cmd->modulus_addr = (uint32_t)plat_addr;
+	set_phy_addr_to_words(&cmd->modulus_addr,
+			      0u,
+			      plat_os_abs_data_buf((struct plat_os_abs_hdl *)phdl,
+						   op_args->modulus,
+						   op_args->modulus_size,
+						   DATA_BUF_IS_OUTPUT));
 
-	plat_addr = plat_os_abs_data_buf((struct plat_os_abs_hdl *)phdl,
-					 op_args->priv_buff,
-					 op_args->priv_buff_size,
-					 DATA_BUF_IS_OUTPUT);
-	if (plat_addr <= UINT32_MAX)
-		cmd->priv_buff_addr = (uint32_t)plat_addr;
+	set_phy_addr_to_words(&cmd->priv_buff_addr,
+			      0u,
+			      plat_os_abs_data_buf((struct plat_os_abs_hdl *)phdl,
+						   op_args->priv_buff,
+						   op_args->priv_buff_size,
+						   DATA_BUF_IS_OUTPUT));
 
-	plat_addr = plat_os_abs_data_buf((struct plat_os_abs_hdl *)phdl,
-					 op_args->pub_buff,
-					 op_args->pub_buff_size,
-					 DATA_BUF_IS_INPUT);
-	if (plat_addr <= UINT32_MAX)
-		cmd->pub_buff_addr = (uint32_t)plat_addr;
+	set_phy_addr_to_words(&cmd->pub_buff_addr,
+			      0u,
+			      plat_os_abs_data_buf((struct plat_os_abs_hdl *)phdl,
+						   op_args->pub_buff,
+						   op_args->pub_buff_size,
+						   DATA_BUF_IS_INPUT));
 
 	cmd->modulus_size = op_args->modulus_size;
 	cmd->priv_buff_size = op_args->priv_buff_size;

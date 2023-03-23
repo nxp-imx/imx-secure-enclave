@@ -18,6 +18,15 @@
 #include "plat_os_abs.h"
 #include "plat_utils.h"
 
+void set_phy_addr_to_words(uint32_t *lsb, uint32_t *msb, uint64_t phy_addr)
+{
+	if (lsb)
+		*lsb = (uint32_t)(phy_addr & 0xFFFFFFFF);
+
+	if (msb)
+		*msb = (uint32_t)((phy_addr >> 32) & 0xFFFFFFFF);
+}
+
 uint32_t sab_get_shared_buffer(struct plat_os_abs_hdl *phdl, uint32_t session_handle, uint32_t mu_type)
 {
     struct sab_cmd_shared_buffer_msg cmd;

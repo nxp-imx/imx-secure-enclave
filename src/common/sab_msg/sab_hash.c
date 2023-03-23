@@ -14,6 +14,7 @@
 #include "internal/hsm_hash.h"
 
 #include "sab_hash.h"
+#include "sab_messaging.h"
 
 #include "plat_os_abs.h"
 #include "plat_utils.h"
@@ -41,25 +42,29 @@ uint32_t prepare_msg_hash_one_go(void *phdl,
 	 * Bit 4-6 reserved and get context size operation flag = Bit 8.
 	 */
 	if (!(op_args->svc_flags & CTX_ADDR_IGNORE)) {
-		cmd->ctx_addr =	(uint32_t)plat_os_abs_data_buf((struct plat_os_abs_hdl *)phdl,
-							       op_args->ctx,
-							       op_args->ctx_size,
-							       DATA_BUF_IS_IN_OUT);
+		set_phy_addr_to_words(&cmd->ctx_addr,
+				      0u,
+				      plat_os_abs_data_buf((struct plat_os_abs_hdl *)phdl,
+							   op_args->ctx,
+							   op_args->ctx_size,
+							   DATA_BUF_IS_IN_OUT));
 	}
 	cmd->ctx_size = op_args->ctx_size;
 #else
 	cmd->hash_hdl = msg_hdl;
 #endif
-	cmd->input_addr = (uint32_t)plat_os_abs_data_buf(
-						(struct plat_os_abs_hdl *)phdl,
-						op_args->input,
-						op_args->input_size,
-						DATA_BUF_IS_INPUT);
-	cmd->output_addr = (uint32_t)plat_os_abs_data_buf(
-						(struct plat_os_abs_hdl *)phdl,
-						op_args->output,
-						op_args->output_size,
-						DATA_BUF_IS_OUTPUT);
+	set_phy_addr_to_words(&cmd->input_addr,
+			      0u,
+			      plat_os_abs_data_buf((struct plat_os_abs_hdl *)phdl,
+						   op_args->input,
+						   op_args->input_size,
+						   DATA_BUF_IS_INPUT));
+	set_phy_addr_to_words(&cmd->output_addr,
+			      0u,
+			      plat_os_abs_data_buf((struct plat_os_abs_hdl *)phdl,
+						   op_args->output,
+						   op_args->output_size,
+						   DATA_BUF_IS_OUTPUT));
 	cmd->input_size = op_args->input_size;
 	cmd->output_size = op_args->output_size;
 	cmd->algo = op_args->algo;

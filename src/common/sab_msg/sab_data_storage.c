@@ -16,6 +16,7 @@
 #include "internal/hsm_data_storage.h"
 
 #include "sab_data_storage.h"
+#include "sab_messaging.h"
 
 #include "plat_os_abs.h"
 #include "plat_utils.h"
@@ -35,13 +36,15 @@ uint32_t prepare_msg_data_storage(void *phdl,
 	op_data_storage_args_t *op_args = (op_data_storage_args_t *) args;
 
 	cmd->data_storage_handle = msg_hdl;
-	cmd->data_address = (uint32_t)plat_os_abs_data_buf(phdl,
-							   op_args->data,
-							   op_args->data_size,
-							   (((op_args->flags
-							   & HSM_OP_DATA_STORAGE_FLAGS_STORE)
-							   == HSM_OP_DATA_STORAGE_FLAGS_STORE)
-							   ? DATA_BUF_IS_INPUT : 0u));
+	set_phy_addr_to_words(&cmd->data_address,
+			      0u,
+			      plat_os_abs_data_buf(phdl,
+						   op_args->data,
+						   op_args->data_size,
+						   (((op_args->flags
+						   & HSM_OP_DATA_STORAGE_FLAGS_STORE)
+						   == HSM_OP_DATA_STORAGE_FLAGS_STORE)
+						   ? DATA_BUF_IS_INPUT : 0u)));
 	cmd->data_size = op_args->data_size;
 	cmd->data_id = op_args->data_id;
 	cmd->flags = op_args->flags;

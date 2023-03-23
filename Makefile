@@ -109,6 +109,7 @@ $(HSM_LIB): \
 $(NVM_LIB): $(PLAT_COMMON_PATH)/nvm/nvm_manager.o\
 	$(PLAT_COMMON_PATH)/sab_msg/sab_session.o\
 	$(PLAT_COMMON_PATH)/sab_common_err.o\
+	$(PLAT_COMMON_PATH)/sab_messaging.o \
 	$(SAB_RCVMSG_SRC) \
 	$(PLAT_PATH)/nvm_os_abs_linux.o\
 	$(PLAT_PATH)/plat_err.o \

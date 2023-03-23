@@ -15,6 +15,7 @@
 #include <stdint.h>
 
 #include "sab_storage_chunk_export.h"
+#include "sab_messaging.h"
 
 #include "plat_os_abs.h"
 #include "plat_utils.h"
@@ -32,7 +33,6 @@ uint32_t parse_cmd_prep_rsp_storage_chunk_export(struct nvm_ctx_st *nvm_ctx_para
 	uint32_t err = 0u;
 	uint32_t data_len;
 	struct nvm_chunk_hdr *chunk = NULL;
-	uint64_t plat_addr;
 	uint32_t blob_size = 0u;
 
 	struct sab_cmd_key_store_chunk_export_rsp *resp =
@@ -86,13 +86,13 @@ uint32_t parse_cmd_prep_rsp_storage_chunk_export(struct nvm_ctx_st *nvm_ctx_para
 		goto out;
 	}
 
-	plat_addr = plat_os_abs_data_buf(nvm_ctx_param->phdl,
-					 chunk->data +
-					 (uint32_t)sizeof(struct nvm_header_s),
-					 blob_size,
-					 0u);
-
-	resp->chunk_export_address = (uint32_t)(plat_addr & 0xFFFFFFFFu);
+	set_phy_addr_to_words(&resp->chunk_export_address,
+			      0u,
+			      plat_os_abs_data_buf(nvm_ctx_param->phdl,
+						   chunk->data +
+						   (uint32_t)sizeof(struct nvm_header_s),
+						   blob_size,
+						   0u));
 	resp->rsp_code = SAB_SUCCESS_STATUS;
 
 	*data = (struct nvm_chunk_hdr *)chunk;

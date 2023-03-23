@@ -15,6 +15,7 @@
 
 #include "internal/hsm_rng.h"
 #include "sab_rng.h"
+#include "sab_messaging.h"
 
 #include "plat_os_abs.h"
 #include "plat_utils.h"
@@ -29,22 +30,23 @@ uint32_t prepare_msg_get_rng(void *phdl,
 	int32_t ret = 0;
 	struct sab_cmd_get_rnd_msg *cmd =
 		(struct sab_cmd_get_rnd_msg *) cmd_buf;
-	struct sab_cmd_get_rnd_rsp *rsp =
-		(struct sab_cmd_get_rnd_rsp *) rsp_buf;
 	op_get_random_args_t *op_args = (op_get_random_args_t *) args;
-	uint64_t rnd_addr = 0;
-
-	rnd_addr = plat_os_abs_data_buf(phdl,
-				op_args->output,
-				op_args->random_size,
-				DATA_BUF_IS_OUTPUT);
 
 #ifdef PSA_COMPLIANT
-	cmd->rnd_addr = (uint32_t) rnd_addr;
-	cmd->rnd_addr_msb = (uint32_t) (rnd_addr >> 32);
+	set_phy_addr_to_words(&cmd->rnd_addr,
+			      &cmd->rnd_addr_msb,
+			      plat_os_abs_data_buf(phdl,
+						   op_args->output,
+						   op_args->random_size,
+						   DATA_BUF_IS_OUTPUT));
 #else
 	cmd->rng_handle = msg_hdl;
-	cmd->rnd_addr = (uint32_t) rnd_addr;
+	set_phy_addr_to_words(&cmd->rnd_addr,
+			      0u,
+			      plat_os_abs_data_buf(phdl,
+						   op_args->output,
+						   op_args->random_size,
+						   DATA_BUF_IS_OUTPUT));
 #endif
 	cmd->rnd_size = op_args->random_size;
 
@@ -56,9 +58,6 @@ uint32_t prepare_msg_get_rng(void *phdl,
 
 uint32_t proc_msg_rsp_get_rng(void *rsp_buf, void *args)
 {
-	struct sab_cmd_get_rnd_rsp *rsp =
-		(struct sab_cmd_get_rnd_rsp *) rsp_buf;
-
 	return SAB_SUCCESS_STATUS;
 }
 

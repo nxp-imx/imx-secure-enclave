@@ -30,9 +30,8 @@ hsm_err_t hsm_hash_one_go(hsm_hdl_t hash_hdl,
 	int32_t error = 1;
 #ifndef PSA_COMPLIANT
 	struct hsm_service_hdl_s *serv_ptr;
-#else
-	struct hsm_session_hdl_s *sess_ptr;
 #endif
+	struct hsm_session_hdl_s *sess_ptr;
 	hsm_err_t err = HSM_GENERAL_ERROR;
 	uint32_t rsp_code;
 

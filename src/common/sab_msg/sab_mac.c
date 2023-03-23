@@ -15,6 +15,7 @@
 
 #include "internal/hsm_mac.h"
 #include "sab_mac.h"
+#include "sab_messaging.h"
 
 #include "plat_os_abs.h"
 #include "plat_utils.h"
@@ -57,25 +58,28 @@ uint32_t prepare_msg_mac_one_go(void *phdl,
 
 #endif
 
-	cmd->payload_address = (uint32_t)plat_os_abs_data_buf(
-						phdl,
-						op_args->payload,
-						op_args->payload_size,
-						DATA_BUF_IS_INPUT);
+	set_phy_addr_to_words(&cmd->payload_address,
+			      0u,
+			      plat_os_abs_data_buf((struct plat_os_abs_hdl *)phdl,
+						   op_args->payload,
+						   op_args->payload_size,
+						   DATA_BUF_IS_INPUT));
 
 	if ((op_args->flags & HSM_OP_MAC_ONE_GO_FLAGS_MAC_GENERATION)
 			== HSM_OP_MAC_ONE_GO_FLAGS_MAC_GENERATION) {
-		cmd->mac_address = (uint32_t)plat_os_abs_data_buf(
-						phdl,
-						op_args->mac,
-						mac_size_bytes,
-						DATA_BUF_IS_OUTPUT);
+		set_phy_addr_to_words(&cmd->mac_address,
+				      0u,
+				      plat_os_abs_data_buf((struct plat_os_abs_hdl *)phdl,
+							   op_args->mac,
+							   mac_size_bytes,
+							   DATA_BUF_IS_OUTPUT));
 	} else {
-		cmd->mac_address = (uint32_t)plat_os_abs_data_buf(
-						phdl,
-						op_args->mac,
-						mac_size_bytes,
-						DATA_BUF_IS_INPUT);
+		set_phy_addr_to_words(&cmd->mac_address,
+				      0u,
+				      plat_os_abs_data_buf((struct plat_os_abs_hdl *)phdl,
+							   op_args->mac,
+							   mac_size_bytes,
+							   DATA_BUF_IS_INPUT));
 	}
 	cmd->payload_size = op_args->payload_size;
 	cmd->mac_size = op_args->mac_size;

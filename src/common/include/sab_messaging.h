@@ -1,5 +1,5 @@
 /*
- * Copyright 2019-2022 NXP
+ * Copyright 2019-2023 NXP
  *
  * NXP Confidential.
  * This software is owned or controlled by NXP and may only be used strictly
@@ -64,4 +64,5 @@ uint32_t sab_open_sm2_eces(struct plat_os_abs_hdl *phdl, uint32_t key_store_hand
 uint32_t sab_close_sm2_eces(struct plat_os_abs_hdl *phdl, uint32_t sm2_eces_handle, uint32_t mu_type); 
 
 uint32_t get_lib_version(void);
+void set_phy_addr_to_words(uint32_t *lsb, uint32_t *msb, uint64_t phy_addr);
 #endif

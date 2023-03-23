@@ -14,6 +14,7 @@
 #include "internal/hsm_importkey.h"
 
 #include "sab_import_key.h"
+#include "sab_messaging.h"
 
 #include "plat_os_abs.h"
 #include "plat_utils.h"
@@ -35,23 +36,29 @@ uint32_t prepare_msg_importkey(void *phdl,
 	cmd->key_management_hdl = msg_hdl;
 	cmd->flags = op_args->flags;
 
-	cmd->input_lsb_addr = plat_os_abs_data_buf(phdl,
+	set_phy_addr_to_words(&cmd->input_lsb_addr,
+			      0u,
+			      plat_os_abs_data_buf((struct plat_os_abs_hdl *)phdl,
 						   op_args->input_lsb_addr,
 						   op_args->input_size,
-						   DATA_BUF_IS_INPUT);
+						   DATA_BUF_IS_INPUT));
 	cmd->input_size = op_args->input_size;
 
 	if ((op_args->flags & HSM_OP_IMPORT_KEY_INPUT_E2GO_TLV)
 			== HSM_OP_IMPORT_KEY_INPUT_SIGNED_MSG) {
-		cmd->sign_msg.key_blob_lsb = plat_os_abs_data_buf(phdl,
-								  op_args->key_blob,
-								  op_args->key_blob_sz,
-								  DATA_BUF_IS_INPUT);
+		set_phy_addr_to_words(&cmd->sign_msg.key_blob_lsb,
+				      0u,
+				      plat_os_abs_data_buf((struct plat_os_abs_hdl *)phdl,
+							   op_args->key_blob,
+							   op_args->key_blob_sz,
+							   DATA_BUF_IS_INPUT));
 		cmd->sign_msg.key_blob_size = op_args->key_blob_sz;
-		cmd->sign_msg.iv_lsb = plat_os_abs_data_buf(phdl,
-							    op_args->iv,
-							    op_args->iv_sz,
-							    DATA_BUF_IS_INPUT);
+		set_phy_addr_to_words(&cmd->sign_msg.iv_lsb,
+				      0u,
+				      plat_os_abs_data_buf((struct plat_os_abs_hdl *)phdl,
+							   op_args->iv,
+							   op_args->iv_sz,
+							   DATA_BUF_IS_INPUT));
 		cmd->sign_msg.iv_size = op_args->iv_sz;
 		cmd->sign_msg.key_group = op_args->key_group;
 		cmd->sign_msg.key_id = op_args->key_id;

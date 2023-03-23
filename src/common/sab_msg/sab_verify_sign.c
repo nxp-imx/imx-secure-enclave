@@ -14,7 +14,9 @@
 #include <string.h>
 
 #include "internal/hsm_verify_sign.h"
+
 #include "sab_verify_sign.h"
+#include "sab_messaging.h"
 
 #include "plat_os_abs.h"
 #include "plat_utils.h"
@@ -96,18 +98,24 @@ uint32_t prepare_msg_verify_sign(void *phdl,
 	op_verify_sign_args_t *op_args = (op_verify_sign_args_t *)args;
 
 	cmd->sig_ver_hdl = msg_hdl;
-	cmd->key_addr = (uint32_t)plat_os_abs_data_buf(phdl,
-			op_args->key,
-			op_args->key_size,
-			DATA_BUF_IS_INPUT);
-	cmd->msg_addr = (uint32_t)plat_os_abs_data_buf(phdl,
-			op_args->message,
-			op_args->message_size,
-			DATA_BUF_IS_INPUT);
-	cmd->sig_addr = (uint32_t)plat_os_abs_data_buf(phdl,
-			op_args->signature,
-			op_args->signature_size,
-			DATA_BUF_IS_INPUT);
+	set_phy_addr_to_words(&cmd->key_addr,
+			      0u,
+			      plat_os_abs_data_buf((struct plat_os_abs_hdl *)phdl,
+						   op_args->key,
+						   op_args->key_size,
+						   DATA_BUF_IS_INPUT));
+	set_phy_addr_to_words(&cmd->msg_addr,
+			      0u,
+			      plat_os_abs_data_buf((struct plat_os_abs_hdl *)phdl,
+						   op_args->message,
+						   op_args->message_size,
+						   DATA_BUF_IS_INPUT));
+	set_phy_addr_to_words(&cmd->sig_addr,
+			      0u,
+			      plat_os_abs_data_buf((struct plat_os_abs_hdl *)phdl,
+						   op_args->signature,
+						   op_args->signature_size,
+						   DATA_BUF_IS_INPUT));
 	cmd->key_size = op_args->key_size;
 	cmd->sig_size = op_args->signature_size;
 	cmd->message_size = op_args->message_size;
