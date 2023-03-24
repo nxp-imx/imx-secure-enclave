@@ -26,14 +26,20 @@ hsm_err_t hsm_open_data_storage_service(hsm_hdl_t key_store_hdl,
 {
 	struct hsm_service_hdl_s *key_store_serv_ptr;
 	struct hsm_service_hdl_s *data_storage_serv_ptr;
-	int32_t error;
-	uint32_t rsp_code;
+	uint32_t error;
+	uint32_t rsp_code = SAB_NO_MESSAGE_RATING;
 	hsm_err_t err = HSM_GENERAL_ERROR;
 
 	do {
 		if ((args == NULL) || (data_storage_hdl == NULL)) {
 			break;
 		}
+
+		if (!key_store_hdl) {
+			err = HSM_UNKNOWN_HANDLE;
+			break;
+		}
+
 		key_store_serv_ptr = service_hdl_to_ptr(key_store_hdl);
 		if (key_store_serv_ptr == NULL) {
 			err = HSM_UNKNOWN_HANDLE;
@@ -77,16 +83,18 @@ hsm_err_t hsm_open_data_storage_service(hsm_hdl_t key_store_hdl,
 hsm_err_t hsm_close_data_storage_service(hsm_hdl_t data_storage_hdl)
 {
 	struct hsm_service_hdl_s *serv_ptr;
-	int32_t error = 1;
-	hsm_err_t err = HSM_GENERAL_ERROR;
-	uint32_t rsp_code;
+	uint32_t error;
+	hsm_err_t err = HSM_UNKNOWN_HANDLE;
+	uint32_t rsp_code = SAB_NO_MESSAGE_RATING;
 
 	do {
-		serv_ptr = service_hdl_to_ptr(data_storage_hdl);
-		if (serv_ptr == NULL) {
-			err = HSM_UNKNOWN_HANDLE;
+		if (!data_storage_hdl)
 			break;
-		}
+
+		serv_ptr = service_hdl_to_ptr(data_storage_hdl);
+
+		if (!serv_ptr)
+			break;
 
 		error = process_sab_msg(serv_ptr->session->phdl,
 					serv_ptr->session->mu_type,
@@ -121,15 +129,21 @@ hsm_err_t hsm_close_data_storage_service(hsm_hdl_t data_storage_hdl)
 hsm_err_t hsm_data_storage(hsm_hdl_t data_storage_hdl,
 				op_data_storage_args_t *args)
 {
-	int32_t error = 1;
+	uint32_t error;
 	struct hsm_service_hdl_s *serv_ptr;
 	hsm_err_t err = HSM_GENERAL_ERROR;
-	uint32_t rsp_code;
+	uint32_t rsp_code = SAB_NO_MESSAGE_RATING;
 
 	do {
 		if (args == NULL) {
 			break;
 		}
+
+		if (!data_storage_hdl) {
+			err = HSM_UNKNOWN_HANDLE;
+			break;
+		}
+
 		serv_ptr = service_hdl_to_ptr(data_storage_hdl);
 		if (serv_ptr == NULL) {
 			err = HSM_UNKNOWN_HANDLE;
@@ -165,11 +179,11 @@ hsm_err_t hsm_data_ops(hsm_hdl_t key_store_hdl,
 			 op_data_storage_args_t *args)
 {
 	open_svc_data_storage_args_t open_data_args = {0};
-	hsm_hdl_t data_storage_hdl;
-	hsm_err_t err = HSM_GENERAL_ERROR;
+	hsm_hdl_t data_storage_hdl = 0;
+	hsm_err_t err;
 	/* Stores the error status of the main operation.
 	 */
-	hsm_err_t op_err = HSM_NO_ERROR;
+	hsm_err_t op_err;
 
 	open_data_args.flags = args->svc_flags;
 

@@ -1,5 +1,5 @@
 /*
- * Copyright 2022 NXP
+ * Copyright 2022-2023 NXP
  *
  * NXP Confidential.
  * This software is owned or controlled by NXP and may only be used strictly
@@ -25,9 +25,17 @@ hsm_err_t hsm_dev_getinfo(hsm_hdl_t session_hdl, op_dev_getinfo_args_t *args)
 	struct hsm_session_hdl_s *sess_ptr;
 	hsm_err_t err = HSM_GENERAL_ERROR;
 	uint32_t error;
-	uint32_t rsp_code;
+	uint32_t rsp_code = SAB_NO_MESSAGE_RATING;
 
 	do {
+		if (!args)
+			break;
+
+		if (!session_hdl) {
+			err = HSM_UNKNOWN_HANDLE;
+			break;
+		}
+
 		sess_ptr = session_hdl_to_ptr(session_hdl);
 		if (sess_ptr == NULL) {
 			err = HSM_UNKNOWN_HANDLE;

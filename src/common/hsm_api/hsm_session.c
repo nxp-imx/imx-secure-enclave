@@ -46,16 +46,17 @@ static struct hsm_service_hdl_s hsm_services[HSM_MAX_SERVICES] = {};
 hsm_err_t hsm_close_session(hsm_hdl_t session_hdl)
 {
 	struct hsm_session_hdl_s *s_ptr;
-	hsm_err_t err = HSM_GENERAL_ERROR;
+	hsm_err_t err = HSM_UNKNOWN_HANDLE;
 	uint32_t sab_err;
-	uint32_t rsp_code;
+	uint32_t rsp_code = SAB_NO_MESSAGE_RATING;
 
 	do {
-		s_ptr = session_hdl_to_ptr(session_hdl);
-		if (!s_ptr) {
-			err = HSM_UNKNOWN_HANDLE;
+		if (!session_hdl)
 			break;
-		}
+
+		s_ptr = session_hdl_to_ptr(session_hdl);
+		if (!s_ptr)
+			break;
 
 		sab_err = process_sab_msg(s_ptr->phdl,
 					  s_ptr->mu_type,
@@ -93,10 +94,11 @@ hsm_err_t hsm_open_session(open_session_args_t *args, hsm_hdl_t *session_hdl)
 	hsm_err_t err = HSM_GENERAL_ERROR;
 	uint32_t sab_err;
 	uint8_t session_priority, operating_mode;
-	uint32_t rsp_code;
+	uint32_t rsp_code = SAB_NO_MESSAGE_RATING;
 
 	memset(hsm_sessions, 0, HSM_MAX_SESSIONS);
 	memset(hsm_services, 0, HSM_MAX_SERVICES);
+	memset(&mu_params, 0, sizeof(mu_params));
 
 	do {
 		if (!args || !session_hdl) {

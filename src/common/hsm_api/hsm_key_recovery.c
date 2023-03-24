@@ -27,12 +27,20 @@
 hsm_err_t hsm_pub_key_recovery(hsm_hdl_t key_store_hdl,
 			       op_pub_key_recovery_args_t *args)
 {
-	int32_t error;
+	uint32_t error;
 	struct hsm_service_hdl_s *key_store_serv_ptr;
 	hsm_err_t err = HSM_GENERAL_ERROR;
-	uint32_t rsp_code;
+	uint32_t rsp_code = SAB_NO_MESSAGE_RATING;
 
 	do {
+		if (!args)
+			break;
+
+		if (!key_store_hdl) {
+			err = HSM_UNKNOWN_HANDLE;
+			break;
+		}
+
 		key_store_serv_ptr = service_hdl_to_ptr(key_store_hdl);
 		if (key_store_serv_ptr == NULL) {
 			err = HSM_UNKNOWN_HANDLE;

@@ -27,13 +27,13 @@
 hsm_err_t hsm_hash_one_go(hsm_hdl_t hash_hdl,
 			  op_hash_one_go_args_t *args)
 {
-	int32_t error = 1;
+	uint32_t error;
 #ifndef PSA_COMPLIANT
 	struct hsm_service_hdl_s *serv_ptr;
 #endif
 	struct hsm_session_hdl_s *sess_ptr;
 	hsm_err_t err = HSM_GENERAL_ERROR;
-	uint32_t rsp_code;
+	uint32_t rsp_code = SAB_NO_MESSAGE_RATING;
 
 	do {
 		if (args == NULL) {
@@ -57,6 +57,12 @@ hsm_err_t hsm_hash_one_go(hsm_hdl_t hash_hdl,
 		/* For PSA compliant HASH API
 		 * use session handle.
 		 */
+
+		if (!hash_hdl) {
+			err = HSM_UNKNOWN_HANDLE;
+			break;
+		}
+
 		sess_ptr = session_hdl_to_ptr(hash_hdl);
 		if (!sess_ptr) {
 			err = HSM_UNKNOWN_HANDLE;
@@ -93,14 +99,20 @@ hsm_err_t hsm_open_hash_service(hsm_hdl_t session_hdl,
 {
 	struct hsm_session_hdl_s *sess_ptr;
 	struct hsm_service_hdl_s *serv_ptr;
-	int32_t error = 1;
+	uint32_t error;
 	hsm_err_t err = HSM_GENERAL_ERROR;
-	uint32_t rsp_code;
+	uint32_t rsp_code = SAB_NO_MESSAGE_RATING;
 
 	do {
 		if ((args == NULL) || (hash_hdl == NULL)) {
 			break;
 		}
+
+		if (!session_hdl) {
+			err = HSM_UNKNOWN_HANDLE;
+			break;
+		}
+
 		sess_ptr = session_hdl_to_ptr(session_hdl);
 		if (sess_ptr == NULL) {
 			err = HSM_UNKNOWN_HANDLE;
@@ -145,17 +157,19 @@ hsm_err_t hsm_open_hash_service(hsm_hdl_t session_hdl,
 hsm_err_t hsm_close_hash_service(hsm_hdl_t hash_hdl)
 {
 	struct hsm_service_hdl_s *serv_ptr;
-	int32_t error = 1;
-	hsm_err_t err = HSM_GENERAL_ERROR;
-	uint32_t rsp_code;
-	open_svc_hash_args_t args;
+	uint32_t error;
+	hsm_err_t err = HSM_UNKNOWN_HANDLE;
+	uint32_t rsp_code = SAB_NO_MESSAGE_RATING;
+	open_svc_hash_args_t args = {0};
 
 	do {
-		serv_ptr = service_hdl_to_ptr(hash_hdl);
-		if (serv_ptr == NULL) {
-			err = HSM_UNKNOWN_HANDLE;
+		if (!hash_hdl)
 			break;
-		}
+
+		serv_ptr = service_hdl_to_ptr(hash_hdl);
+
+		if (!serv_ptr)
+			break;
 
 		error = process_sab_msg(serv_ptr->session->phdl,
 					serv_ptr->session->mu_type,
@@ -184,13 +198,13 @@ hsm_err_t hsm_close_hash_service(hsm_hdl_t hash_hdl)
 hsm_err_t hsm_do_hash(hsm_hdl_t hash_sess, op_hash_one_go_args_t *hash_args)
 {
 #ifndef PSA_COMPLIANT
-	hsm_err_t err = HSM_GENERAL_ERROR;
+	hsm_err_t err;
 #endif
 	/* Stores the error status of the main operation.
 	 */
-	hsm_err_t op_err = HSM_NO_ERROR;
+	hsm_err_t op_err;
 #ifndef PSA_COMPLIANT
-	hsm_hdl_t hash_serv;
+	hsm_hdl_t hash_serv = 0;
 	open_svc_hash_args_t hash_serv_args = {0};
 
 	op_err = hsm_open_hash_service(hash_sess, &hash_serv_args, &hash_serv);

@@ -24,13 +24,17 @@ hsm_err_t hsm_mac_one_go(hsm_hdl_t mac_hdl,
 			 op_mac_one_go_args_t *args,
 			 hsm_mac_verification_status_t *status)
 {
-	int32_t error = 1;
+	uint32_t error;
 	struct hsm_service_hdl_s *serv_ptr;
 	hsm_err_t err = HSM_GENERAL_ERROR;
-	uint32_t rsp_code;
+	uint32_t rsp_code = SAB_NO_MESSAGE_RATING;
 
 	do {
-		if (args == NULL) {
+		if (!args || !status)
+			break;
+
+		if (!mac_hdl) {
+			err = HSM_UNKNOWN_HANDLE;
 			break;
 		}
 
@@ -80,16 +84,22 @@ hsm_err_t hsm_open_mac_service(hsm_hdl_t key_store_hdl,
 			       open_svc_mac_args_t *args,
 			       hsm_hdl_t *mac_hdl)
 {
-	int32_t error = 1;
+	uint32_t error;
 	struct hsm_service_hdl_s *key_store_serv_ptr;
 	struct hsm_service_hdl_s *mac_serv_ptr;
 	hsm_err_t err = HSM_GENERAL_ERROR;
-	uint32_t rsp_code;
+	uint32_t rsp_code = SAB_NO_MESSAGE_RATING;
 
 	do {
 		if ((args == NULL) || (mac_hdl == NULL)) {
 			break;
 		}
+
+		if (!key_store_hdl) {
+			err = HSM_UNKNOWN_HANDLE;
+			break;
+		}
+
 		key_store_serv_ptr = service_hdl_to_ptr(key_store_hdl);
 		if (key_store_serv_ptr == NULL) {
 			err = HSM_UNKNOWN_HANDLE;
@@ -133,16 +143,18 @@ hsm_err_t hsm_open_mac_service(hsm_hdl_t key_store_hdl,
 hsm_err_t hsm_close_mac_service(hsm_hdl_t mac_hdl)
 {
 	struct hsm_service_hdl_s *serv_ptr;
-	int32_t error = 1;
-	hsm_err_t err = HSM_GENERAL_ERROR;
-	uint32_t rsp_code;
+	uint32_t error;
+	hsm_err_t err = HSM_UNKNOWN_HANDLE;
+	uint32_t rsp_code = SAB_NO_MESSAGE_RATING;
 
 	do {
-		serv_ptr = service_hdl_to_ptr(mac_hdl);
-		if (serv_ptr == NULL) {
-			err = HSM_UNKNOWN_HANDLE;
+		if (!mac_hdl)
 			break;
-		}
+
+		serv_ptr = service_hdl_to_ptr(mac_hdl);
+
+		if (!serv_ptr)
+			break;
 
 		error = process_sab_msg(serv_ptr->session->phdl,
 					serv_ptr->session->mu_type,
@@ -172,11 +184,11 @@ hsm_err_t hsm_close_mac_service(hsm_hdl_t mac_hdl)
 
 hsm_err_t hsm_do_mac(hsm_hdl_t key_store_hdl, op_mac_one_go_args_t *mac_one_go)
 {
-	hsm_err_t err = HSM_GENERAL_ERROR;
+	hsm_err_t err;
 	/* Stores the error status of the main operation.
 	 */
-	hsm_err_t op_err = HSM_NO_ERROR;
-	hsm_hdl_t sg0_mac_hdl;
+	hsm_err_t op_err;
+	hsm_hdl_t sg0_mac_hdl = 0;
 	open_svc_mac_args_t mac_srv_args = {0};
 #ifndef PSA_COMPLIANT
 	mac_srv_args.flags = mac_one_go->svc_flags;

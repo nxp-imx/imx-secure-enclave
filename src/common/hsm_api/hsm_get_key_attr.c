@@ -27,14 +27,19 @@
 hsm_err_t hsm_get_key_attr(hsm_hdl_t key_management_hdl,
 			   op_get_key_attr_args_t *args)
 {
-	int32_t error = SAB_SUCCESS_STATUS;
+	uint32_t error;
 	struct hsm_service_hdl_s *serv_ptr;
 	hsm_err_t err = HSM_GENERAL_ERROR;
-	uint32_t rsp_code;
+	uint32_t rsp_code = SAB_NO_MESSAGE_RATING;
 
 	do {
 		if ((args == NULL) || (args->key_identifier == 0))
 			break;
+
+		if (!key_management_hdl) {
+			err = HSM_UNKNOWN_HANDLE;
+			break;
+		}
 
 		serv_ptr = service_hdl_to_ptr(key_management_hdl);
 		if (serv_ptr == NULL) {

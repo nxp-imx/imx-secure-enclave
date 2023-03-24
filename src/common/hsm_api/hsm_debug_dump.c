@@ -1,5 +1,5 @@
 /*
- * Copyright 2022 NXP
+ * Copyright 2022-2023 NXP
  *
  * NXP Confidential.
  * This software is owned or controlled by NXP and may only be used strictly
@@ -26,18 +26,20 @@ hsm_err_t dump_firmware_log(hsm_hdl_t session_hdl)
 	return HSM_GENERAL_ERROR;
 #endif
 	struct hsm_session_hdl_s *sess_ptr;
-	int32_t error = 1;
-	hsm_err_t err = HSM_GENERAL_ERROR;
-	uint32_t rsp_code = 0x0;
-	op_debug_dump_args_t args;
+	uint32_t error;
+	hsm_err_t err = HSM_UNKNOWN_HANDLE;
+	uint32_t rsp_code = SAB_NO_MESSAGE_RATING;
+	op_debug_dump_args_t args = {0};
 	int i = 0;
 
 	do {
-		sess_ptr = session_hdl_to_ptr(session_hdl);
-		if (sess_ptr == NULL) {
-			err = HSM_UNKNOWN_HANDLE;
+		if (!session_hdl)
 			break;
-		}
+
+		sess_ptr = session_hdl_to_ptr(session_hdl);
+
+		if (!sess_ptr)
+			break;
 
 		error = process_sab_msg(sess_ptr->phdl,
 					sess_ptr->mu_type,

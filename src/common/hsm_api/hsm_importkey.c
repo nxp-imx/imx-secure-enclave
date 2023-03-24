@@ -25,11 +25,10 @@
 hsm_err_t hsm_import_key(hsm_hdl_t key_management_hdl,
 			 op_import_key_args_t *args)
 {
-	int32_t error = 1;
+	uint32_t error;
 	struct hsm_service_hdl_s *serv_ptr;
 	hsm_err_t err = HSM_GENERAL_ERROR;
-	uint16_t unused_out_sz;
-	uint32_t rsp_code;
+	uint32_t rsp_code = SAB_NO_MESSAGE_RATING;
 
 	do {
 		if (args == NULL) {
@@ -46,6 +45,11 @@ hsm_err_t hsm_import_key(hsm_hdl_t key_management_hdl,
 					|| (args->iv == NULL)
 					|| (args->iv_sz == 0))
 				break;
+		}
+
+		if (!key_management_hdl) {
+			err = HSM_UNKNOWN_HANDLE;
+			break;
 		}
 
 		serv_ptr = service_hdl_to_ptr(key_management_hdl);

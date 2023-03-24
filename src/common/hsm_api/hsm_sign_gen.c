@@ -27,14 +27,20 @@ hsm_err_t hsm_open_signature_generation_service(hsm_hdl_t key_store_hdl,
 {
 	struct hsm_service_hdl_s *key_store_serv_ptr;
 	struct hsm_service_hdl_s *sig_gen_serv_ptr;
-	int32_t error = 1;
+	uint32_t error;
 	hsm_err_t err = HSM_GENERAL_ERROR;
-	uint32_t rsp_code;
+	uint32_t rsp_code = SAB_NO_MESSAGE_RATING;
 
 	do {
 		if ((args == NULL) || (signature_gen_hdl == NULL)) {
 			break;
 		}
+
+		if (!key_store_hdl) {
+			err = HSM_UNKNOWN_HANDLE;
+			break;
+		}
+
 		key_store_serv_ptr = service_hdl_to_ptr(key_store_hdl);
 		if (key_store_serv_ptr == NULL) {
 			err = HSM_UNKNOWN_HANDLE;
@@ -78,16 +84,18 @@ hsm_err_t hsm_open_signature_generation_service(hsm_hdl_t key_store_hdl,
 hsm_err_t hsm_close_signature_generation_service(hsm_hdl_t signature_gen_hdl)
 {
 	struct hsm_service_hdl_s *serv_ptr;
-	int32_t error = 1;
-	hsm_err_t err = HSM_GENERAL_ERROR;
-	uint32_t rsp_code;
+	uint32_t error;
+	hsm_err_t err = HSM_UNKNOWN_HANDLE;
+	uint32_t rsp_code = SAB_NO_MESSAGE_RATING;
 
 	do {
-		serv_ptr = service_hdl_to_ptr(signature_gen_hdl);
-		if (serv_ptr == NULL) {
-			err = HSM_UNKNOWN_HANDLE;
+		if (!signature_gen_hdl)
 			break;
-		}
+
+		serv_ptr = service_hdl_to_ptr(signature_gen_hdl);
+
+		if (!serv_ptr)
+			break;
 
 		error = process_sab_msg(serv_ptr->session->phdl,
 					serv_ptr->session->mu_type,
@@ -116,15 +124,21 @@ hsm_err_t hsm_close_signature_generation_service(hsm_hdl_t signature_gen_hdl)
 hsm_err_t hsm_generate_signature(hsm_hdl_t signature_gen_hdl,
 					op_generate_sign_args_t *args)
 {
-	int32_t error = 1;
+	uint32_t error;
 	struct hsm_service_hdl_s *serv_ptr;
 	hsm_err_t err = HSM_GENERAL_ERROR;
-	uint32_t rsp_code;
+	uint32_t rsp_code = SAB_NO_MESSAGE_RATING;
 
 	do {
 		if (args == NULL) {
 			break;
 		}
+
+		if (!signature_gen_hdl) {
+			err = HSM_UNKNOWN_HANDLE;
+			break;
+		}
+
 		serv_ptr = service_hdl_to_ptr(signature_gen_hdl);
 		if (serv_ptr == NULL) {
 			err = HSM_UNKNOWN_HANDLE;
@@ -156,15 +170,21 @@ hsm_err_t hsm_generate_signature(hsm_hdl_t signature_gen_hdl,
 hsm_err_t hsm_prepare_signature(hsm_hdl_t signature_gen_hdl,
 				op_prepare_sign_args_t *args)
 {
-	int32_t error = 1;
+	uint32_t error;
 	struct hsm_service_hdl_s *serv_ptr;
 	hsm_err_t err = HSM_GENERAL_ERROR;
-	uint32_t rsp_code;
+	uint32_t rsp_code = SAB_NO_MESSAGE_RATING;
 
 	do {
 		if (args == NULL) {
 			break;
 		}
+
+		if (!signature_gen_hdl) {
+			err = HSM_UNKNOWN_HANDLE;
+			break;
+		}
+
 		serv_ptr = service_hdl_to_ptr(signature_gen_hdl);
 		if (serv_ptr == NULL) {
 			err = HSM_UNKNOWN_HANDLE;
@@ -196,11 +216,11 @@ hsm_err_t hsm_prepare_signature(hsm_hdl_t signature_gen_hdl,
 hsm_err_t hsm_do_sign(hsm_hdl_t key_store_hdl,
 			op_generate_sign_args_t *args)
 {
-	hsm_err_t hsmret = HSM_GENERAL_ERROR;
+	hsm_err_t hsmret;
 	/* Stores the error status of the main operation.
 	 */
-	hsm_err_t op_err = HSM_NO_ERROR;
-	hsm_hdl_t sig_gen_hdl;
+	hsm_err_t op_err;
+	hsm_hdl_t sig_gen_hdl = 0;
 	open_svc_sign_gen_args_t open_sig_gen_args = {0};
 
 #ifndef PSA_COMPLIANT

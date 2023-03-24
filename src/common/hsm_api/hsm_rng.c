@@ -21,12 +21,11 @@
 
 hsm_err_t hsm_get_random(hsm_hdl_t rng_hdl, op_get_random_args_t *args)
 {
-	int32_t error = 1;
-	uint64_t rnd_addr_ele;
+	uint32_t error;
 	struct hsm_service_hdl_s *serv_ptr;
 	struct hsm_session_hdl_s *sess_ptr;
 	hsm_err_t err = HSM_GENERAL_ERROR;
-	uint32_t rsp_code;
+	uint32_t rsp_code = SAB_NO_MESSAGE_RATING;
 
 	do {
 		if (args == NULL) {
@@ -43,6 +42,12 @@ hsm_err_t hsm_get_random(hsm_hdl_t rng_hdl, op_get_random_args_t *args)
 		/* For PSA compliant RNG API needs
 		 * to use session handle.
 		 */
+
+		if (!rng_hdl) {
+			err = HSM_UNKNOWN_HANDLE;
+			break;
+		}
+
 		sess_ptr = session_hdl_to_ptr(rng_hdl);
 		if (sess_ptr == NULL) {
 			err = HSM_UNKNOWN_HANDLE;
@@ -79,17 +84,23 @@ hsm_err_t hsm_open_rng_service(hsm_hdl_t session_hdl,
 				open_svc_rng_args_t *args,
 				hsm_hdl_t *rng_hdl)
 {
-	int32_t error = 1;
+	uint32_t error;
 	struct hsm_session_hdl_s *sess_ptr;
 	struct hsm_service_hdl_s *serv_ptr;
 	hsm_err_t err = HSM_GENERAL_ERROR;
 	uint32_t sab_err;
-	uint32_t rsp_code;
+	uint32_t rsp_code = SAB_NO_MESSAGE_RATING;
 
 	do {
 		if ((args == NULL) || (rng_hdl == NULL)) {
 			break;
 		}
+
+		if (!session_hdl) {
+			err = HSM_UNKNOWN_HANDLE;
+			break;
+		}
+
 		sess_ptr = session_hdl_to_ptr(session_hdl);
 		if (sess_ptr == NULL) {
 			err = HSM_UNKNOWN_HANDLE;
@@ -133,17 +144,19 @@ hsm_err_t hsm_open_rng_service(hsm_hdl_t session_hdl,
 hsm_err_t hsm_close_rng_service(hsm_hdl_t rng_hdl)
 {
 	struct hsm_service_hdl_s *serv_ptr;
-	int32_t error = 1;
-	hsm_err_t err = HSM_GENERAL_ERROR;
+	uint32_t error;
+	hsm_err_t err = HSM_UNKNOWN_HANDLE;
 	uint32_t sab_err;
-	uint32_t rsp_code;
+	uint32_t rsp_code = SAB_NO_MESSAGE_RATING;
 
 	do {
-		serv_ptr = service_hdl_to_ptr(rng_hdl);
-		if (serv_ptr == NULL) {
-			err = HSM_UNKNOWN_HANDLE;
+		if (!rng_hdl)
 			break;
-		}
+
+		serv_ptr = service_hdl_to_ptr(rng_hdl);
+
+		if (!serv_ptr)
+			break;
 
 		error = process_sab_msg(serv_ptr->session->phdl,
 					serv_ptr->session->mu_type,
@@ -174,14 +187,15 @@ hsm_err_t hsm_close_rng_service(hsm_hdl_t rng_hdl)
 
 hsm_err_t hsm_do_rng(hsm_hdl_t session_hdl, op_get_random_args_t *rng_get_random_args)
 {
-	hsm_err_t err = HSM_GENERAL_ERROR;
+#ifndef PSA_COMPLIANT
+	hsm_err_t err;
+#endif
 	/* Stores the error status of the main operation.
 	 */
-	hsm_err_t op_err = HSM_NO_ERROR;
-
+	hsm_err_t op_err;
 #ifndef PSA_COMPLIANT
 	open_svc_rng_args_t rng_srv_args = {0};
-	hsm_hdl_t rng_serv_hdl;
+	hsm_hdl_t rng_serv_hdl = 0;
 
 	rng_srv_args.flags = rng_get_random_args->svc_flags;
 
