@@ -31,8 +31,6 @@ uint32_t prepare_msg_cipher_one_go(void *phdl,
 	int32_t ret = 0;
 	struct sab_cmd_cipher_one_go_msg *cmd =
 		(struct sab_cmd_cipher_one_go_msg *) cmd_buf;
-	struct sab_cmd_cipher_one_go_rsp *rsp =
-		(struct sab_cmd_cipher_one_go_rsp *) rsp_buf;
 	op_cipher_one_go_args_t *op_args = (op_cipher_one_go_args_t *) args;
 
 	cmd->cipher_handle = msg_hdl;
@@ -95,8 +93,6 @@ uint32_t prepare_msg_cipher_open_req(void *phdl,
 	uint32_t ret = 0;
 	struct sab_cmd_cipher_open_msg *cmd =
 		(struct sab_cmd_cipher_open_msg *) cmd_buf;
-	struct sab_cmd_cipher_open_rsp *rsp =
-		(struct sab_cmd_cipher_open_rsp *) rsp_buf;
 	open_svc_cipher_args_t *op_args = (open_svc_cipher_args_t *) args;
 
 	cmd->input_address_ext = 0;
@@ -133,8 +129,6 @@ uint32_t prepare_msg_cipher_close_req(void *phdl,
 	uint32_t ret = 0;
 	struct sab_cmd_cipher_close_msg *cmd =
 		(struct sab_cmd_cipher_close_msg *) cmd_buf;
-	struct sab_cmd_cipher_close_rsp *rsp =
-		(struct sab_cmd_cipher_close_rsp *) rsp_buf;
 
 	*cmd_msg_sz = sizeof(struct sab_cmd_cipher_close_msg);
 	*rsp_msg_sz = sizeof(struct sab_cmd_cipher_close_rsp);

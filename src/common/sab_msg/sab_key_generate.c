@@ -30,8 +30,6 @@ uint32_t prepare_msg_generatekey(void *phdl,
 	uint32_t ret = 0;
 	struct sab_cmd_generate_key_msg *cmd =
 		(struct sab_cmd_generate_key_msg *) cmd_buf;
-	struct sab_cmd_generate_key_rsp *rsp =
-		(struct sab_cmd_generate_key_rsp *) rsp_buf;
 	op_generate_key_args_t *op_args = (op_generate_key_args_t *) args;
 
 	cmd->key_management_handle = msg_hdl;

@@ -31,8 +31,6 @@ uint32_t prepare_msg_data_storage(void *phdl,
 	int32_t ret = 0;
 	struct sab_cmd_data_storage_msg *cmd =
 		(struct sab_cmd_data_storage_msg *) cmd_buf;
-	struct sab_cmd_data_storage_rsp *rsp =
-		(struct sab_cmd_data_storage_rsp *) rsp_buf;
 	op_data_storage_args_t *op_args = (op_data_storage_args_t *) args;
 
 	cmd->data_storage_handle = msg_hdl;
@@ -57,9 +55,6 @@ uint32_t prepare_msg_data_storage(void *phdl,
 
 uint32_t proc_msg_rsp_data_storage(void *rsp_buf, void *args)
 {
-	struct sab_cmd_data_storage_rsp *rsp =
-		(struct sab_cmd_data_storage_rsp *) rsp_buf;
-
 	return SAB_SUCCESS_STATUS;
 }
 
@@ -73,8 +68,6 @@ uint32_t prepare_msg_data_storage_open_req(void *phdl,
 	uint32_t ret = 0;
 	struct sab_cmd_data_storage_open_msg *cmd =
 				 (struct sab_cmd_data_storage_open_msg *) cmd_buf;
-	struct sab_cmd_data_storage_open_rsp *rsp =
-				 (struct sab_cmd_data_storage_open_rsp *) rsp_buf;
 	open_svc_data_storage_args_t *op_args = (open_svc_data_storage_args_t *) args;
 
 	cmd->key_store_handle = msg_hdl;
@@ -107,8 +100,6 @@ uint32_t prepare_msg_data_storage_close_req(void *phdl,
 	uint32_t ret = 0;
 	struct sab_cmd_data_storage_close_msg *cmd =
 		(struct sab_cmd_data_storage_close_msg *) cmd_buf;
-	struct sab_cmd_data_storage_close_rsp *rsp =
-		(struct sab_cmd_data_storage_close_rsp *) rsp_buf;
 
 	*cmd_msg_sz = sizeof(struct sab_cmd_data_storage_close_msg);
 	*rsp_msg_sz = sizeof(struct sab_cmd_data_storage_close_rsp);

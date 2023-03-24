@@ -18,6 +18,7 @@
 #include "internal/hsm_dev_getinfo.h"
 
 #include "sab_dev_getinfo.h"
+#include "sab_messaging.h"
 
 #include "plat_os_abs.h"
 #include "plat_utils.h"
@@ -31,9 +32,6 @@ uint32_t prepare_msg_dev_getinfo(void *phdl, void *cmd_buf, void *rsp_buf,
 		(struct sab_cmd_dev_getinfo_msg *) cmd_buf;
 	struct sab_cmd_dev_getinfo_rsp_w_data *rsp_w_data =
 		(struct sab_cmd_dev_getinfo_rsp_w_data *) rsp_buf;
-	struct sab_cmd_dev_getinfo_rsp *rsp =
-		(struct sab_cmd_dev_getinfo_rsp *) rsp_buf;
-	uint64_t data_addr;
 
 	/* size of the buffer would be.
 	 * size of device info structure "dev_info" and
@@ -45,12 +43,12 @@ uint32_t prepare_msg_dev_getinfo(void *phdl, void *cmd_buf, void *rsp_buf,
 	/* Copy the get_info_response to the word,
 	 * next to response.
 	 */
-	data_addr = plat_os_abs_data_buf(phdl, (uint8_t *)&rsp_w_data->d_info,
-					 cmd->buf_sz,
-					 DATA_BUF_IS_OUTPUT);
-
-	cmd->rsp_data_addr_hi = (uint32_t) (data_addr >> 32);
-	cmd->rsp_data_addr_lo = (uint32_t) data_addr;
+	set_phy_addr_to_words(&cmd->rsp_data_addr_lo,
+			      &cmd->rsp_data_addr_hi,
+			      plat_os_abs_data_buf((struct plat_os_abs_hdl *)phdl,
+						   (uint8_t *)&rsp_w_data->d_info,
+						   cmd->buf_sz,
+						   DATA_BUF_IS_OUTPUT));
 
 	*rsp_msg_sz = sizeof(struct sab_cmd_dev_getinfo_rsp);
 	*cmd_msg_sz = sizeof(struct sab_cmd_dev_getinfo_msg);

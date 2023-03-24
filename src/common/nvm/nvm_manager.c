@@ -37,7 +37,7 @@ static uint32_t nvm_storage_import(struct nvm_ctx_st *nvm_ctx_param,
 	struct nvm_header_s *blob_hdr;
 	uint32_t ret = SAB_FAILURE_STATUS;
 	int32_t error;
-	uint32_t rsp_code;
+	uint32_t rsp_code = SAB_FAILURE_STATUS;
 
 	do {
 		if (nvm_ctx_param->storage_handle == 0u) {
@@ -72,8 +72,8 @@ void nvm_close_session(void *ctx)
 {
 	struct nvm_ctx_st *nvm_ctx = (struct nvm_ctx_st *)ctx;
 	op_storage_open_args_t *args = NULL;
-	uint32_t  rsp_code;
-	uint32_t ret = SAB_FAILURE_STATUS;
+	uint32_t rsp_code = SAB_FAILURE_STATUS;
+	uint32_t ret;
 
 	if (ctx == NULL) {
 		printf("Error: No active context to close.\n");
@@ -114,11 +114,10 @@ void nvm_close_session(void *ctx)
 static int nvm_open_session(uint8_t flags, struct nvm_ctx_st *nvm_ctx)
 {
 	uint32_t err = SAB_FAILURE_STATUS;
-	struct plat_mu_params mu_params;
+	struct plat_mu_params mu_params = {0};
 	op_storage_open_args_t *args = NULL;
 	open_session_args_t sess_args;
-	uint32_t *storage_handle = NULL;
-	uint32_t  rsp_code;
+	uint32_t rsp_code = SAB_FAILURE_STATUS;
 	uint32_t ret = SAB_FAILURE_STATUS;
 
 	do {
@@ -225,7 +224,6 @@ int nvm_manager(uint8_t flags,
 	uint8_t *data = NULL;
 	uint8_t retry = 0;
 	struct nvm_ctx_st *nvm_ctx = NULL;
-	uint32_t rsp_code;
 
 	if ((strlen(fname) > MAX_FNAME_DNAME_SZ)
 		|| (strlen(dname) > MAX_FNAME_DNAME_SZ)) {
@@ -354,8 +352,6 @@ uint32_t get_nvmd_status(void *ctx)
 
 void __attribute__((constructor)) libele_nvm_start()
 {
-	int msg_type_id;
-
 	se_info("\nlibele_nvm constructor\n");
 
 	init_sab_nvm_msg_engine(SAB_MSG);

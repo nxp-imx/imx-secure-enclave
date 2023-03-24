@@ -31,8 +31,6 @@ uint32_t prepare_msg_dev_attest(void *phdl, void *cmd_buf, void *rsp_buf,
 		(struct sab_cmd_dev_attest_msg *) cmd_buf;
 	struct sab_cmd_dev_attest_rsp_w_data *rsp_w_data =
 		(struct sab_cmd_dev_attest_rsp_w_data *) rsp_buf;
-	struct sab_cmd_dev_attest_rsp *rsp =
-		(struct sab_cmd_dev_attest_rsp *) rsp_buf;
 	op_dev_attest_args_t *op_args = (op_dev_attest_args_t *) args;
 
 	*cmd_msg_sz = sizeof(struct sab_cmd_dev_attest_msg);
@@ -69,7 +67,6 @@ uint32_t proc_msg_rsp_dev_attest(void *rsp_buf, void *args)
 		(struct sab_cmd_dev_attest_rsp *) rsp_buf;
 	struct sab_cmd_dev_attest_rsp_w_data *rsp_w_data =
 		(struct sab_cmd_dev_attest_rsp_w_data *) rsp_buf;
-	uint8_t err_str[256];
 
 	if (rsp->rsp_code != SAB_SUCCESS_STATUS)
 		goto exit;

@@ -28,8 +28,6 @@ uint32_t prepare_msg_auth_enc(void *phdl,
 	uint32_t ret = 0;
 	struct sab_cmd_auth_enc_msg *cmd =
 		(struct sab_cmd_auth_enc_msg *) cmd_buf;
-	struct sab_cmd_auth_enc_rsp *rsp =
-		(struct sab_cmd_auth_enc_rsp *) rsp_buf;
 	op_auth_enc_args_t *op_args =
 		(op_auth_enc_args_t *) args;
 

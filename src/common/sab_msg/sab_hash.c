@@ -31,8 +31,6 @@ uint32_t prepare_msg_hash_one_go(void *phdl,
 	uint32_t ret = 0;
 	struct sab_hash_one_go_msg *cmd =
 		(struct sab_hash_one_go_msg *) cmd_buf;
-	struct sab_hash_one_go_rsp *rsp =
-		(struct sab_hash_one_go_rsp *) rsp_buf;
 	op_hash_one_go_args_t *op_args = (op_hash_one_go_args_t *) args;
 
 #ifdef PSA_COMPLIANT

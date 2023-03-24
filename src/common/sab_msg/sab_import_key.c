@@ -29,8 +29,6 @@ uint32_t prepare_msg_importkey(void *phdl,
 	uint32_t ret = 0;
 	struct sab_cmd_import_key_msg *cmd =
 		(struct sab_cmd_import_key_msg *) cmd_buf;
-	struct sab_cmd_import_key_rsp *rsp =
-		(struct sab_cmd_import_key_rsp *) rsp_buf;
 	op_import_key_args_t *op_args = (op_import_key_args_t *) args;
 
 	cmd->key_management_hdl = msg_hdl;
