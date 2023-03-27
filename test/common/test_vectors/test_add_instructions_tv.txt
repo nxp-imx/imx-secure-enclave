@@ -325,6 +325,7 @@ FORMAT and PARAMETERS for HASH Tests:
 TEST_HASH_<PSA/NON_PSA>_4<n>
 
 HASH_ALGO         HEX (uint32_t)  #HASH algorithm to be used
+FLAGS             HEX (uint8_t)   #Operation Flags
 INPUT_SIZE        DEC (uint32_t)  #Input Size provided before Input Data buffer
 
 INPUT_DATA        DEC (again INPUT_SIZE) #Next line have ', ' separated values
@@ -334,8 +335,11 @@ INPUT_DATA        DEC (again INPUT_SIZE) #Next line have ', ' separated values
 0xF4, 0x74, 0x7B, 0x8C, 0xCD, 0xA8, 0xA4, 0xF3,
 
 #(Example of Input buffer format is given as above, buffer of 'uint8_t' values)
+CTX_SIZE          DEC (uint16_t)  #Context Size provided before Context buffer
+INPUT_CTX         DEC (again CTX_SIZE) #Input Context Buffer
 
 OUTPUT_SIZE       DEC (uint32_t)  #Output Size
+EXP_CTX_SIZE      DEC (uint16_t)  #Expected Context Size
 EXP_OUTPUT_SIZE   DEC (uint32_t)  #Expected Output Size
 
 EXP_OUTPUT_BUF    DEC (Output buffer size) #Next line have ', ' separated values
@@ -351,7 +355,8 @@ EXP_HASH_HSM_RESP   HEX (uint8_t) #Expected HASH API HSM Response
 TEST_HASH_END
 
 
-
+NOTE: Currently, only One Shot operation (flag = 0x1) HASH tests are supported
+through test vectors. Context is of no use in this case.
 
 -------------------------------------------------------------------------
 FORMAT and PARAMETERS for DATA STORAGE Tests:
@@ -630,6 +635,9 @@ TEST_SIGN_VERIFY_END
 TEST_HASH_PSA_401
 
 HASH_ALGO         0x02000008   #HSM_HASH_ALGO_SHA_224
+FLAGS             0x1          #One shot HASH op
+CTX_SIZE          0            #Context size
+INPUT_CTX         0            #Input Context
 INPUT_SIZE        300          #Input Size
 
 INPUT_DATA        300          #Input Data-Input Size, buffer from next line
@@ -673,6 +681,7 @@ INPUT_DATA        300          #Input Data-Input Size, buffer from next line
 0x2B, 0x9D, 0xA7, 0xE0,
 
 OUTPUT_SIZE            28      # Output Size
+EXP_CTX_SIZE           0       # Expected Context Size
 EXP_OUTPUT_SIZE        28      # Expected Output Size
 
 EXP_OUTPUT_BUF         28      # Expected Output-Buffer Size, input next line

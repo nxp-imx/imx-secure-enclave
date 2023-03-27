@@ -1439,6 +1439,9 @@ HASH Tests
 TEST_HASH_PSA_401
 
 HASH_ALGO         0x02000008   #HSM_HASH_ALGO_SHA_224
+FLAGS             0x1          #One shot HASH op
+CTX_SIZE          0            #Context size
+INPUT_CTX         0            #Input Context
 INPUT_SIZE        300          #Input Size
 
 INPUT_DATA        300          #Input Data-Input Size, buffer from next line
@@ -1482,6 +1485,7 @@ INPUT_DATA        300          #Input Data-Input Size, buffer from next line
 0x2B, 0x9D, 0xA7, 0xE0,
 
 OUTPUT_SIZE            28      # Output Size
+EXP_CTX_SIZE           0       # Expected Context Size
 EXP_OUTPUT_SIZE        28      # Expected Output Size
 
 EXP_OUTPUT_BUF         28      # Expected Output-Buffer Size, input next line
@@ -1501,6 +1505,9 @@ TEST_HASH_END
 TEST_HASH_PSA_402
 
 HASH_ALGO         0x02000009   #HSM_HASH_ALGO_SHA_256
+FLAGS             0x1          #One shot HASH op
+CTX_SIZE          0            #Context size
+INPUT_CTX         0            #Input Context
 INPUT_SIZE        300          #Input Size
 
 INPUT_DATA        300          #Input Data-Input Size, buffer from next line
@@ -1544,6 +1551,7 @@ INPUT_DATA        300          #Input Data-Input Size, buffer from next line
 0x2B, 0x9D, 0xA7, 0xE0,
 
 OUTPUT_SIZE            32      # Output Size
+EXP_CTX_SIZE           0       # Expected Context Size
 EXP_OUTPUT_SIZE        32      # Expected Output Size
 
 EXP_OUTPUT_BUF         32      # Expected Output-Buffer Size, input next line
@@ -1564,6 +1572,9 @@ TEST_HASH_END
 TEST_HASH_PSA_403
 
 HASH_ALGO         0x0200000A   #HSM_HASH_ALGO_SHA_384
+FLAGS             0x1          #One shot HASH op
+CTX_SIZE          0            #Context size
+INPUT_CTX         0            #Input Context
 INPUT_SIZE        300          #Input Size
 
 INPUT_DATA        300          #Input Data-Input Size, buffer from next line
@@ -1607,6 +1618,7 @@ INPUT_DATA        300          #Input Data-Input Size, buffer from next line
 0x2B, 0x9D, 0xA7, 0xE0,
 
 OUTPUT_SIZE            48      # Output Size
+EXP_CTX_SIZE           0       # Expected Context Size
 EXP_OUTPUT_SIZE        48      # Expected Output Size
 
 EXP_OUTPUT_BUF         48      # Expected Output-Buffer Size, input next line
@@ -1628,6 +1640,9 @@ TEST_HASH_END
 TEST_HASH_PSA_404
 
 HASH_ALGO         0x0200000B   #HSM_HASH_ALGO_SHA_512
+FLAGS             0x1          #One shot HASH op
+CTX_SIZE          0            #Context size
+INPUT_CTX         0            #Input Context
 INPUT_SIZE        300          #Input Size
 
 INPUT_DATA        300          #Input Data-Input Size, buffer from next line
@@ -1671,6 +1686,7 @@ INPUT_DATA        300          #Input Data-Input Size, buffer from next line
 0x2B, 0x9D, 0xA7, 0xE0,
 
 OUTPUT_SIZE            64      # Output Size
+EXP_CTX_SIZE           0       # Expected Context Size
 EXP_OUTPUT_SIZE        64      # Expected Output Size
 
 EXP_OUTPUT_BUF         64      # Expected Output-Buffer Size, input next line
@@ -1696,6 +1712,9 @@ TEST_HASH_END
 TEST_HASH_PSA_405
 
 HASH_ALGO         0x02000008   #HSM_HASH_ALGO_SHA_224
+FLAGS             0x1          #One shot HASH op
+CTX_SIZE          0            #Context size
+INPUT_CTX         0            #Input Context
 INPUT_SIZE        300          #Input Size
 
 INPUT_DATA        300          #Input Data-Input Size, buffer from next line
@@ -1739,6 +1758,7 @@ INPUT_DATA        300          #Input Data-Input Size, buffer from next line
 0x2B, 0x9D, 0xA7, 0xE0,
 
 OUTPUT_SIZE            29      # Output Size
+EXP_CTX_SIZE           0       # Expected Context Size
 EXP_OUTPUT_SIZE        28      # Expected Output Size
 
 EXP_OUTPUT_BUF         28      # Expected Output-Buffer Size, input next line
@@ -1760,6 +1780,9 @@ TEST_HASH_END
 TEST_HASH_PSA_406
 
 HASH_ALGO         0x02000008   #HSM_HASH_ALGO_SHA_224
+FLAGS             0x1          #One shot HASH op
+CTX_SIZE          0            #Context size
+INPUT_CTX         0            #Input Context
 INPUT_SIZE        300          #Input Size
 
 INPUT_DATA        300          #Input Data-Input Size, buffer from next line
@@ -1803,6 +1826,7 @@ INPUT_DATA        300          #Input Data-Input Size, buffer from next line
 0x2B, 0x9D, 0xA7, 0xE0,
 
 OUTPUT_SIZE            27      # Output Size
+EXP_CTX_SIZE           0       # Expected Context Size
 EXP_OUTPUT_SIZE        28      # Expected Output Size
 
 EXP_OUTPUT_BUF         27      # Expected Output-Buffer Size, input next line

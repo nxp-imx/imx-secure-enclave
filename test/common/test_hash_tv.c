@@ -18,11 +18,17 @@
 #include "test_utils_tv.h"
 
 
-static void hash_test_run(hsm_hash_algo_t hash_algo, uint32_t input_size,
-				uint8_t *input_data, uint32_t output_size,
-				uint32_t exp_output_size, uint32_t exp_output_buf_size,
-				uint8_t *exp_output_buf, uint8_t exp_hash_hsm_rsp,
-				int8_t *test_status)
+//HASH One shot operation test
+static void hash_test_run(hsm_hash_algo_t hash_algo,
+			  hsm_hash_svc_flags_t flags,
+			  uint32_t input_size,
+			  uint8_t *input_data,
+			  uint32_t output_size,
+			  uint32_t exp_output_size,
+			  uint32_t exp_output_buf_size,
+			  uint8_t *exp_output_buf,
+			  uint8_t exp_hash_hsm_rsp,
+			  int8_t *test_status)
 {
 	hsm_err_t hsmret = HSM_GENERAL_ERROR;
 	hsm_hdl_t hash_sess = get_hsm_session_hdl();
@@ -30,6 +36,7 @@ static void hash_test_run(hsm_hash_algo_t hash_algo, uint32_t input_size,
 	*test_status = 0;
 
 	hash_args.algo = hash_algo;
+	hash_args.svc_flags = flags;
 	hash_args.input_size = input_size;
 	hash_args.input = input_data;
 	hash_args.output_size = output_size;
@@ -93,7 +100,11 @@ out:
 
 static int8_t prepare_and_run_hash_test(FILE *fp)
 {
-	uint8_t req_params_n = 8;
+#ifdef PSA_COMPLIANT
+	uint8_t req_params_n = 12;
+#else
+	uint8_t req_params_n = 9;
+#endif
 	uint8_t input_ctr = 0;
 	uint8_t invalid_read = 0;
 	uint8_t call_hash_test = -1;
@@ -107,6 +118,13 @@ static int8_t prepare_and_run_hash_test(FILE *fp)
 	char *line = NULL;
 
 	hsm_hash_algo_t hash_algo;
+	hsm_hash_svc_flags_t flags;
+#ifdef PSA_COMPLIANT
+	uint8_t *msb;
+	uint8_t *ctx;
+	uint16_t ctx_size;
+	uint16_t exp_ctx_size;
+#endif
 	uint32_t input_size = 0;
 	uint32_t output_size = 0;
 	uint8_t *input_data = NULL;
@@ -177,6 +195,39 @@ static int8_t prepare_and_run_hash_test(FILE *fp)
 			output_size = (uint32_t)parse_param_value(param_value_token,
 							param_name, &input_ctr, &invalid_read);
 
+		} else if (strcmp(param_name, "FLAGS") == 0) {
+			flags = (hsm_hash_svc_flags_t)parse_param_value(param_value_token,
+									param_name,
+									&input_ctr,
+									&invalid_read);
+#ifdef PSA_COMPLIANT
+		} else if (strcmp(param_name, "CTX_SIZE") == 0) {
+			ctx_size = (uint16_t)parse_param_value(param_value_token,
+							       param_name,
+							       &input_ctr,
+							       &invalid_read);
+
+		} else if (strcmp(param_name, "INPUT_CTX") == 0) {
+			ctx = (uint8_t *)malloc(ctx_size * sizeof(uint8_t));
+			memset(ctx, 0, ctx_size * sizeof(uint8_t));
+
+			if (!ctx) {
+				invalid_read = 1;
+				printf("\nError: Couldn't allocate memory for %s\n",
+				       param_name);
+				break;
+			}
+
+			parse_param_value_buffer(fp, &ctx, ctx_size,
+						 param_name, &input_ctr,
+						 &invalid_read);
+
+		} else if (strcmp(param_name, "EXP_CTX_SIZE") == 0) {
+			exp_ctx_size = (uint16_t)parse_param_value(param_value_token,
+								   param_name,
+								   &input_ctr,
+								   &invalid_read);
+#endif
 		} else if (strcmp(param_name, "EXP_OUTPUT_SIZE") == 0) {
 
 			exp_output_size = (uint32_t)parse_param_value(param_value_token,
@@ -216,10 +267,19 @@ static int8_t prepare_and_run_hash_test(FILE *fp)
 	if (call_hash_test == 1) {
 
 		printf("HASH Algo          : 0x%x\n", hash_algo);
+#ifdef PSA_COMPLIANT
+		printf("Flags              : 0x%x\n", flags);
+		printf("Context Size       : %u\n", ctx_size);
+		printf("\nInput Context      :\n");
+		print_buffer(ctx, ctx_size);
+#endif
 		printf("Input Size         : %u\n", input_size);
 		printf("\nInput Data        :\n");
 		print_buffer(input_data, input_size);
 		printf("Output Size          : %u\n", output_size);
+#ifdef PSA_COMPLIANT
+		printf("Expected Context Size : %u\n", exp_ctx_size);
+#endif
 		printf("Expected Output Size : %u\n", exp_output_size);
 		printf("\nExpected Output Buffer size : %u\n", exp_output_buf_size);
 		printf("\nExpected Output Buffer :\n");
@@ -227,11 +287,27 @@ static int8_t prepare_and_run_hash_test(FILE *fp)
 		printf("Expected HASH HSM Resp : 0x%x\n", exp_hash_hsm_rsp);
 		printf("----------------------------------------------------\n");
 
-		hash_test_run(hash_algo, input_size, input_data, output_size,
-				exp_output_size, exp_output_buf_size, exp_output_buf,
-				exp_hash_hsm_rsp, &test_status);
+		if (!(flags & HSM_HASH_FLAG_ALLOWED)) {
+			invalid_read = 1;
+			printf("\nInvalid HASH op flag value. Not Allowed.\n");
+			goto exit;
+		}
+
+		//HASH test involving context not supported yet.
+		switch (flags) {
+		case HSM_HASH_FLAG_ONE_SHOT:
+			hash_test_run(hash_algo, flags, input_size,
+				      input_data, output_size, exp_output_size,
+				      exp_output_buf_size, exp_output_buf,
+				      exp_hash_hsm_rsp, &test_status);
+			break;
+		default:
+			invalid_read = 1;
+			printf("\nTest not supported through test vectors yet.\n");
+		}
 	}
 
+exit:
 	if (invalid_read == 1 || read == -1) {
 		test_status = -1;
 
