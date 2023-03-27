@@ -167,6 +167,9 @@ bool val_rcv_rsp_len(uint32_t rcv_len, uint32_t *rcv_buf)
 			* sizeof(uint32_t))
 		return false;
 
+	se_warn("Received less length than expected.\n");
+	se_warn("But, received-length is equal to header.size.\n");
+
 	/* if both the above invalidation check fails.
 	 * it means, received response length is valid.
 	 */
@@ -240,10 +243,10 @@ int32_t plat_sndmsg_rsp(struct plat_os_abs_hdl *phdl,
 
 /* Helper function to send a message and wait for the response. Return 0 on success.*/
 int32_t plat_send_msg_and_rcv_resp(struct plat_os_abs_hdl *phdl,
-								uint32_t *cmd,
-								uint32_t cmd_len,
-								uint32_t *rsp,
-								uint32_t *rsp_len)
+				   uint32_t *cmd,
+				   uint32_t cmd_len,
+				   uint32_t *rsp,
+				   uint32_t *rsp_len)
 {
 	int32_t err = -1;
 	int32_t len;
@@ -258,9 +261,11 @@ int32_t plat_send_msg_and_rcv_resp(struct plat_os_abs_hdl *phdl,
 		len = plat_os_abs_send_mu_message(phdl, cmd, cmd_len);
 		if (len != (int32_t)cmd_len) {
 			printf("\nSAB CMD[0x%x]: Write MU MSG failed\n",
-				((struct sab_mu_hdr *)cmd)->command);
+			       ((struct sab_mu_hdr *)cmd)->command);
 			if (errno)
-				printf("\nPLAT write error[%d]: %s\n", errno, strerror(errno));
+				printf("\nPLAT write error[%d]: %s\n",
+				       errno,
+				       strerror(errno));
 			break;
 		}
 #if DEBUG
@@ -272,12 +277,16 @@ int32_t plat_send_msg_and_rcv_resp(struct plat_os_abs_hdl *phdl,
 #endif
 		/* Read the response. */
 		len = plat_os_abs_read_mu_message(phdl, rsp, *rsp_len);
-		if ((len != (int32_t)(*rsp_len)) || (val_rcv_rsp_len(len, rsp) == false)) {
-			printf("\nSAB CMD[0x%x]: Read MU MSG failed\n",
-				((struct sab_mu_hdr *)cmd)->command);
-			if (errno)
-				printf("\nPLAT read error[%d]: %s\n", errno, strerror(errno));
-			break;
+		if (len != (int32_t)(*rsp_len)) {
+			if ((val_rcv_rsp_len(len, rsp) == false) ||
+			    (len > (int32_t)(*rsp_len))) {
+				printf("\nSAB CMD[0x%x]: Read MU MSG failed\n",
+				       ((struct sab_mu_hdr *)cmd)->command);
+				if (errno)
+					printf("\nPLAT read error[%d]: %s\n",
+					       errno, strerror(errno));
+				break;
+			}
 		}
 
 		*rsp_len = len;
