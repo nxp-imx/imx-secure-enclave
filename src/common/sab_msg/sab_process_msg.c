@@ -13,7 +13,6 @@
 
 #include <stdlib.h>
 #include <stdio.h>
-#include <string.h>
 
 #include "sab_common_err.h"
 #include "sab_msg_def.h"
@@ -105,8 +104,7 @@ uint32_t process_sab_msg(struct plat_os_abs_hdl *phdl,
 			 void *args,
 			 uint32_t *rsp_code)
 {
-	uint32_t error = SAB_SUCCESS_STATUS;
-	int msg_type_id;
+	uint32_t error;
 	uint32_t cmd_msg_sz = 0;
 	uint32_t rsp_msg_sz = 0;
 	uint32_t cmd[MAX_CMD_WORD_SZ];
@@ -116,7 +114,7 @@ uint32_t process_sab_msg(struct plat_os_abs_hdl *phdl,
 	plat_os_abs_memset((uint8_t *)cmd, 0x0, MAX_CMD_WORD_SZ * WORD_SZ);
 	plat_os_abs_memset((uint8_t *)rsp, 0x0, MAX_CMD_RSP_WORD_SZ * WORD_SZ);
 
-	if (msg_type <= NOT_SUPPORTED && msg_type >= MAX_MSG_TYPE) {
+	if (msg_type <= NOT_SUPPORTED || msg_type >= MAX_MSG_TYPE) {
 		error = SAB_INVALID_MESSAGE_RATING;
 		goto out;
 	}
@@ -281,14 +279,12 @@ uint32_t process_sab_rcv_send_msg(struct nvm_ctx_st *nvm_ctx_param,
 				  uint8_t *next_cmd_id)
 {
 	int error = SAB_SUCCESS_STATUS;
-	int msg_type_id;
-	uint32_t rcvmsg_cmd_id;
+	uint32_t rcvmsg_cmd_id = SAB_STORAGE_NVM_LAST_CMD;
 	uint32_t cmd_msg_sz = MAX_CMD_WORD_SZ * sizeof(uint32_t);
 	uint32_t rsp_msg_info = SAB_SUCCESS_STATUS;
 	uint32_t nb_words = 0;
 	uint32_t cmd[MAX_CMD_WORD_SZ];
 	uint32_t rsp[MAX_CMD_RSP_WORD_SZ];
-	uint32_t cmd_args[MAX_CMD_RSP_WORD_SZ];
 	msg_type_t msg_type = SAB_MSG;
 	struct nvm_chunk_hdr *chunk = NULL;
 

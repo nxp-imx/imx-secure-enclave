@@ -47,7 +47,7 @@ static uint32_t nvm_storage_import(struct nvm_ctx_st *nvm_ctx_param,
 		blob_hdr = (struct nvm_header_s *)data;
 
 		/* Sanity check on the provided data. */
-		if ((int8_t)(blob_hdr->size
+		if ((uint8_t)(blob_hdr->size
 			+ (uint32_t)sizeof(struct nvm_header_s)) != len) {
 			break;
 		}
@@ -111,12 +111,12 @@ void nvm_close_session(void *ctx)
 	plat_os_abs_free(nvm_ctx);
 }
 
-static int nvm_open_session(uint8_t flags, struct nvm_ctx_st *nvm_ctx)
+static uint32_t nvm_open_session(uint8_t flags, struct nvm_ctx_st *nvm_ctx)
 {
 	uint32_t err = SAB_FAILURE_STATUS;
 	struct plat_mu_params mu_params = {0};
 	op_storage_open_args_t *args = NULL;
-	open_session_args_t sess_args;
+	open_session_args_t sess_args = {0};
 	uint32_t rsp_code = SAB_FAILURE_STATUS;
 	uint32_t ret = SAB_FAILURE_STATUS;
 
@@ -212,10 +212,10 @@ static int nvm_open_session(uint8_t flags, struct nvm_ctx_st *nvm_ctx)
 	return ret;
 }
 
-int nvm_manager(uint8_t flags,
-		 void **ctx,
-		 uint8_t *fname,
-		 uint8_t *dname)
+uint32_t nvm_manager(uint8_t flags,
+		     void **ctx,
+		     uint8_t *fname,
+		     uint8_t *dname)
 {
 	int32_t len = 0;
 	uint32_t data_len = 0u;

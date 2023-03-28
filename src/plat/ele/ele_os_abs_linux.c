@@ -104,6 +104,8 @@ struct plat_os_abs_hdl *plat_os_abs_open_mu_channel(uint32_t type, struct plat_m
             if (is_nvm != 0u) {
                 /* for NVM: configure the device to accept incoming commands. */
                 if (ioctl(phdl->fd, ELE_MU_IOCTL_ENABLE_CMD_RCV)) {
+			/* Close the device. */
+			(void)close(phdl->fd);
                     free(phdl);
                     phdl = NULL;
                 }

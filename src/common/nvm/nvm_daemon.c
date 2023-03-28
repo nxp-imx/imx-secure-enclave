@@ -85,7 +85,7 @@ int main(int argc, char *argv[])
 {
 	struct sigaction action = {0};
 	int flags = 0;
-	int err = 0;
+	uint32_t err = 0;
 
 	if (argc < 3) {
 		printf("Usage: ./nvm_daemon <file_name> <directory>\n");
