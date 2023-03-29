@@ -98,10 +98,10 @@ static she_err_t she_plat_ind_to_she_err_t (uint32_t rsp_code)
 
 static she_err_t she_open_utils(struct she_hdl_s *hdl)
 {
-    struct sab_cmd_she_utils_open_msg cmd;
-    struct sab_cmd_she_utils_open_rsp rsp;
-    she_err_t ret = ERC_GENERAL_ERROR;
-    int32_t error = 1;
+	struct sab_cmd_she_utils_open_msg cmd;
+	struct sab_cmd_she_utils_open_rsp rsp;
+	she_err_t ret = ERC_GENERAL_ERROR;
+	int32_t error;
     do {
 
         if (hdl->utils_handle != 0u) {
@@ -136,10 +136,10 @@ static she_err_t she_open_utils(struct she_hdl_s *hdl)
 
 static she_err_t she_close_utils(struct she_hdl_s *hdl)
 {
-    struct sab_cmd_she_utils_close_msg cmd;
-    struct sab_cmd_she_utils_close_rsp rsp;
-    she_err_t ret = ERC_GENERAL_ERROR;
-    int32_t error = 1;
+	struct sab_cmd_she_utils_close_msg cmd;
+	struct sab_cmd_she_utils_close_rsp rsp;
+	she_err_t ret = ERC_GENERAL_ERROR;
+	int32_t error;
     do {
         if (hdl->utils_handle == 0u){
             break;
@@ -171,8 +171,8 @@ static she_err_t she_close_utils(struct she_hdl_s *hdl)
 /* Close a previously opened SHE session. */
 void she_close_session(struct she_hdl_s *hdl)
 {
-    int32_t error = 1;
-    uint32_t rsp_code;
+	int32_t error;
+	uint32_t rsp_code = SAB_NO_MESSAGE_RATING;
 
     if (hdl != NULL) {
         if (hdl->phdl != NULL) {
@@ -225,13 +225,13 @@ void she_close_session(struct she_hdl_s *hdl)
 #define MIN_MAC_LEN_NOT_SET  (0u)
 #define MIN_MAC_LEN_SET      (1u)
 static uint32_t she_storage_create_generic(uint32_t key_storage_identifier, uint32_t authentication_nonce, uint16_t max_updates_number, uint8_t min_mac_len_setting, uint8_t min_mac_length, uint8_t *signed_message, uint32_t msg_len) {
-    struct she_hdl_s *hdl = NULL;
-    uint32_t ret = SHE_STORAGE_CREATE_FAIL;
-    uint32_t err;
-    struct plat_mu_params mu_params;
+	struct she_hdl_s *hdl = NULL;
+	uint32_t ret = SHE_STORAGE_CREATE_FAIL;
+	uint32_t err;
+	struct plat_mu_params mu_params = {0};
 	open_session_args_t args;
-	uint32_t rsp_code;
-    uint8_t flags = KEY_STORE_OPEN_FLAGS_CREATE | KEY_STORE_OPEN_FLAGS_SHE;
+	uint32_t rsp_code = SAB_NO_MESSAGE_RATING;
+	uint8_t flags = KEY_STORE_OPEN_FLAGS_CREATE | KEY_STORE_OPEN_FLAGS_SHE;
     do {
         /* allocate the handle (free when closing the session). */
         hdl = (struct she_hdl_s *)plat_os_abs_malloc((uint32_t)sizeof(struct she_hdl_s));
@@ -327,11 +327,11 @@ uint32_t she_storage_create_ext(uint32_t key_storage_identifier, uint32_t authen
 /* Open a SHE user session and return a pointer to the session handle. */
 struct she_hdl_s *she_open_session(uint32_t key_storage_identifier, uint32_t authentication_nonce, void (*async_cb)(void *priv, she_err_t err), void *priv)
 {
-    struct she_hdl_s *hdl = NULL;
-    uint32_t err = SAB_FAILURE_STATUS;
-    struct plat_mu_params mu_params;
-    open_svc_cipher_args_t op_args;
-    uint32_t rsp_code;
+	struct she_hdl_s *hdl = NULL;
+	uint32_t err = SAB_FAILURE_STATUS;
+	struct plat_mu_params mu_params = {0};
+	open_svc_cipher_args_t op_args;
+	uint32_t rsp_code = SAB_NO_MESSAGE_RATING;
 	open_session_args_t args;
 
     do {
@@ -547,8 +547,8 @@ she_err_t she_cmd_verify_mac_bit_ext(struct she_hdl_s *hdl, uint8_t key_ext, uin
 /* CBC encrypt command. */
 she_err_t she_cmd_enc_cbc(struct she_hdl_s *hdl, uint8_t key_ext, uint8_t key_id, uint32_t data_length, uint8_t *iv, uint8_t *plaintext, uint8_t *ciphertext)
 {
-    uint32_t sab_error, rsp_code;
-    she_err_t ret = ERC_GENERAL_ERROR;
+	uint32_t sab_error, rsp_code = SAB_NO_MESSAGE_RATING;
+	she_err_t ret;
     op_cipher_one_go_args_t op_args;
 
     op_args.key_identifier = (uint32_t)key_ext | (uint32_t)key_id;
@@ -587,9 +587,9 @@ she_err_t she_cmd_enc_cbc(struct she_hdl_s *hdl, uint8_t key_ext, uint8_t key_id
 /* CBC decrypt command. */
 she_err_t she_cmd_dec_cbc(struct she_hdl_s *hdl, uint8_t key_ext, uint8_t key_id, uint32_t data_length, uint8_t *iv, uint8_t *ciphertext, uint8_t *plaintext)
 {
-    uint32_t sab_error, rsp_code;
-    she_err_t ret = ERC_GENERAL_ERROR;
-    op_cipher_one_go_args_t op_args;
+	uint32_t sab_error, rsp_code = SAB_NO_MESSAGE_RATING;
+	she_err_t ret;
+	op_cipher_one_go_args_t op_args;
 
     op_args.key_identifier = (uint32_t)key_ext | (uint32_t)key_id;
     op_args.iv = iv;
@@ -627,10 +627,10 @@ she_err_t she_cmd_dec_cbc(struct she_hdl_s *hdl, uint8_t key_ext, uint8_t key_id
 /* ECB encrypt command. */
 she_err_t she_cmd_enc_ecb(struct she_hdl_s *hdl, uint8_t key_ext, uint8_t key_id, uint8_t *plaintext, uint8_t *ciphertext)
 {
-    uint32_t sab_error;
-    uint32_t rsp_code;
-    she_err_t ret = ERC_GENERAL_ERROR;
-    op_cipher_one_go_args_t op_args;
+	uint32_t sab_error;
+	uint32_t rsp_code = SAB_NO_MESSAGE_RATING;
+	she_err_t ret;
+	op_cipher_one_go_args_t op_args;
 
     op_args.key_identifier = (uint32_t)key_ext | (uint32_t)key_id;
     op_args.iv = NULL;
@@ -665,10 +665,10 @@ she_err_t she_cmd_enc_ecb(struct she_hdl_s *hdl, uint8_t key_ext, uint8_t key_id
 /* ECB decrypt command. */
 she_err_t she_cmd_dec_ecb(struct she_hdl_s *hdl, uint8_t key_ext, uint8_t key_id, uint8_t *ciphertext, uint8_t *plaintext)
 {
-    uint32_t sab_error;
-    uint32_t rsp_code;
-    she_err_t ret = ERC_GENERAL_ERROR;
-    op_cipher_one_go_args_t op_args;
+	uint32_t sab_error;
+	uint32_t rsp_code = SAB_NO_MESSAGE_RATING;
+	she_err_t ret;
+	op_cipher_one_go_args_t op_args;
 
     op_args.key_identifier = (uint32_t)key_ext | (uint32_t)key_id;
     op_args.iv = NULL;
@@ -999,11 +999,10 @@ she_err_t she_cmd_extend_seed(struct she_hdl_s *hdl, uint8_t *entropy) {
 
 she_err_t she_cmd_rnd(struct she_hdl_s *hdl, uint8_t *rnd)
 {
-    she_err_t ret = ERC_GENERAL_ERROR;
-    uint64_t plat_rnd_addr;
-    int32_t error;
-    op_get_random_args_t *args;
-    uint32_t rsp_code;
+	she_err_t ret = ERC_GENERAL_ERROR;
+	int32_t error;
+	op_get_random_args_t args = {0};
+	uint32_t rsp_code = SAB_NO_MESSAGE_RATING;
 
     do {
         if ((hdl == NULL) || (rnd == NULL)) {
@@ -1014,15 +1013,15 @@ she_err_t she_cmd_rnd(struct she_hdl_s *hdl, uint8_t *rnd)
             break;
         }
 
-	args->random_size = SHE_RND_SIZE;
-	args->output = rnd;
+	args.random_size = SHE_RND_SIZE;
+	args.output = rnd;
 
 	error = process_sab_msg(hdl->phdl,
 				hdl->mu_type,
 				SAB_RNG_GET_RANDOM,
 				MT_SAB_RNG,
 				(uint32_t)hdl->rng_handle,
-				args, &rsp_code);
+				&args, &rsp_code);
 
 	ret = sab_rating_to_hsm_err(error);
 
@@ -1171,12 +1170,10 @@ she_err_t she_get_info(struct she_hdl_s *hdl,
 		       uint16_t *chip_life_cycle,
 		       uint32_t *she_version)
 {
-	uint32_t plat_rsp_code;
-	she_err_t ret = ERC_GENERAL_ERROR;
-	uint32_t version_ext;
-	uint8_t fips_mode;
+	uint32_t plat_rsp_code = SAB_NO_MESSAGE_RATING;
+	she_err_t ret;
 	op_get_info_args_t args;
-	int32_t error = 1;
+	int32_t error;
 
 	do {
 		error = process_sab_msg(hdl->phdl,

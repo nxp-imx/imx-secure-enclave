@@ -23,10 +23,10 @@
 
 #include <stdint.h>
 
-int nvm_manager(uint8_t flags,
-		void **ctx,
-		uint8_t *fname,
-		uint8_t *dname);
+uint32_t nvm_manager(uint8_t flags,
+		     void **ctx,
+		     uint8_t *fname,
+		     uint8_t *dname);
 
 void nvm_close_session(void *ctx);
 
