@@ -23,6 +23,10 @@
 #define HSM_KEY_OP_SUCCESS	0
 #define HSM_KEY_OP_FAIL		0xFFFFFFFF
 
+/**
+ *  @defgroup group3 Key management
+ * @{
+ */
 typedef uint32_t hsm_key_usage_t;
 #define HSM_KEY_USAGE_EXPORT		((hsm_key_usage_t) (1u << 0))
 #define HSM_KEY_USAGE_ENCRYPT		((hsm_key_usage_t) (1u << 8))
@@ -203,4 +207,5 @@ typedef uint16_t hsm_key_info_t;
 #define HSM_KEY_INFO_KEK \
 		((hsm_key_info_t)(1u << 3))
 
+/** @} end of key management service flow */
 #endif

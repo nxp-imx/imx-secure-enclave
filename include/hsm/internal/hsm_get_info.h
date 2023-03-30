@@ -18,7 +18,7 @@
 #include "internal/hsm_utils.h"
 
 /**
- *  @defgroup group15 Get info
+ *  @defgroup group25 Get Info
  * @{
  */
 typedef struct {

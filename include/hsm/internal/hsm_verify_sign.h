@@ -142,4 +142,5 @@ hsm_err_t hsm_verify_signature(hsm_hdl_t signature_ver_hdl,
 #define HSM_VERIFICATION_STATUS_FAILURE \
 				((hsm_verification_status_t)(0x2B4DD4B2u))
 
+/** @} end of signature verification service flow */
 #endif

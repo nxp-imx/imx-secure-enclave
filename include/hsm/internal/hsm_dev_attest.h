@@ -17,6 +17,10 @@
 #include "internal/hsm_handle.h"
 #include "internal/hsm_utils.h"
 
+/**
+ *  @defgroup group27 Dev attest
+ * @{
+ */
 typedef struct {
 	uint16_t soc_id;
 	uint16_t soc_rev;
@@ -54,4 +58,5 @@ typedef struct {
 
 hsm_err_t hsm_dev_attest(hsm_hdl_t sess_hdl, op_dev_attest_args_t *args);
 
+/** @} end of dev attest operation */
 #endif

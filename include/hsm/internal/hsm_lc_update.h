@@ -17,6 +17,10 @@
 #include "internal/hsm_handle.h"
 #include "internal/hsm_utils.h"
 
+/**
+ *  @defgroup group26 LC update
+ * @{
+ */
 typedef enum {
 	HSM_NXP_PROVISIONED_STATE = (1u << 0),
 	HSM_OEM_OPEN_STATE        = (1u << 1),
@@ -33,4 +37,5 @@ typedef struct {
 hsm_err_t hsm_lc_update(hsm_hdl_t session_hdl,
 			op_lc_update_msg_args_t *args);
 
+/** @} end of lc update operation */
 #endif //HSM_LC_UPDATE_H

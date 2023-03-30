@@ -18,6 +18,11 @@
 #include "internal/hsm_utils.h"
 #include "internal/hsm_handle.h"
 
+/**
+ *  @defgroup group3 Key management
+ * @{
+ */
+
 typedef uint8_t hsm_op_key_gen_flags_t;
 
 #ifdef PSA_COMPLIANT
@@ -90,4 +95,5 @@ typedef struct {
  */
 hsm_err_t hsm_generate_key(hsm_hdl_t key_management_hdl,
 			   op_generate_key_args_t *args);
+/** @} end of key management service flow */
 #endif

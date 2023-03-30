@@ -20,6 +20,31 @@
 #include "internal/hsm_key.h"
 #include "internal/hsm_utils.h"
 
+#include "internal/hsm_key_gen_ext.h"
+
+#include "internal/hsm_gc_akey_gen.h"
+
+#include "internal/hsm_gc_acrypto.h"
+
+#include "internal/hsm_importkey.h"
+
+#include "internal/hsm_delete_key.h"
+
+#include "internal/hsm_get_key_attr.h"
+
+#include "internal/hsm_managekey.h"
+
+#include "internal/hsm_debug_dump.h"
+
+#include "internal/hsm_key_recovery.h"
+
+#include "internal/hsm_dev_getinfo.h"
+
+#include "internal/hsm_lc_update.h"
+
+#include "internal/hsm_dev_attest.h"
+
+#include "internal/hsm_get_info.h"
 /**
  *  @defgroup group1 Session
  * The API must be initialized by a potential requestor by opening a session.\n
@@ -146,170 +171,6 @@ typedef struct {
 hsm_err_t hsm_open_key_management_service(hsm_hdl_t key_store_hdl, open_svc_key_management_args_t *args, hsm_hdl_t *key_management_hdl);
 
 #include "internal/hsm_key_generate.h"
-#include "internal/hsm_sign_gen.h"
-/**
- * Secondary API to generate signature on the given message.\n
- *
- * This API does the following:
- * 1. Open a service flow for signature generation.\n
- * 2. Based on the flag to identify the type of message: Digest or actual message,\n
- *    generate the signature using the key corresponding to the key id.
- * 3. Post performing the operation, terminate the previously opened\n
- *    signature-generation service flow.\n
- *
- * User can call this function only after having opened a key-store.\n
- *
- * \param key_store_hdl handle identifying the current key-store.
- * \param args pointer to the structure containing the function arguments.
- *
- * \return error code
- */
-hsm_err_t hsm_do_sign(hsm_hdl_t key_store_hdl,
-			op_generate_sign_args_t *args);
-#include "internal/hsm_verify_sign.h"
-
-/**
- * Secondary API to verify a message signature.
- *
- * This API does the following:
- * 1. Open a flow for verification of the signature.\n
- * 2. Based on the flag to identify the type of message: Digest or actual message,\n
- *    verification of the signature is done using the public key.
- * 3. Post performing the operation, terminate the previously opened\n
- *    signature-verification service flow.\n
- *
- * User can call this function only after having opened a session.\n
- *
- * \param key_store_hdl handle identifying the current key-store.
- * \param args pointer to the structure containing the function arguments.
- *
- * \return error code
- */
-hsm_err_t hsm_verify_sign(hsm_hdl_t session_hdl,
-			  op_verify_sign_args_t *args,
-			  hsm_verification_status_t *verification_status);
-/**
- *  @defgroup group4 Ciphering
- * @{
- */
-#include "internal/hsm_cipher.h"
-/**
- * Secondary API to perform ciphering operation\n
- *
- * This API does the following:
- * 1. Open an Cipher Service Flow\n
- * 2. Perform ciphering operation\n
- * 3. Terminate a previously opened cipher service flow\n
- *
- * User can call this function only after having opened a cipher service flow.\n
- *
- * \param key_store_hdl handle identifying the cipher service flow.
- * \param args pointer to the structure containing the function arguments.
- *
- * \return error code
- */
-hsm_err_t hsm_do_cipher(hsm_hdl_t cipher_hdl,
-			op_cipher_one_go_args_t *cipher_one_go);
-/** @} end of cipher service flow */
-
-/**
- *  @defgroup group16 Mac
- * @{
- */
-#include "internal/hsm_mac.h"
-/**
- * Secondary API to perform mac operation\n
- *
- * This API does the following:
- * 1. Open an MAC Service Flow\n
- * 2. Perform mac operation\n
- * 3. Terminate a previously opened mac service flow\n
- *
- * User can call this function only after having opened a key store service flow.\n
- *
- * \param key_store_hdl handle identifying the key store service flow.
- * \param args pointer to the structure containing the function arguments.
- *
- * \return error code
- */
-hsm_err_t hsm_do_mac(hsm_hdl_t key_store_hdl,
-		     op_mac_one_go_args_t *mac_one_go);
-/** @} end of mac service flow */
-
-/**
- *  @defgroup group8 Hashing
- * @{
- */
-#include "internal/hsm_hash.h"
-/**
- * Secondary API to digest a message.\n
- *
- * This API does the following:
- * 1. Open an Hash Service Flow\n
- * 2. Perform hash\n
- * 3. Terminate a previously opened hash service flow\n
- *
- * User can call this function only after having opened a session.\n
- *
- * \param session_hdl handle identifying the current session.
- * \param args pointer to the structure containing the function arguments.
- *
- * \return error code
- */
-hsm_err_t hsm_do_hash(hsm_hdl_t session_hdl, op_hash_one_go_args_t *args);
-/** @} end of hash service flow */
-
-/**
- *  @defgroup group15 Authenticated Encryption
- * @{
- */
-#include "internal/hsm_auth_enc.h"
-/**
- * Secondary API to perform Authenticated Encryption\n
- *
- * This API does the following:
- * 1. Opens Cipher Service Flow\n
- * 2. Perform Authenticated Encryption operation\n
- * 3. Terminates the previously opened Cipher service flow\n
- *
- * User can call this function only after having opened a key store service
- * flow.\n
- *
- * \param key_store_hdl handle identifying the key store service flow.
- * \param args pointer to the structure containing the function arguments.
- *
- * \return error code
- */
-hsm_err_t hsm_do_auth_enc(hsm_hdl_t key_store_hdl,
-						op_auth_enc_args_t *auth_enc_args);
-/** @} end of authenticated encryption service flow */
-
-
-#include "internal/hsm_key_gen_ext.h"
-
-#include "internal/hsm_gc_akey_gen.h"
-
-#include "internal/hsm_gc_acrypto.h"
-
-#include "internal/hsm_importkey.h"
-
-#include "internal/hsm_delete_key.h"
-
-#include "internal/hsm_get_key_attr.h"
-
-#include "internal/hsm_managekey.h"
-
-#include "internal/hsm_debug_dump.h"
-
-#include "internal/hsm_key_recovery.h"
-
-#include "internal/hsm_dev_getinfo.h"
-
-#include "internal/hsm_lc_update.h"
-
-#include "internal/hsm_dev_attest.h"
-
-#include "internal/hsm_get_info.h"
 
 typedef uint8_t hsm_op_manage_key_group_flags_t;
 typedef struct {
@@ -361,7 +222,6 @@ hsm_err_t hsm_manage_key_group(hsm_hdl_t key_management_hdl, op_manage_key_group
 //	 Not applicable for cache lockdown/unlock.
 #define HSM_OP_MANAGE_KEY_GROUP_FLAGS_STRICT_OPERATION \
 		((hsm_op_manage_key_group_flags_t)(1u << 7))
-
 
 typedef uint8_t hsm_op_but_key_exp_flags_t;
 typedef struct {
@@ -461,6 +321,28 @@ hsm_err_t hsm_close_key_management_service(hsm_hdl_t key_management_hdl);
  */
 /** @} end of key management service flow */
 
+/**
+ *  @defgroup group4 Ciphering
+ * @{
+ */
+#include "internal/hsm_cipher.h"
+/**
+ * Secondary API to perform ciphering operation\n
+ *
+ * This API does the following:
+ * 1. Open an Cipher Service Flow\n
+ * 2. Perform ciphering operation\n
+ * 3. Terminate a previously opened cipher service flow\n
+ *
+ * User can call this function only after having opened a cipher service flow.\n
+ *
+ * \param key_store_hdl handle identifying the cipher service flow.
+ * \param args pointer to the structure containing the function arguments.
+ *
+ * \return error code
+ */
+hsm_err_t hsm_do_cipher(hsm_hdl_t cipher_hdl,
+			op_cipher_one_go_args_t *cipher_one_go);
 typedef uint8_t hsm_op_ecies_dec_flags_t;
 typedef struct {
     uint32_t key_identifier;                //!< identifier of the private key to be used for the operation
@@ -489,7 +371,59 @@ typedef struct {
  */
 hsm_err_t hsm_ecies_decryption(hsm_hdl_t cipher_hdl, op_ecies_dec_args_t *args);
 
+/** @} end of cipher service flow */
 
+/**
+ *  @defgroup group5 Signature generation
+ * @{
+ */
+
+#include "internal/hsm_sign_gen.h"
+/**
+ * Secondary API to generate signature on the given message.\n
+ *
+ * This API does the following:
+ * 1. Open a service flow for signature generation.\n
+ * 2. Based on the flag to identify the type of message: Digest or actual message,\n
+ *    generate the signature using the key corresponding to the key id.
+ * 3. Post performing the operation, terminate the previously opened\n
+ *    signature-generation service flow.\n
+ *
+ * User can call this function only after having opened a key-store.\n
+ *
+ * \param key_store_hdl handle identifying the current key-store.
+ * \param args pointer to the structure containing the function arguments.
+ *
+ * \return error code
+ */
+hsm_err_t hsm_do_sign(hsm_hdl_t key_store_hdl, op_generate_sign_args_t *args);
+/** @} end of signature generation service flow */
+
+/**
+ *  @defgroup group6 Signature verification
+ * @{
+ */
+#include "internal/hsm_verify_sign.h"
+/**
+ * Secondary API to verify a message signature.
+ *
+ * This API does the following:
+ * 1. Open a flow for verification of the signature.\n
+ * 2. Based on the flag to identify the type of message: Digest or actual message,\n
+ *    verification of the signature is done using the public key.
+ * 3. Post performing the operation, terminate the previously opened\n
+ *    signature-verification service flow.\n
+ *
+ * User can call this function only after having opened a session.\n
+ *
+ * \param key_store_hdl handle identifying the current key-store.
+ * \param args pointer to the structure containing the function arguments.
+ *
+ * \return error code
+ */
+hsm_err_t hsm_verify_sign(hsm_hdl_t session_hdl,
+			  op_verify_sign_args_t *args,
+			  hsm_verification_status_t *verification_status);
 
 typedef uint8_t hsm_op_import_public_key_flags_t;
 typedef struct {
@@ -566,6 +500,29 @@ hsm_err_t hsm_close_signature_verification_service(hsm_hdl_t signature_ver_hdl);
  */
 hsm_err_t hsm_do_rng(hsm_hdl_t session_hdl, op_get_random_args_t *args);
 /** @} end of rng service flow */
+
+/**
+ *  @defgroup group8 Hashing
+ * @{
+ */
+#include "internal/hsm_hash.h"
+/**
+ * Secondary API to digest a message.\n
+ *
+ * This API does the following:
+ * 1. Open an Hash Service Flow\n
+ * 2. Perform hash\n
+ * 3. Terminate a previously opened hash service flow\n
+ *
+ * User can call this function only after having opened a session.\n
+ *
+ * \param session_hdl handle identifying the current session.
+ * \param args pointer to the structure containing the function arguments.
+ *
+ * \return error code
+ */
+hsm_err_t hsm_do_hash(hsm_hdl_t session_hdl, op_hash_one_go_args_t *args);
+/** @} end of hash service flow */
 
 /**
  *  @defgroup group9 Public key reconstruction
@@ -758,6 +715,54 @@ hsm_err_t hsm_export_root_key_encryption_key (hsm_hdl_t session_hdl,  op_export_
 #define HSM_OP_EXPORT_ROOT_KEK_FLAGS_COMMON_KEK   ((hsm_op_export_root_kek_flags_t)(1u << 0))
 #define HSM_OP_EXPORT_ROOT_KEK_FLAGS_UNIQUE_KEK   ((hsm_op_export_root_kek_flags_t)(0u << 0))
 /** @} end of export root key encryption key operation */
+
+/**
+ *  @defgroup group15 Authenticated Encryption
+ * @{
+ */
+#include "internal/hsm_auth_enc.h"
+/**
+ * Secondary API to perform Authenticated Encryption\n
+ *
+ * This API does the following:
+ * 1. Opens Cipher Service Flow\n
+ * 2. Perform Authenticated Encryption operation\n
+ * 3. Terminates the previously opened Cipher service flow\n
+ *
+ * User can call this function only after having opened a key store service
+ * flow.\n
+ *
+ * \param key_store_hdl handle identifying the key store service flow.
+ * \param args pointer to the structure containing the function arguments.
+ *
+ * \return error code
+ */
+hsm_err_t hsm_do_auth_enc(hsm_hdl_t key_store_hdl, op_auth_enc_args_t *auth_enc_args);
+/** @} end of authenticated encryption service flow */
+
+/**
+ *  @defgroup group16 Mac
+ * @{
+ */
+#include "internal/hsm_mac.h"
+/**
+ * Secondary API to perform mac operation\n
+ *
+ * This API does the following:
+ * 1. Open an MAC Service Flow\n
+ * 2. Perform mac operation\n
+ * 3. Terminate a previously opened mac service flow\n
+ *
+ * User can call this function only after having opened a key store service flow.\n
+ *
+ * \param key_store_hdl handle identifying the key store service flow.
+ * \param args pointer to the structure containing the function arguments.
+ *
+ * \return error code
+ */
+hsm_err_t hsm_do_mac(hsm_hdl_t key_store_hdl,
+		     op_mac_one_go_args_t *mac_one_go);
+/** @} end of mac service flow */
 
 /**
  *  @defgroup group17 SM2 Get Z

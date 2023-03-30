@@ -1,5 +1,5 @@
 /*
- * Copyright 2022 NXP
+ * Copyright 2022-2023 NXP
  *
  * NXP Confidential.
  * This software is owned or controlled by NXP and may only be used strictly
@@ -22,6 +22,10 @@
 
 #define MAC_BUFF_LEN	20
 
+/**
+ *  @defgroup group28 Dump Firmware Log
+ * @{
+ */
 typedef struct {
 	bool is_dump_pending;
 	uint32_t dump_buf_len;
@@ -30,4 +34,5 @@ typedef struct {
 
 hsm_err_t dump_firmware_log(hsm_hdl_t session_hdl);
 
+/** @} end of dump firmawre log operation */
 #endif

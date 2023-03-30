@@ -1,5 +1,5 @@
 /*
- * Copyright 2022 NXP
+ * Copyright 2022-2023 NXP
  *
  * NXP Confidential.
  * This software is owned or controlled by NXP and may only be used strictly
@@ -22,6 +22,10 @@
 #include "hsm_utils.h"
 #include "hsm_key.h"
 
+/**
+ *  @defgroup group3 Key management
+ * @{
+ */
 typedef uint8_t hsm_op_delete_key_flags_t;
 
 typedef struct {
@@ -49,4 +53,5 @@ hsm_err_t hsm_delete_key(hsm_hdl_t key_management_hdl,
 #define HSM_OP_DEL_KEY_FLAGS_STRICT_OPERATION \
 	((hsm_op_import_key_flags_t)(1u << 7))
 
+/** @} end of key management service flow */
 #endif

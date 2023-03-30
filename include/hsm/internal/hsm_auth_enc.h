@@ -18,6 +18,10 @@
 #include "internal/hsm_utils.h"
 #include "internal/hsm_handle.h"
 
+/**
+ *  @defgroup group4 Ciphering
+ * @{
+ */
 #ifdef PSA_COMPLIANT
 typedef enum {
 	//!< CCM (AES CCM)
@@ -103,4 +107,5 @@ typedef struct {
  * \return error code
  */
 hsm_err_t hsm_auth_enc(hsm_hdl_t cipher_hdl, op_auth_enc_args_t *args);
+/** @} end of cipher service flow */
 #endif

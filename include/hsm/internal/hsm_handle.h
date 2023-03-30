@@ -1,5 +1,5 @@
 /*
- * Copyright 2022 NXP
+ * Copyright 2022-2023 NXP
  *
  * NXP Confidential.
  * This software is owned or controlled by NXP and may only be used strictly
@@ -18,6 +18,10 @@
 
 #define HSM_HANDLE_NONE		(0x0)
 
+/**
+ *  @defgroup group1 Session
+ *  @{
+ */
 typedef uint32_t hsm_hdl_t;
 
 struct hsm_session_hdl_s {
@@ -40,4 +44,5 @@ void delete_session(struct hsm_session_hdl_s *s_ptr);
 void delete_service(struct hsm_service_hdl_s *s_ptr);
 struct hsm_session_hdl_s *add_session(void);
 struct hsm_service_hdl_s *add_service(struct hsm_session_hdl_s *session);
+/** @} end of session group */
 #endif

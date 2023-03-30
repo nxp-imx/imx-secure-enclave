@@ -1,5 +1,5 @@
 /*
- * Copyright 2022 NXP
+ * Copyright 2022-2023 NXP
  *
  * NXP Confidential.
  * This software is owned or controlled by NXP and may only be used strictly
@@ -22,6 +22,10 @@
 #include "hsm_utils.h"
 #include "hsm_key.h"
 
+/**
+ *  @defgroup group3 Key management
+ * @{
+ */
 typedef uint8_t hsm_op_manage_key_flags_t;
 
 typedef struct {
@@ -169,4 +173,5 @@ typedef struct {
 hsm_err_t hsm_manage_key_ext(hsm_hdl_t key_management_hdl,
 			     op_manage_key_ext_args_t *args);
 
+/** @} end of key management service flow */
 #endif

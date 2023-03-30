@@ -1,5 +1,5 @@
 /*
- * Copyright 2022 NXP
+ * Copyright 2022-2023 NXP
  *
  * NXP Confidential.
  * This software is owned or controlled by NXP and may only be used strictly
@@ -18,6 +18,11 @@
 #include "internal/hsm_utils.h"
 #include "internal/hsm_handle.h"
 #include "internal/hsm_key_generate.h"
+
+/**
+ *  @defgroup group3 Key management
+ * @{
+ */
 
 typedef struct {
 	//!< pointer to the identifier of the key to be used for the operation.
@@ -63,4 +68,5 @@ typedef struct {
 hsm_err_t hsm_generate_key_ext(hsm_hdl_t key_management_hdl,
 				op_generate_key_ext_args_t *args);
 
+/** @} end of key management service flow */
 #endif

@@ -22,6 +22,10 @@
 #include "hsm_utils.h"
 #include "hsm_key.h"
 
+/**
+ *  @defgroup group3 Key management
+ * @{
+ */
 typedef struct {
 	//!< identifier of the key to be used for the operation.
 	uint32_t key_identifier;
@@ -47,4 +51,5 @@ typedef struct {
 hsm_err_t hsm_get_key_attr(hsm_hdl_t key_management_hdl,
 			   op_get_key_attr_args_t *args);
 
+/** @} end of key management service flow */
 #endif

@@ -21,6 +21,10 @@
 #include "internal/hsm_handle.h"
 #include "internal/hsm_utils.h"
 
+/**
+ *  @defgroup group3 Key management
+ * @{
+ */
 typedef uint8_t hsm_op_import_key_flags_t;
 
 //!< Bit 0: Defines input configuration.
@@ -61,4 +65,5 @@ typedef struct {
 
 hsm_err_t hsm_import_key(hsm_hdl_t key_management_hdl,
 			 op_import_key_args_t *args);
+/** @} end of key management service flow */
 #endif
