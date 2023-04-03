@@ -128,6 +128,7 @@ static int init_proc_sab_base_msg_engine(msg_type_t msg_type,
 						prepare_msg_fwd_lc_update,
 						proc_msg_rsp_fwd_lc_update);
 			}
+			break;
 		case ROM_DEV_RET_LC_UPDATE:
 			if (msg_type == MT_SAB_LC_UPDATE) {
 				ret = add_sab_msg_handler(msg_id, MT_SAB_LC_UPDATE,

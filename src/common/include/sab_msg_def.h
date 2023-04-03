@@ -164,7 +164,8 @@
 #define SAB_MSG_MAX_ID				0xFFu
 
 #define GET_STATUS_CODE(rsp_code)               ((uint8_t)((rsp_code) & 0xFFu))
-#define GET_RATING_CODE(rsp_code)               ((uint8_t)((rsp_code) >> 8))
+#define GET_RATING_CODE(rsp_code)               ((uint8_t)\
+						(((rsp_code) >> 8) & 0xFFu))
 
 /* Status code definition */
 #define SAB_FAILURE_STATUS                      0x29u

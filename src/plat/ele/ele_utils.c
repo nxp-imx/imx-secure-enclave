@@ -49,7 +49,7 @@ void plat_fill_cmd_msg_hdr(struct sab_mu_hdr *hdr, uint8_t cmd, uint32_t len, ui
         break;
     }
     hdr->command = cmd;
-    hdr->size = (uint8_t)(len / sizeof(uint32_t));
+	hdr->size = TO_UINT8_T(len >> 2);
 }
 
 /* Fill a command message header with a given command ID and length in bytes. */
@@ -87,7 +87,7 @@ void plat_build_cmd_msg_hdr(struct sab_mu_hdr *hdr, msg_type_t msg_type,
 		break;
 	}
 	hdr->command = cmd;
-	hdr->size = (uint8_t)(len / sizeof(uint32_t));
+	hdr->size = TO_UINT8_T(len >> 2);
 }
 
 void plat_build_rsp_msg_hdr(struct sab_mu_hdr *hdr, msg_type_t msg_type,
@@ -102,7 +102,7 @@ void plat_build_rsp_msg_hdr(struct sab_mu_hdr *hdr, msg_type_t msg_type,
 		break;
 	}
 	hdr->command = rsp;
-	hdr->size = (uint8_t)(len / sizeof(uint32_t));
+	hdr->size = TO_UINT8_T(len >> 2);
 }
 
 /* Fill a response message header with a given command ID and length in bytes. */
@@ -137,7 +137,7 @@ void plat_fill_rsp_msg_hdr(struct sab_mu_hdr *hdr, uint8_t cmd, uint32_t len, ui
         break;
     }
     hdr->command = cmd;
-    hdr->size = (uint8_t)(len / sizeof(uint32_t));
+	hdr->size = TO_UINT8_T(len >> 2);
 };
 
 static void hexdump(uint32_t buf[], uint32_t size)

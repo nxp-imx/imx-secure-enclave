@@ -23,6 +23,7 @@
 #include <unistd.h>
 #include "she_api.h"
 #include "plat_os_abs.h"
+#include "plat_utils.h"
 #include "ele_mu_ioctl.h"
 
 
@@ -185,7 +186,7 @@ void plat_os_abs_memset(uint8_t *dst, uint8_t val, uint32_t len)
 void plat_os_abs_memcpy(uint8_t *dst, uint8_t *src, uint32_t len)
 {
 	if (len == NO_LENGTH)
-		len = strlen(src);
+		len = TO_UINT32_T(strlen(src));
 
 	(void)memcpy(dst, src, len);
 }
