@@ -1,5 +1,5 @@
 /*
- * Copyright 2022 NXP
+ * Copyright 2022-2023 NXP
  *
  * NXP Confidential.
  * This software is owned or controlled by NXP and may only be used strictly
@@ -13,6 +13,7 @@
 
 #include "sab_common_err.h"
 #include "sab_msg_def.h"
+#include "plat_utils.h"
 
 void sab_err_map(uint8_t sab_cmd, uint32_t rsp_code)
 {
@@ -27,20 +28,22 @@ void sab_err_map(uint8_t sab_cmd, uint32_t rsp_code)
 
 	for (i = 0; i < SAB_ERR_MAP_N; i++) {
 		if (rsp_code == sab_err_map_ptr[i].sab_err) {
-			sprintf(sab_err_str,
-				"SAB Error: SAB CMD [0x%x] Resp [0x%x] - %s.\n",
-				sab_cmd,
-				rsp_code,
-				sab_err_map_ptr[i].sab_err_str);
+			if (sprintf(sab_err_str,
+				    "SAB Error: SAB CMD [0x%x] Resp [0x%x] - %s.\n",
+				    sab_cmd,
+				    rsp_code,
+				    sab_err_map_ptr[i].sab_err_str) < 0)
+				se_warn("unable to write string array for mapped error\n");
 			break;
 		}
 	}
 
 	if (i == SAB_ERR_MAP_N) {
-		sprintf(sab_err_str,
-			"SAB Error: SAB CMD [0x%x]  Resp [0x%x] - Unknown error code\n",
-			sab_cmd,
-			rsp_code);
+		if (sprintf(sab_err_str,
+			    "SAB Error: SAB CMD [0x%x]  Resp [0x%x] - Unknown error code\n",
+			    sab_cmd,
+			    rsp_code) < 0)
+			se_warn("unable to write string array for unknown error\n");
 	}
 
 	printf("\n%s\n", sab_err_str);
