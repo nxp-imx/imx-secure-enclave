@@ -28,8 +28,6 @@ uint32_t prepare_msg_sign_gen_open(void *phdl,
 	uint32_t ret = 0;
 	struct sab_signature_gen_open_msg *cmd =
 		(struct sab_signature_gen_open_msg *) cmd_buf;
-	struct sab_signature_gen_open_rsp *rsp;
-		(struct sab_signature_gen_open_rsp *) rsp_buf;
 	open_svc_sign_gen_args_t *op_args = (open_svc_sign_gen_args_t *)args;
 
 	*cmd_msg_sz = sizeof(struct sab_signature_gen_open_msg);
@@ -64,8 +62,6 @@ uint32_t prepare_msg_sign_gen_close(void *phdl,
 	uint32_t ret = 0;
 	struct sab_signature_gen_close_msg *cmd =
 		(struct sab_signature_gen_close_msg *) cmd_buf;
-	struct sab_signature_gen_close_rsp *rsp;
-		(struct sab_signature_gen_close_rsp *) rsp_buf;
 
 	*cmd_msg_sz = sizeof(struct sab_signature_gen_close_msg);
 	*rsp_msg_sz = sizeof(struct sab_signature_gen_close_rsp);
@@ -90,8 +86,6 @@ uint32_t prepare_msg_sign_generate(void *phdl,
 	uint32_t ret = 0;
 	struct sab_signature_generate_msg *cmd =
 				(struct sab_signature_generate_msg *)cmd_buf;
-	struct sab_signature_generate_rsp *rsp =
-				(struct sab_signature_generate_rsp *)rsp_buf;
 	op_generate_sign_args_t *op_args = (op_generate_sign_args_t *)args;
 
 	*cmd_msg_sz = sizeof(struct sab_signature_generate_msg);
@@ -146,8 +140,6 @@ uint32_t prepare_msg_prep_signature(void *phdl,
 {
 	struct sab_prepare_signature_msg *cmd =
 				(struct sab_prepare_signature_msg *)cmd_buf;
-	struct sab_prepare_signature_rsp *rsp =
-				(struct sab_prepare_signature_rsp *)rsp_buf;
 	op_prepare_sign_args_t *op_args = (op_prepare_sign_args_t *)args;
 
 	*cmd_msg_sz = sizeof(struct sab_prepare_signature_msg);
@@ -163,9 +155,5 @@ uint32_t prepare_msg_prep_signature(void *phdl,
 
 uint32_t proc_msg_rsp_prep_signature(void *rsp_buf, void *args)
 {
-	struct sab_prepare_signature_rsp *rsp =
-				(struct sab_prepare_signature_rsp *)rsp_buf;
-	op_prepare_sign_args_t *op_args = (op_prepare_sign_args_t *)args;
-
 	return SAB_SUCCESS_STATUS;
 }

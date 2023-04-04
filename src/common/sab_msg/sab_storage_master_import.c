@@ -19,7 +19,6 @@
 #include "sab_messaging.h"
 
 #include "plat_os_abs.h"
-#include "plat_utils.h"
 
 uint32_t prepare_msg_storage_master_import(void *phdl,
 					   void *cmd_buf, void *rsp_buf,
@@ -29,13 +28,10 @@ uint32_t prepare_msg_storage_master_import(void *phdl,
 					   void *args)
 {
 	uint32_t ret = SAB_SUCCESS_STATUS;
-	uint32_t err = 1u;
 	struct nvm_header_s *blob_hdr = (struct nvm_header_s *)args;
 	void *data = (void *)args;
 	struct sab_cmd_key_store_import_msg *msg
 		= (struct sab_cmd_key_store_import_msg *)cmd_buf;
-	struct sab_cmd_key_store_import_rsp *rsp
-		= (struct sab_cmd_key_store_import_rsp *)rsp_buf;
 
 	set_phy_addr_to_words(&msg->key_store_address,
 			      0u,

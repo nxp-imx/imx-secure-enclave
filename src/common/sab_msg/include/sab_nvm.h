@@ -19,7 +19,7 @@
 #define	NEXT_EXPECTED_CMD_NONE		SAB_STORAGE_NVM_LAST_CMD
 
 struct nvm_header_s {
-	int32_t size;
+	uint32_t size;
 	uint32_t crc;
 	uint64_t blob_id;
 }__attribute__((aligned(4)));

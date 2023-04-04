@@ -17,7 +17,6 @@
 #include "sab_storage_master_export.h"
 
 #include "plat_os_abs.h"
-#include "plat_utils.h"
 
 uint32_t parse_cmd_prep_rsp_storage_master_export(struct nvm_ctx_st *nvm_ctx_param,
 						  void *cmd_buf,
@@ -29,7 +28,7 @@ uint32_t parse_cmd_prep_rsp_storage_master_export(struct nvm_ctx_st *nvm_ctx_par
 						  uint8_t *prev_cmd_id,
 						  uint8_t *next_cmd_id)
 {
-	uint32_t err = 1u;
+	uint32_t err;
 	uint32_t data_len;
 	uint64_t plat_addr;
 	struct sab_cmd_key_store_export_start_rsp *resp
