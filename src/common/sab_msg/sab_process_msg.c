@@ -278,7 +278,7 @@ uint32_t process_sab_rcv_send_msg(struct nvm_ctx_st *nvm_ctx_param,
 				  uint8_t *prev_cmd_id,
 				  uint8_t *next_cmd_id)
 {
-	int error = SAB_SUCCESS_STATUS;
+	uint32_t error;
 	uint32_t rcvmsg_cmd_id = SAB_STORAGE_NVM_LAST_CMD;
 	uint32_t cmd_msg_sz = MAX_CMD_WORD_SZ * sizeof(uint32_t);
 	uint32_t rsp_msg_info = SAB_SUCCESS_STATUS;
@@ -297,8 +297,8 @@ uint32_t process_sab_rcv_send_msg(struct nvm_ctx_st *nvm_ctx_param,
 
 	if (error) {
 		printf("Error in receiving cmd from FW.\n");
-		error = (error < 0) ? SAB_READ_FAILURE_RATING
-					: SAB_NO_MESSAGE_RATING;
+		error = (error == PLAT_FAILURE) ? SAB_READ_FAILURE_RATING
+						   : SAB_NO_MESSAGE_RATING;
 		goto out;
 	}
 

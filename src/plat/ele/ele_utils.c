@@ -177,12 +177,12 @@ bool val_rcv_rsp_len(uint32_t rcv_len, uint32_t *rcv_buf)
 
 }
 
-int32_t plat_rcvmsg_cmd(struct plat_os_abs_hdl *phdl,
-			uint32_t *cmd,
-			uint32_t *cmd_len,
-			uint32_t *rcv_msg_cmd_id)
+uint32_t plat_rcvmsg_cmd(struct plat_os_abs_hdl *phdl,
+			 uint32_t *cmd,
+			 uint32_t *cmd_len,
+			 uint32_t *rcv_msg_cmd_id)
 {
-	int32_t err = 0;
+	uint32_t err = PLAT_SUCCESS;
 	int32_t len;
 
 	do {
@@ -193,7 +193,7 @@ int32_t plat_rcvmsg_cmd(struct plat_os_abs_hdl *phdl,
 			se_info("Mismatched in the received message length.\n");
 			if (len < 0) {
 				se_err("Failure in reading messages.\n");
-				err = -1;
+				err = PLAT_FAILURE;
 			}
 			break;
 		}
@@ -211,11 +211,11 @@ int32_t plat_rcvmsg_cmd(struct plat_os_abs_hdl *phdl,
 	return err;
 }
 
-int32_t plat_sndmsg_rsp(struct plat_os_abs_hdl *phdl,
-			uint32_t *rsp,
-			uint32_t rsp_len)
+uint32_t plat_sndmsg_rsp(struct plat_os_abs_hdl *phdl,
+			 uint32_t *rsp,
+			 uint32_t rsp_len)
 {
-	int32_t err = -1;
+	uint32_t err = PLAT_FAILURE;
 	int32_t len;
 
 	do {
@@ -235,20 +235,20 @@ int32_t plat_sndmsg_rsp(struct plat_os_abs_hdl *phdl,
 		printf("\n-------------------MSG RSP END-----------------------------------\n");
 #endif
 
-		err = 0;
+		err = PLAT_SUCCESS;
 	} while (false);
 
 	return err;
 }
 
 /* Helper function to send a message and wait for the response. Return 0 on success.*/
-int32_t plat_send_msg_and_rcv_resp(struct plat_os_abs_hdl *phdl,
-				   uint32_t *cmd,
-				   uint32_t cmd_len,
-				   uint32_t *rsp,
-				   uint32_t *rsp_len)
+uint32_t plat_send_msg_and_rcv_resp(struct plat_os_abs_hdl *phdl,
+				    uint32_t *cmd,
+				    uint32_t cmd_len,
+				    uint32_t *rsp,
+				    uint32_t *rsp_len)
 {
-	int32_t err = -1;
+	uint32_t err = PLAT_FAILURE;
 	int32_t len;
 
 	do {
@@ -298,7 +298,7 @@ int32_t plat_send_msg_and_rcv_resp(struct plat_os_abs_hdl *phdl,
 	printf("\n-------------------MSG RSP END-----------------------------------\n");
 #endif
 
-	err = 0;
+	err = PLAT_SUCCESS;
 	} while (false);
 
 	return err;
