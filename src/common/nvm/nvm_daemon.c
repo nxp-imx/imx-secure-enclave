@@ -46,6 +46,7 @@
 #include <stdlib.h>
 #include "nvm.h"
 #include "plat_os_abs.h"
+#include "plat_utils.h"
 
 /** Status variable required by nvm_manager call */
 static void *nvm_ctx;
@@ -94,8 +95,14 @@ int main(int argc, char *argv[])
 
 	/* Register handler to close NVM session upon daemon's closure */
 	action.sa_handler = kill_daemon;
-	sigaction(SIGTERM, &action, NULL); /* handle kill signal */
-	sigaction(SIGINT, &action, NULL);  /* handle ctrl-c */
+
+	/* handle kill signal */
+	if (sigaction(SIGTERM, &action, NULL))
+		se_warn("failed to register kill signal handler\n");
+
+	/* handle ctrl-c */
+	if (sigaction(SIGINT, &action, NULL))
+		se_warn("failed to register ctrl-c signal handler\n");
 
 	flags |= NVM_FLAGS_HSM;
 	if (plat_os_abs_has_v2x_hw()) {
