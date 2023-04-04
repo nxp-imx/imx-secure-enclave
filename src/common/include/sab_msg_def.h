@@ -60,7 +60,9 @@
 #define ROM_DEBUG_DUMP_REQ                      0x21u
 #define ROM_DEBUG_DUMP_MSG_SZ                   0x01u
 
-#define SAB_RNG_GET_RANDOM                      0x22u
+#ifndef SAB_RNG_GET_RANDOM
+#define SAB_RNG_GET_RANDOM                      0xCDu
+#endif
 #define SAB_RNG_EXTEND_SEED                     0x23u
 
 #define SAB_KEY_STORE_OPEN_REQ                  0x30u
