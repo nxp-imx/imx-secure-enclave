@@ -103,7 +103,9 @@ void plat_os_abs_close_session(struct plat_os_abs_hdl *phdl);
  *
  * \return length in bytes written to the MU or negative value in case of error
  */
-int32_t plat_os_abs_send_mu_message(struct plat_os_abs_hdl *phdl, uint32_t *message, uint32_t size);
+uint32_t plat_os_abs_send_mu_message(struct plat_os_abs_hdl *phdl,
+				     uint32_t *message,
+				     uint32_t size);
 
 /**
  * Read a message from Secure-Enclave Platform, over a messaging unit.
@@ -130,7 +132,9 @@ int32_t plat_os_abs_send_mu_message(struct plat_os_abs_hdl *phdl, uint32_t *mess
  *
  * \return length in bytes read from the MU or negative value in case of error
  */
-int32_t plat_os_abs_read_mu_message(struct plat_os_abs_hdl *phdl, uint32_t *message, uint32_t size);
+uint32_t plat_os_abs_read_mu_message(struct plat_os_abs_hdl *phdl,
+				     uint32_t *message,
+				     uint32_t size);
 
 /**
  * Configure the use of shared buffer in secure memory
@@ -328,7 +332,9 @@ void plat_os_abs_start_system_rng(struct plat_os_abs_hdl *phdl);
  * \param signed_message pointer to the signed message.
  * \param msg_len length of the signed message
  */
-int32_t plat_os_abs_send_signed_message(struct plat_os_abs_hdl *phdl, uint8_t *signed_message, uint32_t msg_len);
+uint32_t plat_os_abs_send_signed_message(struct plat_os_abs_hdl *phdl,
+					 uint8_t *signed_message,
+					 uint32_t msg_len);
 
 /** @} end of porting guide */
 #endif
