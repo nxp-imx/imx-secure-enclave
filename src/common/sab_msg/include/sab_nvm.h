@@ -24,6 +24,8 @@ struct nvm_header_s {
 	uint64_t blob_id;
 }__attribute__((aligned(4)));
 
+#define NVM_HEADER_SZ	16u
+
 struct nvm_ctx_st {
 	uint32_t status;
 	struct plat_os_abs_hdl *phdl;
@@ -46,6 +48,8 @@ struct nvm_chunk_hdr {
 	uint32_t len;
 	uint8_t *data;
 };
+
+#define NVM_CHUNK_HDR_SZ	13u
 
 /* Get the nvm daemon key database context */
 struct key_db_fd *get_nvmd_key_db(void);

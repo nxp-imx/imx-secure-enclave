@@ -17,6 +17,7 @@
 #include "sab_storage_master_export.h"
 
 #include "plat_os_abs.h"
+#include "plat_utils.h"
 
 uint32_t parse_cmd_prep_rsp_storage_master_export(struct nvm_ctx_st *nvm_ctx_param,
 						  void *cmd_buf,
@@ -53,8 +54,7 @@ uint32_t parse_cmd_prep_rsp_storage_master_export(struct nvm_ctx_st *nvm_ctx_par
 	}
 
 	/* Extract length of the blob from the message. */
-	data_len = msg->key_store_size
-		+ (uint32_t)sizeof(struct nvm_header_s);
+	data_len = TO_UINT32_T(msg->key_store_size + NVM_HEADER_SZ);
 
 	if ((msg->key_store_size == 0u) || (data_len > 16u*1024u)) {
 		/* Fixing arbitrary maximum blob size to 16k

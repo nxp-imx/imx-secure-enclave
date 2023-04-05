@@ -47,10 +47,8 @@ static uint32_t nvm_storage_import(struct nvm_ctx_st *nvm_ctx_param,
 		blob_hdr = (struct nvm_header_s *)data;
 
 		/* Sanity check on the provided data. */
-		if ((uint8_t)(blob_hdr->size
-			+ (uint32_t)sizeof(struct nvm_header_s)) != len) {
+		if ((TO_UINT8_T(blob_hdr->size) + NVM_HEADER_SZ) != len)
 			break;
-		}
 
 		if (plat_fetch_msg_crc((uint32_t *)(data + sizeof(struct nvm_header_s)),
 					blob_hdr->size) != blob_hdr->crc) {
@@ -71,7 +69,6 @@ static uint32_t nvm_storage_import(struct nvm_ctx_st *nvm_ctx_param,
 void nvm_close_session(void *ctx)
 {
 	struct nvm_ctx_st *nvm_ctx = (struct nvm_ctx_st *)ctx;
-	op_storage_open_args_t *args = NULL;
 	uint32_t rsp_code = SAB_FAILURE_STATUS;
 	uint32_t ret;
 
@@ -87,7 +84,7 @@ void nvm_close_session(void *ctx)
 					      SAB_STORAGE_CLOSE_REQ,
 					      MT_SAB_STORAGE_CLOSE,
 					      (uint32_t)nvm_ctx->storage_handle,
-					      args, &rsp_code);
+					      NULL, &rsp_code);
 			if (rsp_code != SAB_SUCCESS_STATUS)
 				se_err("Warn: Failure in Storage Close.\n");
 			nvm_ctx->storage_handle = 0u;
