@@ -91,19 +91,24 @@ int32_t plat_os_abs_storage_read(struct plat_os_abs_hdl *phdl,
 	return l;
 }
 
-int get_chunk_file_path(char **path, uint8_t *nvm_storage_dname,
+int get_chunk_file_path(char **path,
+			uint8_t *nvm_storage_dname,
 			uint64_t blob_id)
 {
 	int ret = -1;
-	int path_len;
+	uint64_t path_len;
 	uint8_t blob_id_sz = sizeof(blob_id);
+
+	if (!nvm_storage_dname)
+		goto exit;
 
 	/* 1 extra byte in path_len is for accommodating null termination char
 	 * \0 in path string.
 	 */
-	path_len = strlen(nvm_storage_dname) + blob_id_sz * 2 + 1;
-	if (path_len < 0)
-		return ret;
+	path_len = strlen(nvm_storage_dname) + blob_id_sz * 2 + 1u;
+
+	if (path_len > (2 * MAX_FNAME_DNAME_SZ))
+		goto exit;
 
 	*path = malloc(path_len);
 
