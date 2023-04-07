@@ -270,7 +270,7 @@ static uint32_t storage_key_db_add(int fd, uint32_t user_id, uint32_t fw_id,
 	/* Write new entry at the end of the file */
 	if (pwrite(fd, &ids, sizeof(struct key_ids_db), f_stat.st_size)
 		== sizeof(struct key_ids_db)) {
-		err = 0u;
+		err = fsync(fd);
 	}
 
 out:
@@ -373,7 +373,7 @@ static uint32_t storage_key_db_del(int fd, uint32_t user_id, uint16_t group)
 		 * in the file (buffer)
 		 */
 		file_size -= sizeof(*ids_ptr);
-		memmove(ids_ptr, ids_ptr + sizeof(struct key_ids_db), file_size);
+		memmove(ids_ptr, ids_ptr + 1, file_size);
 	}
 
 	/* Get new file size: one id structure is deleted */
