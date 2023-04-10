@@ -193,6 +193,54 @@ hsm_err_t hsm_open_key_management_service(hsm_hdl_t key_store_hdl,
 	return err;
 }
 
+#define SAB_CMD_KEY_MGMT_CLOSE_MSG_SZ        (8u)
+#define SAB_CMD_KEY_MGMT_CLOSE_RSP_SZ        (8u)
+
+hsm_err_t hsm_close_key_management_service(hsm_hdl_t key_management_hdl)
+{
+	struct sab_cmd_key_management_close_msg cmd;
+	struct sab_cmd_key_management_close_rsp rsp = {0};
+	struct hsm_service_hdl_s *serv_ptr;
+	int32_t error;
+	hsm_err_t err = HSM_UNKNOWN_HANDLE;
+
+	do {
+		if (!key_management_hdl)
+			break;
+
+		serv_ptr = service_hdl_to_ptr(key_management_hdl);
+
+		if (!serv_ptr)
+			break;
+
+		plat_fill_cmd_msg_hdr(&cmd.hdr,
+				      SAB_KEY_MANAGEMENT_CLOSE_REQ,
+				      SAB_CMD_KEY_MGMT_CLOSE_MSG_SZ,
+				      serv_ptr->session->mu_type);
+		cmd.key_management_handle = key_management_hdl;
+
+		error = plat_send_msg_and_get_resp(serv_ptr->session->phdl,
+						   (uint32_t *)&cmd,
+						   SAB_CMD_KEY_MGMT_CLOSE_MSG_SZ,
+						   (uint32_t *)&rsp,
+						   SAB_CMD_KEY_MGMT_CLOSE_RSP_SZ);
+
+		if (error == 0) {
+			sab_err_map(SAB_KEY_MANAGEMENT_CLOSE_REQ, rsp.rsp_code);
+			err = sab_rating_to_hsm_err(rsp.rsp_code);
+		}
+
+		/* Do not delete the service if SAB_ERR is 0x0429. */
+		if (!((GET_RATING_CODE(rsp.rsp_code) == SAB_INVALID_PARAM_RATING) &&
+		      (GET_STATUS_CODE(rsp.rsp_code) == SAB_FAILURE_STATUS))) {
+			delete_service(serv_ptr);
+		}
+	} while (false);
+
+	return err;
+}
+
+#ifndef PSA_COMPLIANT
 hsm_err_t hsm_manage_key_group(hsm_hdl_t key_management_hdl,
 				op_manage_key_group_args_t *args)
 {
@@ -240,7 +288,6 @@ hsm_err_t hsm_manage_key_group(hsm_hdl_t key_management_hdl,
 
 	return err;
 }
-
 
 hsm_err_t hsm_butterfly_key_expansion(hsm_hdl_t key_management_hdl,
 					op_butt_key_exp_args_t *args)
@@ -327,49 +374,6 @@ hsm_err_t hsm_butterfly_key_expansion(hsm_hdl_t key_management_hdl,
 		}
 
 	} while(false);
-
-	return err;
-}
-
-hsm_err_t hsm_close_key_management_service(hsm_hdl_t key_management_hdl)
-{
-	struct sab_cmd_key_management_close_msg cmd;
-	struct sab_cmd_key_management_close_rsp rsp = {0};
-	struct hsm_service_hdl_s *serv_ptr;
-	int32_t error;
-	hsm_err_t err = HSM_GENERAL_ERROR;
-
-	do {
-		serv_ptr = service_hdl_to_ptr(key_management_hdl);
-		if (serv_ptr == NULL) {
-			err = HSM_UNKNOWN_HANDLE;
-			break;
-		}
-
-		plat_fill_cmd_msg_hdr(&cmd.hdr,
-			SAB_KEY_MANAGEMENT_CLOSE_REQ,
-			(uint32_t)sizeof(struct sab_cmd_key_management_close_msg),
-			serv_ptr->session->mu_type);
-		cmd.key_management_handle = key_management_hdl;
-
-
-		error = plat_send_msg_and_get_resp(serv_ptr->session->phdl,
-			(uint32_t *)&cmd,
-			(uint32_t)sizeof(struct sab_cmd_key_management_close_msg),
-			(uint32_t *)&rsp,
-			(uint32_t)sizeof(struct sab_cmd_key_management_close_rsp));
-
-		if (error == 0) {
-			sab_err_map(SAB_KEY_MANAGEMENT_CLOSE_REQ, rsp.rsp_code);
-			err = sab_rating_to_hsm_err(rsp.rsp_code);
-		}
-
-		/* Do not delete the service if SAB_ERR is 0x0429. */
-		if (!((GET_RATING_CODE(rsp.rsp_code) == SAB_INVALID_PARAM_RATING) &&
-		    (GET_STATUS_CODE(rsp.rsp_code) == SAB_FAILURE_STATUS))) {
-			delete_service(serv_ptr);
-		}
-	} while (false);
 
 	return err;
 }
@@ -1536,3 +1540,4 @@ hsm_err_t hsm_key_generic_crypto(hsm_hdl_t key_generic_crypto_hdl, op_key_generi
 
 	return err;
 }
+#endif

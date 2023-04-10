@@ -61,6 +61,7 @@ static uint8_t ecies_pubk[2*32] = {
     0x6d, 0xb7, 0xca, 0x93, 0xb7, 0x40, 0x4e, 0x78, 0xdc, 0x7c, 0xcd, 0x5c, 0xa8, 0x9a, 0x4c, 0xa9
 };
 
+#ifndef PSA_COMPLIANT
 static void public_key_test(hsm_hdl_t hsm_session_hdl)
 {
     op_pub_key_rec_args_t hsm_op_pub_key_rec_args;
@@ -178,6 +179,7 @@ static void ecies_tests(hsm_hdl_t hsm_session_hdl)
 #endif
 
 }
+#endif
 
 static void hsm_rng_test(hsm_hdl_t sess_hdl, op_get_random_args_t *rng_get_random_args)
 {
