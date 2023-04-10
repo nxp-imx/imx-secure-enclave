@@ -62,22 +62,20 @@ uint32_t parse_cmd_prep_rsp_storage_get_chunk(struct nvm_ctx_st *nvm_ctx_param,
 		goto out;
 	}
 
-	if (plat_os_abs_storage_read_chunk(
-				nvm_ctx_param->phdl,
-				(uint8_t *)&nvm_hdr,
-				(uint32_t)sizeof(nvm_hdr),
-				blob_id,
-				nvm_ctx_param->nvm_dname)
-			== (int32_t)sizeof(nvm_hdr)) {
+	if (plat_os_abs_storage_read_chunk(nvm_ctx_param->phdl,
+					   (uint8_t *)&nvm_hdr,
+					   NVM_HEADER_SZ,
+					   blob_id,
+					   nvm_ctx_param->nvm_dname)
+					   == NVM_HEADER_SZ) {
 		*data = plat_os_abs_malloc(nvm_hdr.size);
 		if (*data != NULL) {
-			if (plat_os_abs_storage_read_chunk(
-						nvm_ctx_param->phdl,
-						*data,
-						nvm_hdr.size,
-						blob_id,
-						nvm_ctx_param->nvm_dname)
-					== (int32_t)nvm_hdr.size) {
+			if (plat_os_abs_storage_read_chunk(nvm_ctx_param->phdl,
+							   *data,
+							   nvm_hdr.size,
+							   blob_id,
+							   nvm_ctx_param->nvm_dname)
+							   == nvm_hdr.size) {
 				err = 0u;
 			}
 		} else {
@@ -87,15 +85,12 @@ uint32_t parse_cmd_prep_rsp_storage_get_chunk(struct nvm_ctx_st *nvm_ctx_param,
 	}
 
 	if (err == 0u) {
-		resp->chunk_size = nvm_hdr.size
-			- (uint32_t)sizeof(struct nvm_header_s);
+		resp->chunk_size = nvm_hdr.size - NVM_HEADER_SZ;
 		set_phy_addr_to_words(&resp->chunk_addr,
 				      0u,
 				      plat_os_abs_data_buf(nvm_ctx_param->phdl,
-							   *data +
-							   (uint32_t)sizeof(struct nvm_header_s),
-							   nvm_hdr.size -
-							   (uint32_t)sizeof(struct nvm_header_s),
+							   *data + NVM_HEADER_SZ,
+							   nvm_hdr.size - NVM_HEADER_SZ,
 							   DATA_BUF_IS_INPUT));
 
 		resp->rsp_code = SAB_SUCCESS_STATUS;

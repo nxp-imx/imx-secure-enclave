@@ -36,7 +36,7 @@ uint32_t prepare_msg_storage_master_import(void *phdl,
 	set_phy_addr_to_words(&msg->key_store_address,
 			      0u,
 			      plat_os_abs_data_buf((struct plat_os_abs_hdl *)phdl,
-						   data + sizeof(struct nvm_header_s),
+						   data + NVM_HEADER_SZ,
 						   blob_hdr->size,
 						   DATA_BUF_IS_INPUT));
 
