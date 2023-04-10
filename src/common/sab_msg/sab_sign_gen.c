@@ -28,15 +28,15 @@ uint32_t prepare_msg_sign_gen_open(void *phdl,
 	uint32_t ret = 0;
 	struct sab_signature_gen_open_msg *cmd =
 		(struct sab_signature_gen_open_msg *) cmd_buf;
+#ifndef PSA_COMPLIANT
 	open_svc_sign_gen_args_t *op_args = (open_svc_sign_gen_args_t *)args;
 
+	cmd->flags = op_args->flags;
+#endif
 	*cmd_msg_sz = sizeof(struct sab_signature_gen_open_msg);
 	*rsp_msg_sz = sizeof(struct sab_signature_gen_open_rsp);
 
 	cmd->key_store_hdl = msg_hdl;
-#ifndef PSA_COMPLIANT
-	cmd->flags = op_args->flags;
-#endif
 
 	return ret;
 }

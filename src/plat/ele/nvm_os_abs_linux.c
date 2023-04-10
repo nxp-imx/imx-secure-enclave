@@ -185,7 +185,7 @@ uint32_t plat_os_abs_storage_read_chunk(struct plat_os_abs_hdl *phdl,
 					uint64_t blob_id,
 					uint8_t *nvm_storage_dname)
 {
-	int32_t fd = -1;
+	int32_t fd;
 	int64_t l = 0;
 	int n = -1;
 	char *path = NULL;
@@ -207,7 +207,7 @@ uint32_t plat_os_abs_storage_read_chunk(struct plat_os_abs_hdl *phdl,
 			(void)close(fd);
 		}
 	}
-exit:
+
 	if (path)
 		free(path);
 

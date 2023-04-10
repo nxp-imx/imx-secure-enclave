@@ -29,8 +29,6 @@ uint32_t prepare_msg_get_info(void *phdl, void *cmd_buf, void *rsp_buf,
 	uint32_t ret = 0;
 	struct sab_cmd_get_info_msg *cmd =
 		(struct sab_cmd_get_info_msg *) cmd_buf;
-	struct sab_cmd_get_info_rsp *rsp =
-		(struct sab_cmd_get_info_rsp *) rsp_buf;
 
 	cmd->session_handle = msg_hdl;
 

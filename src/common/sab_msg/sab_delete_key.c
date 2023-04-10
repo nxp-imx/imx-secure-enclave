@@ -1,5 +1,5 @@
 /*
- * Copyright 2022 NXP
+ * Copyright 2022-2023 NXP
  *
  * NXP Confidential.
  * This software is owned or controlled by NXP and may only be used strictly
@@ -28,8 +28,6 @@ uint32_t prepare_msg_del_key(void *phdl,
 	uint32_t ret = 0;
 	struct sab_cmd_delete_key_msg *cmd =
 		(struct sab_cmd_delete_key_msg *) cmd_buf;
-	struct sab_cmd_delete_key_rsp *rsp =
-		(struct sab_cmd_delete_key_rsp *) rsp_buf;
 	op_delete_key_args_t *op_args = (op_delete_key_args_t *) args;
 
 	cmd->key_management_hdl = msg_hdl;
@@ -44,9 +42,5 @@ uint32_t prepare_msg_del_key(void *phdl,
 
 uint32_t proc_msg_rsp_del_key(void *rsp_buf, void *args)
 {
-	op_delete_key_args_t *op_args = (op_delete_key_args_t *) args;
-	struct sab_cmd_delete_key_rsp *rsp =
-		(struct sab_cmd_delete_key_rsp *) rsp_buf;
-
 	return SAB_SUCCESS_STATUS;
 }

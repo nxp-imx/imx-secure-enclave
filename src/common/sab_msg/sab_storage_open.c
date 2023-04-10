@@ -30,8 +30,6 @@ uint32_t prepare_msg_storage_open(void *phdl,
 	uint32_t ret = 0;
 	struct sab_cmd_storage_open_msg *msg =
 		(struct sab_cmd_storage_open_msg *)cmd_buf;
-	struct sab_cmd_storage_open_rsp *rsp =
-		(struct sab_cmd_storage_open_rsp *)rsp_buf;
 	op_storage_open_args_t *op_args = (op_storage_open_args_t *) args;
 
 	msg->session_handle = msg_hdl;

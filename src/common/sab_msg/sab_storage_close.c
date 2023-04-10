@@ -15,10 +15,6 @@
 #include <stdint.h>
 
 #include "sab_storage_close.h"
-#include "sab_nvm.h"
-
-#include "plat_os_abs.h"
-#include "plat_utils.h"
 
 uint32_t prepare_msg_storage_close(void *phdl,
 				  void *cmd_buf, void *rsp_buf,
@@ -30,8 +26,6 @@ uint32_t prepare_msg_storage_close(void *phdl,
 	uint32_t ret = 0;
 	struct sab_cmd_storage_close_msg *msg =
 		(struct sab_cmd_storage_close_msg *)cmd_buf;
-	struct sab_cmd_storage_close_rsp *rsp =
-		(struct sab_cmd_storage_close_rsp *)rsp_buf;
 
 	msg->storage_handle = msg_hdl;
 

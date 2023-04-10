@@ -25,11 +25,9 @@ uint32_t prepare_msg_fwd_lc_update(void *phdl,
 				   uint32_t msg_hdl,
 				   void *args)
 {
-	int32_t ret = 0;
+	uint32_t ret = 0;
 	struct rom_cmd_lc_update_msg *cmd =
 		(struct rom_cmd_lc_update_msg *) cmd_buf;
-	struct rom_cmd_lc_update_rsp *rsp =
-		(struct rom_cmd_lc_update_rsp *) rsp_buf;
 	op_lc_update_msg_args_t *op_args = (op_lc_update_msg_args_t *) args;
 
 	cmd->new_lc_state = op_args->new_lc_state;

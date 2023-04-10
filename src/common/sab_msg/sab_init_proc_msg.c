@@ -470,9 +470,6 @@ static  int init_proc_sab_hsm_msg_engine(msg_type_t msg_type,
 
 void init_sab_hsm_msg_engine(msg_type_t msg_type)
 {
-	int i = 0;
-	int ret = NOT_DONE;
-
 	if ((msg_type > NOT_SUPPORTED) && (msg_type >= MAX_MSG_TYPE))
 		return;
 

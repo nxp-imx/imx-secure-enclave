@@ -34,7 +34,6 @@ uint32_t parse_cmd_prep_rsp_storage_finish_export(struct nvm_ctx_st *nvm_ctx_par
 						  uint8_t *next_cmd_id)
 {
 	uint32_t err = 1u;
-	uint32_t len;
 	struct nvm_header_s *blob_hdr;
 	uint32_t data_len;
 	struct nvm_chunk_hdr *chunk = NULL;

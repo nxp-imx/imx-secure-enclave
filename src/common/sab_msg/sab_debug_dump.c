@@ -30,12 +30,6 @@ uint32_t prepare_msg_debugdump(void *phdl,
 	uint32_t ret = 0;
 	struct rom_cmd_firmware_dump_cmd *cmd =
 		(struct rom_cmd_firmware_dump_cmd *) cmd_buf;
-	struct rom_cmd_firmware_dump_rsp *rsp =
-		(struct rom_cmd_firmware_dump_rsp *) rsp_buf;
-
-	int32_t error = 1;
-	int i = 0;
-	int buf_len = 0;
 
 	/* Send the keys store open command to platform. */
 	cmd->hdr.ver = 0x06;

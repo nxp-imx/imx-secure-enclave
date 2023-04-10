@@ -31,14 +31,12 @@ uint32_t prepare_msg_verify_sign_open(void *phdl,
 	uint32_t ret = 0;
 	struct sab_signature_verify_open_msg *cmd =
 			(struct sab_signature_verify_open_msg *)cmd_buf;
-	struct sab_signature_verify_open_rsp *rsp =
-			(struct sab_signature_verify_open_rsp *)rsp_buf;
+#ifndef PSA_COMPLIANT
 	open_svc_sign_ver_args_t *op_args = (open_svc_sign_ver_args_t *)args;
 
-	cmd->session_handle = msg_hdl;
-#ifndef PSA_COMPLIANT
 	cmd->flags = op_args->flags;
 #endif
+	cmd->session_handle = msg_hdl;
 
 	*cmd_msg_sz = sizeof(struct sab_signature_verify_open_msg);
 	*rsp_msg_sz = sizeof(struct sab_signature_verify_open_rsp);
@@ -67,8 +65,6 @@ uint32_t prepare_msg_verify_sign_close(void *phdl,
 	uint32_t ret = 0;
 	struct sab_signature_verify_close_msg *cmd =
 			(struct sab_signature_verify_close_msg *)cmd_buf;
-	struct sab_signature_verify_close_rsp *rsp =
-			(struct sab_signature_verify_close_rsp *)rsp_buf;
 
 	cmd->sig_ver_hdl = msg_hdl;
 
@@ -93,8 +89,6 @@ uint32_t prepare_msg_verify_sign(void *phdl,
 	uint32_t ret = 0;
 	struct sab_signature_verify_msg *cmd =
 			(struct sab_signature_verify_msg *)cmd_buf;
-	struct sab_signature_verify_rsp *rsp =
-			(struct sab_signature_verify_rsp *)rsp_buf;
 	op_verify_sign_args_t *op_args = (op_verify_sign_args_t *)args;
 
 	cmd->sig_ver_hdl = msg_hdl;

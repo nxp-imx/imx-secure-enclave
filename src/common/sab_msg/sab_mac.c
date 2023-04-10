@@ -31,8 +31,6 @@ uint32_t prepare_msg_mac_one_go(void *phdl,
 	uint32_t mac_size_bytes = 0;
 	struct sab_cmd_mac_one_go_msg *cmd =
 		(struct sab_cmd_mac_one_go_msg *) cmd_buf;
-	struct sab_cmd_mac_one_go_rsp *rsp =
-		(struct sab_cmd_mac_one_go_rsp *) rsp_buf;
 	op_mac_one_go_args_t *op_args = (op_mac_one_go_args_t *) args;
 
 	cmd->mac_handle = msg_hdl;
@@ -118,11 +116,9 @@ uint32_t prepare_msg_mac_open_req(void *phdl,
 	uint32_t ret = 0;
 	struct sab_cmd_mac_open_msg *cmd =
 		(struct sab_cmd_mac_open_msg *) cmd_buf;
-	struct sab_cmd_mac_open_rsp *rsp =
-		(struct sab_cmd_mac_open_rsp *) rsp_buf;
+#ifndef PSA_COMPLIANT
 	open_svc_mac_args_t *op_args = (open_svc_mac_args_t *) args;
 
-#ifndef PSA_COMPLIANT
 	cmd->flags = op_args->flags;
 #endif
 	cmd->key_store_handle = msg_hdl;
@@ -154,8 +150,6 @@ uint32_t prepare_msg_mac_close_req(void *phdl,
 	uint32_t ret = 0;
 	struct sab_cmd_mac_close_msg *cmd =
 		(struct sab_cmd_mac_close_msg *) cmd_buf;
-	struct sab_cmd_mac_close_rsp *rsp =
-		(struct sab_cmd_mac_close_rsp *) rsp_buf;
 
 	*cmd_msg_sz = sizeof(struct sab_cmd_mac_close_msg);
 	*rsp_msg_sz = sizeof(struct sab_cmd_mac_close_rsp);

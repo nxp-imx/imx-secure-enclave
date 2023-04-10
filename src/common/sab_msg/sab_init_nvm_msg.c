@@ -173,9 +173,6 @@ static int init_proc_sab_nvm_msg_engine(msg_type_t msg_type, uint32_t msg_id)
 
 void init_sab_nvm_msg_engine(msg_type_t msg_type)
 {
-	int i = 0;
-	int ret = NOT_DONE;
-
 	if ((msg_type > NOT_SUPPORTED) && (msg_type >= MAX_MSG_TYPE))
 		return;
 

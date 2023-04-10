@@ -30,8 +30,6 @@ uint32_t prepare_msg_session_open_req(void *phdl,
 	uint32_t ret = 0;
 	struct sab_cmd_session_open_msg *cmd =
 		(struct sab_cmd_session_open_msg *)cmd_buf;
-	struct sab_cmd_session_open_rsp *rsp =
-		(struct sab_cmd_session_open_rsp *)rsp_buf;
 	open_session_args_t *op_args = (open_session_args_t *)args;
 
 		cmd->mu_id = op_args->mu_id;
@@ -68,8 +66,6 @@ uint32_t prepare_msg_session_close_req(void *phdl,
 	uint32_t ret = 0;
 	struct sab_cmd_session_close_msg *cmd =
 		(struct sab_cmd_session_close_msg *)cmd_buf;
-	struct sab_cmd_session_close_rsp *rsp =
-		(struct sab_cmd_session_close_rsp *)rsp_buf;
 
 	*cmd_msg_sz = sizeof(struct sab_cmd_session_close_msg);
 	*rsp_msg_sz = sizeof(struct sab_cmd_session_close_rsp);

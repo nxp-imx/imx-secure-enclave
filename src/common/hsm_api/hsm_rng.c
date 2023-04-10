@@ -22,7 +22,9 @@
 hsm_err_t hsm_get_random(hsm_hdl_t rng_hdl, op_get_random_args_t *args)
 {
 	uint32_t error;
+#ifndef PSA_COMPLIANT
 	struct hsm_service_hdl_s *serv_ptr;
+#endif
 	struct hsm_session_hdl_s *sess_ptr;
 	hsm_err_t err = HSM_GENERAL_ERROR;
 	uint32_t rsp_code = SAB_NO_MESSAGE_RATING;
@@ -222,8 +224,7 @@ hsm_err_t hsm_do_rng(hsm_hdl_t session_hdl, op_get_random_args_t *rng_get_random
 		if (op_err == HSM_NO_ERROR)
 			op_err = err;
 	}
-#endif
-
 exit:
+#endif
 	return op_err;
 }
