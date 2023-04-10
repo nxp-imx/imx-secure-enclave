@@ -15,6 +15,7 @@
 #include <stdint.h>
 
 #include "sab_storage_master_export.h"
+#include "sab_messaging.h"
 
 #include "plat_os_abs.h"
 #include "plat_utils.h"
@@ -31,7 +32,6 @@ uint32_t parse_cmd_prep_rsp_storage_master_export(struct nvm_ctx_st *nvm_ctx_par
 {
 	uint32_t err;
 	uint32_t data_len;
-	uint64_t plat_addr;
 	struct sab_cmd_key_store_export_start_rsp *resp
 		= (struct sab_cmd_key_store_export_start_rsp *)rsp_buf;
 	struct sab_cmd_key_store_export_start_msg *msg
@@ -71,12 +71,12 @@ uint32_t parse_cmd_prep_rsp_storage_master_export(struct nvm_ctx_st *nvm_ctx_par
 	 * with an error code. Process is stopped after.
 	 */
 	if (*data != NULL) {
-		plat_addr = plat_os_abs_data_buf(nvm_ctx_param->phdl,
-				*data + (uint32_t)sizeof(struct nvm_header_s),
-				msg->key_store_size,
-				0u);
-		resp->key_store_export_address =
-			(uint32_t)(plat_addr & 0xFFFFFFFFu);
+		set_phy_addr_to_words(&resp->key_store_export_address,
+				      0u,
+				      plat_os_abs_data_buf(nvm_ctx_param->phdl,
+							   *data + NVM_HEADER_SZ,
+							   msg->key_store_size,
+							   0u));
 		resp->rsp_code = SAB_SUCCESS_STATUS;
 	} else {
 		resp->key_store_export_address = 0;

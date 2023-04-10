@@ -50,10 +50,9 @@ static uint32_t nvm_storage_import(struct nvm_ctx_st *nvm_ctx_param,
 		if ((TO_UINT8_T(blob_hdr->size) + NVM_HEADER_SZ) != len)
 			break;
 
-		if (plat_fetch_msg_crc((uint32_t *)(data + sizeof(struct nvm_header_s)),
-					blob_hdr->size) != blob_hdr->crc) {
+		if (plat_fetch_msg_crc((uint32_t *)(data + NVM_HEADER_SZ),
+				       blob_hdr->size) != blob_hdr->crc)
 			break;
-		}
 
 		error = process_sab_msg(nvm_ctx_param->phdl,
 					nvm_ctx_param->mu_type,
@@ -73,7 +72,7 @@ void nvm_close_session(void *ctx)
 	uint32_t ret;
 
 	if (ctx == NULL) {
-		printf("Error: No active context to close.\n");
+		se_err("Error: No active context to close.\n");
 		return;
 	}
 
@@ -270,11 +269,11 @@ uint32_t nvm_manager(uint8_t flags,
 		 */
 		if (plat_os_abs_storage_read(nvm_ctx->phdl,
 					     (uint8_t *)&nvm_hdr,
-					     (uint32_t)sizeof(nvm_hdr),
+					     NVM_HEADER_SZ,
 					     nvm_ctx->nvm_fname)
-				== (int32_t)sizeof(nvm_hdr)) {
+					     == NVM_HEADER_SZ) {
 
-			data_len = nvm_hdr.size + (uint32_t)sizeof(nvm_hdr);
+			data_len = TO_UINT8_T(nvm_hdr.size) + NVM_HEADER_SZ;
 			data = plat_os_abs_malloc(data_len);
 
 			if (data != NULL) {
@@ -282,7 +281,7 @@ uint32_t nvm_manager(uint8_t flags,
 							     data,
 							     data_len,
 							     nvm_ctx->nvm_fname)
-						== (int32_t)data_len) {
+							     == data_len) {
 					/* In case of error then start anyway
 					 * the storage manager process so
 					 * platform can create and export a

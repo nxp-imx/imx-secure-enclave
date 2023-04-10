@@ -256,9 +256,9 @@ void plat_os_abs_free(void *ptr);
  *
  * \return number of bytes written.
  */
-int32_t plat_os_abs_storage_write(struct plat_os_abs_hdl *phdl,
-				  uint8_t *src, uint32_t size,
-				  uint8_t *nvm_storage_fname);
+uint32_t plat_os_abs_storage_write(struct plat_os_abs_hdl *phdl,
+				   uint8_t *src, uint32_t size,
+				   uint8_t *nvm_storage_fname);
 
 /**
  * Read data from the non volatile storage.
@@ -270,9 +270,9 @@ int32_t plat_os_abs_storage_write(struct plat_os_abs_hdl *phdl,
  *
  * \return number of bytes read.
  */
-int32_t plat_os_abs_storage_read(struct plat_os_abs_hdl *phdl,
-				 uint8_t *dst, uint32_t size,
-				 uint8_t *nvm_storage_fname);
+uint32_t plat_os_abs_storage_read(struct plat_os_abs_hdl *phdl,
+				  uint8_t *dst, uint32_t size,
+				  uint8_t *nvm_storage_fname);
 
 /**
  * Write a subset of data to the non volatile storage.
@@ -290,11 +290,11 @@ int32_t plat_os_abs_storage_read(struct plat_os_abs_hdl *phdl,
  *
  * \return number of bytes written.
  */
-int32_t plat_os_abs_storage_write_chunk(struct plat_os_abs_hdl *phdl,
-					uint8_t *src,
-					uint32_t size,
-					uint64_t blob_id,
-					uint8_t *nvm_storage_dname);
+uint32_t plat_os_abs_storage_write_chunk(struct plat_os_abs_hdl *phdl,
+					 uint8_t *src,
+					 uint32_t size,
+					 uint64_t blob_id,
+					 uint8_t *nvm_storage_dname);
 
 /**
  * Read a subset of data from the non volatile storage.
@@ -312,10 +312,10 @@ int32_t plat_os_abs_storage_write_chunk(struct plat_os_abs_hdl *phdl,
  *
  * \return number of bytes read.
  */
-int32_t plat_os_abs_storage_read_chunk(struct plat_os_abs_hdl *phdl,
-				       uint8_t *dst, uint32_t size,
-				       uint64_t blob_id,
-				       uint8_t *nvm_storage_dname);
+uint32_t plat_os_abs_storage_read_chunk(struct plat_os_abs_hdl *phdl,
+					uint8_t *dst, uint32_t size,
+					uint64_t blob_id,
+					uint8_t *nvm_storage_dname);
 
 /**
  * Start the RNG from a system point of view.
