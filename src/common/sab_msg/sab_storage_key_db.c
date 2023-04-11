@@ -12,6 +12,7 @@
  */
 
 #include <errno.h>
+#include <stddef.h>
 #include <stdint.h>
 #include <sys/stat.h>
 #include <stdlib.h>
@@ -102,7 +103,7 @@ static uint32_t storage_copy_file(int dst_fd, int src_fd)
 		goto out;
 
 	/* Get source file data */
-	buffer = calloc(1, f_stat.st_size);
+	buffer = calloc(1, (size_t)f_stat.st_size);
 	if (!buffer)
 		goto out;
 
@@ -111,8 +112,10 @@ static uint32_t storage_copy_file(int dst_fd, int src_fd)
 		goto out;
 
 	/* Copy buffer data in dst file */
-	if (pwrite(dst_fd, buffer, f_stat.st_size, 0) == f_stat.st_size)
-		err = fsync(dst_fd);
+	if (pwrite(dst_fd, buffer, (size_t)f_stat.st_size, 0) == f_stat.st_size) {
+		if (!fsync(dst_fd))
+			err = 0u;
+	}
 
 out:
 	if (buffer)
@@ -141,7 +144,7 @@ static int storage_open_key_db_fd(uint8_t *nvm_storage_dname,
 	 */
 	ret = storage_get_key_db_filepath(&path, nvm_storage_dname,
 					  key_store_id, pers_lvl, tmp_flag);
-	if (ret != 0u)
+	if (ret || !path)
 		goto out;
 
 	fd = open(path, KEY_DB_OPEN_CREATE_FLAGS, KEY_DB_OPEN_MODE);
@@ -150,8 +153,7 @@ static int storage_open_key_db_fd(uint8_t *nvm_storage_dname,
 
 	if (tmp_flag) {
 		/* Check if a persistent file exists */
-		if (path)
-			free(path);
+		free(path);
 
 		ret = storage_get_key_db_filepath(&path, nvm_storage_dname,
 						  key_store_id, pers_lvl, false);
@@ -262,15 +264,16 @@ static uint32_t storage_key_db_add(int fd, uint32_t user_id, uint32_t fw_id,
 	if (fstat(fd, &f_stat))
 		goto out;
 
-	if (f_stat.st_size % sizeof(struct key_ids_db)) {
+	if ((size_t)f_stat.st_size % sizeof(struct key_ids_db)) {
 		/* File is corrupted */
 		goto out;
 	}
 
 	/* Write new entry at the end of the file */
-	if (pwrite(fd, &ids, sizeof(struct key_ids_db), f_stat.st_size)
+	if ((size_t)pwrite(fd, &ids, sizeof(struct key_ids_db), f_stat.st_size)
 		== sizeof(struct key_ids_db)) {
-		err = fsync(fd);
+		if (!fsync(fd))
+			err = 0u;
 	}
 
 out:
@@ -289,7 +292,7 @@ static uint32_t storage_key_db_get(int fd, uint32_t user_id, uint32_t *fw_id)
 	if (fstat(fd, &f_stat))
 		goto out;
 
-	if (f_stat.st_size % sizeof(struct key_ids_db)) {
+	if ((size_t)f_stat.st_size % sizeof(struct key_ids_db)) {
 		/* File is corrupted */
 		goto out;
 	}
@@ -333,7 +336,7 @@ static uint32_t storage_key_db_del(int fd, uint32_t user_id, uint16_t group)
 
 	file_size = f_stat.st_size;
 
-	if (file_size % sizeof(*ids_ptr)) {
+	if ((size_t)file_size % sizeof(*ids_ptr)) {
 		/* File is corrupted */
 		goto out;
 	}
@@ -377,13 +380,15 @@ static uint32_t storage_key_db_del(int fd, uint32_t user_id, uint16_t group)
 	}
 
 	/* Get new file size: one id structure is deleted */
-	file_size = f_stat.st_size - sizeof(struct key_ids_db);
+	file_size = (size_t)f_stat.st_size - sizeof(struct key_ids_db);
 
 	/* Wrtite new data buffer into file */
 	if (pwrite(fd, buffer, file_size, 0) == file_size) {
 		/* Truncate the file size */
-		if (!ftruncate(fd, file_size))
-			err = fsync(fd);
+		if (!ftruncate(fd, file_size)) {
+			if (!fsync(fd))
+				err = 0u;
+		}
 	}
 
 out:
@@ -474,7 +479,7 @@ static uint32_t storage_key_db_push_id_flag(int tmp_pers_file_fd, uint16_t group
 	if (fstat(tmp_pers_file_fd, &f_stat))
 		goto out;
 
-	if (f_stat.st_size % sizeof(struct key_ids_db)) {
+	if ((size_t)f_stat.st_size % sizeof(struct key_ids_db)) {
 		/* File is corrupted */
 		goto out;
 	}
@@ -486,15 +491,11 @@ static uint32_t storage_key_db_push_id_flag(int tmp_pers_file_fd, uint16_t group
 			/* Update flag in file content */
 			ids.flag = KEY_DB_FLAG_PUSHED;
 
-			err = pwrite(tmp_pers_file_fd, &ids, sizeof(struct key_ids_db),
-				     file_offset);
-			if (err != sizeof(struct key_ids_db)) {
-				err = 1u;
+			if (pwrite(tmp_pers_file_fd, &ids, sizeof(struct key_ids_db), file_offset)
+				   != sizeof(struct key_ids_db))
 				goto out;
-			}
 
-			err = fsync(tmp_pers_file_fd);
-			if (err != 0u)
+			if (fsync(tmp_pers_file_fd))
 				goto out;
 		}
 		file_offset += sizeof(struct key_ids_db);
@@ -568,8 +569,10 @@ static uint32_t storage_key_db_update_pers_file(uint8_t *nvm_storage_dname,
 	/* Copy buffer content in persistent key database file */
 	if (pwrite(fd, buffer, buffer_size, 0) == buffer_size) {
 		/* Truncate the file size */
-		if (!ftruncate(fd, buffer_size))
-			err = fsync(fd);
+		if (!ftruncate(fd, buffer_size)) {
+			if (!fsync(fd))
+				err = 0u;
+		}
 	}
 
 out:
