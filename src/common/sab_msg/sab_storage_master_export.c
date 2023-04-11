@@ -54,7 +54,7 @@ uint32_t parse_cmd_prep_rsp_storage_master_export(struct nvm_ctx_st *nvm_ctx_par
 	}
 
 	/* Extract length of the blob from the message. */
-	data_len = TO_UINT32_T(msg->key_store_size + NVM_HEADER_SZ);
+	data_len = TO_UINT16_T(msg->key_store_size) + NVM_HEADER_SZ;
 
 	if ((msg->key_store_size == 0u) || (data_len > 16u*1024u)) {
 		/* Fixing arbitrary maximum blob size to 16k

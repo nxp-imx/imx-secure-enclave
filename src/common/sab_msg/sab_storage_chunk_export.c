@@ -57,7 +57,7 @@ uint32_t parse_cmd_prep_rsp_storage_chunk_export(struct nvm_ctx_st *nvm_ctx_para
 
 	/* Extract length of the blob from the message. */
 	blob_size = msg->chunk_size;
-	data_len = TO_UINT32_T(msg->chunk_size + NVM_HEADER_SZ);
+	data_len = TO_UINT16_T(msg->chunk_size) + NVM_HEADER_SZ;
 
 	if ((msg->chunk_size == 0u) || (data_len > 16u*1024u)) {
 		/*
@@ -94,7 +94,7 @@ uint32_t parse_cmd_prep_rsp_storage_chunk_export(struct nvm_ctx_st *nvm_ctx_para
 						   blob_size,
 						   0u));
 	resp->rsp_code = SAB_SUCCESS_STATUS;
-
+	/* chunk gets freed in nvm rcv cmd engine */
 	*data = (struct nvm_chunk_hdr *)chunk;
 	*next_cmd_id = SAB_STORAGE_EXPORT_FINISH_REQ;
 
