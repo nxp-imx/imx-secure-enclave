@@ -84,7 +84,7 @@ void nvm_close_session(void *ctx)
 					      MT_SAB_STORAGE_CLOSE,
 					      (uint32_t)nvm_ctx->storage_handle,
 					      NULL, &rsp_code);
-			if (rsp_code != SAB_SUCCESS_STATUS)
+			if (ret != SAB_SUCCESS_STATUS)
 				se_err("Warn: Failure in Storage Close.\n");
 			nvm_ctx->storage_handle = 0u;
 		}

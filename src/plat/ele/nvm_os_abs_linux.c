@@ -27,14 +27,13 @@
 #include "she_api.h"
 #include "plat_os_abs.h"
 #include "plat_utils.h"
-#include "ele_mu_ioctl.h"
 
 /* Write data in a file located in NVM. Return the size of the written data. */
 uint32_t plat_os_abs_storage_write(struct plat_os_abs_hdl *phdl,
 				   uint8_t *src, uint32_t size,
 				   uint8_t *nvm_fname)
 {
-	int32_t fd = -1;
+	int32_t fd;
 	int64_t l = 0;
 	char *path;
 
@@ -70,7 +69,7 @@ uint32_t plat_os_abs_storage_read(struct plat_os_abs_hdl *phdl,
 				  uint8_t *dst, uint32_t size,
 				  uint8_t *nvm_fname)
 {
-	int32_t fd = -1;
+	int32_t fd;
 	int64_t l = 0;
 	char *path;
 
@@ -149,7 +148,7 @@ uint32_t plat_os_abs_storage_write_chunk(struct plat_os_abs_hdl *phdl,
 					 uint64_t blob_id,
 					 uint8_t *nvm_storage_dname)
 {
-	int32_t fd = -1;
+	int32_t fd;
 	int64_t l = 0;
 	int n = -1;
 	char *path = NULL;
@@ -173,7 +172,7 @@ uint32_t plat_os_abs_storage_write_chunk(struct plat_os_abs_hdl *phdl,
 			(void)close(fd);
 		}
 	}
-exit:
+
 	if (path)
 		free(path);
 

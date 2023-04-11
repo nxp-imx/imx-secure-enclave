@@ -16,9 +16,6 @@
 
 #include "sab_storage_get_chunk_done.h"
 
-#include "plat_os_abs.h"
-#include "plat_utils.h"
-
 uint32_t parse_cmd_prep_rsp_storage_get_chunk_done(struct nvm_ctx_st *nvm_ctx_param,
 						  void *cmd_buf,
 						  void *rsp_buf,

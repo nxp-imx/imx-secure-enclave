@@ -21,7 +21,6 @@
 #include "sab_messaging.h"
 
 #include "plat_os_abs.h"
-#include "plat_utils.h"
 
 uint32_t prepare_msg_dev_getinfo(void *phdl, void *cmd_buf, void *rsp_buf,
 				 uint32_t *cmd_msg_sz, uint32_t *rsp_msg_sz,

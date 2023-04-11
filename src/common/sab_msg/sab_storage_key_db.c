@@ -126,9 +126,9 @@ static int storage_open_key_db_fd(uint8_t *nvm_storage_dname,
 				  uint32_t key_store_id, uint8_t pers_lvl,
 				  uint8_t block_type)
 {
-	uint32_t ret = 1u;
+	uint32_t ret;
 	int fd = -1;
-	int _fd = -1;
+	int _fd;
 	char *path = NULL;
 	bool tmp_flag = false;
 
@@ -400,9 +400,8 @@ out:
 static uint32_t storage_key_db_remove(uint32_t key_store_id,
 				      uint8_t *nvm_storage_dname)
 {
-	uint32_t ret = 1u;
+	uint32_t ret;
 	char *path = NULL;
-	uint64_t blob_id = 0u;
 
 	/* Remove volatile key database file if any */
 	ret = storage_get_key_db_filepath(&path, nvm_storage_dname, key_store_id,
@@ -440,7 +439,7 @@ static uint32_t storage_key_db_close_and_remove(struct key_db_fd *ctx_key_db,
 						uint8_t *nvm_storage_dname,
 						uint32_t key_store_id)
 {
-	uint32_t err = 1;
+	uint32_t err;
 
 	/* Close all opened key database file descriptor */
 	for (int i = 0; i < MAX_KEY_STORE; i++) {
@@ -516,7 +515,7 @@ static uint32_t storage_key_db_update_pers_file(uint8_t *nvm_storage_dname,
 						struct key_db_fd *key_db)
 {
 	uint32_t err = 1u;
-	int fd = -1;
+	int fd;
 	uint8_t *buffer = NULL;
 	uint32_t buffer_size = 0u;
 	uint8_t *ptr = NULL;
@@ -622,7 +621,7 @@ uint32_t storage_key_db(struct plat_os_abs_hdl *phdl,
 			struct sab_cmd_key_db_msg *msg)
 {
 	uint32_t err = 1u;
-	int fd = -1;
+	int fd;
 
 	if (!phdl || phdl->type != MU_CHANNEL_PLAT_HSM_NVM || !ctx_key_db ||
 	    !nvm_storage_dname || !fw_id || !msg) {
@@ -683,7 +682,7 @@ uint32_t parse_cmd_prep_rsp_storage_key_db(struct nvm_ctx_st *nvm_ctx_param,
 					   uint8_t *prev_cmd_id,
 					   uint8_t *next_cmd_id)
 {
-	uint32_t err = 1u;
+	uint32_t err;
 	uint32_t fw_id = 0u;
 	struct sab_cmd_key_db_msg *msg = (struct sab_cmd_key_db_msg *)cmd_buf;
 	struct sab_cmd_key_db_rsp *rsp = (struct sab_cmd_key_db_rsp *)rsp_buf;

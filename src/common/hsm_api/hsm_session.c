@@ -164,10 +164,8 @@ hsm_err_t hsm_open_session(open_session_args_t *args, hsm_hdl_t *session_hdl)
 		*session_hdl = s_ptr->session_hdl;
 	} while (false);
 
-	if (args) {
+	if (args)
 		plat_os_abs_free(args);
-		args = NULL;
-	}
 
 	if (err != HSM_NO_ERROR) {
 		if (s_ptr) {

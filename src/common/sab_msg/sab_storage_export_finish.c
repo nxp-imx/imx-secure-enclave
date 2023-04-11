@@ -33,7 +33,7 @@ uint32_t parse_cmd_prep_rsp_storage_finish_export(struct nvm_ctx_st *nvm_ctx_par
 						  uint8_t *prev_cmd_id,
 						  uint8_t *next_cmd_id)
 {
-	uint32_t err = 1u;
+	uint32_t err;
 	struct nvm_header_s *blob_hdr;
 	uint32_t data_len;
 	struct nvm_chunk_hdr *chunk = NULL;
@@ -65,7 +65,6 @@ uint32_t parse_cmd_prep_rsp_storage_finish_export(struct nvm_ctx_st *nvm_ctx_par
 		resp->rsp_code = SAB_SUCCESS_STATUS;
 		goto out;
 	}
-	err = 0;
 
 	if (*prev_cmd_id == SAB_STORAGE_MASTER_EXPORT_REQ) {
 		data_len = *data_sz + NVM_HEADER_SZ;
@@ -106,7 +105,6 @@ uint32_t parse_cmd_prep_rsp_storage_finish_export(struct nvm_ctx_st *nvm_ctx_par
 						    chunk->blob_id,
 						    nvm_ctx_param->nvm_dname)
 						    != chunk->len) {
-			err = 1;
 			/* Notify platform of an error during write to NVM. */
 			resp->rsp_code = SAB_FAILURE_STATUS;
 			goto out;

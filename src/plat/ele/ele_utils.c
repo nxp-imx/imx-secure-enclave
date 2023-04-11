@@ -140,6 +140,7 @@ void plat_fill_rsp_msg_hdr(struct sab_mu_hdr *hdr, uint8_t cmd, uint32_t len, ui
 	hdr->size = TO_UINT8_T(len >> 2);
 };
 
+#if DEBUG
 static void hexdump(uint32_t buf[], uint32_t size)
 {
 	int i = 0;
@@ -150,6 +151,7 @@ static void hexdump(uint32_t buf[], uint32_t size)
 		printf("%08x ", buf[i]);
 	}
 }
+#endif
 
 bool val_rcv_rsp_len(uint32_t rcv_len, uint32_t *rcv_buf)
 {
