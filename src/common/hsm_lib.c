@@ -228,6 +228,8 @@ hsm_err_t hsm_close_key_management_service(hsm_hdl_t key_management_hdl)
 		if (error == 0) {
 			sab_err_map(SAB_KEY_MANAGEMENT_CLOSE_REQ, rsp.rsp_code);
 			err = sab_rating_to_hsm_err(rsp.rsp_code);
+		} else {
+			err = HSM_GENERAL_ERROR;
 		}
 
 		/* Do not delete the service if SAB_ERR is 0x0429. */

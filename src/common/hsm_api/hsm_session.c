@@ -121,7 +121,7 @@ hsm_err_t hsm_open_session(open_session_args_t *args, hsm_hdl_t *session_hdl)
 
 		if (plat_os_abs_has_v2x_hw() == 0U) {
 			/* SECO only HW: low latency and high priority not supported. */
-			operating_mode &= TO_UINT8_T(~(uint8_t)HSM_OPEN_SESSION_LOW_LATENCY_MASK);
+			operating_mode &= (0xFF ^ HSM_OPEN_SESSION_LOW_LATENCY_MASK);
 			session_priority = HSM_OPEN_SESSION_PRIORITY_LOW;
 		}
 
