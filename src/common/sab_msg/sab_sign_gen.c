@@ -131,6 +131,7 @@ uint32_t proc_msg_rsp_sign_generate(void *rsp_buf, void *args)
 	return SAB_SUCCESS_STATUS;
 }
 
+#ifndef PSA_COMPLIANT
 uint32_t prepare_msg_prep_signature(void *phdl,
 				    void *cmd_buf, void *rsp_buf,
 				    uint32_t *cmd_msg_sz,
@@ -157,3 +158,4 @@ uint32_t proc_msg_rsp_prep_signature(void *rsp_buf, void *args)
 {
 	return SAB_SUCCESS_STATUS;
 }
+#endif

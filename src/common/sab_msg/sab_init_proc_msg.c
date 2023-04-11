@@ -412,6 +412,7 @@ static  int init_proc_sab_hsm_msg_engine(msg_type_t msg_type,
 						  proc_msg_rsp_sign_generate);
 		}
 		break;
+#ifndef PSA_COMPLIANT
 	case SAB_SIGNATURE_PREPARE_REQ:
 		if (msg_type == MT_SAB_SIGN_GEN) {
 			ret = add_sab_msg_handler(msg_id, MT_SAB_SIGN_GEN,
@@ -419,6 +420,7 @@ static  int init_proc_sab_hsm_msg_engine(msg_type_t msg_type,
 						  proc_msg_rsp_prep_signature);
 		}
 		break;
+#endif
 #endif
 #if MT_SAB_VERIFY_SIGN
 	case SAB_SIGNATURE_VERIFICATION_OPEN_REQ:
