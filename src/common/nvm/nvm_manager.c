@@ -303,7 +303,7 @@ uint32_t nvm_manager(uint8_t flags,
 		nvm_ctx->next_cmd_id = NEXT_EXPECTED_CMD_NONE;
 
 		/* Infinite loop waiting for platform commands. */
-		while (true) {
+		while (true && (nvm_ctx->status != NVM_STATUS_STOPPED)) {
 			/* Receive a message from platform and
 			 * process it according its type.
 			 */
@@ -344,6 +344,11 @@ uint32_t nvm_manager(uint8_t flags,
 uint32_t get_nvmd_status(void *ctx)
 {
 	return ((struct nvm_ctx_st *)ctx)->status;
+}
+
+void set_nvmd_status_stop(void *ctx)
+{
+	((struct nvm_ctx_st *)ctx)->status = NVM_STATUS_STOPPED;
 }
 
 void __attribute__((constructor)) libele_nvm_start()

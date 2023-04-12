@@ -32,6 +32,8 @@ void nvm_close_session(void *ctx);
 
 uint32_t get_nvmd_status(void *ctx);
 
+void set_nvmd_status_stop(void *ctx);
+
 #define NVM_FLAGS_V2X    (0x02u)
 #define NVM_FLAGS_SHE    (0x01u)
 #define NVM_FLAGS_HSM    (0x00u)
