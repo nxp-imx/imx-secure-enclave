@@ -50,7 +50,6 @@ static int init_sab_nvm_rcvmsg_eng(msg_type_t msg_type,
 				   uint32_t start_msg_id,
 				   uint32_t msg_id)
 {
-	int i = 0;
 	int ret = NOT_DONE;
 
 	ret = NOT_DONE;
