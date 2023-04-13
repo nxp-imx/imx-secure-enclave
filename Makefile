@@ -3,6 +3,7 @@
 # Copyright 2021, 2022, 2023 NXP
 #
 
+ELE_PERF ?= 1
 CFLAGS := -O1 -Werror -Wformat -fPIC
 LDFLAGS =
 DESTDIR ?= export
@@ -114,6 +115,11 @@ $(NVM_LIB): $(PLAT_COMMON_PATH)/nvm/nvm_manager.o\
 ifdef DEBUG
 DEFINES=-DDEBUG
 DEFINES=-DELE_DEBUG
+endif
+
+
+ifeq ($(ELE_PERF), 1)
+DEFINES += -DELE_PERF
 endif
 
 CFLAGS += ${DEFINES}

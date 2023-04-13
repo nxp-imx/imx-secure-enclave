@@ -10,6 +10,7 @@
 
 #include "hsm_api.h"
 #include "test_utils_tv.h"
+#include "plat_utils.h"
 
 static hsm_err_t generate_key(hsm_hdl_t key_mgmt_hdl,
 				hsm_key_type_t key_type,
@@ -59,19 +60,19 @@ static hsm_err_t get_key_attributes(hsm_hdl_t key_mgmt_hdl, uint32_t key_identif
 
 	keyattr_args.key_identifier = key_identifier;
 	ret = hsm_get_key_attr(key_mgmt_hdl, &keyattr_args);
-	printf("\nhsm_get_key_attr ret: 0x%x\n", ret);
+	se_info("\nhsm_get_key_attr ret: 0x%x\n", ret);
 
-	printf("\n---------------------------------------------------\n");
-	printf("\nKey Attributes - Key ID (%u / 0x%x)\n",
-	       key_identifier, key_identifier);
-	printf("\n---------------------------------------------------\n");
+	se_info("\n---------------------------------------------------\n");
+	se_info("\nKey Attributes - Key ID (%u / 0x%x)\n",
+		key_identifier, key_identifier);
+	se_info("\n---------------------------------------------------\n");
 
-	printf("Key Type      : 0x%04x\n", keyattr_args.key_type);
-	printf("Key Size      : %d\n", keyattr_args.bit_key_sz);
-	printf("Key Lifetime  : 0x%08x\n", keyattr_args.key_lifetime);
-	printf("Key Usage     : 0x%08x\n", keyattr_args.key_usage);
-	printf("Key Algorithm : 0x%08x\n", keyattr_args.permitted_algo);
-	printf("Key Lifecycle : 0x%08x\n", keyattr_args.lifecycle);
+	se_info("Key Type      : 0x%04x\n", keyattr_args.key_type);
+	se_info("Key Size      : %d\n", keyattr_args.bit_key_sz);
+	se_info("Key Lifetime  : 0x%08x\n", keyattr_args.key_lifetime);
+	se_info("Key Usage     : 0x%08x\n", keyattr_args.key_usage);
+	se_info("Key Algorithm : 0x%08x\n", keyattr_args.permitted_algo);
+	se_info("Key Lifecycle : 0x%08x\n", keyattr_args.lifecycle);
 #endif
 	return ret;
 }
@@ -128,7 +129,7 @@ static int8_t prepare_and_run_genkey_test(FILE *fp)
 			} else {
 				/* Invalid Test case due to less no. of params than required*/
 				invalid_read = 1;
-				printf("Failed to read all required params (%u/%u)\n",
+				se_info("Failed to read all required params (%u/%u)\n",
 					input_ctr, req_params_n);
 			}
 			break;
@@ -173,7 +174,7 @@ static int8_t prepare_and_run_genkey_test(FILE *fp)
 
 				if (out_key == NULL) {
 					invalid_read = 1;
-					printf("\nError: Couldn't allocate memory for Output Public Key\n");
+					se_info("\nError: Couldn't allocate memory for Output Public Key\n");
 					break;
 				}
 			}
@@ -238,8 +239,8 @@ static int8_t prepare_and_run_genkey_test(FILE *fp)
 	}
 
 	if (call_gen_key == 1) {
-		printf("Key TV ID      : %u\n", key_tv_id);
-		printf("Key ID         : 0x%x\n", key_identifier);
+		se_info("Key TV ID      : %u\n", key_tv_id);
+		se_info("Key ID         : 0x%x\n", key_identifier);
 
 		/* Getting Key Management handle for given Key Mgmt TV ID */
 		key_mgmt_hdl = get_key_mgmt_hdl(key_mgmt_tv_id);
@@ -247,11 +248,11 @@ static int8_t prepare_and_run_genkey_test(FILE *fp)
 		if (get_test_key_identifier(key_tv_id) != 0) {
 			if (key_identifier != 0x0 &&
 			    key_identifier != get_test_key_identifier(key_tv_id)) {
-				printf("\nFAILED: Key TV ID and Key Identifier pairing Invalid\n");
+				se_info("\nFAILED: Key TV ID and Key Identifier pairing Invalid\n");
 				goto out;
 			}
 
-			printf("\nPersistent Key used, for Get Key Attributes:\n");
+			se_info("\nPersistent Key used, for Get Key Attributes:\n");
 			ret = get_key_attributes(key_mgmt_hdl, get_test_key_identifier(key_tv_id));
 
 			if (ret == HSM_NO_ERROR)
@@ -260,23 +261,23 @@ static int8_t prepare_and_run_genkey_test(FILE *fp)
 				test_status = 0;
 
 		} else {
-			printf("\nKey MGMT TV ID : %u\n", key_mgmt_tv_id);
-			printf("Out Size       : %u\n", out_size);
-			printf("Key Type       : 0x%x\n", key_type);
-			printf("Flags          : 0x%x\n", flags);
-			printf("Key Group      : %u\n", key_group);
+			se_info("\nKey MGMT TV ID : %u\n", key_mgmt_tv_id);
+			se_info("Out Size       : %u\n", out_size);
+			se_info("Key Type       : 0x%x\n", key_type);
+			se_info("Flags          : 0x%x\n", flags);
+			se_info("Key Group      : %u\n", key_group);
 #ifdef PSA_COMPLIANT
-			printf("Key Lifetime   : 0x%x\n", key_lifetime);
-			printf("Key Usage      : 0x%x\n", key_usage);
-			printf("Permitted Algo : 0x%x\n", permitted_algo);
-			printf("Bit Key Size   : %u\n", bit_key_sz);
-			printf("Key Lifecycle  : 0x%x\n", key_lifecycle);
+			se_info("Key Lifetime   : 0x%x\n", key_lifetime);
+			se_info("Key Usage      : 0x%x\n", key_usage);
+			se_info("Permitted Algo : 0x%x\n", permitted_algo);
+			se_info("Bit Key Size   : %u\n", bit_key_sz);
+			se_info("Key Lifecycle  : 0x%x\n", key_lifecycle);
 #else
-			printf("Key Info       : 0x%x\n", key_info);
+			se_info("Key Info       : 0x%x\n", key_info);
 #endif
-			printf("Expected Resp  : 0x%x\n\n", expected_rsp_code);
+			se_info("Expected Resp  : 0x%x\n\n", expected_rsp_code);
 
-			printf("\n\nNew Key Getting Generated:\n");
+			se_info("\n\nNew Key Getting Generated:\n");
 			ret = generate_key(key_mgmt_hdl,
 					   key_type, key_group, flags,
 					   out_key, out_size,
@@ -293,13 +294,13 @@ static int8_t prepare_and_run_genkey_test(FILE *fp)
 			else
 				test_status = 0;
 
-			printf("\nhsm_generate_key ret: 0x%x\n", ret);
+			se_info("\nhsm_generate_key ret: 0x%x\n", ret);
 
 			if (ret == HSM_NO_ERROR) {
 				get_key_attributes(key_mgmt_hdl, key_identifier);
 
 				save_test_key(key_tv_id, key_identifier, key_mgmt_tv_id,
-					      key_group, key_type);
+					      key_group, key_type, bit_key_sz);
 #ifdef PSA_COMPLIANT
 				if (((flags & HSM_OP_KEY_GENERATION_FLAGS_STRICT_OPERATION) ==
 					HSM_OP_KEY_GENERATION_FLAGS_STRICT_OPERATION) &&
@@ -316,9 +317,9 @@ static int8_t prepare_and_run_genkey_test(FILE *fp)
 
 		/* EOF encountered before reading all param values. */
 		if (read == -1)
-			printf("\nEOF reached. TEST_KGEN_END not detected.\n");
+			se_info("\nEOF reached. TEST_KGEN_END not detected.\n");
 
-		printf("\nSkipping this Test Case\n");
+		se_info("\nSkipping this Test Case\n");
 	}
 
 out:
@@ -339,20 +340,25 @@ void generate_key_test_tv(hsm_hdl_t key_store_hdl, FILE *fp, char *line)
 	static uint8_t tkgen_invalids;
 	static uint8_t tkgen_total;
 
+	int len = strlen(line);
+	char *test_id = (char *)malloc(len * sizeof(char));
+
+	strncpy(test_id, line, len);
+	test_id[len - 1] = '\0';
 	++tkgen_total;
 
-	printf("\n-----------------------------------------------\n");
-	printf("%s", line);
-	printf("-----------------------------------------------\n");
+	se_info("\n-----------------------------------------------\n");
+	se_info("%s", line);
+	se_info("-----------------------------------------------\n");
 
 #ifdef PSA_COMPLIANT
 	if (memcmp(line, "TEST_KGEN_PSA", 13) != 0) {
-		printf("Skipping Test: Test Case is NOT PSA_COMPLIANT\n");
+		se_info("Skipping Test: Test Case is NOT PSA_COMPLIANT\n");
 		goto out;
 	}
 #else
 	if (memcmp(line, "TEST_KGEN_NON_PSA", 17) != 0) {
-		printf("Skipping Test: Test Case is PSA_COMPLIANT\n");
+		se_info("Skipping Test: Test Case is PSA_COMPLIANT\n");
 		goto out;
 	}
 #endif
@@ -360,20 +366,29 @@ void generate_key_test_tv(hsm_hdl_t key_store_hdl, FILE *fp, char *line)
 
 	if (test_status == 1) {
 		++tkgen_passed;
-		printf("\nTEST RESULT: SUCCESS\n");
+		se_info("\nTEST RESULT: SUCCESS\n");
+#ifndef ELE_PERF
+		printf("%s: SUCCESS\n", test_id);
+#endif
 	} else if (test_status == 0) {
 		++tkgen_failed;
-		printf("\nTEST RESULT: FAILED\n");
+		se_info("\nTEST RESULT: FAILED\n");
+#ifndef ELE_PERF
+		printf("%s: FAILED\n", test_id);
+#endif
 	} else if (test_status == -1) {
 		++tkgen_invalids;
-		printf("\nTEST_RESULT: INVALID\n");
+		se_info("\nTEST_RESULT: INVALID\n");
+#ifndef ELE_PERF
+		printf("%s: INVALID\n", test_id);
+#endif
 	}
 
 out:
 
-	printf("\n------------------------------------------------------------------\n");
-	printf("TKGEN TESTS STATUS:: TOTAL: %u, SUCCESS: %u, FAILED: %u, INVALID: %u",
-			tkgen_total, tkgen_passed, tkgen_failed, tkgen_invalids);
-	printf("\n------------------------------------------------------------------\n\n");
+	se_info("\n------------------------------------------------------------------\n");
+	se_info("TKGEN TESTS STATUS:: TOTAL: %u, SUCCESS: %u, FAILED: %u, INVALID: %u",
+		tkgen_total, tkgen_passed, tkgen_failed, tkgen_invalids);
+	se_info("\n------------------------------------------------------------------\n\n");
 
 }

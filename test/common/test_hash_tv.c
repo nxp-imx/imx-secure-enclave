@@ -8,7 +8,7 @@
 #include "hsm_api.h"
 #include "common.h"
 #include "test_utils_tv.h"
-
+#include "plat_utils.h"
 
 //HASH One shot operation test
 static void hash_test_run(hsm_hash_algo_t hash_algo,
@@ -42,10 +42,10 @@ static void hash_test_run(hsm_hash_algo_t hash_algo,
 	memset(hash_args.output, 0, output_size*sizeof(uint8_t));
 
 	hsmret = hsm_do_hash(hash_sess, &hash_args);
-	printf("\nHASH: hsm_do_hash ret: 0x%x\n", hsmret);
+	se_info("\nHASH: hsm_do_hash ret: 0x%x\n", hsmret);
 
 	if (hsmret != exp_hash_hsm_rsp) {
-		printf("\nEXP_HASH_HSM_RESP didn't match HASH op Resp(0x%x)\n", hsmret);
+		se_info("\nEXP_HASH_HSM_RESP didn't match HASH op Resp(0x%x)\n", hsmret);
 		goto out;
 	}
 
@@ -77,9 +77,9 @@ static void hash_test_run(hsm_hash_algo_t hash_algo,
 #endif
 		if ((output_size == exp_output_buf_size) &&
 			(memcmp(exp_output_buf, hash_args.output, output_size) == 0)) {
-			printf("Match Expected Output & Actual Output --> SUCCESS\n");
+			se_info("Match Expected Output & Actual Output --> SUCCESS\n");
 		} else {
-			printf("Match Expected Output & Actual Output --> FAILURE\n");
+			se_info("Match Expected Output & Actual Output --> FAILURE\n");
 			goto out;
 		}
 	}
@@ -258,26 +258,26 @@ static int8_t prepare_and_run_hash_test(FILE *fp)
 
 	if (call_hash_test == 1) {
 
-		printf("HASH Algo          : 0x%x\n", hash_algo);
+		se_info("HASH Algo          : 0x%x\n", hash_algo);
 #ifdef PSA_COMPLIANT
 		printf("Flags              : 0x%x\n", flags);
 		printf("Context Size       : %u\n", ctx_size);
 		printf("\nInput Context      :\n");
 		print_buffer(ctx, ctx_size);
 #endif
-		printf("Input Size         : %u\n", input_size);
-		printf("\nInput Data        :\n");
+		se_info("Input Size         : %u\n", input_size);
+		se_info("\nInput Data        :\n");
 		print_buffer(input_data, input_size);
-		printf("Output Size          : %u\n", output_size);
+		se_info("Output Size          : %u\n", output_size);
 #ifdef PSA_COMPLIANT
 		printf("Expected Context Size : %u\n", exp_ctx_size);
 #endif
-		printf("Expected Output Size : %u\n", exp_output_size);
-		printf("\nExpected Output Buffer size : %u\n", exp_output_buf_size);
-		printf("\nExpected Output Buffer :\n");
+		se_info("Expected Output Size : %u\n", exp_output_size);
+		se_info("\nExpected Output Buffer size : %u\n", exp_output_buf_size);
+		se_info("\nExpected Output Buffer :\n");
 		print_buffer(exp_output_buf, exp_output_buf_size);
-		printf("Expected HASH HSM Resp : 0x%x\n", exp_hash_hsm_rsp);
-		printf("----------------------------------------------------\n");
+		se_info("Expected HASH HSM Resp : 0x%x\n", exp_hash_hsm_rsp);
+		se_info("----------------------------------------------------\n");
 
 		if (!(flags & HSM_HASH_FLAG_ALLOWED)) {
 			invalid_read = 1;
@@ -330,11 +330,18 @@ void hash_test_tv(FILE *fp, char *line)
 	static uint8_t thash_invalids;
 	static uint8_t thash_total;
 
+#ifndef ELE_PERF
+	int len = strlen(line);
+	char *test_id = (char *)malloc(len * sizeof(char));
+
+	strncpy(test_id, line, len);
+	test_id[len - 1] = '\0';
+#endif
 	++thash_total;
 
-	printf("\n-----------------------------------------------\n");
-	printf("%s", line);
-	printf("-----------------------------------------------\n");
+	se_info("\n-----------------------------------------------\n");
+	se_info("%s", line);
+	se_info("-----------------------------------------------\n");
 
 #ifdef PSA_COMPLIANT
 	if (memcmp(line, "TEST_HASH_PSA", 13) != 0) {
@@ -350,22 +357,36 @@ void hash_test_tv(FILE *fp, char *line)
 	test_status = prepare_and_run_hash_test(fp);
 
 	if (test_status == 1) {
-		printf("\nTEST RESULT: SUCCESS\n");
+		se_info("\nTEST RESULT: SUCCESS\n");
+#ifndef ELE_PERF
+		printf("%s: SUCCESS\n", test_id);
+#endif
 		++thash_passed;
 	} else if (test_status == 0) {
-		printf("\nTEST RESULT: FAILED\n");
+		se_info("\nTEST RESULT: FAILED\n");
+#ifndef ELE_PERF
+		printf("%s: FAILED\n", test_id);
+#endif
 		++thash_failed;
 	} else if (test_status == -1) {
-		printf("\nTEST_RESULT: INVALID\n");
+		se_info("\nTEST_RESULT: INVALID\n");
+#ifndef ELE_PERF
+		printf("%s: INVALID\n", test_id);
+#endif
 		++thash_invalids;
 	}
 
+#ifndef ELE_PERF
+	if (test_id)
+		free(test_id);
+#endif
+
 out:
 
-	printf("\n------------------------------------------------------------------\n");
-	printf("THASH TESTS STATUS:: TOTAL: %u, SUCCESS: %u, FAILED: %u, INVALID: %u",
+	se_info("\n------------------------------------------------------------------\n");
+	se_info("THASH TESTS STATUS:: TOTAL: %u, SUCCESS: %u, FAILED: %u, INVALID: %u",
 		thash_total, thash_passed, thash_failed, thash_invalids);
-	printf("\n------------------------------------------------------------------\n\n");
+	se_info("\n------------------------------------------------------------------\n\n");
 
 }
 

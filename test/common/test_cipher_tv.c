@@ -4,14 +4,21 @@
  */
 
 #include <stdio.h>
+#include <string.h>
 
 #include "hsm_api.h"
 #include "test_utils_tv.h"
+#include "plat_utils.h"
+
+#ifdef ELE_PERF
+#include <ele_perf.h>
+#endif
 
 static hsm_err_t cipher_test(hsm_hdl_t key_store_hdl, hsm_hdl_t key_mgmt_hdl,
 				uint32_t key_identifier, hsm_op_cipher_one_go_algo_t cipher_algo,
 				uint16_t iv_size, uint8_t *iv_data, uint32_t plaintext_size,
-				uint8_t *input_data, uint32_t ciphertext_size)
+				uint8_t *input_data, uint32_t ciphertext_size,
+				 uint16_t key_size)
 {
 	op_cipher_one_go_args_t cipher_args = {0};
 	hsm_err_t hsmret = HSM_GENERAL_ERROR;
@@ -24,14 +31,14 @@ static hsm_err_t cipher_test(hsm_hdl_t key_store_hdl, hsm_hdl_t key_mgmt_hdl,
 	ciphered_data = (uint8_t *) malloc(ciphertext_size*sizeof(uint8_t));
 
 	if (ciphered_data == NULL) {
-		printf("\nError: Couldn't allocate memory for Ciphered Data\n");
+		se_info("\nError: Couldn't allocate memory for Ciphered Data\n");
 		goto out;
 	}
 
 	deciphered_data = (uint8_t *) malloc(plaintext_size*sizeof(uint8_t));
 
 	if (deciphered_data == NULL) {
-		printf("\nError: Couldn't allocate memory for Deciphered Data\n");
+		se_info("\nError: Couldn't allocate memory for Deciphered Data\n");
 		goto out;
 	}
 
@@ -51,14 +58,42 @@ static hsm_err_t cipher_test(hsm_hdl_t key_store_hdl, hsm_hdl_t key_mgmt_hdl,
 	cipher_args.input_size = plaintext_size;
 	cipher_args.output_size = ciphertext_size;
 
-	hsmret = hsm_do_cipher(key_store_hdl, &cipher_args);
-	printf("\nENCRYPT: hsm_do_cipher ret: 0x%x\n", hsmret);
+#ifdef ELE_PERF
+	struct timespec ts1 = { }, ts2 = { }, t1 = { }, t2 = { };
+	statistics enc_stats = { };
+	const char *algo_name = cipher_algo_to_string(cipher_algo);
+	time_t perf_run_time = get_ele_perf_time() * 1000000;
 
-	if (hsmret != HSM_NO_ERROR)
-		goto out;
+	printf("Doing %s-%d encryption for %lds on %d size blocks: ",
+	       algo_name, key_size, get_ele_perf_time(), ciphertext_size);
+	clock_gettime(CLOCK_MONOTONIC_RAW, &t1);
+	clock_gettime(CLOCK_MONOTONIC_RAW, &t2);
+	uint64_t diff = diff_microsec(&t1, &t2);
+
+	while (diff < perf_run_time) {
+		/* Retrieving time before the hsm_do_cipher call */
+		clock_gettime(CLOCK_MONOTONIC_RAW, &ts1);
+#endif
+		hsmret = hsm_do_cipher(key_store_hdl, &cipher_args);
+#ifdef ELE_PERF
+		/* Retrieving time after the hsm_do_cipher call */
+		clock_gettime(CLOCK_MONOTONIC_RAW, &ts2);
+		update_stats(&enc_stats, &ts1, &ts2);
+#endif
+		if (hsmret != HSM_NO_ERROR) {
+			printf("AES operation error\n");
+			goto out;
+		}
+#ifdef ELE_PERF
+		clock_gettime(CLOCK_MONOTONIC_RAW, &t2);
+		diff = diff_microsec(&t1, &t2);
+	}
+
+	print_perf_data(&enc_stats, key_size, algo_name, ciphertext_size);
+#endif
 
 #ifdef DEBUG
-	printf("\nEncrypted data:\n");
+	se_info("\nEncrypted data:\n");
 	print_buffer(ciphered_data, ciphertext_size);
 #endif
 
@@ -69,22 +104,44 @@ static hsm_err_t cipher_test(hsm_hdl_t key_store_hdl, hsm_hdl_t key_mgmt_hdl,
 	cipher_args.input_size = ciphertext_size;
 	cipher_args.output_size = plaintext_size;
 
-	hsmret = hsm_do_cipher(key_store_hdl, &cipher_args);
-	printf("\nDECRYPT: hsm_do_cipher ret: 0x%x\n", hsmret);
+#ifdef ELE_PERF
+	statistics dec_stats = { };
 
-	if (hsmret != HSM_NO_ERROR)
-		goto out;
+	clock_gettime(CLOCK_MONOTONIC_RAW, &t1);
+	clock_gettime(CLOCK_MONOTONIC_RAW, &t2);
+	diff = diff_microsec(&t1, &t2);
 
-#ifdef DEBUG
-	printf("\nDecrypted data:\n");
-	print_buffer(deciphered_data, plaintext_size);
-	printf("\n----------------------------------------------------\n");
+	printf("Doing %s-%d decryption for %lds on %d size blocks: ",
+	       algo_name, key_size, get_ele_perf_time(), ciphertext_size);
+
+	while (diff < perf_run_time) {
+		/* Retrieving time before the hsm_do_cipher call */
+		clock_gettime(CLOCK_MONOTONIC_RAW, &ts1);
+#endif
+		hsmret = hsm_do_cipher(key_store_hdl, &cipher_args);
+#ifdef ELE_PERF
+		/* Retrieving time after the hsm_do_cipher call */
+		clock_gettime(CLOCK_MONOTONIC_RAW, &ts2);
+		update_stats(&dec_stats, &ts1, &ts2);
+#endif
+		if (hsmret != HSM_NO_ERROR)
+			goto out;
+#ifdef ELE_PERF
+		clock_gettime(CLOCK_MONOTONIC_RAW, &t2);
+		diff = diff_microsec(&t1, &t2);
+	}
+
+	print_perf_data(&dec_stats, key_size, algo_name, ciphertext_size);
 #endif
 
+#ifdef DEBUG
+	se_info("\nDecrypted data:\n");
+	print_buffer(deciphered_data, plaintext_size);
+	se_info("\n----------------------------------------------------\n");
+
 	if (memcmp(input_data, deciphered_data, plaintext_size) == 0)
-		printf("\nDecrypted data matches Encrypted data [PASS]\n");
-	else
-		printf("\nDecrypted data doesn't match Encrypted data [FAIL]\n");
+		se_error("\nDecrypted data matches Encrypted data [PASS]\n");
+#endif
 
 out:
 
@@ -125,6 +182,7 @@ static int8_t prepare_and_run_cipher_test(hsm_hdl_t key_store_hdl, FILE *fp)
 	uint32_t output_size = 0;
 	uint8_t *iv_data = NULL;
 	uint8_t *input_data = NULL;
+	uint32_t key_size = 0;
 
 	while ((read = getline(&line, &len, fp)) != -1) {
 
@@ -135,7 +193,7 @@ static int8_t prepare_and_run_cipher_test(hsm_hdl_t key_store_hdl, FILE *fp)
 			} else {
 				/* Invalid Test case due to less no. of params than required*/
 				invalid_read = 1;
-				printf("Failed to read all required params (%u/%u)\n",
+				se_info("Failed to read all required params (%u/%u)\n",
 					input_ctr, req_params_n);
 			}
 
@@ -180,7 +238,7 @@ static int8_t prepare_and_run_cipher_test(hsm_hdl_t key_store_hdl, FILE *fp)
 
 			if (iv_data == NULL) {
 				invalid_read = 1;
-				printf("\nError: Couldn't allocate memory for %s\n", param_name);
+				se_info("\nError: Couldn't allocate memory for %s\n", param_name);
 				break;
 			}
 
@@ -198,7 +256,7 @@ static int8_t prepare_and_run_cipher_test(hsm_hdl_t key_store_hdl, FILE *fp)
 
 			if (input_data == NULL) {
 				invalid_read = 1;
-				printf("\nError: Couldn't allocate memory for %s\n", param_name);
+				se_info("\nError: Couldn't allocate memory for %s\n", param_name);
 				break;
 			}
 
@@ -223,36 +281,36 @@ static int8_t prepare_and_run_cipher_test(hsm_hdl_t key_store_hdl, FILE *fp)
 
 	if (call_cipher_test == 1) {
 
-		printf("Key MGMT TV ID    : %u\n", key_mgmt_tv_id);
-		printf("Key TV ID         : %u\n", key_tv_id);
-		printf("Cipher Algo       : 0x%x\n", cipher_algo);
-		printf("IV Size           : %u\n", iv_size);
-		printf("Input Size        : %u\n", input_size);
-		printf("Output Size       : %u\n", output_size);
-		printf("Expected HSM Resp : 0x%x\n", expected_rsp_code);
-		printf("\nIV Data           :\n");
+		se_info("Key MGMT TV ID    : %u\n", key_mgmt_tv_id);
+		se_info("Key TV ID         : %u\n", key_tv_id);
+		se_info("Cipher Algo       : 0x%x\n", cipher_algo);
+		se_info("IV Size           : %u\n", iv_size);
+		se_info("Input Size        : %u\n", input_size);
+		se_info("Output Size       : %u\n", output_size);
+		se_info("Expected HSM Resp : 0x%x\n", expected_rsp_code);
+		se_info("\nIV Data           :\n");
 		print_buffer(iv_data, iv_size);
-		printf("Input Data        :\n");
+		se_info("Input Data        :\n");
 		print_buffer(input_data, input_size);
 
-		printf("----------------------------------------------------\n");
+		se_info("----------------------------------------------------\n");
 
 		key_mgmt_hdl = get_key_mgmt_hdl(key_mgmt_tv_id);
 		key_identifier = get_test_key_identifier(key_tv_id);
-
+		key_size =  get_test_key_size(key_tv_id);
 		ret = cipher_test(key_store_hdl, key_mgmt_hdl, key_identifier,
 					cipher_algo, iv_size, iv_data, input_size, input_data,
-					output_size);
+					output_size, key_size);
 
 		if (ret == expected_rsp_code) {
 			test_status = 1;
-			printf("\nTEST RESULT: SUCCESS\n");
+			se_info("\nTEST RESULT: SUCCESS\n");
 		} else {
 			test_status = 0;
-			printf("\nTEST RESULT: FAILED\n");
+			se_info("\nTEST RESULT: FAILED\n");
 		}
 
-		printf("\ncipher_test ret: 0x%x\n", ret);
+		se_info("\ncipher_test ret: 0x%x\n", ret);
 	}
 
 	if (invalid_read == 1 || read == -1) {
@@ -260,10 +318,10 @@ static int8_t prepare_and_run_cipher_test(hsm_hdl_t key_store_hdl, FILE *fp)
 
 		/* EOF encountered before reading all param values. */
 		if (read == -1)
-			printf("\nEOF reached. TEST_CIPHER_END not detected.\n");
+			se_info("\nEOF reached. TEST_CIPHER_END not detected.\n");
 
-		printf("\nSkipping this Test Case\n");
-		printf("\nTEST_RESULT: INVALID\n");
+		se_info("\nSkipping this Test Case\n");
+		se_info("\nTEST_RESULT: INVALID\n");
 	}
 
 	if (iv_data)
@@ -286,38 +344,61 @@ void cipher_test_tv(hsm_hdl_t key_store_hdl, FILE *fp, char *line)
 	static uint8_t tcipher_invalids;
 	static uint8_t tcipher_total;
 
+#ifndef ELE_PERF
+	int len = strlen(line);
+	char *test_id = (char *)malloc(len * sizeof(char));
+
+	strncpy(test_id, line, len);
+	test_id[len - 1] = '\0';
+#endif
 	++tcipher_total;
 
-	printf("\n-----------------------------------------------\n");
-	printf("%s", line);
-	printf("-----------------------------------------------\n");
+	se_info("\n-----------------------------------------------\n");
+	se_info("%s", line);
+	se_info("-----------------------------------------------\n");
 
 #ifdef PSA_COMPLIANT
 	if (memcmp(line, "TEST_CIPHER_PSA", 15) != 0) {
-		printf("Skipping Test: Test Case is NOT PSA_COMPLIANT\n");
+		se_info("Skipping Test: Test Case is NOT PSA_COMPLIANT\n");
 		goto out;
 	}
 #else
 	if (memcmp(line, "TEST_CIPHER_NON_PSA", 19) != 0) {
-		printf("Skipping Test: Test Case is PSA_COMPLIANT\n");
+		se_info("Skipping Test: Test Case is PSA_COMPLIANT\n");
 		goto out;
 	}
 #endif
 	test_status = prepare_and_run_cipher_test(key_store_hdl, fp);
 
-	if (test_status == 1)
+	if (test_status == 1) {
 		++tcipher_passed;
-	else if (test_status == 0)
+
+#ifndef ELE_PERF
+		printf("%s: SUCCESS\n", test_id);
+#endif
+	} else if (test_status == 0) {
 		++tcipher_failed;
-	else if (test_status == -1)
+#ifndef ELE_PERF
+		printf("%s: FAILED\n", test_id);
+#endif
+	} else if (test_status == -1) {
 		++tcipher_invalids;
+#ifndef ELE_PERF
+		printf("%s: PASS\n", test_id);
+#endif
+	}
+
+#ifndef ELE_PERF
+	if (test_id)
+		free(test_id);
+#endif
 
 out:
 
-	printf("\n------------------------------------------------------------------\n");
-	printf("TCIPHER TESTS STATUS:: TOTAL: %u, SUCCESS: %u, FAILED: %u, INVALID: %u",
+	se_info("\n------------------------------------------------------------------\n");
+	se_info("TCIPHER TESTS STATUS:: TOTAL: %u, SUCCESS: %u, FAILED: %u, INVALID: %u",
 		tcipher_total, tcipher_passed, tcipher_failed, tcipher_invalids);
-	printf("\n------------------------------------------------------------------\n\n");
+	se_info("\n------------------------------------------------------------------\n\n");
 
 }
 

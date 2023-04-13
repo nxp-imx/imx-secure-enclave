@@ -7,14 +7,18 @@
 
 #include "hsm_api.h"
 #include "test_utils_tv.h"
+#include "plat_utils.h"
 
+#ifdef ELE_PERF
+#include <ele_perf.h>
+#endif
 
 static void mac_test(hsm_hdl_t key_store_hdl, uint32_t key_identifier,
 				hsm_op_mac_one_go_algo_t mac_algo, uint32_t payload_size,
 				uint8_t *payload_data, uint16_t mac_size, uint16_t exp_mac_size,
 				hsm_mac_verification_status_t exp_verification_status,
 				uint8_t exp_mac_gen_hsm_rsp, uint8_t exp_mac_verify_hsm_rsp,
-				int8_t *test_status)
+				int8_t *test_status, uint16_t key_size)
 {
 	hsm_err_t hsmret1 = HSM_GENERAL_ERROR;
 	hsm_err_t hsmret2 = HSM_GENERAL_ERROR;
@@ -31,20 +35,44 @@ static void mac_test(hsm_hdl_t key_store_hdl, uint32_t key_identifier,
 	mac_args.mac  = (uint8_t *) malloc(mac_size*sizeof(uint8_t));
 
 	if (mac_args.mac == NULL) {
-		printf("\nError: Couldn't allocate memory for MAC Data\n");
+		se_info("\nError: Couldn't allocate memory for MAC Data\n");
 		goto out;
 	}
 
 	memset(mac_args.mac, 0, sizeof(mac_args.mac));
 
-	hsmret1 = hsm_do_mac(key_store_hdl, &mac_args);
-	printf("\nMAC Generation: hsm_do_mac ret: 0x%x\n", hsmret1);
+#ifdef ELE_PERF
+	struct timespec ts1 = { }, ts2 = { }, t1 = { }, t2 = { };
+	statistics gen_stats = { };
+	const char *algo_name = mac_algo_to_string(mac_algo);
+	time_t perf_run_time = get_ele_perf_time() * 1000000;
 
-	if (hsmret1 != exp_mac_gen_hsm_rsp) {
-		printf("\nEXP_MAC_GEN_HSM_RESP didn't match MAC op Resp(0x%x)\n",
-				hsmret1);
-		goto out;
+	clock_gettime(CLOCK_MONOTONIC_RAW, &t1);
+	clock_gettime(CLOCK_MONOTONIC_RAW, &t2);
+	uint64_t diff = diff_microsec(&t1, &t2);
+
+	printf("Doing %s-%d generation for %lds on %d size blocks: ",
+	       algo_name, key_size, get_ele_perf_time(), mac_size);
+
+	while (diff < perf_run_time) {
+		/* Retrieving time before the hsm_do_mac call */
+		clock_gettime(CLOCK_MONOTONIC_RAW, &ts1);
+#endif
+		hsmret1 = hsm_do_mac(key_store_hdl, &mac_args);
+#ifdef ELE_PERF
+		/* Retrieving time after the hsm_do_mac call */
+		clock_gettime(CLOCK_MONOTONIC_RAW, &ts2);
+		update_stats(&gen_stats, &ts1, &ts2);
+#endif
+		if (hsmret1 != exp_mac_gen_hsm_rsp)
+			goto out;
+#ifdef ELE_PERF
+		clock_gettime(CLOCK_MONOTONIC_RAW, &t2);
+		diff = diff_microsec(&t1, &t2);
 	}
+
+	print_perf_data(&gen_stats, key_size, algo_name, mac_size);
+#endif
 
 	/*
 	 * The Expected output MAC size value in HSM API MAC op args, is only
@@ -55,27 +83,49 @@ static void mac_test(hsm_hdl_t key_store_hdl, uint32_t key_identifier,
 		hsmret1 == HSM_GENERAL_ERROR) {
 
 		if (mac_args.expected_mac_size != exp_mac_size) {
-			printf("\nEXP_MAC_SIZE didn't match MAC Generation output MAC size %u\n",
-					mac_args.expected_mac_size);
+			se_info("\nEXP_MAC_SIZE didn't match MAC Generation output MAC size %u\n",
+				mac_args.expected_mac_size);
 			goto out;
 		}
 	}
 
 	mac_args.flags = HSM_OP_MAC_ONE_GO_FLAGS_MAC_VERIFICATION;
-	hsmret2 = hsm_do_mac(key_store_hdl, &mac_args);
-	printf("\nMAC Verification: hsm_do_mac ret: 0x%x\n", hsmret2);
 
-	if (hsmret2 != exp_mac_verify_hsm_rsp) {
-		printf("\nEXP_MAC_VERIFY_HSM_RESP didn't match MAC op Resp(0x%x)\n",
-				hsmret2);
-		goto out;
+#ifdef ELE_PERF
+	statistics ver_stats = { };
+
+	clock_gettime(CLOCK_MONOTONIC_RAW, &t1);
+	clock_gettime(CLOCK_MONOTONIC_RAW, &t2);
+	diff = diff_microsec(&t1, &t2);
+
+	printf("Doing %s-%d verification for %lds on %d size blocks: ",
+	       algo_name, key_size, get_ele_perf_time(), mac_size);
+
+	while (diff < perf_run_time) {
+		/* Retrieving time before the hsm_do_mac call */
+		clock_gettime(CLOCK_MONOTONIC_RAW, &ts1);
+#endif
+		hsmret2 = hsm_do_mac(key_store_hdl, &mac_args);
+#ifdef ELE_PERF
+		/* Retrieving time after the hsm_do_mac call */
+		clock_gettime(CLOCK_MONOTONIC_RAW, &ts2);
+		update_stats(&ver_stats, &ts1, &ts2);
+#endif
+		if (hsmret2 != exp_mac_verify_hsm_rsp)
+			goto out;
+#ifdef ELE_PERF
+		clock_gettime(CLOCK_MONOTONIC_RAW, &t2);
+		diff = diff_microsec(&t1, &t2);
 	}
+
+	print_perf_data(&ver_stats, key_size, algo_name, mac_size);
+#endif
 
 	if ((mac_args.flags == HSM_OP_MAC_ONE_GO_FLAGS_MAC_VERIFICATION) &&
 		(mac_args.verification_status != exp_verification_status)) {
 
-		printf("\nEXP_VERIFICATION_STATUS didn't match Actual status(0x%x)\n",
-				mac_args.verification_status);
+		se_info("\nEXP_VERIFICATION_STATUS didn't match Actual status(0x%x)\n",
+			mac_args.verification_status);
 		goto out;
 	}
 
@@ -113,6 +163,7 @@ static int8_t prepare_and_run_mac_test(hsm_hdl_t key_store_hdl, FILE *fp)
 	hsm_mac_verification_status_t exp_verification_status;
 	uint8_t exp_mac_gen_hsm_rsp = 0;
 	uint8_t exp_mac_verify_hsm_rsp = 0;
+	uint32_t key_size = 0;
 
 	while ((read = getline(&line, &len, fp)) != -1) {
 
@@ -123,7 +174,7 @@ static int8_t prepare_and_run_mac_test(hsm_hdl_t key_store_hdl, FILE *fp)
 			} else {
 				/* Invalid Test case due to less no. of params than required*/
 				invalid_read = 1;
-				printf("Failed to read all required params (%u/%u)\n",
+				se_info("Failed to read all required params (%u/%u)\n",
 					input_ctr, req_params_n);
 			}
 
@@ -168,7 +219,7 @@ static int8_t prepare_and_run_mac_test(hsm_hdl_t key_store_hdl, FILE *fp)
 
 			if (payload_data == NULL) {
 				invalid_read = 1;
-				printf("\nError: Couldn't allocate memory for %s\n", param_name);
+				se_info("\nError: Couldn't allocate memory for %s\n", param_name);
 				break;
 			}
 
@@ -210,26 +261,28 @@ static int8_t prepare_and_run_mac_test(hsm_hdl_t key_store_hdl, FILE *fp)
 
 	if (call_mac_test == 1) {
 
-		printf("Key MGMT TV ID    : %u\n", key_mgmt_tv_id);
-		printf("Key TV ID         : %u\n", key_tv_id);
-		printf("MAC Algo          : 0x%x\n", mac_algo);
-		printf("Payload Size      : %u\n", payload_size);
-		printf("\nPayload Data      :\n");
+		se_info("Key MGMT TV ID    : %u\n", key_mgmt_tv_id);
+		se_info("Key TV ID         : %u\n", key_tv_id);
+		se_info("MAC Algo          : 0x%x\n", mac_algo);
+		se_info("Payload Size      : %u\n", payload_size);
+		se_info("\nPayload Data      :\n");
 		print_buffer(payload_data, payload_size);
-		printf("MAC Size          : %u\n", mac_size);
-		printf("Expected MAC Size : %u\n", exp_mac_size);
-		printf("Expected Verification Status : 0x%x\n", exp_verification_status);
-		printf("Expected MAC GEN HSM Resp    : 0x%x\n", exp_mac_gen_hsm_rsp);
-		printf("Expected MAC VERIFY HSM Resp : 0x%x\n", exp_mac_verify_hsm_rsp);
+		se_info("MAC Size          : %u\n", mac_size);
+		se_info("Expected MAC Size : %u\n", exp_mac_size);
+		se_info("Expected Verification Status : 0x%x\n", exp_verification_status);
+		se_info("Expected MAC GEN HSM Resp    : 0x%x\n", exp_mac_gen_hsm_rsp);
+		se_info("Expected MAC VERIFY HSM Resp : 0x%x\n", exp_mac_verify_hsm_rsp);
 
-		printf("----------------------------------------------------\n");
+		se_info("----------------------------------------------------\n");
 
 		key_mgmt_hdl = get_key_mgmt_hdl(key_mgmt_tv_id);
 		key_identifier = get_test_key_identifier(key_tv_id);
+		key_size =  get_test_key_size(key_tv_id);
 
 		mac_test(key_store_hdl, key_identifier, mac_algo, payload_size,
 				payload_data, mac_size, exp_mac_size, exp_verification_status,
-				exp_mac_gen_hsm_rsp, exp_mac_verify_hsm_rsp, &test_status);
+				exp_mac_gen_hsm_rsp, exp_mac_verify_hsm_rsp, &test_status,
+				 key_size);
 	}
 
 	if (invalid_read == 1 || read == -1) {
@@ -237,9 +290,9 @@ static int8_t prepare_and_run_mac_test(hsm_hdl_t key_store_hdl, FILE *fp)
 
 		/* EOF encountered before reading all param values. */
 		if (read == -1)
-			printf("\nEOF reached. TEST_MAC_END not detected.\n");
+			se_info("\nEOF reached. TEST_MAC_END not detected.\n");
 
-		printf("\nSkipping this Test Case\n");
+		se_info("\nSkipping this Test Case\n");
 	}
 
 	if (payload_data)
@@ -258,43 +311,63 @@ void mac_test_tv(hsm_hdl_t key_store_hdl, FILE *fp, char *line)
 	static uint8_t tmac_failed;
 	static uint8_t tmac_invalids;
 	static uint8_t tmac_total;
+#ifndef ELE_PERF
+	int len = strlen(line);
+	char *test_id = (char *)malloc(len * sizeof(char));
 
+	strncpy(test_id, line, len);
+	test_id[len - 1] = '\0';
+#endif
 	++tmac_total;
 
-	printf("\n-----------------------------------------------\n");
-	printf("%s", line);
-	printf("-----------------------------------------------\n");
+	se_info("\n-----------------------------------------------\n");
+	se_info("%s", line);
+	se_info("-----------------------------------------------\n");
 
 #ifdef PSA_COMPLIANT
 	if (memcmp(line, "TEST_MAC_PSA", 12) != 0) {
-		printf("Skipping Test: Test Case is NOT PSA_COMPLIANT\n");
+		se_info("Skipping Test: Test Case is NOT PSA_COMPLIANT\n");
 		goto out;
 	}
 #else
 	if (memcmp(line, "TEST_MAC_NON_PSA", 16) != 0) {
-		printf("Skipping Test: Test Case is PSA_COMPLIANT\n");
+		se_info("Skipping Test: Test Case is PSA_COMPLIANT\n");
 		goto out;
 	}
 #endif
 	test_status = prepare_and_run_mac_test(key_store_hdl, fp);
 
 	if (test_status == 1) {
-		printf("\nTEST RESULT: SUCCESS\n");
+		se_info("\nTEST RESULT: SUCCESS\n");
 		++tmac_passed;
+#ifndef ELE_PERF
+		printf("%s: SUCCESS\n", test_id);
+#endif
 	} else if (test_status == 0) {
-		printf("\nTEST RESULT: FAILED\n");
+		se_info("\nTEST RESULT: FAILED\n");
 		++tmac_failed;
+#ifndef ELE_PERF
+		printf("%s: FAILED\n", test_id);
+#endif
 	} else if (test_status == -1) {
-		printf("\nTEST_RESULT: INVALID\n");
+		se_info("\nTEST_RESULT: INVALID\n");
 		++tmac_invalids;
+#ifndef ELE_PERF
+		printf("%s: INVALID\n", test_id);
+#endif
 	}
+
+#ifndef ELE_PERF
+	if (test_id)
+		free(test_id);
+#endif
 
 out:
 
-	printf("\n------------------------------------------------------------------\n");
-	printf("TMAC TESTS STATUS:: TOTAL: %u, SUCCESS: %u, FAILED: %u, INVALID: %u",
+	se_info("\n------------------------------------------------------------------\n");
+	se_info("TMAC TESTS STATUS:: TOTAL: %u, SUCCESS: %u, FAILED: %u, INVALID: %u",
 		tmac_total, tmac_passed, tmac_failed, tmac_invalids);
-	printf("\n------------------------------------------------------------------\n\n");
+	se_info("\n------------------------------------------------------------------\n\n");
 
 }
 

@@ -8,7 +8,7 @@
 #include "hsm_api.h"
 #include "common.h"
 #include "test_utils_tv.h"
-
+#include "plat_utils.h"
 
 static void data_storage_test_run(hsm_hdl_t key_store_hdl, uint16_t data_id,
 						uint32_t data_size, uint8_t *data,
@@ -31,11 +31,11 @@ static void data_storage_test_run(hsm_hdl_t key_store_hdl, uint16_t data_id,
 		data_storage_args.data = data;
 
 		hsmret = hsm_data_ops(key_store_hdl, &data_storage_args);
-		printf("\nDATA STORAGE [STORE]: hsm_data_ops: 0x%x\n", hsmret);
+		se_info("\nDATA STORAGE [STORE]: hsm_data_ops: 0x%x\n", hsmret);
 
 		if (hsmret != exp_data_storage_hsm_rsp) {
-			printf("\nEXP_DATA_STORAGE_HSM_RESP didn't match Actual API Resp(0x%x)\n",
-					hsmret);
+			se_info("\nEXP_DATA_STORAGE_HSM_RESP didn't match Actual API Resp(0x%x)\n",
+				hsmret);
 			goto out;
 		}
 
@@ -49,25 +49,25 @@ static void data_storage_test_run(hsm_hdl_t key_store_hdl, uint16_t data_id,
 		data_storage_args.data = (uint8_t *) malloc(data_size*sizeof(uint8_t));
 
 		if (data_storage_args.data == NULL) {
-			printf("\nError: Couldn't allocate memory for Retrieving Data\n");
+			se_info("\nError: Couldn't allocate memory for Retrieving Data\n");
 			goto out;
 		}
 
 		memset(data_storage_args.data, 0, data_size*sizeof(uint8_t));
 
 		hsmret = hsm_data_ops(key_store_hdl, &data_storage_args);
-		printf("\nDATA STORAGE [RETRIEVE]: hsm_data_ops: 0x%x\n", hsmret);
+		se_info("\nDATA STORAGE [RETRIEVE]: hsm_data_ops: 0x%x\n", hsmret);
 
 		if (hsmret != exp_data_storage_hsm_rsp) {
-			printf("\nEXP_DATA_STORAGE_HSM_RESP didn't match Actual API Resp(0x%x)\n",
-					hsmret);
+			se_info("\nEXP_DATA_STORAGE_HSM_RESP didn't match Actual API Resp(0x%x)\n",
+				hsmret);
 			goto out;
 		}
 
 		if (memcmp(data_storage_args.data, data, data_size) == 0) {
-			printf("Match Retrieved Data & Expected Data --> SUCCESS\n");
+			se_info("Match Retrieved Data & Expected Data --> SUCCESS\n");
 		} else {
-			printf("Match Retrieved Data & Expected Data --> FAILED\n");
+			se_info("Match Retrieved Data & Expected Data --> FAILED\n");
 			goto out;
 		}
 
@@ -110,7 +110,7 @@ static int8_t prepare_and_run_data_storage_test(hsm_hdl_t key_store_hdl, FILE *f
 			} else {
 				/* Invalid Test case due to less no. of params than required*/
 				invalid_read = 1;
-				printf("Failed to read all required params (%u/%u)\n",
+				se_info("Failed to read all required params (%u/%u)\n",
 					input_ctr, req_params_n);
 			}
 
@@ -148,7 +148,7 @@ static int8_t prepare_and_run_data_storage_test(hsm_hdl_t key_store_hdl, FILE *f
 
 			if (data == NULL) {
 				invalid_read = 1;
-				printf("\nError: Couldn't allocate memory for %s\n", param_name);
+				se_info("\nError: Couldn't allocate memory for %s\n", param_name);
 				break;
 			}
 
@@ -174,13 +174,13 @@ static int8_t prepare_and_run_data_storage_test(hsm_hdl_t key_store_hdl, FILE *f
 
 	if (call_data_storage_test == 1) {
 
-		printf("Data ID            : 0x%x\n", data_id);
-		printf("Data Size          : %u\n", data_size);
-		printf("\nData               :\n");
+		se_info("Data ID            : 0x%x\n", data_id);
+		se_info("Data Size          : %u\n", data_size);
+		se_info("\nData               :\n");
 		print_buffer(data, data_size);
-		printf("Flags              : 0x%x\n", flags);
-		printf("Expected Data Storage HSM Resp : 0x%x\n", exp_data_storage_hsm_rsp);
-		printf("----------------------------------------------------\n");
+		se_info("Flags              : 0x%x\n", flags);
+		se_info("Expected Data Storage HSM Resp : 0x%x\n", exp_data_storage_hsm_rsp);
+		se_info("----------------------------------------------------\n");
 
 		data_storage_test_run(key_store_hdl, data_id, data_size, data, flags,
 					exp_data_storage_hsm_rsp, &test_status);
@@ -191,9 +191,9 @@ static int8_t prepare_and_run_data_storage_test(hsm_hdl_t key_store_hdl, FILE *f
 
 		/* EOF encountered before reading all param values. */
 		if (read == -1)
-			printf("\nEOF reached. TEST_DATA_STORAGE_END not detected.\n");
+			se_info("\nEOF reached. TEST_DATA_STORAGE_END not detected.\n");
 
-		printf("\nSkipping this Test Case\n");
+		se_info("\nSkipping this Test Case\n");
 	}
 
 	if (data)
@@ -213,43 +213,64 @@ void data_storage_test_tv(hsm_hdl_t key_store_hdl, FILE *fp, char *line)
 	static uint8_t tdata_storage_invalids;
 	static uint8_t tdata_storage_total;
 
+#ifndef ELE_PERF
+	int len = strlen(line);
+	char *test_id = (char *)malloc(len * sizeof(char));
+
+	strncpy(test_id, line, len);
+	test_id[len - 1] = '\0';
+#endif
 	++tdata_storage_total;
 
-	printf("\n-----------------------------------------------\n");
-	printf("%s", line);
-	printf("-----------------------------------------------\n");
+	se_info("\n-----------------------------------------------\n");
+	se_info("%s", line);
+	se_info("-----------------------------------------------\n");
 
 #ifdef PSA_COMPLIANT
 	if (memcmp(line, "TEST_DATA_STORAGE_PSA", 21) != 0) {
-		printf("Skipping Test: Test Case is NOT PSA_COMPLIANT\n");
+		se_info("Skipping Test: Test Case is NOT PSA_COMPLIANT\n");
 		goto out;
 	}
 #else
 	if (memcmp(line, "TEST_DATA_STORAGE_NON_PSA", 25) != 0) {
-		printf("Skipping Test: Test Case is PSA_COMPLIANT\n");
+		se_info("Skipping Test: Test Case is PSA_COMPLIANT\n");
 		goto out;
 	}
 #endif
 	test_status = prepare_and_run_data_storage_test(key_store_hdl, fp);
 
 	if (test_status == 1) {
-		printf("\nTEST RESULT: SUCCESS\n");
+		se_info("\nTEST RESULT: SUCCESS\n");
+#ifndef ELE_PERF
+		printf("%s: SUCCESS\n", test_id);
+#endif
 		++tdata_storage_passed;
 	} else if (test_status == 0) {
-		printf("\nTEST RESULT: FAILED\n");
+		se_info("\nTEST RESULT: FAILED\n");
+#ifndef ELE_PERF
+		printf("%s: FAILED\n", test_id);
+#endif
 		++tdata_storage_failed;
 	} else if (test_status == -1) {
-		printf("\nTEST_RESULT: INVALID\n");
+		se_info("\nTEST_RESULT: INVALID\n");
+#ifndef ELE_PERF
+		printf("%s: INVALID\n", test_id);
+#endif
 		++tdata_storage_invalids;
 	}
 
+#ifndef ELE_PERF
+	if (test_id)
+		free(test_id);
+#endif
+
 out:
 
-	printf("\n------------------------------------------------------------------\n");
-	printf("TDATA_STORAGE TESTS STATUS:: TOTAL: %u, SUCCESS: %u, FAILED: %u, INVALID: %u",
+	se_info("\n------------------------------------------------------------------\n");
+	se_info("TDATA_STORAGE TESTS STATUS:: TOTAL: %u, SUCCESS: %u, FAILED: %u, INVALID: %u",
 		tdata_storage_total, tdata_storage_passed, tdata_storage_failed,
 		tdata_storage_invalids);
-	printf("\n------------------------------------------------------------------\n\n");
+	se_info("\n------------------------------------------------------------------\n\n");
 
 }
 

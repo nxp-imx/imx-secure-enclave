@@ -51,5 +51,5 @@ void word_byteswap(uint32_t *buf, uint32_t buf_len);
  * input to any test.
  */
 int get_cmdline_arg(void);
-
+time_t get_ele_perf_time(void);
 #endif

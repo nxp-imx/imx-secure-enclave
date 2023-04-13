@@ -11,6 +11,7 @@
 #include "hsm_api.h"
 #include "test_common_tv.h"
 #include "test_utils_tv.h"
+#include <ele_perf.h>
 
 #define DELETE 1
 
@@ -94,23 +95,23 @@ void parse_param_value_buffer(FILE *fp, uint8_t **dst, uint32_t size,
 /* Print test vector file input/output buffers */
 void print_buffer(uint8_t *buffer_ptr, uint32_t size)
 {
-	printf("[");
+	se_info("[");
 
 	for (uint32_t i = 0; i < size; i++) {
 
 		if ((i+1)%10 == 0)
-			printf("\n");
+			se_info("\n");
 
-		printf("0x%02x, ", buffer_ptr[i]);
+		se_info("0x%02x, ", buffer_ptr[i]);
 	}
 
-	printf("]\n\n");
+	se_info("]\n\n");
 }
 
 /* Save generated keys from tests TEST_KGEN_* */
 void save_test_key(uint32_t key_tv_id, uint32_t key_identifier,
 				uint32_t key_mgmt_tv_id, hsm_key_group_t key_group,
-				hsm_key_type_t key_type)
+				hsm_key_type_t key_type, hsm_bit_key_sz_t key_size)
 {
 	uint8_t flag = 0;
 
@@ -140,6 +141,7 @@ void save_test_key(uint32_t key_tv_id, uint32_t key_identifier,
 				key_tv_id_map_arr[i].key_mgmt_tv_id = key_mgmt_tv_id;
 				key_tv_id_map_arr[i].key_group = key_group;
 				key_tv_id_map_arr[i].key_type = key_type;
+				key_tv_id_map_arr[i].key_size = key_size;
 				++active_keys_ctr;
 				break;
 			}
@@ -168,7 +170,7 @@ void save_persistent_key(uint32_t key_tv_id, uint32_t key_identifier)
 	}
 
 	fprintf(fp, "%u 0x%x\n", key_tv_id, key_identifier);
-	printf("\nPersistent Key Identifier 0x%x entered in file\n", key_identifier);
+	se_info("\nPersistent Key Identifier 0x%x entered in file\n", key_identifier);
 }
 
 /* Load persistent keys details */
@@ -189,7 +191,7 @@ void load_persist_key_info(void)
 	fp = fopen(DEFAULT_TV_PKF_FPATH, "r");
 
 	if (!fp) {
-		printf("\nERROR: Failed to open %s.\n\n", DEFAULT_TV_PKF_FPATH);
+		se_info("\nERROR: Failed to open %s.\n\n", DEFAULT_TV_PKF_FPATH);
 		return;
 	}
 
@@ -219,16 +221,30 @@ void load_persist_key_info(void)
 			continue;
 		}
 
-		save_test_key(key_tv_id, key_identifier, 0, 0, 0);
-		printf("\nPersistent Key Info Loaded: KEY_TV_ID %u  Key Identifier 0x%x\n",
-		       key_tv_id, key_identifier);
+		save_test_key(key_tv_id, key_identifier, 0, 0, 0, 0);
+		se_info("\nPersistent Key Info Loaded: KEY_TV_ID %u  Key Identifier 0x%x\n",
+			key_tv_id, key_identifier);
 	}
 }
 
 /* Get key identifier from key_tv_id */
 uint32_t get_test_key_identifier(uint32_t key_tv_id)
 {
-	uint32_t key_identifier = 0;
+	uint8_t i = 0;
+
+	for (i = 0; i < MAX_TV_KEY_ID; i++) {
+		if (key_tv_id_map_arr[i].key_tv_id == key_tv_id)
+			return key_tv_id_map_arr[i].key_identifier;
+	}
+
+	se_err("\nNo Existing Key Identifier for given KEY_TV_ID\n");
+	return 0;
+}
+
+/* Get key size from key_tv_id */
+uint32_t get_test_key_size(uint32_t key_tv_id)
+{
+	uint32_t key_size = 0;
 	uint8_t flag = 0;
 	uint8_t i = 0;
 
@@ -239,12 +255,10 @@ uint32_t get_test_key_identifier(uint32_t key_tv_id)
 		}
 	}
 
-	if (flag == 0)
-		printf("\nNo Existing Key Identifier for given KEY_TV_ID\n");
-	else
-		key_identifier = key_tv_id_map_arr[i].key_identifier;
+	if (flag != 0)
+		key_size = key_tv_id_map_arr[i].key_size;
 
-	return key_identifier;
+	return key_size;
 }
 
 /* Delete the key after use */
@@ -254,7 +268,7 @@ void delete_test_key(uint32_t key_tv_id)
 	uint8_t i = 0;
 
 	if (active_keys_ctr <= 0) {
-		printf("\nNo Keys available to delete\n");
+		se_info("\nNo Keys available to delete\n");
 		return;
 	}
 
@@ -267,16 +281,16 @@ void delete_test_key(uint32_t key_tv_id)
 
 	if (flag == 0) {
 
-		printf("\nNo key Match found for given TEST KEY TV ID\n");
+		se_info("\nNo key Match found for given TEST KEY TV ID\n");
 
 	} else {
 
 		uint32_t key_mgmt_hdl = get_key_mgmt_hdl(key_tv_id_map_arr[i].key_mgmt_tv_id);
 
-		printf("\nDELETE KEY - [KEY_TV_ID: %u, KEY_MGMT_TV_ID: %u, KEY GROUP: %u]\n",
-				key_tv_id_map_arr[i].key_tv_id,
-				key_tv_id_map_arr[i].key_mgmt_tv_id,
-				key_tv_id_map_arr[i].key_group);
+		se_info("\nDELETE KEY - [KEY_TV_ID: %u, KEY_MGMT_TV_ID: %u, KEY GROUP: %u]\n",
+			key_tv_id_map_arr[i].key_tv_id,
+			key_tv_id_map_arr[i].key_mgmt_tv_id,
+			key_tv_id_map_arr[i].key_group);
 
 		key_management(DELETE,
 						key_mgmt_hdl,
@@ -338,7 +352,8 @@ hsm_hdl_t open_key_mgmt_srv(hsm_hdl_t key_store_hdl, uint32_t key_mgmt_tv_id)
 					key_mgmt_hdl = key_mgmt_id_map_arr[i].key_mgmt_hdl;
 				}
 
-				printf("\nhsm_open_key_management_service() ret: 0x%x [KEY_MGMT_TV_ID: %u]\n", ret, key_mgmt_tv_id);
+				se_info("\nhsm_open_key_management_service() ");
+				se_info("ret: 0x%x [KEY_MGMT_TV_ID: %u]\n", ret, key_mgmt_tv_id);
 				break;
 			}
 		}
@@ -366,7 +381,7 @@ hsm_hdl_t get_key_mgmt_hdl(uint32_t key_mgmt_tv_id)
 	if (flag == 1)
 		key_mgmt_hdl = key_mgmt_id_map_arr[i].key_mgmt_hdl;
 	else
-		printf("\nFailed: No valid Key Mgmt handle Exists for given KEY_MGMT_TV_ID\n");
+		se_info("\nFailed: No valid Key Mgmt handle Exists for given KEY_MGMT_TV_ID\n");
 
 	return key_mgmt_hdl;
 }
@@ -394,7 +409,8 @@ void close_key_mgmt_srv(uint32_t key_mgmt_tv_id)
 		}
 
 		ret = hsm_close_key_management_service(key_mgmt_hdl);
-		printf("\n\nhsm_close_key_management_service() ret: 0x%x [KEY_MGMT_TV_ID: %u]\n", ret, key_mgmt_tv_id);
+		se_info("\n\nhsm_close_key_management_service() ret: 0x%x ");
+		se_info("[KEY_MGMT_TV_ID: %u]\n", ret, key_mgmt_tv_id);
 	}
 
 	if (ret == HSM_NO_ERROR) {

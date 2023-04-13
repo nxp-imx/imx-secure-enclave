@@ -11,6 +11,7 @@
 #include <dirent.h>
 
 #include "test_common_tv.h"
+#include "plat_utils.h"
 
 // Run tests of selected Test Vector file
 static void tv_tests(hsm_hdl_t key_store_hdl, uint8_t *tv_file_path)
@@ -40,12 +41,12 @@ static void tv_tests(hsm_hdl_t key_store_hdl, uint8_t *tv_file_path)
 
 		if (memcmp(line, "TESTS_START", 11) == 0) {
 
-			printf("\n\nTESTS START\n\n");
+			se_info("\n\nTESTS START\n\n");
 
 			while ((read = getline(&line, &len, fp)) != -1) {
 
 				if (memcmp(line, "TESTS_END", 9) == 0) {
-					printf("\n\nTESTS ENDED\n\n");
+					se_info("\n\nTESTS ENDED\n\n");
 					break;
 				}
 

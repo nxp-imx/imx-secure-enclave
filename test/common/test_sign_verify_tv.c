@@ -8,6 +8,11 @@
 #include "common.h"
 #include "hsm_api.h"
 #include "test_utils_tv.h"
+#include "plat_utils.h"
+
+#ifdef ELE_PERF
+#include <ele_perf.h>
+#endif
 
 static void sign_verify_test(hsm_hdl_t key_store_hdl,
 						uint32_t key_identifier,
@@ -40,14 +45,14 @@ static void sign_verify_test(hsm_hdl_t key_store_hdl,
 	signature = (uint8_t *) malloc(signature_size*sizeof(uint8_t));
 
 	if (signature == NULL) {
-		printf("\nError: Couldn't allocate memory for Signature\n");
+		se_info("\nError: Couldn't allocate memory for Signature\n");
 		goto out;
 	}
 
 	loc_pub_key = (uint8_t *) malloc(key_size*sizeof(uint8_t));
 
 	if (loc_pub_key == NULL) {
-		printf("\nError: Couldn't allocate memory for Key\n");
+		se_info("\nError: Couldn't allocate memory for Key\n");
 		goto out;
 	}
 
@@ -63,14 +68,39 @@ static void sign_verify_test(hsm_hdl_t key_store_hdl,
 	sig_gen_args.scheme_id = scheme_id;
 	sig_gen_args.flags = sign_gen_flags;
 
-	hsmret1 = hsm_do_sign(key_store_hdl, &sig_gen_args);
-	printf("\nhsm_do_sign ret:0x%x\n", hsmret1);
+#ifdef ELE_PERF
+	statistics sign_gen_stats = { };
+	struct timespec ts1 = { }, ts2 = { }, t1 = { }, t2 = { };
+	time_t perf_run_time = get_ele_perf_time() * 1000000;
 
-	if (hsmret1 != exp_sign_gen_rsp) {
-		printf("\nEXP_SIGN_GEN_RSP didn't match Signature Generation Resp(0x%x)\n",
-				hsmret1);
-		goto out;
-	}
+	clock_gettime(CLOCK_MONOTONIC_RAW, &t1);
+	clock_gettime(CLOCK_MONOTONIC_RAW, &t2);
+	uint64_t diff = diff_microsec(&t1, &t2);
+	const char *algo_name = scheme_algo_to_string(scheme_id);
+
+	printf("Doing %s-%d signing for %lds on %d size blocks: ",
+	       algo_name, bit_key_sz, get_ele_perf_time(), message_size);
+
+	while (diff < perf_run_time) {
+		/* Retrieving time before the hsm_do_sign call */
+		clock_gettime(CLOCK_MONOTONIC_RAW, &ts1);
+#endif
+		hsmret1 = hsm_do_sign(key_store_hdl, &sig_gen_args);
+#ifdef ELE_PERF
+		/* Retrieving time after the hsm_do_sign call */
+		clock_gettime(CLOCK_MONOTONIC_RAW, &ts2);
+		update_stats(&sign_gen_stats, &ts1, &ts2);
+
+		clock_gettime(CLOCK_MONOTONIC_RAW, &t2);
+		diff = diff_microsec(&t1, &t2);
+#endif
+		if (hsmret1 != exp_sign_gen_rsp)
+			goto out;
+#ifdef ELE_PERF
+		}
+
+	print_perf_data(&sign_gen_stats, bit_key_sz, algo_name, message_size);
+#endif
 
 #ifdef PSA_COMPLIANT
 	/*
@@ -83,8 +113,8 @@ static void sign_verify_test(hsm_hdl_t key_store_hdl,
 		hsmret1 == HSM_GENERAL_ERROR) {
 
 		if (sig_gen_args.exp_signature_size != exp_signature_size) {
-			printf("\nEXP_SIGNATURE_SIZE didn't match API Resp Signature size(%u)\n",
-					sig_gen_args.exp_signature_size);
+			se_info("\nEXP_SIGNATURE_SIZE didn't match API Resp Signature size(%u)\n",
+				sig_gen_args.exp_signature_size);
 			goto out;
 		}
 	}
@@ -96,7 +126,7 @@ static void sign_verify_test(hsm_hdl_t key_store_hdl,
 	pkey_recv_args.out_key_size = key_size;
 
 	hsmret2 = hsm_pub_key_recovery(key_store_hdl, &pkey_recv_args);
-	printf("\nhsm_pub_key_recovery ret:0x%x\n", hsmret2);
+	se_info("\nhsm_pub_key_recovery ret:0x%x\n", hsmret2);
 
 	/* Signature Verification */
 	sig_ver_args.key = loc_pub_key;
@@ -111,18 +141,39 @@ static void sign_verify_test(hsm_hdl_t key_store_hdl,
 	sig_ver_args.signature = signature;
 	sig_ver_args.scheme_id = scheme_id;
 	sig_ver_args.flags = sign_verify_flags;
+#ifdef ELE_PERF
+	statistics sign_ver_stats = { };
 
-	hsmret2 = hsm_verify_sign(hsm_session_hdl, &sig_ver_args, &verification_status);
-	printf("\nhsm_verify_signature ret:0x%x\n", hsmret2);
+	clock_gettime(CLOCK_MONOTONIC_RAW, &t1);
+	clock_gettime(CLOCK_MONOTONIC_RAW, &t2);
+	diff = diff_microsec(&t1, &t2);
 
-	if (hsmret2 != exp_sign_verify_rsp) {
-		printf("\nEXP_SIGN_VERIFY_RSP didn't match Signature Verification Resp(0x%x)\n",
-				hsmret2);
-		goto out;
+	printf("Doing %s-%d verification for %lds on %d size blocks: ",
+	       algo_name, bit_key_sz, get_ele_perf_time(), message_size);
+
+	while (diff < perf_run_time) {
+		/* Retrieving time before the hsm_verify_sign call */
+		clock_gettime(CLOCK_MONOTONIC_RAW, &ts1);
+#endif
+		hsmret2 = hsm_verify_sign(hsm_session_hdl, &sig_ver_args, &verification_status);
+#ifdef ELE_PERF
+		/* Retrieving time after the hsm_verify_sign call */
+		clock_gettime(CLOCK_MONOTONIC_RAW, &ts2);
+		update_stats(&sign_ver_stats, &ts1, &ts2);
+
+		clock_gettime(CLOCK_MONOTONIC_RAW, &t2);
+		diff = diff_microsec(&t1, &t2);
+#endif
+		if (hsmret2 != exp_sign_verify_rsp)
+			goto out;
+#ifdef ELE_PERF
 	}
 
+	print_perf_data(&sign_ver_stats, bit_key_sz, algo_name, message_size);
+#endif
+
 	if (sig_ver_args.verification_status != exp_verification_status) {
-		printf("\nEXP_VERIFICATION_STATUS didn't match Actual status(0x%x)\n",
+		se_info("\nEXP_VERIFICATION_STATUS didn't match Actual status(0x%x)\n",
 			sig_ver_args.verification_status);
 		goto out;
 	}
@@ -137,7 +188,8 @@ out:
 		free(loc_pub_key);
 }
 
-static int8_t prepare_and_run_sign_verify_test(hsm_hdl_t key_store_hdl, FILE *fp)
+static int8_t prepare_and_run_sign_verify_test(hsm_hdl_t key_store_hdl, FILE
+						*fp)
 {
 	hsm_err_t ret = HSM_GENERAL_ERROR;
 
@@ -181,7 +233,7 @@ static int8_t prepare_and_run_sign_verify_test(hsm_hdl_t key_store_hdl, FILE *fp
 			} else {
 				/* Invalid Test case due to less no. of params than required*/
 				invalid_read = 1;
-				printf("Failed to read all required params (%u/%u)\n",
+				se_info("Failed to read all required params (%u/%u)\n",
 					input_ctr, req_params_n);
 			}
 
@@ -216,7 +268,7 @@ static int8_t prepare_and_run_sign_verify_test(hsm_hdl_t key_store_hdl, FILE *fp
 
 			if (message == NULL) {
 				invalid_read = 1;
-				printf("\nError: Couldn't allocate memory for %s\n", param_name);
+				se_info("\nError: Couldn't allocate memory for %s\n", param_name);
 				break;
 			}
 
@@ -289,23 +341,23 @@ static int8_t prepare_and_run_sign_verify_test(hsm_hdl_t key_store_hdl, FILE *fp
 
 	if (call_sign_verify_test == 1) {
 
-		printf("Key TV ID         : %u\n", key_tv_id);
-		printf("Message Size      : %u\n", message_size);
-		printf("\nMessage           :\n");
+		se_info("Key TV ID         : %u\n", key_tv_id);
+		se_info("Message Size      : %u\n", message_size);
+		se_info("\nMessage           :\n");
 		print_buffer(message, message_size);
-		printf("Signature Size    : %u\n", signature_size);
-		printf("Scheme ID         : 0x%x\n", scheme_id);
-		printf("Flags (SIGN_GEN_FLAGS)     : 0x%x\n", sign_gen_flags);
-		printf("Flags (SIGN_VERIFY_FLAGS)  : 0x%x\n", sign_verify_flags);
-		printf("Public Key Type   : 0x%x\n", pkey_type);
-		printf("Key Size          : %u\n", key_size);
-		printf("Bit Key Size      : %u\n", bit_key_sz);
-		printf("Expected Signature Size   : %u\n", exp_signature_size);
-		printf("Expected Verification Status  : 0x%x\n", exp_verification_status);
-		printf("Expected Sign Generation Resp   : 0x%x\n", exp_sign_gen_rsp);
-		printf("Expected Sign Verification Resp : 0x%x\n", exp_sign_verify_rsp);
+		se_info("Signature Size    : %u\n", signature_size);
+		se_info("Scheme ID         : 0x%x\n", scheme_id);
+		se_info("Flags (SIGN_GEN_FLAGS)     : 0x%x\n", sign_gen_flags);
+		se_info("Flags (SIGN_VERIFY_FLAGS)  : 0x%x\n", sign_verify_flags);
+		se_info("Public Key Type   : 0x%x\n", pkey_type);
+		se_info("Key Size          : %u\n", key_size);
+		se_info("Bit Key Size      : %u\n", bit_key_sz);
+		se_info("Expected Signature Size   : %u\n", exp_signature_size);
+		se_info("Expected Verification Status  : 0x%x\n", exp_verification_status);
+		se_info("Expected Sign Generation Resp   : 0x%x\n", exp_sign_gen_rsp);
+		se_info("Expected Sign Verification Resp : 0x%x\n", exp_sign_verify_rsp);
 
-		printf("----------------------------------------------------\n");
+		se_info("----------------------------------------------------\n");
 
 		key_identifier = get_test_key_identifier(key_tv_id);
 
@@ -321,9 +373,9 @@ static int8_t prepare_and_run_sign_verify_test(hsm_hdl_t key_store_hdl, FILE *fp
 
 		/* EOF encountered before reading all param values. */
 		if (read == -1)
-			printf("\nEOF reached. TEST_SIGN_VERIFY_END not detected.\n");
+			se_info("\nEOF reached. TEST_SIGN_VERIFY_END not detected.\n");
 
-		printf("\nSkipping this Test Case\n");
+		se_info("\nSkipping this Test Case\n");
 	}
 
 	if (message)
@@ -343,43 +395,64 @@ void sign_verify_test_tv(hsm_hdl_t key_store_hdl, FILE *fp, char *line)
 	static uint8_t tsign_verify_invalids;
 	static uint8_t tsign_verify_total;
 
+#ifndef ELE_PERF
+	int len = strlen(line);
+	char *test_id = (char *)malloc(len * sizeof(char));
+
+	strncpy(test_id, line, len);
+	test_id[len - 1] = '\0';
+#endif
 	++tsign_verify_total;
 
-	printf("\n-----------------------------------------------\n");
-	printf("%s", line);
-	printf("-----------------------------------------------\n");
+	se_info("\n-----------------------------------------------\n");
+	se_info("%s", line);
+	se_info("-----------------------------------------------\n");
 
 #ifdef PSA_COMPLIANT
 	if (memcmp(line, "TEST_SIGN_VERIFY_PSA", 20) != 0) {
-		printf("Skipping Test: Test Case is NOT PSA_COMPLIANT\n");
+		se_info("Skipping Test: Test Case is NOT PSA_COMPLIANT\n");
 		goto out;
 	}
 #else
 	if (memcmp(line, "TEST_SIGN_VERIFY_NON_PSA", 24) != 0) {
-		printf("Skipping Test: Test Case is PSA_COMPLIANT\n");
+		se_info("Skipping Test: Test Case is PSA_COMPLIANT\n");
 		goto out;
 	}
 #endif
 	test_status = prepare_and_run_sign_verify_test(key_store_hdl, fp);
 
 	if (test_status == 1) {
-		printf("\nTEST RESULT: SUCCESS\n");
+		se_info("\nTEST RESULT: SUCCESS\n");
 		++tsign_verify_passed;
+#ifndef ELE_PERF
+		printf("%s: SUCCESS\n", test_id);
+#endif
 	} else if (test_status == 0) {
-		printf("\nTEST RESULT: FAILED\n");
+		se_info("\nTEST RESULT: FAILED\n");
 		++tsign_verify_failed;
+#ifndef ELE_PERF
+		printf("%s: FAILED\n", test_id);
+#endif
 	} else if (test_status == -1) {
-		printf("\nTEST RESULT: INVALID\n");
+		se_info("\nTEST RESULT: INVALID\n");
 		++tsign_verify_invalids;
+#ifndef ELE_PERF
+		printf("%s: INVALID\n", test_id);
+#endif
 	}
+
+#ifndef ELE_PERF
+	if (test_id)
+		free(test_id);
+#endif
 
 out:
 
-	printf("\n------------------------------------------------------------------\n");
-	printf("TSIGN_VERIFY TESTS STATUS:: TOTAL: %u, SUCCESS: %u, FAILED: %u, INVALID: %u",
+	se_info("\n------------------------------------------------------------------\n");
+	se_info("TSIGN_VERIFY TESTS STATUS:: TOTAL: %u, SUCCESS: %u, FAILED: %u, INVALID: %u",
 		tsign_verify_total, tsign_verify_passed, tsign_verify_failed,
 		tsign_verify_invalids);
-	printf("\n------------------------------------------------------------------\n\n");
+	se_info("\n------------------------------------------------------------------\n\n");
 
 }
 

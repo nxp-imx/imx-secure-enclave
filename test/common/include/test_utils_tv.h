@@ -21,6 +21,7 @@ struct key_tv_id_map {
 	uint32_t key_identifier;
 	hsm_key_group_t key_group;
 	hsm_key_type_t key_type;
+	hsm_bit_key_sz_t key_size;
 };
 
 void close_key_mgmt_srv(uint32_t key_mgmt_tv_id);
@@ -31,7 +32,7 @@ void delete_test_key(uint32_t key_tv_id);
 uint32_t get_test_key_identifier(uint32_t key_tv_id);
 void save_test_key(uint32_t key_tv_id, uint32_t key_identifier,
 				uint32_t key_mgmt_tv_id, hsm_key_group_t key_group,
-				hsm_key_type_t key_type);
+				hsm_key_type_t key_type, hsm_bit_key_sz_t key_size);
 
 uint32_t parse_param_value(char *param_value_token, char *param_name,
 					uint8_t *input_ctr, uint8_t *invalid_read);
@@ -44,4 +45,5 @@ void print_buffer(uint8_t *buffer_ptr, uint32_t size);
 void save_persistent_key(uint32_t key_tv_id, uint32_t key_identifier);
 void load_persist_key_info(void);
 
+uint32_t get_test_key_size(uint32_t key_tv_id);
 #endif
