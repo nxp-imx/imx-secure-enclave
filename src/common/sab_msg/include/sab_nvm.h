@@ -22,7 +22,7 @@ struct nvm_header_s {
 	uint32_t size;
 	uint32_t crc;
 	uint64_t blob_id;
-}__attribute__((aligned(4)));
+};
 
 #define NVM_HEADER_SZ	16u
 
