@@ -11,19 +11,12 @@
  * activate or otherwise use the software.
  */
 
-#include <errno.h>
-#include <stddef.h>
 #include <stdint.h>
-#include <sys/stat.h>
-#include <stdlib.h>
-#include <unistd.h>
-#include <string.h>
 
 #include "sab_storage_key_db.h"
 
 #include "plat_os_abs.h"
 #include "plat_utils.h"
-#include "plat_os_abs_def.h"
 
 /* Get context key databse pointer switch key store id */
 static struct key_db_fd *storage_get_key_db(struct key_db_fd *ctx_key_db,
@@ -65,7 +58,7 @@ static uint32_t storage_get_key_db_filepath(char **path, uint8_t *nvm_storage_dn
 					    uint32_t key_store_id, uint8_t pers_lvl,
 					    bool tmp_flag)
 {
-	uint32_t ret = 1u;
+	uint32_t ret = PLAT_FAILURE;
 	uint64_t blob_id = 0u;
 
 	/* Blob ID is composed this way:
@@ -83,7 +76,7 @@ static uint32_t storage_get_key_db_filepath(char **path, uint8_t *nvm_storage_dn
 	blob_id |= KEY_DB_BLOCK_TYPE;
 
 	if (get_chunk_file_path(path, nvm_storage_dname, blob_id) > 0)
-		ret = 0u;
+		ret = PLAT_SUCCESS;
 
 	return ret;
 }
@@ -94,32 +87,40 @@ static uint32_t storage_get_key_db_filepath(char **path, uint8_t *nvm_storage_dn
  */
 static uint32_t storage_copy_file(int dst_fd, int src_fd)
 {
-	uint32_t err = 1u;
-	struct stat f_stat = { 0 };
-	char *buffer = NULL;
+	uint32_t err;
+	size_t src_file_size = 0u;
+	size_t size = 0u;
+	uint8_t *buffer = NULL;
+	uint32_t buffer_size;
 
-	/* Get source file attributes */
-	if (fstat(src_fd, &f_stat))
+	/* Get source file size */
+	err = plat_os_abs_storage_get_file_size(src_fd, &src_file_size);
+	if (err != PLAT_SUCCESS)
 		goto out;
 
 	/* Get source file data */
-	buffer = calloc(1, (size_t)f_stat.st_size);
-	if (!buffer)
+	buffer_size = TO_UINT32_T(src_file_size);
+	buffer = plat_os_abs_malloc(buffer_size);
+	if (!buffer) {
+		err = PLAT_FAILURE;
 		goto out;
+	}
 
 	/* Get the file content in @buffer variable */
-	if (pread(src_fd, buffer, f_stat.st_size, 0) != f_stat.st_size)
+	err = plat_os_abs_storage_pread(src_fd, buffer, src_file_size, 0, &size);
+	if (err != PLAT_SUCCESS || size != src_file_size) {
+		err = PLAT_FAILURE;
 		goto out;
+	}
 
 	/* Copy buffer data in dst file */
-	if (pwrite(dst_fd, buffer, (size_t)f_stat.st_size, 0) == f_stat.st_size) {
-		if (!fsync(dst_fd))
-			err = 0u;
-	}
+	err = plat_os_abs_storage_pwrite(dst_fd, buffer, src_file_size, 0, &size);
+	if (err == PLAT_SUCCESS && size != src_file_size)
+		err = PLAT_FAILURE;
 
 out:
 	if (buffer)
-		free(buffer);
+		plat_os_abs_free(buffer);
 
 	return err;
 }
@@ -144,39 +145,39 @@ static int storage_open_key_db_fd(uint8_t *nvm_storage_dname,
 	 */
 	ret = storage_get_key_db_filepath(&path, nvm_storage_dname,
 					  key_store_id, pers_lvl, tmp_flag);
-	if (ret || !path)
+	if (ret != PLAT_SUCCESS || !path)
 		goto out;
 
-	fd = open(path, KEY_DB_OPEN_CREATE_FLAGS, KEY_DB_OPEN_MODE);
+	fd = plat_os_abs_storage_open_key_db_fd(path, KEY_DB_OPEN_CREATE_FLAGS, KEY_DB_OPEN_MODE);
 	if (fd < 0)
 		goto out;
 
 	if (tmp_flag) {
 		/* Check if a persistent file exists */
-		free(path);
+		plat_os_abs_free(path);
 
 		ret = storage_get_key_db_filepath(&path, nvm_storage_dname,
 						  key_store_id, pers_lvl, false);
-		if (ret != 0u)
+		if (ret != PLAT_SUCCESS)
 			goto out;
 
-		_fd = open(path, KEY_DB_OPEN_FLAGS, KEY_DB_OPEN_MODE);
+		_fd = plat_os_abs_storage_open_key_db_fd(path, KEY_DB_OPEN_FLAGS, KEY_DB_OPEN_MODE);
 		if (_fd < 0)
 			goto out;
 
 		/* Copy persistent file content in temporary persistent file */
 		ret = storage_copy_file(fd, _fd);
-		if (ret != 0u) {
-			(void)close(fd);
+		if (ret != PLAT_SUCCESS) {
+			(void)plat_os_abs_storage_close_key_db_fd(fd);
 			fd = -1;
 		}
 
-		(void)close(_fd);
+		(void)plat_os_abs_storage_close_key_db_fd(_fd);
 	}
 
 out:
 	if (path)
-		free(path);
+		plat_os_abs_free(path);
 
 	return fd;
 }
@@ -186,12 +187,12 @@ void storage_close_key_db_fd(struct key_db_fd *ctx_key_db)
 {
 	for (int i = 0; i < MAX_KEY_STORE; i++) {
 		if (ctx_key_db[i].persistent_tmp_fd >= 0) {
-			(void)close(ctx_key_db[i].persistent_tmp_fd);
+			(void)plat_os_abs_storage_close_key_db_fd(ctx_key_db[i].persistent_tmp_fd);
 			ctx_key_db[i].persistent_tmp_fd = -1;
 		}
 
 		if (ctx_key_db[i].volatile_fd >= 0) {
-			(void)close(ctx_key_db[i].volatile_fd);
+			(void)plat_os_abs_storage_close_key_db_fd(ctx_key_db[i].volatile_fd);
 			ctx_key_db[i].volatile_fd = -1;
 		}
 	}
@@ -253,28 +254,30 @@ out:
 static uint32_t storage_key_db_add(int fd, uint32_t user_id, uint32_t fw_id,
 				   uint16_t group)
 {
-	uint32_t err = 1u;
-	struct stat f_stat = { 0 };
+	uint32_t err;
+	size_t file_size = 0u;
+	size_t written_size = 0u;
 	struct key_ids_db ids = {.user_id = user_id,
 				 .fw_id = fw_id,
 				 .group = group,
 				 .flag = KEY_DB_FLAG_NOT_PUSHED };
 
-	/* Get file attributes */
-	if (fstat(fd, &f_stat))
+	/* Get file size */
+	err = plat_os_abs_storage_get_file_size(fd, &file_size);
+	if (err != PLAT_SUCCESS)
 		goto out;
 
-	if ((size_t)f_stat.st_size % sizeof(struct key_ids_db)) {
+	if (file_size % sizeof(struct key_ids_db)) {
 		/* File is corrupted */
+		err = PLAT_FAILURE;
 		goto out;
 	}
 
 	/* Write new entry at the end of the file */
-	if ((size_t)pwrite(fd, &ids, sizeof(struct key_ids_db), f_stat.st_size)
-		== sizeof(struct key_ids_db)) {
-		if (!fsync(fd))
-			err = 0u;
-	}
+	err = plat_os_abs_storage_pwrite(fd, (void *)&ids, sizeof(struct key_ids_db), file_size,
+					 &written_size);
+	if (err == PLAT_SUCCESS && written_size != sizeof(struct key_ids_db))
+		err = PLAT_FAILURE;
 
 out:
 	return err;
@@ -283,30 +286,43 @@ out:
 /* Get a FW ID from a key database file */
 static uint32_t storage_key_db_get(int fd, uint32_t user_id, uint32_t *fw_id)
 {
-	uint32_t err = 1u;
-	off_t offset = 0;
+	uint32_t err;
+	int offset = 0;
+	size_t file_size = 0u;
+	size_t size = 0u;
 	struct key_ids_db ids = { 0 };
-	struct stat f_stat = { 0 };
 
-	/* Get file attributes */
-	if (fstat(fd, &f_stat))
+	/* Get file size */
+	err = plat_os_abs_storage_get_file_size(fd, &file_size);
+	if (err != PLAT_SUCCESS)
 		goto out;
 
-	if ((size_t)f_stat.st_size % sizeof(struct key_ids_db)) {
+	if (file_size % sizeof(struct key_ids_db)) {
 		/* File is corrupted */
+		err = PLAT_FAILURE;
 		goto out;
 	}
 
-	while (pread(fd, &ids, sizeof(struct key_ids_db), offset) > 0) {
-		if (ids.user_id == user_id) {
-			if (fw_id) {
-				*fw_id = ids.fw_id;
-				err = 0u;
-			}
+	do {
+		err = plat_os_abs_storage_pread(fd, (void *)&ids, sizeof(struct key_ids_db),
+						offset, &size);
+		if (err == PLAT_FAILURE || size % sizeof(struct key_ids_db) || !size) {
+			err = PLAT_FAILURE;
 			break;
 		}
+
+		err = PLAT_FAILURE;
+
+		if (ids.user_id == user_id) {
+			if (fw_id)
+				*fw_id = ids.fw_id;
+
+			err = PLAT_SUCCESS;
+			break;
+		}
+
 		offset += sizeof(struct key_ids_db);
-	}
+	} while (offset < file_size);
 
 out:
 	return err;
@@ -316,38 +332,41 @@ out:
  * Delete a pair of IDs in a key database file switch @user_id or @group.
  * If @user_id is 0 (invalid ID), research is based on @group. Otherwise it's
  * based on @user_id.
- *
- * Return:
- * 0 - Success.
- * 1 - General error.
- * 2 - Pair of IDs not found.
  */
 static uint32_t storage_key_db_del(int fd, uint32_t user_id, uint16_t group)
 {
-	uint32_t err = 1u;
-	struct stat f_stat = { 0 };
+	uint32_t err;
 	struct key_ids_db *ids_ptr = NULL;
-	off_t file_size = 0;
+	size_t file_size = 0;
+	size_t size;
 	void *buffer = NULL;
+	uint32_t buffer_size;
 	bool find = false;
 
-	if (fstat(fd, &f_stat))
+	/* Get file size */
+	err = plat_os_abs_storage_get_file_size(fd, &file_size);
+	if (err != PLAT_SUCCESS)
 		goto out;
 
-	file_size = f_stat.st_size;
-
-	if ((size_t)file_size % sizeof(*ids_ptr)) {
+	if (file_size % sizeof(struct key_ids_db)) {
 		/* File is corrupted */
+		err = PLAT_FAILURE;
 		goto out;
 	}
 
-	buffer = calloc(1, file_size);
-	if (!buffer)
+	buffer_size = TO_UINT32_T(file_size);
+	buffer = plat_os_abs_malloc(buffer_size);
+	if (!buffer) {
+		err = PLAT_FAILURE;
 		goto out;
+	}
 
 	/* Get the file content in @buffer variable */
-	if (pread(fd, buffer, file_size, 0) != file_size)
+	err = plat_os_abs_storage_pread(fd, buffer, file_size, 0, &size);
+	if (err != PLAT_SUCCESS || size != file_size) {
+		err = PLAT_FAILURE;
 		goto out;
+	}
 
 	ids_ptr = (struct key_ids_db *)buffer;
 
@@ -361,39 +380,39 @@ static uint32_t storage_key_db_del(int fd, uint32_t user_id, uint16_t group)
 			break;
 
 		ids_ptr++;
-		file_size -= sizeof(*ids_ptr);
-	} while (file_size > 0);
+		size -= sizeof(*ids_ptr);
+	} while (size > 0);
 
-	if (file_size == 0) {
+	if (size == 0) {
 		/* End of file, user id not found */
-		err = 2u;
+		err = PLAT_FAILURE;
 		goto out;
 	}
 
-	if (file_size > sizeof(*ids_ptr)) {
+	if (size > sizeof(*ids_ptr)) {
 		/*
 		 * Delete ID from file by moving data if this is not the last id
 		 * in the file (buffer)
 		 */
-		file_size -= sizeof(*ids_ptr);
-		memmove(ids_ptr, ids_ptr + 1, file_size);
+		size -= sizeof(*ids_ptr);
+		plat_os_abs_memcpy((uint8_t *)ids_ptr, (uint8_t *)(ids_ptr + 1), size);
 	}
 
 	/* Get new file size: one id structure is deleted */
-	file_size = (size_t)f_stat.st_size - sizeof(struct key_ids_db);
+	file_size -= sizeof(struct key_ids_db);
 
-	/* Wrtite new data buffer into file */
-	if (pwrite(fd, buffer, file_size, 0) == file_size) {
+	/* Write new data buffer into file */
+	err = plat_os_abs_storage_pwrite(fd, buffer, file_size, 0, &size);
+	if (err == PLAT_SUCCESS && size == file_size) {
 		/* Truncate the file size */
-		if (!ftruncate(fd, file_size)) {
-			if (!fsync(fd))
-				err = 0u;
-		}
+		err = plat_os_abs_storage_file_truncate(fd, file_size);
+	} else {
+		err = PLAT_FAILURE;
 	}
 
 out:
 	if (buffer)
-		free(buffer);
+		plat_os_abs_free(buffer);
 
 	return err;
 }
@@ -412,14 +431,14 @@ static uint32_t storage_key_db_remove(uint32_t key_store_id,
 	ret = storage_get_key_db_filepath(&path, nvm_storage_dname, key_store_id,
 					  SAB_STORAGE_KEY_PERS_LVL_VOLATILE,
 					  false);
-	if (ret)
+	if (ret != PLAT_SUCCESS)
 		goto out;
 
-	ret = remove(path);
-	if (ret && errno != ENOENT)
+	ret = plat_os_abs_storage_remove_file(path);
+	if (ret != PLAT_SUCCESS)
 		goto out;
 
-	free(path);
+	plat_os_abs_free(path);
 	path = NULL;
 
 	/* Remove persistent temporary file if any */
@@ -429,13 +448,11 @@ static uint32_t storage_key_db_remove(uint32_t key_store_id,
 	if (ret)
 		goto out;
 
-	ret = remove(path);
-	if (ret && errno == ENOENT)
-		ret = 0u;
+	ret = plat_os_abs_storage_remove_file(path);
 
 out:
 	if (path)
-		free(path);
+		plat_os_abs_free(path);
 
 	return ret;
 }
@@ -449,10 +466,10 @@ static uint32_t storage_key_db_close_and_remove(struct key_db_fd *ctx_key_db,
 	/* Close all opened key database file descriptor */
 	for (int i = 0; i < MAX_KEY_STORE; i++) {
 		if (ctx_key_db[i].key_store_id == key_store_id) {
-			(void)close(ctx_key_db[i].persistent_tmp_fd);
+			(void)plat_os_abs_storage_close_key_db_fd(ctx_key_db[i].persistent_tmp_fd);
 			ctx_key_db[i].persistent_tmp_fd = -1;
 
-			(void)close(ctx_key_db[i].volatile_fd);
+			(void)plat_os_abs_storage_close_key_db_fd(ctx_key_db[i].volatile_fd);
 			ctx_key_db[i].volatile_fd = -1;
 
 			break;
@@ -471,41 +488,51 @@ static uint32_t storage_key_db_close_and_remove(struct key_db_fd *ctx_key_db,
  */
 static uint32_t storage_key_db_push_id_flag(int tmp_pers_file_fd, uint16_t group)
 {
-	uint32_t err = 1u;
-	off_t file_offset = 0;
+	uint32_t err;
+	int file_offset = 0;
+	size_t file_size = 0u;
+	size_t size = 0u;
 	struct key_ids_db ids = { 0 };
-	struct stat f_stat = { 0 };
 
-	if (fstat(tmp_pers_file_fd, &f_stat))
+	/* Get file size */
+	err = plat_os_abs_storage_get_file_size(tmp_pers_file_fd, &file_size);
+	if (err != PLAT_SUCCESS)
 		goto out;
 
-	if ((size_t)f_stat.st_size % sizeof(struct key_ids_db)) {
+	if (file_size % sizeof(struct key_ids_db)) {
 		/* File is corrupted */
+		err = PLAT_FAILURE;
 		goto out;
 	}
 
 	/* Browse entire file */
-	while (pread(tmp_pers_file_fd, &ids, sizeof(struct key_ids_db), file_offset) > 0) {
-		/* Update flag of IDs related to the group */
+	do {
+		err = plat_os_abs_storage_pread(tmp_pers_file_fd, (void *)&ids,
+						sizeof(struct key_ids_db), file_offset, &size);
+		if (err != PLAT_SUCCESS || !size || size != sizeof(struct key_ids_db)) {
+			err = PLAT_FAILURE;
+			goto out;
+		}
+
 		if (ids.group == group && ids.flag == KEY_DB_FLAG_NOT_PUSHED) {
 			/* Update flag in file content */
 			ids.flag = KEY_DB_FLAG_PUSHED;
 
-			if (pwrite(tmp_pers_file_fd, &ids, sizeof(struct key_ids_db), file_offset)
-				   != sizeof(struct key_ids_db))
+			err = plat_os_abs_storage_pwrite(tmp_pers_file_fd, (void *)&ids,
+							 sizeof(struct key_ids_db), file_offset,
+							 &size);
+			if (err != PLAT_SUCCESS || size != sizeof(struct key_ids_db)) {
+				err = PLAT_FAILURE;
 				goto out;
-
-			if (fsync(tmp_pers_file_fd))
-				goto out;
+			}
 		}
 		file_offset += sizeof(struct key_ids_db);
-	}
+	} while (file_offset < file_size);
 
 	/*
 	 * If no keys has been found return success. NVM push operation could
 	 * has been called after deleting key(s).
 	 */
-	err = 0u;
 
 out:
 	return err;
@@ -515,13 +542,14 @@ out:
 static uint32_t storage_key_db_update_pers_file(uint8_t *nvm_storage_dname,
 						struct key_db_fd *key_db)
 {
-	uint32_t err = 1u;
+	uint32_t err = PLAT_FAILURE;
 	int fd;
 	uint8_t *buffer = NULL;
-	uint32_t buffer_size = 0u;
+	uint32_t buffer_size;
 	uint8_t *ptr = NULL;
-	off_t file_offset = 0;
-	struct stat f_stat = { 0 };
+	int file_offset = 0;
+	size_t file_size = 0u;
+	size_t size = 0u;
 	struct key_ids_db ids = { 0 };
 
 	/* Get or create persistent key database file */
@@ -531,57 +559,72 @@ static uint32_t storage_key_db_update_pers_file(uint8_t *nvm_storage_dname,
 	if (fd < 0)
 		goto out;
 
-	/* Check persistent file size */
-	if (fstat(fd, &f_stat))
+	/* Get persistent file size */
+	err = plat_os_abs_storage_get_file_size(fd, &file_size);
+	if (err != PLAT_SUCCESS)
 		goto out;
 
-	if (f_stat.st_size % sizeof(struct key_ids_db)) {
+	if (file_size % sizeof(struct key_ids_db)) {
 		/* File is corrupted */
+		err = PLAT_FAILURE;
 		goto out;
 	}
 
-	/* Get persistent tmp file size to allocate temporary buffer */
-	if (fstat(key_db->persistent_tmp_fd, &f_stat))
+	/* Get temporary persistent file size */
+	err = plat_os_abs_storage_get_file_size(key_db->persistent_tmp_fd, &file_size);
+	if (err != PLAT_SUCCESS)
 		goto out;
 
-	if (f_stat.st_size % sizeof(struct key_ids_db)) {
+	if (file_size % sizeof(struct key_ids_db)) {
 		/* File is corrupted */
+		err = PLAT_FAILURE;
 		goto out;
 	}
 
-	buffer = calloc(1, f_stat.st_size);
-	if (!buffer)
+	buffer_size = TO_UINT32_T(file_size);
+	buffer = plat_os_abs_malloc(buffer_size);
+	if (!buffer) {
+		err = PLAT_FAILURE;
 		goto out;
+	}
 
 	ptr = buffer;
+	buffer_size = 0u;
 
 	/* Get all IDs with flag set to KEY_DB_FLAG_PUSHED */
-	while (pread(key_db->persistent_tmp_fd, &ids, sizeof(struct key_ids_db), file_offset) > 0) {
-		/* Update flag of IDs related to the group */
+	do {
+		err = plat_os_abs_storage_pread(key_db->persistent_tmp_fd, (void *)&ids,
+						sizeof(struct key_ids_db), file_offset, &size);
+		if (err != PLAT_SUCCESS || !size || size != sizeof(struct key_ids_db)) {
+			err = PLAT_FAILURE;
+			goto out;
+		}
+
+		/* Save pushed IDs */
 		if (ids.flag == KEY_DB_FLAG_PUSHED) {
-			memcpy(ptr, &ids, sizeof(struct key_ids_db));
+			plat_os_abs_memcpy(ptr, (uint8_t *)&ids, sizeof(struct key_ids_db));
 			ptr += sizeof(struct key_ids_db);
 			buffer_size += sizeof(struct key_ids_db);
 		}
 		file_offset += sizeof(struct key_ids_db);
-	}
+	} while (file_offset < file_size);
 
 	/* Copy buffer content in persistent key database file */
-	if (pwrite(fd, buffer, buffer_size, 0) == buffer_size) {
+	err = plat_os_abs_storage_pwrite(fd, buffer, buffer_size, 0, &size);
+	if (err != PLAT_SUCCESS || size != buffer_size) {
+		err = PLAT_FAILURE;
+	} else {
 		/* Truncate the file size */
-		if (!ftruncate(fd, buffer_size)) {
-			if (!fsync(fd))
-				err = 0u;
-		}
+		err = plat_os_abs_storage_file_truncate(fd, buffer_size);
 	}
 
 out:
 	if (buffer)
-		free(buffer);
+		plat_os_abs_free(buffer);
 
 	/* Close persistent file */
 	if (fd >= 0)
-		(void)close(fd);
+		(void)plat_os_abs_storage_close_key_db_fd(fd);
 
 	return err;
 }

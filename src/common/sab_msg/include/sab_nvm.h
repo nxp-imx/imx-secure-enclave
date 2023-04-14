@@ -51,10 +51,4 @@ struct nvm_chunk_hdr {
 
 #define NVM_CHUNK_HDR_SZ	13u
 
-/* Get the nvm daemon key database context */
-struct key_db_fd *get_nvmd_key_db(void);
-
-/* Get the nvm daemon dname context */
-uint8_t *get_nvmd_dname(void);
-
 #endif

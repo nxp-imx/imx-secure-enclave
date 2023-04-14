@@ -214,3 +214,104 @@ uint32_t plat_os_abs_storage_read_chunk(struct plat_os_abs_hdl *phdl,
 
 	return TO_UINT32_T(l);
 }
+
+#ifdef MT_SAB_STORAGE_KEY_DB_REQ
+int plat_os_abs_storage_open_key_db_fd(uint8_t *path, int flags, uint32_t mode)
+{
+	return open(path, flags, mode);
+}
+
+int plat_os_abs_storage_close_key_db_fd(int fd)
+{
+	return close(fd);
+}
+
+uint32_t plat_os_abs_storage_get_file_size(int fd, size_t *file_size)
+{
+	uint32_t err = PLAT_FAILURE;
+	struct stat f_stat = { 0 };
+
+	if (!file_size)
+		goto out;
+
+	if (!fstat(fd, &f_stat) && f_stat.st_size >= 0) {
+		*file_size = (size_t)f_stat.st_size;
+		err = PLAT_SUCCESS;
+	} else {
+		se_err("fstat error [%d]:%s\n", errno, strerror(errno));
+	}
+
+out:
+	return err;
+}
+
+uint32_t plat_os_abs_storage_pread(int fd, void *buffer, size_t size, off_t offset,
+				   size_t *size_read)
+{
+	uint32_t err = PLAT_FAILURE;
+	ssize_t read;
+
+	if (!buffer || !size_read)
+		goto out;
+
+	read = pread(fd, buffer, size, offset);
+	if (read >= 0) {
+		*size_read = (size_t)read;
+		err = PLAT_SUCCESS;
+	} else {
+		se_err("Read error [%d]:%s\n", errno, strerror(errno));
+	}
+
+out:
+	return err;
+}
+
+uint32_t plat_os_abs_storage_pwrite(int fd, void *buffer, size_t size, off_t offset,
+				    size_t *size_written)
+{
+	uint32_t err = PLAT_FAILURE;
+	ssize_t write;
+
+	if (!buffer || !size_written)
+		goto out;
+
+	write = pwrite(fd, buffer, size, offset);
+	if (write >= 0) {
+		if (fsync(fd)) {
+			se_err("Sync error [%d]:%s\n", errno, strerror(errno));
+		} else {
+			*size_written = (size_t)write;
+			err = PLAT_SUCCESS;
+		}
+	} else {
+		se_err("Write error [%d]:%s\n", errno, strerror(errno));
+	}
+
+out:
+	return err;
+}
+
+uint32_t plat_os_abs_storage_file_truncate(int fd, off_t length)
+{
+	uint32_t err = PLAT_FAILURE;
+
+	if (!ftruncate(fd, length)) {
+		if (!fsync(fd))
+			err = PLAT_SUCCESS;
+	}
+
+	return err;
+}
+
+uint32_t plat_os_abs_storage_remove_file(char *filename)
+{
+	uint32_t ret = PLAT_FAILURE;
+	int err;
+
+	err = remove(filename);
+	if (!err || (err && errno == ENOENT))
+		ret = PLAT_SUCCESS;
+
+	return ret;
+}
+#endif
