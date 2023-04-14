@@ -32,10 +32,12 @@ uint32_t prepare_msg_session_open_req(void *phdl,
 		(struct sab_cmd_session_open_msg *)cmd_buf;
 	open_session_args_t *op_args = (open_session_args_t *)args;
 
+#ifndef PSA_COMPLIANT
 		cmd->mu_id = op_args->mu_id;
-		cmd->interrupt_idx = op_args->interrupt_idx;
 		cmd->tz = op_args->tz;
 		cmd->did = op_args->did;
+#endif
+		cmd->interrupt_idx = op_args->interrupt_idx;
 		cmd->priority = op_args->session_priority;
 		cmd->operating_mode = op_args->operating_mode;
 

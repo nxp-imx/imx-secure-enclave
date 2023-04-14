@@ -253,10 +253,12 @@ static uint32_t she_storage_create_generic(uint32_t key_storage_identifier, uint
         }
 
 		/* Open the SHE session on platform side */
+#ifndef PSA_COMPLIANT
 		args.mu_id = mu_params.mu_id;
-		args.interrupt_idx = mu_params.interrupt_idx;
 		args.tz = mu_params.tz;
 		args.did = mu_params.did;
+#endif
+		args.interrupt_idx = mu_params.interrupt_idx;
 		args.session_priority = 0U;
 		args.operating_mode = 0U;
 
@@ -354,10 +356,12 @@ struct she_hdl_s *she_open_session(uint32_t key_storage_identifier, uint32_t aut
         }
 
         /* Open the SHE session on Secure-Enclave Platform's side */
+#ifndef PSA_COMPLIANT
 		args.mu_id = mu_params.mu_id;
-		args.interrupt_idx = mu_params.interrupt_idx;
 		args.tz = mu_params.tz;
 		args.did = mu_params.did;
+#endif
+		args.interrupt_idx = mu_params.interrupt_idx;
 		args.session_priority = 0U;
 		args.operating_mode = 0U;
 

@@ -18,13 +18,21 @@
 
 struct sab_cmd_session_open_msg {
 	struct sab_mu_hdr hdr;
+#ifndef PSA_COMPLIANT
 	uint8_t mu_id;
+#else
+	uint8_t rsv;
+#endif
 	uint8_t interrupt_idx;
+#ifndef PSA_COMPLIANT
 	uint8_t tz;
 	uint8_t did;
+#else
+	uint16_t rsv1;
+#endif
 	uint8_t priority;
 	uint8_t operating_mode;
-	uint16_t pad;
+	uint16_t rsv2;
 };
 
 struct sab_cmd_session_open_rsp {

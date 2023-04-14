@@ -146,10 +146,12 @@ static uint32_t nvm_open_session(uint8_t flags, struct nvm_ctx_st *nvm_ctx)
 		}
 
 		/* Open the SAB session on the selected security enclave */
+#ifndef PSA_COMPLIANT
 		sess_args.mu_id = mu_params.mu_id;
-		sess_args.interrupt_idx = mu_params.interrupt_idx;
 		sess_args.tz = mu_params.tz;
 		sess_args.did = mu_params.did;
+#endif
+		sess_args.interrupt_idx = mu_params.interrupt_idx;
 		sess_args.session_priority = SAB_OPEN_SESSION_PRIORITY_LOW;
 		sess_args.operating_mode = ((flags & NVM_FLAGS_V2X) != 0u)
 					   ? SAB_OPEN_SESSION_LOW_LATENCY_MASK : 0U;

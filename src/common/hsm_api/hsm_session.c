@@ -136,10 +136,12 @@ hsm_err_t hsm_open_session(open_session_args_t *args, hsm_hdl_t *session_hdl)
 		if (!s_ptr->phdl)
 			break;
 
+#ifndef PSA_COMPLIANT
 		args->mu_id = mu_params.mu_id;
-		args->interrupt_idx = mu_params.interrupt_idx;
 		args->tz = mu_params.tz;
 		args->did = mu_params.did;
+#endif
+		args->interrupt_idx = mu_params.interrupt_idx;
 		args->session_priority = session_priority;
 		args->operating_mode = operating_mode;
 
