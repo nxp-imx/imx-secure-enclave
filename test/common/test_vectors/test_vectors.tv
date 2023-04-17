@@ -252,6 +252,69 @@ TEST_KGEN_END
 
 
 
+#Positive Case - Key Generation of RSA 2048 asymmetric key pair
+TEST_KGEN_PSA_012
+
+KEY_MGMT_TV_ID    1234       # Key Management ID
+KEY_TV_ID         12         # Key TV ID to use the key later
+KEY_ID            0x0        # Key ID 0 for Volatile Key
+OUT_SIZE          256        # Public Key Out Size
+KEY_TYPE          0x7001     # HSM_KEY_TYPE_RSA
+BIT_KEY_SZ        2048       # HSM_KEY_SIZE_RSA_2048
+FLAGS             0          #
+KEY_GROUP         5          # Key Group b/w 0-1023
+KEY_LIFETIME      0x00000100 # HSM_SE_KEY_STORAGE_VOLATILE
+KEY_LIFECYCLE     0x0        # 0 indicates set to current Device Lifecycle
+KEY_USAGE         0x00003000 # HSM_KEY_USAGE_SIGN_HASH | HSM_KEY_USAGE_VERIFY_HASH
+PERMITTED_ALGO    0x06000209 # PERMITTED_ALGO_RSA_PKCS1_V15_SHA256
+EXPECTED_HSM_RESP 0x00       # HSM_NO_ERROR
+
+TEST_KGEN_END
+
+
+
+#Positive Case - Key Generation of RSA 3072 asymmetric key pair
+TEST_KGEN_PSA_013
+
+KEY_MGMT_TV_ID    1234       # Key Management ID
+KEY_TV_ID         13         # Key TV ID to use the key later
+KEY_ID            0x0        # Key ID 0 for Volatile Key
+OUT_SIZE          384        # Public Key Out Size
+KEY_TYPE          0x7001     # HSM_KEY_TYPE_RSA
+BIT_KEY_SZ        3072       # HSM_KEY_SIZE_RSA_3072
+FLAGS             0          #
+KEY_GROUP         6          # Key Group b/w 0-1023
+KEY_LIFETIME      0x00000100 # HSM_SE_KEY_STORAGE_VOLATILE
+KEY_LIFECYCLE     0x0        # 0 indicates set to current Device Lifecycle
+KEY_USAGE         0x00003000 # HSM_KEY_USAGE_SIGN_HASH | HSM_KEY_USAGE_VERIFY_HASH
+PERMITTED_ALGO    0x0600020A # PERMITTED_ALGO_RSA_PKCS1_V15_SHA384
+EXPECTED_HSM_RESP 0x00       # HSM_NO_ERROR
+
+TEST_KGEN_END
+
+
+
+#Positive Case - Key Generation of RSA 4096 asymmetric key pair
+TEST_KGEN_PSA_014
+
+KEY_MGMT_TV_ID    1234       # Key Management ID
+KEY_TV_ID         14         # Key TV ID to use the key later
+KEY_ID            0x0        # Key ID 0 for Volatile Key
+OUT_SIZE          512        # Public Key Out Size
+KEY_TYPE          0x7001     # HSM_KEY_TYPE_RSA
+BIT_KEY_SZ        4096       # HSM_KEY_SIZE_RSA_4096
+FLAGS             0          #
+KEY_GROUP         7          # Key Group b/w 0-1023
+KEY_LIFETIME      0x00000100 # HSM_SE_KEY_STORAGE_VOLATILE
+KEY_LIFECYCLE     0x0        # 0 indicates set to current Device Lifecycle
+KEY_USAGE         0x00003000 # HSM_KEY_USAGE_SIGN_HASH | HSM_KEY_USAGE_VERIFY_HASH
+PERMITTED_ALGO    0x0600020B # PERMITTED_ALGO_RSA_PKCS1_V15_SHA512
+EXPECTED_HSM_RESP 0x00       # HSM_NO_ERROR
+
+TEST_KGEN_END
+
+
+
 
 #########################################################################
 Persistent Key KGEN Tests
@@ -266,10 +329,10 @@ LOAD_PERSIST_KEY_INFO
 #Positive Case
 #Test Generate Key API for Persistent Key Generation or Usage in getting
 #Key Attributes if already generated
-TEST_KGEN_PSA_012
+TEST_KGEN_PSA_015
 
 KEY_MGMT_TV_ID    1234       # Key Management ID
-KEY_TV_ID         12         # Key TV ID to use the key later
+KEY_TV_ID         15         # Key TV ID to use the key later
 KEY_ID            0x0        # Key ID 0 for Volatile Key
 OUT_SIZE          0          # Symmetric Key. So, Public Key Out Size 0
 KEY_TYPE          0x2400     # HSM_KEY_TYPE_AES
@@ -289,10 +352,10 @@ TEST_KGEN_END
 #Postive Case
 #Test Generate Key API for Persistent Key Generation or Usage in getting
 #Key Attributes if already generated
-TEST_KGEN_PSA_013
+TEST_KGEN_PSA_016
 
 KEY_MGMT_TV_ID    1234       # Key Management ID
-KEY_TV_ID         13         # Key TV ID to use the key later
+KEY_TV_ID         16         # Key TV ID to use the key later
 KEY_ID            0x0        # Key ID 0 for Volatile Key
 OUT_SIZE          0          # Symmetric Key. So, Public Key Out Size 0
 KEY_TYPE          0x1100     # HSM_KEY_TYPE_HMAC
@@ -312,10 +375,10 @@ TEST_KGEN_END
 #Positive Case
 #Test Generate Key API for Persistent Key Generation or Usage in getting
 #Key Attributes if already generated
-TEST_KGEN_PSA_014
+TEST_KGEN_PSA_017
 
 KEY_MGMT_TV_ID    1234       # Key Management ID
-KEY_TV_ID         14         # Key TV ID to use the key later
+KEY_TV_ID         17         # Key TV ID to use the key later
 KEY_ID            0x0        # Key ID 0 for Volatile Key
 OUT_SIZE          64         # Public Key Out Size
 KEY_TYPE          0x7112     # HSM_KEY_TYPE_ECC_NIST
