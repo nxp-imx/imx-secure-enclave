@@ -62,6 +62,8 @@ static void *nvm_ctx;
 void kill_daemon(int ip)
 {
 	set_nvmd_status_stop(nvm_ctx);
+	nvm_close_session(nvm_ctx);
+	exit(0);
 }
 
 /**
