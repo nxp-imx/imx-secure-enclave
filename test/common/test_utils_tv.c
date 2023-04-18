@@ -15,7 +15,7 @@
 #define DELETE 1
 
 #define MAX_KEY_MGMT_SRV_N 4
-#define MAX_TV_KEY_ID 30
+#define MAX_TV_KEY_ID 60
 
 uint8_t active_key_mgmt_srv_ctr;
 uint8_t active_keys_ctr;
