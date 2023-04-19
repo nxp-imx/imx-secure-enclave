@@ -1,0 +1,364 @@
+#########################################################################
+#
+# - Read test_add_instructions_tv.txt before for format description and the
+#   steps to be followed while adding new test vectors for supported tests
+#
+# - This file contains Cipher Positive Test vectors for ELE HSM API Tests.
+#   Currently Supports test vectors for following operations:
+#   KGEN, CIPHER, MAC, SIGN_VERIFY, HASH, DATA STORAGE
+#
+#########################################################################
+
+
+
+TESTS_START
+
+
+
+OPEN_KEY_MGMT_SRV
+1234             #Key Management ID, KEY_MGMT_TV_ID to be used by tests
+
+
+
+##########################################################################
+# CIPHER Tests Helper: Key Generation Tests
+##########################################################################
+
+#KEY GENERATION Tests for generating keys which can be used in CIPHER TESTS
+
+
+#Positive Case
+TEST_KGEN_PSA_P101_CIPHER_P
+
+KEY_MGMT_TV_ID    1234       # Key Management ID
+KEY_TV_ID         101        # Key TV ID to use the key later
+KEY_ID            0x0        # Key ID to be chosen by FW
+OUT_SIZE          0          # Symmetric Key. So, Public Key Out Size 0
+KEY_TYPE          0x2400     # HSM_KEY_TYPE_AES
+BIT_KEY_SZ        256        # HSM_KEY_SIZE_AES_256
+FLAGS             0          #
+KEY_GROUP         1          # Key Group b/w 0-1023
+KEY_LIFETIME      0x00000100 # HSM_SE_KEY_STORAGE_VOLATILE
+KEY_LIFECYCLE     0x0        # 0 indicates set to current Device Lifecycle
+KEY_USAGE         0x00000300 # HSM_KEY_USAGE_ENCRYPT | HSM_KEY_USAGE_DECRYPT
+PERMITTED_ALGO    0x04404000 # PERMITTED_ALGO_CBC_NO_PADDING
+EXPECTED_HSM_RESP 0x00       # HSM_NO_ERROR
+
+TEST_KGEN_END
+
+
+
+#Positive Case
+TEST_KGEN_PSA_P102_CIPHER_P
+
+KEY_MGMT_TV_ID    1234       # Key Management ID
+KEY_TV_ID         102        # Key TV ID to use the key later
+KEY_ID            0x0        # Key ID to be chosen by FW
+OUT_SIZE          0          # Symmetric Key. So, Public Key Out Size 0
+KEY_TYPE          0x2400     # HSM_KEY_TYPE_AES
+BIT_KEY_SZ        256        # HSM_KEY_SIZE_AES_256
+FLAGS             0          #
+KEY_GROUP         1          # Key Group b/w 0-1023
+KEY_LIFETIME      0x00000100 # HSM_SE_KEY_STORAGE_VOLATILE
+KEY_LIFECYCLE     0x0        # 0 indicates set to current Device Lifecycle
+KEY_USAGE         0x00000300 # HSM_KEY_USAGE_ENCRYPT | HSM_KEY_USAGE_DECRYPT
+PERMITTED_ALGO    0x04404400 # PERMITTED_ALGO_ECB_NO_PADDING
+EXPECTED_HSM_RESP 0x00       # HSM_NO_ERROR
+
+TEST_KGEN_END
+
+
+
+#Positive Case
+TEST_KGEN_PSA_P103_CIPHER_P
+
+KEY_MGMT_TV_ID    1234       # Key Management ID
+KEY_TV_ID         103        # Key TV ID to use the key later
+KEY_ID            0x0        # Key ID to be chosen by FW
+OUT_SIZE          0          # Symmetric Key. So, Public Key Out Size 0
+KEY_TYPE          0x2400     # HSM_KEY_TYPE_AES
+BIT_KEY_SZ        256        # HSM_KEY_SIZE_AES_256
+FLAGS             0          #
+KEY_GROUP         1          # Key Group b/w 0-1023
+KEY_LIFETIME      0x00000100 # HSM_SE_KEY_STORAGE_VOLATILE
+KEY_LIFECYCLE     0x0        # 0 indicates set to current Device Lifecycle
+KEY_USAGE         0x00000300 # HSM_KEY_USAGE_ENCRYPT | HSM_KEY_USAGE_DECRYPT
+PERMITTED_ALGO    0x84C0FF00 # PERMITTED_ALGO_ALL_CIPHER
+EXPECTED_HSM_RESP 0x00       # HSM_NO_ERROR
+
+TEST_KGEN_END
+
+
+
+#Positive Case
+TEST_KGEN_PSA_P104_CIPHER_P
+
+KEY_MGMT_TV_ID    1234       # Key Management ID
+KEY_TV_ID         104        # Key TV ID to use the key later
+KEY_ID            0x0        # Key ID to be chosen by FW
+OUT_SIZE          0          # Symmetric Key. So, Public Key Out Size 0
+KEY_TYPE          0x2400     # HSM_KEY_TYPE_AES
+BIT_KEY_SZ        256        # HSM_KEY_SIZE_AES_256
+FLAGS             0          #
+KEY_GROUP         1          # Key Group b/w 0-1023
+KEY_LIFETIME      0x00000100 # HSM_SE_KEY_STORAGE_VOLATILE
+KEY_LIFECYCLE     0x0        # 0 indicates set to current Device Lifecycle
+KEY_USAGE         0x00000300 # HSM_KEY_USAGE_ENCRYPT | HSM_KEY_USAGE_DECRYPT
+PERMITTED_ALGO    0x04C01000 # PERMITTED_ALGO_CTR
+EXPECTED_HSM_RESP 0x00       # HSM_NO_ERROR
+
+TEST_KGEN_END
+
+
+
+#Positive Case
+TEST_KGEN_PSA_P105_CIPHER_P
+
+KEY_MGMT_TV_ID    1234       # Key Management ID
+KEY_TV_ID         105        # Key TV ID to use the key later
+KEY_ID            0x0        # Key ID to be chosen by FW
+OUT_SIZE          0          # Symmetric Key. So, Public Key Out Size 0
+KEY_TYPE          0x2400     # HSM_KEY_TYPE_AES
+BIT_KEY_SZ        256        # HSM_KEY_SIZE_AES_256
+FLAGS             0          #
+KEY_GROUP         1          # Key Group b/w 0-1023
+KEY_LIFETIME      0x00000100 # HSM_SE_KEY_STORAGE_VOLATILE
+KEY_LIFECYCLE     0x0        # 0 indicates set to current Device Lifecycle
+KEY_USAGE         0x00000300 # HSM_KEY_USAGE_ENCRYPT | HSM_KEY_USAGE_DECRYPT
+PERMITTED_ALGO    0x04C01100 # PERMITTED_ALGO_CFB
+EXPECTED_HSM_RESP 0x00       # HSM_NO_ERROR
+
+TEST_KGEN_END
+
+
+
+#Positive Case
+TEST_KGEN_PSA_P106_CIPHER_P
+
+KEY_MGMT_TV_ID    1234       # Key Management ID
+KEY_TV_ID         106        # Key TV ID to use the key later
+KEY_ID            0x0        # Key ID to be chosen by FW
+OUT_SIZE          0          # Symmetric Key. So, Public Key Out Size 0
+KEY_TYPE          0x2400     # HSM_KEY_TYPE_AES
+BIT_KEY_SZ        256        # HSM_KEY_SIZE_AES_256
+FLAGS             0          #
+KEY_GROUP         1          # Key Group b/w 0-1023
+KEY_LIFETIME      0x00000100 # HSM_SE_KEY_STORAGE_VOLATILE
+KEY_LIFECYCLE     0x0        # 0 indicates set to current Device Lifecycle
+KEY_USAGE         0x00000300 # HSM_KEY_USAGE_ENCRYPT | HSM_KEY_USAGE_DECRYPT
+PERMITTED_ALGO    0x04C01200 # PERMITTED_ALGO_OFB
+EXPECTED_HSM_RESP 0x00       # HSM_NO_ERROR
+
+TEST_KGEN_END
+
+
+
+##########################################################################
+
+
+
+##########################################################################
+# CIPHER Tests
+##########################################################################
+
+# CIPHER tests using Saved Generated Keys with KEY_TV_ID
+
+
+#Positive Case:
+#Test Cipher operation with AES CBC algo using saved Key permitted for AES CBC
+TEST_CIPHER_PSA_P101
+
+KEY_MGMT_TV_ID    1234       # Key Management TV ID
+KEY_TV_ID         101        # Key TV ID from KGEN Tests to use the key
+IV_SIZE           16         # IV Size provided before IV data
+
+IV_DATA           16         # IV data-IV size take input from next line
+0x00, 0x01, 0x02, 0x03, 0x04, 0x05, 0x06, 0x07,
+0x08, 0x09, 0x0A, 0x0B, 0x0C, 0x0D, 0x0E, 0x0F
+
+INPUT_SIZE        32         # Plaintext size before Plaintext/Input data
+
+INPUT_DATA        32         # Plaintext size to take input from next line
+0x00, 0x01, 0x02, 0x03, 0x04, 0x05, 0x06, 0x07,
+0x08, 0x09, 0x0A, 0x0B, 0x0C, 0x0D, 0x0E, 0x0F,
+0x10, 0x11, 0x12, 0x13, 0x14, 0x15, 0x16, 0x17,
+0x18, 0x19, 0x1A, 0x1B, 0x1C, 0x1D, 0x1E, 0x1F
+
+OUTPUT_SIZE       32         # Ciphertext/Output size
+CIPHER_ALGO       0x04404000 # HSM_CIPHER_ONE_GO_ALGO_CBC
+EXPECTED_HSM_RESP 0x00       # HSM_NO_ERROR
+
+TEST_CIPHER_END
+
+
+
+#Positive Case:
+#Test Cipher operation with AES ECB algo using saved Key permitted for AES ECB
+TEST_CIPHER_PSA_P102
+
+KEY_MGMT_TV_ID    1234       # Key Management TV ID
+KEY_TV_ID         102        # Key TV ID from KGEN Tests to use the key
+IV_SIZE           0          # IV Size provided before IV data
+IV_DATA           0          # IV data-IV size take input from next line
+INPUT_SIZE        32         # Plaintext size before Plaintext/Input data
+
+INPUT_DATA        32         # Plaintext size to take input from next line
+0x00, 0x01, 0x02, 0x03, 0x04, 0x05, 0x06, 0x07,
+0x08, 0x09, 0x0A, 0x0B, 0x0C, 0x0D, 0x0E, 0x0F,
+0x10, 0x11, 0x12, 0x13, 0x14, 0x15, 0x16, 0x17,
+0x18, 0x19, 0x1A, 0x1B, 0x1C, 0x1D, 0x1E, 0x1F
+
+OUTPUT_SIZE       32         # Ciphertext/Output size
+CIPHER_ALGO       0x04404400 # HSM_CIPHER_ONE_GO_ALGO_ECB
+EXPECTED_HSM_RESP 0x00       # HSM_NO_ERROR
+
+TEST_CIPHER_END
+
+
+
+#Positive Case:
+#Test Cipher operation with AES CBC using Key permitted for All Cipher algo
+TEST_CIPHER_PSA_P103
+
+KEY_MGMT_TV_ID    1234       # Key Management TV ID
+KEY_TV_ID         103        # Key TV ID from KGEN Tests to use the key
+IV_SIZE           16         # IV Size provided before IV data
+
+IV_DATA           16         # IV data-IV size take input from next line
+0x00, 0x01, 0x02, 0x03, 0x04, 0x05, 0x06, 0x07,
+0x08, 0x09, 0x0A, 0x0B, 0x0C, 0x0D, 0x0E, 0x0F
+
+INPUT_SIZE        32         # Plaintext size before Plaintext/Input data
+
+INPUT_DATA        32         # Plaintext size to take input from next line
+0x00, 0x01, 0x02, 0x03, 0x04, 0x05, 0x06, 0x07,
+0x08, 0x09, 0x0A, 0x0B, 0x0C, 0x0D, 0x0E, 0x0F,
+0x10, 0x11, 0x12, 0x13, 0x14, 0x15, 0x16, 0x17,
+0x18, 0x19, 0x1A, 0x1B, 0x1C, 0x1D, 0x1E, 0x1F
+
+OUTPUT_SIZE       32         # Ciphertext/Output size
+CIPHER_ALGO       0x04404000 # HSM_CIPHER_ONE_GO_ALGO_CBC
+EXPECTED_HSM_RESP 0x00       # HSM_NO_ERROR
+
+TEST_CIPHER_END
+
+
+
+#Positive Case:
+#Test Cipher operation with AES ECB using Key permitted for All Cipher algo
+TEST_CIPHER_PSA_P104
+
+KEY_MGMT_TV_ID    1234       # Key Management TV ID
+KEY_TV_ID         103        # Key TV ID from KGEN Tests to use the key
+IV_SIZE           0          # IV Size provided before IV data
+IV_DATA           0          # IV data-IV size, for 0 size, No buffer input
+INPUT_SIZE        32         # Plaintext size before Plaintext/Input data
+
+INPUT_DATA        32         # Plaintext size to take input from next line
+0x00, 0x01, 0x02, 0x03, 0x04, 0x05, 0x06, 0x07,
+0x08, 0x09, 0x0A, 0x0B, 0x0C, 0x0D, 0x0E, 0x0F,
+0x10, 0x11, 0x12, 0x13, 0x14, 0x15, 0x16, 0x17,
+0x18, 0x19, 0x1A, 0x1B, 0x1C, 0x1D, 0x1E, 0x1F
+
+OUTPUT_SIZE       32         # Ciphertext/Output size
+CIPHER_ALGO       0x04404400 # HSM_CIPHER_ONE_GO_ALGO_ECB
+EXPECTED_HSM_RESP 0x00       # HSM_NO_ERROR
+
+TEST_CIPHER_END
+
+
+
+#Positive Case:
+#Test Cipher operation with AES CTR algo using saved Key permitted for AES CTR
+TEST_CIPHER_PSA_P105
+
+KEY_MGMT_TV_ID    1234       # Key Management TV ID
+KEY_TV_ID         104        # Key TV ID from KGEN Tests to use the key
+IV_SIZE           16         # IV Size provided before IV data
+
+IV_DATA           16         # IV data-IV size take input from next line
+0x00, 0x01, 0x02, 0x03, 0x04, 0x05, 0x06, 0x07,
+0x08, 0x09, 0x0A, 0x0B, 0x0C, 0x0D, 0x0E, 0x0F
+
+INPUT_SIZE        32         # Plaintext size before Plaintext/Input data
+
+INPUT_DATA        32         # Plaintext size to take input from next line
+0x00, 0x01, 0x02, 0x03, 0x04, 0x05, 0x06, 0x07,
+0x08, 0x09, 0x0A, 0x0B, 0x0C, 0x0D, 0x0E, 0x0F,
+0x10, 0x11, 0x12, 0x13, 0x14, 0x15, 0x16, 0x17,
+0x18, 0x19, 0x1A, 0x1B, 0x1C, 0x1D, 0x1E, 0x1F
+
+OUTPUT_SIZE       32         # Ciphertext/Output size
+CIPHER_ALGO       0x04C01000 # HSM_CIPHER_ONE_GO_ALGO_CTR
+EXPECTED_HSM_RESP 0x00       # HSM_NO_ERROR
+
+TEST_CIPHER_END
+
+
+
+#Positive Case:
+#Test Cipher operation with AES CFB algo using saved Key permitted for AES CFB
+TEST_CIPHER_PSA_P106
+
+KEY_MGMT_TV_ID    1234       # Key Management TV ID
+KEY_TV_ID         105        # Key TV ID from KGEN Tests to use the key
+IV_SIZE           16         # IV Size provided before IV data
+
+IV_DATA           16         # IV data-IV size take input from next line
+0x00, 0x01, 0x02, 0x03, 0x04, 0x05, 0x06, 0x07,
+0x08, 0x09, 0x0A, 0x0B, 0x0C, 0x0D, 0x0E, 0x0F
+
+INPUT_SIZE        32         # Plaintext size before Plaintext/Input data
+
+INPUT_DATA        32         # Plaintext size to take input from next line
+0x00, 0x01, 0x02, 0x03, 0x04, 0x05, 0x06, 0x07,
+0x08, 0x09, 0x0A, 0x0B, 0x0C, 0x0D, 0x0E, 0x0F,
+0x10, 0x11, 0x12, 0x13, 0x14, 0x15, 0x16, 0x17,
+0x18, 0x19, 0x1A, 0x1B, 0x1C, 0x1D, 0x1E, 0x1F
+
+OUTPUT_SIZE       32         # Ciphertext/Output size
+CIPHER_ALGO       0x04C01100 # HSM_CIPHER_ONE_GO_ALGO_CFB
+EXPECTED_HSM_RESP 0x00       # HSM_NO_ERROR
+
+TEST_CIPHER_END
+
+
+
+#Positive Case:
+#Test Cipher operation with AES OFB algo using saved Key permitted for AES OFB
+TEST_CIPHER_PSA_P107
+
+KEY_MGMT_TV_ID    1234       # Key Management TV ID
+KEY_TV_ID         106        # Key TV ID from KGEN Tests to use the key
+IV_SIZE           16         # IV Size provided before IV data
+
+IV_DATA           16         # IV data-IV size take input from next line
+0x00, 0x01, 0x02, 0x03, 0x04, 0x05, 0x06, 0x07,
+0x08, 0x09, 0x0A, 0x0B, 0x0C, 0x0D, 0x0E, 0x0F
+
+INPUT_SIZE        32         # Plaintext size before Plaintext/Input data
+
+INPUT_DATA        32         # Plaintext size to take input from next line
+0x00, 0x01, 0x02, 0x03, 0x04, 0x05, 0x06, 0x07,
+0x08, 0x09, 0x0A, 0x0B, 0x0C, 0x0D, 0x0E, 0x0F,
+0x10, 0x11, 0x12, 0x13, 0x14, 0x15, 0x16, 0x17,
+0x18, 0x19, 0x1A, 0x1B, 0x1C, 0x1D, 0x1E, 0x1F
+
+OUTPUT_SIZE       32         # Ciphertext/Output size
+CIPHER_ALGO       0x04C01200 # HSM_CIPHER_ONE_GO_ALGO_OFB
+EXPECTED_HSM_RESP 0x00       # HSM_NO_ERROR
+
+TEST_CIPHER_END
+
+
+
+##########################################################################
+
+
+
+CLOSE_KEY_MGMT_SRV
+1234     #KEY_MGMT_TV_ID
+
+
+
+TESTS_END

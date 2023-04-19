@@ -1,0 +1,115 @@
+#########################################################################
+#
+# - Read test_add_instructions_tv.txt before for format description and the
+#   steps to be followed while adding new test vectors for supported tests
+#
+# - This file contains MAC Negative Test vectors for ELE HSM API Tests.
+#   Currently Supports test vectors for following operations:
+#   KGEN, CIPHER, MAC, SIGN_VERIFY, HASH, DATA STORAGE
+#
+#########################################################################
+
+
+TESTS_START
+
+
+OPEN_KEY_MGMT_SRV
+1234             #Key Management ID, KEY_MGMT_TV_ID to be used by tests
+
+
+##########################################################################
+# MAC Tests Helper: Key Generation Tests
+##########################################################################
+
+#KEY GENERATION Tests for generating keys which can be used in MAC TESTS
+
+
+#Positive Case
+TEST_KGEN_PSA_P201_MAC_N
+
+KEY_MGMT_TV_ID    1234       # Key Management ID
+KEY_TV_ID         201        # Key TV ID to use the key later
+KEY_ID            0x0        # Key ID to be chosen by FW
+OUT_SIZE          0          # Symmetric Key. So, Public Key Out Size 0
+KEY_TYPE          0x1100     # HSM_KEY_TYPE_HMAC
+BIT_KEY_SZ        256        # HSM_KEY_SIZE_HMAC_256
+FLAGS             0          #
+KEY_GROUP         3          # Key Group b/w 0-1023
+KEY_LIFETIME      0x00000100 # HSM_SE_KEY_STORAGE_VOLATILE
+KEY_LIFECYCLE     0x0        # 0 indicates set to current Device Lifecycle
+KEY_USAGE         0x00000C00 # HSM_KEY_USAGE_SIGN_MSG | HSM_KEY_USAGE_VERIFY_MSG
+PERMITTED_ALGO    0x03800009 # PERMITTED_ALGO_HMAC_SHA256
+EXPECTED_HSM_RESP 0x00       # HSM_NO_ERROR
+
+TEST_KGEN_END
+
+
+##########################################################################
+
+
+
+##########################################################################
+# MAC Tests
+##########################################################################
+
+# MAC tests using Saved Generated Keys with KEY_TV_ID
+
+
+#Negative Case:
+#Test MAC operation for Incorrect input MAC size
+TEST_MAC_PSA_N201
+
+KEY_MGMT_TV_ID    1234       # Key Management TV ID
+KEY_TV_ID         201        # Key TV ID from KGEN Tests to use the key
+MAC_ALGO          0x03800009 # PERMITTED_ALGO_HMAC_SHA256
+PAYLOAD_SIZE      32         # Payload Size provided before Payload data
+
+PAYLOAD_DATA      32         # Payload data-Payload size, input from next line
+0xB2, 0xE1, 0x4C, 0x5C, 0x79, 0xC6, 0xDF, 0x5B,
+0x85, 0xF4, 0xFE, 0x7E, 0xD8, 0xDB, 0x7A, 0x26
+0x2B, 0x9D, 0xA7, 0xE0, 0x7C, 0xCB, 0x0E, 0xA9,
+0xF4, 0x74, 0x7B, 0x8C, 0xCD, 0xA8, 0xA4, 0xF3
+
+MAC_SIZE          16         # MAC buffer size
+EXP_MAC_SIZE      32         # Expected MAC size as HSM_OUT_TOO_SMALL (0x1D)
+EXP_VERIFICATION_STATUS 0x0  # MAC Verification failure status
+EXP_MAC_GEN_HSM_RESP    0x1D # HSM_OUT_TOO_SMALL
+EXP_MAC_VERIFY_HSM_RESP 0xFD # HSM_SIGNATURE_INVALID
+
+TEST_MAC_END
+
+
+
+#Negative Case:
+#Test MAC operation with Unknown Key ID
+TEST_MAC_PSA_N202
+
+KEY_MGMT_TV_ID    1234       # Key Management TV ID
+KEY_TV_ID         299        # No Key that corresponds this KEY_TV_ID
+MAC_ALGO          0x03C00200 # PERMITTED_ALGO_CMAC
+PAYLOAD_SIZE      16         # Payload Size provided before Payload data
+
+PAYLOAD_DATA      16         # Payload data-Payload size, input from next line
+0xB2, 0xE1, 0x4C, 0x5C, 0x79, 0xC6, 0xDF, 0x5B,
+0x85, 0xF4, 0xFE, 0x7E, 0xD8, 0xDB, 0x7A, 0x26
+
+MAC_SIZE          16         # MAC buffer size
+EXP_MAC_SIZE      0          # Ignored as expected error HSM_UNKNOWN_ID
+EXP_VERIFICATION_STATUS 0x0  # Not validated as Error expected
+EXP_MAC_GEN_HSM_RESP    0x03 # HSM_UNKNOWN_ID
+EXP_MAC_VERIFY_HSM_RESP 0x03 # HSM_UNKNOWN_ID
+
+TEST_MAC_END
+
+
+
+##########################################################################
+
+
+
+CLOSE_KEY_MGMT_SRV
+1234     #KEY_MGMT_TV_ID
+
+
+
+TESTS_END

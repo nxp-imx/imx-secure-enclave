@@ -19,7 +19,7 @@ DEFINES += -DLIB_MAJOR_VERSION=${MAJOR_VER}
 NVM_DAEMON := nvm_daemon
 NVMD_CONF_FILE := nvmd.conf
 SYSTEMD_NVM_SERVICE := nvm_daemon.service
-TEST_VECTOR_FNAME := test_vectors.tv
+TEST_VECTOR_FNAME ?= test_vectors_*.tv
 OPENSSL_PATH ?= ../openssl/
 
 ifdef COVERAGE

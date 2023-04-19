@@ -3,15 +3,17 @@
  * Copyright 2022-2023 NXP
  */
 
+#include <errno.h>
 #include <stdio.h>
 #include <stdint.h>
 #include <stdlib.h>
 #include <string.h>
+#include <dirent.h>
 
 #include "test_common_tv.h"
 
-/* To run tests in Test Vector file */
-void tv_tests_run(hsm_hdl_t key_store_hdl, uint8_t *tv_file_path)
+// Run tests of selected Test Vector file
+static void tv_tests(hsm_hdl_t key_store_hdl, uint8_t *tv_file_path)
 {
 	uint32_t key_mgmt_tv_id = 0;
 
@@ -21,15 +23,11 @@ void tv_tests_run(hsm_hdl_t key_store_hdl, uint8_t *tv_file_path)
 	FILE *fp = NULL;
 	ssize_t read;
 
-	// open default test vector file as custom tv file path not provided.
-	if (tv_file_path == NULL)
-		tv_file_path = DEFAULT_TV_FPATH;
-
 	fp = fopen(tv_file_path, "r");
 
 	printf("\n\nTest Vector file: %s\n", tv_file_path);
 
-	if (fp == NULL) {
+	if (!fp) {
 		printf("\nERROR: Failed to open %s.\n\n", tv_file_path);
 		return;
 	}
@@ -128,6 +126,87 @@ void tv_tests_run(hsm_hdl_t key_store_hdl, uint8_t *tv_file_path)
 	printf("TEST VECTORS: TESTS ENDED");
 	printf("\n------------------------------\n\n");
 
-	free(line);
-	fclose(fp);
+	if (line)
+		free(line);
+
+	if (fp)
+		fclose(fp);
+}
+
+// return 0 if file extension matches expected extension
+static uint32_t extn_match(char *fname, char *exp_extn)
+{
+	char *file_extn = strrchr(fname, '.');
+
+	if (file_extn == fname || !file_extn)
+		return 1;
+
+	// compare file extensions
+	if (strcmp(file_extn, exp_extn) == 0)
+		return 0;
+}
+
+static uint32_t readdir_extn_files(hsm_hdl_t key_store_hdl,
+				   char *dir_name,
+				   char *exp_extn)
+{
+	uint32_t ret = 1;
+	struct dirent *dir_data;
+	DIR *dir_p;
+	char *fpath;
+	uint32_t fpath_len;
+
+	if (!dir_name || !exp_extn)
+		goto out;
+
+	dir_p = opendir(dir_name);
+
+	if (!dir_p) {
+		printf("\nError: Failed to open %s directory. errno [%d]: %s\n",
+		       dir_name,
+		       errno,
+		       strerror(errno));
+		goto out;
+	}
+
+	// loop over directory's all files
+	while ((dir_data = readdir(dir_p))) {
+		if (extn_match(dir_data->d_name, exp_extn) == 0) {
+			fpath_len = strlen(dir_name) + strlen(dir_data->d_name) + 1;
+			fpath = (char *)malloc(fpath_len);
+
+			snprintf(fpath,
+				 fpath_len,
+				 "%s%s",
+				 dir_name,
+				 dir_data->d_name);
+
+			tv_tests(key_store_hdl, fpath);
+
+			if (fpath)
+				free(fpath);
+		}
+	}
+
+	ret = 0;
+out:
+	if (dir_p)
+		closedir(dir_p);
+
+	return ret;
+}
+
+/* Run Test Vector tests */
+void tv_tests_run(hsm_hdl_t key_store_hdl, uint8_t *tv_file_path)
+{
+	/*
+	 * If Custom TV file path not provided, Loop over all .tv files in the
+	 * Test Vectors DIR
+	 */
+	if (!tv_file_path) {
+		readdir_extn_files(key_store_hdl, DEFAULT_TV_DIR, DEFAULT_TV_FEXTN);
+		return;
+	}
+
+	tv_tests(key_store_hdl, tv_file_path);
 }
