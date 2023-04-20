@@ -315,6 +315,71 @@ TEST_KGEN_END
 
 
 
+#Negative Case - Key Generation of RSA 2048 asymmetric key pair
+#Invalid Out size, less than required
+TEST_KGEN_PSA_015
+
+KEY_MGMT_TV_ID    1234       # Key Management ID
+KEY_TV_ID         15         # Key TV ID to use the key later
+KEY_ID            0x0        # Key ID 0 for Volatile Key
+OUT_SIZE          255        # Public Key Out Size
+KEY_TYPE          0x7001     # HSM_KEY_TYPE_RSA
+BIT_KEY_SZ        2048       # HSM_KEY_SIZE_RSA_2048
+FLAGS             0          #
+KEY_GROUP         8          # Key Group b/w 0-1023
+KEY_LIFETIME      0x00000100 # HSM_SE_KEY_STORAGE_VOLATILE
+KEY_LIFECYCLE     0x0        # 0 indicates set to current Device Lifecycle
+KEY_USAGE         0x00003000 # HSM_KEY_USAGE_SIGN_HASH | HSM_KEY_USAGE_VERIFY_HASH
+PERMITTED_ALGO    0x06000209 # PERMITTED_ALGO_RSA_PKCS1_V15_SHA256
+EXPECTED_HSM_RESP 0x1D       # HSM_OUT_TOO_SMALL
+
+TEST_KGEN_END
+
+
+
+#Negative Case - Key Generation of RSA 3072 asymmetric key pair
+#Invalid Key Lifecycle value
+TEST_KGEN_PSA_016
+
+KEY_MGMT_TV_ID    1234       # Key Management ID
+KEY_TV_ID         16         # Key TV ID to use the key later
+KEY_ID            0x0        # Key ID 0 for Volatile Key
+OUT_SIZE          384        # Public Key Out Size
+KEY_TYPE          0x7001     # HSM_KEY_TYPE_RSA
+BIT_KEY_SZ        3072       # HSM_KEY_SIZE_RSA_3072
+FLAGS             0          #
+KEY_GROUP         8          # Key Group b/w 0-1023
+KEY_LIFETIME      0x00000100 # HSM_SE_KEY_STORAGE_VOLATILE
+KEY_LIFECYCLE     0x0000FFFF #
+KEY_USAGE         0x00003000 # HSM_KEY_USAGE_SIGN_HASH | HSM_KEY_USAGE_VERIFY_HASH
+PERMITTED_ALGO    0x0600020A # PERMITTED_ALGO_RSA_PKCS1_V15_SHA384
+EXPECTED_HSM_RESP 0x04       # HSM_INVALID_PARAM
+
+TEST_KGEN_END
+
+
+
+#Negative Case - Key Generation of RSA 4096 asymmetric key pair
+#Invalid Key Usage value
+TEST_KGEN_PSA_017
+
+KEY_MGMT_TV_ID    1234       # Key Management ID
+KEY_TV_ID         17         # Key TV ID to use the key later
+KEY_ID            0x0        # Key ID 0 for Volatile Key
+OUT_SIZE          512        # Public Key Out Size
+KEY_TYPE          0x7001     # HSM_KEY_TYPE_RSA
+BIT_KEY_SZ        4096       # HSM_KEY_SIZE_RSA_4096
+FLAGS             0          #
+KEY_GROUP         8          # Key Group b/w 0-1023
+KEY_LIFETIME      0x00000100 # HSM_SE_KEY_STORAGE_VOLATILE
+KEY_LIFECYCLE     0x0        # 0 indicates set to current Device Lifecycle
+KEY_USAGE         0x00009000 #
+PERMITTED_ALGO    0x0600020B # PERMITTED_ALGO_RSA_PKCS1_V15_SHA512
+EXPECTED_HSM_RESP 0x04       # HSM_INVALID_PARAM
+
+TEST_KGEN_END
+
+
 
 #########################################################################
 Persistent Key KGEN Tests
@@ -329,10 +394,10 @@ LOAD_PERSIST_KEY_INFO
 #Positive Case
 #Test Generate Key API for Persistent Key Generation or Usage in getting
 #Key Attributes if already generated
-TEST_KGEN_PSA_015
+TEST_KGEN_PSA_018
 
 KEY_MGMT_TV_ID    1234       # Key Management ID
-KEY_TV_ID         15         # Key TV ID to use the key later
+KEY_TV_ID         18         # Key TV ID to use the key later
 KEY_ID            0x0        # Key ID 0 for Volatile Key
 OUT_SIZE          0          # Symmetric Key. So, Public Key Out Size 0
 KEY_TYPE          0x2400     # HSM_KEY_TYPE_AES
@@ -352,10 +417,10 @@ TEST_KGEN_END
 #Postive Case
 #Test Generate Key API for Persistent Key Generation or Usage in getting
 #Key Attributes if already generated
-TEST_KGEN_PSA_016
+TEST_KGEN_PSA_019
 
 KEY_MGMT_TV_ID    1234       # Key Management ID
-KEY_TV_ID         16         # Key TV ID to use the key later
+KEY_TV_ID         19         # Key TV ID to use the key later
 KEY_ID            0x0        # Key ID 0 for Volatile Key
 OUT_SIZE          0          # Symmetric Key. So, Public Key Out Size 0
 KEY_TYPE          0x1100     # HSM_KEY_TYPE_HMAC
@@ -375,10 +440,10 @@ TEST_KGEN_END
 #Positive Case
 #Test Generate Key API for Persistent Key Generation or Usage in getting
 #Key Attributes if already generated
-TEST_KGEN_PSA_017
+TEST_KGEN_PSA_020
 
 KEY_MGMT_TV_ID    1234       # Key Management ID
-KEY_TV_ID         17         # Key TV ID to use the key later
+KEY_TV_ID         20         # Key TV ID to use the key later
 KEY_ID            0x0        # Key ID 0 for Volatile Key
 OUT_SIZE          64         # Public Key Out Size
 KEY_TYPE          0x7112     # HSM_KEY_TYPE_ECC_NIST
@@ -403,10 +468,10 @@ Key Generation - Input KEY_ID (non-zero)
 #Positive Case
 #Test Generate Key API for Persistent Key Generation or Usage in getting
 #Key Attributes if already generated, with valid Key Identifier input value
-TEST_KGEN_PSA_018
+TEST_KGEN_PSA_021
 
 KEY_MGMT_TV_ID    1234       # Key Management ID
-KEY_TV_ID         18         # Key TV ID to use the key later
+KEY_TV_ID         21         # Key TV ID to use the key later
 KEY_ID            0x00000001 #
 OUT_SIZE          0          # Symmetric Key. So, Public Key Out Size 0
 KEY_TYPE          0x2400     # HSM_KEY_TYPE_AES
@@ -426,10 +491,10 @@ TEST_KGEN_END
 #Positive Case
 #Test Generate Key API for Persistent Key Generation or Usage in getting
 #Key Attributes if already generated, with valid Key Identifier input value
-TEST_KGEN_PSA_019
+TEST_KGEN_PSA_022
 
 KEY_MGMT_TV_ID    1234       # Key Management ID
-KEY_TV_ID         19         # Key TV ID to use the key later
+KEY_TV_ID         22         # Key TV ID to use the key later
 KEY_ID            0x3FFFFFFA #
 OUT_SIZE          0          # Symmetric Key. So, Public Key Out Size 0
 KEY_TYPE          0x1100     # HSM_KEY_TYPE_HMAC
@@ -449,10 +514,10 @@ TEST_KGEN_END
 #Positive Case
 #Test Generate Key API for Persistent Key Generation or Usage in getting
 #Key Attributes if already generated, with valid Key Identifier input value
-TEST_KGEN_PSA_020
+TEST_KGEN_PSA_023
 
 KEY_MGMT_TV_ID    1234       # Key Management ID
-KEY_TV_ID         20         # Key TV ID to use the key later
+KEY_TV_ID         23         # Key TV ID to use the key later
 KEY_ID            0x20000000 #
 OUT_SIZE          64         # Public Key Out Size
 KEY_TYPE          0x7112     # HSM_KEY_TYPE_ECC_NIST
@@ -471,10 +536,10 @@ TEST_KGEN_END
 
 #Negative Case
 #Out of Range Key ID value for Persistent Key
-TEST_KGEN_PSA_021
+TEST_KGEN_PSA_024
 
 KEY_MGMT_TV_ID    1234       # Key Management ID
-KEY_TV_ID         21         # Key TV ID to use the key later
+KEY_TV_ID         24         # Key TV ID to use the key later
 KEY_ID            0x5555FFFF #
 OUT_SIZE          56         # Public Key Out Size
 KEY_TYPE          0x7112     # HSM_KEY_TYPE_ECC_NIST
@@ -493,10 +558,10 @@ TEST_KGEN_END
 
 #Negative Case
 #Out of Range Key ID value for Persistent Key
-TEST_KGEN_PSA_022
+TEST_KGEN_PSA_025
 
 KEY_MGMT_TV_ID    1234       # Key Management ID
-KEY_TV_ID         22         # Key TV ID to use the key later
+KEY_TV_ID         25         # Key TV ID to use the key later
 KEY_ID            0x4FFFFFFE #
 OUT_SIZE          132        # Public Key Out Size
 KEY_TYPE          0x7112     # HSM_KEY_TYPE_ECC_NIST
@@ -514,10 +579,10 @@ TEST_KGEN_END
 
 
 #Positive Case - Valid Key Identifier input value in range
-TEST_KGEN_PSA_023
+TEST_KGEN_PSA_026
 
 KEY_MGMT_TV_ID    1234       # Key Management ID
-KEY_TV_ID         23         # Key TV ID to use the key later
+KEY_TV_ID         26         # Key TV ID to use the key later
 KEY_ID            0x50000000 #
 OUT_SIZE          0          # Symmetric Key. So, Public Key Out Size 0
 KEY_TYPE          0x2400     # HSM_KEY_TYPE_AES
@@ -535,10 +600,10 @@ TEST_KGEN_END
 
 
 #Positive Case - Valid Key Identifier input value in range
-TEST_KGEN_PSA_024
+TEST_KGEN_PSA_027
 
 KEY_MGMT_TV_ID    1234       # Key Management ID
-KEY_TV_ID         24         # Key TV ID to use the key later
+KEY_TV_ID         27         # Key TV ID to use the key later
 KEY_ID            0x60000000 #
 OUT_SIZE          0          # Symmetric Key. So, Public Key Out Size 0
 KEY_TYPE          0x1100     # HSM_KEY_TYPE_HMAC
@@ -556,10 +621,10 @@ TEST_KGEN_END
 
 
 #Positive Case - Valid Key Identifier input value in range
-TEST_KGEN_PSA_025
+TEST_KGEN_PSA_028
 
 KEY_MGMT_TV_ID    1234       # Key Management ID
-KEY_TV_ID         25         # Key TV ID to use the key later
+KEY_TV_ID         28         # Key TV ID to use the key later
 KEY_ID            0x7FFFFFF0 #
 OUT_SIZE          64         # Public Key Out Size
 KEY_TYPE          0x7112     # HSM_KEY_TYPE_ECC_NIST
@@ -578,10 +643,10 @@ TEST_KGEN_END
 
 #Negative Case
 #Out of Range Key ID value for Volatile Key
-TEST_KGEN_PSA_026
+TEST_KGEN_PSA_029
 
 KEY_MGMT_TV_ID    1234       # Key Management ID
-KEY_TV_ID         26         # Key TV ID to use the key later
+KEY_TV_ID         29         # Key TV ID to use the key later
 KEY_ID            0x45000000 #
 OUT_SIZE          64         # Public Key Out Size
 KEY_TYPE          0x7112     # HSM_KEY_TYPE_ECC_NIST
@@ -599,10 +664,10 @@ TEST_KGEN_END
 
 #Negative Case
 #Out of Range Key ID value for Volatile Key
-TEST_KGEN_PSA_027
+TEST_KGEN_PSA_030
 
 KEY_MGMT_TV_ID    1234       # Key Management ID
-KEY_TV_ID         27         # Key TV ID to use the key later
+KEY_TV_ID         30         # Key TV ID to use the key later
 KEY_ID            0x30000000 #
 OUT_SIZE          0          # Symmetric Key. So, Public Key Out Size 0
 KEY_TYPE          0x2400     # HSM_KEY_TYPE_AES
