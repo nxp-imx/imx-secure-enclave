@@ -119,6 +119,12 @@ SAB_MSG_SRC	+= \
 		$(PLAT_COMMON_PATH)/sab_msg/sab_session.o
 endif
 
+ifneq (${MT_SAB_KEY_STORE},0x0)
+DEFINES		+=	-DMT_SAB_KEY_STORE=${MT_SAB_KEY_STORE}
+SAB_MSG_SRC	+= \
+		$(PLAT_COMMON_PATH)/sab_msg/sab_key_store.o
+endif
+
 ifneq (${MT_SAB_CIPHER},0x0)
 DEFINES		+=	-DMT_SAB_CIPHER=${MT_SAB_CIPHER}
 SAB_MSG_SRC	+= \

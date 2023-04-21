@@ -380,37 +380,6 @@ struct she_cmd_get_id_rsp {
        uint32_t crc;
 };
 
-struct sab_cmd_key_store_open_msg{
-    struct sab_mu_hdr hdr;
-    uint32_t session_handle;
-    uint32_t key_store_id;
-    uint32_t password;
-    uint16_t max_updates;
-    uint8_t flags;
-#ifndef PSA_COMPLIANT
-    uint8_t min_mac_length;
-#else
-    uint8_t rsv;
-#endif
-    uint32_t crc;
-} ;
-
-struct sab_cmd_key_store_open_rsp {
-    struct sab_mu_hdr hdr;
-    uint32_t rsp_code;
-    uint32_t key_store_handle;
-} ;
-
-struct sab_cmd_key_store_close_msg{
-    struct sab_mu_hdr hdr;
-    uint32_t key_store_handle;
-} ;
-
-struct sab_cmd_key_store_close_rsp {
-    struct sab_mu_hdr hdr;
-    uint32_t rsp_code;
-} ;
-
 struct sab_cmd_key_management_open_msg{
     struct sab_mu_hdr hdr;
     uint32_t key_store_handle;

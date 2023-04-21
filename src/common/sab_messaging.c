@@ -56,69 +56,6 @@ uint32_t sab_get_shared_buffer(struct plat_os_abs_hdl *phdl, uint32_t session_ha
     return ret;
 }
 
-uint32_t sab_open_key_store_command(struct plat_os_abs_hdl *phdl, uint32_t session_handle, uint32_t *key_store_handle, uint32_t mu_type, uint32_t key_storage_identifier, uint32_t password, uint16_t max_updates, uint8_t flags, uint8_t min_mac_length)
-{
-    struct sab_cmd_key_store_open_msg cmd = {0};
-    struct sab_cmd_key_store_open_rsp rsp = {0};
-
-    uint32_t ret = SAB_FAILURE_STATUS;
-	int32_t error;
-    do {
-        /* Send the keys store open command to Platform. */
-        plat_fill_cmd_msg_hdr(&cmd.hdr, SAB_KEY_STORE_OPEN_REQ, (uint32_t)sizeof(struct sab_cmd_key_store_open_msg), mu_type);
-
-        cmd.session_handle = session_handle;
-        cmd.key_store_id = key_storage_identifier;
-        cmd.password = password;
-        cmd.flags = flags;
-        cmd.max_updates = max_updates;
-#ifndef PSA_COMPLIANT
-        cmd.min_mac_length = min_mac_length;
-#endif
-        cmd.crc = plat_compute_msg_crc((uint32_t*)&cmd, (uint32_t)(sizeof(cmd) - sizeof(uint32_t)));
-
-        error = plat_send_msg_and_get_resp(phdl,
-                    (uint32_t *)&cmd, (uint32_t)sizeof(struct sab_cmd_key_store_open_msg),
-                    (uint32_t *)&rsp, (uint32_t)sizeof(struct sab_cmd_key_store_open_rsp));
-        if (error != 0) {
-            break;
-        }
-
-		sab_err_map(SAB_KEY_STORE_OPEN_REQ, rsp.rsp_code);
-
-        ret = rsp.rsp_code;
-        *key_store_handle = rsp.key_store_handle;
-    } while(false);
-    return ret;
-}
-
-uint32_t sab_close_key_store(struct plat_os_abs_hdl *phdl, uint32_t key_store_handle, uint32_t mu_type)
-{
-    struct sab_cmd_key_store_close_msg cmd;
-    struct sab_cmd_key_store_close_rsp rsp;
-	int32_t error;
-    uint32_t ret = SAB_FAILURE_STATUS;
-
-    do {
-        /* Send the keys store close command to Platform. */
-        plat_fill_cmd_msg_hdr(&cmd.hdr, SAB_KEY_STORE_CLOSE_REQ, (uint32_t)sizeof(struct sab_cmd_key_store_close_msg), mu_type);
-        cmd.key_store_handle = key_store_handle;
-
-        error = plat_send_msg_and_get_resp(phdl,
-                    (uint32_t *)&cmd, (uint32_t)sizeof(struct sab_cmd_key_store_close_msg),
-                    (uint32_t *)&rsp, (uint32_t)sizeof(struct sab_cmd_key_store_close_rsp));
-        if (error != 0) {
-            break;
-        }
-
-		sab_err_map(SAB_KEY_STORE_CLOSE_REQ, rsp.rsp_code);
-
-        ret = rsp.rsp_code;
-
-    } while(false);
-    return ret;
-}
-
 uint32_t sab_open_sm2_eces(struct plat_os_abs_hdl *phdl, uint32_t key_store_handle, uint32_t *sm2_eces_handle, uint32_t mu_type, uint8_t flags)
 {
     struct sab_cmd_sm2_eces_dec_open_msg cmd;

@@ -98,6 +98,10 @@
 #include "sab_session.h"
 #endif
 
+#if MT_SAB_KEY_STORE
+#include "sab_key_store.h"
+#endif
+
 static int init_proc_sab_base_msg_engine(msg_type_t msg_type,
 					 uint32_t msg_id)
 {
@@ -331,6 +335,22 @@ static  int init_proc_sab_hsm_msg_engine(msg_type_t msg_type,
 			ret = add_sab_msg_handler(msg_id, MT_SAB_SESSION,
 						  prepare_msg_session_close_req,
 						  proc_msg_rsp_session_close_req);
+		}
+		break;
+#endif
+#if MT_SAB_KEY_STORE
+	case SAB_KEY_STORE_OPEN_REQ:
+		if (msg_type == MT_SAB_KEY_STORE) {
+			ret = add_sab_msg_handler(msg_id, MT_SAB_KEY_STORE,
+						  prepare_msg_key_store_open_req,
+						  proc_msg_rsp_key_store_open_req);
+		}
+		break;
+	case SAB_KEY_STORE_CLOSE_REQ:
+		if (msg_type == MT_SAB_KEY_STORE) {
+			ret = add_sab_msg_handler(msg_id, MT_SAB_KEY_STORE,
+						  prepare_msg_key_store_close_req,
+						  proc_msg_rsp_key_store_close_req);
 		}
 		break;
 #endif
