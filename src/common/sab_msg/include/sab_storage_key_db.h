@@ -63,8 +63,8 @@ struct sab_cmd_key_db_msg {
 
 struct sab_cmd_key_db_rsp {
 	struct sab_mu_hdr hdr;
-	uint32_t fw_id;
 	uint32_t rsp;
+	uint32_t fw_id;
 };
 
 struct key_ids_db {

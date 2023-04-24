@@ -497,6 +497,10 @@ static uint32_t storage_key_db_push_id_flag(int tmp_pers_file_fd, uint16_t group
 		goto out;
 	}
 
+	/* No key to push, return success */
+	if (file_size == 0x0u)
+		goto out;
+
 	/* Browse entire file */
 	do {
 		err = plat_os_abs_storage_pread(tmp_pers_file_fd, (void *)&ids,
@@ -570,6 +574,12 @@ static uint32_t storage_key_db_update_pers_file(uint8_t *nvm_storage_dname,
 	if (file_size % sizeof(struct key_ids_db)) {
 		/* File is corrupted */
 		err = PLAT_FAILURE;
+		goto out;
+	}
+
+	if (file_size == 0x0u) {
+		/* Persistent temporary file is empty */
+		err = plat_os_abs_storage_file_truncate(fd, 0x0u);
 		goto out;
 	}
 
