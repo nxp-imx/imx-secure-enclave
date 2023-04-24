@@ -96,24 +96,7 @@ hsm_err_t hsm_close_session(hsm_hdl_t session_hdl);
  * @{
  */
 
-typedef uint8_t hsm_svc_key_management_flags_t;
-typedef struct {
-    hsm_svc_key_management_flags_t flags;   //!< bitmap specifying the services properties.
-    uint8_t reserved[3];
-} open_svc_key_management_args_t;
-
-/**
- * Open a key management service flow\n
- * User must open this service flow in order to perform operation on the key store keys (generate, update, delete)
- *
- * \param key_store_hdl handle identifying the key store service flow.
- * \param args pointer to the structure containing the function arguments.
-
- * \param key_management_hdl pointer to where the key management service flow handle must be written.
- *
- * \return error_code error code.
- */
-hsm_err_t hsm_open_key_management_service(hsm_hdl_t key_store_hdl, open_svc_key_management_args_t *args, hsm_hdl_t *key_management_hdl);
+#include "internal/hsm_key_management.h"
 
 #include "internal/hsm_key_generate.h"
 
@@ -216,15 +199,6 @@ hsm_err_t hsm_butterfly_key_expansion(hsm_hdl_t key_management_hdl, op_butt_key_
 #define HSM_OP_BUTTERFLY_KEY_FLAGS_IMPLICIT_CERTIF       ((hsm_op_but_key_exp_flags_t)(0u << 2))   //!< butterfly key expansion using implicit certificate.
 #define HSM_OP_BUTTERFLY_KEY_FLAGS_EXPLICIT_CERTIF       ((hsm_op_but_key_exp_flags_t)(1u << 2))   //!< butterfly key expansion using explicit certificate.
 #define HSM_OP_BUTTERFLY_KEY_FLAGS_STRICT_OPERATION      ((hsm_op_but_key_exp_flags_t)(1u << 7))   //!< The request is completed only when the new key has been written in the NVM.
-
-/**
- * Terminate a previously opened key management service flow
- *
- * \param key_management_hdl handle identifying the key management service flow.
- *
- * \return error code
- */
-hsm_err_t hsm_close_key_management_service(hsm_hdl_t key_management_hdl);
 
 /**
  *\addtogroup qxp_specific

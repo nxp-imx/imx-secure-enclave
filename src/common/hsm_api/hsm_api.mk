@@ -18,6 +18,12 @@ HSM_API_SRC	+= \
 		$(PLAT_COMMON_PATH)/hsm_api/hsm_key_store.o
 endif
 
+ifneq (${MT_SAB_KEY_MANAGEMENT},0x0)
+DEFINES		+=	-DHSM_KEY_MANAGEMENT
+HSM_API_SRC	+= \
+		$(PLAT_COMMON_PATH)/hsm_api/hsm_key_management.o
+endif
+
 ifneq (${MT_SAB_CIPHER},0x0)
 DEFINES		+=	-DHSM_CIPHER
 HSM_API_SRC	+= \

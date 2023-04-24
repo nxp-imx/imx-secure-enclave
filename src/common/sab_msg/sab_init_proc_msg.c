@@ -102,6 +102,10 @@
 #include "sab_key_store.h"
 #endif
 
+#if MT_SAB_KEY_MANAGEMENT
+#include "sab_key_management.h"
+#endif
+
 static int init_proc_sab_base_msg_engine(msg_type_t msg_type,
 					 uint32_t msg_id)
 {
@@ -351,6 +355,22 @@ static  int init_proc_sab_hsm_msg_engine(msg_type_t msg_type,
 			ret = add_sab_msg_handler(msg_id, MT_SAB_KEY_STORE,
 						  prepare_msg_key_store_close_req,
 						  proc_msg_rsp_key_store_close_req);
+		}
+		break;
+#endif
+#if MT_SAB_KEY_MANAGEMENT
+	case SAB_KEY_MANAGEMENT_OPEN_REQ:
+		if (msg_type == MT_SAB_KEY_MANAGEMENT) {
+			ret = add_sab_msg_handler(msg_id, MT_SAB_KEY_MANAGEMENT,
+						  prepare_msg_key_management_open_req,
+						  proc_msg_rsp_key_management_open_req);
+		}
+		break;
+	case SAB_KEY_MANAGEMENT_CLOSE_REQ:
+		if (msg_type == MT_SAB_KEY_MANAGEMENT) {
+			ret = add_sab_msg_handler(msg_id, MT_SAB_KEY_MANAGEMENT,
+						  prepare_msg_key_management_close_req,
+						  proc_msg_rsp_key_management_close_req);
 		}
 		break;
 #endif

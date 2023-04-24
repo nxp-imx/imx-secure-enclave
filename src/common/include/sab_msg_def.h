@@ -380,23 +380,6 @@ struct she_cmd_get_id_rsp {
        uint32_t crc;
 };
 
-struct sab_cmd_key_management_open_msg{
-    struct sab_mu_hdr hdr;
-    uint32_t key_store_handle;
-    uint32_t input_address_ext;
-    uint32_t output_address_ext;
-    uint8_t flags;
-    uint8_t rsv[3];
-    uint32_t crc;
-};
-
-struct sab_cmd_key_management_open_rsp {
-    struct sab_mu_hdr hdr;
-    uint32_t rsp_code;
-    uint32_t key_management_handle;
-};
-
-
 struct sab_cmd_manage_key_group_msg {
     struct sab_mu_hdr hdr;
     uint32_t key_management_handle;
@@ -436,17 +419,6 @@ struct sab_cmd_butterfly_key_exp_rsp {
     struct sab_mu_hdr hdr;
     uint32_t rsp_code;
     uint32_t dest_key_identifier;
-};
-
-
-struct sab_cmd_key_management_close_msg{
-    struct sab_mu_hdr hdr;
-    uint32_t key_management_handle;
-};
-
-struct sab_cmd_key_management_close_rsp {
-    struct sab_mu_hdr hdr;
-    uint32_t rsp_code;
 };
 
 #define AHAB_CIPHER_ONE_GO_ALGO_ECB (0x00u)
