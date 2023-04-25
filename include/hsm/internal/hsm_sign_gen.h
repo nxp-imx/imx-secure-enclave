@@ -191,47 +191,6 @@ typedef struct {
 hsm_err_t hsm_generate_signature(hsm_hdl_t signature_gen_hdl,
 				 op_generate_sign_args_t *args);
 
-typedef uint8_t hsm_op_prepare_signature_flags_t;
-typedef struct {
-	//!< identifier of the digital signature scheme to be used
-	//   for the operation.
-	hsm_signature_scheme_id_t scheme_id;
-	//!< bitmap specifying the operation attributes
-	hsm_op_prepare_signature_flags_t flags;
-	uint16_t reserved;
-} op_prepare_sign_args_t;
-
-/**
- * Prepare the creation of a signature by pre-calculating the operations having
- * not dependencies on the input message.
- *
- * The pre-calculated value will be stored internally and
- * used once call hsm_generate_signature. Up to 20 pre-calculated values
- * can be stored, additional preparation operations will have no effects.
- *
- * User can call this function only after having opened a
- * signature generation service flow.
- *
- * The signature S=(r,s) is stored in the format r||s||Ry where:
- * - Ry is an additional byte containing the lsb of y,
- *   Ry has to be considered valid only
- *   if the HSM_OP_PREPARE_SIGN_COMPRESSED_POINT is set.
- *
- * \param signature_gen_hdl: handle identifying the signature generation
- *                           service flow
- * \param args pointer to the structure containing the function arguments.
- *
- * \return error code
- */
-hsm_err_t hsm_prepare_signature(hsm_hdl_t signature_gen_hdl,
-				op_prepare_sign_args_t *args);
-#define HSM_OP_PREPARE_SIGN_INPUT_DIGEST \
-				((hsm_op_prepare_signature_flags_t)(0u << 0))
-#define HSM_OP_PREPARE_SIGN_INPUT_MESSAGE \
-				((hsm_op_prepare_signature_flags_t)(1u << 0))
-#define HSM_OP_PREPARE_SIGN_COMPRESSED_POINT \
-				((hsm_op_prepare_signature_flags_t)(1u << 1))
-
 /**
  *\addtogroup qxp_specific
  * \ref group5

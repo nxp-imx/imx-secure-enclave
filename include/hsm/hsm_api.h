@@ -298,6 +298,9 @@ hsm_err_t hsm_ecies_decryption(hsm_hdl_t cipher_hdl, op_ecies_dec_args_t *args);
  */
 
 #include "internal/hsm_sign_gen.h"
+
+#include "internal/hsm_sign_prepare.h"
+
 /**
  * Secondary API to generate signature on the given message.\n
  *

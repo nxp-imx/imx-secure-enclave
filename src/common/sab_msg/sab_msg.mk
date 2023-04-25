@@ -71,6 +71,12 @@ SAB_MSG_SRC	+= \
 		$(PLAT_COMMON_PATH)/sab_msg/sab_sign_gen.o
 endif
 
+ifneq (${MT_SAB_SIGN_PREPARE},0x0)
+DEFINES		+=	-DMT_SAB_SIGN_PREPARE=${MT_SAB_SIGN_PREPARE}
+SAB_MSG_SRC	+= \
+		$(PLAT_COMMON_PATH)/sab_msg/sab_sign_prepare.o
+endif
+
 ifneq (${MT_SAB_VERIFY_SIGN},0x0)
 DEFINES		+=	-DMT_SAB_VERIFY_SIGN=${MT_SAB_VERIFY_SIGN}
 SAB_MSG_SRC	+= \

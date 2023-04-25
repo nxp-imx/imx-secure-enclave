@@ -159,52 +159,6 @@ hsm_err_t hsm_generate_signature(hsm_hdl_t signature_gen_hdl,
 	return err;
 }
 
-hsm_err_t hsm_prepare_signature(hsm_hdl_t signature_gen_hdl,
-				op_prepare_sign_args_t *args)
-{
-	uint32_t error;
-	struct hsm_service_hdl_s *serv_ptr;
-	hsm_err_t err = HSM_GENERAL_ERROR;
-	uint32_t rsp_code = SAB_NO_MESSAGE_RATING;
-
-	do {
-		if (args == NULL) {
-			break;
-		}
-
-		if (!signature_gen_hdl) {
-			err = HSM_UNKNOWN_HANDLE;
-			break;
-		}
-
-		serv_ptr = service_hdl_to_ptr(signature_gen_hdl);
-		if (serv_ptr == NULL) {
-			err = HSM_UNKNOWN_HANDLE;
-			break;
-		}
-		error = process_sab_msg(serv_ptr->session->phdl,
-					serv_ptr->session->mu_type,
-					SAB_SIGNATURE_PREPARE_REQ,
-					MT_SAB_SIGN_GEN,
-					(uint32_t)signature_gen_hdl,
-					args, &rsp_code);
-
-		err = sab_rating_to_hsm_err(error);
-		if (err != HSM_NO_ERROR) {
-			se_err("HSM Error: SAB_SIGNATURE_PREPARE_REQ [0x%x].\n", err);
-			break;
-		}
-
-		err = sab_rating_to_hsm_err(rsp_code);
-		if (err != HSM_NO_ERROR) {
-			se_err("HSM RSP Error: SAB_SIGNATURE_PREPARE_REQ [0x%x].\n", err);
-		}
-
-	} while (false);
-
-	return err;
-}
-
 hsm_err_t hsm_do_sign(hsm_hdl_t key_store_hdl,
 			op_generate_sign_args_t *args)
 {
