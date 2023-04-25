@@ -65,8 +65,8 @@ uint32_t parse_cmd_prep_rsp_storage_chunk_export(struct nvm_ctx_st *nvm_ctx_para
 
 	if (chunk) {
 		chunk->data = plat_os_abs_malloc(data_len);
-		chunk->blob_id = ((uint64_t)(msg->blob_id_ext) << 32u)
-			| (uint64_t)(msg->blob_id);
+		plat_os_abs_memcpy((uint8_t *)&chunk->blob_id, (uint8_t *)&msg->blob_id,
+				   sizeof(chunk->blob_id));
 		chunk->len = data_len;
 	}
 

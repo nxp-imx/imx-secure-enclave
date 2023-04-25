@@ -21,7 +21,8 @@ uint32_t parse_cmd_prep_rsp_storage_get_chunk(struct nvm_ctx_st *nvm_ctx_param,
 					      uint8_t *prev_cmd_id,
 					      uint8_t *next_cmd_id)
 {
-	uint64_t blob_id;
+	struct sab_blob_id *blob_id;
+
 	uint32_t err = 1u;
 	struct nvm_header_s nvm_hdr;
 
@@ -46,9 +47,13 @@ uint32_t parse_cmd_prep_rsp_storage_get_chunk(struct nvm_ctx_st *nvm_ctx_param,
 		goto out;
 	}
 
-	blob_id = ((uint64_t)(msg->blob_id_ext) << 32u)
-		| (uint64_t)msg->blob_id;
-	if (blob_id == 0u) {
+	blob_id = &msg->blob_id;
+
+#ifdef CONFIG_PLAT_SECO
+	if (!blob_id->id && !blob_id->ext) {
+#else
+	if (!blob_id->metadata && !blob_id->id && !blob_id->ext) {
+#endif
 		resp->rsp_code = SAB_FAILURE_STATUS;
 		goto out;
 	}

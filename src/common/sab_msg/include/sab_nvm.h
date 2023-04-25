@@ -13,7 +13,7 @@
 struct nvm_header_s {
 	uint32_t size;
 	uint32_t crc;
-	uint64_t blob_id;
+	struct sab_blob_id blob_id;
 };
 
 #define NVM_HEADER_SZ	16u
@@ -36,7 +36,7 @@ struct nvm_ctx_st {
 };
 
 struct nvm_chunk_hdr {
-	uint64_t blob_id;
+	struct sab_blob_id blob_id;
 	uint32_t len;
 	uint8_t *data;
 };

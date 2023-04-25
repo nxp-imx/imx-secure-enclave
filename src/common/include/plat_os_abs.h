@@ -277,7 +277,7 @@ uint32_t plat_os_abs_storage_read(struct plat_os_abs_hdl *phdl,
  * \param phdl pointer to the session handle for which this data buffer is used.
  * \param src pointer to the data to be written to storage.
  * \param size number of bytes to be written.
- * \patam blob_id unique identifier of the blob corresponding to the storage chunk to be written
+ * \param blob_id unique identifier of the blob corresponding to the storage chunk to be written
  * \param nvm_storage_dname name of NVM storage directory-name
  *
  * \return number of bytes written.
@@ -285,7 +285,7 @@ uint32_t plat_os_abs_storage_read(struct plat_os_abs_hdl *phdl,
 uint32_t plat_os_abs_storage_write_chunk(struct plat_os_abs_hdl *phdl,
 					 uint8_t *src,
 					 uint32_t size,
-					 uint64_t blob_id,
+					 struct sab_blob_id *blob_id,
 					 uint8_t *nvm_storage_dname);
 
 /**
@@ -299,14 +299,14 @@ uint32_t plat_os_abs_storage_write_chunk(struct plat_os_abs_hdl *phdl,
  * \param phdl pointer to the session handle for which this data buffer is used.
  * \param dst pointer to the data where data read from the storage should be copied.
  * \param size number of bytes to be read.
- * \patam blob_id unique identifier of the blob corresponding to the storage chunk to be read
+ * \param blob_id unique identifier of the blob corresponding to the storage chunk to be read
  * \param nvm_storage_dname name of NVM storage directory-name
  *
  * \return number of bytes read.
  */
 uint32_t plat_os_abs_storage_read_chunk(struct plat_os_abs_hdl *phdl,
 					uint8_t *dst, uint32_t size,
-					uint64_t blob_id,
+					struct sab_blob_id *blob_id,
 					uint8_t *nvm_storage_dname);
 
 /**
@@ -327,6 +327,19 @@ void plat_os_abs_start_system_rng(struct plat_os_abs_hdl *phdl);
 uint32_t plat_os_abs_send_signed_message(struct plat_os_abs_hdl *phdl,
 					 uint8_t *signed_message,
 					 uint32_t msg_len);
+
+/**
+ * Get the file path of a chunk.
+ *
+ * \param path file path. Allocated in this function. Must be freed by caller.
+ * \param nvm_storage_dname name of NVM storage directory-name.
+ * \param blob_id unique identifier of the blob corresponding to the chunk.
+ *
+ * \return 0 in case of error. Any other value means success.
+ */
+uint32_t get_chunk_file_path(char **path,
+			     uint8_t *nvm_storage_dname,
+			     struct sab_blob_id *blob_id);
 
 #if MT_SAB_STORAGE_KEY_DB_REQ
 /**

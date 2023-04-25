@@ -41,9 +41,7 @@ SAB_STORAGE_KEY_DB_KEYSTORE_CLOSE)
 
 #define KEY_DB_BLOCK_TYPE           0xFFu
 #define KEY_DB_TMP_FLAG             0xFFFFu
-#define KEY_DB_KEY_STORE_ID_SHIFT   32u
-#define KEY_DB_PERS_LVL_SHIFT       8u
-#define KEY_DB_TMP_SHIFT            16u
+#define KEY_DB_PERS_LVL_SHIFT       16u
 #define KEY_DB_OPEN_FLAGS           (O_RDWR | O_SYNC)
 #define KEY_DB_OPEN_CREATE_FLAGS    (KEY_DB_OPEN_FLAGS | O_CREAT)
 /*
@@ -75,15 +73,15 @@ struct sab_cmd_key_db_rsp {
 struct key_ids_db {
 	uint32_t user_id; /* User key identifier */
 	uint32_t fw_id;   /* Internal FW key identifier */
-	uint16_t group;   /* Key group */
-	uint16_t flag;    /* Key flag */
+	uint32_t group;   /* Key group */
+	uint32_t flag;    /* Key flag */
 };
 
 /*
  * Called by sab_storage_export_finish. Save a copy of the current persistent
  * key store key database
  */
-uint32_t storage_key_db_save_persistent(uint64_t blob_id,
+uint32_t storage_key_db_save_persistent(struct sab_blob_id *blob_id,
 					struct nvm_ctx_st *nvm_ctx_param);
 
 /* Close all opened key database files descriptor */

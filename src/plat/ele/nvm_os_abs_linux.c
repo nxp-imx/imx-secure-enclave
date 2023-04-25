@@ -92,12 +92,12 @@ uint32_t plat_os_abs_storage_read(struct plat_os_abs_hdl *phdl,
 }
 
 uint32_t get_chunk_file_path(char **path,
-			     uint8_t *nvm_storage_dname,
-			     uint64_t blob_id)
+			uint8_t *nvm_storage_dname,
+			struct sab_blob_id *blob_id)
 {
 	int ret = 0;
 	uint64_t path_len;
-	uint8_t blob_id_sz = sizeof(blob_id);
+	uint8_t blob_id_sz = SAB_BLOB_ID_STRUCT_SIZE;
 
 	if (!nvm_storage_dname)
 		goto exit;
@@ -122,10 +122,14 @@ uint32_t get_chunk_file_path(char **path,
 
 		ret = snprintf(*path,
 				path_len,
-				"%s%0*lx",
+				"%s%0*x%0*x%0*x",
 				nvm_storage_dname,
-				(int)blob_id_sz * 2,
-				blob_id);
+				(int)(sizeof(blob_id->ext) * 2),
+				blob_id->ext,
+				(int)(sizeof(blob_id->id) * 2),
+				blob_id->id,
+				(int)(sizeof(blob_id->metadata) * 2),
+				blob_id->metadata);
 
 		if (ret != (path_len - 1))
 			ret = 0;
@@ -139,7 +143,7 @@ exit:
 uint32_t plat_os_abs_storage_write_chunk(struct plat_os_abs_hdl *phdl,
 					 uint8_t *src,
 					 uint32_t size,
-					 uint64_t blob_id,
+					 struct sab_blob_id *blob_id,
 					 uint8_t *nvm_storage_dname)
 {
 	int32_t fd;
@@ -175,7 +179,7 @@ uint32_t plat_os_abs_storage_write_chunk(struct plat_os_abs_hdl *phdl,
 
 uint32_t plat_os_abs_storage_read_chunk(struct plat_os_abs_hdl *phdl,
 					uint8_t *dst, uint32_t size,
-					uint64_t blob_id,
+					struct sab_blob_id *blob_id,
 					uint8_t *nvm_storage_dname)
 {
 	int32_t fd;

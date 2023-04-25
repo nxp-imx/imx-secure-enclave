@@ -51,23 +51,24 @@ static uint32_t storage_get_key_db_filepath(char **path, uint8_t *nvm_storage_dn
 					    bool tmp_flag)
 {
 	uint32_t ret = PLAT_FAILURE;
-	uint64_t blob_id = 0u;
+	struct sab_blob_id blob_id;
+
+	plat_os_abs_memset((uint8_t *)&blob_id, 0x0, sizeof(blob_id));
 
 	/* Blob ID is composed this way:
-	 *	-Bit 63 to 32: Key store ID;
-	 *	-Bit 31 to 16: Temporary file flag (only for persistent);
-	 *	-Bit 15 to 8: Persistence level flag;
-	 *	-Bit 7 to 0: Block type. Value must not be used by FW
+	 *	-Bit 95 to 64: Key store ID;
+	 *	-Bit 63 to 32: Temporary file flag (only for persistent);
+	 *	-Bit 31 to 16: Persistence level flag;
+	 *	-Bit 15 to 0: Block type. Value must not be used by FW
 	 */
-	blob_id |= (uint64_t)key_store_id << KEY_DB_KEY_STORE_ID_SHIFT;
-
+	blob_id.ext = key_store_id;
 	if (tmp_flag)
-		blob_id |= KEY_DB_TMP_FLAG << KEY_DB_TMP_SHIFT;
+		blob_id.id = KEY_DB_TMP_FLAG;
 
-	blob_id |= (uint64_t)(pers_lvl << KEY_DB_PERS_LVL_SHIFT);
-	blob_id |= KEY_DB_BLOCK_TYPE;
+	blob_id.metadata = (uint32_t)(pers_lvl << KEY_DB_PERS_LVL_SHIFT);
+	blob_id.metadata |= KEY_DB_BLOCK_TYPE;
 
-	if (get_chunk_file_path(path, nvm_storage_dname, blob_id) > 0)
+	if (get_chunk_file_path(path, nvm_storage_dname, &blob_id) > 0)
 		ret = PLAT_SUCCESS;
 
 	return ret;
@@ -492,7 +493,7 @@ static uint32_t storage_key_db_close_and_remove(struct key_db_fd *ctx_key_db,
  * Set all key flags present in group to KEY_DB_FLAG_PUSHED in order to save
  * them in persistent file (storage_key_db_update_pers_file()).
  */
-static uint32_t storage_key_db_push_id_flag(int tmp_pers_file_fd, uint16_t group)
+static uint32_t storage_key_db_push_id_flag(int tmp_pers_file_fd, uint32_t group)
 {
 	uint32_t err;
 	int file_offset = 0;
@@ -648,16 +649,17 @@ out:
 	return err;
 }
 
-uint32_t storage_key_db_save_persistent(uint64_t blob_id, struct nvm_ctx_st *nvm_ctx_param)
+uint32_t storage_key_db_save_persistent(struct sab_blob_id *blob_id,
+					struct nvm_ctx_st *nvm_ctx_param)
 {
 	uint32_t err = 1u;
-	uint32_t key_store_id = (uint32_t)(blob_id >> SAB_STORAGE_KEY_STORE_ID_SHIFT);
-	uint8_t block_type = (uint8_t)(blob_id & SAB_STORAGE_BLOCK_TYPE_MASK);
+	uint32_t key_store_id = blob_id->ext;
+	uint16_t block_type = (uint16_t)(blob_id->metadata & SAB_STORAGE_BLOCK_TYPE_MASK);
 	struct key_db_fd *key_db = NULL;
 
 	if ((block_type != SAB_STORAGE_CHUNK_BLOCK_TYPE &&
 	     block_type != SAB_STORAGE_KEY_STORE_MASTER_BLOCK_TYPE) ||
-	    (SAB_STORAGE_GET_FLAG(blob_id) == SAB_STORAGE_CHUNK_SWAP_FLAG)) {
+	    (SAB_STORAGE_GET_FLAG(blob_id->metadata) == SAB_STORAGE_CHUNK_SWAP_FLAG)) {
 		/* Nothing to do, return success */
 		err = 0u;
 		goto out;
@@ -670,7 +672,7 @@ uint32_t storage_key_db_save_persistent(uint64_t blob_id, struct nvm_ctx_st *nvm
 	if (block_type == SAB_STORAGE_CHUNK_BLOCK_TYPE) {
 		/* Update flag of keys present in @group */
 		err = storage_key_db_push_id_flag(key_db->persistent_tmp_fd,
-						  SAB_STORAGE_GET_GROUP(blob_id));
+						  blob_id->id);
 	} else {
 		/* block_type == SAB_STORAGE_KEY_STORE_MASTER_BLOCK_TYPE */
 		/* Update persistent file */

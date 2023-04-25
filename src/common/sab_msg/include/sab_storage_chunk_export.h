@@ -13,8 +13,7 @@ struct sab_cmd_key_store_chunk_export_msg {
 	struct sab_mu_hdr hdr;
 	uint32_t storage_handle;
 	uint32_t chunk_size;
-	uint32_t blob_id;
-	uint32_t blob_id_ext;
+	struct sab_blob_id blob_id;
 	uint32_t crc;
 };
 

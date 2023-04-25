@@ -46,8 +46,11 @@ struct key_db_fd {
 	int volatile_fd;
 };
 
-uint32_t get_chunk_file_path(char **path,
-			     uint8_t *nvm_storage_dname,
-			     uint64_t blob_id);
+#define SAB_BLOB_ID_STRUCT_SIZE (12u)
+struct sab_blob_id {
+	uint32_t metadata;
+	uint32_t id;
+	uint32_t ext;
+};
 
 #endif /* PLAT_OS_ABS_DEF_H */

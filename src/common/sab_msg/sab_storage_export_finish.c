@@ -35,6 +35,8 @@ uint32_t parse_cmd_prep_rsp_storage_finish_export(struct nvm_ctx_st *nvm_ctx_par
 	struct sab_cmd_key_store_export_finish_rsp *resp
 			= (struct sab_cmd_key_store_export_finish_rsp *)rsp_buf;
 
+	struct sab_blob_id *blob_id;
+
 	*next_cmd_id = NEXT_EXPECTED_CMD_NONE;
 	resp->rsp_code = SAB_FAILURE_STATUS;
 
@@ -64,7 +66,9 @@ uint32_t parse_cmd_prep_rsp_storage_finish_export(struct nvm_ctx_st *nvm_ctx_par
 		/* fill header for sanity check when it will be re-loaded. */
 		blob_hdr = (struct nvm_header_s *)*data;
 		/* Used only for chunks. */
-		blob_hdr->blob_id = 0u;
+
+		plat_os_abs_memset((uint8_t *)&blob_hdr->blob_id, 0x0, sizeof(blob_hdr->blob_id));
+		blob_id = &blob_hdr->blob_id;
 		blob_hdr->size = *data_sz;
 		blob_hdr->crc = plat_fetch_msg_crc((uint32_t *)(*data + NVM_HEADER_SZ), *data_sz);
 
@@ -89,12 +93,14 @@ uint32_t parse_cmd_prep_rsp_storage_finish_export(struct nvm_ctx_st *nvm_ctx_par
 		blob_hdr->size = chunk->len;
 		blob_hdr->crc = plat_fetch_msg_crc((uint32_t *)(chunk->data + NVM_HEADER_SZ),
 						   chunk->len);
-		blob_hdr->blob_id = chunk->blob_id;
+		blob_id = &chunk->blob_id;
+		plat_os_abs_memcpy((uint8_t *)&blob_hdr->blob_id, (uint8_t *)blob_id,
+				   sizeof(blob_hdr->blob_id));
 
 		if (plat_os_abs_storage_write_chunk(nvm_ctx_param->phdl,
 						    chunk->data,
 						    chunk->len,
-						    chunk->blob_id,
+						    blob_id,
 						    nvm_ctx_param->nvm_dname)
 						    != chunk->len) {
 			/* Notify platform of an error during write to NVM. */
@@ -106,9 +112,9 @@ uint32_t parse_cmd_prep_rsp_storage_finish_export(struct nvm_ctx_st *nvm_ctx_par
 		}
 	}
 
-#if MT_SAB_STORAGE_KEY_DB_REQ
+#if MT_SAB_STORAGE_KEY_DB_REQ && !defined(CONFIG_PLAT_SECO)
 	/* Update key database if needed */
-	err = storage_key_db_save_persistent(blob_hdr->blob_id, nvm_ctx_param);
+	err = storage_key_db_save_persistent(blob_id, nvm_ctx_param);
 	if (err != 0u)
 		resp->rsp_code = SAB_FAILURE_STATUS;
 #endif
