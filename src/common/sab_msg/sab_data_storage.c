@@ -50,6 +50,17 @@ uint32_t prepare_msg_data_storage(void *phdl,
 
 uint32_t proc_msg_rsp_data_storage(void *rsp_buf, void *args)
 {
+	op_data_storage_args_t *op_args = (op_data_storage_args_t *)args;
+	struct sab_cmd_data_storage_rsp *rsp =
+		(struct sab_cmd_data_storage_rsp *)rsp_buf;
+
+#ifdef PSA_COMPLIANT
+	if (!op_args)
+		return SAB_FAILURE_STATUS;
+
+	op_args->exp_output_size = rsp->out_data_size;
+#endif
+
 	return SAB_SUCCESS_STATUS;
 }
 

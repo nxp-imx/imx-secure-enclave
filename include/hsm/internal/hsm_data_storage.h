@@ -60,11 +60,16 @@ typedef struct {
 	//!< length in bytes of the data
 	uint32_t data_size;
 	//!< id of the data
-	uint16_t data_id;
+	uint32_t data_id;
 	//!< bitmap specifying the services properties.
 	hsm_svc_data_storage_flags_t flags;
 	//!< flags bitmap specifying the operation attributes.
 	hsm_op_data_storage_flags_t svc_flags;
+#ifdef PSA_COMPLIANT
+	//!< expected output buffer size in bytes, valid in case of HSM_OUT_TOO_SMALL
+	//   (0x1D) error code
+	uint32_t exp_output_size;
+#endif
 } op_data_storage_args_t;
 
 /**
@@ -76,8 +81,12 @@ typedef struct {
  * \return error code
  */
 hsm_err_t hsm_data_storage(hsm_hdl_t data_storage_hdl, op_data_storage_args_t *args);
-#define HSM_OP_DATA_STORAGE_FLAGS_STORE    ((hsm_op_data_storage_flags_t)(1u << 0)) //!< Store data.
-#define HSM_OP_DATA_STORAGE_FLAGS_RETRIEVE ((hsm_op_data_storage_flags_t)(0u << 0)) //!< Retrieve data.
+#define HSM_OP_DATA_STORAGE_FLAGS_EL2GO    ((hsm_op_data_storage_flags_t)(1u << 0))
+#define HSM_OP_DATA_STORAGE_FLAGS_DEFAULT  ((hsm_op_data_storage_flags_t)(0u << 0))
+//!< Store data.
+#define HSM_OP_DATA_STORAGE_FLAGS_STORE    ((hsm_op_data_storage_flags_t)(1u << 1))
+//!< Retrieve data.
+#define HSM_OP_DATA_STORAGE_FLAGS_RETRIEVE ((hsm_op_data_storage_flags_t)(0u << 1))
 
 /**
  * Terminate a previously opened data storage service flow
