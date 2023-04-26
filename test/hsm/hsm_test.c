@@ -346,8 +346,10 @@ static void transient_key_tests(hsm_hdl_t sess_hdl, hsm_hdl_t key_store_hdl)
 	uint32_t pub_key_sz = 0;
 	op_generate_key_args_t key_gen_args;
 	uint32_t master_key_id = 0;
+#ifndef PSA_COMPLIANT
 	op_butt_key_exp_args_t butterfly_gen_args;
 	uint32_t butterfly_key_id;
+#endif
 	uint8_t exp_data[32] = {
 		0xA4, 0x3A, 0x19, 0x55, 0x9A, 0xA4, 0x15, 0xE5,
 		0xCB, 0xD7, 0x84, 0xEB, 0x44, 0x14, 0xC0, 0x37,
@@ -615,16 +617,12 @@ static void transient_key_tests(hsm_hdl_t sess_hdl, hsm_hdl_t key_store_hdl)
 #else
 	key_management(DELETE, key_mgmt_hdl, &sym_key_id, 50, HSM_KEY_TYPE_AES);
 #endif
-	/*
-	memset(import_key_buf, 0, import_key_len);
-	import_key_len = 32;
 	args.flags = HSM_OP_IMPORT_KEY_INPUT_E2GO_TLV;
 #ifdef PSA_COMPLIANT
 	test_import_key(hsm_session_hdl, key_store_hdl,
 			key_mgmt_hdl, import_key_len, import_key_buf, &args);
 	printf("Imported Key ID = 0x%x\n", args.key_identifier);
 #endif
-	*/
 	hsmret = hsm_close_key_management_service(key_mgmt_hdl);
 	printf("hsm_close_key_management_service ret:0x%x\n", hsmret);
 }

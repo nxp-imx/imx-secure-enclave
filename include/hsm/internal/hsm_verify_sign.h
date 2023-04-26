@@ -85,6 +85,15 @@ hsm_err_t hsm_open_signature_verification_service(hsm_hdl_t session_hdl,
 
 
 /**
+ * Terminate a previously opened signature verification service flow
+ *
+ * \param signature_ver_hdl handle identifying the signature verification service flow to be closed.
+ *
+ * \return error code
+ */
+hsm_err_t hsm_close_signature_verification_service(hsm_hdl_t signature_ver_hdl);
+
+/**
  * Verify a digital signature according to the signature scheme
  * User can call this function only after having opened a signature
  * verification service flow.
