@@ -1,6 +1,6 @@
 // SPDX-License-Identifier: BSD-3-Clause
 /*
- * Copyright 2022 NXP
+ * Copyright 2022-2023 NXP
  */
 
 #include <pthread.h>
@@ -15,7 +15,7 @@
 #include "common.h"
 #include "nvm.h"
 
-#define DATA_ID			0x01
+#define DATA_ID			0x12345678
 
 #define LINE_SIZE		12
 #define LAST_IDX_IN_A_LINE	(LINE_SIZE - 1)
@@ -86,6 +86,7 @@ void data_storage_test(hsm_hdl_t key_store_hdl, int arg)
 	printf(" Secondary API Test: Data Storage Test\n");
 	printf("---------------------------------------------------\n");
 
+	memset(&data_storage_args, 0, sizeof(op_data_storage_args_t));
 	data_storage_args.svc_flags = 0;
 	data_storage_args.data = test_data;
 	data_storage_args.data_size = size;
