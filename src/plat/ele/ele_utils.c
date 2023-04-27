@@ -287,58 +287,6 @@ uint32_t plat_send_msg_and_rcv_resp(struct plat_os_abs_hdl *phdl,
 	return err;
 }
 
-/* Helper function to send a message and wait for the response. Return 0 on success.*/
-int32_t plat_send_msg_and_get_resp(struct plat_os_abs_hdl *phdl,
-				   uint32_t *cmd,
-				   uint32_t cmd_len,
-				   uint32_t *rsp,
-				   uint32_t rsp_len)
-{
-	int32_t err = -1;
-	uint32_t len;
-
-	do {
-		/* Command and response need to be at least 1 word for the header. */
-		if (cmd_len < (uint32_t)sizeof(uint32_t) ||
-		    rsp_len < (uint32_t)sizeof(uint32_t)) {
-			break;
-		}
-
-		/* Send the command. */
-		len = plat_os_abs_send_mu_message(phdl, cmd, cmd_len);
-		if (!len || len != cmd_len) {
-			printf("\nSAB CMD[0x%x]: Write MU MSG failed\n",
-			       ((struct sab_mu_hdr *)cmd)->command);
-			break;
-		}
-#if DEBUG
-	printf("\n---------- MSG Command with msg id[0x%x] = %d -------------\n",
-			((struct sab_mu_hdr *)cmd)->command,
-			((struct sab_mu_hdr *)cmd)->command);
-	hexdump(cmd, cmd_len >> 2);
-	printf("\n-------------------MSG END-----------------------------------\n");
-#endif
-		/* Read the response. */
-		len = plat_os_abs_read_mu_message(phdl, rsp, rsp_len);
-		if (!len || len != rsp_len || (val_rcv_rsp_len(len, rsp) == false)) {
-			printf("\nSAB CMD[0x%x]: Read MU MSG failed\n",
-			       ((struct sab_mu_hdr *)cmd)->command);
-			break;
-		}
-#if DEBUG
-	printf("\n---------- MSG Command RSP with msg id[0x%x] = %d -------------\n",
-			((struct sab_mu_hdr *)rsp)->command,
-			((struct sab_mu_hdr *)rsp)->command);
-	hexdump(rsp, rsp_len >> 2);
-	printf("\n-------------------MSG RSP END-----------------------------------\n");
-#endif
-
-		err = 0;
-	} while (false);
-
-	return err;
-}
-
 uint32_t plat_add_msg_crc(uint32_t *msg, uint32_t msg_len)
 {
 	uint32_t err = 1;
