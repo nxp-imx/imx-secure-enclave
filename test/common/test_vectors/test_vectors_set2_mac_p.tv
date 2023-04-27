@@ -126,20 +126,19 @@ TEST_KGEN_END
 
 
 
+
 #Positive Case:
-#Test MAC operation with CMAC algo using saved AES 256 Key permitted for CMAC
+#Test MAC operation with CMAC algo using saved AES 128 Key permitted for CMAC
 TEST_MAC_PSA_P201
 
 KEY_MGMT_TV_ID    1234       # Key Management TV ID
-KEY_TV_ID         201        # Key TV ID from KGEN Tests to use the key
+KEY_TV_ID         202        # Key TV ID from KGEN Tests to use the key
 MAC_ALGO          0x03C00200 # PERMITTED_ALGO_CMAC
-PAYLOAD_SIZE      32         # Payload Size provided before Payload data
+PAYLOAD_SIZE      16         # Payload Size provided before Payload data
 
-PAYLOAD_DATA      32         # Payload data-Payload size, input from next line
+PAYLOAD_DATA      16         # Payload data-Payload size, input from next line
 0xB2, 0xE1, 0x4C, 0x5C, 0x79, 0xC6, 0xDF, 0x5B,
-0x85, 0xF4, 0xFE, 0x7E, 0xD8, 0xDB, 0x7A, 0x26,
-0x2B, 0x9D, 0xA7, 0xE0, 0x7C, 0xCB, 0x0E, 0xA9,
-0xF4, 0x74, 0x7B, 0x8C, 0xCD, 0xA8, 0xA4, 0xF3
+0x85, 0xF4, 0xFE, 0x7E, 0xD8, 0xDB, 0x7A, 0x26
 
 MAC_SIZE          16         # MAC buffer size
 EXP_MAC_SIZE      16         # Expected MAC size
@@ -152,17 +151,19 @@ TEST_MAC_END
 
 
 #Positive Case:
-#Test MAC operation with CMAC algo using saved AES 128 Key permitted for CMAC
+#Test MAC operation with CMAC algo using saved AES 256 Key permitted for CMAC
 TEST_MAC_PSA_P202
 
 KEY_MGMT_TV_ID    1234       # Key Management TV ID
-KEY_TV_ID         202        # Key TV ID from KGEN Tests to use the key
+KEY_TV_ID         201        # Key TV ID from KGEN Tests to use the key
 MAC_ALGO          0x03C00200 # PERMITTED_ALGO_CMAC
-PAYLOAD_SIZE      16         # Payload Size provided before Payload data
+PAYLOAD_SIZE      32         # Payload Size provided before Payload data
 
-PAYLOAD_DATA      16         # Payload data-Payload size, input from next line
+PAYLOAD_DATA      32         # Payload data-Payload size, input from next line
 0xB2, 0xE1, 0x4C, 0x5C, 0x79, 0xC6, 0xDF, 0x5B,
-0x85, 0xF4, 0xFE, 0x7E, 0xD8, 0xDB, 0x7A, 0x26
+0x85, 0xF4, 0xFE, 0x7E, 0xD8, 0xDB, 0x7A, 0x26,
+0x2B, 0x9D, 0xA7, 0xE0, 0x7C, 0xCB, 0x0E, 0xA9,
+0xF4, 0x74, 0x7B, 0x8C, 0xCD, 0xA8, 0xA4, 0xF3
 
 MAC_SIZE          16         # MAC buffer size
 EXP_MAC_SIZE      16         # Expected MAC size

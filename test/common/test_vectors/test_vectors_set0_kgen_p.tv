@@ -102,7 +102,7 @@ OUT_SIZE          256        # Public Key Out Size
 KEY_TYPE          0x7001     # HSM_KEY_TYPE_RSA
 BIT_KEY_SZ        2048       # HSM_KEY_SIZE_RSA_2048
 FLAGS             0          #
-KEY_GROUP         3          # Key Group b/w 0-1023
+KEY_GROUP         9          # Key Group b/w 0-1023
 KEY_LIFETIME      0x00000100 # HSM_SE_KEY_STORAGE_VOLATILE
 KEY_LIFECYCLE     0x0        # 0 indicates set to current Device Lifecycle
 KEY_USAGE         0x00003000 # HSM_KEY_USAGE_SIGN_HASH | HSM_KEY_USAGE_VERIFY_HASH
