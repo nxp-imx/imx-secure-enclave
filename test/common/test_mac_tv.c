@@ -8,6 +8,7 @@
 #include "hsm_api.h"
 #include "test_utils_tv.h"
 #include "plat_utils.h"
+#include "common.h"
 
 #ifdef ELE_PERF
 #include <ele_perf.h>
@@ -266,7 +267,7 @@ static int8_t prepare_and_run_mac_test(hsm_hdl_t key_store_hdl, FILE *fp)
 		se_info("MAC Algo          : 0x%x\n", mac_algo);
 		se_info("Payload Size      : %u\n", payload_size);
 		se_info("\nPayload Data      :\n");
-		print_buffer(payload_data, payload_size);
+		hexdump_bb(payload_data, payload_size);
 		se_info("MAC Size          : %u\n", mac_size);
 		se_info("Expected MAC Size : %u\n", exp_mac_size);
 		se_info("Expected Verification Status : 0x%x\n", exp_verification_status);

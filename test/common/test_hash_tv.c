@@ -263,11 +263,11 @@ static int8_t prepare_and_run_hash_test(FILE *fp)
 		printf("Flags              : 0x%x\n", flags);
 		printf("Context Size       : %u\n", ctx_size);
 		printf("\nInput Context      :\n");
-		print_buffer(ctx, ctx_size);
+		hexdump_bb(ctx, ctx_size);
 #endif
 		se_info("Input Size         : %u\n", input_size);
 		se_info("\nInput Data        :\n");
-		print_buffer(input_data, input_size);
+		hexdump_bb(input_data, input_size);
 		se_info("Output Size          : %u\n", output_size);
 #ifdef PSA_COMPLIANT
 		printf("Expected Context Size : %u\n", exp_ctx_size);
@@ -275,7 +275,7 @@ static int8_t prepare_and_run_hash_test(FILE *fp)
 		se_info("Expected Output Size : %u\n", exp_output_size);
 		se_info("\nExpected Output Buffer size : %u\n", exp_output_buf_size);
 		se_info("\nExpected Output Buffer :\n");
-		print_buffer(exp_output_buf, exp_output_buf_size);
+		hexdump_bb(exp_output_buf, exp_output_buf_size);
 		se_info("Expected HASH HSM Resp : 0x%x\n", exp_hash_hsm_rsp);
 		se_info("----------------------------------------------------\n");
 

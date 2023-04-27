@@ -177,7 +177,7 @@ static int8_t prepare_and_run_data_storage_test(hsm_hdl_t key_store_hdl, FILE *f
 		se_info("Data ID            : 0x%x\n", data_id);
 		se_info("Data Size          : %u\n", data_size);
 		se_info("\nData               :\n");
-		print_buffer(data, data_size);
+		hexdump_bb(data, data_size);
 		se_info("Flags              : 0x%x\n", flags);
 		se_info("Expected Data Storage HSM Resp : 0x%x\n", exp_data_storage_hsm_rsp);
 		se_info("----------------------------------------------------\n");

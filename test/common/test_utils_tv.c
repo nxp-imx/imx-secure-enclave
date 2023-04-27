@@ -409,8 +409,8 @@ void close_key_mgmt_srv(uint32_t key_mgmt_tv_id)
 		}
 
 		ret = hsm_close_key_management_service(key_mgmt_hdl);
-		se_info("\n\nhsm_close_key_management_service() ret: 0x%x ");
-		se_info("[KEY_MGMT_TV_ID: %u]\n", ret, key_mgmt_tv_id);
+		se_info("\n\nhsm_close_key_management_service() ret: 0x%x ", ret);
+		se_info("[KEY_MGMT_TV_ID: %u]\n", key_mgmt_tv_id);
 	}
 
 	if (ret == HSM_NO_ERROR) {

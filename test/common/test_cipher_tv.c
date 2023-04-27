@@ -9,6 +9,7 @@
 #include "hsm_api.h"
 #include "test_utils_tv.h"
 #include "plat_utils.h"
+#include "common.h"
 
 #ifdef ELE_PERF
 #include <ele_perf.h>
@@ -289,9 +290,9 @@ static int8_t prepare_and_run_cipher_test(hsm_hdl_t key_store_hdl, FILE *fp)
 		se_info("Output Size       : %u\n", output_size);
 		se_info("Expected HSM Resp : 0x%x\n", expected_rsp_code);
 		se_info("\nIV Data           :\n");
-		print_buffer(iv_data, iv_size);
+		hexdump_bb(iv_data, iv_size);
 		se_info("Input Data        :\n");
-		print_buffer(input_data, input_size);
+		hexdump_bb(input_data, input_size);
 
 		se_info("----------------------------------------------------\n");
 

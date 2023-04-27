@@ -344,7 +344,7 @@ static int8_t prepare_and_run_sign_verify_test(hsm_hdl_t key_store_hdl, FILE
 		se_info("Key TV ID         : %u\n", key_tv_id);
 		se_info("Message Size      : %u\n", message_size);
 		se_info("\nMessage           :\n");
-		print_buffer(message, message_size);
+		hexdump_bb(message, message_size);
 		se_info("Signature Size    : %u\n", signature_size);
 		se_info("Scheme ID         : 0x%x\n", scheme_id);
 		se_info("Flags (SIGN_GEN_FLAGS)     : 0x%x\n", sign_gen_flags);

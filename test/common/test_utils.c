@@ -24,6 +24,7 @@ void hexdump(uint32_t buf[], uint32_t size)
  */
 void hexdump_bb(uint8_t buf[], uint32_t size)
 {
+#if ELE_DEBUG
 	int i = 0;
 
 	for (i = 0; i < size; i++) {
@@ -32,7 +33,7 @@ void hexdump_bb(uint8_t buf[], uint32_t size)
 		printf("%02x ", buf[i]);
 	}
 	printf("\n");
-
+#endif
 }
 
 void word_byteswap(uint32_t *buf, uint32_t buf_len)
