@@ -8,6 +8,7 @@
 #include "internal/hsm_get_info.h"
 #include "internal/hsm_session.h"
 
+#include "sab_common_err.h"
 #include "sab_msg_def.h"
 #include "sab_messaging.h"
 #include "sab_process_msg.h"
@@ -16,16 +17,193 @@
 #include "plat_os_abs.h"
 #include "plat_utils.h"
 
+/* MAC generation / verify */
+
+struct sab_she_fast_mac_msg {
+	struct sab_mu_hdr hdr;
+	uint32_t she_utils_handle;
+	uint16_t key_id;
+	uint16_t data_length;
+	uint16_t data_offset;
+	uint8_t mac_length;
+	uint8_t flags;
+};
+
+#define SAB_SHE_FAST_MAC_FLAGS_VERIFICATION    (1u)
+#define SAB_SHE_FAST_MAC_FLAGS_VERIF_BIT_LEN   (2u)
+
+struct sab_she_fast_mac_rsp {
+	struct sab_mu_hdr hdr;
+	uint32_t rsp_code;
+	uint32_t verification_status;
+};
+
+#define SAB_SHE_FAST_MAC_VERIFICATION_STATUS_OK  (0x5A3CC3A5u)
+#define SAB_SHE_FAST_MAC_VERIFICATION_STATUS_KO  (0u)
+
+/* Update key */
+
+struct sab_she_key_update_msg {
+	struct sab_mu_hdr hdr;
+	uint32_t utils_handle;
+	uint32_t key_id;
+	uint32_t m1[4];
+	uint32_t m2[8];
+	uint32_t m3[4];
+	uint32_t crc;
+};
+
+struct sab_she_key_update_rsp {
+	struct sab_mu_hdr hdr;
+	uint32_t rsp_code;
+	uint32_t m4[8];
+	uint32_t m5[4];
+	uint32_t crc;
+};
+
+/* Update key extension */
+
+struct sab_she_key_update_ext_msg {
+	struct sab_mu_hdr hdr;
+	uint32_t utils_handle;
+	uint32_t key_id;
+	uint32_t m1[4];
+	uint32_t m2[8];
+	uint32_t m3[4];
+	uint8_t  flags;
+	uint8_t  pad[3];
+	uint32_t crc;
+};
+
+struct sab_she_key_update_ext_rsp {
+	struct sab_mu_hdr hdr;
+	uint32_t rsp_code;
+	uint32_t m4[8];
+	uint32_t m5[4];
+	uint32_t crc;
+};
+
+/* SHE export plain key (Ram key) */
+struct sab_she_plain_key_export_msg {
+	struct sab_mu_hdr hdr;
+	uint32_t utils_handle;
+};
+
+struct sab_she_plain_key_export_rsp {
+	struct sab_mu_hdr hdr;
+	uint32_t rsp_code;
+	uint32_t m1[4];
+	uint32_t m2[8];
+	uint32_t m3[4];
+	uint32_t m4[8];
+	uint32_t m5[4];
+	uint32_t crc;
+};
+
+/* Load Plain key */
+
+struct she_cmd_load_plain_key_msg {
+	struct sab_mu_hdr hdr;
+	uint32_t she_utils_handle;
+	uint8_t key[16];
+	uint32_t crc;
+};
+
+struct she_cmd_load_plain_key_rsp {
+	struct sab_mu_hdr hdr;
+	uint32_t rsp_code;
+};
+
+/* SHE inititalization */
+
+struct sab_cmd_shared_buffer_msg {
+	struct sab_mu_hdr hdr;
+	uint32_t session_handle;
+};
+
+struct sab_cmd_shared_buffer_rsp {
+	struct sab_mu_hdr hdr;
+	uint32_t rsp_code;
+	uint16_t shared_buf_offset;
+	uint16_t shared_buf_size;
+};
+
+/* SHE random generation */
+
+struct sab_cmd_extend_seed_msg {
+	struct sab_mu_hdr hdr;
+	uint32_t rng_handle;
+	uint32_t entropy[4];
+	uint32_t crc;
+};
+
+struct sab_cmd_extend_seed_rsp {
+	struct sab_mu_hdr hdr;
+	uint32_t rsp_code;
+};
+
+/* SHE Storage */
+struct she_cmd_get_status_msg {
+	struct sab_mu_hdr hdr;
+	uint32_t she_utils_handle;
+};
+
+struct she_cmd_get_status_rsp {
+	struct sab_mu_hdr hdr;
+	uint32_t rsp_code;
+	uint8_t sreg;
+	uint8_t pad[3];
+};
+
+struct she_cmd_get_id_msg {
+	struct sab_mu_hdr hdr;
+	uint32_t she_utils_handle;
+	uint8_t challenge[16];
+	uint32_t crc;
+};
+
+struct she_cmd_get_id_rsp {
+	struct sab_mu_hdr hdr;
+	uint32_t rsp_code;
+	uint8_t id[15];
+	uint8_t sreg;
+	uint8_t mac[16];
+	uint32_t crc;
+};
+
+struct sab_cmd_she_utils_open_msg {
+	struct sab_mu_hdr hdr;
+	uint32_t key_store_handle;
+	uint32_t input_address_ext;
+	uint32_t output_address_ext;
+};
+
+struct sab_cmd_she_utils_open_rsp {
+	struct sab_mu_hdr hdr;
+	uint32_t rsp_code;
+	uint32_t utils_handle;
+};
+
+struct sab_cmd_she_utils_close_msg {
+	struct sab_mu_hdr hdr;
+	uint32_t utils_handle;
+};
+
+struct sab_cmd_she_utils_close_rsp {
+	struct sab_mu_hdr hdr;
+	uint32_t rsp_code;
+};
+
 struct she_hdl_s {
-    struct plat_os_abs_hdl *phdl;
-    uint32_t session_handle;
-    uint32_t key_store_handle;
-    uint32_t cipher_handle;
-    uint32_t rng_handle;
-    uint32_t utils_handle;
-    uint32_t cancel;
-    uint32_t last_rating;
-    uint32_t mu_type;
+	struct plat_os_abs_hdl *phdl;
+	uint32_t session_handle;
+	uint32_t key_store_handle;
+	uint32_t cipher_handle;
+	uint32_t rng_handle;
+	uint32_t utils_handle;
+	uint32_t cancel;
+	uint32_t last_rating;
+	uint32_t mu_type;
 };
 
 uint32_t sab_open_key_store_command(struct plat_os_abs_hdl *phdl,
@@ -46,6 +224,54 @@ uint32_t sab_close_key_store(struct plat_os_abs_hdl *phdl,
 			     uint32_t mu_type)
 {
 	return 0;
+}
+
+uint32_t sab_get_shared_buffer(struct plat_os_abs_hdl *phdl,
+			       uint32_t session_handle,
+			       uint32_t mu_type)
+{
+	struct sab_cmd_shared_buffer_msg cmd;
+	struct sab_cmd_shared_buffer_rsp rsp;
+	uint32_t cmd_msg_sz = sizeof(struct sab_cmd_shared_buffer_msg);
+	uint32_t rsp_msg_sz = sizeof(struct sab_cmd_shared_buffer_rsp);
+	int32_t error;
+	uint32_t ret = SAB_FAILURE_STATUS;
+
+	do {
+		/* Send the keys store open command to Platform. */
+		plat_fill_cmd_msg_hdr(&cmd.hdr,
+				      SAB_SHARED_BUF_REQ,
+				      cmd_msg_sz,
+				      mu_type);
+
+		cmd.session_handle = session_handle;
+		error = plat_send_msg_and_get_resp(phdl,
+						   (uint32_t *)&cmd,
+						   cmd_msg_sz,
+						   (uint32_t *)&rsp,
+						   rsp_msg_sz);
+		if (error != 0)
+			break;
+
+		sab_err_map(SAB_SHARED_BUF_REQ, rsp.rsp_code);
+
+		ret = rsp.rsp_code;
+		if (GET_STATUS_CODE(ret) != SAB_SUCCESS_STATUS)
+			break;
+
+		/* Configure the shared buffer. */
+		error = plat_os_abs_configure_shared_buf(phdl,
+							 rsp.shared_buf_offset,
+							 rsp.shared_buf_size);
+		if (error != 0) {
+			ret = SAB_FAILURE_STATUS;
+			break;
+		}
+
+		ret = SAB_SUCCESS_STATUS;
+	} while (false);
+
+	return ret;
 }
 
 /* Convert errors codes reported by PLATFORM to SHE error codes. */

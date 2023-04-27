@@ -85,7 +85,7 @@ $(SHE_LIB): \
 	$(CC) -shared -Wl,-soname,$(SHE_LIB_MAJOR) -fPIC -o $@ $^
 
 # HSM lib
-$(HSM_LIB): \
+$(HSM_LIB): $(HSM_LIB_OBJECTS) \
 	$(PLAT_COMMON_PATH)/hsm_lib.o \
 	$(PLAT_PATH)/plat_err.o \
 	$(PLAT_PATH)/$(PLAT)_utils.o \
