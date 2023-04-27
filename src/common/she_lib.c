@@ -17,6 +17,32 @@
 #include "plat_os_abs.h"
 #include "plat_utils.h"
 
+// should be kept aligned with flags definition in hsm API
+#define SAB_OPEN_SESSION_PRIORITY_LOW       (0x00U)
+#define SAB_OPEN_SESSION_PRIORITY_HIGH      (0x01U)
+#define SAB_OPEN_SESSION_FIPS_MODE_MASK     BIT(0)
+#define SAB_OPEN_SESSION_EXCLUSIVE_MASK     BIT(1)
+#define SAB_OPEN_SESSION_LOW_LATENCY_MASK   BIT(3)
+#define SAB_OPEN_SESSION_NO_KEY_STORE_MASK  BIT(4)
+
+#define KEY_STORE_OPEN_FLAGS_LOAD                   0x0u
+#define KEY_STORE_OPEN_FLAGS_CREATE                 0x1u
+#define KEY_STORE_OPEN_FLAGS_SHE                    0x2u
+#define KEY_STORE_OPEN_FLAGS_SET_MAC_LEN            0x8u
+#define KEY_STORE_OPEN_FLAGS_STRICT_OPERATION       0x80u
+
+#define RNG_OPEN_FLAGS_DEFAULT          0x0u
+#define RNG_OPEN_FLAGS_SHE              0x1u
+
+#define AHAB_CIPHER_ONE_GO_ALGO_ECB (0x00u)
+#define AHAB_CIPHER_ONE_GO_ALGO_CBC (0x01u)
+#define AHAB_CIPHER_ONE_GO_FLAGS_ENCRYPT (0x01u)
+#define AHAB_CIPHER_ONE_GO_FLAGS_DECRYPT (0x00u)
+
+#define SAB_AUTH_ENC_ALGO_GCM 0x00
+#define SAB_AUTH_ENC_FLAGS_ENCRYPT (0x01u)
+#define SAB_AUTH_ENC_FLAGS_DECRYPT (0x00u)
+
 /* MAC generation / verify */
 
 struct sab_she_fast_mac_msg {

@@ -227,13 +227,4 @@ struct sab_mu_hdr {
     uint8_t tag;
 };
 
-#define AHAB_CIPHER_ONE_GO_ALGO_ECB (0x00u)
-#define AHAB_CIPHER_ONE_GO_ALGO_CBC (0x01u)
-#define AHAB_CIPHER_ONE_GO_FLAGS_ENCRYPT (0x01u)
-#define AHAB_CIPHER_ONE_GO_FLAGS_DECRYPT (0x00u)
-
-#define SAB_AUTH_ENC_ALGO_GCM 0x00
-#define SAB_AUTH_ENC_FLAGS_ENCRYPT (0x01u)
-#define SAB_AUTH_ENC_FLAGS_DECRYPT (0x00u)
-
 #endif

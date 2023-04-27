@@ -144,9 +144,9 @@ static uint32_t nvm_open_session(uint8_t flags, struct nvm_ctx_st *nvm_ctx)
 		sess_args.did = mu_params.did;
 #endif
 		sess_args.interrupt_idx = mu_params.interrupt_idx;
-		sess_args.session_priority = SAB_OPEN_SESSION_PRIORITY_LOW;
+		sess_args.session_priority = HSM_OPEN_SESSION_PRIORITY_LOW;
 		sess_args.operating_mode = ((flags & NVM_FLAGS_V2X) != 0u)
-					   ? SAB_OPEN_SESSION_LOW_LATENCY_MASK : 0U;
+					   ? HSM_OPEN_SESSION_LOW_LATENCY_MASK : 0U;
 
 		err = process_sab_msg(nvm_ctx->phdl,
 				      nvm_ctx->mu_type,
