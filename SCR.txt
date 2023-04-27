@@ -1,10 +1,12 @@
 NXP Software Content Register
 --------------------------------------------
-Package:                     imx-secure_enclave.git
-Outgoing License:            LA_OPT_NXP_Software_License - Production Use - Section 2.3 applies
-License File:                EULA.txt
-Package Category:            BSP
-Type of Content:             source
-Description and comments:    User library with APIs to use EdgeLock Enclave HSM feature
-Release Location:            https://github.com/NXP/imx-secure-enclave
-Origin:                      NXP (proprietary)
+
+NXP Security Enclave Library
+
+Package                 : imx-secure-enclave.git
+License File            : LICENSE
+Type of content         : Source code
+License                 : BSD 3-Clause
+Origin                  : NXP
+Description and comments: This user library exposes HSM/NVM API(s) to invoke/use the
+                          feature-set of EdgeLock Enclave HW IP, enabled NXP devices.
