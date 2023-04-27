@@ -15,6 +15,7 @@
 #include <unistd.h>
 #include "she_api.h"
 #include "plat_os_abs.h"
+#include "plat_utils.h"
 #include "seco_mu_ioctl.h"
 
 
@@ -139,6 +140,8 @@ struct plat_os_abs_hdl *plat_os_abs_open_mu_channel(uint32_t type, struct plat_m
             if (is_nvm != 0u) {
                 /* for NVM: configure the device to accept incoming commands. */
                 if (ioctl(phdl->fd, SECO_MU_IOCTL_ENABLE_CMD_RCV)) {
+			/* Close the device. */
+			(void)close(phdl->fd);
                     free(phdl);
                     phdl = NULL;
                 }
@@ -174,16 +177,48 @@ void plat_os_abs_close_session(struct plat_os_abs_hdl *phdl)
     free(phdl);
 }
 
-/* Send a message to Seco on the MU. Return the size of the data written. */
-int32_t plat_os_abs_send_mu_message(struct plat_os_abs_hdl *phdl, uint32_t *message, uint32_t size)
+/*
+ * Send a message to platform on the MU. Return the size of the data written.
+ * In case of error, return 0 size.
+ */
+uint32_t plat_os_abs_send_mu_message(struct plat_os_abs_hdl *phdl,
+				     uint32_t *message,
+				     uint32_t size)
 {
-    return (int32_t)write(phdl->fd, message, size);
+	int64_t ret;
+
+	ret = write(phdl->fd, message, size);
+
+	if (ret < 0) {
+		ret = PLAT_WRITE_FAILURE;
+		se_err("\nPLAT write error[%d]: %s\n",
+		       errno,
+		       strerror(errno));
+	}
+
+	return TO_UINT32_T(ret);
 }
 
-/* Read a message from Seco on the MU. Return the size of the data that were read. */
-int32_t plat_os_abs_read_mu_message(struct plat_os_abs_hdl *phdl, uint32_t *message, uint32_t size)
+/*
+ * Read a message from platform on the MU. Return the size of the data read.
+ * In case of error, return 0 size.
+ */
+uint32_t plat_os_abs_read_mu_message(struct plat_os_abs_hdl *phdl,
+				     uint32_t *message,
+				     uint32_t size)
 {
-    return (int32_t)read(phdl->fd, message, size);
+	int64_t ret;
+
+	ret = read(phdl->fd, message, size);
+
+	if (ret < 0) {
+		ret = PLAT_READ_FAILURE;
+		se_err("\nPLAT read error[%d]: %s\n",
+		       errno,
+		       strerror(errno));
+	}
+
+	return TO_UINT32_T(ret);
 };
 
 /* Map the shared buffer allocated by Seco. */
@@ -226,7 +261,7 @@ void plat_os_abs_memset(uint8_t *dst, uint8_t val, uint32_t len)
 void plat_os_abs_memcpy(uint8_t *dst, uint8_t *src, uint32_t len)
 {
 	if (len == NO_LENGTH)
-		len = strlen(src);
+		len = TO_UINT32_T(strlen(src));
 
 	(void)memcpy(dst, src, len);
 }
@@ -249,7 +284,9 @@ void plat_os_abs_start_system_rng(struct plat_os_abs_hdl *phdl)
      */
 }
 
-int32_t plat_os_abs_send_signed_message(struct plat_os_abs_hdl *phdl, uint8_t *signed_message, uint32_t msg_len)
+uint32_t plat_os_abs_send_signed_message(struct plat_os_abs_hdl *phdl,
+					 uint8_t *signed_message,
+					 uint32_t msg_len)
 {
     /* Send the message to the kernel that will forward to SCU.*/
     struct seco_mu_ioctl_signed_message msg;
@@ -259,9 +296,14 @@ int32_t plat_os_abs_send_signed_message(struct plat_os_abs_hdl *phdl, uint8_t *s
     msg.msg_size = msg_len;
     err = ioctl(phdl->fd, SECO_MU_IOCTL_SIGNED_MESSAGE, &msg);
 
-    if (err == 0) {
-        err = (int32_t)msg.error_code;
-    }
+	if (err < 0) {
+		err = PLAT_FAILURE;
+		se_err("\nPLAT ioctl error[%d]: %s\n",
+		       errno,
+		       strerror(errno));
+	} else if (err == 0) {
+		err = msg.error_code;
+	}
 
-    return err;
+	return TO_UINT32_T(err);
 }

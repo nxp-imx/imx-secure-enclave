@@ -751,10 +751,10 @@ int main(int argc, char *argv[])
 	data_storage_test(key_store_hdl, 4);
 #endif
 
+#ifdef PSA_COMPLIANT
 	gc_akey_gen_test(hsm_session_hdl);
-
 	gc_acrypto_test(hsm_session_hdl);
-
+#endif
 	if (argc > 1) {
 		tv_tests_run(key_store_hdl, argv[1]);
 	} else {

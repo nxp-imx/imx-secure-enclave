@@ -28,6 +28,25 @@ struct she_hdl_s {
     uint32_t mu_type;
 };
 
+uint32_t sab_open_key_store_command(struct plat_os_abs_hdl *phdl,
+				    uint32_t session_handle,
+				    uint32_t *key_store_handle,
+				    uint32_t mu_type,
+				    uint32_t key_storage_identifier,
+				    uint32_t password,
+				    uint16_t max_updates,
+				    uint8_t flags,
+				    uint8_t min_mac_length)
+{
+	return 0;
+}
+
+uint32_t sab_close_key_store(struct plat_os_abs_hdl *phdl,
+			     uint32_t key_store_handle,
+			     uint32_t mu_type)
+{
+	return 0;
+}
 
 /* Convert errors codes reported by PLATFORM to SHE error codes. */
 static she_err_t she_plat_ind_to_she_err_t (uint32_t rsp_code)

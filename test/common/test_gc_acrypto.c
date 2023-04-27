@@ -121,6 +121,7 @@ uint8_t priv_exp_buff[512] = {
 
 uint8_t pub_exp_buff[5] = {0x1, 0x0, 0x0, 0x0, 0x1};
 
+#ifdef PSA_COMPLIANT
 hsm_err_t gc_acrypto_test(hsm_hdl_t session_hdl)
 {
 	hsm_err_t err = HSM_GENERAL_ERROR;
@@ -153,3 +154,5 @@ hsm_err_t gc_acrypto_test(hsm_hdl_t session_hdl)
 
 	return err;
 }
+
+#endif

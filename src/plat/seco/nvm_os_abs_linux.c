@@ -13,8 +13,10 @@
 #include <sys/stat.h>
 #include <fcntl.h>
 #include <unistd.h>
+
 #include "she_api.h"
 #include "plat_os_abs.h"
+#include "plat_utils.h"
 #include "seco_mu_ioctl.h"
 
 static char SECO_NVM_SHE_STORAGE_FILE[] = "/etc/seco_she_nvm";
@@ -25,12 +27,12 @@ static char V2X_NVM_HSM_STORAGE_CHUNK_PATH[] = "/etc/v2x_hsm/";
 
 
 /* Write data in a file located in NVM. Return the size of the written data. */
-int32_t plat_os_abs_storage_write(struct plat_os_abs_hdl *phdl,
-				  uint8_t *src, uint32_t size,
-				  uint8_t *nvm_fname)
+uint32_t plat_os_abs_storage_write(struct plat_os_abs_hdl *phdl,
+				   uint8_t *src, uint32_t size,
+				   uint8_t *nvm_fname)
 {
-	int32_t fd = -1;
-	int32_t l = 0;
+	int32_t fd;
+	int64_t l = 0;
 	char *path;
 
 	switch (phdl->type) {
@@ -57,21 +59,25 @@ int32_t plat_os_abs_storage_write(struct plat_os_abs_hdl *phdl,
 		fd = open(path, O_CREAT|O_WRONLY|O_SYNC, S_IRUSR|S_IWUSR);
 		if (fd >= 0) {
 			/* Write the data. */
-			l = (int32_t)write(fd, src, size);
+			l = write(fd, src, size);
+			if (l < 0) {
+				l = PLAT_WRITE_FAILURE;
+				se_err("Write error [%d]:%s\n", errno, strerror(errno));
+			}
 
 			(void)close(fd);
 		}
 	}
 
-	return l;
+	return TO_UINT32_T(l);
 }
 
-int32_t plat_os_abs_storage_read(struct plat_os_abs_hdl *phdl,
-				 uint8_t *dst, uint32_t size,
-				 uint8_t *nvm_fname)
+uint32_t plat_os_abs_storage_read(struct plat_os_abs_hdl *phdl,
+				  uint8_t *dst, uint32_t size,
+				  uint8_t *nvm_fname)
 {
-	int32_t fd = -1;
-	int32_t l = 0;
+	int32_t fd;
+	int64_t l = 0;
 	char *path;
 
 	switch (phdl->type) {
@@ -97,56 +103,79 @@ int32_t plat_os_abs_storage_read(struct plat_os_abs_hdl *phdl,
 		fd = open(path, O_RDONLY);
 		if (fd >= 0) {
 			/* Read the data. */
-			l = (int32_t)read(fd, dst, size);
+			l = read(fd, dst, size);
+			if (l < 0) {
+				l = PLAT_READ_FAILURE;
+				se_err("Read error [%d]:%s\n", errno, strerror(errno));
+			}
 
 			(void)close(fd);
 		}
 	}
-	return l;
+	return TO_UINT32_T(l);
+}
+
+int get_chunk_file_path(char **path,
+			uint8_t *nvm_storage_dname,
+			uint64_t blob_id)
+{
+	int ret = -1;
+	uint64_t path_len;
+	uint8_t blob_id_sz = sizeof(blob_id);
+
+	if (!nvm_storage_dname)
+		goto exit;
+
+	path_len = strlen(nvm_storage_dname);
+
+	if (path_len > MAX_FNAME_DNAME_SZ)
+		goto exit;
+
+	/* 1 extra byte in path_len is for accommodating null termination char
+	 * \0 in path string.
+	 */
+	path_len += (blob_id_sz * 2);
+
+	*path = malloc(path_len);
+
+	if (*path) {
+		/* 0x600 for S_IRUSR | S_IWUSR */
+		ret = mkdir(nvm_storage_dname, 0x600);
+
+		if (ret < 0 && errno != EEXIST)
+			goto exit;
+
+		ret = snprintf(*path,
+			       path_len,
+			       "%s%0*lx",
+			       nvm_storage_dname,
+			       (int)blob_id_sz * 2,
+			       blob_id);
+
+		if (ret != (path_len - 1))
+			ret = -1;
+	}
+
+exit:
+	return ret;
 }
 
 /* Write data in a file located in NVM. Return the size of the written data. */
-int32_t plat_os_abs_storage_write_chunk(struct plat_os_abs_hdl *phdl,
-					uint8_t *src,
-					uint32_t size,
-					uint64_t blob_id,
-					uint8_t *nvm_storage_dname)
+uint32_t plat_os_abs_storage_write_chunk(struct plat_os_abs_hdl *phdl,
+					 uint8_t *src,
+					 uint32_t size,
+					 uint64_t blob_id,
+					 uint8_t *nvm_storage_dname)
 {
-	int32_t fd = -1;
-	int32_t l = 0;
+	int32_t fd;
+	int64_t l = 0;
 	int n = -1;
 	char *path = NULL;
 
 	if (phdl->type == MU_CHANNEL_PLAT_HSM_NVM) {
-		path = malloc(strlen(nvm_storage_dname) + 16u);
-
-		if (path != NULL) {
-			n = mkdir(nvm_storage_dname,
-				  S_IRUSR|S_IWUSR);
-			if (n)
-				goto exit;
-
-			n = snprintf(path,
-				     strlen(nvm_storage_dname) + 16u,
-				     "%s%016lx",
-				     nvm_storage_dname,
-				     blob_id);
-		}
+		n = get_chunk_file_path(&path, nvm_storage_dname, blob_id);
 	} else if (phdl->type == MU_CHANNEL_V2X_HSM_NVM) {
-		path = malloc(strlen(V2X_NVM_HSM_STORAGE_CHUNK_PATH) + 16u);
-
-		if (path != NULL) {
-			n = mkdir(V2X_NVM_HSM_STORAGE_CHUNK_PATH,
-				  S_IRUSR|S_IWUSR);
-			if (n)
-				goto exit;
-
-			n = snprintf(path,
-				     strlen(V2X_NVM_HSM_STORAGE_CHUNK_PATH) + 16u,
-				     "%s%016lx",
-				     V2X_NVM_HSM_STORAGE_CHUNK_PATH,
-				     blob_id);
-		}
+		n = get_chunk_file_path(&path, V2X_NVM_HSM_STORAGE_CHUNK_PATH, blob_id);
 	} else {
 		path = NULL;
 	}
@@ -158,55 +187,36 @@ int32_t plat_os_abs_storage_write_chunk(struct plat_os_abs_hdl *phdl,
 		fd = open(path, O_CREAT|O_WRONLY|O_SYNC, S_IRUSR|S_IWUSR);
 		if (fd >= 0) {
 			/* Write the data. */
-			l = (int32_t)write(fd, src, size);
+			l = write(fd, src, size);
+			if (l < 0) {
+				l = PLAT_WRITE_FAILURE;
+				se_err("Write error [%d]:%s\n", errno, strerror(errno));
+			}
 
 			(void)close(fd);
 		}
 	}
 
-exit:
-	free(path);
-	return l;
+	if (path)
+		free(path);
+
+	return TO_UINT32_T(l);
 }
 
-int32_t plat_os_abs_storage_read_chunk(struct plat_os_abs_hdl *phdl,
-				       uint8_t *dst, uint32_t size,
-				       uint64_t blob_id,
-				       uint8_t *nvm_storage_dname)
+uint32_t plat_os_abs_storage_read_chunk(struct plat_os_abs_hdl *phdl,
+					uint8_t *dst, uint32_t size,
+					uint64_t blob_id,
+					uint8_t *nvm_storage_dname)
 {
-	int32_t fd = -1;
-	int32_t l = 0;
+	int32_t fd;
+	int64_t l = 0;
 	int n = -1;
 	char *path = NULL;
 
 	if (phdl->type == MU_CHANNEL_PLAT_HSM_NVM) {
-		path = malloc(strlen(nvm_storage_dname) + 16u);
-
-		if (path != NULL) {
-			n = mkdir(nvm_storage_dname,
-				  S_IRUSR|S_IWUSR);
-			if (n)
-				goto exit;
-			n = snprintf(path,
-				     strlen(nvm_storage_dname) + 16u,
-				     "%s%016lx",
-				     nvm_storage_dname,
-				     blob_id);
-		}
+		n = get_chunk_file_path(&path, nvm_storage_dname, blob_id);
 	} else if (phdl->type == MU_CHANNEL_V2X_HSM_NVM) {
-		path = malloc(strlen(V2X_NVM_HSM_STORAGE_CHUNK_PATH) + 16u);
-
-		if (path != NULL) {
-			n = mkdir(V2X_NVM_HSM_STORAGE_CHUNK_PATH,
-				  S_IRUSR|S_IWUSR);
-			if (n)
-				goto exit;
-			n = snprintf(path,
-				     strlen(V2X_NVM_HSM_STORAGE_CHUNK_PATH) + 16u,
-				     "%s%016lx",
-				     V2X_NVM_HSM_STORAGE_CHUNK_PATH,
-				     blob_id);
-		}
+		n = get_chunk_file_path(&path, V2X_NVM_HSM_STORAGE_CHUNK_PATH, blob_id);
 	} else {
 		path = NULL;
 	}
@@ -216,12 +226,18 @@ int32_t plat_os_abs_storage_read_chunk(struct plat_os_abs_hdl *phdl,
 		fd = open(path, O_RDONLY);
 		if (fd >= 0) {
 			/* Read the data. */
-			l = (int32_t)read(fd, dst, size);
+			l = read(fd, dst, size);
+			if (l < 0) {
+				l = PLAT_READ_FAILURE;
+				se_err("Read error [%d]:%s\n", errno, strerror(errno));
+			}
 
 			(void)close(fd);
 		}
 	}
-exit:
-	free(path);
-	return l;
+
+	if (path)
+		free(path);
+
+	return TO_UINT32_T(l);
 }

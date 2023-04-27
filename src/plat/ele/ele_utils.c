@@ -157,8 +157,7 @@ bool val_rcv_rsp_len(uint32_t rcv_len, uint32_t *rcv_buf)
 	 * if received size is not equal to the
 	 * size mentioned in the MU header size-tag.
 	 */
-	if (rcv_len != (((struct sab_mu_hdr *)rcv_buf)->size)
-			* sizeof(uint32_t))
+	if (rcv_len != (((struct sab_mu_hdr *)rcv_buf)->size) << 2)
 		return false;
 
 	se_warn("Received less length than expected.\n");
@@ -259,7 +258,7 @@ uint32_t plat_send_msg_and_rcv_resp(struct plat_os_abs_hdl *phdl,
 	printf("\n---------- MSG Command with msg id[0x%x] = %d -------------\n",
 			((struct sab_mu_hdr *)cmd)->command,
 			((struct sab_mu_hdr *)cmd)->command);
-	hexdump(cmd, cmd_len/sizeof(uint32_t));
+	hexdump(cmd, cmd_len >> 2);
 	printf("\n-------------------MSG END-----------------------------------\n");
 #endif
 		/* Read the response. */
@@ -278,7 +277,7 @@ uint32_t plat_send_msg_and_rcv_resp(struct plat_os_abs_hdl *phdl,
 	printf("\n---------- MSG Command RSP with msg id[0x%x] = %d -------------\n",
 			((struct sab_mu_hdr *)rsp)->command,
 			((struct sab_mu_hdr *)rsp)->command);
-	hexdump(rsp, *rsp_len/sizeof(uint32_t));
+	hexdump(rsp, *rsp_len >> 2);
 	printf("\n-------------------MSG RSP END-----------------------------------\n");
 #endif
 
@@ -316,7 +315,7 @@ int32_t plat_send_msg_and_get_resp(struct plat_os_abs_hdl *phdl,
 	printf("\n---------- MSG Command with msg id[0x%x] = %d -------------\n",
 			((struct sab_mu_hdr *)cmd)->command,
 			((struct sab_mu_hdr *)cmd)->command);
-	hexdump(cmd, cmd_len/sizeof(uint32_t));
+	hexdump(cmd, cmd_len >> 2);
 	printf("\n-------------------MSG END-----------------------------------\n");
 #endif
 		/* Read the response. */
@@ -330,7 +329,7 @@ int32_t plat_send_msg_and_get_resp(struct plat_os_abs_hdl *phdl,
 	printf("\n---------- MSG Command RSP with msg id[0x%x] = %d -------------\n",
 			((struct sab_mu_hdr *)rsp)->command,
 			((struct sab_mu_hdr *)rsp)->command);
-	hexdump(rsp, rsp_len/sizeof(uint32_t));
+	hexdump(rsp, rsp_len >> 2);
 	printf("\n-------------------MSG RSP END-----------------------------------\n");
 #endif
 
@@ -353,7 +352,7 @@ uint32_t plat_add_msg_crc(uint32_t *msg, uint32_t msg_len)
 	err = 0;
 	/* Value of nb_words can never be equal to zero.
 	 */
-	nb_words = msg_len / (uint32_t)sizeof(uint32_t);
+	nb_words = msg_len >> 2;
 
 	crc = 0u;
 	for (i = 0u; i < (nb_words - 1); i++)
@@ -375,7 +374,7 @@ uint8_t plat_validate_msg_crc(uint32_t *msg, uint32_t msg_len)
 
 	/* Value of nb_words can never be equal to zero.
 	 */
-	nb_words = msg_len / (uint32_t)sizeof(uint32_t);
+	nb_words = msg_len >> 2;
 	for (i = 0; i < (nb_words - 1); i++)
 		computed_msg_crc ^= *(msg + i);
 
@@ -386,12 +385,11 @@ uint32_t plat_fetch_msg_crc(uint32_t *msg, uint32_t msg_len)
 {
 	uint32_t crc = 0u;
 	uint32_t i;
-	uint32_t nb_words = msg_len / (uint32_t)sizeof(uint32_t);
+	uint32_t nb_words = msg_len >> 2;
 
 	crc = 0u;
-	for (i = 0u; i < nb_words; i++) {
+	for (i = 0u; i < nb_words; i++)
 		crc ^= *(msg + i);
-	}
 
 	return crc;
 }
@@ -400,7 +398,7 @@ uint32_t plat_compute_msg_crc(uint32_t *msg, uint32_t msg_len)
 {
 	uint32_t crc;
 	uint32_t i;
-	uint32_t nb_words = msg_len / (uint32_t)sizeof(uint32_t);
+	uint32_t nb_words = msg_len >> 2;
 
 	crc = 0u;
 	for (i = 0u; i < nb_words; i++) {
