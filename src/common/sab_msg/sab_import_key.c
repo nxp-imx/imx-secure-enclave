@@ -34,25 +34,6 @@ uint32_t prepare_msg_importkey(void *phdl,
 						   DATA_BUF_IS_INPUT));
 	cmd->input_size = op_args->input_size;
 
-	if ((op_args->flags & HSM_OP_IMPORT_KEY_INPUT_E2GO_TLV)
-			== HSM_OP_IMPORT_KEY_INPUT_SIGNED_MSG) {
-		set_phy_addr_to_words(&cmd->sign_msg.key_blob_lsb,
-				      0u,
-				      plat_os_abs_data_buf((struct plat_os_abs_hdl *)phdl,
-							   op_args->key_blob,
-							   op_args->key_blob_sz,
-							   DATA_BUF_IS_INPUT));
-		cmd->sign_msg.key_blob_size = op_args->key_blob_sz;
-		set_phy_addr_to_words(&cmd->sign_msg.iv_lsb,
-				      0u,
-				      plat_os_abs_data_buf((struct plat_os_abs_hdl *)phdl,
-							   op_args->iv,
-							   op_args->iv_sz,
-							   DATA_BUF_IS_INPUT));
-		cmd->sign_msg.iv_size = op_args->iv_sz;
-		cmd->sign_msg.key_group = op_args->key_group;
-		cmd->sign_msg.key_id = op_args->key_id;
-	}
 	*cmd_msg_sz = sizeof(struct sab_cmd_import_key_msg);
 	*rsp_msg_sz = sizeof(struct sab_cmd_import_key_rsp);
 
@@ -67,7 +48,8 @@ uint32_t proc_msg_rsp_importkey(void *rsp_buf, void *args)
 	struct sab_cmd_import_key_rsp *rsp =
 		(struct sab_cmd_import_key_rsp *) rsp_buf;
 
-	op_args->key_identifier = rsp->key_identifier;
+	if (op_args)
+		op_args->key_identifier = rsp->key_identifier;
 
 	return SAB_SUCCESS_STATUS;
 }

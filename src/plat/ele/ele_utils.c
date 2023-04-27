@@ -10,7 +10,9 @@
 #include "plat_utils.h"
 
 /* Soon to be depricated to help descriminate between ROM and Firmware API */
-void plat_fill_cmd_msg_hdr(struct sab_mu_hdr *hdr, uint8_t cmd, uint32_t len, uint32_t mu_type)
+void plat_fill_cmd_msg_hdr(struct sab_mu_hdr *hdr,
+			   uint8_t cmd, uint32_t len,
+			   uint32_t mu_type)
 {
     switch (mu_type) {
     case MU_CHANNEL_V2X_SV0:
@@ -97,8 +99,11 @@ void plat_build_rsp_msg_hdr(struct sab_mu_hdr *hdr, msg_type_t msg_type,
 	hdr->size = TO_UINT8_T(len >> 2);
 }
 
-/* Fill a response message header with a given command ID and length in bytes. */
-void plat_fill_rsp_msg_hdr(struct sab_mu_hdr *hdr, uint8_t cmd, uint32_t len, uint32_t mu_type)
+/* Fill a response message header with a given command ID and length in bytes.*/
+void plat_fill_rsp_msg_hdr(struct sab_mu_hdr *hdr,
+			   uint8_t cmd,
+			   uint32_t len,
+			   uint32_t mu_type)
 {
     switch (mu_type) {
     case MU_CHANNEL_V2X_SV0:
@@ -190,10 +195,10 @@ uint32_t plat_rcvmsg_cmd(struct plat_os_abs_hdl *phdl,
 		*cmd_len = ((struct sab_mu_hdr *)cmd)->size << 2;
 		*rcv_msg_cmd_id = ((struct sab_mu_hdr *)cmd)->command;
 #if DEBUG
-		printf("\n---------- MSG Command with msg id[0x%x] = %d -------------\n",
-			*rcv_msg_cmd_id, *rcv_msg_cmd_id);
+		printf("\n------- MSG Command with msg id[0x%x] = %d -------\n",
+		       *rcv_msg_cmd_id, *rcv_msg_cmd_id);
 		hexdump(cmd, *cmd_len);
-		printf("\n-------------------MSG RSP END-----------------------------------\n");
+		printf("\n-------------------MSG RSP END-------------------\n");
 #endif
 		err = PLAT_SUCCESS;
 	} while (false);
@@ -218,11 +223,11 @@ uint32_t plat_sndmsg_rsp(struct plat_os_abs_hdl *phdl,
 		}
 
 #if DEBUG
-		printf("\n---------- MSG Command RSP with msg id[0x%x] = %d -------------\n",
-			((struct sab_mu_hdr *)rsp)->command,
-			((struct sab_mu_hdr *)rsp)->command);
+		printf("\n----- MSG Command RSP with msg id[0x%x] = %d -----\n",
+		       ((struct sab_mu_hdr *)rsp)->command,
+		       ((struct sab_mu_hdr *)rsp)->command);
 		hexdump(rsp, rsp_len);
-		printf("\n-------------------MSG RSP END-----------------------------------\n");
+		printf("\n-------------------MSG RSP END-------------------\n");
 #endif
 
 		err = PLAT_SUCCESS;
@@ -231,7 +236,9 @@ uint32_t plat_sndmsg_rsp(struct plat_os_abs_hdl *phdl,
 	return err;
 }
 
-/* Helper function to send a message and wait for the response. Return 0 on success.*/
+/* Helper function to send a message and wait for the response.
+ * Return 0 on success.
+ */
 uint32_t plat_send_msg_and_rcv_resp(struct plat_os_abs_hdl *phdl,
 				    uint32_t *cmd,
 				    uint32_t cmd_len,
@@ -242,7 +249,7 @@ uint32_t plat_send_msg_and_rcv_resp(struct plat_os_abs_hdl *phdl,
 	uint32_t len;
 
 	do {
-		/* Command and response need to be at least 1 word for the header. */
+		/* Cmd and resp need to be at least 1 word for the header. */
 		if ((cmd_len < (uint32_t)sizeof(uint32_t)) ||
 			(*rsp_len < (uint32_t)sizeof(uint32_t)))
 			break;
@@ -255,11 +262,13 @@ uint32_t plat_send_msg_and_rcv_resp(struct plat_os_abs_hdl *phdl,
 			break;
 		}
 #if DEBUG
-	printf("\n---------- MSG Command with msg id[0x%x] = %d -------------\n",
-			((struct sab_mu_hdr *)cmd)->command,
-			((struct sab_mu_hdr *)cmd)->command);
-	hexdump(cmd, cmd_len >> 2);
-	printf("\n-------------------MSG END-----------------------------------\n");
+		if (((struct sab_mu_hdr *)cmd)->command) {
+			printf("\n------ MSG Command with msg id[0x%x] = %d -------\n",
+			       ((struct sab_mu_hdr *)cmd)->command,
+			       ((struct sab_mu_hdr *)cmd)->command);
+			hexdump(cmd, cmd_len >> 2);
+			printf("\n-------------------MSG END-----------------------\n");
+		}
 #endif
 		/* Read the response. */
 		len = plat_os_abs_read_mu_message(phdl, rsp, *rsp_len);
@@ -274,11 +283,13 @@ uint32_t plat_send_msg_and_rcv_resp(struct plat_os_abs_hdl *phdl,
 
 		*rsp_len = len;
 #if DEBUG
-	printf("\n---------- MSG Command RSP with msg id[0x%x] = %d -------------\n",
-			((struct sab_mu_hdr *)rsp)->command,
-			((struct sab_mu_hdr *)rsp)->command);
-	hexdump(rsp, *rsp_len >> 2);
-	printf("\n-------------------MSG RSP END-----------------------------------\n");
+		if (((struct sab_mu_hdr *)rsp)->command) {
+			printf("\n----- MSG Command RSP with msg id[0x%x] = %d -----\n",
+			       ((struct sab_mu_hdr *)rsp)->command,
+			       ((struct sab_mu_hdr *)rsp)->command);
+			hexdump(rsp, *rsp_len >> 2);
+			printf("\n------------------MSG RSP END--------------------\n");
+		}
 #endif
 
 	err = PLAT_SUCCESS;

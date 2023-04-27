@@ -20,6 +20,7 @@ NVM_DAEMON := nvm_daemon
 NVMD_CONF_FILE := nvmd.conf
 SYSTEMD_NVM_SERVICE := nvm_daemon.service
 TEST_VECTOR_FNAME ?= test_vectors_*.tv
+TEST_BLOB_FNAME ?= *.blob
 OPENSSL_PATH ?= ../openssl/
 
 ifdef COVERAGE
@@ -175,3 +176,4 @@ install_tests: install $(tests)
 	cp $(all_tests) $(DESTDIR)$(BINDIR)
 	mkdir -p $(DESTDIR)$(TEST_VECTOR_DEFAULT_DIR)
 	cp $(TEST_COMMON_TV_PATH)/$(TEST_VECTOR_FNAME) $(DESTDIR)$(TEST_VECTOR_DEFAULT_DIR)
+	cp $(TEST_COMMON_TV_PATH)/$(TEST_BLOB_FNAME) $(DESTDIR)$(TEST_VECTOR_DEFAULT_DIR)

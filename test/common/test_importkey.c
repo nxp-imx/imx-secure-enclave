@@ -14,6 +14,8 @@
 #include "openssl_testapi.h"
 
 #if MT_SAB_IMPORT_KEY
+
+#if PLAIN_KEY_IMPORT_NOT_SUPPORTED
 static struct test_import_key_data  importkey_tdata;
 
 static uint8_t set_length_field(uint8_t *len_buf, uint8_t len)
@@ -514,4 +516,121 @@ int test_import_key(hsm_hdl_t sess_hdl,
 
 	return ret;
 }
+#else
+static long get_file_size(uint8_t *fname)
+{
+	long fsize = 0;
+	FILE *fptr = fopen(fname, "r");
+
+	if (fptr) {
+		if (fseek(fptr, 0L, SEEK_END) == 0)
+			/* Get the size of the file. */
+			fsize = ftell(fptr);
+		fsize = (fsize < 0) ? 0 : fsize;
+		fclose(fptr);
+	}
+
+	return fsize;
+}
+
+static int read_fl_to_buf(uint8_t *fname, uint8_t *fbuf, long fsize)
+{
+	FILE *fptr = fopen(fname, "r");
+	size_t nlen;
+
+	if (fptr) {
+		nlen = fread(fbuf, sizeof(char), fsize, fptr);
+		if (ferror(fptr) != 0)
+			printf("Error reading file.\n");
+		else
+			fbuf[nlen++] = '\0'; /* Just to be safe. */
+
+		fclose(fptr);
+	}
+}
+
+uint32_t test_key_import(hsm_hdl_t key_mgmt_hdl, hsm_hdl_t key_store_hdl)
+{
+	uint8_t hash_data[32] = {
+		0x00, 0x01, 0x02, 0x03, 0x04, 0x05, 0x06, 0x07,
+		0x08, 0x09, 0x0A, 0x0B, 0x0C, 0x0D, 0x0E, 0x0F,
+		0x10, 0x11, 0x12, 0x13, 0x14, 0x15, 0x16, 0x17,
+		0x18, 0x19, 0x1A, 0x1B, 0x1C, 0x1D, 0x1E, 0x1F };
+
+	uint8_t iv_data[16] = {
+		0x00, 0x01, 0x02, 0x03, 0x04, 0x05, 0x06, 0x07,
+		0x08, 0x09, 0x0A, 0x0B, 0x0C, 0x0D, 0x0E, 0x0F };
+
+	uint8_t *import_key_buf;
+	uint8_t fname[] = "/usr/share/se/test_vectors/el2go_aes_test.blob";
+	uint32_t import_key_len;
+	op_import_key_args_t args;
+	op_cipher_one_go_args_t cipher_args = {0};
+	hsm_hdl_t cipher_hdl;
+	uint8_t ciphered_data[32] = {0};
+	uint8_t deciphered_data[32] = {0};
+	hsm_err_t hsmret;
+
+	import_key_len = get_file_size(fname);
+	if (!import_key_len)
+		return 0;
+
+	import_key_buf = malloc(import_key_len + 1);
+	if (!import_key_buf) {
+		printf("No import key blob to test.\n");
+		return 0;
+	}
+	if (read_fl_to_buf(fname, import_key_buf, import_key_len)) {
+		printf("file empty: no Import key blob to test.\n");
+		free(import_key_buf);
+		return 0;
+	}
+
+	args.flags = HSM_OP_IMPORT_KEY_INPUT_E2GO_TLV;
+	args.input_lsb_addr = import_key_buf;
+	args.input_size = import_key_len;
+
+	hsmret = hsm_import_key(key_mgmt_hdl, &args);
+	if (hsmret)
+		printf("Failure[0%x] in HSM Import Key API.\n", hsmret);
+	printf("Imported Key ID = 0x%x\n", args.key_identifier);
+	if (!args.key_identifier) {
+		printf("Failed: key is either already imported or invalid signature.\n");
+		free(import_key_buf);
+		return 0;
+	}
+
+	cipher_args.key_identifier = args.key_identifier;
+	cipher_args.iv = NULL;
+	cipher_args.iv_size = 0;
+	cipher_args.cipher_algo = HSM_CIPHER_ONE_GO_ALGO_ECB;
+	cipher_args.flags = HSM_CIPHER_ONE_GO_FLAGS_ENCRYPT;
+	cipher_args.input = hash_data;
+	cipher_args.output = ciphered_data;
+	cipher_args.input_size = sizeof(hash_data);
+	cipher_args.output_size = sizeof(ciphered_data);
+
+	hsmret = hsm_do_cipher(key_store_hdl, &cipher_args);
+	if (hsmret)
+		printf("hsm_cipher_one_go ret:0x%x\n", hsmret);
+
+	cipher_args.flags = HSM_CIPHER_ONE_GO_FLAGS_DECRYPT;
+	cipher_args.input = ciphered_data;
+	cipher_args.output = deciphered_data;
+	cipher_args.input_size = sizeof(ciphered_data);
+	cipher_args.output_size = sizeof(deciphered_data);
+
+	hsmret = hsm_do_cipher(key_store_hdl, &cipher_args);
+	if (hsmret)
+		printf("hsm_cipher_one_go ret:0x%x\n", hsmret);
+
+	if (memcmp(hash_data, deciphered_data, sizeof(hash_data)) == 0)
+		printf("\nDecrypted data matches encrypted data [PASS]\n");
+	else
+		printf("\nDecrypted data doesn't match encrypted data [FAIL]\n");
+
+	free(import_key_buf);
+	return args.key_identifier;
+}
+#endif
 #endif //MT_SAB_IMPORT_KEY

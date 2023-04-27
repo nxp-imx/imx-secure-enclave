@@ -263,9 +263,6 @@ void key_management(uint32_t key_op, hsm_hdl_t key_mgmt_hdl,
 #ifdef HSM_DELETE_KEY
 	op_delete_key_args_t del_args;
 #endif
-#ifdef HSM_IMPORT_KEY
-	op_import_key_args_t imp_args;
-#endif
 #ifdef HSM_GET_KEY_ATTR
 	op_get_key_attr_args_t keyattr_args;
 #endif
@@ -286,24 +283,6 @@ void key_management(uint32_t key_op, hsm_hdl_t key_mgmt_hdl,
 		del_args.key_identifier = *key_id;
 		del_args.flags = 0;
 		hsmret = hsm_delete_key(key_mgmt_hdl, &del_args);
-		printf("hsm_delete_key ret:0x%x\n", hsmret);
-#endif
-		break;
-	case IMPORT:
-#ifdef HSM_MANAGE_KEY
-		memset(&mng_args, 0, sizeof(mng_args));
-		mng_args.key_identifier = key_id;
-		mng_args.flags = HSM_OP_MANAGE_KEY_FLAGS_IMPORT_CREATE;
-		mng_args.key_type = key_type;
-		mng_args.key_group = key_group;
-		hsmret = hsm_manage_key(key_mgmt_hdl, &mng_args);
-		printf("hsm_manage_key ret:0x%x\n", hsmret);
-#endif
-#ifdef HSM_IMPORT_KEY
-		memset(&imp_args, 0, sizeof(imp_args));
-		imp_args.key_identifier = *key_id;
-		imp_args.flags = HSM_OP_IMPORT_KEY_INPUT_E2GO_TLV;
-		hsmret = hsm_import_key(key_mgmt_hdl, &imp_args);
 		printf("hsm_delete_key ret:0x%x\n", hsmret);
 #endif
 		break;
@@ -337,8 +316,6 @@ void key_management(uint32_t key_op, hsm_hdl_t key_mgmt_hdl,
 
 static void transient_key_tests(hsm_hdl_t sess_hdl, hsm_hdl_t key_store_hdl)
 {
-	uint32_t import_key_len = 256;
-	uint8_t import_key_buf[import_key_len];
 	open_svc_key_management_args_t key_mgmt_args;
 	hsm_hdl_t key_mgmt_hdl;
 	uint8_t pub_key[64];
@@ -383,7 +360,7 @@ static void transient_key_tests(hsm_hdl_t sess_hdl, hsm_hdl_t key_store_hdl)
 		0x00, 0x01, 0x02, 0x03, 0x04, 0x05, 0x06, 0x07,
 		0x08, 0x09, 0x0A, 0x0B, 0x0C, 0x0D, 0x0E, 0x0F };
 	hsm_err_t hsmret;
-	op_import_key_args_t args;
+	uint32_t import_key_id = 0;
 
 	memset(&key_mgmt_args, 0, sizeof(key_mgmt_args));
 	memset(pub_key, 0, sizeof(pub_key));
@@ -616,12 +593,14 @@ static void transient_key_tests(hsm_hdl_t sess_hdl, hsm_hdl_t key_store_hdl)
 	key_management(DELETE, key_mgmt_hdl, &sym_key_id, 50, HSM_KEY_TYPE_AES_256);
 #else
 	key_management(DELETE, key_mgmt_hdl, &sym_key_id, 50, HSM_KEY_TYPE_AES);
-#endif
-	args.flags = HSM_OP_IMPORT_KEY_INPUT_E2GO_TLV;
-#ifdef PSA_COMPLIANT
-	test_import_key(hsm_session_hdl, key_store_hdl,
-			key_mgmt_hdl, import_key_len, import_key_buf, &args);
-	printf("Imported Key ID = 0x%x\n", args.key_identifier);
+
+	import_key_id = test_key_import(key_mgmt_hdl, key_store_hdl);
+	if (import_key_id)
+		key_management(KEYATTR,
+			       key_mgmt_hdl,
+			       &import_key_id,
+			       0,
+			       HSM_KEY_TYPE_AES);
 #endif
 	hsmret = hsm_close_key_management_service(key_mgmt_hdl);
 	printf("hsm_close_key_management_service ret:0x%x\n", hsmret);

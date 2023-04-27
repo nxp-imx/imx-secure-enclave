@@ -93,10 +93,5 @@ struct test_import_key_data {
 	uint8_t wrap_key_buf[WRAP_KEY_BUF_SZ];
 };
 
-int test_import_key(hsm_hdl_t sess_hdl,
-		hsm_hdl_t key_store_hdl,
-		hsm_hdl_t key_mgmt_hdl,
-		uint32_t key_size,
-		uint8_t *key_buf,
-		op_import_key_args_t *args);
+uint32_t test_key_import(hsm_hdl_t key_mgmt_hdl, hsm_hdl_t key_store_hdl);
 #endif
