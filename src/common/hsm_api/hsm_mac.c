@@ -63,8 +63,8 @@ hsm_err_t hsm_mac_one_go(hsm_hdl_t mac_hdl,
 		if ((args->flags == HSM_OP_MAC_ONE_GO_FLAGS_MAC_VERIFICATION) &&
 			(args->verification_status != HSM_MAC_VERIFICATION_STATUS_SUCCESS)) {
 			err = HSM_SIGNATURE_INVALID;
-			printf("\nHSM Error: HSM_SIGNATURE_INVALID (0x%x)\n",
-				HSM_SIGNATURE_INVALID);
+			se_err("\nHSM Error: HSM_SIGNATURE_INVALID (0x%x)\n",
+			       HSM_SIGNATURE_INVALID);
 		}
 
 	} while (false);

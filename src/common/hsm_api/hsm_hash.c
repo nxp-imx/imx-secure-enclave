@@ -210,7 +210,9 @@ hsm_err_t hsm_do_hash(hsm_hdl_t hash_sess, op_hash_one_go_args_t *hash_args)
 	op_err = hsm_hash_one_go(hash_sess, hash_args);
 #endif
 	if (op_err)
-		se_err("err: 0x%x HASH failed hash size: 0x%08x\n", op_err, hash_args.output_size);
+		se_err("err: 0x%x HASH failed hash size: 0x%08x\n",
+		       op_err,
+		       hash_args->output_size);
 
 #ifndef PSA_COMPLIANT
 	err = hsm_close_hash_service(hash_serv);
