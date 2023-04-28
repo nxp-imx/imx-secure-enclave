@@ -213,13 +213,11 @@ void data_storage_test_tv(hsm_hdl_t key_store_hdl, FILE *fp, char *line)
 	static uint8_t tdata_storage_invalids;
 	static uint8_t tdata_storage_total;
 
-#ifndef ELE_PERF
 	int len = strlen(line);
 	char *test_id = (char *)malloc(len * sizeof(char));
 
 	strncpy(test_id, line, len);
 	test_id[len - 1] = '\0';
-#endif
 	++tdata_storage_total;
 
 	se_info("\n-----------------------------------------------\n");
@@ -241,28 +239,20 @@ void data_storage_test_tv(hsm_hdl_t key_store_hdl, FILE *fp, char *line)
 
 	if (test_status == 1) {
 		se_info("\nTEST RESULT: SUCCESS\n");
-#ifndef ELE_PERF
 		printf("%s: SUCCESS\n", test_id);
-#endif
 		++tdata_storage_passed;
 	} else if (test_status == 0) {
 		se_info("\nTEST RESULT: FAILED\n");
-#ifndef ELE_PERF
 		printf("%s: FAILED\n", test_id);
-#endif
 		++tdata_storage_failed;
 	} else if (test_status == -1) {
 		se_info("\nTEST_RESULT: INVALID\n");
-#ifndef ELE_PERF
 		printf("%s: INVALID\n", test_id);
-#endif
 		++tdata_storage_invalids;
 	}
 
-#ifndef ELE_PERF
 	if (test_id)
 		free(test_id);
-#endif
 
 out:
 

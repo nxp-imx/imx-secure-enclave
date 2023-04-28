@@ -260,9 +260,9 @@ static int8_t prepare_and_run_hash_test(FILE *fp)
 
 		se_info("HASH Algo          : 0x%x\n", hash_algo);
 #ifdef PSA_COMPLIANT
-		printf("Flags              : 0x%x\n", flags);
-		printf("Context Size       : %u\n", ctx_size);
-		printf("\nInput Context      :\n");
+		se_info("Flags              : 0x%x\n", flags);
+		se_info("Context Size       : %u\n", ctx_size);
+		se_info("\nInput Context      :\n");
 		hexdump_bb(ctx, ctx_size);
 #endif
 		se_info("Input Size         : %u\n", input_size);
@@ -270,7 +270,7 @@ static int8_t prepare_and_run_hash_test(FILE *fp)
 		hexdump_bb(input_data, input_size);
 		se_info("Output Size          : %u\n", output_size);
 #ifdef PSA_COMPLIANT
-		printf("Expected Context Size : %u\n", exp_ctx_size);
+		se_info("Expected Context Size : %u\n", exp_ctx_size);
 #endif
 		se_info("Expected Output Size : %u\n", exp_output_size);
 		se_info("\nExpected Output Buffer size : %u\n", exp_output_buf_size);
@@ -330,13 +330,11 @@ void hash_test_tv(FILE *fp, char *line)
 	static uint8_t thash_invalids;
 	static uint8_t thash_total;
 
-#ifndef ELE_PERF
 	int len = strlen(line);
 	char *test_id = (char *)malloc(len * sizeof(char));
 
 	strncpy(test_id, line, len);
 	test_id[len - 1] = '\0';
-#endif
 	++thash_total;
 
 	se_info("\n-----------------------------------------------\n");
@@ -358,28 +356,20 @@ void hash_test_tv(FILE *fp, char *line)
 
 	if (test_status == 1) {
 		se_info("\nTEST RESULT: SUCCESS\n");
-#ifndef ELE_PERF
 		printf("%s: SUCCESS\n", test_id);
-#endif
 		++thash_passed;
 	} else if (test_status == 0) {
 		se_info("\nTEST RESULT: FAILED\n");
-#ifndef ELE_PERF
 		printf("%s: FAILED\n", test_id);
-#endif
 		++thash_failed;
 	} else if (test_status == -1) {
 		se_info("\nTEST_RESULT: INVALID\n");
-#ifndef ELE_PERF
 		printf("%s: INVALID\n", test_id);
-#endif
 		++thash_invalids;
 	}
 
-#ifndef ELE_PERF
 	if (test_id)
 		free(test_id);
-#endif
 
 out:
 

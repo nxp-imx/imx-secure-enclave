@@ -367,22 +367,19 @@ void generate_key_test_tv(hsm_hdl_t key_store_hdl, FILE *fp, char *line)
 	if (test_status == 1) {
 		++tkgen_passed;
 		se_info("\nTEST RESULT: SUCCESS\n");
-#ifndef ELE_PERF
 		printf("%s: SUCCESS\n", test_id);
-#endif
 	} else if (test_status == 0) {
 		++tkgen_failed;
 		se_info("\nTEST RESULT: FAILED\n");
-#ifndef ELE_PERF
 		printf("%s: FAILED\n", test_id);
-#endif
 	} else if (test_status == -1) {
 		++tkgen_invalids;
 		se_info("\nTEST_RESULT: INVALID\n");
-#ifndef ELE_PERF
 		printf("%s: INVALID\n", test_id);
-#endif
 	}
+
+	if (test_id)
+		free(test_id);
 
 out:
 
