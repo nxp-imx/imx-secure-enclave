@@ -14,6 +14,7 @@
  */
 typedef struct {
 	uint32_t session_hdl;
+		//!< Session handle.
 	uint8_t session_priority;
 		//!< Priority of the operations performed in this session.
 	uint8_t operating_mode;

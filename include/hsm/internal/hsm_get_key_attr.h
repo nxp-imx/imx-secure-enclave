@@ -19,10 +19,10 @@
  * @{
  */
 typedef struct {
-	//!< identifier of the key to be used for the operation.
 	uint32_t key_identifier;
-	//!< indicates which type of key must be generated.
+	//!< identifier of the key to be used for the operation.
 	hsm_key_type_t key_type;
+	//!< indicates which type of key must be generated.
 	hsm_bit_key_sz_t bit_key_sz;
 	hsm_key_lifetime_t key_lifetime;
 	hsm_key_usage_t key_usage;

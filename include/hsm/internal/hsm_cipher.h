@@ -19,8 +19,9 @@
 typedef uint8_t hsm_svc_cipher_flags_t;
 typedef struct {
 	hsm_hdl_t cipher_hdl;
-	//!< bitmap specifying the services properties.
+	//!< handle identifying the cipher service flow
 	hsm_svc_cipher_flags_t flags;
+	//!< bitmap specifying the services properties
 	uint8_t reserved[3];
 } open_svc_cipher_args_t;
 
@@ -138,7 +139,7 @@ hsm_err_t hsm_cipher_one_go(hsm_hdl_t cipher_hdl,
  * \return error code
  */
 hsm_err_t hsm_close_cipher_service(hsm_hdl_t cipher_hdl);
-
+#ifndef PSA_COMPLIANT
 /**
  *\addtogroup qxp_specific
  * \ref group4
@@ -166,5 +167,6 @@ hsm_err_t hsm_close_cipher_service(hsm_hdl_t cipher_hdl);
  *   are supported.
  *
  */
+#endif
 /** @} end of cipher service flow */
 #endif

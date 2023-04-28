@@ -151,11 +151,18 @@ she_doc: include/she_api.h include/nvm.h
 	cp doc/latex/refman.pdf doc/she_api_manual.pdf
 	rm -rf doc/latex/
 
-hsm_doc: include/hsm/hsm_api.h
+hsm_doc_ele: include/hsm/hsm_api.h
 	rm -rf doc/latex/
-	doxygen doc/hsm/Doxyfile
+	doxygen doc/hsm/ELE_Doxyfile
 	make -C ./doc/latex pdf
-	cp doc/latex/refman.pdf doc/hsm_api_document.pdf
+	cp doc/latex/refman.pdf doc/ele_hsm_api_document.pdf
+	rm -rf doc/latex/
+
+hsm_doc_seco: include/hsm/hsm_api.h
+	rm -rf doc/latex/
+	doxygen doc/hsm/SECO_Doxyfile
+	make -C ./doc/latex pdf
+	cp doc/latex/refman.pdf doc/seco_hsm_api_document.pdf
 	rm -rf doc/latex/
 
 install: $(libs)

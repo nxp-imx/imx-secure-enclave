@@ -16,10 +16,10 @@
 
 typedef uint8_t hsm_svc_key_management_flags_t;
 typedef struct {
-	//!< handle identifying the key management service flow
 	hsm_hdl_t key_management_hdl;
-	//!< bitmap specifying the services properties.
+	//!< handle identifying the key management service flow
 	hsm_svc_key_management_flags_t flags;
+	//!< bitmap specifying the services properties.
 } open_svc_key_management_args_t;
 
 /**

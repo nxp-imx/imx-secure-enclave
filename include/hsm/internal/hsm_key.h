@@ -31,22 +31,26 @@ typedef uint32_t hsm_key_usage_t;
 
 /* SE stands for Secure Enclave.
  */
+//! Indicating the key location indicator.
 typedef enum {
 	HSM_SE_KEY_STORAGE = 0x00000000,
 } hsm_storage_loc_t;
 
+//! Indicating the key persistent level indicator.
 typedef enum {
 	HSM_VOLATILE_STORAGE = 0x0,
 	HSM_PERSISTENT_STORAGE = 0x1,
 	HSM_PERMANENT_STORAGE = 0xFF,
 } hsm_storage_persist_lvl_t;
 
+//! Indicating the key lifetime.
 typedef enum {
 	HSM_SE_KEY_STORAGE_VOLATILE = HSM_SE_KEY_STORAGE | HSM_VOLATILE_STORAGE,
 	HSM_SE_KEY_STORAGE_PERSISTENT = HSM_SE_KEY_STORAGE | HSM_PERSISTENT_STORAGE,
 	HSM_SE_KEY_STORAGE_PERS_PERM = HSM_SE_KEY_STORAGE | HSM_PERMANENT_STORAGE,
 } hsm_key_lifetime_t;
 
+//! Indicating the public key type.
 typedef enum {
 	HSM_PUBKEY_TYPE_RSA		= 0x4001,
 	HSM_PUBKEY_TYPE_ECC_BP_R1	= 0x4130,
@@ -54,6 +58,7 @@ typedef enum {
 	HSM_PUBKEY_TYPE_ECC_BP_T1	= 0xC180,
 } hsm_pubkey_type_t;
 
+//! Indicating the key type.
 typedef enum {
 #ifdef PSA_COMPLIANT
 	/* PSA Compliant key types.
@@ -95,6 +100,7 @@ typedef enum {
 #endif
 } hsm_key_type_t;
 
+//! Indicating the key security size in bits.
 typedef enum {
 	HSM_KEY_SIZE_HMAC_224		= 224,
 	HSM_KEY_SIZE_HMAC_256		= 256,

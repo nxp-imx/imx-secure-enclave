@@ -18,6 +18,7 @@
  *  @defgroup group3 Key management
  * @{
  */
+#ifndef PSA_COMPLIANT
 typedef uint8_t hsm_op_manage_key_flags_t;
 
 typedef struct {
@@ -164,6 +165,6 @@ typedef struct {
  */
 hsm_err_t hsm_manage_key_ext(hsm_hdl_t key_management_hdl,
 			     op_manage_key_ext_args_t *args);
-
+#endif
 /** @} end of key management service flow */
 #endif

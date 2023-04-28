@@ -9,6 +9,7 @@
 #include <stdint.h>
 
 #ifndef PSA_COMPLIANT
+#error
 #include "hsm_api2.h"
 #endif
 
@@ -67,7 +68,7 @@ hsm_err_t hsm_open_session(open_session_args_t *args, hsm_hdl_t *session_hdl);
  * \return error_code error code.
  */
 hsm_err_t hsm_close_session(hsm_hdl_t session_hdl);
-
+#ifndef PSA_COMPLIANT
 /**
  *\addtogroup qxp_specific
  * \ref group1
@@ -92,6 +93,7 @@ hsm_err_t hsm_close_session(hsm_hdl_t session_hdl);
  * - If \ref HSM_OPEN_SESSION_LOW_LATENCY_MASK is set then V2X implementation is used. session_priority field of \ref open_session_args_t and \ref HSM_OPEN_SESSION_NO_KEY_STORE_MASK are considered.
  *
  */
+#endif
 /** @} end of session group */
 
 /**
@@ -102,6 +104,7 @@ hsm_err_t hsm_close_session(hsm_hdl_t session_hdl);
 #include "internal/hsm_key_management.h"
 
 #include "internal/hsm_key_generate.h"
+/** @} end of key management service flow */
 
 /**
  *  @defgroup group4 Ciphering
@@ -181,7 +184,7 @@ hsm_err_t hsm_do_sign(hsm_hdl_t key_store_hdl, op_generate_sign_args_t *args);
 hsm_err_t hsm_verify_sign(hsm_hdl_t session_hdl,
 			  op_verify_sign_args_t *args,
 			  hsm_verification_status_t *verification_status);
-
+#ifndef PSA_COMPLIANT
 /**
  *\addtogroup qxp_specific
  * \ref group6
@@ -200,6 +203,7 @@ hsm_err_t hsm_verify_sign(hsm_hdl_t session_hdl,
  * - \ref hsm_import_public_key: This API is a preliminary version
  *
  */
+#endif
 /** @} end of signature verification service flow */
 
 /**
@@ -209,6 +213,19 @@ hsm_err_t hsm_verify_sign(hsm_hdl_t session_hdl,
 
 #include "internal/hsm_rng.h"
 
+#ifdef PSA_COMPLIANT
+/**
+ * Secondary API to fetch the Random Number\n
+ *
+ * This API does the following:
+ * Get a freshly generated random number\n
+ *
+ * \param session_hdl handle identifying the current session.
+ * \param args pointer to the structure containing the function arguments.
+ *
+ * \return error code
+ */
+#else
 /**
  * Secondary API to fetch the Random Number\n
  *
@@ -224,6 +241,7 @@ hsm_err_t hsm_verify_sign(hsm_hdl_t session_hdl,
  *
  * \return error code
  */
+#endif
 hsm_err_t hsm_do_rng(hsm_hdl_t session_hdl, op_get_random_args_t *args);
 /** @} end of rng service flow */
 
@@ -232,6 +250,19 @@ hsm_err_t hsm_do_rng(hsm_hdl_t session_hdl, op_get_random_args_t *args);
  * @{
  */
 #include "internal/hsm_hash.h"
+#ifdef PSA_COMPLIANT
+/**
+ * Secondary API to digest a message.\n
+ *
+ * This API does the following:
+ * Perform hash\n
+ *
+ * \param session_hdl handle identifying the current session.
+ * \param args pointer to the structure containing the function arguments.
+ *
+ * \return error code
+ */
+#else
 /**
  * Secondary API to digest a message.\n
  *
@@ -247,6 +278,7 @@ hsm_err_t hsm_do_rng(hsm_hdl_t session_hdl, op_get_random_args_t *args);
  *
  * \return error code
  */
+#endif
 hsm_err_t hsm_do_hash(hsm_hdl_t session_hdl, op_hash_one_go_args_t *args);
 /** @} end of hash service flow */
 
