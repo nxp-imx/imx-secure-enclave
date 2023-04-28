@@ -47,12 +47,6 @@ typedef struct {
 	uint32_t  input_size;
 	//!< bitmap specifying the operation properties.
 	hsm_op_import_key_flags_t flags;
-	uint8_t   *key_blob;
-	uint32_t  key_blob_sz;
-	uint8_t	  *iv;
-	uint16_t  iv_sz;
-	uint16_t  key_group;
-	uint32_t  key_id;
 } op_import_key_args_t;
 
 hsm_err_t hsm_import_key(hsm_hdl_t key_management_hdl,
