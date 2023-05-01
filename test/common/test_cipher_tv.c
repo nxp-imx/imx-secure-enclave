@@ -60,34 +60,34 @@ static hsm_err_t cipher_test(hsm_hdl_t key_store_hdl, hsm_hdl_t key_mgmt_hdl,
 	cipher_args.output_size = ciphertext_size;
 
 #ifdef ELE_PERF
-	struct timespec ts1 = { }, ts2 = { }, t1 = { }, t2 = { };
+	struct timespec time_per_op_start = { }, time_per_op_end = { };
+	struct timespec perf_runtime_start = { }, perf_runtime_end = { };
 	statistics enc_stats = { };
 	const char *algo_name = cipher_algo_to_string(cipher_algo);
-	time_t perf_run_time = get_ele_perf_time() * 1000000;
+	time_t perf_run_time = get_ele_perf_time() * SEC_TO_MICROSEC;
 
 	printf("Doing %s-%d encryption for %lds on %d size blocks: ",
 	       algo_name, key_size, get_ele_perf_time(), ciphertext_size);
-	clock_gettime(CLOCK_MONOTONIC_RAW, &t1);
-	clock_gettime(CLOCK_MONOTONIC_RAW, &t2);
-	uint64_t diff = diff_microsec(&t1, &t2);
+	clock_gettime(CLOCK_MONOTONIC_RAW, &perf_runtime_start);
+	clock_gettime(CLOCK_MONOTONIC_RAW, &perf_runtime_end);
+	uint64_t diff = diff_microsec(&perf_runtime_start, &perf_runtime_end);
 
 	while (diff < perf_run_time) {
 		/* Retrieving time before the hsm_do_cipher call */
-		clock_gettime(CLOCK_MONOTONIC_RAW, &ts1);
+		clock_gettime(CLOCK_MONOTONIC_RAW, &time_per_op_start);
 #endif
 		hsmret = hsm_do_cipher(key_store_hdl, &cipher_args);
 #ifdef ELE_PERF
 		/* Retrieving time after the hsm_do_cipher call */
-		clock_gettime(CLOCK_MONOTONIC_RAW, &ts2);
-		update_stats(&enc_stats, &ts1, &ts2);
+		clock_gettime(CLOCK_MONOTONIC_RAW, &time_per_op_end);
+		update_stats(&enc_stats, &time_per_op_start, &time_per_op_end);
 #endif
 		if (hsmret != HSM_NO_ERROR) {
-			printf("AES operation error\n");
 			goto out;
 		}
 #ifdef ELE_PERF
-		clock_gettime(CLOCK_MONOTONIC_RAW, &t2);
-		diff = diff_microsec(&t1, &t2);
+		clock_gettime(CLOCK_MONOTONIC_RAW, &perf_runtime_end);
+		diff = diff_microsec(&perf_runtime_start, &perf_runtime_end);
 	}
 
 	print_perf_data(&enc_stats, key_size, algo_name, ciphertext_size);
@@ -108,28 +108,28 @@ static hsm_err_t cipher_test(hsm_hdl_t key_store_hdl, hsm_hdl_t key_mgmt_hdl,
 #ifdef ELE_PERF
 	statistics dec_stats = { };
 
-	clock_gettime(CLOCK_MONOTONIC_RAW, &t1);
-	clock_gettime(CLOCK_MONOTONIC_RAW, &t2);
-	diff = diff_microsec(&t1, &t2);
+	clock_gettime(CLOCK_MONOTONIC_RAW, &perf_runtime_start);
+	clock_gettime(CLOCK_MONOTONIC_RAW, &perf_runtime_end);
+	diff = diff_microsec(&perf_runtime_start, &perf_runtime_end);
 
 	printf("Doing %s-%d decryption for %lds on %d size blocks: ",
 	       algo_name, key_size, get_ele_perf_time(), ciphertext_size);
 
 	while (diff < perf_run_time) {
 		/* Retrieving time before the hsm_do_cipher call */
-		clock_gettime(CLOCK_MONOTONIC_RAW, &ts1);
+		clock_gettime(CLOCK_MONOTONIC_RAW, &time_per_op_start);
 #endif
 		hsmret = hsm_do_cipher(key_store_hdl, &cipher_args);
 #ifdef ELE_PERF
 		/* Retrieving time after the hsm_do_cipher call */
-		clock_gettime(CLOCK_MONOTONIC_RAW, &ts2);
-		update_stats(&dec_stats, &ts1, &ts2);
+		clock_gettime(CLOCK_MONOTONIC_RAW, &time_per_op_end);
+		update_stats(&dec_stats, &time_per_op_start, &time_per_op_end);
 #endif
 		if (hsmret != HSM_NO_ERROR)
 			goto out;
 #ifdef ELE_PERF
-		clock_gettime(CLOCK_MONOTONIC_RAW, &t2);
-		diff = diff_microsec(&t1, &t2);
+		clock_gettime(CLOCK_MONOTONIC_RAW, &perf_runtime_end);
+		diff = diff_microsec(&perf_runtime_start, &perf_runtime_end);
 	}
 
 	print_perf_data(&dec_stats, key_size, algo_name, ciphertext_size);
@@ -337,7 +337,8 @@ static int8_t prepare_and_run_cipher_test(hsm_hdl_t key_store_hdl, FILE *fp)
 	return test_status;
 }
 
-void cipher_test_tv(hsm_hdl_t key_store_hdl, FILE *fp, char *line)
+void cipher_test_tv(hsm_hdl_t key_store_hdl, FILE *fp, char *line, uint8_t *tests_passed,
+		    uint8_t *tests_failed, uint8_t *tests_invalid, uint8_t *tests_total)
 {
 	int8_t test_status = 0;
 	static uint8_t tcipher_passed;
@@ -353,6 +354,7 @@ void cipher_test_tv(hsm_hdl_t key_store_hdl, FILE *fp, char *line)
 	test_id[len - 1] = '\0';
 #endif
 	++tcipher_total;
+	++(*tests_total);
 
 	se_info("\n-----------------------------------------------\n");
 	se_info("%s", line);
@@ -373,19 +375,21 @@ void cipher_test_tv(hsm_hdl_t key_store_hdl, FILE *fp, char *line)
 
 	if (test_status == 1) {
 		++tcipher_passed;
-
+		++(*tests_passed);
 #ifndef ELE_PERF
 		printf("%s: SUCCESS\n", test_id);
 #endif
 	} else if (test_status == 0) {
 		++tcipher_failed;
+		++(*tests_failed);
 #ifndef ELE_PERF
 		printf("%s: FAILED\n", test_id);
 #endif
 	} else if (test_status == -1) {
 		++tcipher_invalids;
+		++(*tests_invalid);
 #ifndef ELE_PERF
-		printf("%s: PASS\n", test_id);
+		printf("%s: INVALID\n", test_id);
 #endif
 	}
 

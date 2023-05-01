@@ -17,6 +17,30 @@
 static void tv_tests(hsm_hdl_t key_store_hdl, uint8_t *tv_file_path)
 {
 	uint32_t key_mgmt_tv_id = 0;
+	uint8_t tkgen_passed = 0;
+	uint8_t tkgen_failed = 0;
+	uint8_t tkgen_invalid = 0;
+	uint8_t tkgen_total = 0;
+	uint8_t tcipher_passed = 0;
+	uint8_t tcipher_failed = 0;
+	uint8_t tcipher_invalid = 0;
+	uint8_t tcipher_total = 0;
+	uint8_t tmac_passed = 0;
+	uint8_t tmac_failed = 0;
+	uint8_t tmac_invalid = 0;
+	uint8_t tmac_total = 0;
+	uint8_t tsign_passed = 0;
+	uint8_t tsign_failed = 0;
+	uint8_t tsign_invalid = 0;
+	uint8_t tsign_total = 0;
+	uint8_t thash_passed = 0;
+	uint8_t thash_failed = 0;
+	uint8_t thash_invalid = 0;
+	uint8_t thash_total = 0;
+	uint8_t tdata_passed = 0;
+	uint8_t tdata_failed = 0;
+	uint8_t tdata_invalid = 0;
+	uint8_t tdata_total = 0;
 
 	char *line = NULL;
 	char *check_invalid = NULL;
@@ -69,29 +93,47 @@ static void tv_tests(hsm_hdl_t key_store_hdl, uint8_t *tv_file_path)
 
 				/* Key Generation tests */
 				if (memcmp(line, "TEST_KGEN", 9) == 0)
-					generate_key_test_tv(key_store_hdl, fp, line);
+					generate_key_test_tv(key_store_hdl, fp,
+							     line, &tkgen_passed,
+							     &tkgen_failed,
+							     &tkgen_invalid,
+							     &tkgen_total);
 
 				/* Cipher tests */
 				if (memcmp(line, "TEST_CIPHER", 11) == 0)
-					cipher_test_tv(key_store_hdl, fp, line);
+					cipher_test_tv(key_store_hdl, fp, line,
+						       &tcipher_passed, &tcipher_failed,
+						       &tcipher_invalid,
+						       &tcipher_total);
 
 				/* MAC tests */
 				if (memcmp(line, "TEST_MAC", 8) == 0)
-					mac_test_tv(key_store_hdl, fp, line);
+					mac_test_tv(key_store_hdl, fp, line,
+						    &tmac_passed, &tmac_failed,
+						    &tmac_invalid, &tmac_total);
 
 
 				/* Signature Generation and Verification tests */
 				if (memcmp(line, "TEST_SIGN_VERIFY", 16) == 0)
-					sign_verify_test_tv(key_store_hdl, fp, line);
-
+					sign_verify_test_tv(key_store_hdl, fp,
+							    line, &tsign_passed,
+							    &tsign_failed,
+							    &tsign_invalid,
+							    &tsign_total);
 #ifndef ELE_PERF
 				/* Hash tests */
 				if (memcmp(line, "TEST_HASH", 9) == 0)
-					hash_test_tv(fp, line);
+					hash_test_tv(fp, line, &thash_passed,
+						     &thash_failed,
+						     &thash_invalid, &thash_total);
 
 				/* Data Storage tests*/
 				if (memcmp(line, "TEST_DATA_STORAGE", 17) == 0)
-					data_storage_test_tv(key_store_hdl, fp, line);
+					data_storage_test_tv(key_store_hdl, fp,
+							     line, &tdata_passed,
+							     &tdata_failed,
+							     &tdata_invalid,
+							     &tdata_total);
 #endif
 				/* Load Peristent Key Details */
 				if (memcmp(line, "LOAD_PERSIST_KEY_INFO", 21) == 0)
@@ -126,6 +168,42 @@ static void tv_tests(hsm_hdl_t key_store_hdl, uint8_t *tv_file_path)
 	printf("\n------------------------------\n");
 	printf("TEST VECTORS: TESTS ENDED");
 	printf("\n------------------------------\n\n");
+
+	if (tkgen_total > 0) {
+		printf("TESTS REPORT KGEN:: TOTAL: %u, SUCCESS: %u, FAILED: %u, INVALID: %u",
+		       tkgen_total, tkgen_passed, tkgen_failed, tkgen_invalid);
+		printf("\n----------------------------------------------------------\n\n");
+	}
+
+	if (tcipher_total > 0) {
+		printf("TESTS REPORT CIPHER:: TOTAL: %u, SUCCESS: %u, FAILED: %u, INVALID: %u",
+		       tcipher_total, tcipher_passed, tcipher_failed, tcipher_invalid);
+		printf("\n--------------------------------------------------------------\n\n");
+	}
+
+	if (tmac_total > 0) {
+		printf("TESTS REPORT MAC:: TOTAL: %u, SUCCESS: %u, FAILED: %u, INVALID: %u",
+		       tmac_total, tmac_passed, tmac_failed, tmac_invalid);
+		printf("\n-----------------------------------------------------------\n\n");
+	}
+
+	if (tsign_total > 0) {
+		printf("TESTS REPORT SIGN VERIFY:: TOTAL: %u, SUCCESS: %u, FAILED: %u, INVALID: %u",
+		       tsign_total, tsign_passed, tsign_failed, tsign_invalid);
+		printf("\n-------------------------------------------------------------------\n\n");
+		}
+
+	if (thash_total > 0) {
+		printf("TESTS REPORT HASH:: TOTAL: %u, SUCCESS: %u, FAILED: %u, INVALID: %u",
+		       thash_total, thash_passed, thash_failed, thash_invalid);
+		printf("\n------------------------------------------------------------\n\n");
+	}
+
+	if (tdata_total > 0) {
+		printf("TESTS REPORT DATA STORAGE: TOTAL: %u, SUCCESS: %u, FAILED: %u, INVALID: %u",
+		       tdata_total, tdata_passed, tdata_failed, tdata_invalid);
+		printf("\n-----------------------------------------------------------------\n\n");
+	}
 
 	if (line)
 		free(line);

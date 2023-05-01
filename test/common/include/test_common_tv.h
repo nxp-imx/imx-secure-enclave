@@ -16,11 +16,20 @@
 #define DEFAULT_TV_PKF_PATH "/var/lib/se/persistent/"
 #define DEFAULT_TV_PKF_FPATH (DEFAULT_TV_PKF_PATH DEFAULT_TV_PKF_FNAME)
 
-void generate_key_test_tv(hsm_hdl_t key_store_hdl, FILE *fp, char *line);
-void cipher_test_tv(hsm_hdl_t key_store_hdl, FILE *fp, char *line);
-void mac_test_tv(hsm_hdl_t key_store_hdl, FILE *fp, char *line);
-void sign_verify_test_tv(hsm_hdl_t key_store_hdl, FILE *fp, char *line);
-void hash_test_tv(FILE *fp, char *line);
-void data_storage_test_tv(hsm_hdl_t key_store_hdl, FILE *fp, char *line);
-
+void generate_key_test_tv(hsm_hdl_t key_store_hdl, FILE *fp, char *line, uint8_t
+			  *tests_passed, uint8_t *tests_failed,
+			  uint8_t *tests_invalid, uint8_t *tests_total);
+void cipher_test_tv(hsm_hdl_t key_store_hdl, FILE *fp, char *line,
+		    uint8_t *tests_passed, uint8_t *tests_failed,
+		    uint8_t *tests_invalid, uint8_t *tests_total);
+void mac_test_tv(hsm_hdl_t key_store_hdl, FILE *fp, char *line, uint8_t *tests_passed,
+		 uint8_t *tests_failed, uint8_t *tests_invalid, uint8_t *tests_total);
+void sign_verify_test_tv(hsm_hdl_t key_store_hdl, FILE *fp, char *line,
+			 uint8_t *tests_passed, uint8_t *tests_failed,
+			 uint8_t *tests_invalid, uint8_t *tests_total);
+void hash_test_tv(FILE *fp, char *line, uint8_t *tests_passed, uint8_t *tests_failed,
+		  uint8_t *tests_invalid, uint8_t *tests_total);
+void data_storage_test_tv(hsm_hdl_t key_store_hdl, FILE *fp, char *line,
+			  uint8_t *tests_passed, uint8_t *tests_failed,
+			  uint8_t *tests_invalid, uint8_t *tests_total);
 #endif

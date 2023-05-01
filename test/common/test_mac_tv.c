@@ -43,33 +43,37 @@ static void mac_test(hsm_hdl_t key_store_hdl, uint32_t key_identifier,
 	memset(mac_args.mac, 0, sizeof(mac_args.mac));
 
 #ifdef ELE_PERF
-	struct timespec ts1 = { }, ts2 = { }, t1 = { }, t2 = { };
+	struct timespec time_per_op_start = { }, time_per_op_end = { };
+	struct timespec perf_runtime_start = { }, perf_runtime_end = { };
 	statistics gen_stats = { };
 	const char *algo_name = mac_algo_to_string(mac_algo);
-	time_t perf_run_time = get_ele_perf_time() * 1000000;
+	time_t perf_run_time = get_ele_perf_time() * SEC_TO_MICROSEC;
 
-	clock_gettime(CLOCK_MONOTONIC_RAW, &t1);
-	clock_gettime(CLOCK_MONOTONIC_RAW, &t2);
-	uint64_t diff = diff_microsec(&t1, &t2);
+	clock_gettime(CLOCK_MONOTONIC_RAW, &perf_runtime_start);
+	clock_gettime(CLOCK_MONOTONIC_RAW, &perf_runtime_end);
+	uint64_t diff = diff_microsec(&perf_runtime_start, &perf_runtime_end);
 
 	printf("Doing %s-%d generation for %lds on %d size blocks: ",
 	       algo_name, key_size, get_ele_perf_time(), mac_size);
 
 	while (diff < perf_run_time) {
 		/* Retrieving time before the hsm_do_mac call */
-		clock_gettime(CLOCK_MONOTONIC_RAW, &ts1);
+		clock_gettime(CLOCK_MONOTONIC_RAW, &time_per_op_start);
 #endif
 		hsmret1 = hsm_do_mac(key_store_hdl, &mac_args);
 #ifdef ELE_PERF
 		/* Retrieving time after the hsm_do_mac call */
-		clock_gettime(CLOCK_MONOTONIC_RAW, &ts2);
-		update_stats(&gen_stats, &ts1, &ts2);
+		clock_gettime(CLOCK_MONOTONIC_RAW, &time_per_op_end);
+		update_stats(&gen_stats, &time_per_op_start, &time_per_op_end);
+
+		if (hsmret1 != HSM_NO_ERROR)
+			goto out;
 #endif
 		if (hsmret1 != exp_mac_gen_hsm_rsp)
 			goto out;
 #ifdef ELE_PERF
-		clock_gettime(CLOCK_MONOTONIC_RAW, &t2);
-		diff = diff_microsec(&t1, &t2);
+		clock_gettime(CLOCK_MONOTONIC_RAW, &perf_runtime_end);
+		diff = diff_microsec(&perf_runtime_start, &perf_runtime_end);
 	}
 
 	print_perf_data(&gen_stats, key_size, algo_name, mac_size);
@@ -95,28 +99,32 @@ static void mac_test(hsm_hdl_t key_store_hdl, uint32_t key_identifier,
 #ifdef ELE_PERF
 	statistics ver_stats = { };
 
-	clock_gettime(CLOCK_MONOTONIC_RAW, &t1);
-	clock_gettime(CLOCK_MONOTONIC_RAW, &t2);
-	diff = diff_microsec(&t1, &t2);
+	clock_gettime(CLOCK_MONOTONIC_RAW, &perf_runtime_start);
+	clock_gettime(CLOCK_MONOTONIC_RAW, &perf_runtime_end);
+	diff = diff_microsec(&perf_runtime_start, &perf_runtime_end);
 
 	printf("Doing %s-%d verification for %lds on %d size blocks: ",
 	       algo_name, key_size, get_ele_perf_time(), mac_size);
 
 	while (diff < perf_run_time) {
 		/* Retrieving time before the hsm_do_mac call */
-		clock_gettime(CLOCK_MONOTONIC_RAW, &ts1);
+		clock_gettime(CLOCK_MONOTONIC_RAW, &time_per_op_start);
 #endif
 		hsmret2 = hsm_do_mac(key_store_hdl, &mac_args);
 #ifdef ELE_PERF
 		/* Retrieving time after the hsm_do_mac call */
-		clock_gettime(CLOCK_MONOTONIC_RAW, &ts2);
-		update_stats(&ver_stats, &ts1, &ts2);
+		clock_gettime(CLOCK_MONOTONIC_RAW, &time_per_op_end);
+		update_stats(&ver_stats, &time_per_op_start, &time_per_op_end);
+
+		if (hsmret2 != HSM_NO_ERROR)
+			goto out;
+
 #endif
 		if (hsmret2 != exp_mac_verify_hsm_rsp)
 			goto out;
 #ifdef ELE_PERF
-		clock_gettime(CLOCK_MONOTONIC_RAW, &t2);
-		diff = diff_microsec(&t1, &t2);
+		clock_gettime(CLOCK_MONOTONIC_RAW, &perf_runtime_end);
+		diff = diff_microsec(&perf_runtime_start, &perf_runtime_end);
 	}
 
 	print_perf_data(&ver_stats, key_size, algo_name, mac_size);
@@ -305,7 +313,8 @@ static int8_t prepare_and_run_mac_test(hsm_hdl_t key_store_hdl, FILE *fp)
 	return test_status;
 }
 
-void mac_test_tv(hsm_hdl_t key_store_hdl, FILE *fp, char *line)
+void mac_test_tv(hsm_hdl_t key_store_hdl, FILE *fp, char *line, uint8_t *tests_passed,
+		 uint8_t *tests_failed, uint8_t *tests_invalid, uint8_t *tests_total)
 {
 	int8_t test_status = 0;
 	static uint8_t tmac_passed;
@@ -320,6 +329,7 @@ void mac_test_tv(hsm_hdl_t key_store_hdl, FILE *fp, char *line)
 	test_id[len - 1] = '\0';
 #endif
 	++tmac_total;
+	++(*tests_total);
 
 	se_info("\n-----------------------------------------------\n");
 	se_info("%s", line);
@@ -341,18 +351,21 @@ void mac_test_tv(hsm_hdl_t key_store_hdl, FILE *fp, char *line)
 	if (test_status == 1) {
 		se_info("\nTEST RESULT: SUCCESS\n");
 		++tmac_passed;
+		++(*tests_passed);
 #ifndef ELE_PERF
 		printf("%s: SUCCESS\n", test_id);
 #endif
 	} else if (test_status == 0) {
 		se_info("\nTEST RESULT: FAILED\n");
 		++tmac_failed;
+		++(*tests_failed);
 #ifndef ELE_PERF
 		printf("%s: FAILED\n", test_id);
 #endif
 	} else if (test_status == -1) {
 		se_info("\nTEST_RESULT: INVALID\n");
 		++tmac_invalids;
+		++(*tests_invalid);
 #ifndef ELE_PERF
 		printf("%s: INVALID\n", test_id);
 #endif

@@ -322,7 +322,8 @@ exit:
 	return test_status;
 }
 
-void hash_test_tv(FILE *fp, char *line)
+void hash_test_tv(FILE *fp, char *line, uint8_t *tests_passed, uint8_t *tests_failed,
+		  uint8_t *tests_invalid, uint8_t *tests_total)
 {
 	int8_t test_status = 0;
 	static uint8_t thash_passed;
@@ -336,6 +337,7 @@ void hash_test_tv(FILE *fp, char *line)
 	strncpy(test_id, line, len);
 	test_id[len - 1] = '\0';
 	++thash_total;
+	++(*tests_total);
 
 	se_info("\n-----------------------------------------------\n");
 	se_info("%s", line);
@@ -358,14 +360,17 @@ void hash_test_tv(FILE *fp, char *line)
 		se_info("\nTEST RESULT: SUCCESS\n");
 		printf("%s: SUCCESS\n", test_id);
 		++thash_passed;
+		++(*tests_passed);
 	} else if (test_status == 0) {
 		se_info("\nTEST RESULT: FAILED\n");
 		printf("%s: FAILED\n", test_id);
 		++thash_failed;
+		++(*tests_failed);
 	} else if (test_status == -1) {
 		se_info("\nTEST_RESULT: INVALID\n");
 		printf("%s: INVALID\n", test_id);
 		++thash_invalids;
+		++(*tests_invalid);
 	}
 
 	if (test_id)

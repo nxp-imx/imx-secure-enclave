@@ -6,6 +6,8 @@
 #ifndef ELE_PERF_H
 #define ELE_PERF_H
 
+#define SEC_TO_MICROSEC 1000000
+
 #include <time.h>
 #include <stdio.h>
 #include <stdint.h>

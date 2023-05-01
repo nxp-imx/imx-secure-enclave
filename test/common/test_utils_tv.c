@@ -165,7 +165,7 @@ void save_persistent_key(uint32_t key_tv_id, uint32_t key_identifier)
 	fp = fopen(DEFAULT_TV_PKF_FPATH, "a");
 
 	if (!fp) {
-		printf("\nERROR: Failed to open %s.\n\n", DEFAULT_TV_PKF_FPATH);
+		se_info("\nERROR: Failed to open %s.\n\n", DEFAULT_TV_PKF_FPATH);
 		return;
 	}
 

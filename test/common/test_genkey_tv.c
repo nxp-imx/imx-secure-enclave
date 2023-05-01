@@ -245,7 +245,8 @@ static int8_t prepare_and_run_genkey_test(FILE *fp)
 		/* Getting Key Management handle for given Key Mgmt TV ID */
 		key_mgmt_hdl = get_key_mgmt_hdl(key_mgmt_tv_id);
 
-		if (get_test_key_identifier(key_tv_id) != 0) {
+		if (expected_rsp_code == HSM_NO_ERROR &&
+		    get_test_key_identifier(key_tv_id) != 0) {
 			if (key_identifier != 0x0 &&
 			    key_identifier != get_test_key_identifier(key_tv_id)) {
 				se_info("\nFAILED: Key TV ID and Key Identifier pairing Invalid\n");
@@ -300,7 +301,14 @@ static int8_t prepare_and_run_genkey_test(FILE *fp)
 				get_key_attributes(key_mgmt_hdl, key_identifier);
 
 				save_test_key(key_tv_id, key_identifier, key_mgmt_tv_id,
-					      key_group, key_type, bit_key_sz);
+					      key_group, key_type,
+#ifdef PSA_COMPLIANT
+					      bit_key_sz
+#else
+					      0
+#endif
+					      );
+
 #ifdef PSA_COMPLIANT
 				if (((flags & HSM_OP_KEY_GENERATION_FLAGS_STRICT_OPERATION) ==
 					HSM_OP_KEY_GENERATION_FLAGS_STRICT_OPERATION) &&
@@ -332,7 +340,9 @@ out:
 	return test_status;
 }
 
-void generate_key_test_tv(hsm_hdl_t key_store_hdl, FILE *fp, char *line)
+void generate_key_test_tv(hsm_hdl_t key_store_hdl, FILE *fp, char *line,
+			  uint8_t *tests_passed, uint8_t *tests_failed,
+			  uint8_t *tests_invalid, uint8_t *tests_total)
 {
 	int8_t test_status = 0;
 	static uint8_t tkgen_passed;
@@ -346,6 +356,7 @@ void generate_key_test_tv(hsm_hdl_t key_store_hdl, FILE *fp, char *line)
 	strncpy(test_id, line, len);
 	test_id[len - 1] = '\0';
 	++tkgen_total;
+	++(*tests_total);
 
 	se_info("\n-----------------------------------------------\n");
 	se_info("%s", line);
@@ -366,14 +377,17 @@ void generate_key_test_tv(hsm_hdl_t key_store_hdl, FILE *fp, char *line)
 
 	if (test_status == 1) {
 		++tkgen_passed;
+		++(*tests_passed);
 		se_info("\nTEST RESULT: SUCCESS\n");
 		printf("%s: SUCCESS\n", test_id);
 	} else if (test_status == 0) {
 		++tkgen_failed;
+		++(*tests_failed);
 		se_info("\nTEST RESULT: FAILED\n");
 		printf("%s: FAILED\n", test_id);
 	} else if (test_status == -1) {
 		++tkgen_invalids;
+		++(*tests_invalid);
 		se_info("\nTEST_RESULT: INVALID\n");
 		printf("%s: INVALID\n", test_id);
 	}
