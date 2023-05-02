@@ -8,6 +8,10 @@
 
 #include "hsm_api.h"
 
+#define DELETE	1
+#define IMPORT	2
+#define KEYATTR 3
+
 hsm_err_t do_mac_test(hsm_hdl_t key_store_hdl, hsm_hdl_t key_mgmt_hdl);
 hsm_err_t do_cipher_test(hsm_hdl_t key_store_hdl, hsm_hdl_t key_mgmt_hdl);
 hsm_err_t hsm_mac_test(hsm_hdl_t key_store_hdl, hsm_hdl_t key_mgmt_hdl);
@@ -34,6 +38,12 @@ hsm_err_t gc_acrypto_test(hsm_hdl_t session_hdl);
 void get_device_info(hsm_hdl_t sess_hdl);
 void perform_dev_attestation(hsm_hdl_t sess_hdl);
 void lc_update_info(hsm_hdl_t sess_hdl);
+
+void key_management(uint32_t key_op,
+		    hsm_hdl_t key_mgmt_hdl,
+		    uint32_t *key_id,
+		    hsm_key_group_t key_group,
+		    hsm_key_type_t key_type);
 
 /* To run tests of test vector file */
 void tv_tests_run(hsm_hdl_t key_store_hdl, uint8_t *tv_file_path);
