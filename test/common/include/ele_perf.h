@@ -10,8 +10,20 @@
 #include <stdio.h>
 #include <stdint.h>
 #include <hsm/internal/hsm_common_def.h>
+
 #include "common.h"
+#include "test_common_tv.h"
 #include "plat_utils.h"
+
+#define DEFAULT_TIME_PER_OP 1u
+#define PERF_SUPPORTED_OP_N 3u
+
+#define PERF_CIPHER_FNAME "test_vectors_set1_cipher_p.tv"
+#define PERF_MAC_FNAME "test_vectors_set2_mac_p.tv"
+#define PERF_SIGN_VERIFY_FNAME "test_vectors_set3_sign_verify_p.tv"
+#define PERF_CIPHER_FPATH (DEFAULT_TV_DIR PERF_CIPHER_FNAME)
+#define PERF_MAC_FPATH (DEFAULT_TV_DIR PERF_MAC_FNAME)
+#define PERF_SIGN_VERIFY_FPATH (DEFAULT_TV_DIR PERF_SIGN_VERIFY_FNAME)
 
 typedef struct statistics {
 	//!< total operations occurred in the given time

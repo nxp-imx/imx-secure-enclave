@@ -14,15 +14,10 @@
 #include "common.h"
 #include "hsm_api.h"
 #include "test_importkey.h"
-#include "plat_utils.h"
 
 hsm_hdl_t hsm_session_hdl;
 hsm_hdl_t key_store_hdl;
 int cmdline_arg;
-
-#ifdef ELE_PERF
-static time_t time_val;
-#endif
 
 /* input  Qx||lsb_Qy */
 static uint8_t ECC_P256_Qx[32+1] =
@@ -563,35 +558,26 @@ void hsm_test_sig_handler(int ht_signo, siginfo_t *ht_siginfo, void *ht_sigctx)
 	exit(EXIT_SUCCESS);
 }
 
-#ifdef ELE_PERF
-time_t get_ele_perf_time(void)
-{
-	return time_val;
-}
-
 void ele_hsm_test_usage(void)
 {
 	printf("ele_hsm_test usage: ele_hsm_test [options]\n");
 	printf("Options:\n");
-	printf(" <test_vector_path> <persistent key identifier> <no.of seconds>\n");
-	printf("\t<test_vector_path>:- Path of the test vector file.\n");
+	printf("<test_vector_path> <persistent key identifier>\n");
+	printf("\t<test_vector_path>:- Path of the test vector file ");
+	printf("to run tests of this single file\n");
 	printf("\t<persistent key identifier>:-\n");
-	printf("\t              (default value is 0): Persistent key is ");
-	printf("created & used in some functional test\n");
-	printf("\t              Non-zero value: Previously created ");
+	printf("\t\t(default value, 0): Persistent key is ");
+	printf("created & used in functional tests\n");
+	printf("\t\tNon-zero value: Previously created ");
 	printf("persistent key used with provided argument value being the ");
 	printf("key identifier.\n");
-	printf("\t<no. of seconds>:- No. of seconds for which ele_hsm_test ");
-	printf("need to be run (default value is 1 second)\n");
-	printf("\t                   No. of seconds should lie between ");
-	printf("1<=seconds<=10\n");
 }
-#endif
 
 /* Test entry function. */
 int main(int argc, char *argv[])
 {
     struct sigaction hsm_test_sigact = {0};
+
     open_session_args_t open_session_args = {0};
     open_svc_key_store_args_t open_svc_key_store_args = {0};
     op_get_random_args_t rng_get_random_args = {0};
@@ -600,18 +586,10 @@ int main(int argc, char *argv[])
 
     hsm_err_t err;
 
-#ifdef ELE_PERF
-	time_val = 1;
-
-	if (argc == 2 && (strcmp("--help", argv[1]) == 0 || strcmp("-h", argv[1])) == 0)
-		goto err;
-
-	if (argc == 4)
-		time_val = atoi(argv[3]);
-
-	if (!(time_val >= 1 && time_val <= 10) || argc > 4)
-		goto err;
-#endif
+	if (argc == 2 && (strcmp("--help", argv[1]) == 0 || strcmp("-h", argv[1]) == 0)) {
+		ele_hsm_test_usage();
+		goto out;
+	}
 
 	if (argc > 2)
 		cmdline_arg = atoi(argv[2]);
@@ -728,10 +706,4 @@ int main(int argc, char *argv[])
 
 out:
 	return 0;
-
-#ifdef ELE_PERF
-err:
-	ele_hsm_test_usage();
-	return 0;
-#endif
 }

@@ -3,7 +3,6 @@
 # Copyright 2021, 2022, 2023 NXP
 #
 
-ELE_PERF ?= 1
 CFLAGS := -O1 -Werror -Wformat -fPIC
 LDFLAGS =
 DESTDIR ?= export
@@ -59,7 +58,7 @@ HSM_LIB_MAJOR := $(HSM_LIB_NAME).so.$(MAJOR_VER)
 SHE_LIB := $(SHE_LIB_NAME).$(SO_EXT)
 SHE_LIB_MAJOR := $(SHE_LIB_NAME).so.$(MAJOR_VER)
 
-all_tests:= $(SHE_TEST) $(HSM_TEST) $(V2X_TEST)
+all_tests:= $(SHE_TEST) $(HSM_TEST) $(HSM_PERF_TEST) $(V2X_TEST)
 all_libs:= $(SHE_LIB) $(NVM_LIB) $(HSM_LIB)
 
 # Make targets, must need NVM-Daemon to run successfully.
@@ -117,21 +116,27 @@ DEFINES=-DDEBUG
 DEFINES=-DELE_DEBUG
 endif
 
-
-ifeq ($(ELE_PERF), 1)
-DEFINES += -DELE_PERF
-endif
-
 CFLAGS += ${DEFINES}
 COMMON_TEST_OBJ=$(wildcard test/common/*.c)
+HSM_TEST_PERF_OBJ := test/common/ele_perf.c \
+			test/common/test_file_reader.c \
+			test/common/test_utils.c \
+			test/common/test_utils_tv.c \
+			test/common/test_genkey_tv.c \
+			test/common/test_cipher_tv.c \
+			test/common/test_mac_tv.c \
+			test/common/test_sign_verify_tv.c
 COMMON_TEST_INC=-Itest/common/include/
 
-HSM_TEST_OBJ=$(wildcard test/hsm/*.c) $(COMMON_TEST_OBJ)
+HSM_TEST_OBJ= test/hsm/hsm_test.c $(COMMON_TEST_OBJ)
+HSM_PERF_TEST_OBJ= test/hsm/hsm_perf_test.c $(HSM_TEST_PERF_OBJ)
 TEST_CFLAGS = -Wno-deprecated-declarations $(CFLAGS)
 TEST_LDFLAGS = -L $(OPENSSL_PATH) -lcrypto $(LDFLAGS) -lcrypto -lpthread
 TEST_INCLUDE_PATHS = ${INCLUDE_PATHS} -I$(OPENSSL_PATH)/include
 $(HSM_TEST): $(HSM_TEST_OBJ) $(HSM_LIB)
 	$(CC) $^  -o $@ ${TEST_INCLUDE_PATHS} ${COMMON_TEST_INC} $(TEST_CFLAGS) $(TEST_LDFLAGS) $(GCOV_FLAGS)
+$(HSM_PERF_TEST): $(HSM_PERF_TEST_OBJ) $(HSM_LIB)
+	$(CC) $^  -o $@ ${TEST_INCLUDE_PATHS} ${COMMON_TEST_INC} $(TEST_CFLAGS) $(TEST_PERF_CFLAGS) $(TEST_LDFLAGS) $(GCOV_FLAGS)
 
 SHE_TEST_OBJ=$(wildcard test/she/src/*.c)
 #SHE test app

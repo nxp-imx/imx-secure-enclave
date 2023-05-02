@@ -1,11 +1,13 @@
 # SPDX-License-Identifier: BSD-3-Clause
 #
-# Copyright 2021-2022 NXP
+# Copyright 2021-2023 NXP
 #
 
 MINOR_VER := 0
 
 HSM_TEST := $(PLAT)_hsm_test
+HSM_PERF_TEST := $(PLAT)_hsm_perf_test
+TEST_PERF_CFLAGS := -DELE_PERF
 SHE_TEST :=
 V2X_TEST :=
 SHE_LIB_NAME :=
