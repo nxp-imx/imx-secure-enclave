@@ -154,7 +154,7 @@ hsm_err_t hsm_mac_one_go(hsm_hdl_t mac_hdl, op_mac_one_go_args_t *args,
  * \return error code
  */
 hsm_err_t hsm_close_mac_service(hsm_hdl_t mac_hdl);
-
+#ifndef PSA_COMPLIANT
 /**
  *\addtogroup qxp_specific
  * \ref group16
@@ -176,6 +176,6 @@ hsm_err_t hsm_close_mac_service(hsm_hdl_t mac_hdl);
  * - \ref HSM_OP_MAC_ONE_GO_ALGO_HMAC_SHA_512 is not supported.
  *
  */
-
+#endif
 /** @} end of mac service flow */
 #endif

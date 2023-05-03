@@ -18,13 +18,18 @@ typedef uint32_t hsm_hdl_t;
 
 struct hsm_session_hdl_s {
 	struct plat_os_abs_hdl *phdl;
+		//!< Pointer to OS device node.
 	uint32_t session_hdl;
+		//!< Session handle.
 	uint32_t mu_type;
+		//!< Session MU type.
 };
 
 struct hsm_service_hdl_s {
 	struct hsm_session_hdl_s *session;
+		//!< Pointer to session handle.
 	uint32_t service_hdl;
+		//!< Service handle.
 };
 
 #define HSM_MAX_SESSIONS	(8u)

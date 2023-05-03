@@ -190,7 +190,7 @@ typedef struct {
  */
 hsm_err_t hsm_generate_signature(hsm_hdl_t signature_gen_hdl,
 				 op_generate_sign_args_t *args);
-
+#ifndef PSA_COMPLIANT
 /**
  *\addtogroup qxp_specific
  * \ref group5
@@ -214,5 +214,6 @@ hsm_err_t hsm_generate_signature(hsm_hdl_t signature_gen_hdl,
  *        in case of HSM_SIGNATURE_SCHEME_DSA_SM2_FP_256_SM3.
  *
  */
+#endif
 /** @} end of signature generation service flow */
 #endif

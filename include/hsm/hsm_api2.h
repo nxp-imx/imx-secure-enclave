@@ -6,6 +6,7 @@
 #ifndef HSM_API2_H
 #define HSM_API2_H
 
+#ifndef PSA_COMPLIANT
 #include <stdint.h>
 
 #include "internal/hsm_handle.h"
@@ -1323,4 +1324,5 @@ hsm_err_t hsm_key_generic_crypto(hsm_hdl_t key_generic_crypto_hdl,
 /** @} end of Key generic crypto service flow */
 
 /** \}*/
+#endif
 #endif

@@ -21,10 +21,10 @@
 typedef uint8_t hsm_op_delete_key_flags_t;
 
 typedef struct {
-	//!< identifier of the key to be used for the operation.
 	uint32_t key_identifier;
-	//!< bitmap specifying the operation properties.
+	//!< identifier of the key to be used for the operation.
 	hsm_op_delete_key_flags_t flags;
+	//!< bitmap specifying the operation properties.
 } op_delete_key_args_t;
 
 /**

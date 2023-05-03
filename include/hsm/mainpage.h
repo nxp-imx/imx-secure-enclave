@@ -1,3 +1,82 @@
+// SPDX-License-Identifier: BSD-3-Clause
+/*
+ * Copyright 2023 NXP
+ */
+
+#ifdef PSA_COMPLIANT
+/*! \mainpage ELE HSM API
+ *
+ * This document is a software referece description of the API provided by the i.MX8ULP, i.MX93 HSM
+ * solutions for ELE Platform.
+ */
+/*! \page  History Revision History
+ *
+ * Revision       | date           | description
+ * :------------: | :-------------:| :------------
+ * 0.1 | Apr 27 2023  | Preliminary draft
+ */
+
+/*! \page page1 General concepts related to the API
+ * \tableofcontents
+ * \image latex hsm_services_ele.png
+ * \section sec1 Session
+ * The API must be initialized by a potential requestor by opening a session.\n
+ * The session establishes a route (MU, DomainID...) between the requester and the HSM.
+ * When a session is opened, the HSM returns a handle identifying the session to the requester.
+ * \section sec2 Service flow
+ * For a given category of services which require service handle, the requestor is expected to open
+ * a service flow by invoking the appropriate HSM API.\n
+ * The session handle, as well as the control data needed for the service flow, are provided as
+ * parameters of the call.\n
+ * Upon reception of the open request, the HSM allocates a context in which the session handle,as
+ * well as the provided control parameters are stored and return a handle identifying the service
+ * flow.\n
+ * The context is preserved until the service flow, or the session, are closed by the user and it is
+ * used by the HSM to proceed with the sub-sequent operations requested by the user on the service
+ * flow.
+ * \section sec3 Example
+ * \image latex code_example_ele.png
+ * \section sec4 Key store
+ * A key store can be created by specifying the CREATE flag in the hsm_open_key_store_service API.
+ * Please note that the created key store will be not stored in the NVM till a key is generated or
+ * imported specyfing the "STRICT OPERATION" flag.\n
+ * Only symmetric and private keys are stored into the key store. Public keys can be exported during
+ * the key pair generation operation or recalculated through the hsm_pub_key_recovery API.\n
+ * Secret keys cannot be exported under any circumstances, while they can be imported in encrypted
+ * form.\n
+ * \subsection subsec2 Key management
+ * Keys are divided in groups, keys belonging to the same group are written/read from the NVM as a
+ * monolitic block.\n
+ * Up to 3 key groups can be handled in the HSM local memory (those immediately available to perform
+ * crypto operations), while up to 1000 key groups can be handled in the external NVM and imported
+ * in the local memory as needed.\n
+ * If the local memory is full (3 key groups already reside in the HSM local memory) and a new key
+ * group is needed by an incoming user request, the HSM swaps one of the local key group with the
+ * one needed by the user request.\n
+ * The user can control which key group must be kept in the local memory (cached) through the
+ * manage_key_group API lock/unlock mechanism.\n
+ * As general concept, frequently used keys should be kept, when possible, in the same key group and
+ * locked in the local memory for performance optimization.\n
+ * \subsection subsec3 NVM writing
+ * All the APIs creating a key store (open key store API) or modyfing its content (key generation,
+ * key_management, key derivation functions) provide a "STRICT OPERATION" flag. If the flag is set,
+ * the HSM exports the relevant key store blocks into the external NVM and increments (blows one
+ * bit) the OTP monotonic counter used as roll back protection. In case of key generation/derivation
+ * /update the "STRICT OPERATION" has effect only on the target key group.\n
+ * Any update to the key store must be considered as effective only after an operation specifying
+ * flag "STRICT OPERATION" is aknowledged by the HSM. All the operations not specifying the "STRICT
+ * OPERATION" flags impact the HSM local memory only and will be lost in case of system reset\n
+ * Due to the limited monotonic counter size, the user should, when possible, perform multiple udate
+ * before setting the "STRICT OPERATION" flag(i.e. keys to be updated should be kept in the same key
+ * group).\n
+ * Once the monotonic counter is completely blown a warning is returned on each key store export to
+ * the NVM to inform the user that the new updates are not roll-back protected.
+ * \section sec5 Implementation specificities
+ * HSM API with common features are supported on i.MX8ULP and i.MX93.The details of supported
+ * features per chip will be listed in the platform specifities.
+ */
+
+#else
 /*! \mainpage HSM API
  *
  * This document is a software referece description of the API provided by the i.MX8 HSM solutions.
@@ -41,7 +120,7 @@
 
 /*! \page page1 General concepts related to the API
   \tableofcontents
-  \image latex hsm_services.png
+  \image latex hsm_services_seco.png
   \section sec1 Session
   The API must be initialized by a potential requestor by opening a session.\n
   The session establishes a route (MU, DomainID...) between the requester and the HSM.
@@ -52,7 +131,7 @@
   Upon reception of the open request, the HSM allocates a context in which the session handle, as well as the provided control parameters are stored and return a handle identifying the service flow.\n
   The context is preserved until the service flow, or the session, are closed by the user and it is used by the HSM to proceed with the sub-sequent operations requested by the user on the service flow.
   \section sec3 Example
-  \image latex code_example.PNG
+\image latex code_example_seco.png
   \section sec4 Key store
   A key store can be created by specifying the CREATE flag in the hsm_open_key_store_service API. Please note that the created key store will be not stored in the NVM till a key is generated/imported specyfing the "STRICT OPERATION" flag.\n
   Only symmetric and private keys are stored into the key store. Public keys can be exported during the key pair generation operation or recalculated through the hsm_pub_key_recovery API.\n
@@ -118,3 +197,4 @@
  *
  * session using SECO implementation : same number as QXP applies
  */
+#endif

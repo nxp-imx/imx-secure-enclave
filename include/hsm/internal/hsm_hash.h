@@ -15,6 +15,7 @@
  *  @defgroup group8 Hashing
  * @{
  */
+#ifndef PSA_COMPLIANT
 typedef struct {
 	hsm_hdl_t hash_hdl;
 	/*
@@ -46,7 +47,7 @@ hsm_err_t hsm_open_hash_service(hsm_hdl_t session_hdl,
  * \return error code
  */
 hsm_err_t hsm_close_hash_service(hsm_hdl_t hash_hdl);
-
+#endif
 #ifdef PSA_COMPLIANT
 
 typedef enum {
@@ -123,7 +124,7 @@ typedef struct {
  * \return error code
  */
 hsm_err_t hsm_hash_one_go(hsm_hdl_t hash_hdl, op_hash_one_go_args_t *args);
-
+#ifndef PSA_COMPLIANT
 /**
  *\addtogroup qxp_specific
  * \ref group5
@@ -131,5 +132,6 @@ hsm_err_t hsm_hash_one_go(hsm_hdl_t hash_hdl, op_hash_one_go_args_t *args);
  * - \ref HSM_HASH_ALGO_SM3_256 is not supported.
  *
  */
+#endif
 /** @} end of hash service flow */
 #endif
