@@ -35,11 +35,52 @@ struct hsm_service_hdl_s {
 #define HSM_MAX_SESSIONS	(8u)
 #define HSM_MAX_SERVICES	(32u)
 
+/**
+ * Returns pointer to the session handle\n
+ *
+ * \param hdl identifying the session handle.
+ *
+ * \return pointer to the session handle.
+ */
 struct hsm_session_hdl_s *session_hdl_to_ptr(uint32_t hdl);
+
+/**
+ * Returns pointer to the service handle\n
+ *
+ * \param hdl identifying the session handle.
+ *
+ * \return pointer to the service handle.
+ */
 struct hsm_service_hdl_s *service_hdl_to_ptr(uint32_t hdl);
+
+/**
+ * Delete the session\n
+ *
+ * \param s_ptr pointer identifying the session.
+ *
+ */
 void delete_session(struct hsm_session_hdl_s *s_ptr);
+
+/**
+ * Delete the service\n
+ *
+ * \param s_ptr pointer identifying the service.
+ *
+ */
 void delete_service(struct hsm_service_hdl_s *s_ptr);
+
+/**
+ *  Add the session\n
+ *
+ * \return pointer to the session.
+ */
 struct hsm_session_hdl_s *add_session(void);
+
+/**
+ * Add the service\n
+ *
+ * \return pointer to the service.
+ */
 struct hsm_service_hdl_s *add_service(struct hsm_session_hdl_s *session);
 /** @} end of session group */
 #endif

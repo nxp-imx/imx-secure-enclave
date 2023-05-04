@@ -121,8 +121,8 @@ hsm_err_t hsm_close_session(hsm_hdl_t session_hdl);
  *
  * User can call this function only after having opened a cipher service flow.\n
  *
- * \param key_store_hdl handle identifying the cipher service flow.
- * \param args pointer to the structure containing the function arguments.
+ * \param cipher_hdl handle identifying the cipher service flow.
+ * \param cipher_one_go pointer to the structure containing the function arguments.
  *
  * \return error code
  */
@@ -176,8 +176,9 @@ hsm_err_t hsm_do_sign(hsm_hdl_t key_store_hdl, op_generate_sign_args_t *args);
  *
  * User can call this function only after having opened a session.\n
  *
- * \param key_store_hdl handle identifying the current key-store.
+ * \param session_hdl handle identifying the current key-store.
  * \param args pointer to the structure containing the function arguments.
+ * \param verification_status pointer for storing the verification status.
  *
  * \return error code
  */
@@ -327,7 +328,7 @@ hsm_err_t hsm_data_ops(hsm_hdl_t key_store_hdl,
  * flow.\n
  *
  * \param key_store_hdl handle identifying the key store service flow.
- * \param args pointer to the structure containing the function arguments.
+ * \param auth_enc_args pointer to the structure containing the function arguments.
  *
  * \return error code
  */
@@ -350,7 +351,7 @@ hsm_err_t hsm_do_auth_enc(hsm_hdl_t key_store_hdl, op_auth_enc_args_t *auth_enc_
  * User can call this function only after having opened a key store service flow.\n
  *
  * \param key_store_hdl handle identifying the key store service flow.
- * \param args pointer to the structure containing the function arguments.
+ * \param mac_one_go pointer to the structure containing the function arguments.
  *
  * \return error code
  */
@@ -358,5 +359,4 @@ hsm_err_t hsm_do_mac(hsm_hdl_t key_store_hdl,
 		     op_mac_one_go_args_t *mac_one_go);
 /** @} end of mac service flow */
 
-/** \}*/
 #endif

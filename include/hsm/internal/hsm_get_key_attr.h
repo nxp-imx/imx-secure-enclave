@@ -34,7 +34,7 @@ typedef struct {
  * This command is designed to perform the following operations:
  *  - get attributes of an existing key
  *
- * \param key_importment_hdl handle identifying the key management service flow.
+ * \param key_management_hdl handle identifying the key management service flow.
  * \param args pointer to the structure containing the function arguments.
  *
  * \return error code

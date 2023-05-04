@@ -138,6 +138,7 @@ typedef struct {
  *
  * \param mac_hdl handle identifying the mac service flow.
  * \param args pointer to the structure containing the function arguments.
+ * \param status pointer for storing the verification status.
  *
  * \return error code
  */

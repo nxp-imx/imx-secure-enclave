@@ -134,7 +134,7 @@ hsm_err_t hsm_verify_signature(hsm_hdl_t signature_ver_hdl,
 				((hsm_op_verify_sign_flags_t)(1u << 1))
 
 //!< when set the value passed by the key argument is considered as the internal
-//   reference of a key imported through the hsm_import_pub_key API.
+//!< reference of a key imported through the hsm_import_pub_key API.
 #define HSM_OP_VERIFY_SIGN_FLAGS_KEY_INTERNAL \
 				((hsm_op_verify_sign_flags_t)(1u << 2))
 

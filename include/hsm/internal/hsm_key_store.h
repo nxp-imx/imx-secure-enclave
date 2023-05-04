@@ -107,7 +107,7 @@ hsm_err_t hsm_open_key_store_service(hsm_hdl_t session_hdl,
  * The key store is deleted from the HSM local memory,
  * any update not written in the NVM is lost \n
  *
- * \param handle identifying the key store service flow to be closed.
+ * \param key_store_hdl handle identifying the key store service flow to be closed.
  *
  * \return error_code error code.
  */
