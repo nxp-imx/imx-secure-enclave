@@ -6,7 +6,9 @@
 #ifndef ELE_PERF_H
 #define ELE_PERF_H
 
-#define SEC_TO_MICROSEC 1000000
+#define SEC_TO_MICROSEC 1000000u
+#define SEC_TO_MILLISEC 1000u
+#define BYTE_TO_KILOBYTE 1024u
 
 #include <time.h>
 #include <stdio.h>
@@ -27,22 +29,22 @@
 #define PERF_MAC_FPATH (DEFAULT_TV_DIR PERF_MAC_FNAME)
 #define PERF_SIGN_VERIFY_FPATH (DEFAULT_TV_DIR PERF_SIGN_VERIFY_FNAME)
 
-typedef struct statistics {
-	//!< total operations occurred in the given time
+typedef struct {
 	int no_of_ops;
-	//!< mean time for a single operation
+	// total operations occurred in the given time
 	float  mean_time;
-	//!< total time for the operations
+	// mean time for a single operation
 	float total_time;
+	// total time for the operations
 } statistics;
 
-uint64_t diff_microsec(struct timespec *t1, struct timespec *t2);
+float diff_microsec(struct timespec *t1, struct timespec *t2);
 
-void update_stats(statistics *s, struct timespec *t1, struct timespec *t2);
+void update_stats(statistics *perf_data, struct timespec *t1, struct timespec *t2);
 
 float kb_per_sec(size_t size, float usec);
 
-void print_perf_data(statistics *s, uint32_t size, const char *algo,
+void print_perf_data(statistics *perf_data, uint32_t size, const char *algo,
 		     uint32_t ciphertext_size);
 
 const char *cipher_algo_to_string(uint32_t val);

@@ -32,14 +32,14 @@ static hsm_err_t cipher_test(hsm_hdl_t key_store_hdl, hsm_hdl_t key_mgmt_hdl,
 	ciphered_data = (uint8_t *) malloc(ciphertext_size*sizeof(uint8_t));
 
 	if (ciphered_data == NULL) {
-		se_info("\nError: Couldn't allocate memory for Ciphered Data\n");
+		se_err("\nError: Couldn't allocate memory for Ciphered Data\n");
 		goto out;
 	}
 
 	deciphered_data = (uint8_t *) malloc(plaintext_size*sizeof(uint8_t));
 
 	if (deciphered_data == NULL) {
-		se_info("\nError: Couldn't allocate memory for Deciphered Data\n");
+		se_err("\nError: Couldn't allocate memory for Deciphered Data\n");
 		goto out;
 	}
 
@@ -63,14 +63,17 @@ static hsm_err_t cipher_test(hsm_hdl_t key_store_hdl, hsm_hdl_t key_mgmt_hdl,
 	struct timespec time_per_op_start = { }, time_per_op_end = { };
 	struct timespec perf_runtime_start = { }, perf_runtime_end = { };
 	statistics enc_stats = { };
+	enc_stats.no_of_ops = 0;
 	const char *algo_name = cipher_algo_to_string(cipher_algo);
+	/* Retrieving the performance run time */
 	time_t perf_run_time = get_ele_perf_time() * SEC_TO_MICROSEC;
 
 	printf("Doing %s-%d encryption for %lds on %d size blocks: ",
 	       algo_name, key_size, get_ele_perf_time(), ciphertext_size);
 	clock_gettime(CLOCK_MONOTONIC_RAW, &perf_runtime_start);
 	clock_gettime(CLOCK_MONOTONIC_RAW, &perf_runtime_end);
-	uint64_t diff = diff_microsec(&perf_runtime_start, &perf_runtime_end);
+	/* Calculating time difference in microseconds */
+	float diff = diff_microsec(&perf_runtime_start, &perf_runtime_end);
 
 	while (diff < perf_run_time) {
 		/* Retrieving time before the hsm_do_cipher call */
@@ -80,6 +83,7 @@ static hsm_err_t cipher_test(hsm_hdl_t key_store_hdl, hsm_hdl_t key_mgmt_hdl,
 #ifdef ELE_PERF
 		/* Retrieving time after the hsm_do_cipher call */
 		clock_gettime(CLOCK_MONOTONIC_RAW, &time_per_op_end);
+		/* Updating the statistics structure after the operation */
 		update_stats(&enc_stats, &time_per_op_start, &time_per_op_end);
 #endif
 		if (hsmret != HSM_NO_ERROR) {
@@ -108,8 +112,10 @@ static hsm_err_t cipher_test(hsm_hdl_t key_store_hdl, hsm_hdl_t key_mgmt_hdl,
 #ifdef ELE_PERF
 	statistics dec_stats = { };
 
+	dec_stats.no_of_ops = 0;
 	clock_gettime(CLOCK_MONOTONIC_RAW, &perf_runtime_start);
 	clock_gettime(CLOCK_MONOTONIC_RAW, &perf_runtime_end);
+	/* Calculating time difference in microseconds */
 	diff = diff_microsec(&perf_runtime_start, &perf_runtime_end);
 
 	printf("Doing %s-%d decryption for %lds on %d size blocks: ",
@@ -123,6 +129,7 @@ static hsm_err_t cipher_test(hsm_hdl_t key_store_hdl, hsm_hdl_t key_mgmt_hdl,
 #ifdef ELE_PERF
 		/* Retrieving time after the hsm_do_cipher call */
 		clock_gettime(CLOCK_MONOTONIC_RAW, &time_per_op_end);
+		/* Updating the statistics structure after the operation */
 		update_stats(&dec_stats, &time_per_op_start, &time_per_op_end);
 #endif
 		if (hsmret != HSM_NO_ERROR)
@@ -141,7 +148,9 @@ static hsm_err_t cipher_test(hsm_hdl_t key_store_hdl, hsm_hdl_t key_mgmt_hdl,
 	se_info("\n----------------------------------------------------\n");
 
 	if (memcmp(input_data, deciphered_data, plaintext_size) == 0)
-		se_error("\nDecrypted data matches Encrypted data [PASS]\n");
+		se_info("\nDecrypted data matches Encrypted data [PASS]\n");
+	else
+		se_err("\nDecrypted data doesn't match Encrypted data [FAIL]\n");
 #endif
 
 out:

@@ -76,11 +76,14 @@ static void sign_verify_test(hsm_hdl_t key_store_hdl,
 	statistics sign_gen_stats = { };
 	struct timespec time_per_op_start = { }, time_per_op_end = { };
 	struct timespec  perf_runtime_start = { }, perf_runtime_end = { };
+	/* Retrieving the performance run time */
 	time_t perf_run_time = get_ele_perf_time() * SEC_TO_MICROSEC;
 
+	sign_gen_stats.no_of_ops = 0;
 	clock_gettime(CLOCK_MONOTONIC_RAW, &perf_runtime_start);
 	clock_gettime(CLOCK_MONOTONIC_RAW, &perf_runtime_end);
-	uint64_t diff = diff_microsec(&perf_runtime_start, &perf_runtime_end);
+	/* Calculating time difference in microseconds */
+	float diff = diff_microsec(&perf_runtime_start, &perf_runtime_end);
 	const char *algo_name = scheme_algo_to_string(scheme_id);
 
 	printf("Doing %s-%d signing for %lds on %d size blocks: ",
@@ -94,6 +97,7 @@ static void sign_verify_test(hsm_hdl_t key_store_hdl,
 #ifdef ELE_PERF
 		/* Retrieving time after the hsm_do_sign call */
 		clock_gettime(CLOCK_MONOTONIC_RAW, &time_per_op_end);
+		/* Updating the statistics structure after the operation */
 		update_stats(&sign_gen_stats, &time_per_op_start, &time_per_op_end);
 
 		clock_gettime(CLOCK_MONOTONIC_RAW, &perf_runtime_end);
@@ -153,8 +157,10 @@ static void sign_verify_test(hsm_hdl_t key_store_hdl,
 #ifdef ELE_PERF
 	statistics sign_ver_stats = { };
 
+	sign_ver_stats.no_of_ops = 0;
 	clock_gettime(CLOCK_MONOTONIC_RAW, &perf_runtime_start);
 	clock_gettime(CLOCK_MONOTONIC_RAW, &perf_runtime_end);
+	/* Calculating time difference in microseconds */
 	diff = diff_microsec(&perf_runtime_start, &perf_runtime_end);
 
 	printf("Doing %s-%d verification for %lds on %d size blocks: ",
@@ -168,6 +174,7 @@ static void sign_verify_test(hsm_hdl_t key_store_hdl,
 #ifdef ELE_PERF
 		/* Retrieving time after the hsm_verify_sign call */
 		clock_gettime(CLOCK_MONOTONIC_RAW, &time_per_op_end);
+		/* Updating the statistics structure after the operation */
 		update_stats(&sign_ver_stats, &time_per_op_start, &time_per_op_end);
 
 		clock_gettime(CLOCK_MONOTONIC_RAW, &perf_runtime_end);

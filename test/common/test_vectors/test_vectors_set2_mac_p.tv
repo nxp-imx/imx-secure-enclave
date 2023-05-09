@@ -126,7 +126,6 @@ TEST_KGEN_END
 
 
 
-
 #Positive Case:
 #Test MAC operation with CMAC algo using saved AES 128 Key permitted for CMAC
 TEST_MAC_PSA_P201

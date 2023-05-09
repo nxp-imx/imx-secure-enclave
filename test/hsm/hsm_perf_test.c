@@ -18,7 +18,7 @@
 hsm_hdl_t hsm_session_hdl;
 hsm_hdl_t key_store_hdl;
 
-static time_t time_val;
+static time_t perf_run_time;
 
 static uint8_t *perf_tv_fpaths[PERF_SUPPORTED_OP_N] = {
 					PERF_CIPHER_FPATH,
@@ -41,7 +41,7 @@ void hsm_test_sig_handler(int ht_signo, siginfo_t *ht_siginfo, void *ht_sigctx)
 
 time_t get_ele_perf_time(void)
 {
-	return time_val;
+	return perf_run_time;
 }
 
 void ele_hsm_perf_test_usage(void)
@@ -65,7 +65,7 @@ int main(int argc, char *argv[])
 	open_svc_key_store_args_t open_svc_key_store_args = {0};
 	hsm_err_t err;
 
-	time_val = DEFAULT_TIME_PER_OP;
+	perf_run_time = DEFAULT_TIME_PER_OP;
 
 	if (argc == 2 && (strcmp("--help", argv[1]) == 0 || strcmp("-h", argv[1]) == 0)) {
 		ele_hsm_perf_test_usage();
@@ -73,13 +73,13 @@ int main(int argc, char *argv[])
 	}
 
 	if (argc > 1)
-		time_val = atoi(argv[1]);
+		perf_run_time = atoi(argv[1]);
 
 	/*
 	 * If Number of seconds per op, is outside accepted range, or
 	 * Number of arguments greater than defined, print usage and exit.
 	 */
-	if (argc > 3 || !(time_val >= 1 && time_val <= 10)) {
+	if (argc > 3 || !(perf_run_time >= 1 && perf_run_time <= 10)) {
 		ele_hsm_perf_test_usage();
 		goto out;
 	}

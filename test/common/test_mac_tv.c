@@ -47,11 +47,14 @@ static void mac_test(hsm_hdl_t key_store_hdl, uint32_t key_identifier,
 	struct timespec perf_runtime_start = { }, perf_runtime_end = { };
 	statistics gen_stats = { };
 	const char *algo_name = mac_algo_to_string(mac_algo);
+	/* Retrieving the performance run time */
 	time_t perf_run_time = get_ele_perf_time() * SEC_TO_MICROSEC;
 
+	gen_stats.no_of_ops = 0;
 	clock_gettime(CLOCK_MONOTONIC_RAW, &perf_runtime_start);
 	clock_gettime(CLOCK_MONOTONIC_RAW, &perf_runtime_end);
-	uint64_t diff = diff_microsec(&perf_runtime_start, &perf_runtime_end);
+	/* Calculating time difference in microseconds */
+	float diff = diff_microsec(&perf_runtime_start, &perf_runtime_end);
 
 	printf("Doing %s-%d generation for %lds on %d size blocks: ",
 	       algo_name, key_size, get_ele_perf_time(), mac_size);
@@ -64,6 +67,7 @@ static void mac_test(hsm_hdl_t key_store_hdl, uint32_t key_identifier,
 #ifdef ELE_PERF
 		/* Retrieving time after the hsm_do_mac call */
 		clock_gettime(CLOCK_MONOTONIC_RAW, &time_per_op_end);
+		/* Updating the statistics structure after the operation */
 		update_stats(&gen_stats, &time_per_op_start, &time_per_op_end);
 
 		if (hsmret1 != HSM_NO_ERROR)
@@ -99,8 +103,10 @@ static void mac_test(hsm_hdl_t key_store_hdl, uint32_t key_identifier,
 #ifdef ELE_PERF
 	statistics ver_stats = { };
 
+	ver_stats.no_of_ops = 0;
 	clock_gettime(CLOCK_MONOTONIC_RAW, &perf_runtime_start);
 	clock_gettime(CLOCK_MONOTONIC_RAW, &perf_runtime_end);
+	/* Calculating time difference in microseconds */
 	diff = diff_microsec(&perf_runtime_start, &perf_runtime_end);
 
 	printf("Doing %s-%d verification for %lds on %d size blocks: ",
@@ -114,6 +120,7 @@ static void mac_test(hsm_hdl_t key_store_hdl, uint32_t key_identifier,
 #ifdef ELE_PERF
 		/* Retrieving time after the hsm_do_mac call */
 		clock_gettime(CLOCK_MONOTONIC_RAW, &time_per_op_end);
+		/* Updating the statistics structure after the operation */
 		update_stats(&ver_stats, &time_per_op_start, &time_per_op_end);
 
 		if (hsmret2 != HSM_NO_ERROR)
