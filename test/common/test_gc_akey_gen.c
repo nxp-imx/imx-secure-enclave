@@ -9,7 +9,7 @@
 
 #include "hsm_api.h"
 
-#ifdef PSA_COMPLIANT
+#ifdef MT_SAB_GC_AKEY_GEN
 hsm_err_t gc_akey_gen_test(hsm_hdl_t session_hdl)
 {
 	hsm_err_t err = HSM_GENERAL_ERROR;
