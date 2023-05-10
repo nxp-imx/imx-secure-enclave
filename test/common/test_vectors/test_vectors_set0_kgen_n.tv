@@ -364,6 +364,71 @@ EXPECTED_HSM_RESP 0x0B       # HSM_ID_CONFLICT
 TEST_KGEN_END
 
 
+#Negative Case
+#For Volatile, Invalid Key Identifier input value (Non-zero)
+TEST_KGEN_PSA_N016
+
+KEY_MGMT_TV_ID    1234       # Key Management ID
+KEY_TV_ID         16         # Key TV ID to use the key later
+KEY_ID            0x50000000 # Key Identifier
+OUT_SIZE          0          # Symmetric Key. So, Public Key Out Size 0
+KEY_TYPE          0x2400     # HSM_KEY_TYPE_AES
+BIT_KEY_SZ        256        # HSM_KEY_SIZE_AES_256
+FLAGS             0          #
+KEY_GROUP         1          # Key Group b/w 0-1023
+KEY_LIFETIME      0x00000100 # HSM_SE_KEY_STORAGE_VOLATILE
+KEY_LIFECYCLE     0x0        # 0 indicates set to current Device Lifecycle
+KEY_USAGE         0x00000300 # HSM_KEY_USAGE_ENCRYPT | HSM_KEY_USAGE_DECRYPT
+PERMITTED_ALGO    0x84C0FF00 # PERMITTED_ALGO_ALL_CIPHER
+EXPECTED_HSM_RESP 0x0B       # HSM_ID_CONFLICT
+
+TEST_KGEN_END
+
+
+
+#Negative Case
+#For Volatile, Invalid Key Identifier input value (Non-zero)
+TEST_KGEN_PSA_N017
+
+KEY_MGMT_TV_ID    1234       # Key Management ID
+KEY_TV_ID         17         # Key TV ID to use the key later
+KEY_ID            0x60000000 # Key Identifier
+OUT_SIZE          0          # Symmetric Key. So, Public Key Out Size 0
+KEY_TYPE          0x1100     # HSM_KEY_TYPE_HMAC
+BIT_KEY_SZ        256        # HSM_KEY_SIZE_HMAC_256
+FLAGS             0          #
+KEY_GROUP         1          # Key Group b/w 0-1023
+KEY_LIFETIME      0x00000100 # HSM_SE_KEY_STORAGE_VOLATILE
+KEY_LIFECYCLE     0x0        # 0 indicates set to current Device Lifecycle
+KEY_USAGE         0x00000C00 # HSM_KEY_USAGE_SIGN_MSG | HSM_KEY_USAGE_VERIFY_MSG
+PERMITTED_ALGO    0x03800009 # PERMITTED_ALGO_HMAC_SHA256
+EXPECTED_HSM_RESP 0x0B       # HSM_ID_CONFLICT
+
+TEST_KGEN_END
+
+
+
+#Negative Case
+#For Volatile, Invalid Key Identifier input value (Non-zero)
+TEST_KGEN_PSA_N018
+
+KEY_MGMT_TV_ID    1234       # Key Management ID
+KEY_TV_ID         18         # Key TV ID to use the key later
+KEY_ID            0x7FFFFFF0 # Key Identifier
+OUT_SIZE          64         # Public Key Out Size
+KEY_TYPE          0x7112     # HSM_KEY_TYPE_ECC_NIST
+BIT_KEY_SZ        256        # HSM_KEY_SIZE_ECC_NIST_256
+FLAGS             0          #
+KEY_GROUP         1          # Key Group b/w 0-1023
+KEY_LIFETIME      0x00000100 # HSM_SE_KEY_STORAGE_VOLATILE
+KEY_LIFECYCLE     0x0        # 0 indicates set to current Device Lifecycle
+KEY_USAGE         0x00004000 # HSM_KEY_USAGE_DERIVE
+PERMITTED_ALGO    0x06000609 # PERMITTED_ALGO_ECDSA_SHA256
+EXPECTED_HSM_RESP 0x0B       # HSM_ID_CONFLICT
+
+TEST_KGEN_END
+
+
 #########################################################################
 
 

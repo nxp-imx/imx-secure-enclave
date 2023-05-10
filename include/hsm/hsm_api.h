@@ -9,7 +9,6 @@
 #include <stdint.h>
 
 #ifndef PSA_COMPLIANT
-#error
 #include "hsm_api2.h"
 #endif
 
