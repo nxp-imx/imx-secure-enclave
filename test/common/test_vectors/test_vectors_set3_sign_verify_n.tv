@@ -76,6 +76,7 @@ MESSAGE           28         # Message-Message size, input from next line
 0x18, 0x19, 0x1A, 0x1B,
 
 SIGNATURE_SIZE    54         # Signature size
+SALT_LEN          0          # Salt length in bytes
 SCHEME_ID         0x06000608 # HSM_SIGNATURE_SCHEME_ECDSA_SHA224
 SIGN_GEN_FLAGS    0x0        # HSM_OP_GENERATE_SIGN_FLAGS_INPUT_DIGEST
 SIGN_VERIFY_FLAGS 0x0        # HSM_OP_VERIFY_SIGN_FLAGS_INPUT_DIGEST
@@ -104,6 +105,7 @@ MESSAGE           16         # Message-Message size, input from next line
 0x08, 0x09, 0x0A, 0x0B, 0x0C, 0x0D, 0x0E, 0x0F,
 
 SIGNATURE_SIZE    56         # Signature size
+SALT_LEN          0          # Salt length in bytes
 SCHEME_ID         0x06000608 # HSM_SIGNATURE_SCHEME_ECDSA_SHA224
 SIGN_GEN_FLAGS    0x0        # HSM_OP_GENERATE_SIGN_FLAGS_INPUT_DIGEST
 SIGN_VERIFY_FLAGS 0x0        # HSM_OP_VERIFY_SIGN_FLAGS_INPUT_DIGEST

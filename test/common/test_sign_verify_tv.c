@@ -15,21 +15,22 @@
 #endif
 
 static void sign_verify_test(hsm_hdl_t key_store_hdl,
-						uint32_t key_identifier,
-						uint32_t message_size,
-						uint8_t *message,
-						uint16_t signature_size,
-						hsm_signature_scheme_id_t scheme_id,
-						hsm_op_generate_sign_flags_t sign_gen_flags,
-						hsm_op_verify_sign_flags_t sign_verify_flags,
-						hsm_pubkey_type_t pkey_type,
-						uint16_t key_size,
-						hsm_bit_key_sz_t bit_key_sz,
-						uint16_t exp_signature_size,
-						hsm_verification_status_t exp_verification_status,
-						uint32_t exp_sign_gen_rsp,
-						uint32_t exp_sign_verify_rsp,
-						int8_t *test_status)
+			     uint32_t key_identifier,
+			     uint32_t message_size,
+			     uint8_t *message,
+			     uint16_t signature_size,
+			     uint16_t salt_len,
+			     hsm_signature_scheme_id_t scheme_id,
+			     hsm_op_generate_sign_flags_t sign_gen_flags,
+			     hsm_op_verify_sign_flags_t sign_verify_flags,
+			     hsm_pubkey_type_t pkey_type,
+			     uint16_t key_size,
+			     hsm_bit_key_sz_t bit_key_sz,
+			     uint16_t exp_signature_size,
+			     hsm_verification_status_t exp_verification_status,
+			     uint32_t exp_sign_gen_rsp,
+			     uint32_t exp_sign_verify_rsp,
+			     int8_t *test_status)
 {
 	op_generate_sign_args_t sig_gen_args = {0};
 	op_verify_sign_args_t sig_ver_args = {0};
@@ -56,8 +57,8 @@ static void sign_verify_test(hsm_hdl_t key_store_hdl,
 		goto out;
 	}
 
-	memset(signature, 0, sizeof(signature));
-	memset(loc_pub_key, 0, sizeof(loc_pub_key));
+	memset(signature, 0, signature_size);
+	memset(loc_pub_key, 0, key_size);
 
 	/* Signature Generation */
 	sig_gen_args.key_identifier = key_identifier;
@@ -67,6 +68,9 @@ static void sign_verify_test(hsm_hdl_t key_store_hdl,
 	sig_gen_args.signature = signature;
 	sig_gen_args.scheme_id = scheme_id;
 	sig_gen_args.flags = sign_gen_flags;
+#ifdef PSA_COMPLIANT
+	sig_gen_args.salt_len = salt_len;
+#endif
 
 #ifdef ELE_PERF
 	statistics sign_gen_stats = { };
@@ -138,6 +142,7 @@ static void sign_verify_test(hsm_hdl_t key_store_hdl,
 #ifdef PSA_COMPLIANT
 	sig_ver_args.key_sz = bit_key_sz;
 	sig_ver_args.pkey_type = pkey_type;
+	sig_ver_args.salt_len = salt_len;
 #endif
 	sig_ver_args.message_size = message_size;
 	sig_ver_args.message = message;
@@ -200,7 +205,7 @@ static int8_t prepare_and_run_sign_verify_test(hsm_hdl_t key_store_hdl, FILE
 {
 	hsm_err_t ret = HSM_GENERAL_ERROR;
 
-	uint8_t req_params_n = 14;
+	uint8_t req_params_n = 15;
 	uint8_t input_ctr = 0;
 	uint8_t invalid_read = 0;
 	uint8_t call_sign_verify_test = -1;
@@ -219,6 +224,7 @@ static int8_t prepare_and_run_sign_verify_test(hsm_hdl_t key_store_hdl, FILE
 	uint32_t message_size = 0;
 	uint8_t *message = NULL;
 	uint16_t signature_size = 0;
+	uint16_t salt_len = 0;
 	hsm_signature_scheme_id_t scheme_id;
 	hsm_op_generate_sign_flags_t sign_gen_flags;
 	uint32_t exp_sign_gen_rsp = 0;
@@ -279,6 +285,7 @@ static int8_t prepare_and_run_sign_verify_test(hsm_hdl_t key_store_hdl, FILE
 				break;
 			}
 
+			memset(message, 0, message_size);
 			parse_param_value_buffer(fp, &message, message_size, param_name,
 									&input_ctr, &invalid_read);
 
@@ -286,6 +293,12 @@ static int8_t prepare_and_run_sign_verify_test(hsm_hdl_t key_store_hdl, FILE
 
 			signature_size = (uint16_t)parse_param_value(param_value_token,
 							param_name, &input_ctr, &invalid_read);
+
+		} else if (strcmp(param_name, "SALT_LEN") == 0) {
+			salt_len = (uint16_t)parse_param_value(param_value_token,
+							       param_name,
+							       &input_ctr,
+							       &invalid_read);
 
 		} else if (strcmp(param_name, "SCHEME_ID") == 0) {
 
@@ -369,10 +382,12 @@ static int8_t prepare_and_run_sign_verify_test(hsm_hdl_t key_store_hdl, FILE
 		key_identifier = get_test_key_identifier(key_tv_id);
 
 		sign_verify_test(key_store_hdl, key_identifier, message_size,
-					message, signature_size, scheme_id, sign_gen_flags,
-					sign_verify_flags, pkey_type, key_size, bit_key_sz,
-					exp_signature_size, exp_verification_status,
-					exp_sign_gen_rsp, exp_sign_verify_rsp, &test_status);
+				 message, signature_size, salt_len,
+				 scheme_id, sign_gen_flags, sign_verify_flags,
+				 pkey_type, key_size, bit_key_sz,
+				 exp_signature_size, exp_verification_status,
+				 exp_sign_gen_rsp, exp_sign_verify_rsp,
+				 &test_status);
 	}
 
 	if (invalid_read == 1 || read == -1) {

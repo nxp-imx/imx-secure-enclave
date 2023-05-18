@@ -24,7 +24,7 @@ void hsm_sign_verify_tests(hsm_hdl_t sess_hdl, hsm_hdl_t key_store_hdl,
 	printf("-----------------------------------------------------\n");
 
 	op_generate_sign_args_t sig_gen_args = {0};
-	op_verify_sign_args_t sig_ver_args;
+	op_verify_sign_args_t sig_ver_args = {0};
 	hsm_verification_status_t verif_status;
 	hsm_err_t hsmret;
 #ifndef PSA_COMPLIANT
@@ -32,6 +32,7 @@ void hsm_sign_verify_tests(hsm_hdl_t sess_hdl, hsm_hdl_t key_store_hdl,
 #endif
 	sig_gen_args.key_identifier = key_id;
 #ifdef PSA_COMPLIANT
+	sig_gen_args.salt_len = 0;
 	sig_gen_args.scheme_id = HSM_SIGNATURE_SCHEME_ECDSA_SHA256;
 #else
 	sig_gen_args.scheme_id = HSM_SIGNATURE_SCHEME_ECDSA_NIST_P256_SHA_256;
@@ -52,6 +53,7 @@ void hsm_sign_verify_tests(hsm_hdl_t sess_hdl, hsm_hdl_t key_store_hdl,
 	sig_ver_args.signature_size = sign_data_sz;
 	sig_ver_args.message_size = hash_data_sz;
 #ifdef PSA_COMPLIANT
+	sig_ver_args.salt_len = 0;
 	sig_ver_args.pkey_type = HSM_PUBKEY_TYPE_ECC_NIST;
 	sig_ver_args.key_sz   = HSM_KEY_SIZE_ECC_NIST_256;
 	sig_ver_args.scheme_id = HSM_SIGNATURE_SCHEME_ECDSA_SHA256;

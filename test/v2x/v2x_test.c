@@ -181,8 +181,8 @@ typedef struct {
 static void *sig_loop_thread(void *arg)
 {
 
-    op_generate_sign_args_t sig_gen_args;
-    op_verify_sign_args_t sig_ver_args;
+	op_generate_sign_args_t sig_gen_args = {0};
+	op_verify_sign_args_t sig_ver_args = {0};
 	op_generate_key_args_t gen_key_args = {0};
     uint32_t key_id = 0;
     hsm_verification_status_t status;
