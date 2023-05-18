@@ -44,8 +44,10 @@ struct sab_signature_generate_msg {
 	uint16_t signature_size;
 #ifdef PSA_COMPLIANT
 	uint8_t flags;
-	uint8_t reserved;
+	uint8_t rsv1;
 	uint32_t scheme_id;
+	uint16_t salt_len;
+	uint16_t rsv2;
 #else
 	uint8_t scheme_id;
 	uint8_t flags;

@@ -102,7 +102,7 @@ uint32_t prepare_msg_sign_generate(void *phdl,
 	cmd->scheme_id = op_args->scheme_id;
 	cmd->flags = op_args->flags;
 #ifdef PSA_COMPLIANT
-	cmd->reserved = 0;
+	cmd->salt_len = op_args->salt_len;
 #endif
 	cmd->crc = 0u;
 

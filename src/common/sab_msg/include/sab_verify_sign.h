@@ -1,6 +1,6 @@
 // SPDX-License-Identifier: BSD-3-Clause
 /*
- * Copyright 2022 NXP
+ * Copyright 2022-2023 NXP
  */
 
 #ifndef SAB_VERIFY_SIGN_H
@@ -48,8 +48,10 @@ struct sab_signature_verify_msg {
 	uint16_t key_type;
 	uint8_t flags;
 #define SAB_CMD_VERIFY_SIGN_RESERVED	3
-	uint8_t reserved[SAB_CMD_VERIFY_SIGN_RESERVED];
+	uint8_t rsv1[SAB_CMD_VERIFY_SIGN_RESERVED];
 	uint32_t sig_scheme;
+	uint16_t salt_len;
+	uint16_t rsv2;
 #else
 	uint16_t key_size;
 	uint16_t sig_size;

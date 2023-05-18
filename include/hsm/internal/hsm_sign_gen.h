@@ -156,6 +156,8 @@ typedef struct {
 	//   for the operation
 	hsm_signature_scheme_id_t scheme_id;
 #ifdef PSA_COMPLIANT
+	//!< Salt length in bytes
+	uint16_t salt_len;
 	//!< expected signature buffer size for output, returned by FW in case
 	//	 the input signature size provided is less than the required size.
 	uint16_t exp_signature_size;

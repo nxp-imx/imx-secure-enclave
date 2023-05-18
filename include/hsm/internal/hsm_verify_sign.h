@@ -56,6 +56,8 @@ typedef struct {
 	//   for the operation
 	hsm_signature_scheme_id_t scheme_id;
 #ifdef PSA_COMPLIANT
+	//!< salt length in bytes
+	uint16_t salt_len;
 	hsm_bit_key_sz_t key_sz;
 	hsm_pubkey_type_t pkey_type;
 #endif

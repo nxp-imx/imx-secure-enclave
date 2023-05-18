@@ -109,9 +109,9 @@ uint32_t prepare_msg_verify_sign(void *phdl,
 #ifdef PSA_COMPLIANT
 	cmd->key_security_size = op_args->key_sz;
 	cmd->key_type = op_args->pkey_type;
+	cmd->salt_len = op_args->salt_len;
 #endif
 	cmd->flags = op_args->flags;
-	memset(cmd->reserved, 0, SAB_CMD_VERIFY_SIGN_RESERVED);
 	cmd->crc = 0u;
 
 	*cmd_msg_sz = sizeof(struct sab_signature_verify_msg);
