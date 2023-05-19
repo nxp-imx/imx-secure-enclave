@@ -19,38 +19,72 @@
  *  @defgroup group3 Key management
  * @{
  */
+
+/**
+ * Bitmap indicating the cryptographic operations that key can execute
+ */
 typedef uint32_t hsm_key_usage_t;
+/**
+ * Bit indicating the permission to export the key
+ */
 #define HSM_KEY_USAGE_EXPORT		((hsm_key_usage_t) (1u << 0))
+/**
+ * Bit indicating the permission to encrypt a message with the key
+ */
 #define HSM_KEY_USAGE_ENCRYPT		((hsm_key_usage_t) (1u << 8))
+/**
+ * Bit indicating the permission to decrypt a message with the key
+ */
 #define HSM_KEY_USAGE_DECRYPT		((hsm_key_usage_t) (1u << 9))
+/**
+ * Bit indicating the permission to sign a message with the key
+ */
 #define HSM_KEY_USAGE_SIGN_MSG		((hsm_key_usage_t) (1u << 10))
+/**
+ * Bit indicating the permission to verify a message signature with the key
+ */
 #define HSM_KEY_USAGE_VERIFY_MSG	((hsm_key_usage_t) (1u << 11))
+/**
+ * Bit indicating the permission to sign a hashed message with the key
+ */
 #define HSM_KEY_USAGE_SIGN_HASH		((hsm_key_usage_t) (1u << 12))
+/**
+ * Bit indicating the permission to verify a hashed message signature with the key
+ */
 #define HSM_KEY_USAGE_VERIFY_HASH	((hsm_key_usage_t) (1u << 13))
+/**
+ * Bit indicating the permission to derive other keys from this key
+ */
 #define HSM_KEY_USAGE_DERIVE		((hsm_key_usage_t) (1u << 14))
 
-/* SE stands for Secure Enclave.
+/**
+ * Enum Indicating the key location indicator.
  */
-//! Indicating the key location indicator.
 typedef enum {
 	HSM_SE_KEY_STORAGE = 0x00000000,
 } hsm_storage_loc_t;
 
-//! Indicating the key persistent level indicator.
+/**
+ * Enum Indicating the key persistent level indicator.
+ */
 typedef enum {
 	HSM_VOLATILE_STORAGE = 0x0,
 	HSM_PERSISTENT_STORAGE = 0x1,
 	HSM_PERMANENT_STORAGE = 0xFF,
 } hsm_storage_persist_lvl_t;
 
-//! Indicating the key lifetime.
+/**
+ * Enum Indicating the key lifetime.
+ */
 typedef enum {
 	HSM_SE_KEY_STORAGE_VOLATILE = HSM_SE_KEY_STORAGE | HSM_VOLATILE_STORAGE,
 	HSM_SE_KEY_STORAGE_PERSISTENT = HSM_SE_KEY_STORAGE | HSM_PERSISTENT_STORAGE,
 	HSM_SE_KEY_STORAGE_PERS_PERM = HSM_SE_KEY_STORAGE | HSM_PERMANENT_STORAGE,
 } hsm_key_lifetime_t;
 
-//! Indicating the public key type.
+/**
+ * Enum Indicating the public key type.
+ */
 typedef enum {
 	HSM_PUBKEY_TYPE_RSA		= 0x4001,
 	HSM_PUBKEY_TYPE_ECC_BP_R1	= 0x4130,
@@ -58,7 +92,9 @@ typedef enum {
 	HSM_PUBKEY_TYPE_ECC_BP_T1	= 0xC180,
 } hsm_pubkey_type_t;
 
-//! Indicating the key type.
+/**
+ * Enum Indicating the key type.
+ */
 typedef enum {
 #ifdef PSA_COMPLIANT
 	/* PSA Compliant key types.
@@ -100,7 +136,9 @@ typedef enum {
 #endif
 } hsm_key_type_t;
 
-//! Indicating the key security size in bits.
+/**
+ * Enum Indicating the key security size in bits.
+ */
 typedef enum {
 	HSM_KEY_SIZE_HMAC_224		= 224,
 	HSM_KEY_SIZE_HMAC_256		= 256,
@@ -128,13 +166,18 @@ typedef enum {
 	HSM_KEY_SIZE_ECC_BP_T1_384	= 384,
 } hsm_bit_key_sz_t;
 
+/**
+ * Structure describing the encryption key header
+ */
 typedef struct {
 	uint8_t iv[IV_LENGTH];
 	uint8_t *key;
 	uint32_t tag;
 } kek_enc_key_hdr_t;
 
-//!< Permitted algorithm attribute (PSA values):
+/**
+ * Enum describing the permiteed algorithm
+ */
 typedef enum {
 	PERMITTED_ALGO_SHA224	        = ALGO_HASH_SHA224,
 	PERMITTED_ALGO_SHA256	        = ALGO_HASH_SHA256,
@@ -169,46 +212,67 @@ typedef enum {
 	PERMITTED_ALGO_OTH_KEK_CBC	= ALGO_CIPHER_KEK_CBC,
 } hsm_permitted_algo_t;
 
-//!< Permitted key lifecycle:
+/**
+ * Enum detailing Permitted key lifecycle
+ */
 typedef enum {
 	HSM_KEY_LIFECYCLE_OPEN		= 0x1,
 	HSM_KEY_LIFECYCLE_CLOSED	= 0x2,
 	HSM_KEY_LIFECYCLE_CLOSED_LOCKED	= 0x4,
 } hsm_key_lifecycle_t;
 
+/**
+ * Bit field indicating the key group
+ */
 typedef uint16_t hsm_key_group_t;
 
+/**
+ * Bit field indicating the key information
+ */
 typedef uint16_t hsm_key_info_t;
-/* HSM key-info flags */
 
-//!< Persistent keys are stored in the external NVM.
-//   The entire key group is written in the NVM at the next STRICT operation.
+/**
+ * Bit indicating persistent keys which are stored in the external NVM.
+ * The entire key group is written in the NVM at the next STRICT operation.
+ */
 #define HSM_KEY_INFO_PERSISTENT \
 		((hsm_key_info_t)(0u << 1))
 
-//!< When set, the key is permanent (write locked). Once created, it will not
-//   be possible to update or delete the key anymore. Transient keys will be
-//   anyway deleted after a PoR or when the corresponding key store service flow
-//   is closed. This bit can never be reset.
+/**
+ * Bit indicating the key is permanent.
+ * When set, the key is permanent (write locked). Once created, it will not
+ * be possible to update or delete the key anymore. Transient keys will be
+ * anyway deleted after a PoR or when the corresponding key store service flow
+ * is closed. This bit can never be reset.
+ */
 #define HSM_KEY_INFO_PERMANENT \
 		((hsm_key_info_t)(1u << 0))
 
-//!< Transient keys are deleted when the corresponding key store service flow is
-//   closed or after a PoR. Transient keys cannot be in the same key group than
-//   persistent keys.
+/**
+ * Bit indicating the key is transient.
+ * Transient keys are deleted when the corresponding key store service flow is
+ * closed or after a PoR. Transient keys cannot be in the same key group than
+ * persistent keys.
+ */
 #define HSM_KEY_INFO_TRANSIENT \
 		((hsm_key_info_t)(1u << 1))
 
-//!< When set, the key is considered as a master key.
-//   Only master keys can be used as input of key derivation functions
-//   (i.e butterfly key expansion).
+/**
+ * Bit indicating the key is master key.
+ * When set, the key is considered as a master key.
+ * Only master keys can be used as input of key derivation functions
+ * (i.e butterfly key expansion).
+ */
 #define HSM_KEY_INFO_MASTER \
 		((hsm_key_info_t)(1u << 2))
 
-//!< When set, the key is considered as a key encryption key. KEK keys can only
-//   be used to wrap and import other keys into the key store, all other
-//   operation are not allowed. Only keys imported in the key store through the
-//   hsm_mange_key API can get this attribute.
+/**
+ * Bit indicating the key is key encryption key
+ * When set, the key is considered as a key encryption key. KEK keys can only
+ * be used to wrap and import other keys into the key store, all other
+ * operation are not allowed. Only keys imported in the key store through the
+ * hsm_mange_key API can get this attribute.
+ */
 #define HSM_KEY_INFO_KEK \
 		((hsm_key_info_t)(1u << 3))
 

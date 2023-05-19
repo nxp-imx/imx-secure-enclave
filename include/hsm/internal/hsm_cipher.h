@@ -16,7 +16,13 @@
  * @{
  */
 
+/**
+ * Bit field describing the open cipher service requested operation
+ */
 typedef uint8_t hsm_svc_cipher_flags_t;
+/**
+ * Structure describing the open cipher service members
+ */
 typedef struct {
 	hsm_hdl_t cipher_hdl;
 	//!< handle identifying the cipher service flow
@@ -42,6 +48,9 @@ hsm_err_t hsm_open_cipher_service(hsm_hdl_t key_store_hdl,
 				  open_svc_cipher_args_t *args,
 				  hsm_hdl_t *cipher_hdl);
 
+/**
+ * Enum describing the cipher one go operation algorithm
+ */
 #ifdef PSA_COMPLIANT
 typedef enum {
 	//!< CTR (AES supported).
@@ -77,12 +86,24 @@ typedef uint8_t hsm_op_cipher_one_go_algo_t;
 				((hsm_op_cipher_one_go_algo_t)(0x11u))
 #endif
 
+/**
+ * Bit field indicating the requested operations
+ */
 typedef uint8_t hsm_op_cipher_one_go_flags_t;
+/**
+ * Bit indicating the decrypt operation
+ */
 #define HSM_CIPHER_ONE_GO_FLAGS_DECRYPT \
 				((hsm_op_cipher_one_go_flags_t)(0u << 0))
+/**
+ * Bit indicating the encrypt operation
+ */
 #define HSM_CIPHER_ONE_GO_FLAGS_ENCRYPT \
 				((hsm_op_cipher_one_go_flags_t)(1u << 0))
 
+/**
+ * Structure describing the cipher one go operation arguments
+ */
 typedef struct {
 	//!< identifier of the key to be used for the operation
 	uint32_t key_identifier;

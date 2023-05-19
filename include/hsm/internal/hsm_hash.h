@@ -48,6 +48,10 @@ hsm_err_t hsm_open_hash_service(hsm_hdl_t session_hdl,
  */
 hsm_err_t hsm_close_hash_service(hsm_hdl_t hash_hdl);
 #endif
+
+/**
+ * Bitmap indicating the supported hash algorithm
+ */
 #ifdef PSA_COMPLIANT
 
 typedef enum {
@@ -68,6 +72,9 @@ typedef uint8_t hsm_hash_algo_t;
 
 #endif
 
+/**
+ * Bit field indicating the hash service operations
+ */
 typedef enum {
 	HSM_HASH_FLAG_ONE_SHOT = 0x1,
 	HSM_HASH_FLAG_INIT = 0x2,
@@ -76,10 +83,16 @@ typedef enum {
 	HSM_HASH_FLAG_GET_CONTEXT = 0x80,
 } hsm_hash_svc_flags_t;
 
+/**
+ * Bitmap indicating the allowed hash service operations
+ */
 #define HSM_HASH_FLAG_ALLOWED    (HSM_HASH_FLAG_ONE_SHOT | HSM_HASH_FLAG_INIT \
 				  | HSM_HASH_FLAG_UPDATE | HSM_HASH_FLAG_FINAL \
 				  | HSM_HASH_FLAG_GET_CONTEXT)
 
+/**
+ * Structure describing the hash one go operation arguments
+ */
 typedef struct {
 #ifdef PSA_COMPLIANT
 	//!< pointer to the MSB of address in the requester space where buffers

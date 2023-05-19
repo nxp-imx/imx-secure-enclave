@@ -14,6 +14,10 @@
  *  @defgroup group4 Ciphering
  * @{
  */
+
+/**
+ * Bit field indicating the supported algorithm
+ */
 #ifdef PSA_COMPLIANT
 typedef enum {
 	//!< CCM (AES CCM)
@@ -34,20 +38,35 @@ typedef uint8_t hsm_op_auth_enc_algo_t;
 			((hsm_op_auth_enc_algo_t)(0x10u))
 #endif
 
+/**
+ * Bit field indicating the authenticated encryption operations
+ */
 typedef uint8_t hsm_op_auth_enc_flags_t;
 
+/**
+ * Bit indicating the decryption operation
+ */
 #define HSM_AUTH_ENC_FLAGS_DECRYPT \
 			((hsm_op_auth_enc_flags_t)(0u << 0))
+/**
+ * Bit indicating the encryption operation
+ */
 #define HSM_AUTH_ENC_FLAGS_ENCRYPT \
 			((hsm_op_auth_enc_flags_t)(1u << 0))
-//!< Full IV is internally generated (only relevant for encryption)
+/**
+ * Bit indicating the Full IV is internally generated (only relevant for encryption)
+ */
 #define HSM_AUTH_ENC_FLAGS_GENERATE_FULL_IV \
 			((hsm_op_auth_enc_flags_t)(1u << 1))
-//!< User supplies 4 bytes of the IV (fixed part), the other bytes are
-//	 internally generated (only relevant for encryption)
+/**
+ * Bit indicating 4 bytes supplied other bytes internally generated (only relevant for encryption)
+ */
 #define HSM_AUTH_ENC_FLAGS_GENERATE_COUNTER_IV \
 			((hsm_op_auth_enc_flags_t)(1u << 2))
 
+/**
+ * Structure describing the authenticated encryption operation arguments
+ */
 typedef struct {
 	//!< identifier of the key to be used for the operation
 	uint32_t key_identifier;

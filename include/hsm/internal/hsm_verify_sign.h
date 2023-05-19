@@ -22,6 +22,9 @@
 #ifndef PSA_COMPLIANT
 typedef uint8_t hsm_svc_signature_verification_flags_t;
 #endif
+/**
+ *  Structure to represent verify sign open service arguments
+ */
 typedef struct {
 #ifndef PSA_COMPLIANT
 	//!< bitmap indicating the service flow properties
@@ -30,8 +33,17 @@ typedef struct {
 	hsm_hdl_t sig_ver_hdl;
 } open_svc_sign_ver_args_t;
 
+/**
+ *  Bit indicating the response verification status
+ */
 typedef uint32_t hsm_verification_status_t;
+/**
+ * Bit indicating the requested operations
+ */
 typedef uint8_t hsm_op_verify_sign_flags_t;
+/**
+ *  Structure to represent verify signature operation arguments
+ */
 typedef struct {
 	//!< pointer to the public key to be used for the verification.
 	//   If the HSM_OP_VERIFY_SIGN_FLAGS_KEY_INTERNAL is set, it must point
@@ -125,23 +137,38 @@ hsm_err_t hsm_close_signature_verification_service(hsm_hdl_t signature_ver_hdl);
 hsm_err_t hsm_verify_signature(hsm_hdl_t signature_ver_hdl,
 			       op_verify_sign_args_t *args,
 			       hsm_verification_status_t *status);
-
+/**
+ *  Verify signature bit indicating input is message digest
+ */
 #define HSM_OP_VERIFY_SIGN_FLAGS_INPUT_DIGEST \
 				((hsm_op_verify_sign_flags_t)(0u << 0))
 
+/**
+ *  Verify signature bit indicating input is actual message
+ */
 #define HSM_OP_VERIFY_SIGN_FLAGS_INPUT_MESSAGE \
 				((hsm_op_verify_sign_flags_t)(1u << 0))
 
+/**
+ *  Verify signature bit indicating input based on signature format
+ */
 #define HSM_OP_VERIFY_SIGN_FLAGS_COMPRESSED_POINT \
 				((hsm_op_verify_sign_flags_t)(1u << 1))
 
-//!< when set the value passed by the key argument is considered as the internal
-//!< reference of a key imported through the hsm_import_pub_key API.
+/**
+ *  Verify signature bit indicating input is key argument
+ */
 #define HSM_OP_VERIFY_SIGN_FLAGS_KEY_INTERNAL \
 				((hsm_op_verify_sign_flags_t)(1u << 2))
 
+/**
+ *  Verify signature response success status
+ */
 #define HSM_VERIFICATION_STATUS_SUCCESS \
 				((hsm_verification_status_t)(0x5A3CC3A5u))
+/**
+ *  Verify signature response failure status
+ */
 #define HSM_VERIFICATION_STATUS_FAILURE \
 				((hsm_verification_status_t)(0x2B4DD4B2u))
 

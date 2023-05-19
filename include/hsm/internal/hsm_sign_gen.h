@@ -20,6 +20,9 @@
 typedef uint8_t hsm_svc_signature_generation_flags_t;
 #endif
 
+/**
+ * Structure to represent the generate sign open service arguments
+ */
 typedef struct {
 	hsm_hdl_t signature_gen_hdl;
 #ifndef PSA_COMPLIANT
@@ -57,14 +60,19 @@ hsm_err_t hsm_open_signature_generation_service(hsm_hdl_t key_store_hdl,
  */
 hsm_err_t hsm_close_signature_generation_service(hsm_hdl_t signature_gen_hdl);
 
+/**
+ * Bit field indicating the requested operation
+ */
 typedef uint8_t hsm_op_generate_sign_flags_t;
 
-//! Bit field indicating the requested operations:
-//! Bit 0:
-//!  - 0: Input is the message digest.
-//!  - 1: Input is the actual message.
+/**
+ * Bit field indicating the input is the message digest
+ */
 #define HSM_OP_GENERATE_SIGN_FLAGS_INPUT_DIGEST \
 				((hsm_op_generate_sign_flags_t)(0u << 0))
+/**
+ * Bit field indicating the input is the actual message
+ */
 #define HSM_OP_GENERATE_SIGN_FLAGS_INPUT_MESSAGE \
 				((hsm_op_generate_sign_flags_t)(1u << 0))
 
@@ -135,6 +143,9 @@ typedef uint8_t hsm_signature_scheme_id_t;
 
 #endif
 
+/**
+ * Structure to represent the generate sign operation arguments
+ */
 typedef struct {
 	//!< identifier of the key to be used for the operation
 	uint32_t key_identifier;

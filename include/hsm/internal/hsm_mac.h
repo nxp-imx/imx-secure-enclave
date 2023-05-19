@@ -17,6 +17,9 @@
 #ifndef PSA_COMPLIANT
 typedef uint8_t hsm_svc_mac_flags_t;
 #endif
+/**
+ * Structure describing the mac open service member agruments
+ */
 typedef struct {
 #ifndef PSA_COMPLIANT
 	//!< bitmap specifying the services properties.
@@ -44,9 +47,18 @@ hsm_err_t hsm_open_mac_service(hsm_hdl_t key_store_hdl,
 			       hsm_hdl_t *mac_hdl);
 
 
+/**
+ * Bitmap describing the mac one go operation
+ */
 typedef uint8_t hsm_op_mac_one_go_flags_t;
+/**
+ * Bit indicating mac one go verify operation
+ */
 #define HSM_OP_MAC_ONE_GO_FLAGS_MAC_VERIFICATION \
 				((hsm_op_mac_one_go_flags_t)(0u << 0))
+/**
+ * Bit indicating mac one go generate operation
+ */
 #define HSM_OP_MAC_ONE_GO_FLAGS_MAC_GENERATION \
 				((hsm_op_mac_one_go_flags_t)(1u << 0))
 
@@ -65,10 +77,19 @@ typedef uint8_t hsm_op_mac_one_go_flags_t;
 				((hsm_op_mac_one_go_algo_t)(0x08u))
 #endif
 
+/**
+ * Bitmap describing the mac verification status
+ */
 typedef uint32_t hsm_mac_verification_status_t;
+/**
+ * Bit indicating mac verification success status
+ */
 #define HSM_MAC_VERIFICATION_STATUS_SUCCESS \
 				((hsm_mac_verification_status_t)(0x6C1AA1C6u))
 
+/**
+ * Bitmap describing the mac one go operation permitted algorithm
+ */
 #ifdef PSA_COMPLIANT
 //!< Following three permitted algos are allowed:
 //   -  PERMITTED_ALGO_HMAC_SHA256			= 0x03800009,
@@ -79,6 +100,9 @@ typedef hsm_permitted_algo_t hsm_op_mac_one_go_algo_t;
 typedef uint8_t hsm_op_mac_one_go_algo_t;
 #endif
 
+/**
+ * Structure describing the mac one go operation member agruments
+ */
 typedef struct {
 	//!< identifier of the key to be used for the operation
 	uint32_t key_identifier;

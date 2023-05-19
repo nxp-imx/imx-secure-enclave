@@ -18,6 +18,10 @@
  *  @defgroup group3 Key management
  * @{
  */
+
+/**
+ * Structure describing the get key attribute operation arguments
+ */
 typedef struct {
 	uint32_t key_identifier;
 	//!< identifier of the key to be used for the operation.
