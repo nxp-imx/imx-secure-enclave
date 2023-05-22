@@ -13,6 +13,10 @@
  *  @defgroup group27 Dev attest
  * @{
  */
+
+/**
+ * Structure describing the device attestation operation member arguments
+ */
 typedef struct {
 	uint16_t soc_id;
 	uint16_t soc_rev;

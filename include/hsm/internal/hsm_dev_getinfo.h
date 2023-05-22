@@ -13,6 +13,10 @@
  *  @defgroup group29 Dev Info
  * @{
  */
+
+/**
+ * Structure detailing the device getinfo operation member arguments
+ */
 typedef struct {
 	uint16_t soc_id;
 	uint16_t soc_rev;

@@ -22,6 +22,9 @@
 
 #define FLAG 0
 
+/**
+ * Structure detailing the key generate operation member arguments
+ */
 typedef struct {
 	uint32_t *key_identifier;
 	//!< pointer to the identifier of the key to be used for the operation

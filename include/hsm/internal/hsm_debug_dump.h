@@ -18,11 +18,23 @@
  *  @defgroup group28 Dump Firmware Log
  * @{
  */
+
+/**
+ * Structure detailing the debug dump operation member arguments
+ */
 typedef struct {
 	bool is_dump_pending;
 	uint32_t dump_buf_len;
 	uint32_t dump_buf[MAC_BUFF_LEN];
 } op_debug_dump_args_t;
+
+/**
+ * This command is designed to dump the firmware logs
+ *
+ * \param session_hdl handle identifying the session handle.
+ *
+ * \return error code
+ */
 
 hsm_err_t dump_firmware_log(hsm_hdl_t session_hdl);
 

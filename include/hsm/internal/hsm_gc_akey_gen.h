@@ -14,23 +14,27 @@
  *	@defgroup group23 Generic Crypto Asymmetric Key Generate
  * @{
  */
+
+/**
+ * Structue detailing the generic crypto asymmetric key generate operation members
+ */
 typedef struct {
-	//!< pointer to the output buffer of key modulus
 	uint8_t *modulus;
-	//!< pointer to the output buffer of key private exponent
+	//!< pointer to the output buffer of key modulus
 	uint8_t *priv_buff;
-	//!< pointer to the input buffer containing key public exponent
+	//!< pointer to the output buffer of key private exponent
 	uint8_t *pub_buff;
-	//!< size in bytes of the modulus buffer
+	//!< pointer to the input buffer containing key public exponent
 	uint16_t modulus_size;
-	//!< size in bytes of the private exponent buffer
+	//!< size in bytes of the modulus buffer
 	uint16_t priv_buff_size;
-	//!< size in bytes of the public exponent buffer
+	//!< size in bytes of the private exponent buffer
 	uint16_t pub_buff_size;
-	//!< indicates which type of keypair must be generated
+	//!< size in bytes of the public exponent buffer
 	hsm_key_type_t key_type;
-	//!< size in bits of the keypair to be generated
+	//!< indicates which type of keypair must be generated
 	hsm_bit_key_sz_t bit_key_sz;
+	//!< size in bits of the keypair to be generated
 } op_gc_akey_gen_args_t;
 
 /**

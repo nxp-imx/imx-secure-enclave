@@ -14,7 +14,14 @@
  * @{
  */
 
+/**
+ * Bitmap specifying the key management service supported properties
+ */
 typedef uint8_t hsm_svc_key_management_flags_t;
+
+/**
+ * Structure detailing the key management open service member arguments
+ */
 typedef struct {
 	hsm_hdl_t key_management_hdl;
 	//!< handle identifying the key management service flow

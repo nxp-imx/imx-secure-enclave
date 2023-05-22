@@ -12,6 +12,10 @@
  *  @defgroup group1 Session
  *  @{
  */
+
+/**
+ * Structure detailing the open session operation member arguments
+ */
 typedef struct {
 	uint32_t session_hdl;
 		//!< Session handle.

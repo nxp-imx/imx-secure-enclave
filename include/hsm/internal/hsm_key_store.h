@@ -26,25 +26,31 @@
  * @{
  */
 
+/**
+ * Bitmap specifying the open key store service supported attributes
+ */
 typedef uint8_t hsm_svc_key_store_flags_t;
 
-//!< It must be specified to load a previously created key store.
 #define HSM_SVC_KEY_STORE_FLAGS_LOAD \
 			((hsm_svc_key_store_flags_t)(0u << 0))
-//!< It must be specified to create a new key store. The key store will be
-//   stored in the NVM only if the STRICT OPERATION flag is set.
+//!< It must be specified to load a previously created key store.
 #define HSM_SVC_KEY_STORE_FLAGS_CREATE \
 			((hsm_svc_key_store_flags_t)(1u << 0))
-//!< If set, minimum mac length specified in min_mac_length field will be
-//   stored in the key store when creating the key store.\n
-//   Must only be set at key store creation.
+//!< It must be specified to create a new key store. The key store will be
+//!< stored in the NVM only if the STRICT OPERATION flag is set.
 #define HSM_SVC_KEY_STORE_FLAGS_SET_MAC_LEN \
 			((hsm_svc_key_store_flags_t)(1u << 3))
-//!< The request is completed only when the new key store has been written in
-//   in the NVM. This applicable for CREATE operations only.
+//!< If set, minimum mac length specified in min_mac_length field will be
+//!< stored in the key store when creating the key store.\n
+//!< Must only be set at key store creation.
 #define HSM_SVC_KEY_STORE_FLAGS_STRICT_OPERATION \
 			((hsm_svc_key_store_flags_t)(1u << 7))
+//!< The request is completed only when the new key store has been written in
+//!< in the NVM. This applicable for CREATE operations only.
 
+/**
+ * Structure specifying the open key store service member arguments
+ */
 typedef struct {
 	//!< handle identifying the key store service flow
 	hsm_hdl_t key_store_hdl;

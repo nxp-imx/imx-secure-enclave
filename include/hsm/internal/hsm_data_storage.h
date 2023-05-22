@@ -15,7 +15,14 @@
  * @{
  */
 
+/**
+ * Bitmap specifying the data storage open service supported properties
+ */
 typedef uint8_t hsm_svc_data_storage_flags_t;
+
+/**
+ * Structure specifying the data storage open service member arguments
+ */
 typedef struct {
 	hsm_hdl_t data_storage_handle;
 	hsm_svc_data_storage_flags_t flags;   //!< bitmap specifying the services properties.
@@ -37,7 +44,14 @@ hsm_err_t hsm_open_data_storage_service(hsm_hdl_t key_store_hdl,
 					open_svc_data_storage_args_t *args,
 					hsm_hdl_t *data_storage_hdl);
 
+/**
+ * Bitmap specifying the data storage operation supported attributes
+ */
 typedef uint8_t hsm_op_data_storage_flags_t;
+
+/**
+ * Structure detailing the data storage operation member arguments
+ */
 typedef struct {
 	//!< pointer to the data. In case of store request,
 	//   it will be the input data to store. In case of retrieve,

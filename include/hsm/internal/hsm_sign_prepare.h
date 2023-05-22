@@ -17,20 +17,29 @@
  * @{
  */
 
+/**
+ * Bitmap specifying the prepare signature operation supported attributes
+ */
 typedef uint8_t hsm_op_prepare_signature_flags_t;
 #define HSM_OP_PREPARE_SIGN_INPUT_DIGEST \
 				((hsm_op_prepare_signature_flags_t)(0u << 0))
+//!< Bit indicating input digest
 #define HSM_OP_PREPARE_SIGN_INPUT_MESSAGE \
 				((hsm_op_prepare_signature_flags_t)(1u << 0))
+//!< Bit indicating input message
 #define HSM_OP_PREPARE_SIGN_COMPRESSED_POINT \
 				((hsm_op_prepare_signature_flags_t)(1u << 1))
+//!< Bit indicating compressed point
 
+/**
+ * Structure detailing the prepare signature operation member arguments
+ */
 typedef struct {
-	//!< identifier of the digital signature scheme to be used
-	//   for the operation.
 	hsm_signature_scheme_id_t scheme_id;
-	//!< bitmap specifying the operation attributes
+	//!< identifier of the digital signature scheme to be used
+	//!< for the operation.
 	hsm_op_prepare_signature_flags_t flags;
+	//!< bitmap specifying the operation attributes
 } op_prepare_sign_args_t;
 
 /**

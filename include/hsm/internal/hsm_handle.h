@@ -14,8 +14,15 @@
  *  @defgroup group1 Session
  *  @{
  */
+
+/**
+ *  Define the HSM handle type
+ */
 typedef uint32_t hsm_hdl_t;
 
+/**
+ * Structure describing the session handle members
+ */
 struct hsm_session_hdl_s {
 	struct plat_os_abs_hdl *phdl;
 		//!< Pointer to OS device node.
@@ -25,6 +32,9 @@ struct hsm_session_hdl_s {
 		//!< Session MU type.
 };
 
+/**
+ * Structure describing the service handle members
+ */
 struct hsm_service_hdl_s {
 	struct hsm_session_hdl_s *session;
 		//!< Pointer to session handle.
@@ -33,7 +43,9 @@ struct hsm_service_hdl_s {
 };
 
 #define HSM_MAX_SESSIONS	(8u)
+//!< Maximum sessions supported.
 #define HSM_MAX_SERVICES	(32u)
+//!< Maximum services supported.
 
 /**
  * Returns pointer to the session handle\n

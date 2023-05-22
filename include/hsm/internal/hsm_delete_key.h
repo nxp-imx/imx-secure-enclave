@@ -18,8 +18,14 @@
  *  @defgroup group3 Key management
  * @{
  */
+/**
+ * Bitmap describing the delete key operation properties
+ */
 typedef uint8_t hsm_op_delete_key_flags_t;
 
+/**
+ * Structure detailing the delete key operation member arguments
+ */
 typedef struct {
 	uint32_t key_identifier;
 	//!< identifier of the key to be used for the operation.
@@ -40,8 +46,11 @@ typedef struct {
 hsm_err_t hsm_delete_key(hsm_hdl_t key_management_hdl,
 			 op_delete_key_args_t *args);
 
-//!< Bit 0-6: Reserved.
-//!< Bit 7: Strict: Request completed - New key written to NVM with updated MC.
+/**
+ * Bitmap detailing the delete key operation properties.
+ * Bit 0-6: Reserved.
+ * Bit 7: Strict: Request completed - New key written to NVM with updated MC.
+ */
 #define HSM_OP_DEL_KEY_FLAGS_STRICT_OPERATION \
 	((hsm_op_import_key_flags_t)(1u << 7))
 

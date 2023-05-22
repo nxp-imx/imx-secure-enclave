@@ -17,22 +17,30 @@
  *  @defgroup group3 Key management
  * @{
  */
+
+/**
+ * Bitmap specifying the import key operation supported properties
+ * Bit 0: Defines input configuration
+ * Bit 1-6: Reserved
+ * Bit 7: Strict
+ */
 typedef uint8_t hsm_op_import_key_flags_t;
 
-//!< Bit 0: Defines input configuration.
-//   - set 1 means input is E2GO_TLV
-//   - set 0 means input is signed message.
 #define HSM_OP_IMPORT_KEY_INPUT_E2GO_TLV \
 	((hsm_op_import_key_flags_t)(1u << 0))
+//!< Bit 0: set 1 means input is E2GO_TLV.
 
 #define HSM_OP_IMPORT_KEY_INPUT_SIGNED_MSG \
 	((hsm_op_import_key_flags_t)(0u << 0))
-//!< Bit 1-6: Reserved.
+//!< Bit 0: set 0 means input is signed message.
 
-//!< Bit 7: Strict: Request completed - New key written to NVM with updated MC.
 #define HSM_OP_IMPORT_KEY_FLAGS_STRICT_OPERATION \
 	((hsm_op_import_key_flags_t)(1u << 7))
+//!< Bit 7: Strict: Request completed - New key written to NVM with updated MC.
 
+/**
+ * Structure detailing the import key operation member arguments
+ */
 typedef struct {
 	uint32_t  key_identifier;
 	//!< Identifier of the KEK used to encrypt the key to be imported
@@ -49,6 +57,14 @@ typedef struct {
 	//!< bitmap specifying the operation properties.
 } op_import_key_args_t;
 
+/**
+ * This API will be used to Import the key \n
+ *
+ * \param key_management_hdl handle identifying the key management service flow.
+ * \param args pointer to the structure containing the function arguments.
+ *
+ * \return error code
+ */
 hsm_err_t hsm_import_key(hsm_hdl_t key_management_hdl,
 			 op_import_key_args_t *args);
 /** @} end of key management service flow */

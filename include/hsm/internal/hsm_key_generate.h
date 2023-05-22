@@ -15,6 +15,9 @@
  * @{
  */
 
+/**
+ * Bitmap specifying the key generate operation supported properties.
+ */
 typedef uint8_t hsm_op_key_gen_flags_t;
 
 #ifdef PSA_COMPLIANT
@@ -22,21 +25,24 @@ typedef uint8_t hsm_op_key_gen_flags_t;
 #else
 /* Flags for NON-PSA COMPLIANT platforms such as SECO.
  */
-//!< User can replace an existing key only by generating a key with
-//   the same type of the original one.
 #define HSM_OP_KEY_GENERATION_FLAGS_UPDATE \
 		((hsm_op_key_gen_flags_t)(1u << 0))
+//!< User can replace an existing key only by generating a key with
+//!< the same type of the original one.
 
-//!< Create a new key.
 #define HSM_OP_KEY_GENERATION_FLAGS_CREATE \
 		((hsm_op_key_gen_flags_t)(1u << 1))
+//!< Create a new key.
 #endif /* PSA_COMPLIANT */
 
-//!< The request is completed only when the new key has been written in the NVM. <!--
-//!< --> This applicable for persistent key only.
 #define HSM_OP_KEY_GENERATION_FLAGS_STRICT_OPERATION \
 			((hsm_op_key_gen_flags_t)(1u << 7))
+//!< The request is completed only when the new key has been written in the NVM.
+//!< This applicable for persistent key only.
 
+/**
+ * Structure describing the generate key operation member arguments
+ */
 typedef struct {
 	uint32_t *key_identifier;
 	//!< pointer to the identifier of the key to be used for the operation.

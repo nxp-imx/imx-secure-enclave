@@ -15,7 +15,9 @@
  * @{
  */
 
-//!< Algorithms to be used for the operations
+/**
+ * Enum detailing the generic asymmetric crypto supported algorithms
+ */
 typedef enum {
 	HSM_GC_ACRYPTO_ALGO_ECDSA_SHA224 = ALGO_ECDSA_SHA224,
 	HSM_GC_ACRYPTO_ALGO_ECDSA_SHA256 = ALGO_ECDSA_SHA256,
@@ -37,7 +39,9 @@ typedef enum {
 	HSM_GC_ACRYPTO_ALGO_RSA_PKCS1_OAEP_SHA512 = ALGO_RSA_PKCS1_OAEP_SHA512,
 } hsm_op_gc_acrypto_algo_t;
 
-//!< Operation modes
+/**
+ * Enum describing the generic asymmetric crypto supported operating modes
+ */
 typedef enum {
 	HSM_GC_ACRYPTO_OP_MODE_ENCRYPT  = 0x01,
 	HSM_GC_ACRYPTO_OP_MODE_DECRYPT  = 0x02,
@@ -45,16 +49,34 @@ typedef enum {
 	HSM_GC_ACRYPTO_OP_MODE_SIGN_VER = 0x04,
 } hsm_gc_acrypto_op_mode_t;
 
+/**
+ * Bitmap describing the generic asymmetric crypto supported operation
+ */
 typedef uint8_t hsm_op_gc_acrypto_flags_t;
+/**
+ * Bit indicating the generic asymmetric crypto input message operation
+ */
 #define HSM_OP_GC_ACRYPTO_FLAGS_INPUT_MESSAGE \
 	((hsm_op_gc_acrypto_flags_t)(1u << 0))
 
+/**
+ * Bitmap describing the generic asymmetric crypto verification status
+ */
 typedef uint32_t hsm_gc_acrypto_verification_status_t;
+/**
+ * Bit indicating the generic asymmetric crypto success verification status
+ */
 #define HSM_GC_ACRYPTO_VERIFICATION_SUCCESS \
 		((hsm_gc_acrypto_verification_status_t)(0x5A3CC3A5u))
+/**
+ * Bit indicating the generic asymmetric crypto failure verification status
+ */
 #define HSM_GC_ACRYPTO_VERIFICATION_FAILURE \
 		((hsm_gc_acrypto_verification_status_t)(0x2B4DD4B2u))
 
+/**
+ * Structure describing the generic asymmetric crypto member arguments
+ */
 typedef struct {
 	//!< algorithm to use for the operation
 	hsm_op_gc_acrypto_algo_t algorithm;

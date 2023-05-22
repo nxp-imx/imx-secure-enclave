@@ -1,6 +1,6 @@
 // SPDX-License-Identifier: BSD-3-Clause
 /*
- * Copyright 2022 NXP
+ * Copyright 2022-2023 NXP
  */
 
 #ifndef HSM_KEY_RECOVERY_H
@@ -19,7 +19,14 @@
  * compatibility and Non-PSA compliant APIs.\n
  *
  */
+
+#ifndef PSA_COMPLIANT
 typedef uint8_t hsm_op_pub_key_recovery_flags_t;
+#endif
+
+/**
+ * Structure detailing the public key recovery opeation member arguments
+ */
 typedef struct {
 	//!< pointer to the identifier of the key to be used for the operation
 	uint32_t key_identifier;

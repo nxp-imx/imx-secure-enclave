@@ -13,6 +13,10 @@
  *  @defgroup group25 Get Info
  * @{
  */
+
+/**
+ * Structure describing the get info operation member arguments
+ */
 typedef struct {
 //!< Stores User identifier (32bits)
 	uint32_t user_sab_id;
