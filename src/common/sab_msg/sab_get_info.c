@@ -18,7 +18,7 @@ uint32_t prepare_msg_get_info(void *phdl, void *cmd_buf, void *rsp_buf,
 			      uint32_t *cmd_msg_sz, uint32_t *rsp_msg_sz,
 			      uint32_t msg_hdl, void *args)
 {
-	uint32_t ret = 0;
+	uint32_t ret = SAB_ENGN_PASS;
 	struct sab_cmd_get_info_msg *cmd =
 		(struct sab_cmd_get_info_msg *) cmd_buf;
 
@@ -36,6 +36,9 @@ uint32_t proc_msg_rsp_get_info(void *rsp_buf, void *args)
 	struct sab_cmd_get_info_rsp *rsp =
 		(struct sab_cmd_get_info_rsp *) rsp_buf;
 	uint32_t ret = SAB_SUCCESS_STATUS;
+
+	if (!op_args)
+		return SAB_FAILURE_STATUS;
 
 	if (rsp->rsp_code != SAB_SUCCESS_STATUS)
 		goto exit;

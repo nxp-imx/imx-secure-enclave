@@ -18,11 +18,14 @@ uint32_t prepare_msg_gc_akey_gen(void *phdl,
 				 uint32_t msg_hdl,
 				 void *args)
 {
-	uint32_t ret = 0;
+	uint32_t ret = SAB_ENGN_PASS;
 	struct sab_cmd_gc_akey_gen_msg *cmd =
 			(struct sab_cmd_gc_akey_gen_msg *)cmd_buf;
 	op_gc_akey_gen_args_t *op_args =
 			(op_gc_akey_gen_args_t *)args;
+
+	if (!op_args)
+		return SAB_ENGN_FAIL;
 
 	cmd->buffers_addr_msb = 0u;
 

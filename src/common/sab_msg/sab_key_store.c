@@ -14,11 +14,14 @@ uint32_t prepare_msg_key_store_open_req(void *phdl,
 					uint32_t msg_hdl,
 					void *args)
 {
-	uint32_t ret = 0;
+	uint32_t ret = SAB_ENGN_PASS;
 	struct sab_cmd_key_store_open_msg *cmd =
 		(struct sab_cmd_key_store_open_msg *)cmd_buf;
 	open_svc_key_store_args_t *op_args =
 		(open_svc_key_store_args_t *)args;
+
+	if (!op_args)
+		return SAB_ENGN_FAIL;
 
 	cmd->session_handle = msg_hdl;
 	cmd->key_store_id = op_args->key_store_identifier;
@@ -42,6 +45,9 @@ uint32_t proc_msg_rsp_key_store_open_req(void *rsp_buf, void *args)
 	open_svc_key_store_args_t *op_args =
 		(open_svc_key_store_args_t *)args;
 
+	if (!op_args)
+		return SAB_FAILURE_STATUS;
+
 	op_args->key_store_hdl = rsp->key_store_handle;
 
 	return SAB_SUCCESS_STATUS;
@@ -54,7 +60,7 @@ uint32_t prepare_msg_key_store_close_req(void *phdl,
 					 uint32_t msg_hdl,
 					 void *args)
 {
-	uint32_t ret = 0;
+	uint32_t ret = SAB_ENGN_PASS;
 	struct sab_cmd_key_store_close_msg *cmd =
 		(struct sab_cmd_key_store_close_msg *)cmd_buf;
 

@@ -19,10 +19,13 @@ uint32_t prepare_msg_get_rng(void *phdl,
 			     uint32_t msg_hdl,
 			     void *args)
 {
-	int32_t ret = 0;
+	uint32_t ret = SAB_ENGN_PASS;
 	struct sab_cmd_get_rnd_msg *cmd =
 		(struct sab_cmd_get_rnd_msg *) cmd_buf;
 	op_get_random_args_t *op_args = (op_get_random_args_t *) args;
+
+	if (!op_args)
+		return SAB_ENGN_FAIL;
 
 #ifdef PSA_COMPLIANT
 	set_phy_addr_to_words(&cmd->rnd_addr,
@@ -61,12 +64,15 @@ uint32_t prepare_msg_rng_open_req(void *phdl,
 				  uint32_t msg_hdl,
 				  void *args)
 {
-	uint32_t ret = 0;
+	uint32_t ret = SAB_ENGN_PASS;
 	struct sab_cmd_rng_open_msg *cmd =
 		(struct sab_cmd_rng_open_msg *) cmd_buf;
 	struct sab_cmd_rng_open_rsp *rsp =
 		(struct sab_cmd_rng_open_rsp *) rsp_buf;
 	open_svc_rng_args_t *op_args = (open_svc_rng_args_t *) args;
+
+	if (!op_args)
+		return SAB_ENGN_FAIL;
 
 	cmd->session_handle = msg_hdl;
 	cmd->input_address_ext = 0u;
@@ -90,6 +96,9 @@ uint32_t proc_msg_rsp_rng_open_req(void *rsp_buf, void *args)
 		(struct sab_cmd_rng_open_rsp *) rsp_buf;
 	open_svc_rng_args_t *op_args = (open_svc_rng_args_t *) args;
 
+	if (!op_args)
+		return SAB_FAILURE_STATUS;
+
 	op_args->rng_hdl = rsp->rng_handle;
 
 	return SAB_SUCCESS_STATUS;
@@ -102,7 +111,7 @@ uint32_t prepare_msg_rng_close_req(void *phdl,
 				   uint32_t msg_hdl,
 				   void *args)
 {
-	uint32_t ret = 0;
+	uint32_t ret = SAB_ENGN_PASS;
 	struct sab_cmd_rng_close_msg *cmd =
 		(struct sab_cmd_rng_close_msg *) cmd_buf;
 	struct sab_cmd_rng_close_rsp *rsp =

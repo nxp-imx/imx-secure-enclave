@@ -18,6 +18,9 @@ uint32_t proc_msg_rsp_gen_key_ext(void *rsp_buf, void *args)
 	struct sab_cmd_generate_key_ext_rsp *rsp =
 		(struct sab_cmd_generate_key_ext_rsp *) rsp_buf;
 
+	if (!op_args)
+		return SAB_FAILURE_STATUS;
+
 	if ((op_args->flags & HSM_OP_KEY_GENERATION_FLAGS_CREATE)
 			== HSM_OP_KEY_GENERATION_FLAGS_CREATE) {
 		*(op_args->key_identifier) = rsp->key_identifier;
@@ -33,12 +36,15 @@ uint32_t prepare_msg_gen_key_ext(void *phdl,
 				 uint32_t msg_hdl,
 				 void *args)
 {
-	uint32_t ret = 0;
+	uint32_t ret = SAB_ENGN_PASS;
 	struct sab_cmd_generate_key_ext_msg *cmd =
 		(struct sab_cmd_generate_key_ext_msg *) cmd_buf;
 	struct sab_cmd_generate_key_rsp *rsp =
 		(struct sab_cmd_generate_key_rsp *) rsp_buf;
 	op_generate_key_ext_args_t *op_args = (op_generate_key_ext_args_t *) args;
+
+	if (!op_args)
+		return SAB_ENGN_FAIL;
 
 	cmd->key_management_handle = msg_hdl;
 	cmd->key_identifier = *(op_args->key_identifier);

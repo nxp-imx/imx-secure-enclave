@@ -19,11 +19,14 @@ uint32_t prepare_msg_mac_one_go(void *phdl,
 				uint32_t msg_hdl,
 				void *args)
 {
-	int32_t ret = 0;
+	uint32_t ret = SAB_ENGN_PASS;
 	uint32_t mac_size_bytes = 0;
 	struct sab_cmd_mac_one_go_msg *cmd =
 		(struct sab_cmd_mac_one_go_msg *) cmd_buf;
 	op_mac_one_go_args_t *op_args = (op_mac_one_go_args_t *) args;
+
+	if (!op_args)
+		return SAB_ENGN_FAIL;
 
 	cmd->mac_handle = msg_hdl;
 	cmd->key_id = op_args->key_identifier;
@@ -91,6 +94,9 @@ uint32_t proc_msg_rsp_mac_one_go(void *rsp_buf, void *args)
 	struct sab_cmd_mac_one_go_rsp *rsp =
 		(struct sab_cmd_mac_one_go_rsp *) rsp_buf;
 
+	if (!op_args)
+		return SAB_FAILURE_STATUS;
+
 	op_args->verification_status = rsp->verification_status;
 #ifdef PSA_COMPLIANT
 	op_args->expected_mac_size = rsp->output_mac_size;
@@ -105,11 +111,14 @@ uint32_t prepare_msg_mac_open_req(void *phdl,
 				     uint32_t msg_hdl,
 				     void *args)
 {
-	uint32_t ret = 0;
+	uint32_t ret = SAB_ENGN_PASS;
 	struct sab_cmd_mac_open_msg *cmd =
 		(struct sab_cmd_mac_open_msg *) cmd_buf;
 #ifndef PSA_COMPLIANT
 	open_svc_mac_args_t *op_args = (open_svc_mac_args_t *) args;
+
+	if (!op_args)
+		return SAB_ENGN_FAIL;
 
 	cmd->flags = op_args->flags;
 #endif
@@ -127,6 +136,9 @@ uint32_t proc_msg_rsp_mac_open_req(void *rsp_buf, void *args)
 		(struct sab_cmd_mac_open_rsp *) rsp_buf;
 	open_svc_mac_args_t *op_args = (open_svc_mac_args_t *) args;
 
+	if (!op_args)
+		return SAB_FAILURE_STATUS;
+
 	op_args->mac_serv_hdl = rsp->mac_handle;
 
 	return SAB_SUCCESS_STATUS;
@@ -139,7 +151,7 @@ uint32_t prepare_msg_mac_close_req(void *phdl,
 				      uint32_t msg_hdl,
 				      void *args)
 {
-	uint32_t ret = 0;
+	uint32_t ret = SAB_ENGN_PASS;
 	struct sab_cmd_mac_close_msg *cmd =
 		(struct sab_cmd_mac_close_msg *) cmd_buf;
 

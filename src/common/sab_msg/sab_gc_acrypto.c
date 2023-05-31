@@ -18,11 +18,14 @@ uint32_t prepare_msg_gc_acrypto(void *phdl,
 				uint32_t msg_hdl,
 				void *args)
 {
-	uint32_t ret = 0;
+	uint32_t ret = SAB_ENGN_PASS;
 	struct sab_cmd_gc_acrypto_msg *cmd =
 			(struct sab_cmd_gc_acrypto_msg *)cmd_buf;
 	op_gc_acrypto_args_t *op_args =
 			(op_gc_acrypto_args_t *)args;
+
+	if (!op_args)
+		return SAB_ENGN_FAIL;
 
 	cmd->buffers_addr_msb = 0u;
 	cmd->algorithm = op_args->algorithm;
@@ -101,6 +104,9 @@ uint32_t proc_msg_gc_acrypto(void *rsp_buf, void *args)
 			(struct sab_cmd_gc_acrypto_rsp *)rsp_buf;
 	op_gc_acrypto_args_t *op_args =
 			(op_gc_acrypto_args_t *)args;
+
+	if (!op_args)
+		return SAB_FAILURE_STATUS;
 
 	op_args->exp_plaintext_len = rsp->plaintext_len;
 	op_args->verification_status = rsp->verification_status;

@@ -17,10 +17,13 @@ uint32_t prepare_msg_del_key(void *phdl,
 			       uint32_t msg_hdl,
 			       void *args)
 {
-	uint32_t ret = 0;
+	uint32_t ret = SAB_ENGN_PASS;
 	struct sab_cmd_delete_key_msg *cmd =
 		(struct sab_cmd_delete_key_msg *) cmd_buf;
 	op_delete_key_args_t *op_args = (op_delete_key_args_t *) args;
+
+	if (!op_args)
+		return SAB_ENGN_FAIL;
 
 	cmd->key_management_hdl = msg_hdl;
 	cmd->key_identifier = op_args->key_identifier;

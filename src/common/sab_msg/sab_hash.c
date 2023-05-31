@@ -20,10 +20,13 @@ uint32_t prepare_msg_hash_one_go(void *phdl,
 				 uint32_t msg_hdl,
 				 void *args)
 {
-	uint32_t ret = 0;
+	uint32_t ret = SAB_ENGN_PASS;
 	struct sab_hash_one_go_msg *cmd =
 		(struct sab_hash_one_go_msg *) cmd_buf;
 	op_hash_one_go_args_t *op_args = (op_hash_one_go_args_t *) args;
+
+	if (!op_args)
+		return SAB_ENGN_FAIL;
 
 #ifdef PSA_COMPLIANT
 	/*
@@ -76,6 +79,9 @@ uint32_t proc_msg_rsp_hash_one_go(void *rsp_buf, void *args)
 	struct sab_hash_one_go_rsp *rsp =
 		(struct sab_hash_one_go_rsp *) rsp_buf;
 #ifdef PSA_COMPLIANT
+	if (!op_args)
+		return SAB_FAILURE_STATUS;
+
 	op_args->exp_output_size = rsp->output_size;
 	op_args->context_size = rsp->context_size;
 #endif
@@ -91,10 +97,13 @@ uint32_t prepare_msg_hash_open_req(void *phdl,
 				   uint32_t msg_hdl,
 				   void *args)
 {
-	uint32_t ret = 0;
+	uint32_t ret = SAB_ENGN_PASS;
 	struct sab_hash_open_msg *cmd =
 		(struct sab_hash_open_msg *) cmd_buf;
 	open_svc_hash_args_t *op_args = (open_svc_hash_args_t *) args;
+
+	if (!op_args)
+		return SAB_ENGN_FAIL;
 
 	cmd->session_handle = msg_hdl;
 	cmd->input_address_ext = 0u;
@@ -121,6 +130,9 @@ uint32_t proc_msg_rsp_hash_open_req(void *rsp_buf, void *args)
 		(struct sab_hash_open_rsp *) rsp_buf;
 	open_svc_hash_args_t *op_args = (open_svc_hash_args_t *) args;
 
+	if (!op_args)
+		return SAB_FAILURE_STATUS;
+
 	op_args->hash_hdl = rsp->hash_hdl;
 
 	return SAB_SUCCESS_STATUS;
@@ -133,7 +145,7 @@ uint32_t prepare_msg_hash_close_req(void *phdl,
 				    uint32_t msg_hdl,
 				    void *args)
 {
-	uint32_t ret = 0;
+	uint32_t ret = SAB_ENGN_PASS;
 	struct sab_hash_close_msg *cmd = (struct sab_hash_close_msg *) cmd_buf;
 
 	*cmd_msg_sz = sizeof(struct sab_hash_close_msg);

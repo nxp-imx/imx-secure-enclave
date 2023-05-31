@@ -19,10 +19,13 @@ uint32_t prepare_msg_session_open_req(void *phdl,
 				      uint32_t msg_hdl,
 				      void *args)
 {
-	uint32_t ret = 0;
+	uint32_t ret = SAB_ENGN_PASS;
 	struct sab_cmd_session_open_msg *cmd =
 		(struct sab_cmd_session_open_msg *)cmd_buf;
 	open_session_args_t *op_args = (open_session_args_t *)args;
+
+	if (!op_args)
+		return SAB_ENGN_FAIL;
 
 #ifndef PSA_COMPLIANT
 		cmd->mu_id = op_args->mu_id;
@@ -45,6 +48,9 @@ uint32_t proc_msg_rsp_session_open_req(void *rsp_buf, void *args)
 		(struct sab_cmd_session_open_rsp *)rsp_buf;
 	open_session_args_t *op_args = (open_session_args_t *)args;
 
+	if (!op_args)
+		return SAB_FAILURE_STATUS;
+
 	op_args->session_hdl = rsp->session_handle;
 
 	return SAB_SUCCESS_STATUS;
@@ -57,7 +63,7 @@ uint32_t prepare_msg_session_close_req(void *phdl,
 				       uint32_t msg_hdl,
 				       void *args)
 {
-	uint32_t ret = 0;
+	uint32_t ret = SAB_ENGN_PASS;
 	struct sab_cmd_session_close_msg *cmd =
 		(struct sab_cmd_session_close_msg *)cmd_buf;
 

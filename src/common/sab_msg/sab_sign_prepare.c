@@ -14,10 +14,13 @@ uint32_t prepare_msg_prep_signature(void *phdl,
 				    uint32_t msg_hdl,
 				    void *args)
 {
-	uint32_t ret = 0;
+	uint32_t ret = SAB_ENGN_PASS;
 	struct sab_prepare_signature_msg *cmd =
 				(struct sab_prepare_signature_msg *)cmd_buf;
 	op_prepare_sign_args_t *op_args = (op_prepare_sign_args_t *)args;
+
+	if (!op_args)
+		return SAB_ENGN_FAIL;
 
 	cmd->sig_gen_hdl = msg_hdl;
 	cmd->scheme_id = op_args->scheme_id;

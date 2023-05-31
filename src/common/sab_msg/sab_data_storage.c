@@ -20,10 +20,13 @@ uint32_t prepare_msg_data_storage(void *phdl,
 				  uint32_t msg_hdl,
 				  void *args)
 {
-	int32_t ret = 0;
+	uint32_t ret = SAB_ENGN_PASS;
 	struct sab_cmd_data_storage_msg *cmd =
 		(struct sab_cmd_data_storage_msg *) cmd_buf;
 	op_data_storage_args_t *op_args = (op_data_storage_args_t *) args;
+
+	if (!op_args)
+		return SAB_ENGN_FAIL;
 
 	cmd->data_storage_handle = msg_hdl;
 	set_phy_addr_to_words(&cmd->data_address,
@@ -57,10 +60,13 @@ uint32_t prepare_msg_data_storage_open_req(void *phdl,
 					   uint32_t msg_hdl,
 					   void *args)
 {
-	uint32_t ret = 0;
+	uint32_t ret = SAB_ENGN_PASS;
 	struct sab_cmd_data_storage_open_msg *cmd =
 				 (struct sab_cmd_data_storage_open_msg *) cmd_buf;
 	open_svc_data_storage_args_t *op_args = (open_svc_data_storage_args_t *) args;
+
+	if (!op_args)
+		return SAB_ENGN_FAIL;
 
 	cmd->key_store_handle = msg_hdl;
 	cmd->flags = op_args->flags;
@@ -77,6 +83,9 @@ uint32_t proc_msg_rsp_data_storage_open_req(void *rsp_buf, void *args)
 		(struct sab_cmd_data_storage_open_rsp *) rsp_buf;
 	open_svc_data_storage_args_t *op_args = (open_svc_data_storage_args_t *) args;
 
+	if (!op_args)
+		return SAB_FAILURE_STATUS;
+
 	op_args->data_storage_handle = rsp->data_storage_handle;
 
 	return SAB_SUCCESS_STATUS;
@@ -89,7 +98,7 @@ uint32_t prepare_msg_data_storage_close_req(void *phdl,
 					    uint32_t msg_hdl,
 					    void *args)
 {
-	uint32_t ret = 0;
+	uint32_t ret = SAB_ENGN_PASS;
 	struct sab_cmd_data_storage_close_msg *cmd =
 		(struct sab_cmd_data_storage_close_msg *) cmd_buf;
 

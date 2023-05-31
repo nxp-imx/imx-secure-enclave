@@ -19,10 +19,13 @@ uint32_t prepare_msg_generatekey(void *phdl,
 				 uint32_t msg_hdl,
 				 void *args)
 {
-	uint32_t ret = 0;
+	uint32_t ret = SAB_ENGN_PASS;
 	struct sab_cmd_generate_key_msg *cmd =
 		(struct sab_cmd_generate_key_msg *) cmd_buf;
 	op_generate_key_args_t *op_args = (op_generate_key_args_t *) args;
+
+	if (!op_args)
+		return SAB_ENGN_FAIL;
 
 	cmd->key_management_handle = msg_hdl;
 
@@ -60,6 +63,9 @@ uint32_t proc_msg_rsp_generatekey(void *rsp_buf, void *args)
 	op_generate_key_args_t *op_args = (op_generate_key_args_t *) args;
 	struct sab_cmd_generate_key_rsp *rsp =
 		(struct sab_cmd_generate_key_rsp *) rsp_buf;
+
+	if (!op_args)
+		return SAB_FAILURE_STATUS;
 
 #ifdef CONFIG_PLAT_SECO
 	if ((op_args->flags & HSM_OP_KEY_GENERATION_FLAGS_CREATE)

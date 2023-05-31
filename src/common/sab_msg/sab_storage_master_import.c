@@ -25,6 +25,9 @@ uint32_t prepare_msg_storage_master_import(void *phdl,
 	struct sab_cmd_key_store_import_msg *msg
 		= (struct sab_cmd_key_store_import_msg *)cmd_buf;
 
+	if (!blob_hdr || !data)
+		return SAB_FAILURE_STATUS;
+
 	set_phy_addr_to_words(&msg->key_store_address,
 			      0u,
 			      plat_os_abs_data_buf((struct plat_os_abs_hdl *)phdl,

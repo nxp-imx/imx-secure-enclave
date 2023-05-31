@@ -18,10 +18,13 @@ uint32_t prepare_msg_importkey(void *phdl,
 			       uint32_t msg_hdl,
 			       void *args)
 {
-	uint32_t ret = 0;
+	uint32_t ret = SAB_ENGN_PASS;
 	struct sab_cmd_import_key_msg *cmd =
 		(struct sab_cmd_import_key_msg *) cmd_buf;
 	op_import_key_args_t *op_args = (op_import_key_args_t *) args;
+
+	if (!op_args)
+		return SAB_ENGN_FAIL;
 
 	cmd->key_management_hdl = msg_hdl;
 	cmd->flags = op_args->flags;
@@ -48,8 +51,10 @@ uint32_t proc_msg_rsp_importkey(void *rsp_buf, void *args)
 	struct sab_cmd_import_key_rsp *rsp =
 		(struct sab_cmd_import_key_rsp *) rsp_buf;
 
-	if (op_args)
-		op_args->key_identifier = rsp->key_identifier;
+	if (!op_args)
+		return SAB_FAILURE_STATUS;
+
+	op_args->key_identifier = rsp->key_identifier;
 
 	return SAB_SUCCESS_STATUS;
 }

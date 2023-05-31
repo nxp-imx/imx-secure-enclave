@@ -17,11 +17,14 @@ uint32_t prepare_msg_auth_enc(void *phdl,
 		uint32_t msg_hdl,
 		void *args)
 {
-	uint32_t ret = 0;
+	uint32_t ret = SAB_ENGN_PASS;
 	struct sab_cmd_auth_enc_msg *cmd =
 		(struct sab_cmd_auth_enc_msg *) cmd_buf;
 	op_auth_enc_args_t *op_args =
 		(op_auth_enc_args_t *) args;
+
+	if (!op_args)
+		return SAB_ENGN_FAIL;
 
 	cmd->cipher_handle = msg_hdl;
 	cmd->key_id = op_args->key_identifier;
@@ -75,6 +78,9 @@ uint32_t proc_msg_rsp_auth_enc(void *rsp_buf, void *args)
 		(struct sab_cmd_auth_enc_rsp *) rsp_buf;
 
 #ifdef PSA_COMPLIANT
+	if (!op_args)
+		return SAB_FAILURE_STATUS;
+
 	op_args->output_size = rsp->output_size;
 #endif
 	return SAB_SUCCESS_STATUS;

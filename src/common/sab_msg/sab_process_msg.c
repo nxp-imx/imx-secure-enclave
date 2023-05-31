@@ -77,6 +77,7 @@ void init_proc_sab_msg_cmd_eng(msg_type_t msg_type,
 	}
 }
 
+#ifdef DEBUG
 static void hexdump(uint32_t buf[], uint32_t size)
 {
 	int i = 0;
@@ -87,6 +88,7 @@ static void hexdump(uint32_t buf[], uint32_t size)
 		printf("%08x ", buf[i]);
 	}
 }
+#endif
 
 uint32_t process_sab_msg(struct plat_os_abs_hdl *phdl,
 			 uint32_t mu_type,

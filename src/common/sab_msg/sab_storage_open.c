@@ -19,10 +19,13 @@ uint32_t prepare_msg_storage_open(void *phdl,
 				  uint32_t msg_hdl,
 				  void *args)
 {
-	uint32_t ret = 0;
+	uint32_t ret = SAB_ENGN_PASS;
 	struct sab_cmd_storage_open_msg *msg =
 		(struct sab_cmd_storage_open_msg *)cmd_buf;
 	op_storage_open_args_t *op_args = (op_storage_open_args_t *) args;
+
+	if (!op_args)
+		return SAB_ENGN_FAIL;
 
 	msg->session_handle = msg_hdl;
 	msg->flags = op_args->flags;
@@ -39,6 +42,9 @@ uint32_t proc_msg_rsp_storage_open(void *rsp_buf, void *args)
 		(struct sab_cmd_storage_open_rsp *)rsp_buf;
 	op_storage_open_args_t *op_args =
 		(op_storage_open_args_t *)args;
+
+	if (!op_args)
+		return SAB_FAILURE_STATUS;
 
 	op_args->storage_handle = rsp->storage_handle;
 

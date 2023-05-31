@@ -20,10 +20,13 @@ uint32_t prepare_msg_cipher_one_go(void *phdl,
 				   uint32_t msg_hdl,
 				   void *args)
 {
-	int32_t ret = 0;
+	uint32_t ret = SAB_ENGN_PASS;
 	struct sab_cmd_cipher_one_go_msg *cmd =
 		(struct sab_cmd_cipher_one_go_msg *) cmd_buf;
 	op_cipher_one_go_args_t *op_args = (op_cipher_one_go_args_t *) args;
+
+	if (!op_args)
+		return SAB_ENGN_FAIL;
 
 	cmd->cipher_handle = msg_hdl;
 	cmd->key_id = op_args->key_identifier;
@@ -69,6 +72,9 @@ uint32_t proc_msg_rsp_cipher_one_go(void *rsp_buf, void *args)
 		(struct sab_cmd_cipher_one_go_rsp *) rsp_buf;
 
 #ifdef PSA_COMPLIANT
+	if (!op_args)
+		return SAB_FAILURE_STATUS;
+
 	op_args->output_size = rsp->output_size;
 #endif
 
@@ -82,10 +88,13 @@ uint32_t prepare_msg_cipher_open_req(void *phdl,
 				     uint32_t msg_hdl,
 				     void *args)
 {
-	uint32_t ret = 0;
+	uint32_t ret = SAB_ENGN_PASS;
 	struct sab_cmd_cipher_open_msg *cmd =
 		(struct sab_cmd_cipher_open_msg *) cmd_buf;
 	open_svc_cipher_args_t *op_args = (open_svc_cipher_args_t *) args;
+
+	if (!op_args)
+		return SAB_ENGN_FAIL;
 
 	cmd->input_address_ext = 0;
 	cmd->output_address_ext = 0;
@@ -106,6 +115,9 @@ uint32_t proc_msg_rsp_cipher_open_req(void *rsp_buf, void *args)
 		(struct sab_cmd_cipher_open_rsp *) rsp_buf;
 	open_svc_cipher_args_t *op_args = (open_svc_cipher_args_t *) args;
 
+	if (!op_args)
+		return SAB_FAILURE_STATUS;
+
 	op_args->cipher_hdl = rsp->cipher_handle;
 
 	return SAB_SUCCESS_STATUS;
@@ -118,7 +130,7 @@ uint32_t prepare_msg_cipher_close_req(void *phdl,
 				      uint32_t msg_hdl,
 				      void *args)
 {
-	uint32_t ret = 0;
+	uint32_t ret = SAB_ENGN_PASS;
 	struct sab_cmd_cipher_close_msg *cmd =
 		(struct sab_cmd_cipher_close_msg *) cmd_buf;
 

@@ -17,12 +17,15 @@ uint32_t prepare_msg_managekey(void *phdl,
 			       uint32_t msg_hdl,
 			       void *args)
 {
-	uint32_t ret = 0;
+	uint32_t ret = SAB_ENGN_PASS;
 	struct sab_cmd_manage_key_msg *cmd =
 		(struct sab_cmd_manage_key_msg *) cmd_buf;
 	struct sab_cmd_manage_key_rsp *rsp =
 		(struct sab_cmd_manage_key_rsp *) rsp_buf;
 	op_manage_key_args_t *op_args = (op_manage_key_args_t *) args;
+
+	if (!op_args)
+		return SAB_ENGN_FAIL;
 
 	cmd->key_management_handle = msg_hdl;
 	cmd->dest_key_identifier = *(op_args->key_identifier);
@@ -53,6 +56,9 @@ uint32_t proc_msg_rsp_managekey(void *rsp_buf, void *args)
 	struct sab_cmd_manage_key_rsp *rsp =
 		(struct sab_cmd_manage_key_rsp *) rsp_buf;
 
+	if (!op_args)
+		return SAB_FAILURE_STATUS;
+
 	if ((op_args->flags & HSM_OP_MANAGE_KEY_FLAGS_IMPORT_CREATE)
 			== HSM_OP_MANAGE_KEY_FLAGS_IMPORT_CREATE) {
 		*(op_args->key_identifier) = rsp->key_identifier;
@@ -68,12 +74,15 @@ uint32_t prepare_msg_managekey_ext(void *phdl,
 			       uint32_t msg_hdl,
 			       void *args)
 {
-	uint32_t ret = 0;
+	uint32_t ret = SAB_ENGN_PASS;
 	struct sab_cmd_manage_key_ext_msg *cmd =
 		(struct sab_cmd_manage_key_ext_msg *) cmd_buf;
 	struct sab_cmd_manage_key_rsp *rsp =
 		(struct sab_cmd_manage_key_rsp *) rsp_buf;
 	op_manage_key_ext_args_t *op_args = (op_manage_key_ext_args_t *) args;
+
+	if (!op_args)
+		return SAB_ENGN_FAIL;
 
 	cmd->key_management_handle = msg_hdl;
 	cmd->dest_key_identifier = *(op_args->key_identifier);
@@ -99,4 +108,6 @@ uint32_t prepare_msg_managekey_ext(void *phdl,
 	*rsp_msg_sz = sizeof(struct sab_cmd_manage_key_rsp);
 
 	cmd->crc = 0u;
+
+	return ret;
 }

@@ -17,10 +17,13 @@ uint32_t prepare_msg_get_key_attr(void *phdl,
 				  uint32_t msg_hdl,
 				  void *args)
 {
-	uint32_t ret = 0;
+	uint32_t ret = SAB_ENGN_PASS;
 	struct sab_cmd_get_key_attr_msg *cmd =
 		(struct sab_cmd_get_key_attr_msg *) cmd_buf;
 	op_get_key_attr_args_t *op_args = (op_get_key_attr_args_t *) args;
+
+	if (!op_args)
+		return SAB_ENGN_FAIL;
 
 	cmd->key_management_hdl = msg_hdl;
 	cmd->key_identifier = op_args->key_identifier;
@@ -36,6 +39,9 @@ uint32_t proc_msg_rsp_get_key_attr(void *rsp_buf, void *args)
 	op_get_key_attr_args_t *op_args = (op_get_key_attr_args_t *) args;
 	struct sab_cmd_get_key_attr_rsp *rsp =
 		(struct sab_cmd_get_key_attr_rsp *) rsp_buf;
+
+	if (!op_args)
+		return SAB_FAILURE_STATUS;
 
 	op_args->key_type = rsp->type;
 	op_args->bit_key_sz = rsp->size_bits;

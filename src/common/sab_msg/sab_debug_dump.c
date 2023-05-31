@@ -19,7 +19,7 @@ uint32_t prepare_msg_debugdump(void *phdl,
 			       uint32_t msg_hdl,
 			       void *args)
 {
-	uint32_t ret = 0;
+	uint32_t ret = SAB_ENGN_PASS;
 	struct rom_cmd_firmware_dump_cmd *cmd =
 		(struct rom_cmd_firmware_dump_cmd *) cmd_buf;
 
@@ -39,6 +39,9 @@ uint32_t proc_msg_rsp_debugdump(void *rsp_buf, void *args)
 	struct rom_cmd_firmware_dump_rsp *rsp =
 		(struct rom_cmd_firmware_dump_rsp *) rsp_buf;
 	op_debug_dump_args_t *op_args = (op_debug_dump_args_t *) args;
+
+	if (!op_args)
+		return SAB_FAILURE_STATUS;
 
 	/* 1 word for header
 	 * 2 word for rsp_code

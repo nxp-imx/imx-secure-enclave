@@ -20,11 +20,14 @@ uint32_t prepare_msg_verify_sign_open(void *phdl,
 				      uint32_t msg_hdl,
 				      void *args)
 {
-	uint32_t ret = 0;
+	uint32_t ret = SAB_ENGN_PASS;
 	struct sab_signature_verify_open_msg *cmd =
 			(struct sab_signature_verify_open_msg *)cmd_buf;
 #ifndef PSA_COMPLIANT
 	open_svc_sign_ver_args_t *op_args = (open_svc_sign_ver_args_t *)args;
+
+	if (!op_args)
+		return SAB_ENGN_FAIL;
 
 	cmd->flags = op_args->flags;
 #endif
@@ -42,6 +45,9 @@ uint32_t proc_msg_rsp_verify_sign_open(void *rsp_buf, void *args)
 			(struct sab_signature_verify_open_rsp *)rsp_buf;
 	open_svc_sign_ver_args_t *op_args = (open_svc_sign_ver_args_t *)args;
 
+	if (!op_args)
+		return SAB_FAILURE_STATUS;
+
 	op_args->sig_ver_hdl = rsp->sig_ver_hdl;
 
 	return SAB_SUCCESS_STATUS;
@@ -54,7 +60,7 @@ uint32_t prepare_msg_verify_sign_close(void *phdl,
 				       uint32_t msg_hdl,
 				       void *args)
 {
-	uint32_t ret = 0;
+	uint32_t ret = SAB_ENGN_PASS;
 	struct sab_signature_verify_close_msg *cmd =
 			(struct sab_signature_verify_close_msg *)cmd_buf;
 
@@ -78,10 +84,13 @@ uint32_t prepare_msg_verify_sign(void *phdl,
 				 uint32_t msg_hdl,
 				 void *args)
 {
-	uint32_t ret = 0;
+	uint32_t ret = SAB_ENGN_PASS;
 	struct sab_signature_verify_msg *cmd =
 			(struct sab_signature_verify_msg *)cmd_buf;
 	op_verify_sign_args_t *op_args = (op_verify_sign_args_t *)args;
+
+	if (!op_args)
+		return SAB_ENGN_FAIL;
 
 	cmd->sig_ver_hdl = msg_hdl;
 	set_phy_addr_to_words(&cmd->key_addr,
@@ -125,6 +134,9 @@ uint32_t proc_msg_rsp_verify_sign(void *rsp_buf, void *args)
 	struct sab_signature_verify_rsp *rsp =
 			(struct sab_signature_verify_rsp *)rsp_buf;
 	op_verify_sign_args_t *op_args = (op_verify_sign_args_t *)args;
+
+	if (!op_args)
+		return SAB_FAILURE_STATUS;
 
 	op_args->verification_status = rsp->verification_status;
 
