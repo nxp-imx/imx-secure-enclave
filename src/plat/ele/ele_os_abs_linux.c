@@ -40,7 +40,8 @@ static char ELE_MU_HSM_PATH_SECONDARY[] = "/dev/ele_mu2_ch2";
 struct plat_os_abs_hdl *plat_os_abs_open_mu_channel(uint32_t type, struct plat_mu_params *mu_params)
 {
     char *device_path;
-    struct plat_os_abs_hdl *phdl = malloc(sizeof(struct plat_os_abs_hdl));
+	struct plat_os_abs_hdl *phdl = (struct plat_os_abs_hdl *)
+				       plat_os_abs_malloc(sizeof(struct plat_os_abs_hdl));
     struct ele_mu_ioctl_get_mu_info info_ioctl;
     int32_t error;
     uint8_t is_nvm = 0u;
@@ -69,12 +70,12 @@ struct plat_os_abs_hdl *plat_os_abs_open_mu_channel(uint32_t type, struct plat_m
                 device_path = ELE_MU_HSM_PATH_SECONDARY;
                 phdl->fd = open(device_path, O_RDWR);
                 if (phdl->fd < 0) {
-                    free(phdl);
-                    phdl = NULL;
+			plat_os_abs_free(phdl);
+			phdl = NULL;
                 }
             } else {
-                free(phdl);
-                phdl = NULL;
+		plat_os_abs_free(phdl);
+		phdl = NULL;
             }
         }
 
@@ -99,8 +100,8 @@ struct plat_os_abs_hdl *plat_os_abs_open_mu_channel(uint32_t type, struct plat_m
                 if (ioctl(phdl->fd, ELE_MU_IOCTL_ENABLE_CMD_RCV)) {
 			/* Close the device. */
 			(void)close(phdl->fd);
-                    free(phdl);
-                    phdl = NULL;
+			plat_os_abs_free(phdl);
+			phdl = NULL;
                 }
             }
         }
@@ -123,7 +124,7 @@ void plat_os_abs_close_session(struct plat_os_abs_hdl *phdl)
     /* Close the device. */
     (void)close(phdl->fd);
 
-    free(phdl);
+	plat_os_abs_free(phdl);
 }
 
 /*

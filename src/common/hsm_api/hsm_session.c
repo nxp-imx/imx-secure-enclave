@@ -5,7 +5,6 @@
 
 #include <stdbool.h>
 #include <stdio.h>
-#include <string.h>
 
 #include "internal/hsm_handle.h"
 #include "internal/hsm_utils.h"
@@ -68,9 +67,9 @@ hsm_err_t hsm_close_session(hsm_hdl_t session_hdl)
 
 		delete_session(s_ptr);
 
-		memset(hsm_sessions, 0, HSM_MAX_SESSIONS);
+		plat_os_abs_memset((uint8_t *)hsm_sessions, 0, HSM_MAX_SESSIONS);
 
-		memset(hsm_services, 0, HSM_MAX_SERVICES);
+		plat_os_abs_memset((uint8_t *)hsm_services, 0, HSM_MAX_SERVICES);
 
 		// TODO: should we close all associated services here ?
 		// or sanity check that all services have been closed ?
@@ -88,9 +87,9 @@ hsm_err_t hsm_open_session(open_session_args_t *args, hsm_hdl_t *session_hdl)
 	uint8_t session_priority, operating_mode;
 	uint32_t rsp_code = SAB_NO_MESSAGE_RATING;
 
-	memset(hsm_sessions, 0, HSM_MAX_SESSIONS);
-	memset(hsm_services, 0, HSM_MAX_SERVICES);
-	memset(&mu_params, 0, sizeof(mu_params));
+	plat_os_abs_memset((uint8_t *)hsm_sessions, 0, HSM_MAX_SESSIONS);
+	plat_os_abs_memset((uint8_t *)hsm_services, 0, HSM_MAX_SERVICES);
+	plat_os_abs_memset((uint8_t *)&mu_params, 0, sizeof(mu_params));
 
 	do {
 		if (!args || !session_hdl) {

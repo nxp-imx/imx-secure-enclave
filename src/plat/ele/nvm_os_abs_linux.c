@@ -112,7 +112,7 @@ int get_chunk_file_path(char **path,
 	 */
 	path_len += (blob_id_sz * 2) + 1u;
 
-	*path = malloc(path_len);
+	*path = (char *)plat_os_abs_malloc(path_len);
 
 	if (*path) {
 		ret = mkdir(nvm_storage_dname, S_IRUSR|S_IWUSR);
@@ -168,7 +168,7 @@ uint32_t plat_os_abs_storage_write_chunk(struct plat_os_abs_hdl *phdl,
 	}
 
 	if (path)
-		free(path);
+		plat_os_abs_free(path);
 
 	return TO_UINT32_T(l);
 }
@@ -202,7 +202,7 @@ uint32_t plat_os_abs_storage_read_chunk(struct plat_os_abs_hdl *phdl,
 	}
 
 	if (path)
-		free(path);
+		plat_os_abs_free(path);
 
 	return TO_UINT32_T(l);
 }

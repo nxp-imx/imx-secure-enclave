@@ -54,8 +54,9 @@ uint32_t proc_msg_rsp_debugdump(void *rsp_buf, void *args)
 
 	op_args->dump_buf_len = rsp->hdr.size - 3;
 
-	memcpy(op_args->dump_buf, rsp->buffer,
-	       op_args->dump_buf_len * sizeof(uint32_t));
+	plat_os_abs_memcpy((uint8_t *)op_args->dump_buf,
+			   (uint8_t *)rsp->buffer,
+			   op_args->dump_buf_len * sizeof(uint32_t));
 
 	if (op_args->dump_buf_len ==  ROM_BUF_DUMP_MAX_WSIZE) {
 		op_args->is_dump_pending = true;

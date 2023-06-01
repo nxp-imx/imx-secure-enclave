@@ -60,7 +60,7 @@ uint32_t prepare_msg_hash_one_go(void *phdl,
 	cmd->algo = op_args->algo;
 	cmd->flags = op_args->svc_flags;
 
-	memset(cmd->reserved, 0, SAB_HASH_RESERVED_BYTES);
+	plat_os_abs_memset((uint8_t *)cmd->reserved, 0, SAB_HASH_RESERVED_BYTES);
 
 	*cmd_msg_sz = sizeof(struct sab_hash_one_go_msg);
 	*rsp_msg_sz = sizeof(struct sab_hash_one_go_rsp);
