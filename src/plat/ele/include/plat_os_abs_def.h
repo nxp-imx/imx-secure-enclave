@@ -46,7 +46,8 @@ struct key_db_fd {
 	int volatile_fd;
 };
 
-int get_chunk_file_path(char **path, uint8_t *nvm_storage_dname,
-			uint64_t blob_id);
+uint32_t get_chunk_file_path(char **path,
+			     uint8_t *nvm_storage_dname,
+			     uint64_t blob_id);
 
 #endif /* PLAT_OS_ABS_DEF_H */

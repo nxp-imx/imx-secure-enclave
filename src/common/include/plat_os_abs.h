@@ -345,9 +345,9 @@ int plat_os_abs_storage_open_key_db_fd(uint8_t *path, int flags, uint32_t mode);
  *
  * \param fd file descriptor to close.
  *
- * \return 0 on success, -1 on failure.
+ * \return PLAT_SUCCESS on success, PLAT_FAILURE on failure.
  */
-int plat_os_abs_storage_close_key_db_fd(int fd);
+uint32_t plat_os_abs_storage_close_key_db_fd(int fd);
 
 /**
  * Get file size in bytes.
