@@ -24,8 +24,8 @@ uint32_t prepare_msg_key_store_open_req(void *phdl,
 	cmd->key_store_id = op_args->key_store_identifier;
 	cmd->password = op_args->authentication_nonce;
 	cmd->flags = op_args->flags;
-	cmd->max_updates = op_args->max_updates_number;
 #ifndef PSA_COMPLIANT
+	cmd->max_updates = op_args->max_updates_number;
 	cmd->min_mac_length = op_args->min_mac_length;
 #endif
 
