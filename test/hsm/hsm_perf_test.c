@@ -111,7 +111,9 @@ int main(int argc, char *argv[])
 
 		open_svc_key_store_args.key_store_identifier = 0xABCD;
 		open_svc_key_store_args.authentication_nonce = 0x1234;
+#ifndef PSA_COMPLIANT
 		open_svc_key_store_args.max_updates_number   = 100;
+#endif
 		open_svc_key_store_args.flags = HSM_SVC_KEY_STORE_FLAGS_CREATE;
 
 		err = hsm_open_key_store_service(hsm_session_hdl,

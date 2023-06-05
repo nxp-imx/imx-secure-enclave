@@ -13,12 +13,16 @@ struct sab_cmd_key_store_open_msg {
 	uint32_t session_handle;
 	uint32_t key_store_id;
 	uint32_t password;
+#ifdef PSA_COMPLIANT
+	uint16_t rsv1;
+#else
 	uint16_t max_updates;
+#endif
 	uint8_t flags;
 #ifndef PSA_COMPLIANT
 	uint8_t min_mac_length;
 #else
-	uint8_t rsv;
+	uint8_t rsv2;
 #endif
 	uint32_t crc;
 };

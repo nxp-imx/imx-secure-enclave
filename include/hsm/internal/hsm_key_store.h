@@ -61,6 +61,9 @@ typedef struct {
 	//!< user defined nonce used as authentication proof for accessing the
 	//   key store.
 	uint32_t authentication_nonce;
+	//!< bitmap specifying the services properties.
+	hsm_svc_key_store_flags_t flags;
+#ifndef PSA_COMPLIANT
 	//!< maximum number of updates authorized for the key store.
 	//   - Valid only for create operation.\n
 	//   - This parameter has the goal to limit the occupation of the
@@ -69,9 +72,6 @@ typedef struct {
 	//   key store updates but without updating the monotonic counter giving
 	//   the opportunity for rollback attacks.
 	uint16_t max_updates_number;
-	//!< bitmap specifying the services properties.
-	hsm_svc_key_store_flags_t flags;
-#ifndef PSA_COMPLIANT
 	//!< it corresponds to the minimum mac length (in bits) accepted by
 	//   the HSM to perform MAC verification operations.\n
 	//   Only used upon key store creation when HSM_SVC_KEY_STORE_FLAGS_SET_MAC_LEN

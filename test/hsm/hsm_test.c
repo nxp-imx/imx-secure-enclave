@@ -626,7 +626,9 @@ int main(int argc, char *argv[])
 
         open_svc_key_store_args.key_store_identifier = 0xABCD;
         open_svc_key_store_args.authentication_nonce = 0x1234;
+#ifndef PSA_COMPLIANT
         open_svc_key_store_args.max_updates_number   = 100;
+#endif
         open_svc_key_store_args.flags                = 1;
         err = hsm_open_key_store_service(hsm_session_hdl, &open_svc_key_store_args, &key_store_hdl);
 		printf("hsm_open_key_store_service (create) ret:0x%x\n", err);

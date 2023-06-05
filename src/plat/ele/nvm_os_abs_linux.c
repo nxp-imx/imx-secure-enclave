@@ -91,11 +91,11 @@ uint32_t plat_os_abs_storage_read(struct plat_os_abs_hdl *phdl,
 	return TO_UINT32_T(l);
 }
 
-int get_chunk_file_path(char **path,
-			uint8_t *nvm_storage_dname,
-			uint64_t blob_id)
+uint32_t get_chunk_file_path(char **path,
+			     uint8_t *nvm_storage_dname,
+			     uint64_t blob_id)
 {
-	int ret = -1;
+	int ret = 0;
 	uint64_t path_len;
 	uint8_t blob_id_sz = sizeof(blob_id);
 
@@ -128,11 +128,11 @@ int get_chunk_file_path(char **path,
 				blob_id);
 
 		if (ret != (path_len - 1))
-			ret = -1;
+			ret = 0;
 	}
 
 exit:
-	return ret;
+	return (ret <= 0 ? 0u : ret);
 }
 
 /* Write data in a file located in NVM. Return the size of the written data. */
@@ -144,7 +144,7 @@ uint32_t plat_os_abs_storage_write_chunk(struct plat_os_abs_hdl *phdl,
 {
 	int32_t fd;
 	int64_t l = 0;
-	int n = -1;
+	uint32_t n = 0;
 	char *path = NULL;
 
 	if (phdl->type == MU_CHANNEL_PLAT_HSM_NVM)
@@ -180,7 +180,7 @@ uint32_t plat_os_abs_storage_read_chunk(struct plat_os_abs_hdl *phdl,
 {
 	int32_t fd;
 	int64_t l = 0;
-	int n = -1;
+	uint32_t n = 0;
 	char *path = NULL;
 
 	if (phdl->type == MU_CHANNEL_PLAT_HSM_NVM)
@@ -213,9 +213,17 @@ int plat_os_abs_storage_open_key_db_fd(uint8_t *path, int flags, uint32_t mode)
 	return open(path, flags, mode);
 }
 
-int plat_os_abs_storage_close_key_db_fd(int fd)
+uint32_t plat_os_abs_storage_close_key_db_fd(int fd)
 {
-	return close(fd);
+	if (close(fd) < 0) {
+		se_err("\nPLAT close error[%d]: %s\n",
+		       errno,
+		       strerror(errno));
+
+		return PLAT_FAILURE;
+	}
+
+	return PLAT_SUCCESS;
 }
 
 uint32_t plat_os_abs_storage_get_file_size(int fd, size_t *file_size)
