@@ -19,14 +19,14 @@ uint32_t prepare_msg_storage_master_import(void *phdl,
 					   uint32_t msg_hdl,
 					   void *args)
 {
-	uint32_t ret = SAB_SUCCESS_STATUS;
+	uint32_t ret = SAB_ENGN_PASS;
 	struct nvm_header_s *blob_hdr = (struct nvm_header_s *)args;
 	void *data = (void *)args;
 	struct sab_cmd_key_store_import_msg *msg
 		= (struct sab_cmd_key_store_import_msg *)cmd_buf;
 
 	if (!blob_hdr || !data)
-		return SAB_FAILURE_STATUS;
+		return SAB_ENGN_FAIL;
 
 	set_phy_addr_to_words(&msg->key_store_address,
 			      0u,
