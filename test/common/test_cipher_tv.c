@@ -97,7 +97,7 @@ static hsm_err_t cipher_test(hsm_hdl_t key_store_hdl, hsm_hdl_t key_mgmt_hdl,
 	print_perf_data(&enc_stats, key_size, algo_name, ciphertext_size);
 #endif
 
-#ifdef DEBUG
+#ifdef ELE_DEBUG
 	se_info("\nEncrypted data:\n");
 	print_buffer(ciphered_data, ciphertext_size);
 #endif
@@ -142,7 +142,7 @@ static hsm_err_t cipher_test(hsm_hdl_t key_store_hdl, hsm_hdl_t key_mgmt_hdl,
 	print_perf_data(&dec_stats, key_size, algo_name, ciphertext_size);
 #endif
 
-#ifdef DEBUG
+#ifdef ELE_DEBUG
 	se_info("\nDecrypted data:\n");
 	print_buffer(deciphered_data, plaintext_size);
 	se_info("\n----------------------------------------------------\n");
