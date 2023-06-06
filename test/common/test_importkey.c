@@ -549,6 +549,11 @@ static int read_fl_to_buf(uint8_t *fname, uint8_t *fbuf, long fsize)
 	}
 }
 
+struct import_key_data {
+	uint8_t *fname;
+	uint32_t key_id;
+};
+
 uint32_t test_key_import(hsm_hdl_t key_mgmt_hdl, hsm_hdl_t key_store_hdl)
 {
 	uint8_t hash_data[32] = {
@@ -562,7 +567,12 @@ uint32_t test_key_import(hsm_hdl_t key_mgmt_hdl, hsm_hdl_t key_store_hdl)
 		0x08, 0x09, 0x0A, 0x0B, 0x0C, 0x0D, 0x0E, 0x0F };
 
 	uint8_t *import_key_buf;
-	uint8_t fname[] = "/usr/share/se/test_vectors/el2go_aes_test.blob";
+	struct import_key_data imkd[] = {
+		{
+			.fname = "/usr/share/se/test_vectors/el2go_aes_test.blob",
+			.key_id = 0x10000090,
+		},
+	};
 	uint32_t import_key_len;
 	op_import_key_args_t args;
 	op_cipher_one_go_args_t cipher_args = {0};
@@ -571,7 +581,7 @@ uint32_t test_key_import(hsm_hdl_t key_mgmt_hdl, hsm_hdl_t key_store_hdl)
 	uint8_t deciphered_data[32] = {0};
 	hsm_err_t hsmret;
 
-	import_key_len = get_file_size(fname);
+	import_key_len = get_file_size(imkd[0].fname);
 	if (!import_key_len)
 		return 0;
 
@@ -580,7 +590,7 @@ uint32_t test_key_import(hsm_hdl_t key_mgmt_hdl, hsm_hdl_t key_store_hdl)
 		printf("No import key blob to test.\n");
 		return 0;
 	}
-	if (read_fl_to_buf(fname, import_key_buf, import_key_len)) {
+	if (read_fl_to_buf(imkd[0].fname, import_key_buf, import_key_len)) {
 		printf("file empty: no Import key blob to test.\n");
 		free(import_key_buf);
 		return 0;
@@ -591,14 +601,20 @@ uint32_t test_key_import(hsm_hdl_t key_mgmt_hdl, hsm_hdl_t key_store_hdl)
 	args.input_size = import_key_len;
 
 	hsmret = hsm_import_key(key_mgmt_hdl, &args);
-	if (hsmret)
-		printf("Failure[0%x] in HSM Import Key API.\n", hsmret);
-	printf("Imported Key ID = 0x%x\n", args.key_identifier);
-	if (!args.key_identifier) {
-		printf("Failed: key is either already imported or invalid signature.\n");
-		free(import_key_buf);
-		return 0;
+	if (hsmret) {
+		if (hsmret == HSM_ID_CONFLICT) {
+			printf("Warn: key is already imported.\n");
+			args.key_identifier = imkd[0].key_id;
+		} else {
+			printf("Failure[0%x] in HSM Import Key API.\n", hsmret);
+		}
 	}
+	free(import_key_buf);
+
+	if (!args.key_identifier)
+		return 0;
+
+	printf("Imported Key ID = 0x%x\n", args.key_identifier);
 
 	cipher_args.key_identifier = args.key_identifier;
 	cipher_args.iv = NULL;
@@ -629,7 +645,6 @@ uint32_t test_key_import(hsm_hdl_t key_mgmt_hdl, hsm_hdl_t key_store_hdl)
 	else
 		printf("\nDecrypted data doesn't match encrypted data [FAIL]\n");
 
-	free(import_key_buf);
 	return args.key_identifier;
 }
 #endif

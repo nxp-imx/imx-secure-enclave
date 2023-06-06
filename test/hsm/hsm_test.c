@@ -530,6 +530,9 @@ static void transient_key_tests(hsm_hdl_t sess_hdl, hsm_hdl_t key_store_hdl)
 #else
 	key_management(DELETE, key_mgmt_hdl, &sym_key_id, 50, HSM_KEY_TYPE_AES);
 
+	printf("----------------------------------------------------------\n");
+	printf("Import Key Test\n");
+	printf("----------------------------------------------------------\n");
 	import_key_id = test_key_import(key_mgmt_hdl, key_store_hdl);
 	if (import_key_id)
 		key_management(KEYATTR,
@@ -537,6 +540,7 @@ static void transient_key_tests(hsm_hdl_t sess_hdl, hsm_hdl_t key_store_hdl)
 			       &import_key_id,
 			       0,
 			       HSM_KEY_TYPE_AES);
+	printf("----------------------------------------------------------\n");
 #endif
 	hsmret = hsm_close_key_management_service(key_mgmt_hdl);
 	printf("hsm_close_key_management_service ret:0x%x\n", hsmret);
