@@ -162,7 +162,9 @@
 /* Status code definition */
 #define SAB_FAILURE_STATUS                      0x29u
 #define ROM_SUCCESS_STATUS                      0xD6u
+#ifndef SAB_SUCCESS_STATUS
 #define SAB_SUCCESS_STATUS                      0xD6u
+#endif
 #define SAB_CRC_FAILURE_STATUS                  0xB929u
 #define SAB_INVALID_MSG_STATUS                  0xF429u
 #define SAB_ENGN_PASS                           0x0u

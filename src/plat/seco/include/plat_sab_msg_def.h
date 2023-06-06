@@ -6,6 +6,7 @@
 #ifndef PLAT_SAB_MSG_H
 #define PLAT_SAB_MSG_H
 
+#define SAB_SUCCESS_STATUS	0x00u
 #define SAB_HASH_ONE_GO_REQ	0x92u
 #define SAB_RNG_GET_RANDOM	0x22u
 #endif
