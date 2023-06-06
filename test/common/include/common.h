@@ -11,6 +11,8 @@
 #define DELETE	1
 #define IMPORT	2
 #define KEYATTR 3
+#define PERM_TEST_KEY_ID  0x31110011u
+#define PERM_TEST_KEY_GROUP  15
 
 hsm_err_t do_mac_test(hsm_hdl_t key_store_hdl, hsm_hdl_t key_mgmt_hdl);
 hsm_err_t do_cipher_test(hsm_hdl_t key_store_hdl, hsm_hdl_t key_mgmt_hdl);
