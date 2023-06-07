@@ -248,6 +248,67 @@ static void hsm_rng_test(hsm_hdl_t sess_hdl, op_get_random_args_t *rng_get_rando
 
 }
 
+#ifdef PSA_COMPLIANT
+static void test_perm_key_kgen(hsm_hdl_t key_mgmt_hdl)
+{
+	hsm_err_t hsmret = HSM_GENERAL_ERROR;
+	op_generate_key_args_t key_gen_args = {0};
+	op_delete_key_args_t del_args = {0};
+	uint32_t key_id = PERM_TEST_KEY_ID;
+
+	memset(&key_gen_args, 0, sizeof(key_gen_args));
+	memset(&del_args, 0, sizeof(del_args));
+
+	key_gen_args.key_identifier = &key_id;
+	key_gen_args.out_size = 0;
+	key_gen_args.key_group = PERM_TEST_KEY_GROUP;
+	key_gen_args.flags = HSM_OP_KEY_GENERATION_FLAGS_STRICT_OPERATION;
+	key_gen_args.key_lifetime = HSM_SE_KEY_STORAGE_PERS_PERM;
+	key_gen_args.key_usage = HSM_KEY_USAGE_ENCRYPT | HSM_KEY_USAGE_DECRYPT;
+	key_gen_args.permitted_algo = PERMITTED_ALGO_ALL_CIPHER;
+	key_gen_args.bit_key_sz = HSM_KEY_SIZE_AES_256;
+	key_gen_args.key_lifecycle = 0;
+	key_gen_args.key_type = HSM_KEY_TYPE_AES;
+	key_gen_args.out_key = NULL;
+
+	printf("\n--------------------------------------------------------\n");
+	printf("Permanent Key Test");
+	printf("\n--------------------------------------------------------\n");
+
+	//Generate Permanent Key
+	hsmret = hsm_generate_key(key_mgmt_hdl, &key_gen_args);
+	printf("hsm_generate_key ret:0x%x\n", hsmret);
+
+	if (hsmret == HSM_ID_CONFLICT) {
+		printf("\nKey ID (0x%x) Already Exists.\n", PERM_TEST_KEY_ID);
+		key_id = PERM_TEST_KEY_ID;
+		//Because In case of failure, Key ID is set 0 at SAB layer.
+	}
+
+	//Delete Key #1
+	memset(&del_args, 0, sizeof(del_args));
+	del_args.key_identifier = key_id;
+	del_args.flags = 0;
+	hsmret = hsm_delete_key(key_mgmt_hdl, &del_args);
+	printf("hsm_delete_key ret:0x%x\n", hsmret);
+
+	//Delete Key #2
+	memset(&del_args, 0, sizeof(del_args));
+	del_args.key_identifier = key_id;
+	del_args.flags = HSM_OP_DEL_KEY_FLAGS_STRICT_OPERATION;
+	hsmret = hsm_delete_key(key_mgmt_hdl, &del_args);
+	printf("hsm_delete_key (STRICT) ret:0x%x\n", hsmret);
+
+	//Get Key Attributes
+	printf("\nGet Key Attributes: (Key ID: 0x%x)\n", key_id);
+	key_management(KEYATTR, key_mgmt_hdl, &key_id, PERM_TEST_KEY_GROUP, HSM_KEY_TYPE_AES);
+
+	printf("\n--------------------------------------------------------\n");
+	printf("Permanent Key Test End");
+	printf("\n--------------------------------------------------------\n");
+}
+#endif
+
 static void transient_key_tests(hsm_hdl_t sess_hdl, hsm_hdl_t key_store_hdl)
 {
 	open_svc_key_management_args_t key_mgmt_args;
@@ -303,6 +364,11 @@ static void transient_key_tests(hsm_hdl_t sess_hdl, hsm_hdl_t key_store_hdl)
 	hsmret = hsm_open_key_management_service(
 		key_store_hdl, &key_mgmt_args, &key_mgmt_hdl);
 	printf("hsm_open_key_management_service ret:0x%x\n", hsmret);
+
+#ifdef PSA_COMPLIANT
+	//Permanent Key Test
+	test_perm_key_kgen(key_mgmt_hdl);
+#endif
 
 	memset(&key_gen_args, 0, sizeof(key_gen_args));
 
