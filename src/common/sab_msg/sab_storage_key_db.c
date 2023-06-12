@@ -203,12 +203,12 @@ void storage_close_key_db_fd(struct key_db_fd *ctx_key_db)
  * Get a key databse file descriptor. If file is not opened, open it switch
  * operation mode
  */
-static int storage_get_key_db_fd(struct key_db_fd *ctx_key_db,
-				 uint8_t *nvm_storage_dname,
-				 uint32_t key_store_id, uint8_t pers_lvl)
+static uint32_t storage_get_key_db_fd(struct key_db_fd *ctx_key_db,
+				      uint8_t *nvm_storage_dname,
+				      uint32_t key_store_id, uint8_t pers_lvl)
 {
-	uint32_t ret;
-	int fd = -1;
+	uint32_t ret = PLAT_OPEN_FAILURE;
+	int fd;
 	struct key_db_fd *key_db = NULL;
 
 	key_db = storage_get_key_db(ctx_key_db, key_store_id);
@@ -233,8 +233,10 @@ static int storage_get_key_db_fd(struct key_db_fd *ctx_key_db,
 			fd = key_db->persistent_tmp_fd;
 
 		/* Return file descriptor if set, otherwise open/create it */
-		if (fd >= 0)
+		if (fd >= 0) {
+			ret = fd;
 			goto out;
+		}
 	}
 
 	/* Create or open the key database file */
@@ -251,7 +253,7 @@ static int storage_get_key_db_fd(struct key_db_fd *ctx_key_db,
 		key_db->persistent_tmp_fd = fd;
 
 out:
-	return fd;
+	return ret;
 }
 
 /* Add a pair of IDs in a key database file */
@@ -684,6 +686,7 @@ uint32_t storage_key_db(struct plat_os_abs_hdl *phdl,
 			struct sab_cmd_key_db_msg *msg)
 {
 	uint32_t err = 1u;
+	uint32_t ret;
 	int fd;
 
 	if (!phdl || phdl->type != MU_CHANNEL_PLAT_HSM_NVM || !ctx_key_db ||
@@ -715,10 +718,12 @@ uint32_t storage_key_db(struct plat_os_abs_hdl *phdl,
 	}
 
 	/* Get key database file descriptor for the operation */
-	fd = storage_get_key_db_fd(ctx_key_db, nvm_storage_dname,
-				   msg->key_store_id, msg->pers_lvl);
-	if (fd < 0)
+	ret = storage_get_key_db_fd(ctx_key_db, nvm_storage_dname,
+				    msg->key_store_id, msg->pers_lvl);
+	if (ret == PLAT_OPEN_FAILURE)
 		goto out;
+	else
+		fd = ret;
 
 	if (msg->flags & SAB_STORAGE_KEY_DB_ADD_FLAG) {
 		/* Add new pair of IDs in key databse */
