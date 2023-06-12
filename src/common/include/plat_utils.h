@@ -37,6 +37,7 @@
 #define PLAT_FAILURE        (0x1u)
 #define PLAT_READ_FAILURE   (0x0u)
 #define PLAT_WRITE_FAILURE  (0x0u)
+#define PLAT_OPEN_FAILURE   (0xFFFFFFFFu)
 
 typedef enum {
 	NOT_SUPPORTED,

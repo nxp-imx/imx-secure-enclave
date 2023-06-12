@@ -140,9 +140,11 @@ static int storage_open_key_db_fd(uint8_t *nvm_storage_dname,
 	if (ret != PLAT_SUCCESS || !path)
 		goto out;
 
-	fd = plat_os_abs_storage_open_key_db_fd(path, KEY_DB_OPEN_CREATE_FLAGS, KEY_DB_OPEN_MODE);
-	if (fd < 0)
+	ret = plat_os_abs_storage_open_key_db_fd(path, KEY_DB_OPEN_CREATE_FLAGS, KEY_DB_OPEN_MODE);
+	if (ret == PLAT_OPEN_FAILURE)
 		goto out;
+	else
+		fd = ret;
 
 	if (tmp_flag) {
 		/* Check if a persistent file exists */
@@ -153,9 +155,11 @@ static int storage_open_key_db_fd(uint8_t *nvm_storage_dname,
 		if (ret != PLAT_SUCCESS)
 			goto out;
 
-		_fd = plat_os_abs_storage_open_key_db_fd(path, KEY_DB_OPEN_FLAGS, KEY_DB_OPEN_MODE);
-		if (_fd < 0)
+		ret = plat_os_abs_storage_open_key_db_fd(path, KEY_DB_OPEN_FLAGS, KEY_DB_OPEN_MODE);
+		if (ret == PLAT_OPEN_FAILURE)
 			goto out;
+		else
+			_fd = ret;
 
 		/* Copy persistent file content in temporary persistent file */
 		ret = storage_copy_file(fd, _fd);

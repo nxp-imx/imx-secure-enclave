@@ -208,9 +208,21 @@ uint32_t plat_os_abs_storage_read_chunk(struct plat_os_abs_hdl *phdl,
 }
 
 #ifdef MT_SAB_STORAGE_KEY_DB_REQ
-int plat_os_abs_storage_open_key_db_fd(uint8_t *path, int flags, uint32_t mode)
+uint32_t plat_os_abs_storage_open_key_db_fd(uint8_t *path, int flags, uint32_t mode)
 {
-	return open(path, flags, mode);
+	int ret;
+
+	ret = open(path, flags, mode);
+
+	if (ret < 0) {
+		se_err("\nPLAT open error[%d]: %s\n",
+		       errno,
+		       strerror(errno));
+
+		return PLAT_OPEN_FAILURE;
+	}
+
+	return TO_UINT32_T(ret);
 }
 
 uint32_t plat_os_abs_storage_close_key_db_fd(int fd)

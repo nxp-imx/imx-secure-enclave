@@ -336,9 +336,9 @@ uint32_t plat_os_abs_send_signed_message(struct plat_os_abs_hdl *phdl,
  * \param flags open flags.
  * \param mode open mode.
  *
- * \return file descriptor.
+ * \return file descriptor. In case of failure, return PLAT_OPEN_FAILURE.
  */
-int plat_os_abs_storage_open_key_db_fd(uint8_t *path, int flags, uint32_t mode);
+uint32_t plat_os_abs_storage_open_key_db_fd(uint8_t *path, int flags, uint32_t mode);
 
 /**
  * Close a key database file descriptor.
