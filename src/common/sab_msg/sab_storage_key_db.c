@@ -118,9 +118,9 @@ out:
 }
 
 /* Open a key databse file descriptor switch command flag */
-static int storage_open_key_db_fd(uint8_t *nvm_storage_dname,
-				  uint32_t key_store_id, uint8_t pers_lvl,
-				  uint8_t block_type)
+static uint32_t storage_open_key_db_fd(uint8_t *nvm_storage_dname,
+				       uint32_t key_store_id, uint8_t pers_lvl,
+				       uint8_t block_type)
 {
 	uint32_t ret;
 	int fd = -1;
@@ -175,7 +175,12 @@ out:
 	if (path)
 		plat_os_abs_free(path);
 
-	return fd;
+	if (fd < 0)
+		ret = PLAT_OPEN_FAILURE;
+	else
+		ret = fd;
+
+	return ret;
 }
 
 /* Close all key database file descriptors */
@@ -202,6 +207,7 @@ static int storage_get_key_db_fd(struct key_db_fd *ctx_key_db,
 				 uint8_t *nvm_storage_dname,
 				 uint32_t key_store_id, uint8_t pers_lvl)
 {
+	uint32_t ret;
 	int fd = -1;
 	struct key_db_fd *key_db = NULL;
 
@@ -232,9 +238,11 @@ static int storage_get_key_db_fd(struct key_db_fd *ctx_key_db,
 	}
 
 	/* Create or open the key database file */
-	fd = storage_open_key_db_fd(nvm_storage_dname, key_store_id, pers_lvl, 0);
-	if (fd < 0)
+	ret = storage_open_key_db_fd(nvm_storage_dname, key_store_id, pers_lvl, 0);
+	if (ret == PLAT_OPEN_FAILURE)
 		goto out;
+	else
+		fd = ret;
 
 	/* Set file descriptor */
 	if (pers_lvl == SAB_STORAGE_KEY_PERS_LVL_VOLATILE)
@@ -543,7 +551,8 @@ static uint32_t storage_key_db_update_pers_file(uint8_t *nvm_storage_dname,
 						struct key_db_fd *key_db)
 {
 	uint32_t err = PLAT_FAILURE;
-	int fd;
+	uint32_t ret;
+	int fd = -1;
 	uint8_t *buffer = NULL;
 	uint32_t buffer_size;
 	uint8_t *ptr = NULL;
@@ -553,11 +562,13 @@ static uint32_t storage_key_db_update_pers_file(uint8_t *nvm_storage_dname,
 	struct key_ids_db ids = { 0 };
 
 	/* Get or create persistent key database file */
-	fd = storage_open_key_db_fd(nvm_storage_dname, key_db->key_store_id,
-				    SAB_STORAGE_KEY_PERS_LVL_PERSISTENT,
-				    SAB_STORAGE_KEY_STORE_MASTER_BLOCK_TYPE);
-	if (fd < 0)
+	ret = storage_open_key_db_fd(nvm_storage_dname, key_db->key_store_id,
+				     SAB_STORAGE_KEY_PERS_LVL_PERSISTENT,
+				     SAB_STORAGE_KEY_STORE_MASTER_BLOCK_TYPE);
+	if (ret == PLAT_OPEN_FAILURE)
 		goto out;
+	else
+		fd = ret;
 
 	/* Get persistent file size */
 	err = plat_os_abs_storage_get_file_size(fd, &file_size);
