@@ -29,6 +29,10 @@ The following cache variables may also be set:
   the directory containing ``hsm_api.h``.
 ``SECO_HSM_LIBRARY``
   the path to the seco hsm library.
+``SECO_SHE_INCLUDE_DIR``
+  the directory containing ``she_api.h``.
+``SECO_SHE_LIBRARY``
+  the path to the seco she library.
 
 #]=======================================================================]
 if(NOT DEFINED SECO_ROOT)
@@ -51,6 +55,12 @@ find_file(SECO_HSM_LIBRARY hsm_lib.a
 find_path(SECO_HSM_INCLUDE_DIR hsm_api.h
           PATHS ${SECO_ROOT}
           PATH_SUFFIXES usr/${CMAKE_INSTALL_INCLUDEDIR}/hsm ${CMAKE_INSTALL_INCLUDEDIR}/hsm)
+find_file(SECO_SHE_LIBRARY she_lib.a
+          PATHS ${SECO_ROOT}
+          PATH_SUFFIXES usr/${CMAKE_INSTALL_LIBDIR} ${CMAKE_INSTALL_LIBDIR})
+find_path(SECO_SHE_INCLUDE_DIR she_api.h
+          PATHS ${SECO_ROOT}
+          PATH_SUFFIXES usr/${CMAKE_INSTALL_INCLUDEDIR}/she ${CMAKE_INSTALL_INCLUDEDIR}/she)
 
 include(FindPackageHandleStandardArgs)
 FIND_PACKAGE_HANDLE_STANDARD_ARGS(${CMAKE_FIND_PACKAGE_NAME} REQUIRED_VARS

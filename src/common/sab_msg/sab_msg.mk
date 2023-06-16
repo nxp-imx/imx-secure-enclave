@@ -37,6 +37,10 @@ SAB_RCVMSG_SRC	+= \
 		$(PLAT_COMMON_PATH)/sab_msg/sab_storage_export_finish.o
 endif
 
+SHE_SAB_MSG_SRC	+= \
+		$(PLAT_COMMON_PATH)/sab_msg/sab_process_msg.o \
+		$(PLAT_COMMON_PATH)/sab_msg/sab_init_she_msg.o \
+
 SAB_MSG_SRC	+= \
 		$(PLAT_COMMON_PATH)/sab_msg/sab_process_msg.o \
 		$(PLAT_COMMON_PATH)/sab_msg/sab_init_proc_msg.o \
@@ -122,6 +126,8 @@ endif
 ifneq (${MT_SAB_SESSION},0x0)
 DEFINES		+=	-DMT_SAB_SESSION=${MT_SAB_SESSION}
 SAB_MSG_SRC	+= \
+		$(PLAT_COMMON_PATH)/sab_msg/sab_session.o
+SHE_SAB_MSG_SRC	+= \
 		$(PLAT_COMMON_PATH)/sab_msg/sab_session.o
 endif
 

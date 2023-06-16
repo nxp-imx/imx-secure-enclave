@@ -654,8 +654,6 @@ int main(int argc, char *argv[])
     open_svc_key_store_args_t open_svc_key_store_args = {0};
     op_get_random_args_t rng_get_random_args = {0};
 
-    pthread_t tid;
-
     hsm_err_t err;
 
 	if (argc == 2 && (strcmp("--help", argv[1]) == 0 || strcmp("-h", argv[1]) == 0)) {

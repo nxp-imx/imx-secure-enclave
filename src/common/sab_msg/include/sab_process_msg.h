@@ -73,4 +73,5 @@ void init_proc_sab_msg_rcv_eng(msg_type_t msg_type,
 
 void init_sab_hsm_msg_engine(msg_type_t msg_type);
 void init_sab_nvm_msg_engine(msg_type_t msg_type);
+void init_sab_she_msg_engine(msg_type_t msg_type);
 #endif

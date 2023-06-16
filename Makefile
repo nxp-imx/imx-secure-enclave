@@ -31,7 +31,7 @@ PLAT_PATH := src/plat/$(PLAT)
 PLAT_COMMON_PATH := src/common
 TEST_COMMON_TV_PATH := test/common/test_vectors
 
-INCLUDE_PATHS := -I${PLAT_PATH}/include -I${PLAT_COMMON_PATH}/include -Iinclude -Iinclude/hsm
+INCLUDE_PATHS := -I${PLAT_PATH}/include -I${PLAT_COMMON_PATH}/include -Iinclude -Iinclude/hsm -Iinclude/she
 
 NVM_OBJECTS := \
 	$(PLAT_COMMON_PATH)/nvm/nvm_manager.o \
@@ -45,6 +45,7 @@ OBJECTS	:= $(NVM_OBJECTS)\
 
 include $(PLAT_COMMON_PATH)/sab_msg/sab_msg.mk
 include $(PLAT_COMMON_PATH)/hsm_api/hsm_api.mk
+include $(PLAT_COMMON_PATH)/she_api/she_api.mk
 include $(PLAT_PATH)/$(PLAT).mk
 
 LIB_NAMES := $(HSM_LIB_NAME) $(NVM_LIB_NAME) $(SHE_LIB_NAME)
@@ -73,16 +74,16 @@ all: $(all_libs) $(all_tests) $(NVM_DAEMON)
 	${CC} -c ${CFLAGS} ${GCOV_FLAGS} ${INCLUDE_PATHS} $< -o $@
 
 # SHE lib
-$(SHE_LIB): \
-	$(PLAT_PATH)/$(PLAT)_utils.o \
-	$(PLAT_PATH)/plat_err.o \
-	$(PLAT_PATH)/$(PLAT)_os_abs_linux.o \
-	$(PLAT_COMMON_PATH)/sab_common_err.o \
+$(SHE_LIB): $(SHE_LIB_OBJECTS)\
 	$(PLAT_COMMON_PATH)/she_lib.o \
-	$(SAB_MSG_SRC) \
+	$(PLAT_PATH)/plat_err.o \
+	$(PLAT_PATH)/$(PLAT)_utils.o \
+	$(SHE_SAB_MSG_SRC) \
 	$(PLAT_COMMON_PATH)/sab_msg/sab_session.o\
-	$(HSM_API_SRC) \
-	$(PLAT_COMMON_PATH)/sab_messaging.o
+	$(SHE_API_SRC) \
+	$(PLAT_COMMON_PATH)/sab_messaging.o \
+	$(PLAT_COMMON_PATH)/sab_common_err.o \
+	$(PLAT_PATH)/$(PLAT)_os_abs_linux.o
 	$(CC) -shared -Wl,-soname,$(SHE_LIB_MAJOR) -fPIC -o $@ $^
 
 # HSM lib
@@ -138,10 +139,10 @@ $(HSM_TEST): $(HSM_TEST_OBJ) $(HSM_LIB)
 $(HSM_PERF_TEST): $(HSM_PERF_TEST_OBJ) $(HSM_LIB)
 	$(CC) $^  -o $@ ${TEST_INCLUDE_PATHS} ${COMMON_TEST_INC} $(TEST_CFLAGS) $(TEST_PERF_CFLAGS) $(TEST_LDFLAGS) $(GCOV_FLAGS)
 
-SHE_TEST_OBJ=$(wildcard test/she/src/*.c)
+SHE_TEST_OBJ= test/she/she_test.c
 #SHE test app
-$(SHE_TEST): $(SHE_TEST_OBJ) $(SHE_LIB) $(NVM_LIB)
-	$(CC) $^  -o $@ ${INCLUDE_PATHS} $(CFLAGS) $(LDFLAGS) -lpthread $(GCOV_FLAGS)
+$(SHE_TEST): $(SHE_TEST_OBJ) $(SHE_LIB)
+	$(CC) $^  -o $@ ${TEST_INCLUDE_PATHS} ${COMMON_TEST_INC} $(TEST_CFLAGS) $(GCOV_FLAGS)
 
 V2X_TEST_OBJ=$(wildcard test/v2x/*.c)
 $(V2X_TEST): $(V2X_TEST_OBJ) $(HSM_LIB) $(NVM_LIB)

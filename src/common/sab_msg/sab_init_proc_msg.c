@@ -523,4 +523,3 @@ void init_sab_hsm_msg_engine(msg_type_t msg_type)
 	default: return;
 	}
 }
-
