@@ -33,6 +33,11 @@ SAB_STORAGE_KEY_DB_KEYSTORE_CLOSE)
 #define SAB_STORAGE_GROUP_SHIFT                 (16u)
 #define SAB_STORAGE_GET_GROUP(blob_id)          \
 (((blob_id) & SAB_STORAGE_GROUP_MASK) >> SAB_STORAGE_GROUP_SHIFT)
+#define SAB_STORAGE_CHUNK_SWAP_FLAG             (1u)
+#define SAB_STORAGE_FLAG_MASK                   (0x000000000000FF00U)
+#define SAB_STORAGE_FLAG_SHIFT                  (8u)
+#define SAB_STORAGE_GET_FLAG(blob_id)           \
+(((blob_id) & SAB_STORAGE_FLAG_MASK) >> SAB_STORAGE_FLAG_SHIFT)
 
 #define KEY_DB_BLOCK_TYPE           0xFFu
 #define KEY_DB_TMP_FLAG             0xFFFFu

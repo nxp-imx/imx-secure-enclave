@@ -655,8 +655,9 @@ uint32_t storage_key_db_save_persistent(uint64_t blob_id, struct nvm_ctx_st *nvm
 	uint8_t block_type = (uint8_t)(blob_id & SAB_STORAGE_BLOCK_TYPE_MASK);
 	struct key_db_fd *key_db = NULL;
 
-	if (block_type != SAB_STORAGE_CHUNK_BLOCK_TYPE &&
-	    block_type != SAB_STORAGE_KEY_STORE_MASTER_BLOCK_TYPE) {
+	if ((block_type != SAB_STORAGE_CHUNK_BLOCK_TYPE &&
+	     block_type != SAB_STORAGE_KEY_STORE_MASTER_BLOCK_TYPE) ||
+	    (SAB_STORAGE_GET_FLAG(blob_id) == SAB_STORAGE_CHUNK_SWAP_FLAG)) {
 		/* Nothing to do, return success */
 		err = 0u;
 		goto out;
