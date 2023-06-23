@@ -95,6 +95,11 @@ typedef struct {
 	uint32_t input_size;
 	//!< length in bytes of the output
 	uint32_t output_size;
+#ifdef PSA_COMPLIANT
+	//!< expected output buffer size in bytes, valid in case of HSM_OUT_TOO_SMALL
+	//   (0x1D) error code
+	uint32_t exp_output_size;
+#endif
 } op_auth_enc_args_t;
 
 /**

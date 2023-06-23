@@ -60,7 +60,7 @@ uint32_t proc_msg_rsp_key_recovery(void *rsp_buf, void *args)
 	if (!op_args)
 		return SAB_FAILURE_STATUS;
 
-	op_args->out_key_size = rsp->out_key_size;
+	op_args->exp_out_key_size = rsp->out_key_size;
 #endif
 
 	return SAB_SUCCESS_STATUS;

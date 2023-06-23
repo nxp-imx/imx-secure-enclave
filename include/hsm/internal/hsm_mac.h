@@ -133,12 +133,13 @@ typedef struct {
 	//     -- the default value (32 bit) if a minimum has not been specified
 	//        using one of the above 2 methods.
 	uint16_t mac_size;
+	hsm_mac_verification_status_t verification_status;
+#ifdef PSA_COMPLIANT
 	//!< expected mac size for output, returned by FW in case the mac size
 	//	 provided is less than the expected mac size calculated from MAC
 	//	 algorithm.
 	uint16_t expected_mac_size;
-	hsm_mac_verification_status_t verification_status;
-#ifndef PSA_COMPLIANT
+#else
 	//!< bitmap specifying the services properties.
 	hsm_svc_mac_flags_t svc_flags;
 #endif

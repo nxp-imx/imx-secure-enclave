@@ -63,6 +63,9 @@ typedef struct {
 	//!< pointer to the output area where the generated public key
 	//!< must be written.
 #ifdef PSA_COMPLIANT
+	uint16_t exp_out_size;
+	//!< expected output key buffer size, valid in case of HSM_OUT_TOO_SMALL
+	//   (0x1D) error code
 	hsm_bit_key_sz_t bit_key_sz;
 	hsm_key_lifecycle_t key_lifecycle;
 	//!< defines the device lifecycle in which the key is usable.

@@ -101,7 +101,7 @@ hsm_err_t auth_enc_test(hsm_hdl_t key_store_hdl, hsm_hdl_t key_mgmt_hdl)
 
 	if (err == HSM_OUT_TOO_SMALL)
 		printf("Expected Output Size (Encrypt): %d\n",
-								auth_enc_args.output_size);
+		       auth_enc_args.exp_output_size);
 
 	auth_enc_args.flags = HSM_AUTH_ENC_FLAGS_DECRYPT;
 	auth_enc_args.input_size = sizeof(ciphertext);
@@ -114,7 +114,7 @@ hsm_err_t auth_enc_test(hsm_hdl_t key_store_hdl, hsm_hdl_t key_mgmt_hdl)
 
 	if (err == HSM_OUT_TOO_SMALL)
 		printf("Expected Output Size (Decrypt): %d\n",
-								auth_enc_args.output_size);
+		       auth_enc_args.exp_output_size);
 
 	if (memcmp(test_message, plaintext, sizeof(test_message)) == 0)
 		printf("\nAuth Enc: Decrypted data matches Test data [PASS]\n");

@@ -34,7 +34,11 @@ typedef struct {
 	uint8_t *out_key;
 	//!< length in bytes of the output key
 	uint16_t out_key_size;
-#ifndef PSA_COMPLIANT
+#ifdef PSA_COMPLIANT
+	//!< expected output key buffer size, valid in case of HSM_OUT_TOO_SMALL
+	//   (0x1D) resp code
+	uint16_t exp_out_key_size;
+#else
 	//!< indicates the type of the key to be recovered
 	hsm_key_type_t key_type;
 	//!< bitmap specifying the operation attributes, mandatory for non-PSA compliant platforms

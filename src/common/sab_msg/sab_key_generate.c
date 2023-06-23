@@ -72,8 +72,8 @@ uint32_t proc_msg_rsp_generatekey(void *rsp_buf, void *args)
 			== HSM_OP_KEY_GENERATION_FLAGS_CREATE)
 #endif
 		*(op_args->key_identifier) = rsp->key_identifier;
-#ifndef CONFIG_PLAT_SECO
-		op_args->out_size = rsp->out_key_sz;
+#ifdef PSA_COMPLIANT
+		op_args->exp_out_size = rsp->out_key_sz;
 #endif
 	return SAB_SUCCESS_STATUS;
 }

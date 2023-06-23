@@ -83,6 +83,7 @@ static void mac_test(hsm_hdl_t key_store_hdl, uint32_t key_identifier,
 	print_perf_data(&gen_stats, key_size, algo_name, mac_size);
 #endif
 
+#ifdef PSA_COMPLIANT
 	/*
 	 * The Expected output MAC size value in HSM API MAC op args, is only
 	 * valid for cases HSM_NO_ERROR, HSM_OUT_TOO_SMALL, HSM_GENERAL_ERROR.
@@ -97,6 +98,7 @@ static void mac_test(hsm_hdl_t key_store_hdl, uint32_t key_identifier,
 			goto out;
 		}
 	}
+#endif
 
 	mac_args.flags = HSM_OP_MAC_ONE_GO_FLAGS_MAC_VERIFICATION;
 

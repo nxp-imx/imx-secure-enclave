@@ -81,7 +81,7 @@ uint32_t proc_msg_rsp_auth_enc(void *rsp_buf, void *args)
 	if (!op_args)
 		return SAB_FAILURE_STATUS;
 
-	op_args->output_size = rsp->output_size;
+	op_args->exp_output_size = rsp->output_size;
 #endif
 	return SAB_SUCCESS_STATUS;
 }
