@@ -99,7 +99,7 @@ uint32_t proc_msg_rsp_mac_one_go(void *rsp_buf, void *args)
 
 	op_args->verification_status = rsp->verification_status;
 #ifdef PSA_COMPLIANT
-	op_args->expected_mac_size = rsp->output_mac_size;
+	op_args->exp_mac_size = rsp->output_mac_size;
 #endif
 	return SAB_SUCCESS_STATUS;
 }

@@ -138,7 +138,7 @@ typedef struct {
 	//!< expected mac size for output, returned by FW in case the mac size
 	//	 provided is less than the expected mac size calculated from MAC
 	//	 algorithm.
-	uint16_t expected_mac_size;
+	uint16_t exp_mac_size;
 #else
 	//!< bitmap specifying the services properties.
 	hsm_svc_mac_flags_t svc_flags;

@@ -92,9 +92,9 @@ static void mac_test(hsm_hdl_t key_store_hdl, uint32_t key_identifier,
 	if (hsmret1 == HSM_NO_ERROR || hsmret1 == HSM_OUT_TOO_SMALL ||
 		hsmret1 == HSM_GENERAL_ERROR) {
 
-		if (mac_args.expected_mac_size != exp_mac_size) {
+		if (mac_args.exp_mac_size != exp_mac_size) {
 			se_info("\nEXP_MAC_SIZE didn't match MAC Generation output MAC size %u\n",
-				mac_args.expected_mac_size);
+				mac_args.exp_mac_size);
 			goto out;
 		}
 	}
