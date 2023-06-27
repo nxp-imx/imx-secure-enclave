@@ -160,18 +160,21 @@ function seco()
     seco_script="${script_dir}/build_seco.cmake"
 
     printf "\033[0;32m\n"
-    printf "***************************************\n"
-    printf " Install SECO to %s\n" "${opt_export}"
-    printf "***************************************\n"
+    printf "************************************************\n"
+    printf " Install Secure-Enclave for SECO Platforms to %s\n" "${opt_export}"
+    printf "************************************************\n"
     printf "\033[0m\n"
 
     if [[ -z ${opt_export} || -z ${opt_src} ]]; then
-        usage_seco
+        usage_ele
         exit 1
     fi
 
-    cmd_script="${cmd_script} -DSECO_SRC_PATH=${opt_src}"
-    cmd_script="${cmd_script} -DSECO_ROOT=${opt_export} -P ${seco_script}"
+    cmd_script="${cmd_script} -DELE_SRC_PATH=${opt_src}"
+    if [[ ${opt_cov_scan} -eq 1 ]]; then
+        cmd_script="${cmd_script} -DELE_MAKE_FOR_COVERITY=${opt_cov_scan}"
+    fi
+    cmd_script="${cmd_script} -DELE_ROOT=${opt_export} -P ${seco_script}"
 
     printf "Execute %s\n" "${cmd_script}"
     eval "${cmd_script}"

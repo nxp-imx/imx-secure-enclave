@@ -42,8 +42,8 @@ optee_plat=
 opt_seco=0
 opt_ele=0
 case ${platform} in
-    imx8qxpc0mek)
-        optee_plat="imx-mx8qxpmek"
+    imx8dxlevk)
+        optee_plat="imx-mx8dxlevk"
         opt_seco=1
 	;;
 
@@ -77,8 +77,8 @@ psaarchtests_src_path="../psa-arch-tests"
 eval "./scripts/se_build.sh toolchain ${arch} ${toolpath}"
 
 if [[ ${opt_seco} -eq 1 ]]; then
-eval "./scripts/smw_build.sh seco export=${export} \
-      src=../seco_libs cov_scan=$opt_cov_scan ${arch} ${toolpath}"
+eval "./scripts/se_build.sh seco export=${export} \
+      src=../secure_enclave cov_scan=$opt_cov_scan ${arch} ${toolpath}"
 fi
 
 if [[ ${opt_ele} -eq 1 ]]; then
