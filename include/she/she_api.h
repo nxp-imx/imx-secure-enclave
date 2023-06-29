@@ -16,6 +16,10 @@
 #include "internal/hsm_session.h"
 #endif
 
+#if MT_SAB_SHARED_BUF
+#include "internal/she_shared_buf.h"
+#endif
+
 #if MT_SAB_GET_INFO
 #include "internal/hsm_get_info.h"
 #endif

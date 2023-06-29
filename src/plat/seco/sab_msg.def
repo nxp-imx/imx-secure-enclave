@@ -30,6 +30,9 @@ MT_SAB_SESSION		:=	${FMW}
 MT_SAB_KEY_STORE        :=      ${FMW}
 MT_SAB_KEY_MANAGEMENT   :=      ${FMW}
 
+# Below SHE APIs will be supported on i.mx8dxl only.
+MT_SAB_SHARED_BUF	:=	${FMW}
+
 # ROM API(s)
 MT_SAB_DEBUG_DUMP	:=	${ROM}
 MT_SAB_DEV_ATTEST	:=	${NOT_SUPPORTED}

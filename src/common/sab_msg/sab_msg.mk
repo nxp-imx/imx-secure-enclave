@@ -229,6 +229,12 @@ SAB_MSG_SRC	+= \
 		$(PLAT_COMMON_PATH)/sab_msg/sab_auth_enc.o
 endif
 
+ifneq (${MT_SAB_SHARED_BUF},0x0)
+DEFINES		+=	-DMT_SAB_SHARED_BUF=${MT_SAB_SHARED_BUF}
+SHE_SAB_MSG_SRC	+= \
+		$(PLAT_COMMON_PATH)/sab_msg/sab_shared_buf.o
+endif
+
 OBJECTS		+= $(SAB_MSG_SRC) \
 		$(SAB_RCVMSG_SRC) \
 		$(PLAT_COMMON_PATH)/sab_msg/sab_session.o

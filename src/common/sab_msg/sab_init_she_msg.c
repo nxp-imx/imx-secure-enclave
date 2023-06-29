@@ -14,6 +14,10 @@
 #include "sab_get_info.h"
 #endif
 
+#if MT_SAB_SHARED_BUF
+#include "sab_shared_buf.h"
+#endif
+
 static  int init_proc_sab_she_msg_engine(msg_type_t msg_type,
 					 uint32_t msg_id)
 {
@@ -42,6 +46,15 @@ static  int init_proc_sab_she_msg_engine(msg_type_t msg_type,
 			ret = add_sab_msg_handler(msg_id, MT_SAB_GET_INFO,
 						  prepare_msg_get_info,
 						  proc_msg_rsp_get_info);
+		}
+		break;
+#endif
+#if MT_SAB_SHARED_BUF
+	case SAB_SHARED_BUF_REQ:
+		if (msg_type == MT_SAB_SHARED_BUF) {
+			ret = add_sab_msg_handler(msg_id, MT_SAB_SHARED_BUF,
+						  prepare_msg_shared_buf,
+						  proc_msg_rsp_shared_buf);
 		}
 		break;
 #endif
