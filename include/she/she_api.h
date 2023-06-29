@@ -16,6 +16,10 @@
 #include "internal/hsm_session.h"
 #endif
 
+#if MT_SAB_GET_INFO
+#include "internal/hsm_get_info.h"
+#endif
+
 /**
  *
  * \param args pointer to the structure containing the function arguments.

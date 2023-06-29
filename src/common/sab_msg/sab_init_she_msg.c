@@ -10,6 +10,10 @@
 #include "sab_session.h"
 #endif
 
+#if MT_SAB_GET_INFO
+#include "sab_get_info.h"
+#endif
+
 static  int init_proc_sab_she_msg_engine(msg_type_t msg_type,
 					 uint32_t msg_id)
 {
@@ -29,6 +33,15 @@ static  int init_proc_sab_she_msg_engine(msg_type_t msg_type,
 			ret = add_sab_msg_handler(msg_id, MT_SAB_SESSION,
 						  prepare_msg_session_close_req,
 						  proc_msg_rsp_session_close_req);
+		}
+		break;
+#endif
+#if MT_SAB_GET_INFO
+	case SAB_GET_INFO_REQ:
+		if (msg_type == MT_SAB_GET_INFO) {
+			ret = add_sab_msg_handler(msg_id, MT_SAB_GET_INFO,
+						  prepare_msg_get_info,
+						  proc_msg_rsp_get_info);
 		}
 		break;
 #endif
