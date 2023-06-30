@@ -20,6 +20,11 @@
 #include "internal/she_shared_buf.h"
 #endif
 
+#if MT_SAB_KEY_STORE
+#include "internal/hsm_key_store.h"
+#include "internal/she_key_store.h"
+#endif
+
 #if MT_SAB_GET_INFO
 #include "internal/hsm_get_info.h"
 #endif

@@ -116,6 +116,7 @@ she_err_t she_open_session(open_session_args_t *args, she_hdl_t *session_hdl)
 	uint32_t sab_err;
 	op_get_info_args_t info_args = {'\0'};
 	op_shared_buf_args_t buf_args = {'\0'};
+	open_svc_key_store_args_t open_svc_key_store_args = {0};
 
 	uint32_t rsp_code = SAB_NO_MESSAGE_RATING;
 
@@ -187,6 +188,23 @@ she_err_t she_open_session(open_session_args_t *args, she_hdl_t *session_hdl)
 			       buf_args.shared_buf_offset, buf_args.shared_buf_size);
 		}
 
+		/* Get the access to the SHE keystore */
+		open_svc_key_store_args.key_store_identifier	= 0x0;
+		open_svc_key_store_args.authentication_nonce	= 0xbec00001;
+#ifndef PSA_COMPLIANT
+		open_svc_key_store_args.max_updates_number	= 300;
+#endif
+		open_svc_key_store_args.flags			=
+			KEY_STORE_OPEN_FLAGS_CREATE | KEY_STORE_OPEN_FLAGS_SHE;
+
+		err = she_open_key_store(hdl->session_handle, &open_svc_key_store_args);
+		if (err != SHE_NO_ERROR) {
+			printf("SHE Error: Failed to open key store 0x%x\n", err);
+			break;
+		}
+
+		hdl->key_store_handle = open_svc_key_store_args.key_store_hdl;
+		printf("KEY store handle : 0x%x\n", hdl->key_store_handle);
 	} while (false);
 
 	if (err != SHE_NO_ERROR) {

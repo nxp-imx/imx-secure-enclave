@@ -137,6 +137,8 @@ ifneq (${MT_SAB_KEY_STORE},0x0)
 DEFINES		+=	-DMT_SAB_KEY_STORE=${MT_SAB_KEY_STORE}
 SAB_MSG_SRC	+= \
 		$(PLAT_COMMON_PATH)/sab_msg/sab_key_store.o
+SHE_SAB_MSG_SRC	+= \
+		$(PLAT_COMMON_PATH)/sab_msg/sab_key_store.o
 endif
 
 ifneq (${MT_SAB_KEY_MANAGEMENT},0x0)

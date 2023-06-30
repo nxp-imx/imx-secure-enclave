@@ -29,9 +29,7 @@ typedef enum {
 	SHE_BUSY                = 0xA,
 	SHE_MEMORY_FAILURE      = 0xB, /**< Memory error (e.g. flipped bits) */
 	SHE_GENERAL_ERROR       = 0xC, /**< Error not covered by other codes occurred. */
-	SHE_UNKNOWN_WARNING	= 0x27,/**< SHE Unknown Warning */
-	SHE_UNKNOWN_ERROR	= 0x28,/**< SHE Unknown Error */
-	/**< A fatal failure occurred, SHE goes in unrecoverable error state */
+	SHE_UNKNOWN_WARNING	= 0x27,	/**< SHE Unknown Warning */
 	SHE_FATAL_FAILURE       = 0x29
 } she_err_t;
 /** @} end of error code group */

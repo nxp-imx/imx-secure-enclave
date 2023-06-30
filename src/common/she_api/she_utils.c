@@ -30,6 +30,10 @@ static she_err_t sab_success_rating_to_she_warning(uint8_t sab_success_rating)
 		se_info("\nSHE Warning: SHE_BUSY (0x%x)\n", she_warning);
 		break;
 
+	case SHE_STORAGE_CREATE_WARNING:
+		se_info("\nSHE Warning: SHE_STORAGE_CREATE_WARNING (0x%x)\n", she_warning);
+		break;
+
 	case SHE_UNKNOWN_WARNING:
 		se_info("\nSHE Warning: SHE_UNKNOWN_WARNING (0x%x)\n", she_warning);
 		se_info("Unknown SAB Warning Rating (0x%x)\n", sab_success_rating);
