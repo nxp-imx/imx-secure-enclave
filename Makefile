@@ -22,6 +22,7 @@ SYSTEMD_NVM_SERVICE := nvm_daemon.service
 TEST_VECTOR_FNAME ?= test_vectors_*.tv
 TEST_BLOB_FNAME ?= *.blob
 OPENSSL_PATH ?= ../openssl/
+SE_VER_FILE := ./include/hsm/internal/se_version.h
 
 ifdef COVERAGE
 GCOV_FLAGS :=-fprofile-arcs -ftest-coverage
@@ -64,8 +65,8 @@ all_libs:= $(SHE_LIB) $(NVM_LIB) $(HSM_LIB)
 
 # Make targets, must need NVM-Daemon to run successfully.
 tests: $(all_tests) $(NVM_DAEMON)
-libs: $(all_libs) $(NVM_DAEMON)
-all: $(all_libs) $(all_tests) $(NVM_DAEMON)
+libs: install_version $(all_libs) $(NVM_DAEMON)
+all: install_version $(all_libs) $(all_tests) $(NVM_DAEMON)
 
 .PHONY: all clean
 
@@ -154,7 +155,7 @@ $(NVM_DAEMON): $(NVM_D_OBJ) $(NVM_LIB)
 	$(CC) $^  -o $@ ${INCLUDE_PATHS} $(CFLAGS) $(LDFLAGS) -lpthread $(GCOV_FLAGS)
 
 clean:
-	rm -rf $(OBJECTS) *.gcno *.a *_test $(TEST_OBJ) $(all_libs) *.so* $(all_tests) $(NVM_DAEMON)
+	rm -rf $(OBJECTS) *.gcno *.a *_test $(TEST_OBJ) $(all_libs) *.so* $(all_tests) $(NVM_DAEMON) ${SE_VER_FILE}
 
 she_doc: include/she_api.h include/nvm.h
 	rm -rf doc/latex/
@@ -178,6 +179,7 @@ hsm_doc_seco: include/hsm/hsm_api.h
 	rm -rf doc/latex/
 
 install: $(libs)
+	rm ${SE_VER_FILE}
 	mkdir -p $(DESTDIR)$(LIBDIR) $(DESTDIR)$(INCLUDEDIR)
 	$(foreach i, $(LIB_NAMES),\
 		ln -s -f $(i).$(SO_EXT) $(i).so.$(MAJOR_VER); \
@@ -196,3 +198,10 @@ install_tests: install $(tests)
 	mkdir -p $(DESTDIR)$(TEST_VECTOR_DEFAULT_DIR)
 	cp $(TEST_COMMON_TV_PATH)/$(TEST_VECTOR_FNAME) $(DESTDIR)$(TEST_VECTOR_DEFAULT_DIR)
 	cp $(TEST_COMMON_TV_PATH)/$(TEST_BLOB_FNAME) $(DESTDIR)$(TEST_VECTOR_DEFAULT_DIR)
+
+install_version: .git/HEAD .git/index
+	echo "#ifndef SE_VERSION_H" > ${SE_VER_FILE}
+	echo "#define SE_VERSION_H" >> ${SE_VER_FILE}
+	echo "#define LIB_COMMIT_ID \"$(shell git rev-parse HEAD)\"" >> ${SE_VER_FILE}
+	cat se_version.txt >> ${SE_VER_FILE}
+	echo "#endif" >> ${SE_VER_FILE}

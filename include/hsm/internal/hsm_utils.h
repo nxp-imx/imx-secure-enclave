@@ -8,6 +8,87 @@
 
 #include "stdint.h"
 
+#ifdef PSA_COMPLIANT
+#include "internal/hsm_handle.h"
+
+#define SOC_IMX8ULP 0x84d
+#define SOC_IMX93   0x9300
+
+#define SOC_REV_A0  0xa000
+#define SOC_REV_A1  0xa100
+#define SOC_REV_A2  0xa200
+
+#define SOC_LF_OPEN  0x10
+#define SOC_LF_CLOSED 0x20
+#define SOC_LF_CLOSED_LOCKED 0x40
+
+#define GINFO_COMMIT_ID_SZ   40
+
+/**
+ * Global Information structure contain information about SoC and the Library.
+ * It will be used globally to take platform specific decisions.
+ */
+struct global_info_s {
+	//!< SoC ID
+	uint16_t soc_id;
+	//!< SoC Revision
+	uint16_t soc_rev;
+	//!< Device Lifecycle
+	uint16_t lifecycle;
+	//!< Secure Enclave Library Major Version
+	uint32_t lib_major_ver;
+	//!< Secure Enclave Library Minor Version
+	uint32_t lib_minor_ver;
+	//!< NVM Library Major Version
+	uint32_t nvm_major_ver;
+	//!< NVM Library Minor Version
+	uint32_t nvm_minor_ver;
+	//!< Secure Enclave Build Commit ID
+	char se_commit_id[GINFO_COMMIT_ID_SZ];
+};
+
+/**
+ * Global Information structure instance which will be populated and later be
+ * used for getting the required platform or library details.
+ */
+extern struct global_info_s global_info;
+
+/**
+ * This function is called to populate the Global Info structure
+ *
+ * \param hsm_session_hdl identifying the active session.
+ */
+void populate_global_info(hsm_hdl_t hsm_session_hdl);
+/**
+ * This function prints the Global Information of library
+ */
+void show_global_info(void);
+/**
+ * This function returns a string representating SoC ID
+ *
+ * \param soc_id SoC ID fetched from Global Info
+ *
+ * \return String represention of the SoC ID
+ */
+const char *get_soc_id_str(uint16_t soc_id);
+/**
+ * This function returns a string representating SoC Revision
+ *
+ * \param soc_rev SoC Revision fetched from Global Info
+ *
+ * \return String represention of the SoC Revision
+ */
+const char *get_soc_rev_str(uint16_t soc_rev);
+/**
+ * This function returns a string representating Lifecycle
+ *
+ * \param lifecycle value fetched from Global Info
+ *
+ * \return a string represention of Lifecycle
+ */
+const char *get_soc_lf_str(uint16_t lifecycle);
+#endif
+
 /**
  *  @defgroup group0 Error codes
  *  @{

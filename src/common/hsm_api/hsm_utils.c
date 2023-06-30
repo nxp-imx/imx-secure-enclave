@@ -11,6 +11,14 @@
 #include "sab_common_err.h"
 #include "plat_err_def.h"
 
+#ifdef PSA_COMPLIANT
+#include <string.h>
+#include "internal/hsm_dev_getinfo.h"
+#include "internal/se_version.h"
+
+struct global_info_s global_info;
+#endif
+
 #define HSM_ERR_SUPPORT 0
 
 /* Print warnings if any with the SAB Success rating */
@@ -195,3 +203,91 @@ hsm_err_t sab_rating_to_hsm_err(uint32_t sab_err)
 
 	return hsm_err;
 }
+
+#ifdef PSA_COMPLIANT
+const char *get_soc_id_str(uint16_t soc_id)
+{
+	switch (soc_id) {
+	case SOC_IMX8ULP:
+		return "i.MX8ULP";
+	case SOC_IMX93:
+		return "i.MX93";
+	}
+
+	return NULL;
+}
+
+const char *get_soc_rev_str(uint16_t soc_rev)
+{
+	switch (soc_rev) {
+	case SOC_REV_A0:
+		return "A0";
+	case SOC_REV_A1:
+		return "A1";
+	case SOC_REV_A2:
+		return "A2";
+	}
+
+	return NULL;
+}
+
+const char *get_soc_lf_str(uint16_t lifecycle)
+{
+	switch (lifecycle) {
+	case SOC_LF_OPEN:
+		return "Open";
+	case SOC_LF_CLOSED:
+		return "Closed";
+	case SOC_LF_CLOSED_LOCKED:
+		return "Closed and Locked";
+	}
+
+	return NULL;
+}
+
+void populate_global_info(hsm_hdl_t hsm_session_hdl)
+{
+	hsm_err_t err;
+	op_dev_getinfo_args_t dev_getinfo_args = {0};
+
+	plat_os_abs_memset((uint8_t *)&dev_getinfo_args, 0, sizeof(dev_getinfo_args));
+	plat_os_abs_memset((uint8_t *)&global_info, 0, sizeof(global_info));
+
+	err = hsm_dev_getinfo(hsm_session_hdl, &dev_getinfo_args);
+	if (err != HSM_NO_ERROR) {
+		se_err("\nhsm_dev_getinfo(ROM) failed err:0x%x\n", err);
+		se_err("\nError: failed to populate Global Info\n");
+	}
+
+	global_info.soc_id = dev_getinfo_args.soc_id;
+	global_info.soc_rev = dev_getinfo_args.soc_rev;
+	global_info.lifecycle = dev_getinfo_args.lmda_val;
+	global_info.lib_major_ver = LIB_MAJOR_VER;
+	global_info.lib_minor_ver = LIB_MINOR_VER;
+	global_info.nvm_major_ver = NVM_MAJOR_VER;
+	global_info.nvm_minor_ver = NVM_MINOR_VER;
+	if (strlen(LIB_COMMIT_ID) == GINFO_COMMIT_ID_SZ)
+		plat_os_abs_memcpy(global_info.se_commit_id,
+				   LIB_COMMIT_ID,
+				   GINFO_COMMIT_ID_SZ);
+}
+
+void show_global_info(void)
+{
+	se_info("-------------------------------------------------------\n");
+	se_info("Global Info:\n");
+	se_info("-------------------------------------------------------\n");
+	se_info("%s %s\n",
+		get_soc_id_str(global_info.soc_id),
+		get_soc_rev_str(global_info.soc_rev));
+	se_info("%s Lifecycle\n", get_soc_lf_str(global_info.lifecycle));
+	se_info("LIB Version %u.%u\n",
+		global_info.lib_major_ver,
+		global_info.lib_minor_ver);
+	se_info("NVM Version %u.%u\n",
+		global_info.nvm_major_ver,
+		global_info.nvm_minor_ver);
+	se_info("Build ID %s\n", global_info.se_commit_id);
+	se_info("-------------------------------------------------------\n");
+}
+#endif

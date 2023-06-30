@@ -118,3 +118,24 @@ void key_management(uint32_t key_op,
 		break;
 	}
 }
+
+#ifdef PSA_COMPLIANT
+void print_global_info(void)
+{
+	printf("-----------------------------------------------------------\n");
+	printf("Global Info:\n");
+	printf("-----------------------------------------------------------\n");
+	printf("%s %s\n",
+	       get_soc_id_str(global_info.soc_id),
+	       get_soc_rev_str(global_info.soc_rev));
+	printf("%s Lifecycle\n", get_soc_lf_str(global_info.lifecycle));
+	printf("LIB Version %u.%u\n",
+	       global_info.lib_major_ver,
+	       global_info.lib_minor_ver);
+	printf("NVM Version %u.%u\n",
+	       global_info.nvm_major_ver,
+	       global_info.nvm_minor_ver);
+	printf("Build ID %s\n", global_info.se_commit_id);
+	printf("-----------------------------------------------------------\n");
+}
+#endif

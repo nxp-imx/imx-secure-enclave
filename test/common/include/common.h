@@ -46,7 +46,10 @@ void key_management(uint32_t key_op,
 		    uint32_t *key_id,
 		    hsm_key_group_t key_group,
 		    hsm_key_type_t key_type);
-
+/**
+ * This function prints the information of Global Info structure
+ */
+void print_global_info(void);
 /* To run tests of test vector file */
 void tv_tests_run(hsm_hdl_t key_store_hdl, uint8_t *tv_file_path);
 

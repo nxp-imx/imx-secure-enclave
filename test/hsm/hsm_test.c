@@ -634,6 +634,7 @@ void ele_hsm_test_usage(void)
 {
 	printf("ele_hsm_test usage: ele_hsm_test [options]\n");
 	printf("Options:\n");
+	printf("-i or --info: show Global Info only\n");
 	printf("<test_vector_path> <persistent key identifier>\n");
 	printf("\t<test_vector_path>:- Path of the test vector file ");
 	printf("to run tests of this single file\n");
@@ -685,6 +686,11 @@ int main(int argc, char *argv[])
 	} else
 		printf("hsm_open_session PASS\n");
 
+#ifdef PSA_COMPLIANT
+	print_global_info();
+	if (argc == 2 && (strcmp("--info", argv[1]) == 0 || strcmp("-i", argv[1]) == 0))
+		goto ginfo_out;
+#endif
 	get_device_info(hsm_session_hdl);
 	perform_dev_attestation(hsm_session_hdl);
 	/* To test this api, customised firmware is used.
@@ -778,6 +784,7 @@ int main(int argc, char *argv[])
         err = hsm_close_key_store_service(key_store_hdl);
         printf("hsm_close_key_store_service ret:0x%x\n", err);
 
+ginfo_out:
         err = hsm_close_session(hsm_session_hdl);
 
         printf("hsm_close_session ret:0x%x\n", err);
