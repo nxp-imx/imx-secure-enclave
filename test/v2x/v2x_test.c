@@ -458,7 +458,7 @@ int main(int argc, char *argv[])
     uint8_t rng_out_buff[4096];
 
     srand (time (NULL));
-
+#ifndef CONFIG_PLAT_SECO
     printf("\n---------------------------------------------------\n");
     printf("Starting storage manager \n");
     printf("---------------------------------------------------\n");
@@ -476,7 +476,7 @@ int main(int argc, char *argv[])
     }
     printf("nvm manager started: status: 0x%x \n", get_nvmd_status(v2x_nvm_ctx));
 
-
+#endif
     // SG0
     printf("\n---------------------------------------------------\n");
     printf("Opening sessions \n");
@@ -504,7 +504,7 @@ int main(int argc, char *argv[])
     err = hsm_open_session(&args, &sv1_sess);
     printf("err: 0x%x SV1 hsm_open_session session_hdl: 0x%08x\n", err, sv1_sess);
 
-
+#ifndef CONFIG_PLAT_SECO
     // opening services for signature generation/verif on SG0 and SG1
 
     key_store_srv_args.key_store_identifier = 1234;
@@ -1593,7 +1593,7 @@ int main(int argc, char *argv[])
 
     err = hsm_close_key_generic_crypto_service(key_generic_crypto);
     printf("err: 0x%x hsm_close_key_generic_crypto_service hdl: 0x%x\n", err, key_generic_crypto);
-
+#endif
     err = hsm_close_session(sg0_sess);
     printf("err: 0x%x SG hsm_close_session hdl: 0x%x\n", err, sg0_sess);
 
@@ -1605,11 +1605,11 @@ int main(int argc, char *argv[])
 
     err = hsm_close_session(sv1_sess);
     printf("err: 0x%x SV hsm_close_session hdl: 0x%x\n", err, sv1_sess);
-
+#ifndef CONFIG_PLAT_SECO
     if (get_nvmd_status(v2x_nvm_ctx) != NVM_STATUS_STOPPED) {
         pthread_cancel(tid);
     }
     nvm_close_session(v2x_nvm_ctx);
-
+#endif
     return 0;
 }
