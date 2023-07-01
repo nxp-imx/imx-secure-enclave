@@ -22,6 +22,10 @@
 #include "sab_key_store.h"
 #endif
 
+#if MT_SAB_OPEN_UTILS
+#include "sab_open_utils.h"
+#endif
+
 static  int init_proc_sab_she_msg_engine(msg_type_t msg_type,
 					 uint32_t msg_id)
 {
@@ -68,6 +72,15 @@ static  int init_proc_sab_she_msg_engine(msg_type_t msg_type,
 			ret = add_sab_msg_handler(msg_id, MT_SAB_KEY_STORE,
 						  prepare_msg_key_store_open_req,
 						  proc_msg_rsp_key_store_open_req);
+		}
+		break;
+#endif
+#if MT_SAB_OPEN_UTILS
+	case SAB_SHE_UTILS_OPEN:
+		if (msg_type == MT_SAB_OPEN_UTILS) {
+			ret = add_sab_msg_handler(msg_id, MT_SAB_OPEN_UTILS,
+						  prepare_msg_open_utils,
+						  proc_msg_rsp_open_utils);
 		}
 		break;
 #endif

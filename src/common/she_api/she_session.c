@@ -117,7 +117,7 @@ she_err_t she_open_session(open_session_args_t *args, she_hdl_t *session_hdl)
 	op_get_info_args_t info_args = {'\0'};
 	op_shared_buf_args_t buf_args = {'\0'};
 	open_svc_key_store_args_t open_svc_key_store_args = {0};
-
+	op_open_utils_args_t utils_args = {'\0'};
 	uint32_t rsp_code = SAB_NO_MESSAGE_RATING;
 
 	do {
@@ -205,6 +205,15 @@ she_err_t she_open_session(open_session_args_t *args, she_hdl_t *session_hdl)
 
 		hdl->key_store_handle = open_svc_key_store_args.key_store_hdl;
 		printf("KEY store handle : 0x%x\n", hdl->key_store_handle);
+
+		/* open SHE utils service. */
+		if (she_open_utils(hdl->session_handle, &utils_args) != SHE_NO_ERROR) {
+			printf("SHE Error: Failed to open SHE utils 0x%x\n", err);
+			break;
+		}
+
+		hdl->utils_handle = utils_args.utils_handle;
+		printf("Utils handle : 0x%x\n", hdl->utils_handle);
 	} while (false);
 
 	if (err != SHE_NO_ERROR) {

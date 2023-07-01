@@ -29,6 +29,10 @@
 #include "internal/hsm_get_info.h"
 #endif
 
+#if MT_SAB_OPEN_UTILS
+#include "internal/she_open_utils.h"
+#endif
+
 /**
  *
  * \param args pointer to the structure containing the function arguments.

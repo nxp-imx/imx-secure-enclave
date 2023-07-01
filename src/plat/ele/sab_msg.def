@@ -32,6 +32,7 @@ MT_SAB_DATA_STORAGE	:=	${FMW}
 
 # Below SHE APIs will be supported on i.mx95 only.
 MT_SAB_SHARED_BUF	:=	${FMW}
+MT_SAB_OPEN_UTILS	:=	${FMW}
 
 # API(s) supported by ROM
 MT_SAB_DEBUG_DUMP	:=	${ROM}
