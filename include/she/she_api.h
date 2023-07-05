@@ -39,7 +39,7 @@
 
  * \param session_hdl pointer to where the session handle must be written.
  *
- * \return error_code error code.
+ * \return error code.
  */
 she_err_t she_open_session(open_session_args_t *args, she_hdl_t *session_hdl);
 
@@ -49,7 +49,7 @@ she_err_t she_open_session(open_session_args_t *args, she_hdl_t *session_hdl);
  *
  * \param session_hdl pointer to the handle identifying the session to be closed.
  *
- * \return error_code error code.
+ * \return error code.
  */
 she_err_t she_close_session(she_hdl_t session_hdl);
 

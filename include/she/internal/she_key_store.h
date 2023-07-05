@@ -9,13 +9,53 @@
 #include "internal/hsm_key_store.h"
 #include "internal/she_handle.h"
 
+/**
+ * @defgroup group2 Key store
+ * User must open a key store service flow in order to perform the following
+ * operations:
+ *  - create a new key store
+ *  - perform operations involving keys stored in the key store
+ *  (ciphering, signature generation...)
+ *  - perform a key store reprovisioning using a signed message.
+ *  A key store re-provisioning results in erasing all the key stores handled
+ *  by the SHE.
+ *
+ * To grant access to the key store, the caller is authenticated against the
+ * domain ID (DID) and Messaging Unit used at the keystore creation,
+ * additionally an authentication nonce can be provided.
+ * @{
+ */
+
+/**
+ * Minimum mac length not set
+ */
 #define MIN_MAC_LEN_NOT_SET	BIT(0)
+/**
+ * Minimum mac length is set
+ */
 #define MIN_MAC_LEN_SET		BIT(1)
 
+/**
+ * default flags
+ */
 #define KEY_STORE_OPEN_FLAGS_DEFAULT                0x0u
+/**
+ * Create a key store
+ */
 #define KEY_STORE_OPEN_FLAGS_CREATE                 0x1u
+/**
+ * Target key store is a SHE key store
+ */
 #define KEY_STORE_OPEN_FLAGS_SHE                    0x2u
+/**
+ * Check min mac length
+ */
 #define KEY_STORE_OPEN_FLAGS_SET_MAC_LEN            0x8u
+/**
+ * The request is completed only when the key store has been written
+ * in the NVM and the monotonic counter has been updated. This flag is
+ * applicable for CREATE operation only
+ */
 #define KEY_STORE_OPEN_FLAGS_STRICT_OPERATION       0x80u
 
 /**
@@ -43,6 +83,16 @@
  */
 #define SHE_STORAGE_MIN_MAC_BIT_LENGTH_DEFAULT  32u
 
+/**
+ * Open a service flow on the specified key store.
+ *
+ * \param session_hdl pointer to the handle identifying the current session.
+ * \param args pointer to the structure containing the function arguments.
+ *
+ * \return error code.
+ */
 she_err_t she_open_key_store(she_hdl_t session_hdl, open_svc_key_store_args_t *args);
+
+/** @} end of key store service flow */
 
 #endif

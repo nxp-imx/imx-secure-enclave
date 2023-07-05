@@ -13,9 +13,14 @@
  *  @{
  */
 
+/**
+ * Handle not available
+ */
 #define SHE_HANDLE_NONE		(0x0)
 
-//!< Maximum sessions supported.
+/**
+ * Maximum sessions supported
+ */
 #define SHE_MAX_SESSIONS        (16u)
 
 /**
@@ -28,14 +33,19 @@ typedef uint32_t she_hdl_t;
  */
 struct she_hdl_s {
 	struct plat_os_abs_hdl *phdl;
+	//!< Pointer to OS device node.
 	uint32_t session_handle;
+	//!< Session handle.
 	uint32_t key_store_handle;
+	//!< handle to access key store
 	uint32_t cipher_handle;
+	//!< handle to access cipher services
 	uint32_t rng_handle;
+	//!< RNG handle
 	uint32_t utils_handle;
-	uint32_t cancel;
-	uint32_t last_rating;
+	//!< handle to access utility
 	uint32_t mu_type;
+	//!< Session MU type.
 };
 
 /**

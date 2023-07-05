@@ -157,11 +157,11 @@ $(NVM_DAEMON): $(NVM_D_OBJ) $(NVM_LIB)
 clean:
 	rm -rf $(OBJECTS) *.gcno *.a *_test $(TEST_OBJ) $(all_libs) *.so* $(all_tests) $(NVM_DAEMON) ${SE_VER_FILE}
 
-she_doc: include/she_api.h include/nvm.h
+she_doc: include/she/she_api.h
 	rm -rf doc/latex/
-	doxygen doc/she/Doxyfile
+	doxygen doc/she/SECO_Doxyfile
 	make -C ./doc/latex pdf
-	cp doc/latex/refman.pdf doc/she_api_manual.pdf
+	cp doc/latex/refman.pdf doc/seco_she_api_document.pdf
 	rm -rf doc/latex/
 
 hsm_doc_ele: include/hsm/hsm_api.h
