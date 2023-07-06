@@ -245,6 +245,7 @@ endif
 
 OBJECTS		+= $(SAB_MSG_SRC) \
 		$(SAB_RCVMSG_SRC) \
+		$(SHE_SAB_MSG_SRC) \
 		$(PLAT_COMMON_PATH)/sab_msg/sab_session.o
 
 INCLUDE_PATHS	+= \
