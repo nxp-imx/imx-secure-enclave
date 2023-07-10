@@ -19,7 +19,7 @@ she_err_t she_open_key_store(she_hdl_t session_hdl, open_svc_key_store_args_t *a
 	}
 
 	if (!session_hdl)
-		return HSM_UNKNOWN_HANDLE;
+		return err;
 
 	hdl = she_session_hdl_to_ptr(session_hdl);
 	if (!hdl)
