@@ -307,7 +307,8 @@ uint32_t nvm_manager(uint8_t flags,
 						       &nvm_ctx->last_data_sz,
 						       &nvm_ctx->prev_cmd_id,
 						       &nvm_ctx->next_cmd_id);
-			if (err == SAB_READ_FAILURE_RATING) {
+			if (err == SAB_READ_FAILURE_RATING &&
+			    nvm_ctx->status == NVM_STATUS_RUNNING) {
 				retry = 1;
 				/* handle case when platform/V2X are reset */
 				plat_os_abs_close_session(nvm_ctx->phdl);
@@ -318,7 +319,16 @@ uint32_t nvm_manager(uint8_t flags,
 	} while (retry);
 
 	if (nvm_ctx) {
-		nvm_ctx->status = NVM_STATUS_STOPPED;
+		if (nvm_ctx->status == NVM_STATUS_STOPPED) {
+			/**
+			 * If NVM status is stopped, means some valid case
+			 * was handled for stopping NVM and status was set
+			 * accordingly.
+			 */
+			err = 0;
+		} else {
+			nvm_ctx->status = NVM_STATUS_STOPPED;
+		}
 
 #if MT_SAB_STORAGE_KEY_DB_REQ
 		/* Close all opened key database files */

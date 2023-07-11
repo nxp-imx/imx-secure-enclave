@@ -53,17 +53,23 @@ static void *nvm_ctx;
 
 /**
  *
- * @brief Close the NVM session and exit process
+ * @brief Changes the status of NVM for closing the NVM session
  *
- * This function is called when the process receives a SIGTERM signal.
- * It closes the NVM session before exiting.
+ * This function is called when the NVM process receives a SIGTERM (command to
+ * stop the service) or SIGINT (CTRL + C) signal.
+ *
+ * The flow to reach this handler, depends on where the signal interrupt occurred:
+ *	i. Either directly in user space of NVM process, or
+ *	ii. In case of NVM waiting on read in kernel space, the signal would be
+ *	    first handled in kernel space and reach this user space handler for
+ *	    the same signal.)
+ *
+ * It changes the status of NVM to close the NVM session.
  *
  */
 void kill_daemon(int ip)
 {
 	set_nvmd_status_stop(nvm_ctx);
-	nvm_close_session(nvm_ctx);
-	exit(0);
 }
 
 /**
