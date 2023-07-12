@@ -8,6 +8,7 @@ set -eu
 # Checkpatch HTTP site
 CHECKPATCH_HTTP="https://raw.githubusercontent.com/torvalds/linux/master/scripts"
 CHECKPATCH="${CHECKPATCH:-checkpatch.pl}"
+col_width=90
 
 # Get the Git Top level directory
 function get_toplevel() {
@@ -78,6 +79,7 @@ function _ex_checkpatch() {
       --ignore CONCATENATED_STRING \
       --ignore SPDX_LICENSE_TAG \
       --ignore NEW_TYPEDEFS \
+      --max-line-length=${col_width} \
       --no-tree \
       --strict \
       $typedefs_opt \
