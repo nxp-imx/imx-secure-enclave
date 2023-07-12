@@ -252,10 +252,10 @@ SHE_SAB_MSG_SRC	+= \
 		$(PLAT_COMMON_PATH)/sab_msg/sab_shared_buf.o
 endif
 
-ifneq (${MT_SAB_OPEN_UTILS},0x0)
-DEFINES		+=	-DMT_SAB_OPEN_UTILS=${MT_SAB_OPEN_UTILS}
+ifneq (${MT_SAB_UTILS},0x0)
+DEFINES		+=	-DMT_SAB_UTILS=${MT_SAB_UTILS}
 SHE_SAB_MSG_SRC	+= \
-		$(PLAT_COMMON_PATH)/sab_msg/sab_open_utils.o
+		$(PLAT_COMMON_PATH)/sab_msg/sab_utils_service.o
 endif
 
 OBJECTS		+= $(SAB_MSG_SRC) \

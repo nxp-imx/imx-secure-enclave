@@ -3,8 +3,8 @@
  * Copyright 2023 NXP
  */
 
-#ifndef SHE_OPEN_UTILS_H
-#define SHE_OPEN_UTILS_H
+#ifndef SHE_UTILS_SERVICE_H
+#define SHE_UTILS_SERVICE_H
 
 #include <internal/she_utils.h>
 #include <internal/she_handle.h>
@@ -41,6 +41,15 @@ typedef struct {
  * \return error code.
  */
 she_err_t she_open_utils(she_hdl_t session_hdl, op_open_utils_args_t *args);
+
+/**
+ * Terminate a previously opened utils service flow
+ *
+ * \param session_hdl: pointer to the handle identifying the current session.
+ *
+ * \return error code.
+ */
+she_err_t she_close_utils(she_hdl_t session_hdl);
 
 /** @} end of utils group */
 #endif

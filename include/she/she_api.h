@@ -27,8 +27,8 @@
 #include "internal/she_get_info.h"
 #endif
 
-#if MT_SAB_OPEN_UTILS
-#include "internal/she_open_utils.h"
+#if MT_SAB_UTILS
+#include "internal/she_utils_service.h"
 #endif
 
 #if MT_SAB_CIPHER

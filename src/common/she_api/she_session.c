@@ -25,8 +25,14 @@ she_err_t she_close_session(she_hdl_t session_hdl)
 	if (!hdl)
 		return err;
 
+	if (hdl->utils_handle)
+		she_close_utils(session_hdl);
+
 	if (hdl->cipher_handle)
 		she_close_cipher_service(session_hdl);
+
+	if (hdl->key_store_handle)
+		she_close_key_store_service(session_hdl);
 
 	sab_err = process_sab_msg(hdl->phdl,
 				  hdl->mu_type,
@@ -204,7 +210,8 @@ she_err_t she_open_session(open_session_args_t *args, she_hdl_t *session_hdl)
 		open_svc_key_store_args.flags			=
 			KEY_STORE_OPEN_FLAGS_CREATE | KEY_STORE_OPEN_FLAGS_SHE;
 
-		err = she_open_key_store(hdl->session_handle, &open_svc_key_store_args);
+		err = she_open_key_store_service(hdl->session_handle,
+						 &open_svc_key_store_args);
 		if (err != SHE_NO_ERROR) {
 			printf("SHE Error: Failed to open key store 0x%x\n", err);
 			break;

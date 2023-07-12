@@ -11,16 +11,16 @@ SHE_API_SRC	+= \
 		$(PLAT_COMMON_PATH)/she_api/she_session.o
 endif
 
-ifneq (${MT_SAB_OPEN_UTILS},0x0)
+ifneq (${MT_SAB_UTILS},0x0)
 DEFINES		+=	-DSHE_OPEN_UTILS
 SHE_API_SRC	+= \
-		$(PLAT_COMMON_PATH)/she_api/she_open_utils.o
+		$(PLAT_COMMON_PATH)/she_api/she_utils_service.o
 endif
 
 ifneq (${MT_SAB_KEY_STORE},0x0)
 DEFINES		+=	-DSHE_KEY_STORE
 SHE_API_SRC	+= \
-		$(PLAT_COMMON_PATH)/she_api/she_open_key_store.o
+		$(PLAT_COMMON_PATH)/she_api/she_key_store.o
 endif
 
 ifneq (${MT_SAB_KEY_STORE},0x0)

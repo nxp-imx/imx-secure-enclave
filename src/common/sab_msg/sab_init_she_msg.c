@@ -22,8 +22,8 @@
 #include "sab_key_store.h"
 #endif
 
-#if MT_SAB_OPEN_UTILS
-#include "sab_open_utils.h"
+#if MT_SAB_UTILS
+#include "sab_utils_service.h"
 #endif
 
 #if MT_SAB_CIPHER
@@ -78,13 +78,27 @@ static  int init_proc_sab_she_msg_engine(msg_type_t msg_type,
 						  proc_msg_rsp_key_store_open_req);
 		}
 		break;
+	case SAB_KEY_STORE_CLOSE_REQ:
+		if (msg_type == MT_SAB_KEY_STORE) {
+			ret = add_sab_msg_handler(msg_id, MT_SAB_KEY_STORE,
+						  prepare_msg_key_store_close_req,
+						  proc_msg_rsp_key_store_close_req);
+		}
+		break;
 #endif
-#if MT_SAB_OPEN_UTILS
+#if MT_SAB_UTILS
 	case SAB_SHE_UTILS_OPEN:
-		if (msg_type == MT_SAB_OPEN_UTILS) {
-			ret = add_sab_msg_handler(msg_id, MT_SAB_OPEN_UTILS,
+		if (msg_type == MT_SAB_UTILS) {
+			ret = add_sab_msg_handler(msg_id, MT_SAB_UTILS,
 						  prepare_msg_open_utils,
 						  proc_msg_rsp_open_utils);
+		}
+		break;
+	case SAB_SHE_UTILS_CLOSE:
+		if (msg_type == MT_SAB_UTILS) {
+			ret = add_sab_msg_handler(msg_id, MT_SAB_UTILS,
+						  prepare_msg_close_utils,
+						  proc_msg_rsp_close_utils);
 		}
 		break;
 #endif

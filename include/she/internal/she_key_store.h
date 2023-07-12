@@ -91,7 +91,17 @@
  *
  * \return error code.
  */
-she_err_t she_open_key_store(she_hdl_t session_hdl, open_svc_key_store_args_t *args);
+she_err_t she_open_key_store_service(she_hdl_t session_hdl,
+				     open_svc_key_store_args_t *args);
+
+/**
+ * Terminate a previously opened key store service flow
+ *
+ * \param session_hdl: pointer to handle identifying the SHE session.
+ *
+ * \return error code.
+ */
+she_err_t she_close_key_store_service(she_hdl_t session_hdl);
 
 /** @} end of key store service flow */
 

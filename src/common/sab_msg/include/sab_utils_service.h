@@ -23,6 +23,16 @@ struct sab_cmd_open_utils_rsp {
 	uint32_t utils_handle;
 };
 
+struct sab_cmd_close_utils_msg {
+	struct sab_mu_hdr hdr;
+	uint32_t utils_handle;
+};
+
+struct sab_cmd_close_utils_rsp {
+	struct sab_mu_hdr hdr;
+	uint32_t rsp_code;
+};
+
 uint32_t prepare_msg_open_utils(void *phdl,
 				void *cmd_buf, void *rsp_buf,
 				uint32_t *cmd_msg_sz,
@@ -31,5 +41,15 @@ uint32_t prepare_msg_open_utils(void *phdl,
 				void *args);
 
 uint32_t proc_msg_rsp_open_utils(void *rsp_buf, void *args);
+
+uint32_t prepare_msg_close_utils(void *phdl,
+				 void *cmd_buf,
+				 void *rsp_buf,
+				 uint32_t *cmd_msg_sz,
+				 uint32_t *rsp_msg_sz,
+				 uint32_t msg_hdl,
+				 void *args);
+
+uint32_t proc_msg_rsp_close_utils(void *rsp_buf, void *args);
 
 #endif
