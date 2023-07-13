@@ -36,6 +36,7 @@ MT_SAB_SM2_GET_Z	:=      ${FMW}
 # Below SHE APIs will be supported on i.mx8dxl only.
 MT_SAB_SHARED_BUF	:=	${FMW}
 MT_SAB_UTILS		:=	${FMW}
+MT_SAB_GET_STATUS	:=	${FMW}
 
 # ROM API(s)
 MT_SAB_DEBUG_DUMP	:=	${ROM}

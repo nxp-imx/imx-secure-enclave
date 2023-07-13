@@ -37,6 +37,7 @@ MT_SAB_SM2_GET_Z	:=      ${NOT_SUPPORTED}
 # Below SHE APIs will be supported on i.mx95 only.
 MT_SAB_SHARED_BUF	:=	${FMW}
 MT_SAB_UTILS		:=	${FMW}
+MT_SAB_GET_STATUS	:=	${FMW}
 
 # API(s) supported by ROM
 MT_SAB_DEBUG_DUMP	:=	${ROM}

@@ -258,6 +258,12 @@ SHE_SAB_MSG_SRC	+= \
 		$(PLAT_COMMON_PATH)/sab_msg/sab_utils_service.o
 endif
 
+ifneq (${MT_SAB_GET_STATUS},0x0)
+DEFINES		+=	-DMT_SAB_GET_STATUS=${MT_SAB_GET_STATUS}
+SHE_SAB_MSG_SRC	+= \
+		$(PLAT_COMMON_PATH)/sab_msg/sab_get_status.o
+endif
+
 OBJECTS		+= $(SAB_MSG_SRC) \
 		$(SAB_RCVMSG_SRC) \
 		$(SHE_SAB_MSG_SRC) \

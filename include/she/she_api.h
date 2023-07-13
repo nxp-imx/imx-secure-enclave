@@ -35,6 +35,10 @@
 #include "internal/she_cipher.h"
 #endif
 
+#if MT_SAB_GET_STATUS
+#include "internal/she_get_status.h"
+#endif
+
 /**
  *
  * \param args pointer to the structure containing the function arguments.

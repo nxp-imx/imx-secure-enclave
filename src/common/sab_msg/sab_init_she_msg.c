@@ -30,6 +30,10 @@
 #include "sab_cipher.h"
 #endif
 
+#if MT_SAB_GET_STATUS
+#include "sab_get_status.h"
+#endif
+
 static  int init_proc_sab_she_msg_engine(msg_type_t msg_type,
 					 uint32_t msg_id)
 {
@@ -115,6 +119,15 @@ static  int init_proc_sab_she_msg_engine(msg_type_t msg_type,
 			ret = add_sab_msg_handler(msg_id, MT_SAB_CIPHER,
 						  prepare_msg_cipher_close_req,
 						  proc_msg_rsp_cipher_close_req);
+		}
+		break;
+#endif
+#if MT_SAB_GET_STATUS
+	case SAB_SHE_GET_STATUS:
+		if (msg_type == MT_SAB_GET_STATUS) {
+			ret = add_sab_msg_handler(msg_id, MT_SAB_GET_STATUS,
+						  prepare_msg_get_status,
+						  proc_msg_rsp_get_status);
 		}
 		break;
 #endif

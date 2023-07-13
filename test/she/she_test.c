@@ -13,6 +13,7 @@
 
 #include "common.h"
 #include "she_api.h"
+#include "plat_utils.h"
 
 she_hdl_t she_session_hdl;
 
@@ -34,6 +35,7 @@ int main(int argc, char *argv[])
 {
 	struct sigaction she_test_sigact = {0};
 	open_session_args_t open_session_args = {0};
+	op_get_status_args_t op_get_status_args = {0};
 	she_err_t err;
 
 	if (argc == 2 && (strcmp("--help", argv[1]) == 0 || strcmp("-h", argv[1]) == 0)) {
@@ -57,6 +59,11 @@ int main(int argc, char *argv[])
 		return 0;
 	}
 	printf("she_open_session PASS\n");
+
+	err = she_get_status(she_session_hdl, &op_get_status_args);
+	if (!err)
+		se_print("CMD_GET_STATUS successful 0x%x\n",
+			 op_get_status_args.sreg);
 
 	err = she_close_session(she_session_hdl);
 
