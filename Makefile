@@ -64,7 +64,7 @@ all_tests:= $(SHE_TEST) $(HSM_TEST) $(HSM_PERF_TEST) $(V2X_TEST)
 all_libs:= $(SHE_LIB) $(NVM_LIB) $(HSM_LIB)
 
 # Make targets, must need NVM-Daemon to run successfully.
-tests: $(all_tests) $(NVM_DAEMON)
+tests: install_version $(all_tests) $(NVM_DAEMON)
 libs: install_version $(all_libs) $(NVM_DAEMON)
 all: install_version $(all_libs) $(all_tests) $(NVM_DAEMON)
 
