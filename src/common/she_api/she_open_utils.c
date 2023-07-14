@@ -19,8 +19,10 @@ she_err_t she_open_utils(she_hdl_t session_hdl, op_open_utils_args_t *args)
 	}
 
 	hdl = she_session_hdl_to_ptr(session_hdl);
-	if (!hdl)
+	if (!hdl || !hdl->key_store_handle) {
+		se_err("Handle not found\n");
 		return err;
+	}
 
 	if (hdl->utils_handle != 0u) {
 		se_err("SHE: Utils handle already open\n");

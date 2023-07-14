@@ -1,3 +1,8 @@
+// SPDX-License-Identifier: BSD-3-Clause
+/*
+ * Copyright 2023 NXP
+ */
+
 /*! \mainpage SHE API
  *
  * This document is a software referece description of the API provided by the i.MX8 SHE solutions.
@@ -7,11 +12,7 @@
  * 
  * Revision       | date           | description
  * :------------ | :-------------:| :------------
- * 0.5 | May 03 2019  | first draf
- * 1.0 | June 28 2019 | complete functions definition
- * 1.1 | December 20 2019 | add she_cmd_load_key_ext API
- * 1.2 | September 10 2020 | add she_storage_create_ext and she_cmd_verify_mac_bit_ext API
- * 1,3 | March 19 2021 | Add ERC_FATAL_FAILURE error code definition
+ * 0.1 | Jul 06 2023  | first draft
  */
 
 /*! \page General General concepts related to the API

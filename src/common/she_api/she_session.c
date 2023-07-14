@@ -81,7 +81,7 @@ she_err_t open_session(open_session_args_t *args, struct she_hdl_s **hdl, uint32
 	args->did = mu_params.did;
 #endif
 	args->interrupt_idx = mu_params.interrupt_idx;
-	args->session_priority = SAB_OPEN_SESSION_PRIORITY_LOW;
+	args->session_priority = SHE_OPEN_SESSION_PRIORITY_LOW;
 	args->operating_mode = 0U;
 
 	/* Open the SHE session on Platform's side */

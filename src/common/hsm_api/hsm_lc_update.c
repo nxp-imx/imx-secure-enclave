@@ -21,7 +21,7 @@ hsm_err_t hsm_lc_update(hsm_hdl_t session_hdl, op_lc_update_msg_args_t *args)
 	struct hsm_session_hdl_s *sess_ptr;
 	hsm_err_t err = HSM_GENERAL_ERROR;
 	uint32_t rsp_code = 0x0;
-	int32_t error;
+	uint32_t error;
 	uint8_t msg_id;
 	const uint8_t lc_ret_msg[] = "ROM_DEV_RET_LC_UPDATE";
 	const uint8_t lc_fwd_msg[] = "ROM_DEV_FWD_LC_UPDATE";
