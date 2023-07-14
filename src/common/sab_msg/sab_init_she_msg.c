@@ -26,6 +26,10 @@
 #include "sab_open_utils.h"
 #endif
 
+#if MT_SAB_CIPHER
+#include "sab_cipher.h"
+#endif
+
 static  int init_proc_sab_she_msg_engine(msg_type_t msg_type,
 					 uint32_t msg_id)
 {
@@ -81,6 +85,22 @@ static  int init_proc_sab_she_msg_engine(msg_type_t msg_type,
 			ret = add_sab_msg_handler(msg_id, MT_SAB_OPEN_UTILS,
 						  prepare_msg_open_utils,
 						  proc_msg_rsp_open_utils);
+		}
+		break;
+#endif
+#if MT_SAB_CIPHER
+	case SAB_CIPHER_OPEN_REQ:
+		if (msg_type == MT_SAB_CIPHER) {
+			ret = add_sab_msg_handler(msg_id, MT_SAB_CIPHER,
+						  prepare_msg_cipher_open_req,
+						  proc_msg_rsp_cipher_open_req);
+		}
+		break;
+	case SAB_CIPHER_CLOSE_REQ:
+		if (msg_type == MT_SAB_CIPHER) {
+			ret = add_sab_msg_handler(msg_id, MT_SAB_CIPHER,
+						  prepare_msg_cipher_close_req,
+						  proc_msg_rsp_cipher_close_req);
 		}
 		break;
 #endif

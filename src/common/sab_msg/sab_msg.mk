@@ -151,6 +151,8 @@ ifneq (${MT_SAB_CIPHER},0x0)
 DEFINES		+=	-DMT_SAB_CIPHER=${MT_SAB_CIPHER}
 SAB_MSG_SRC	+= \
 		$(PLAT_COMMON_PATH)/sab_msg/sab_cipher.o
+SHE_SAB_MSG_SRC	+= \
+		$(PLAT_COMMON_PATH)/sab_msg/sab_cipher.o
 endif
 
 ifneq (${MT_SAB_DATA_STORAGE},0x0)

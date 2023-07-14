@@ -23,6 +23,12 @@ SHE_API_SRC	+= \
 		$(PLAT_COMMON_PATH)/she_api/she_open_key_store.o
 endif
 
+ifneq (${MT_SAB_KEY_STORE},0x0)
+DEFINES		+=	-DSHE_CIPHER
+SHE_API_SRC	+= \
+		$(PLAT_COMMON_PATH)/she_api/she_cipher.o
+endif
+
 OBJECTS		+= $(SHE_API_SRC)
 
 INCLUDE_PATHS	+= \

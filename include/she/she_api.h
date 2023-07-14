@@ -33,6 +33,11 @@
 #include "internal/she_open_utils.h"
 #endif
 
+#if MT_SAB_CIPHER
+#include "internal/hsm_cipher.h"
+#include "internal/she_cipher.h"
+#endif
+
 /**
  *
  * \param args pointer to the structure containing the function arguments.

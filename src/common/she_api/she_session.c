@@ -25,6 +25,9 @@ she_err_t she_close_session(she_hdl_t session_hdl)
 	if (!hdl)
 		return err;
 
+	if (hdl->cipher_handle)
+		she_close_cipher_service(session_hdl);
+
 	sab_err = process_sab_msg(hdl->phdl,
 				  hdl->mu_type,
 				  SAB_SESSION_CLOSE_REQ,
@@ -118,6 +121,7 @@ she_err_t she_open_session(open_session_args_t *args, she_hdl_t *session_hdl)
 	op_shared_buf_args_t buf_args = {'\0'};
 	open_svc_key_store_args_t open_svc_key_store_args = {0};
 	op_open_utils_args_t utils_args = {'\0'};
+	open_svc_cipher_args_t cipher_args = {'\0'};
 	uint32_t rsp_code = SAB_NO_MESSAGE_RATING;
 
 	do {
@@ -214,6 +218,16 @@ she_err_t she_open_session(open_session_args_t *args, she_hdl_t *session_hdl)
 
 		hdl->utils_handle = utils_args.utils_handle;
 		printf("Utils handle : 0x%x\n", hdl->utils_handle);
+
+		err = she_open_cipher_service(hdl->session_handle, &cipher_args);
+		if (err != SHE_NO_ERROR) {
+			se_err("SHE Error: Failed to open cipher service 0x%x\n", err);
+			break;
+		}
+
+		hdl->cipher_handle = cipher_args.cipher_hdl;
+		se_info("Cipher handle : 0x%x\n", hdl->cipher_handle);
+
 	} while (false);
 
 	if (err != SHE_NO_ERROR) {
