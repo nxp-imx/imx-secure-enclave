@@ -66,6 +66,35 @@ typedef struct {
 	//!< flags bitmap specifying the operation attributes.
 	hsm_op_data_storage_flags_t svc_flags;
 #ifdef PSA_COMPLIANT
+#ifdef DECODE_ENC_DATA_TLV
+	/**
+	 * In case RETRIEVE, if the data retrieved is in TLV format
+	 * which was stored by Encrypted Data Storage API. The TLV
+	 * format data will be decoded to fill the following fields.
+	 * An identifier will be needed to identify if the retrieved
+	 * data is in TLV format or not.
+	 */
+	uint32_t uuid_len;
+	//!< Device UUID length in bytes
+	uint8_t *uuid;
+	//!< Device UUID
+	uint16_t iv_len;
+	//!< IV length in bytes, if needed, otherwise 0
+	uint8_t *iv;
+	//!< IV buffer, if needed
+	uint32_t ciphertext_len;
+	//!< encrypted text length in bytes
+	uint8_t *ciphertext;
+	//!< encrypted text buffer
+	uint32_t payload_len;
+	//!< payload length in bytes
+	uint8_t *payload;
+	//!< payload data buffer to verify signature
+	uint16_t signature_len;
+	//!< signature length in bytes
+	uint8_t *signature;
+	//!< signature buffer
+#endif
 	//!< expected output buffer size in bytes, valid in case of HSM_OUT_TOO_SMALL
 	//   (0x1D) error code
 	uint32_t exp_output_size;
