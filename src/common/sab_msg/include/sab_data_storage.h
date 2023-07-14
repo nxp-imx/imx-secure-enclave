@@ -62,6 +62,41 @@ struct sab_cmd_data_storage_rsp {
 #endif
 };
 
+#if MT_SAB_ENC_DATA_STORAGE
+struct sab_cmd_enc_data_storage_msg {
+	struct sab_mu_hdr hdr;
+	uint32_t data_storage_handle;
+	uint32_t data_id;
+	uint32_t data_address;
+	uint32_t data_size;
+	uint32_t enc_algo;
+	uint32_t enc_key_id;
+	uint32_t sign_algo;
+	uint32_t sign_key_id;
+	uint32_t iv_address;
+	uint16_t iv_size;
+	uint16_t flags;
+	uint16_t lifecycle;
+	uint16_t rsv;
+	uint32_t crc;
+};
+
+struct sab_cmd_enc_data_storage_rsp {
+	struct sab_mu_hdr hdr;
+	uint32_t rsp_code;
+	uint32_t out_data_size;
+};
+
+uint32_t prepare_msg_enc_data_storage(void *phdl,
+				      void *cmd_buf, void *rsp_buf,
+				      uint32_t *cmd_msg_sz,
+				      uint32_t *rsp_msg_sz,
+				      uint32_t msg_hdl,
+				      void *args);
+
+uint32_t proc_msg_rsp_enc_data_storage(void *rsp_buf, void *args);
+#endif
+
 uint32_t prepare_msg_data_storage(void *phdl,
 				  void *cmd_buf, void *rsp_buf,
 				  uint32_t *cmd_msg_sz,

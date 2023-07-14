@@ -88,6 +88,60 @@ hsm_err_t hsm_data_storage(hsm_hdl_t data_storage_hdl, op_data_storage_args_t *a
 //!< Retrieve data.
 #define HSM_OP_DATA_STORAGE_FLAGS_RETRIEVE ((hsm_op_data_storage_flags_t)(0u << 1))
 
+#if MT_SAB_ENC_DATA_STORAGE
+/**
+ * Bitmap specifying the encrypted data storage operation supported attributes
+ */
+typedef uint16_t hsm_op_enc_data_storage_flags_t;
+#define HSM_OP_ENC_DATA_STORAGE_FLAGS_RANDOM_IV \
+	((hsm_op_enc_data_storage_flags_t)(1u << 0))
+//!< internally generate random IV, if needed for operation.
+#define HSM_OP_ENC_DATA_STORAGE_FLAGS_READ_ONCE \
+	((hsm_op_enc_data_storage_flags_t)(1u << 1))
+//!< read once, and delete data from NVM after retrieve.
+
+typedef struct {
+	uint32_t data_id;
+	//!< id of the data
+	uint8_t *data;
+	//!< pointer to the data, to be encrypted and signed
+	uint32_t data_size;
+	//!< length in bytes of the data
+	uint32_t enc_algo;
+	//!< cipher algorithm to be used for encryption of data
+	uint32_t enc_key_id;
+	//!< identifier of the key to be used for encryption
+	uint32_t sign_algo;
+	//!< signature algorithm to be used for signing the data
+	uint32_t sign_key_id;
+	//!< identifier of the key to be used for signing
+	uint8_t *iv;
+	//!< pointer to the IV buffer
+	uint16_t iv_size;
+	//!< IV size in bytes
+	hsm_op_enc_data_storage_flags_t flags;
+	//!< bitmap specifying the operation attributes
+	hsm_svc_data_storage_flags_t svc_flags;
+	//!< bitmap specifying the service attributes.
+	uint16_t lifecycle;
+	//!< bitmask of device lifecycle, in which the data can be retrieved
+	uint32_t out_data_size;
+	//!< size (bytes) of the signed TLV stored, received with API resp
+} op_enc_data_storage_args_t;
+
+/**
+ * Store encrypted and signed data in the NVM. \n
+ *
+ * \param data_storage_hdl handle identifying the data storage service flow.
+ * \param args pointer to the structure containing the function arguments.
+ *
+ * \return error code
+ */
+hsm_err_t hsm_enc_data_storage(hsm_hdl_t data_storage_hdl,
+			       op_enc_data_storage_args_t *args);
+
+#endif
+
 /**
  * Terminate a previously opened data storage service flow
  *

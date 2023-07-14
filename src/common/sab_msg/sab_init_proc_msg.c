@@ -400,6 +400,15 @@ static  int init_proc_sab_hsm_msg_engine(msg_type_t msg_type,
 						  proc_msg_rsp_data_storage);
 		}
 		break;
+#if MT_SAB_ENC_DATA_STORAGE
+	case SAB_ENC_DATA_STORAGE_REQ:
+		if (msg_type == MT_SAB_ENC_DATA_STORAGE) {
+			ret = add_sab_msg_handler(msg_id, MT_SAB_ENC_DATA_STORAGE,
+						  prepare_msg_enc_data_storage,
+						  proc_msg_rsp_enc_data_storage);
+		}
+		break;
+#endif
 #endif
 #if MT_SAB_HASH_GEN
 #ifndef PSA_COMPLIANT

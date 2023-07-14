@@ -32,6 +32,9 @@ endif
 
 ifneq (${MT_SAB_DATA_STORAGE},0x0)
 DEFINES		+=	-DHSM_DATA_STORAGE
+ifneq (${MT_SAB_ENC_DATA_STORAGE},0x0)
+DEFINES		+=	-DHSM_ENC_DATA_STORAGE
+endif
 HSM_API_SRC	+= \
 		$(PLAT_COMMON_PATH)/hsm_api/hsm_data_storage.o
 endif

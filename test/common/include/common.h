@@ -23,6 +23,9 @@ hsm_err_t do_key_recovery_test(hsm_hdl_t key_store_hdl, hsm_hdl_t key_mgmt_hdl,
 							uint8_t *pub_key,
 							uint32_t pub_key_sz);
 void data_storage_test(hsm_hdl_t key_store_hdl, int arg);
+#if MT_SAB_ENC_DATA_STORAGE
+void enc_data_storage_test(hsm_hdl_t key_mgmt_hdl, hsm_hdl_t key_store_hdl);
+#endif
 void hash_test(hsm_hdl_t hash_sess);
 hsm_err_t do_hash_test(hsm_hdl_t hash_session_hdl);
 hsm_err_t do_hash_stream_test(hsm_hdl_t hash_session_hdl);

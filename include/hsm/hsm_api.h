@@ -308,6 +308,27 @@ hsm_err_t hsm_do_hash(hsm_hdl_t session_hdl, op_hash_one_go_args_t *args);
  */
 hsm_err_t hsm_data_ops(hsm_hdl_t key_store_hdl,
 			 op_data_storage_args_t *args);
+#if MT_SAB_ENC_DATA_STORAGE
+/**
+ * Secondary API to store encrypted and signed data in NVM.
+ *
+ * This API does the following:
+ * 1. Open an data storage service Flow\n
+ * 2. Store the encryted and signed data in NVM.
+ *    The stored data can be retrieved through Data Storage API
+ * 3. Post performing the operation, terminate the previously opened\n
+ *    data-storage service flow.\n
+ *
+ * User can call this function only after having opened a key-store.\n
+ *
+ * \param key_store_hdl handle identifying the current key-store.
+ * \param args pointer to the structure containing the function arguments.
+ *
+ * \return error code
+ */
+hsm_err_t hsm_enc_data_ops(hsm_hdl_t key_store_hdl,
+			   op_enc_data_storage_args_t *args);
+#endif
 /** @} end of data storage service flow */
 
 /**
