@@ -9,8 +9,7 @@
 #include "internal/hsm_gc_acrypto.h"
 #include "internal/hsm_key.h"
 
-#ifdef MT_SAB_GC_ACRYPTO
-
+#if MT_SAB_GC_ACRYPTO
 //plaintext or message or digest
 uint8_t plaintext[32] = {
 	0x00, 0x01, 0x02, 0x03, 0x04, 0x05, 0x06, 0x07,

@@ -768,16 +768,11 @@ int main(int argc, char *argv[])
 #endif
 
 #ifdef PSA_COMPLIANT
-#if PLAT_ELE_FEAT_NOT_SUPPORTED
-	/*
-	 * For now, following Generic Crypto APIs not supported:
-	 *	- Asymmetric Key Generate API
-	 *	- Asymmetric Crypto API
-	 * Hence, tests disabled.
-	 */
-	gc_akey_gen_test(hsm_session_hdl);
-	gc_acrypto_test(hsm_session_hdl);
-#endif
+	if (global_info.soc_id == SOC_IMX93 &&
+	    global_info.soc_rev == SOC_REV_A1) {
+		gc_akey_gen_test(hsm_session_hdl);
+		gc_acrypto_test(hsm_session_hdl);
+	}
 #endif
 	if (argc > 1) {
 		tv_tests_run(key_store_hdl, argv[1]);
