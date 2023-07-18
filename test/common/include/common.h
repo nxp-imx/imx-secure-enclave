@@ -7,6 +7,7 @@
 #define COMMON_H
 
 #include "hsm_api.h"
+#include "she_api.h"
 
 #define DELETE	1
 #define IMPORT	2
@@ -70,4 +71,7 @@ void word_byteswap(uint32_t *buf, uint32_t buf_len);
  */
 int get_cmdline_arg(void);
 time_t get_ele_perf_time(void);
+
+she_err_t do_she_rng_test(she_hdl_t session_hdl);
+
 #endif

@@ -1,6 +1,6 @@
 // SPDX-License-Identifier: BSD-3-Clause
 /*
- * Copyright 2019-2022 NXP
+ * Copyright 2019-2023 NXP
  */
 
 #ifndef SAB_RNG_H
@@ -34,6 +34,18 @@ uint32_t prepare_msg_get_rng(void *phdl,
 uint32_t proc_msg_rsp_get_rng(void *rsp_buf, void *args);
 
 #ifndef PSA_COMPLIANT
+struct sab_cmd_extend_seed_msg {
+	struct sab_mu_hdr hdr;
+	uint32_t rng_handle;
+	uint32_t entropy[4];
+	uint32_t crc;
+};
+
+struct sab_cmd_extend_seed_rsp {
+	struct sab_mu_hdr hdr;
+	uint32_t rsp_code;
+};
+
 struct sab_cmd_rng_open_msg {
 	struct sab_mu_hdr hdr;
 	uint32_t session_handle;
@@ -77,5 +89,15 @@ uint32_t prepare_msg_rng_close_req(void *phdl,
 				   void *args);
 
 uint32_t proc_msg_rsp_rng_close_req(void *rsp_buf, void *args);
+
+uint32_t prepare_msg_extend_seed(void *phdl,
+				 void *cmd_buf, void *rsp_buf,
+				 uint32_t *cmd_msg_sz,
+				 uint32_t *rsp_msg_sz,
+				 uint32_t msg_hdl,
+				 void *args);
+
+uint32_t proc_msg_rsp_extend_seed(void *rsp_buf, void *args);
 #endif
+
 #endif // SAB_RNG_H

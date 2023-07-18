@@ -6,11 +6,48 @@
 #include <string.h>
 
 #include "common/rng.h"
+#include <internal/she_rng.h>
 #include "sab_rng.h"
 #include "sab_messaging.h"
 
 #include "plat_os_abs.h"
 #include "plat_utils.h"
+
+#ifndef PSA_COMPLIANT
+uint32_t prepare_msg_extend_seed(void *phdl,
+				 void *cmd_buf, void *rsp_buf,
+				 uint32_t *cmd_msg_sz,
+				 uint32_t *rsp_msg_sz,
+				 uint32_t msg_hdl,
+				 void *args)
+{
+	uint32_t ret = SAB_ENGN_PASS;
+	struct sab_cmd_extend_seed_msg *cmd =
+		(struct sab_cmd_extend_seed_msg *)cmd_buf;
+	op_rng_extend_seed_t *op_args = (op_rng_extend_seed_t *)args;
+
+	if (!op_args)
+		return SAB_ENGN_FAIL;
+
+	cmd->rng_handle = msg_hdl;
+	set_phy_addr_to_words(cmd->entropy,
+			      0u,
+			      plat_os_abs_data_buf(phdl,
+						   (uint8_t *)op_args->entropy,
+						   op_args->entropy_size,
+						   DATA_BUF_IS_INPUT));
+
+	*cmd_msg_sz = sizeof(struct sab_cmd_extend_seed_msg);
+	*rsp_msg_sz = sizeof(struct sab_cmd_extend_seed_rsp);
+
+	return ret;
+}
+
+uint32_t proc_msg_rsp_extend_seed(void *rsp_buf, void *args)
+{
+	return SAB_SUCCESS_STATUS;
+}
+#endif
 
 uint32_t prepare_msg_get_rng(void *phdl,
 			     void *cmd_buf, void *rsp_buf,

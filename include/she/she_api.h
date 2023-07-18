@@ -39,6 +39,10 @@
 #include "internal/she_get_status.h"
 #endif
 
+#if MT_SAB_RNG
+#include "internal/she_rng.h"
+#endif
+
 /**
  *
  * \param args pointer to the structure containing the function arguments.

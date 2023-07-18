@@ -34,6 +34,10 @@
 #include "sab_get_status.h"
 #endif
 
+#if MT_SAB_RNG
+#include "sab_rng.h"
+#endif
+
 static  int init_proc_sab_she_msg_engine(msg_type_t msg_type,
 					 uint32_t msg_id)
 {
@@ -128,6 +132,38 @@ static  int init_proc_sab_she_msg_engine(msg_type_t msg_type,
 			ret = add_sab_msg_handler(msg_id, MT_SAB_GET_STATUS,
 						  prepare_msg_get_status,
 						  proc_msg_rsp_get_status);
+		}
+		break;
+#endif
+#if MT_SAB_RNG
+#ifndef PSA_COMPLIANT
+	case SAB_RNG_OPEN_REQ:
+		if (msg_type == MT_SAB_RNG) {
+			ret = add_sab_msg_handler(msg_id, MT_SAB_RNG,
+						  prepare_msg_rng_open_req,
+						  proc_msg_rsp_rng_open_req);
+		}
+		break;
+	case SAB_RNG_CLOSE_REQ:
+		if (msg_type == MT_SAB_RNG) {
+			ret = add_sab_msg_handler(msg_id, MT_SAB_RNG,
+						  prepare_msg_rng_close_req,
+						  proc_msg_rsp_rng_close_req);
+		}
+		break;
+	case SAB_RNG_EXTEND_SEED:
+		if (msg_type == MT_SAB_RNG) {
+			ret = add_sab_msg_handler(msg_id, MT_SAB_RNG,
+						  prepare_msg_extend_seed,
+						  proc_msg_rsp_extend_seed);
+		}
+		break;
+#endif
+	case SAB_RNG_GET_RANDOM:
+		if (msg_type == MT_SAB_RNG) {
+			ret = add_sab_msg_handler(msg_id, MT_SAB_RNG,
+						  prepare_msg_get_rng,
+						  proc_msg_rsp_get_rng);
 		}
 		break;
 #endif

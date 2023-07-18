@@ -65,6 +65,15 @@ int main(int argc, char *argv[])
 		se_print("CMD_GET_STATUS successful 0x%x\n",
 			 op_get_status_args.sreg);
 
+	err = do_she_rng_test(she_session_hdl);
+	if (err)
+		se_print("Error[0x%x]: RNG test Failed.\n", err);
+
+	err = she_get_status(she_session_hdl, &op_get_status_args);
+	if (!err)
+		se_print("CMD_GET_STATUS successful 0x%x\n",
+			 op_get_status_args.sreg);
+
 	err = she_close_session(she_session_hdl);
 
 	printf("she_close_session ret:0x%x\n", err);

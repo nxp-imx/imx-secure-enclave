@@ -35,6 +35,12 @@ SHE_API_SRC	+= \
 		$(PLAT_COMMON_PATH)/she_api/she_get_status.o
 endif
 
+ifneq (${MT_SAB_RNG},0x0)
+DEFINES		+=	-DSHE_RNG
+SHE_API_SRC	+= \
+		$(PLAT_COMMON_PATH)/she_api/she_rng.o
+endif
+
 OBJECTS		+= $(SHE_API_SRC)
 
 INCLUDE_PATHS	+= \

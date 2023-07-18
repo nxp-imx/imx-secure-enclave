@@ -34,6 +34,10 @@ she_err_t she_close_session(she_hdl_t session_hdl)
 	if (hdl->key_store_handle)
 		she_close_key_store_service(session_hdl);
 
+#ifndef PSA_COMPLIANT
+	if (hdl->rng_handle)
+		she_close_rng_service(session_hdl);
+#endif
 	sab_err = process_sab_msg(hdl->phdl,
 				  hdl->mu_type,
 				  SAB_SESSION_CLOSE_REQ,
@@ -53,6 +57,8 @@ she_err_t she_close_session(she_hdl_t session_hdl)
 		se_err("SHE RSP Error: SAB_SESSION_CLOSE_REQ [0x%x].\n", err);
 		return err;
 	}
+
+	hdl->session_handle = 0;
 
 	plat_os_abs_close_session(hdl->phdl);
 
