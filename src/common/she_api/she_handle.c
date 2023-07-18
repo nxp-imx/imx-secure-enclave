@@ -7,6 +7,7 @@
 #include <stdlib.h>
 #include <stdio.h>
 
+#include "plat_utils.h"
 #include "internal/she_handle.h"
 
 struct she_hdl_s she_sessions[SHE_MAX_SESSIONS] = {'\0'};
@@ -22,8 +23,8 @@ struct she_hdl_s *she_session_hdl_to_ptr(uint32_t hdl)
 		return ret;
 
 	for (i = 0u; i < SHE_MAX_SESSIONS; i++) {
-		printf("hdl 0x%x she_sessions[i].session_handle [0x%p] [%d] : 0x%x\n",
-		       hdl, &she_sessions[i], i, she_sessions[i].session_handle);
+		se_info("hdl 0x%x she_sessions[i].session_handle [0x%p] [%d] : 0x%x\n",
+			hdl, &she_sessions[i], i, she_sessions[i].session_handle);
 		if (hdl == she_sessions[i].session_handle) {
 			if (she_sessions[i].phdl)
 				ret = &she_sessions[i];

@@ -88,5 +88,7 @@ she_err_t she_close_utils(she_hdl_t session_hdl)
 		return err;
 	}
 
+	hdl->utils_handle = 0;
+
 	return err;
 }

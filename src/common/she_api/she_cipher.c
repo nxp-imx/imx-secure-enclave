@@ -83,5 +83,7 @@ she_err_t she_close_cipher_service(she_hdl_t session_hdl)
 		return err;
 	}
 
+	hdl->cipher_handle = 0;
+
 	return err;
 }
