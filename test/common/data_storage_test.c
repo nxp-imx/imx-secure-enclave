@@ -239,7 +239,7 @@ void data_storage_test(hsm_hdl_t key_store_hdl, int arg)
 	printf("---------------------------------------------------\n");
 }
 
-#if MT_SAB_ENC_DATA_STORAGE
+#ifdef PSA_COMPLIANT
 static hsm_err_t generate_key(hsm_hdl_t key_mgmt_hdl,
 			      hsm_key_type_t key_type,
 			      hsm_key_group_t key_group,

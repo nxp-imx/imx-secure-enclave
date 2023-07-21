@@ -365,12 +365,10 @@ static void transient_key_tests(hsm_hdl_t sess_hdl, hsm_hdl_t key_store_hdl)
 		key_store_hdl, &key_mgmt_args, &key_mgmt_hdl);
 	printf("hsm_open_key_management_service ret:0x%x\n", hsmret);
 
-#if MT_SAB_ENC_DATA_STORAGE
+#ifdef PSA_COMPLIANT
 	//Data Storage (Encrypted and Signed)
 	enc_data_storage_test(key_mgmt_hdl, key_store_hdl);
-#endif
 
-#ifdef PSA_COMPLIANT
 	//Permanent Key Test
 	test_perm_key_kgen(key_mgmt_hdl);
 #endif

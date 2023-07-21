@@ -308,7 +308,6 @@ hsm_err_t hsm_do_hash(hsm_hdl_t session_hdl, op_hash_one_go_args_t *args);
  */
 hsm_err_t hsm_data_ops(hsm_hdl_t key_store_hdl,
 			 op_data_storage_args_t *args);
-#if MT_SAB_ENC_DATA_STORAGE
 /**
  * Secondary API to store encrypted and signed data in NVM.
  *
@@ -328,7 +327,6 @@ hsm_err_t hsm_data_ops(hsm_hdl_t key_store_hdl,
  */
 hsm_err_t hsm_enc_data_ops(hsm_hdl_t key_store_hdl,
 			   op_enc_data_storage_args_t *args);
-#endif
 /** @} end of data storage service flow */
 
 /**

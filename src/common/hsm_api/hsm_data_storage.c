@@ -204,7 +204,6 @@ exit:
 	return op_err;
 }
 
-#if MT_SAB_ENC_DATA_STORAGE
 hsm_err_t hsm_enc_data_storage(hsm_hdl_t data_storage_hdl,
 			       op_enc_data_storage_args_t *args)
 {
@@ -289,4 +288,3 @@ hsm_err_t hsm_enc_data_ops(hsm_hdl_t key_store_hdl,
 exit:
 	return op_err;
 }
-#endif

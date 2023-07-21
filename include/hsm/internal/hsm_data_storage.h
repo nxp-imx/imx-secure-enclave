@@ -117,7 +117,6 @@ hsm_err_t hsm_data_storage(hsm_hdl_t data_storage_hdl, op_data_storage_args_t *a
 //!< Retrieve data.
 #define HSM_OP_DATA_STORAGE_FLAGS_RETRIEVE ((hsm_op_data_storage_flags_t)(0u << 1))
 
-#if MT_SAB_ENC_DATA_STORAGE
 /**
  * Bitmap specifying the encrypted data storage operation supported attributes
  */
@@ -168,8 +167,6 @@ typedef struct {
  */
 hsm_err_t hsm_enc_data_storage(hsm_hdl_t data_storage_hdl,
 			       op_enc_data_storage_args_t *args);
-
-#endif
 
 /**
  * Terminate a previously opened data storage service flow
