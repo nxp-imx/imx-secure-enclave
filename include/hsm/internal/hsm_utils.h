@@ -184,4 +184,33 @@ typedef enum {
 /** @} end of error code group */
 
 hsm_err_t sab_rating_to_hsm_err(uint32_t sab_err);
+
+#define TLV_LEN_GREATER_THAN_ONE_BYTE           0x80
+
+/**
+ * return the number of bytes required for representing length of the
+ * length field of the input TLV buffer
+ *
+ * \param tlv_buf pointer to the input TLV buffer
+ * \param len pointer for getting the length of length field, in bytes,
+ *
+ * \return number of bytes representing the length
+ */
+uint32_t get_tlv_data_len(uint8_t *tlv_buf, uint32_t *len);
+/**
+ * return the index of the next TLV data buffer
+ *
+ * \param data pointer to the pointer to get the required data buffer from TLV
+ * \param len pointer to get the length of the data being fetched
+ * \param tag TAG of the data buffer which is to be fetched from TLV
+ * \param tag_len length of the tag in bytes
+ * \param tlv_buf pointer to the input TLV buffer
+ *
+ * \return index of the next TLV data buffer
+ */
+uint32_t decode_from_tlv_buf(uint8_t **data,
+			     uint32_t *len,
+			     uint8_t tag,
+			     uint8_t tag_len,
+			     uint8_t *tlv_buf);
 #endif

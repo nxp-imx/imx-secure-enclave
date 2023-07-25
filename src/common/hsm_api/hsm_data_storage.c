@@ -288,3 +288,75 @@ hsm_err_t hsm_enc_data_ops(hsm_hdl_t key_store_hdl,
 exit:
 	return op_err;
 }
+
+uint8_t decode_enc_data_tlv(op_data_storage_args_t *args)
+{
+	uint8_t ret = 1;
+#ifdef PSA_COMPLIANT
+	uint32_t next_tlv_data_idx = 0;
+	uint32_t uuid_len = 0;
+	uint32_t iv_len = 0;
+	uint32_t signature_len = 0;
+
+	if (!args || !args->data)
+		goto out;
+
+	next_tlv_data_idx += decode_from_tlv_buf(&args->uuid,
+						 &uuid_len,
+						 ENC_DATA_TLV_DEV_UUID_TAG,
+						 ENC_DATA_TLV_DEV_UUID_TAG_LEN,
+						 &args->data[next_tlv_data_idx]);
+
+	if (next_tlv_data_idx >= args->data_size)
+		goto out;
+
+	next_tlv_data_idx = TO_UINT32_T(next_tlv_data_idx +
+				decode_from_tlv_buf(&args->iv,
+						    &iv_len,
+						    ENC_DATA_TLV_IV_TAG,
+						    ENC_DATA_TLV_IV_TAG_LEN,
+						    &args->data[next_tlv_data_idx]));
+
+	if (next_tlv_data_idx >= args->data_size)
+		goto out;
+
+	next_tlv_data_idx = TO_UINT32_T(next_tlv_data_idx +
+				decode_from_tlv_buf(&args->ciphertext,
+						    &args->ciphertext_len,
+						    ENC_DATA_TLV_ENC_DATA_TAG,
+						    ENC_DATA_TLV_ENC_DATA_TAG_LEN,
+						    &args->data[next_tlv_data_idx]));
+
+	if (next_tlv_data_idx >= args->data_size)
+		goto out;
+
+	decode_from_tlv_buf(&args->signature,
+			    &signature_len,
+			    ENC_DATA_TLV_SIGN_TAG,
+			    ENC_DATA_TLV_SIGN_TAG_LEN,
+			    &args->data[next_tlv_data_idx]);
+
+	args->uuid_len = TO_UINT16_T(uuid_len);
+	args->iv_len = TO_UINT16_T(iv_len);
+	args->signature_len = TO_UINT16_T(signature_len);
+
+	if (args->signature_len &&
+	    args->data_size > args->signature_len) {
+		args->payload_len  = args->data_size - args->signature_len;
+
+		args->payload = plat_os_abs_malloc(args->payload_len);
+		if (!args->payload) {
+			se_err("Malloc failure.\n");
+			goto out;
+		}
+
+		plat_os_abs_memcpy(args->payload,
+				   args->data,
+				   args->payload_len);
+	}
+
+	ret = 0;
+#endif
+out:
+	return ret;
+}

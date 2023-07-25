@@ -22,48 +22,6 @@
 #define LAST_IDX_IN_A_LINE	(LINE_SIZE - 1)
 #define LOG_LEVEL		1
 
-#define DATA_TLV_DEV_UUID_TAG	0x41
-#define DATA_TLV_IV_TAG		0x45
-#define DATA_TLV_ENC_DATA_TAG	0x46
-#define DATA_TLV_SIGN_TAG	0x5E
-
-// Tag Field size in bytes
-#define DATA_TLV_DEV_UUID_TAG_SZ	1
-#define DATA_TLV_IV_TAG_SZ		1
-#define DATA_TLV_ENC_DATA_TAG_SZ	1
-#define DATA_TLV_SIGN_TAG_SZ		1
-
-//Data TLV Length Fields sizes in bytes
-#define DATA_TLV_DEV_UUID_LEN_SZ	1
-#define DATA_TLV_IV_LEN_SZ		1
-/**
- * Data TLV Encypted Data length field can be of variable size in bytes,
- * For small data buffer sizes used in the test cases here,1 byte size
- * can be considered
- */
-#define DATA_TLV_ENC_DATA_LEN_SZ        1
-#define DATA_TLV_SIGN_LEN_SZ		1
-
-//Data TLV Value sizes in bytes
-#define DATA_TLV_DEV_UUID_LEN		16
-#define DATA_TLV_IV_LEN			16
-#define DATA_TLV_SIGN_LEN		16
-
-#define DATA_TLV_DEV_UUID_OFFSET	\
-	(DATA_TLV_DEV_UUID_TAG_SZ + DATA_TLV_DEV_UUID_LEN_SZ)
-
-#define DATA_TLV_ENC_DATA_WO_IV_OFFSET \
-	(DATA_TLV_DEV_UUID_OFFSET + DATA_TLV_DEV_UUID_LEN + \
-	 DATA_TLV_ENC_DATA_TAG_SZ + DATA_TLV_ENC_DATA_LEN_SZ)
-
-#define DATA_TLV_IV_OFFSET	\
-	(DATA_TLV_DEV_UUID_OFFSET + DATA_TLV_DEV_UUID_LEN +\
-	 DATA_TLV_IV_TAG_SZ + DATA_TLV_IV_LEN_SZ)
-
-#define DATA_TLV_ENC_DATA_W_IV_OFFSET \
-	(DATA_TLV_IV_OFFSET + DATA_TLV_IV_LEN + \
-	 DATA_TLV_ENC_DATA_TAG_SZ + DATA_TLV_ENC_DATA_LEN_SZ)
-
 static void test_status(uint8_t *input, uint8_t *output, int len, char *result_str)
 {
 	int j;
@@ -130,7 +88,6 @@ static uint8_t iv_data[16] = {
 
 uint8_t recieved_data[300];
 static uint8_t retrieved_enc_data[256]; //More buffer than needed
-static uint8_t retrieved_iv[16];
 
 static uint8_t is_buff_empty(uint8_t *data_buff, uint32_t size)
 {
@@ -278,31 +235,14 @@ void enc_data_storage_test(hsm_hdl_t key_mgmt_hdl, hsm_hdl_t key_store_hdl)
 	op_data_storage_args_t data_storage_args = {0};
 	op_cipher_one_go_args_t cipher_args = {0};
 	op_mac_one_go_args_t mac_args = {0};
-	uint8_t cipher_data[64] = {0};
 	uint8_t deciphered_data[64] = {0};
-	uint8_t signature[16] = {0};
 	uint32_t enc_key_id = 0;
 	uint32_t sign_key_id = 0;
-	uint32_t exp_enc_data_size;
 	hsm_err_t err;
 
 	printf("\n---------------------------------------------------\n");
 	printf("Encrypted Data Storage API Test\n");
 	printf("---------------------------------------------------\n");
-
-	//Expected Output size for Encrypted + Signed Data
-	exp_enc_data_size = DATA_TLV_DEV_UUID_TAG_SZ +
-			    DATA_TLV_DEV_UUID_LEN_SZ +
-			    DATA_TLV_DEV_UUID_LEN +
-			    DATA_TLV_IV_TAG_SZ +
-			    DATA_TLV_IV_LEN_SZ +
-			    DATA_TLV_IV_LEN +
-			    DATA_TLV_ENC_DATA_TAG_SZ +
-			    DATA_TLV_ENC_DATA_LEN_SZ +
-			    sizeof(cipher_data) +
-			    DATA_TLV_SIGN_TAG_SZ +
-			    DATA_TLV_SIGN_LEN_SZ +
-			    DATA_TLV_SIGN_LEN;
 
 	//Generate Key for Cipher operation
 	err = generate_key(key_mgmt_hdl,
@@ -366,18 +306,9 @@ void enc_data_storage_test(hsm_hdl_t key_mgmt_hdl, hsm_hdl_t key_store_hdl)
 		printf("Data [Encrypted + Signed] stored. SUCCESS\n\n");
 	}
 
-	if (enc_data_storage_args.out_data_size != exp_enc_data_size) {
-		printf("Fail: Output Data size[%u] doesn't match Expected Size[%u]\n",
-		       enc_data_storage_args.out_data_size,
-		       exp_enc_data_size);
-		goto out;
-	}
-
 	//Retrieve Encrypted and Signed Data stored in NVM
 	memset(&data_storage_args, 0, sizeof(data_storage_args));
 	memset(retrieved_enc_data, 0, sizeof(retrieved_enc_data));
-	memset(cipher_data, 0, sizeof(cipher_data));
-	memset(signature, 0, sizeof(signature));
 
 	data_storage_args.svc_flags = 0;
 	data_storage_args.data = retrieved_enc_data;
@@ -391,33 +322,18 @@ void enc_data_storage_test(hsm_hdl_t key_mgmt_hdl, hsm_hdl_t key_store_hdl)
 		goto out;
 	} else {
 		printf("Data [Encrypted + Signed] retrieved. SUCCESS\n\n");
+		if (decode_enc_data_tlv(&data_storage_args))
+			printf("\nDecode Encrypted Data TLV: Failed.\n");
 	}
-
-	//Extract the IV Data from (Encrypted + Signed TLV) data received
-	memcpy(retrieved_iv,
-	       retrieved_enc_data + DATA_TLV_IV_OFFSET,
-	       sizeof(retrieved_iv));
-
-	//Extract the Encrypted Data from (Encrypted + Signed TLV) data received
-	memcpy(cipher_data,
-	       retrieved_enc_data + DATA_TLV_ENC_DATA_W_IV_OFFSET,
-	       sizeof(cipher_data));
-
-	//Extract the Signature from (Encrypted + Signed TLV) data received
-	memcpy(signature,
-	       retrieved_enc_data + DATA_TLV_ENC_DATA_W_IV_OFFSET +
-	       sizeof(cipher_data) +
-	       DATA_TLV_SIGN_TAG_SZ + DATA_TLV_SIGN_LEN_SZ,
-	       sizeof(signature));
 
 	//Signature Verification
 	memset(&mac_args, 0, sizeof(mac_args));
 
 	mac_args.key_identifier = sign_key_id;
-	mac_args.payload = retrieved_enc_data;
-	mac_args.mac = signature;
-	mac_args.payload_size = enc_data_storage_args.out_data_size - DATA_TLV_SIGN_LEN;
-	mac_args.mac_size = sizeof(signature);
+	mac_args.payload = data_storage_args.payload;
+	mac_args.mac = data_storage_args.signature;
+	mac_args.payload_size = data_storage_args.payload_len;
+	mac_args.mac_size = data_storage_args.signature_len;
 	mac_args.flags = HSM_OP_MAC_ONE_GO_FLAGS_MAC_VERIFICATION;
 	mac_args.algorithm = PERMITTED_ALGO_CMAC;
 
@@ -441,13 +357,13 @@ void enc_data_storage_test(hsm_hdl_t key_mgmt_hdl, hsm_hdl_t key_store_hdl)
 	memset(deciphered_data, 0, sizeof(deciphered_data));
 
 	cipher_args.key_identifier = enc_key_id;
-	cipher_args.iv = retrieved_iv;
-	cipher_args.iv_size = sizeof(retrieved_iv);
+	cipher_args.iv = data_storage_args.iv;
+	cipher_args.iv_size = data_storage_args.iv_len;
 	cipher_args.cipher_algo = HSM_CIPHER_ONE_GO_ALGO_CBC;
 	cipher_args.flags = HSM_CIPHER_ONE_GO_FLAGS_DECRYPT;
-	cipher_args.input = cipher_data;
+	cipher_args.input = data_storage_args.ciphertext;
 	cipher_args.output = deciphered_data;
-	cipher_args.input_size = sizeof(cipher_data);
+	cipher_args.input_size = data_storage_args.ciphertext_len;
 	cipher_args.output_size = sizeof(deciphered_data);
 
 	err = hsm_do_cipher(key_store_hdl, &cipher_args);

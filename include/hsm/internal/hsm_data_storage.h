@@ -66,15 +66,12 @@ typedef struct {
 	//!< flags bitmap specifying the operation attributes.
 	hsm_op_data_storage_flags_t svc_flags;
 #ifdef PSA_COMPLIANT
-#ifdef DECODE_ENC_DATA_TLV
 	/**
 	 * In case RETRIEVE, if the data retrieved is in TLV format
 	 * which was stored by Encrypted Data Storage API. The TLV
 	 * format data will be decoded to fill the following fields.
-	 * An identifier will be needed to identify if the retrieved
-	 * data is in TLV format or not.
 	 */
-	uint32_t uuid_len;
+	uint16_t uuid_len;
 	//!< Device UUID length in bytes
 	uint8_t *uuid;
 	//!< Device UUID
@@ -94,10 +91,9 @@ typedef struct {
 	//!< signature length in bytes
 	uint8_t *signature;
 	//!< signature buffer
-#endif
+	uint32_t exp_output_size;
 	//!< expected output buffer size in bytes, valid in case of HSM_OUT_TOO_SMALL
 	//   (0x1D) error code
-	uint32_t exp_output_size;
 #endif
 } op_data_storage_args_t;
 
@@ -116,6 +112,22 @@ hsm_err_t hsm_data_storage(hsm_hdl_t data_storage_hdl, op_data_storage_args_t *a
 #define HSM_OP_DATA_STORAGE_FLAGS_STORE    ((hsm_op_data_storage_flags_t)(1u << 1))
 //!< Retrieve data.
 #define HSM_OP_DATA_STORAGE_FLAGS_RETRIEVE ((hsm_op_data_storage_flags_t)(0u << 1))
+
+/**
+ * Encrypted Data TLV Tags
+ */
+#define ENC_DATA_TLV_DEV_UUID_TAG   0x41u
+#define ENC_DATA_TLV_IV_TAG         0x45u
+#define ENC_DATA_TLV_ENC_DATA_TAG   0x46u
+#define ENC_DATA_TLV_SIGN_TAG       0x5Eu
+
+/**
+ * Encrypted Data TLV Tags lengths
+ */
+#define ENC_DATA_TLV_DEV_UUID_TAG_LEN   0x01u
+#define ENC_DATA_TLV_IV_TAG_LEN         0x01u
+#define ENC_DATA_TLV_ENC_DATA_TAG_LEN   0x01u
+#define ENC_DATA_TLV_SIGN_TAG_LEN       0x01u
 
 /**
  * Bitmap specifying the encrypted data storage operation supported attributes
@@ -167,6 +179,15 @@ typedef struct {
  */
 hsm_err_t hsm_enc_data_storage(hsm_hdl_t data_storage_hdl,
 			       op_enc_data_storage_args_t *args);
+/**
+ * Decode and populate the data storage op args for Encrypted Data TLV fields
+ *
+ * \param args pointer to the structure containing Retrieved Encrypted Data TLV
+ *  buffer and to be populated with decoded data from TLV.
+ *
+ * \return error code 0 for success
+ */
+uint8_t decode_enc_data_tlv(op_data_storage_args_t *args);
 
 /**
  * Terminate a previously opened data storage service flow
