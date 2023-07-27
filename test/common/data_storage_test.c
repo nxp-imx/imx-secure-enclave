@@ -72,22 +72,13 @@ static uint8_t  test_data[300] = {
 	0x85, 0xF4, 0xFE, 0x7E, 0xD8, 0xDB, 0x7A, 0x26, 0x2B, 0x9D, 0xA7, 0xE0,
 };
 
-static uint8_t test_plain_data[64] = {
-	0xB2, 0xE1, 0x4C, 0x5C, 0x79, 0xC6, 0xDF, 0x5B, 0x85, 0xF4, 0xFE, 0x7E,
-	0xD8, 0xDB, 0x7A, 0x26,	0x2B, 0x9D, 0xA7, 0xE0, 0x7C, 0xCB, 0x0E, 0xA9,
-	0xF4, 0x74, 0x7B, 0x8C, 0xCD, 0xA8, 0xA4, 0xF3, 0x6D, 0x65, 0x73, 0x73,
-	0x61, 0x67, 0x65, 0x20, 0xB2, 0xE1, 0x4C, 0x5C, 0x79, 0xC6, 0xDF, 0x5B,
-	0x85, 0xF4, 0xFE, 0x7E, 0xD8, 0xDB, 0x7A, 0x26, 0x2B, 0x9D, 0xA7, 0xE0,
-	0x7C, 0xCB, 0x0E, 0xA9,
-};
-
 static uint8_t iv_data[16] = {
 	0x08, 0x09, 0x0A, 0x0B, 0x0C, 0x0D, 0x0E, 0x0F,
 	0x00, 0x01, 0x02, 0x03, 0x04, 0x05, 0x06, 0x07,
 };
 
 uint8_t recieved_data[300];
-static uint8_t retrieved_enc_data[256]; //More buffer than needed
+static uint8_t retrieved_enc_data[512]; //More buffer than needed
 
 static uint8_t is_buff_empty(uint8_t *data_buff, uint32_t size)
 {
@@ -235,7 +226,7 @@ void enc_data_storage_test(hsm_hdl_t key_mgmt_hdl, hsm_hdl_t key_store_hdl)
 	op_data_storage_args_t data_storage_args = {0};
 	op_cipher_one_go_args_t cipher_args = {0};
 	op_mac_one_go_args_t mac_args = {0};
-	uint8_t deciphered_data[64] = {0};
+	uint8_t deciphered_data[304] = {0};
 	uint32_t enc_key_id = 0;
 	uint32_t sign_key_id = 0;
 	hsm_err_t err;
@@ -286,8 +277,8 @@ void enc_data_storage_test(hsm_hdl_t key_mgmt_hdl, hsm_hdl_t key_store_hdl)
 	memset(&enc_data_storage_args, 0, sizeof(enc_data_storage_args));
 
 	enc_data_storage_args.svc_flags = 0;
-	enc_data_storage_args.data = test_plain_data;
-	enc_data_storage_args.data_size = sizeof(test_plain_data);
+	enc_data_storage_args.data = test_data;
+	enc_data_storage_args.data_size = sizeof(test_data);
 	enc_data_storage_args.data_id = ENC_DATA_ID;
 	enc_data_storage_args.enc_algo = HSM_CIPHER_ONE_GO_ALGO_CBC;
 	enc_data_storage_args.enc_key_id = enc_key_id;
@@ -372,7 +363,7 @@ void enc_data_storage_test(hsm_hdl_t key_mgmt_hdl, hsm_hdl_t key_store_hdl)
 		goto out;
 	}
 
-	if (memcmp(test_plain_data, deciphered_data, sizeof(test_plain_data)) == 0)
+	if (memcmp(test_data, deciphered_data, sizeof(test_data)) == 0)
 		printf("Decrypted data matches stored Plain data. SUCCESS\n\n");
 	else
 		printf("Fail: Decrypted data doesn't match stored Plain data\n\n");
@@ -392,15 +383,18 @@ void enc_data_storage_test(hsm_hdl_t key_mgmt_hdl, hsm_hdl_t key_store_hdl)
 	data_storage_args.flags |= HSM_OP_DATA_STORAGE_FLAGS_RETRIEVE;
 
 	err = hsm_data_ops(key_store_hdl, &data_storage_args);
-	if (err != HSM_NO_ERROR) {
-		printf("hsm_data_ops [RETRIEVE Again] err:0x%x\n", err);
-		goto out;
-	}
 
-	if (!is_buff_empty(retrieved_enc_data, enc_data_storage_args.out_data_size))
-		printf("Retrieved Again: Encrypted + Signed Data Empty. SUCCESS\n");
-	else
-		printf("Fail: Retrieved Again Encrypted + Signed Data not Empty\n");
+	if (err == HSM_DATA_ALREADY_RETRIEVED) {
+		printf("hsm_data_ops [RETRIEVE Again] err: 0x%x. SUCCESS\n", err);
+
+		if (!is_buff_empty(retrieved_enc_data,
+				   enc_data_storage_args.out_data_size))
+			printf("Retrieved Again: Data Empty. SUCCESS\n");
+		else
+			printf("Fail: Retrieved Again, Data Not Empty\n");
+	} else {
+		printf("hsm_data_ops [RETRIEVE Again] err: 0x%x. FAIL\n", err);
+	}
 
 out:
 	printf("---------------------------------------------------\n");

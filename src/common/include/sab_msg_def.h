@@ -206,6 +206,7 @@
 #define SAB_KEY_NOT_SUPPORTED_RATING            (0x1Bu)
 #define SAB_TRYING_TO_DEL_PERM_KEY              (0x1Cu)
 #define SAB_OUT_LEN_TOO_SHORT_RATING            (0x1Du)
+#define SAB_DATA_ALREADY_RETRIEVED_RATING       (0x1Fu)
 #define SAB_CRC_CHECK_FAIL_RATING               (0xB9u)
 
 /* SHE specific rating */

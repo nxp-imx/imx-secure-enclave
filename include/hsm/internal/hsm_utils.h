@@ -155,6 +155,8 @@ typedef enum {
 	HSM_CANNOT_DELETE_PERMANENT_KEY     = 0x1C,
 	/**<	Output buffer size is too small */
 	HSM_OUT_TOO_SMALL                   = 0x1D,
+	/**<	Data is Read Once, and has already been retrieved */
+	HSM_DATA_ALREADY_RETRIEVED          = 0x1F,
 	/**<	Command CRC check error */
 	HSM_CRC_CHECK_ERR                   = 0xB9,
 	/**<    In OEM closed lifecycle, Signed message signature verification
