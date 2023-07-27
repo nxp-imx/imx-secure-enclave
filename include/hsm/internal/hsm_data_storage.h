@@ -53,18 +53,18 @@ typedef uint8_t hsm_op_data_storage_flags_t;
  * Structure detailing the data storage operation member arguments
  */
 typedef struct {
+	uint8_t *data;
 	//!< pointer to the data. In case of store request,
 	//   it will be the input data to store. In case of retrieve,
 	//   it will be the pointer where to load data.
-	uint8_t *data;
-	//!< length in bytes of the data
 	uint32_t data_size;
-	//!< id of the data
+	//!< length in bytes of the data
 	uint32_t data_id;
-	//!< bitmap specifying the services properties.
-	hsm_svc_data_storage_flags_t flags;
+	//!< id of the data
+	hsm_op_data_storage_flags_t flags;
 	//!< flags bitmap specifying the operation attributes.
-	hsm_op_data_storage_flags_t svc_flags;
+	hsm_svc_data_storage_flags_t svc_flags;
+	//!< bitmap specifying the services properties.
 #ifdef PSA_COMPLIANT
 	/**
 	 * In case RETRIEVE, if the data retrieved is in TLV format
