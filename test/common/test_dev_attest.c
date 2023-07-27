@@ -1,6 +1,6 @@
 // SPDX-License-Identifier: BSD-3-Clause
 /*
- * Copyright 2022 NXP
+ * Copyright 2022-2023 NXP
  */
 
 #include <stdio.h>
@@ -8,6 +8,9 @@
 
 #include "hsm_api.h"
 #include "common.h"
+
+uint8_t nounce_buf[16] = {0x1D, 0xAF, 0xAA, 0xEB, 0x19, 0x4D, 0xCA, 0xBE,
+			  0xEF, 0xAE, 0xCB, 0xDD, 0x42, 0x2E, 0x1F, 0xCE};
 
 void perform_dev_attestation(hsm_hdl_t sess_hdl)
 {
@@ -20,7 +23,13 @@ void perform_dev_attestation(hsm_hdl_t sess_hdl)
 	printf("Performing Device Attestation\n");
 	printf("---------------------------------------------------\n");
 
-	dev_attest_args.nounce = 0xdeadbeef;
+	if (global_info.ver == HSM_API_VERSION_1) {
+		dev_attest_args.nounce = 0xdeadbeef;
+	} else if (global_info.ver == HSM_API_VERSION_2) {
+		dev_attest_args.nounce_buf_sz = sizeof(nounce_buf);
+		dev_attest_args.nounce_buf = nounce_buf;
+	}
+
 	err = hsm_dev_attest(sess_hdl, &dev_attest_args);
 	if (err != HSM_NO_ERROR)
 		printf("hsm_dev_attest failed err:0x%x\n", err);
@@ -42,9 +51,33 @@ void perform_dev_attestation(hsm_hdl_t sess_hdl)
 		hexdump((uint32_t *)dev_attest_args.sha_fw,
 			dev_attest_args.sha_fw_sz/sizeof(uint32_t));
 
-		printf("USR Nounce = 0x%x\n", dev_attest_args.nounce);
-		printf("FW Nounce = 0x%x\n", dev_attest_args.rsp_nounce);
-		printf("Attest Result = 0x%x\n", dev_attest_args.attest_result);
+		if (global_info.ver == HSM_API_VERSION_1) {
+			printf("USR Nounce = 0x%x\n", dev_attest_args.nounce);
+			printf("FW Nounce = 0x%x\n", dev_attest_args.rsp_nounce);
+
+		} else if (global_info.ver == HSM_API_VERSION_2) {
+			printf("USR Nounce =");
+			hexdump((uint32_t *)dev_attest_args.nounce_buf,
+				dev_attest_args.nounce_buf_sz / sizeof(uint32_t));
+
+			printf("FW Nounce =");
+			hexdump((uint32_t *)dev_attest_args.rsp_nounce_buf,
+				dev_attest_args.rsp_nounce_buf_sz / sizeof(uint32_t));
+
+			printf("FW OEM SRKH:");
+			hexdump((uint32_t *)dev_attest_args.oem_srkh,
+				dev_attest_args.oem_srkh_sz / sizeof(uint32_t));
+
+			printf("IMEM state = 0x%x.\n", dev_attest_args.imem_state);
+			printf("CSAL state = 0x%x.\n", dev_attest_args.csal_state);
+			printf("TRNG state = 0x%x.\n", dev_attest_args.trng_state);
+		}
+
+		printf("\nGet Info Buffer:");
+		hexdump((uint32_t *)dev_attest_args.info_buf,
+			dev_attest_args.info_buf_sz / sizeof(uint32_t));
+
+		printf("Attest Result = 0x%x\n\n", dev_attest_args.attest_result);
 		printf("Signature:");
 		hexdump((uint32_t *)dev_attest_args.signature,
 			dev_attest_args.sign_sz/sizeof(uint32_t));

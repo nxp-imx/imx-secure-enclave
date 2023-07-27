@@ -1,6 +1,6 @@
 // SPDX-License-Identifier: BSD-3-Clause
 /*
- * Copyright 2022 NXP
+ * Copyright 2022-2023 NXP
  */
 
 #ifndef SAB_DEV_ATTEST_H
@@ -9,9 +9,10 @@
 #include "sab_msg_def.h"
 #include "sab_dev_getinfo.h"
 
-#define DEV_ATTEST_SIGN_SIZE       (96)
+#define DEV_ATTEST_SIGN_SIZE          (96)
+#define DEV_ATTEST_NOUNCE_SIZE_V2     (16)
 
-struct sab_cmd_dev_attest_msg {
+struct sab_cmd_dev_attest_msg_v1 {
 	struct sab_mu_hdr hdr;
 	uint32_t rsp_data_addr_hi;
 	uint32_t rsp_data_addr_lo;
@@ -21,15 +22,33 @@ struct sab_cmd_dev_attest_msg {
 	uint32_t crc;
 };
 
+struct sab_cmd_dev_attest_msg_v2 {
+	struct sab_mu_hdr hdr;
+	uint32_t rsp_data_addr_hi;
+	uint32_t rsp_data_addr_lo;
+	uint16_t buf_sz;
+	uint16_t reserved;
+	uint8_t nounce[DEV_ATTEST_NOUNCE_SIZE_V2];
+	uint32_t crc;
+};
+
 struct sab_cmd_dev_attest_rsp {
 	struct sab_mu_hdr hdr;
 	uint32_t rsp_code;
 };
 
-struct sab_cmd_dev_attest_rsp_w_data {
+struct sab_cmd_dev_attest_rsp_w_data_v1 {
 	struct sab_cmd_dev_attest_rsp rsp;
 	struct dev_info d_info;
 	uint32_t nounce;
+	uint8_t  signature[DEV_ATTEST_SIGN_SIZE];
+};
+
+struct sab_cmd_dev_attest_rsp_w_data_v2 {
+	struct sab_cmd_dev_attest_rsp rsp;
+	struct dev_info d_info;
+	struct dev_addn_info d_addn_info;
+	uint8_t nounce[DEV_ATTEST_NOUNCE_SIZE_V2];
 	uint8_t  signature[DEV_ATTEST_SIGN_SIZE];
 };
 
