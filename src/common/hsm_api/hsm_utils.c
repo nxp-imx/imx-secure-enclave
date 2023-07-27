@@ -324,6 +324,12 @@ void populate_global_info(hsm_hdl_t hsm_session_hdl)
 
 	global_info.soc_id = dev_getinfo_args.soc_id;
 	global_info.soc_rev = dev_getinfo_args.soc_rev;
+
+	if (global_info.soc_id == SOC_IMX93 && global_info.soc_rev == SOC_REV_A1)
+		global_info.ver = HSM_API_VERSION_2;
+	else
+		global_info.ver = HSM_API_VERSION_1;
+
 	global_info.lifecycle = dev_getinfo_args.lmda_val;
 	global_info.lib_major_ver = LIB_MAJOR_VER;
 	global_info.lib_minor_ver = LIB_MINOR_VER;

@@ -24,27 +24,32 @@
 
 #define GINFO_COMMIT_ID_SZ   40
 
+#define HSM_API_VERSION_1    0x1
+#define HSM_API_VERSION_2    0x2
+
 /**
  * Global Information structure contain information about SoC and the Library.
  * It will be used globally to take platform specific decisions.
  */
 struct global_info_s {
-	//!< SoC ID
+	uint8_t ver;
+	//!< Supported version of HSM APIs
 	uint16_t soc_id;
-	//!< SoC Revision
+	//!< SoC ID
 	uint16_t soc_rev;
-	//!< Device Lifecycle
+	//!< SoC Revision
 	uint16_t lifecycle;
-	//!< Secure Enclave Library Major Version
+	//!< Device Lifecycle
 	uint32_t lib_major_ver;
-	//!< Secure Enclave Library Minor Version
+	//!< Secure Enclave Library Major Version
 	uint32_t lib_minor_ver;
-	//!< NVM Library Major Version
+	//!< Secure Enclave Library Minor Version
 	uint32_t nvm_major_ver;
-	//!< NVM Library Minor Version
+	//!< NVM Library Major Version
 	uint32_t nvm_minor_ver;
-	//!< Secure Enclave Build Commit ID
+	//!< NVM Library Minor Version
 	char se_commit_id[GINFO_COMMIT_ID_SZ];
+	//!< Secure Enclave Build Commit ID
 };
 
 /**
