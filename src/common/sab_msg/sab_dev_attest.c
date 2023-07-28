@@ -123,7 +123,6 @@ uint32_t proc_msg_rsp_dev_attest(void *rsp_buf, void *args)
 		(struct sab_cmd_dev_attest_rsp_w_data_v1 *)rsp_buf;
 	struct sab_cmd_dev_attest_rsp_w_data_v2 *rsp_w_data_v2 =
 		(struct sab_cmd_dev_attest_rsp_w_data_v2 *)rsp_buf;
-	void *info_buf_data = NULL;
 
 	if (!op_args)
 		return SAB_FAILURE_STATUS;
@@ -202,9 +201,18 @@ uint32_t proc_msg_rsp_dev_attest(void *rsp_buf, void *args)
 		}
 
 		op_args->info_buf_sz = sizeof(struct dev_info) + sizeof(uint32_t);
-		info_buf_data = (void *)(&rsp_w_data_v1->d_info);
+		/**
+		 * Version 1 Info Buffer:
+		 * Get Info Buffer (version 1) + Nounce
+		 *
+		 * Copying the required info to op args, from starting
+		 * address of d_info, and till nounce end.
+		 * As per the defined structure, the memory being accessed here
+		 * beyond the d_info field is sure to be available and the
+		 * required one till Nounce.
+		 */
 		plat_os_abs_memcpy(op_args->info_buf,
-				   info_buf_data,
+				   (uint8_t *)(&rsp_w_data_v1->d_info),
 				   op_args->info_buf_sz);
 	} else if (global_info.ver == HSM_API_VERSION_2) {
 		op_args->oem_srkh = plat_os_abs_malloc(DEV_GETINFO_OEM_SRKH_SZ);
@@ -255,9 +263,18 @@ uint32_t proc_msg_rsp_dev_attest(void *rsp_buf, void *args)
 		op_args->info_buf_sz = sizeof(struct dev_info) +
 				       sizeof(struct dev_addn_info) +
 				       DEV_ATTEST_NOUNCE_SIZE_V2;
-		info_buf_data = (void *)(&rsp_w_data_v2->d_info);
+		/**
+		 * Version 2 Info Buffer:
+		 * Get Info Buffer (version 2) + Nounce buffer
+		 *
+		 * Copying the required info to op args, from starting
+		 * address of d_info, and till nounce buffer end.
+		 * As per the defined structure, the memory being accessed here
+		 * beyond the d_info field is sure to be available and the
+		 * required one till Nounce buffer end.
+		 */
 		plat_os_abs_memcpy(op_args->info_buf,
-				   info_buf_data,
+				   (uint8_t *)(&rsp_w_data_v2->d_info),
 				   op_args->info_buf_sz);
 	}
 
