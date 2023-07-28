@@ -166,7 +166,8 @@ she_err_t she_open_session(open_session_args_t *args, she_hdl_t *session_hdl)
 
 		*session_hdl = hdl->session_handle;
 
-		printf("open session 0x%x : 0x%x\n", hdl->session_handle, *session_hdl);
+		se_print("open session : 0x%x : 0x%x\n",
+			 hdl->session_handle, *session_hdl);
 
 		if (!she_v2x_mu) {
 			/* Get a SECURE RAM partition to be used as shared buffer */
@@ -189,8 +190,8 @@ she_err_t she_open_session(open_session_args_t *args, she_hdl_t *session_hdl)
 				       err);
 				break;
 			}
-			printf("Get shared buffer 0x%x : 0x%x\n",
-			       buf_args.shared_buf_offset, buf_args.shared_buf_size);
+			se_print("Get shared buffer 0x%x : 0x%x\n",
+				 buf_args.shared_buf_offset, buf_args.shared_buf_size);
 		}
 
 		/* Get the access to the SHE keystore */
@@ -205,21 +206,21 @@ she_err_t she_open_session(open_session_args_t *args, she_hdl_t *session_hdl)
 		err = she_open_key_store_service(hdl->session_handle,
 						 &open_svc_key_store_args);
 		if (err != SHE_NO_ERROR) {
-			printf("SHE Error: Failed to open key store 0x%x\n", err);
+			se_err("SHE Error: Failed to open key store 0x%x\n", err);
 			break;
 		}
 
 		hdl->key_store_handle = open_svc_key_store_args.key_store_hdl;
-		printf("KEY store handle : 0x%x\n", hdl->key_store_handle);
+		se_print("KEY store handle : 0x%x\n", hdl->key_store_handle);
 
 		/* open SHE utils service. */
 		if (she_open_utils(hdl->session_handle, &utils_args) != SHE_NO_ERROR) {
-			printf("SHE Error: Failed to open SHE utils 0x%x\n", err);
+			se_err("SHE Error: Failed to open SHE utils 0x%x\n", err);
 			break;
 		}
 
 		hdl->utils_handle = utils_args.utils_handle;
-		printf("Utils handle : 0x%x\n", hdl->utils_handle);
+		se_print("Utils handle : 0x%x\n", hdl->utils_handle);
 
 		err = she_open_cipher_service(hdl->session_handle, &cipher_args);
 		if (err != SHE_NO_ERROR) {
@@ -228,7 +229,7 @@ she_err_t she_open_session(open_session_args_t *args, she_hdl_t *session_hdl)
 		}
 
 		hdl->cipher_handle = cipher_args.cipher_hdl;
-		se_info("Cipher handle : 0x%x\n", hdl->cipher_handle);
+		se_print("Cipher handle : 0x%x\n", hdl->cipher_handle);
 
 	} while (false);
 

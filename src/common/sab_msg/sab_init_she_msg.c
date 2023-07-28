@@ -129,6 +129,13 @@ static  int init_proc_sab_she_msg_engine(msg_type_t msg_type,
 						  proc_msg_rsp_cipher_close_req);
 		}
 		break;
+	case SAB_CIPHER_ONE_GO_REQ:
+		if (msg_type == MT_SAB_CIPHER) {
+			ret = add_sab_msg_handler(msg_id, MT_SAB_CIPHER,
+						  prepare_msg_cipher_one_go,
+						  proc_msg_rsp_cipher_one_go);
+		}
+		break;
 #endif
 #if MT_SAB_GET_STATUS
 	case SAB_SHE_GET_STATUS:

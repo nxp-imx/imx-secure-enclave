@@ -55,10 +55,10 @@ int main(int argc, char *argv[])
 
 	err = she_open_session(&open_session_args, &she_session_hdl);
 	if (err != SHE_NO_ERROR) {
-		printf("she_open_session failed err:0x%x\n", err);
+		se_print("she_open_session failed err:0x%x\n", err);
 		return 0;
 	}
-	printf("she_open_session PASS\n");
+	se_print("she_open_session PASS\n");
 
 	err = she_get_status(she_session_hdl, &op_get_status_args);
 	if (!err)
@@ -69,8 +69,6 @@ int main(int argc, char *argv[])
 	if (err)
 		se_print("Error[0x%x]: RNG test Failed.\n", err);
 
-	se_print("RNG test Passed\n");
-
 	err = she_get_status(she_session_hdl, &op_get_status_args);
 	if (!err)
 		se_print("CMD_GET_STATUS successful 0x%x\n",
@@ -80,10 +78,12 @@ int main(int argc, char *argv[])
 	if (err)
 		se_print("Error[0x%x]: Key Update test Failed.\n", err);
 
-	se_print("Key update test Passed\n");
+	err = do_she_cipher_test(she_session_hdl);
+	if (err)
+		se_print("Error[0x%x]: Cipher test Failed.\n", err);
 
 	err = she_close_session(she_session_hdl);
 
-	printf("she_close_session ret:0x%x\n", err);
+	se_print("she_close_session ret:0x%x\n", err);
 	return 0;
 }
