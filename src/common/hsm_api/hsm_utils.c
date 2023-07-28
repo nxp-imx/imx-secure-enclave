@@ -152,6 +152,10 @@ static hsm_err_t sab_err_rating_to_hsm_err(uint8_t sab_err_rating)
 		se_err("\nHSM Error: HSM_OUT_TOO_SMALL (0x%x)\n", hsm_err);
 		break;
 
+	case HSM_DATA_ALREADY_RETRIEVED:
+		se_err("\nHSM Error: HSM_DATA_ALREADY_RETRIEVED (0x%x)\n", hsm_err);
+		break;
+
 	case HSM_CRC_CHECK_ERR:
 		se_err("\nHSM Error: HSM_CRC_CHECK_ERR (0x%x)\n", hsm_err);
 		break;
