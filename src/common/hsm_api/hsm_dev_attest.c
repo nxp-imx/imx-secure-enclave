@@ -12,6 +12,18 @@
 
 #include "sab_process_msg.h"
 
+static uint8_t validate_input(op_dev_attest_args_t *args)
+{
+	uint8_t ret = 0;
+
+	if (global_info.ver == HSM_API_VERSION_1)
+		ret = args->nounce_sz != DEV_ATTEST_NOUNCE_SIZE_V1;
+	else
+		ret = args->nounce_sz != DEV_ATTEST_NOUNCE_SIZE_V2;
+
+	return ret;
+}
+
 hsm_err_t hsm_dev_attest(hsm_hdl_t session_hdl, op_dev_attest_args_t *args)
 {
 	struct hsm_session_hdl_s *sess_ptr;
@@ -22,6 +34,11 @@ hsm_err_t hsm_dev_attest(hsm_hdl_t session_hdl, op_dev_attest_args_t *args)
 	do {
 		if (!args)
 			break;
+
+		if (validate_input(args)) {
+			se_err("HSM Error: Invalid parameter values\n");
+			break;
+		}
 
 		if (!session_hdl) {
 			err = HSM_UNKNOWN_HANDLE;

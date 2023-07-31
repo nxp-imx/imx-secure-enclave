@@ -10,6 +10,7 @@
 #include "sab_dev_getinfo.h"
 
 #define DEV_ATTEST_SIGN_SIZE          (96)
+#define DEV_ATTEST_NOUNCE_SIZE_V1     (4)
 #define DEV_ATTEST_NOUNCE_SIZE_V2     (16)
 
 struct sab_cmd_dev_attest_msg_v1 {
@@ -18,7 +19,7 @@ struct sab_cmd_dev_attest_msg_v1 {
 	uint32_t rsp_data_addr_lo;
 	uint16_t buf_sz;
 	uint16_t reserved;
-	uint32_t nounce;
+	uint8_t nounce[DEV_ATTEST_NOUNCE_SIZE_V1];
 	uint32_t crc;
 };
 
@@ -40,7 +41,7 @@ struct sab_cmd_dev_attest_rsp {
 struct sab_cmd_dev_attest_rsp_w_data_v1 {
 	struct sab_cmd_dev_attest_rsp rsp;
 	struct dev_info d_info;
-	uint32_t nounce;
+	uint8_t nounce[DEV_ATTEST_NOUNCE_SIZE_V1];
 	uint8_t  signature[DEV_ATTEST_SIGN_SIZE];
 };
 

@@ -13,7 +13,11 @@
  *  @defgroup group27 Dev attest
  * @{
  */
-
+/**
+ * Device Attestation Nounce sizes
+ */
+#define DEV_ATTEST_NOUNCE_SIZE_V1    (4)
+#define DEV_ATTEST_NOUNCE_SIZE_V2    (16)
 /**
  * Structure describing the device attestation operation member arguments
  */
@@ -45,18 +49,14 @@ typedef struct {
 	//!< pointer to the buffer containing SHA256 of Sentinel ROM patch fuses
 	uint8_t  *sha_fw;
 	//!< pointer to the buffer containing first 256 bits of installed FW SHA
-	uint32_t nounce;
-	//!< request nounce value (version 1)
-	uint32_t rsp_nounce;
-	//!< nounce value from request, returned with FW resp (version 1)
-	uint16_t nounce_buf_sz;
-	//!< buffer size in bytes for request nounce value (version 2)
-	uint8_t *nounce_buf;
-	//!< pointer to the input/request nounce value buffer (version 2)
-	uint16_t rsp_nounce_buf_sz;
-	//!< size in bytes for nounce buffer, returned with FW resp (version 2)
-	uint8_t *rsp_nounce_buf;
-	//!< pointer to the nounce buffer, returned with FW resp (version 2)
+	uint16_t nounce_sz;
+	//!< buffer size in bytes for request nounce value
+	uint8_t *nounce;
+	//!< pointer to the input/request nounce value buffer
+	uint16_t rsp_nounce_sz;
+	//!< size in bytes for FW nounce buffer, returned with FW resp
+	uint8_t *rsp_nounce;
+	//!< pointer to the FW nounce buffer, returned with FW resp
 	uint16_t oem_srkh_sz;
 	//!< buffer size in bytes for OEM SRKH (version 2)
 	uint8_t  *oem_srkh;

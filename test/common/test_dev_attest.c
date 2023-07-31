@@ -9,7 +9,9 @@
 #include "hsm_api.h"
 #include "common.h"
 
-uint8_t nounce_buf[16] = {0x1D, 0xAF, 0xAA, 0xEB, 0x19, 0x4D, 0xCA, 0xBE,
+uint8_t nounce_buf_v1[4] = {0xDE, 0xAD, 0xBE, 0xEF};
+
+uint8_t nounce_buf_v2[16] = {0x1D, 0xAF, 0xAA, 0xEB, 0x19, 0x4D, 0xCA, 0xBE,
 			  0xEF, 0xAE, 0xCB, 0xDD, 0x42, 0x2E, 0x1F, 0xCE};
 
 void perform_dev_attestation(hsm_hdl_t sess_hdl)
@@ -24,10 +26,11 @@ void perform_dev_attestation(hsm_hdl_t sess_hdl)
 	printf("---------------------------------------------------\n");
 
 	if (global_info.ver == HSM_API_VERSION_1) {
-		dev_attest_args.nounce = 0xdeadbeef;
+		dev_attest_args.nounce_sz = sizeof(nounce_buf_v1);
+		dev_attest_args.nounce = nounce_buf_v1;
 	} else if (global_info.ver == HSM_API_VERSION_2) {
-		dev_attest_args.nounce_buf_sz = sizeof(nounce_buf);
-		dev_attest_args.nounce_buf = nounce_buf;
+		dev_attest_args.nounce_sz = sizeof(nounce_buf_v2);
+		dev_attest_args.nounce = nounce_buf_v2;
 	}
 
 	err = hsm_dev_attest(sess_hdl, &dev_attest_args);
@@ -51,19 +54,15 @@ void perform_dev_attestation(hsm_hdl_t sess_hdl)
 		hexdump((uint32_t *)dev_attest_args.sha_fw,
 			dev_attest_args.sha_fw_sz/sizeof(uint32_t));
 
-		if (global_info.ver == HSM_API_VERSION_1) {
-			printf("USR Nounce = 0x%x\n", dev_attest_args.nounce);
-			printf("FW Nounce = 0x%x\n", dev_attest_args.rsp_nounce);
+		printf("USR Nounce =");
+		hexdump((uint32_t *)dev_attest_args.nounce,
+			dev_attest_args.nounce_sz / sizeof(uint32_t));
 
-		} else if (global_info.ver == HSM_API_VERSION_2) {
-			printf("USR Nounce =");
-			hexdump((uint32_t *)dev_attest_args.nounce_buf,
-				dev_attest_args.nounce_buf_sz / sizeof(uint32_t));
+		printf("FW Nounce =");
+		hexdump((uint32_t *)dev_attest_args.rsp_nounce,
+			dev_attest_args.rsp_nounce_sz / sizeof(uint32_t));
 
-			printf("FW Nounce =");
-			hexdump((uint32_t *)dev_attest_args.rsp_nounce_buf,
-				dev_attest_args.rsp_nounce_buf_sz / sizeof(uint32_t));
-
+		if (global_info.ver == HSM_API_VERSION_2) {
 			printf("FW OEM SRKH:");
 			hexdump((uint32_t *)dev_attest_args.oem_srkh,
 				dev_attest_args.oem_srkh_sz / sizeof(uint32_t));
