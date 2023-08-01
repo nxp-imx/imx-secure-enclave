@@ -301,7 +301,8 @@ static void test_perm_key_kgen(hsm_hdl_t key_mgmt_hdl)
 
 	//Get Key Attributes
 	printf("\nGet Key Attributes: (Key ID: 0x%x)\n", key_id);
-	key_management(KEYATTR, key_mgmt_hdl, &key_id, PERM_TEST_KEY_GROUP, HSM_KEY_TYPE_AES);
+	key_management(KEYATTR, key_mgmt_hdl, &key_id,
+		       PERM_TEST_KEY_GROUP, HSM_KEY_TYPE_AES);
 
 	printf("\n--------------------------------------------------------\n");
 	printf("Permanent Key Test End");

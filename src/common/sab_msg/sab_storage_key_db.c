@@ -141,7 +141,9 @@ static uint32_t storage_open_key_db_fd(uint8_t *nvm_storage_dname,
 	if (ret != PLAT_SUCCESS || !path)
 		goto out;
 
-	ret = plat_os_abs_storage_open_key_db_fd(path, KEY_DB_OPEN_CREATE_FLAGS, KEY_DB_OPEN_MODE);
+	ret = plat_os_abs_storage_open_key_db_fd(path,
+						 KEY_DB_OPEN_CREATE_FLAGS,
+						 KEY_DB_OPEN_MODE);
 	if (ret == PLAT_OPEN_FAILURE)
 		goto out;
 	else
@@ -156,7 +158,9 @@ static uint32_t storage_open_key_db_fd(uint8_t *nvm_storage_dname,
 		if (ret != PLAT_SUCCESS)
 			goto out;
 
-		ret = plat_os_abs_storage_open_key_db_fd(path, KEY_DB_OPEN_FLAGS, KEY_DB_OPEN_MODE);
+		ret = plat_os_abs_storage_open_key_db_fd(path,
+							 KEY_DB_OPEN_FLAGS,
+							 KEY_DB_OPEN_MODE);
 		if (ret == PLAT_OPEN_FAILURE)
 			goto out;
 		else

@@ -67,7 +67,9 @@ uint32_t parse_cmd_prep_rsp_storage_finish_export(struct nvm_ctx_st *nvm_ctx_par
 		blob_hdr = (struct nvm_header_s *)*data;
 		/* Used only for chunks. */
 
-		plat_os_abs_memset((uint8_t *)&blob_hdr->blob_id, 0x0, sizeof(blob_hdr->blob_id));
+		plat_os_abs_memset((uint8_t *)&blob_hdr->blob_id,
+				   0x0,
+				   sizeof(blob_hdr->blob_id));
 		blob_id = &blob_hdr->blob_id;
 		blob_hdr->size = *data_sz;
 		blob_hdr->crc = plat_fetch_msg_crc((uint32_t *)(*data + NVM_HEADER_SZ), *data_sz);

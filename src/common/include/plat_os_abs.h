@@ -277,7 +277,8 @@ uint32_t plat_os_abs_storage_read(struct plat_os_abs_hdl *phdl,
  * \param phdl pointer to the session handle for which this data buffer is used.
  * \param src pointer to the data to be written to storage.
  * \param size number of bytes to be written.
- * \param blob_id unique identifier of the blob corresponding to the storage chunk to be written
+ * \param blob_id unique identifier of the blob corresponding to the storage
+ *  chunk to be written
  * \param nvm_storage_dname name of NVM storage directory-name
  *
  * \return number of bytes written.
@@ -299,7 +300,8 @@ uint32_t plat_os_abs_storage_write_chunk(struct plat_os_abs_hdl *phdl,
  * \param phdl pointer to the session handle for which this data buffer is used.
  * \param dst pointer to the data where data read from the storage should be copied.
  * \param size number of bytes to be read.
- * \param blob_id unique identifier of the blob corresponding to the storage chunk to be read
+ * \param blob_id unique identifier of the blob corresponding to the storage
+ *  chunk to be read
  * \param nvm_storage_dname name of NVM storage directory-name
  *
  * \return number of bytes read.
