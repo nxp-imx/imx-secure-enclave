@@ -6,6 +6,7 @@
 #ifndef HSM_UTILS_H
 #define HSM_UTILS_H
 
+#include "stdbool.h"
 #include "stdint.h"
 
 #ifdef PSA_COMPLIANT
@@ -32,6 +33,8 @@
  * It will be used globally to take platform specific decisions.
  */
 struct global_info_s {
+	bool is_populated;
+	//!< to ensure global info is populated once.
 	uint8_t ver;
 	//!< Supported version of HSM APIs
 	uint16_t soc_id;
@@ -68,6 +71,12 @@ void populate_global_info(hsm_hdl_t hsm_session_hdl);
  * This function prints the Global Information of library
  */
 void show_global_info(void);
+
+/**
+ * This function returns the version supported for Device Attestation.
+ */
+uint8_t hsm_get_dev_attest_api_ver(void);
+
 /**
  * This function returns a string representating SoC ID
  *

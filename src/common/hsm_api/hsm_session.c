@@ -175,8 +175,12 @@ hsm_err_t hsm_open_session(open_session_args_t *args, hsm_hdl_t *session_hdl)
 			*session_hdl = 0u; /* force an invalid value.*/
 	}
 #ifdef PSA_COMPLIANT
-	if (err == HSM_NO_ERROR)
-		populate_global_info(*session_hdl);
+	if (err == HSM_NO_ERROR) {
+		if (!global_info.is_populated) {
+			populate_global_info(*session_hdl);
+			global_info.is_populated = true;
+		}
+	}
 #endif
 
 	return err;

@@ -345,6 +345,11 @@ void populate_global_info(hsm_hdl_t hsm_session_hdl)
 				   GINFO_COMMIT_ID_SZ);
 }
 
+uint8_t hsm_get_dev_attest_api_ver(void)
+{
+	return global_info.ver;
+}
+
 void show_global_info(void)
 {
 	se_info("-------------------------------------------------------\n");
