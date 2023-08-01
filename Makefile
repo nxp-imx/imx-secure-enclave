@@ -178,8 +178,8 @@ hsm_doc_seco: include/hsm/hsm_api.h
 	cp doc/latex/refman.pdf doc/seco_hsm_api_document.pdf
 	rm -rf doc/latex/
 
-install: $(libs)
-	rm ${SE_VER_FILE}
+install: libs
+	rm -f ${SE_VER_FILE}
 	mkdir -p $(DESTDIR)$(LIBDIR) $(DESTDIR)$(INCLUDEDIR)
 	$(foreach i, $(LIB_NAMES),\
 		ln -s -f $(i).$(SO_EXT) $(i).so.$(MAJOR_VER); \
@@ -192,7 +192,7 @@ install: $(libs)
 	cp $(PLAT_COMMON_PATH)/nvm/$(NVMD_CONF_FILE) $(DESTDIR)$(ETC_DIR)
 	cp -a include/* $(DESTDIR)$(INCLUDEDIR)
 
-install_tests: install $(tests)
+install_tests: install tests
 	mkdir -p $(DESTDIR)$(BINDIR)
 	cp $(all_tests) $(DESTDIR)$(BINDIR)
 	mkdir -p $(DESTDIR)$(TEST_VECTOR_DEFAULT_DIR)
