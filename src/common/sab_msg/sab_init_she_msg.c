@@ -38,6 +38,10 @@
 #include "sab_rng.h"
 #endif
 
+#if MT_SAB_KEY_UPDATE
+#include "sab_key_update.h"
+#endif
+
 static  int init_proc_sab_she_msg_engine(msg_type_t msg_type,
 					 uint32_t msg_id)
 {
@@ -164,6 +168,15 @@ static  int init_proc_sab_she_msg_engine(msg_type_t msg_type,
 			ret = add_sab_msg_handler(msg_id, MT_SAB_RNG,
 						  prepare_msg_get_rng,
 						  proc_msg_rsp_get_rng);
+		}
+		break;
+#endif
+#if MT_SAB_KEY_UPDATE
+	case SAB_SHE_KEY_UPDATE:
+		if (msg_type == MT_SAB_KEY_UPDATE) {
+			ret = add_sab_msg_handler(msg_id, MT_SAB_KEY_UPDATE,
+						  prepare_msg_key_update,
+						  proc_msg_rsp_key_update);
 		}
 		break;
 #endif

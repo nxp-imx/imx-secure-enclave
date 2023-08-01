@@ -43,6 +43,10 @@
 #include "internal/she_rng.h"
 #endif
 
+#if MT_SAB_KEY_UPDATE
+#include "internal/she_key_update.h"
+#endif
+
 /**
  *
  * \param args pointer to the structure containing the function arguments.

@@ -266,6 +266,12 @@ SHE_SAB_MSG_SRC	+= \
 		$(PLAT_COMMON_PATH)/sab_msg/sab_get_status.o
 endif
 
+ifneq (${MT_SAB_KEY_UPDATE},0x0)
+DEFINES		+=	-DMT_SAB_KEY_UPDATE=${MT_SAB_KEY_UPDATE}
+SHE_SAB_MSG_SRC	+= \
+		$(PLAT_COMMON_PATH)/sab_msg/sab_key_update.o
+endif
+
 OBJECTS		+= $(SAB_MSG_SRC) \
 		$(SAB_RCVMSG_SRC) \
 		$(SHE_SAB_MSG_SRC) \

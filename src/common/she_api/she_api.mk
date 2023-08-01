@@ -47,6 +47,12 @@ SHE_API_SRC	+= \
 		$(PLAT_COMMON_PATH)/she_api/she_get_info.o
 endif
 
+ifneq (${MT_SAB_KEY_UPDATE},0x0)
+DEFINES		+=	-DSHE_KEY_UPDATE
+SHE_API_SRC	+= \
+		$(PLAT_COMMON_PATH)/she_api/she_key_update.o
+endif
+
 OBJECTS		+= $(SHE_API_SRC)
 
 INCLUDE_PATHS	+= \

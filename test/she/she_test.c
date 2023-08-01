@@ -69,10 +69,18 @@ int main(int argc, char *argv[])
 	if (err)
 		se_print("Error[0x%x]: RNG test Failed.\n", err);
 
+	se_print("RNG test Passed\n");
+
 	err = she_get_status(she_session_hdl, &op_get_status_args);
 	if (!err)
 		se_print("CMD_GET_STATUS successful 0x%x\n",
 			 op_get_status_args.sreg);
+
+	err = do_she_key_update_test(she_session_hdl);
+	if (err)
+		se_print("Error[0x%x]: Key Update test Failed.\n", err);
+
+	se_print("Key update test Passed\n");
 
 	err = she_close_session(she_session_hdl);
 
