@@ -95,35 +95,35 @@ typedef enum {
  */
 typedef struct {
 #ifdef PSA_COMPLIANT
-	//!< pointer to the MSB of address in the requester space where buffers
-	//can be found, must be 0 until supported.
 	uint8_t *msb;
-	//!< pointer to the context.
+	//!< pointer to the MSB of address in the requester space where buffers
+	//!< can be found, must be 0 until supported.
 	uint8_t *ctx;
+	//!< pointer to the context.
 #endif
-	//!< pointer to the input data to be hashed
 	uint8_t *input;
-	//!< pointer to the output area where the resulting digest must be written
+	//!< pointer to the input data to be hashed
 	uint8_t *output;
-	//!< length in bytes of the input
+	//!< pointer to the output area where the resulting digest must be written
 	uint32_t input_size;
-	//!< length in bytes of the output
+	//!< length in bytes of the input
 	uint32_t output_size;
-	//!< hash algorithm to be used for the operation
+	//!< length in bytes of the output
 	hsm_hash_algo_t algo;
-	//!< flags identifying the operation init() update(), final() or one shot
-	//operation.
+	//!< hash algorithm to be used for the operation
 	hsm_hash_svc_flags_t svc_flags;
+	//!< flags identifying the operation init() update(), final() or one shot
+	//!< operation.
 #ifdef PSA_COMPLIANT
-	//!< size of context buffer in bytes, ignored in case of one shot
-	//operation.
 	uint16_t ctx_size;
-	//!< expected output digest buffer size, returned by FW in case the
-	//	 provided output size is incorrect.
+	//!< size of context buffer in bytes, ignored in case of one shot
+	//!< operation.
 	uint32_t exp_output_size;
-	//!< expected context size to allocate in bytes, if flag Get context
-	//	size is set or provided context size is incorrect.
+	//!< expected output digest buffer size, returned by FW in case the
+	//!< provided output size is incorrect.
 	uint16_t context_size;
+	//!< expected context size to allocate in bytes, if flag Get context
+	//!< size is set or provided context size is incorrect.
 #endif
 } op_hash_one_go_args_t;
 

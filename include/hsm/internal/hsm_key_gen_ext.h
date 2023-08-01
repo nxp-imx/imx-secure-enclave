@@ -17,12 +17,6 @@
  */
 
 /**
- * structure defining
- */
-
-#define FLAG 0
-
-/**
  * Structure detailing the key generate operation member arguments
  */
 typedef struct {

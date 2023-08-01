@@ -39,7 +39,7 @@ typedef struct {
  * \param key_management_hdl pointer to where the key management service flow
  * handle must be written.
  *
- * \return error_code error code.
+ * \return error code.
  */
 hsm_err_t hsm_open_key_management_service(hsm_hdl_t key_store_hdl,
 					  open_svc_key_management_args_t *args,

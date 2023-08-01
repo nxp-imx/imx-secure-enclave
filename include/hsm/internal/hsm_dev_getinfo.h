@@ -16,28 +16,41 @@
 
 /**
  * Structure detailing the device getinfo operation member arguments
+ * Memory for storing uid/sha_rom_patch/sha_fw/signature will be allocated
+ * by HSM library.
+ * Caller of the func hsm_dev_getinfo(), needs to ensure freeing up memory.
  */
 typedef struct {
 	uint16_t soc_id;
+	//!< SoC ID.
 	uint16_t soc_rev;
+	//!< SoC revision number.
 	uint16_t lmda_val;
+	//!< indicates the lmda lifecycle value.
 	uint8_t  ssm_state;
+	//!< security subsystem state machine.
 	uint8_t  uid_sz;
-	/* Memory for storing uid/sha_rom_patch/sha_fw/signature
-	 * will be allocated by HSM library.
-	 * Caller of the func hsm_dev_getinfo(), needs to
-	 * ensure freeing up of this memory.
-	 */
+	//!< chip unique identifier size.
 	uint8_t  *uid;
+	//!< pointer to the chip unique identifier.
 	uint16_t rom_patch_sha_sz;
+	//!< indicates the size of Sha256 of sentinel rom patch fuses.
 	uint16_t sha_fw_sz;
+	//!< indicates the size of first 256 bits of installed fw sha.
 	uint8_t  *sha_rom_patch;
+	//!< pointer to the Sha256 of sentinel rom patch fuses digest.
 	uint8_t  *sha_fw;
+	//!< pointer to the first 256 bits of installed fw sha digest.
 	uint16_t oem_srkh_sz;
+	//!< indicates the size of FW OEM SRKH.
 	uint8_t  *oem_srkh;
+	//!< pointer to the FW OEM SRKH.
 	uint8_t  imem_state;
+	//!< indicates the imem state.
 	uint8_t  csal_state;
+	//!< crypto Lib random context initialization state.
 	uint8_t  trng_state;
+	//!< indicates TRNG state.
 } op_dev_getinfo_args_t;
 
 /**

@@ -28,12 +28,12 @@ typedef enum {
 typedef uint8_t hsm_op_auth_enc_algo_t;
 
 //!< Perform AES GCM with following constraints:
-//	 AES GCM where AAD supported, Tag len = 16 bytes, IV len = 12 bytes
+//!<	 AES GCM where AAD supported, Tag len = 16 bytes, IV len = 12 bytes
 #define HSM_AUTH_ENC_ALGO_AES_GCM \
 			((hsm_op_auth_enc_algo_t)(0x00u))
 
 //!< Perform SM4 CCM with following constraints:
-//	 SM4 CCM where AAD supported, Tag len = 16 bytes, IV len = 12 bytes
+//!<	 SM4 CCM where AAD supported, Tag len = 16 bytes, IV len = 12 bytes
 #define HSM_AUTH_ENC_ALGO_SM4_CCM \
 			((hsm_op_auth_enc_algo_t)(0x10u))
 #endif
@@ -68,37 +68,37 @@ typedef uint8_t hsm_op_auth_enc_flags_t;
  * Structure describing the authenticated encryption operation arguments
  */
 typedef struct {
-	//!< identifier of the key to be used for the operation
 	uint32_t key_identifier;
-	//!< pointer to the user supplied part of initialization vector or nonce,
-	//	 when applicable, otherwise 0
+	//!< identifier of the key to be used for the operation
 	uint8_t *iv;
-	//!< length in bytes of the fixed part of the initialization vector for
-	//	 encryption (0 or 4 bytes), length in bytes of the full IV for
-	//	 decryption (12 bytes)
+	//!< pointer to the user supplied part of initialization vector or nonce,
+	//!<	 when applicable, otherwise 0
 	uint16_t iv_size;
-	//!< pointer to the additional authentication data
+	//!< length in bytes of the fixed part of the initialization vector for
+	//!<	 encryption (0 or 4 bytes), length in bytes of the full IV for
+	//!<	 decryption (12 bytes)
 	uint8_t *aad;
-	//!< length in bytes of the additional authentication data
+	//!< pointer to the additional authentication data
 	uint16_t aad_size;
-	//!< algorithm to be used for the operation
+	//!< length in bytes of the additional authentication data
 	hsm_op_auth_enc_algo_t ae_algo;
-	//!< bitmap specifying the operation attributes
+	//!< algorithm to be used for the operation
 	hsm_op_auth_enc_flags_t flags;
-	//!< pointer to the input area\n plaintext for encryption\n
-	//	 Ciphertext + Tag (16 bytes) for decryption
+	//!< bitmap specifying the operation attributes
 	uint8_t *input;
-	//!< pointer to the output area\n Ciphertext + Tag (16 bytes)
-	//	 + IV for encryption\n plaintext for decryption if the Tag is verified
+	//!< pointer to the input area\n plaintext for encryption\n
+	//!<	 Ciphertext + Tag (16 bytes) for decryption
 	uint8_t *output;
-	//!< length in bytes of the input
+	//!< pointer to the output area\n Ciphertext + Tag (16 bytes)
+	//!<	 + IV for encryption\n plaintext for decryption if the Tag is verified
 	uint32_t input_size;
-	//!< length in bytes of the output
+	//!< length in bytes of the input
 	uint32_t output_size;
+	//!< length in bytes of the output
 #ifdef PSA_COMPLIANT
-	//!< expected output buffer size in bytes, valid in case of HSM_OUT_TOO_SMALL
-	//   (0x1D) error code
 	uint32_t exp_output_size;
+	//!< expected output buffer size in bytes, valid in case of HSM_OUT_TOO_SMALL
+	//!<   (0x1D) error code
 #endif
 } op_auth_enc_args_t;
 

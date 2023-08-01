@@ -288,15 +288,15 @@ hsm_err_t hsm_do_hash(hsm_hdl_t session_hdl, op_hash_one_go_args_t *args);
  */
 #include "internal/hsm_data_storage.h"
 /**
- * Secondary API to store and restoare data from the linux\n
+ * Secondary API to store and retrieve data from the linux
  * filesystem managed by EdgeLock Enclave Firmware.
  *
  * This API does the following:
  * 1. Open an data storage service Flow\n
- * 2. Based on the flag for operation attribute: Store or Re-store,\n
+ * 2. Based on the flag for operation attribute: Store or Retrieve,\n
  *    - Store the data
- *    - Re-store the data, from the non-volatile storage.
- * 3. Post performing the operation, terminate the previously opened\n
+ *    - Retrieve the data, from the non-volatile storage.
+ * 3. Post performing the operation, terminate the previously opened
  *    data-storage service flow.\n
  *
  * User can call this function only after having opened a key-store.\n
