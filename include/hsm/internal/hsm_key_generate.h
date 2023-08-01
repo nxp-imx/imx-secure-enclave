@@ -65,14 +65,19 @@ typedef struct {
 #ifdef PSA_COMPLIANT
 	uint16_t exp_out_size;
 	//!< expected output key buffer size, valid in case of HSM_OUT_TOO_SMALL
-	//   (0x1D) error code
+	//!<   (0x1D) error code
 	hsm_bit_key_sz_t bit_key_sz;
+	//!< indicates key security size in bits.
 	hsm_key_lifecycle_t key_lifecycle;
-	//!< defines the device lifecycle in which the key is usable.
-	//!< If it is set to 0, current device lifecycle is used.
+	//!< defines the key lifecycle in which the key is usable.
+	//!< If it is set to 0, current key lifecycle is used.
 	hsm_key_lifetime_t key_lifetime;
+	//!< this attribute comprises of two indicaters-key persistence level
+	//!< and location where the key is stored.
 	hsm_key_usage_t key_usage;
+	//!< indicates the cryptographic operations that key can execute.
 	hsm_permitted_algo_t permitted_algo;
+	//!< indicates the key permitted algorithm.
 #else
 	hsm_key_info_t key_info;
 	//!< bitmap specifying the properties of the key.

@@ -45,39 +45,42 @@ typedef uint8_t hsm_op_verify_sign_flags_t;
  *  Structure to represent verify signature operation arguments
  */
 typedef struct {
-	//!< pointer to the public key to be used for the verification.
-	//   If the HSM_OP_VERIFY_SIGN_FLAGS_KEY_INTERNAL is set, it must point
-	//   to the key reference returned by the hsm_import_public_key API.
 	uint8_t *key;
-	//!< pointer to the input (message or message digest)
+	//!< pointer to the public key to be used for the verification.
+	//!< If the HSM_OP_VERIFY_SIGN_FLAGS_KEY_INTERNAL is set, it must point
+	//!< to the key reference returned by the hsm_import_public_key API.
 	uint8_t *message;
-	//!< pointer to the input signature. The signature S=(r,s) is expected
-	//   to be in the format r||s||Ry where Ry is an additional byte
-	//   containing the lsb of y. Ry will be considered as valid only if
-	//   the HSM_OP_VERIFY_SIGN_FLAGS_COMPRESSED_POINT is set.
+	//!< pointer to the input (message or message digest)
 	uint8_t *signature;
-	//!< length in bytes of the input key
+	//!< pointer to the input signature. The signature S=(r,s) is expected
+	//!< to be in the format r||s||Ry where Ry is an additional byte
+	//!< containing the lsb of y. Ry will be considered as valid only if
+	//!< the HSM_OP_VERIFY_SIGN_FLAGS_COMPRESSED_POINT is set.
 	uint16_t key_size;
-	//!< length in bytes of the output - it must contain one additional
-	//   byte where to store the Ry.
+	//!< length in bytes of the input key
 	uint16_t signature_size;
-	//!< length in bytes of the input message
+	//!< length in bytes of the output - it must contain one additional
+	//!< byte where to store the Ry.
 	uint32_t message_size;
+	//!< length in bytes of the input message.
 	hsm_verification_status_t verification_status;
-	//!< identifier of the digital signature scheme to be used
-	//   for the operation
+	//!< verification status.
 	hsm_signature_scheme_id_t scheme_id;
+	//!< identifier of the digital signature scheme to be used
+	//!< for the operation
 #ifdef PSA_COMPLIANT
-	//!< salt length in bytes
 	uint16_t salt_len;
+	//!< salt length in bytes
 	hsm_bit_key_sz_t key_sz;
+	//!< indicates key security size in bits.
 	hsm_pubkey_type_t pkey_type;
+	//!< indicates the public key type
 #endif
-	//!< bitmap specifying the operation attributes
 	hsm_op_verify_sign_flags_t flags;
+	//!< bitmap specifying the operation attributes
 #ifndef PSA_COMPLIANT
-	//!< bitmap specifying the svc flow attributes
 	hsm_svc_signature_verification_flags_t svc_flags;
+	//!< bitmap specifying the svc flow attributes
 #endif
 } op_verify_sign_args_t;
 

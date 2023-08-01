@@ -78,52 +78,52 @@ typedef uint32_t hsm_gc_acrypto_verification_status_t;
  * Structure describing the generic asymmetric crypto member arguments
  */
 typedef struct {
-	//!< algorithm to use for the operation
 	hsm_op_gc_acrypto_algo_t algorithm;
-	//!< indicates the operation mode
+	//!< algorithm to use for the operation
 	hsm_gc_acrypto_op_mode_t op_mode;
-	//!< indicates operation flags
+	//!< indicates the operation mode
 	hsm_op_gc_acrypto_flags_t flags;
-	//!< key size in bits
+	//!< indicates operation flags
 	hsm_bit_key_sz_t bit_key_sz;
-	//!< pointer to the data buffer 1:
-	//	- plaintext in case of encryption/decryption op
-	//	- digest or message in case of signature generation/verification op
+	//!< key size in bits
 	uint8_t *data_buff1;
-	//!< pointer to the data buffer 2:
-	//	- ciphertext in case of encryption/decryption op
-	//	- signature in case of signature generation/verification op
+	//!< pointer to the data buffer 1:
+	//!<	- plaintext in case of encryption/decryption op
+	//!<	- digest or message in case of signature generation/verification op
 	uint8_t *data_buff2;
-	//!< size in bytes of data buffer 1
+	//!< pointer to the data buffer 2:
+	//!<	- ciphertext in case of encryption/decryption op
+	//!<	- signature in case of signature generation/verification op
 	uint32_t data_buff1_size;
-	//!< size in bytes of data buffer 2
+	//!< size in bytes of data buffer 1
 	uint32_t data_buff2_size;
-	//!< pointer to the key modulus buffer
+	//!< size in bytes of data buffer 2
 	uint8_t *key_buff1;
-	//!< pointer the key exponent, either private or public
-	//	-Encryption mode, public exponent
-	//	-Decryption mode, private exponent
-	//	-Signature Generation mode, private exponent
-	//	-Signature Verification mode, public exponent
+	//!< pointer to the key modulus buffer
 	uint8_t *key_buff2;
-	//!< size in bytes of the key buffer 1
+	//!< pointer the key exponent, either private or public
+	//!<	-Encryption mode, public exponent
+	//!<	-Decryption mode, private exponent
+	//!<	-Signature Generation mode, private exponent
+	//!<	-Signature Verification mode, public exponent
 	uint16_t key_buff1_size;
-	//!< size in bytes of the key buffer 2
+	//!< size in bytes of the key buffer 1
 	uint16_t key_buff2_size;
-	//!< RSA label address
-	//	-only used for OAEP encryption/decryption op mode and optional
+	//!< size in bytes of the key buffer 2
 	uint8_t *rsa_label;
-	//!< RSA label size in bytes
-	//	-only used for OAEP encryption/decryption op mode
+	//!< RSA label address
+	//!<	-only used for OAEP encryption/decryption op mode and optional
 	uint16_t rsa_label_size;
-	//!< RSA salt length in bytes
-	//	-only used for PSS signature algorithm scheme
+	//!< RSA label size in bytes
+	//!<	-only used for OAEP encryption/decryption op mode
 	uint16_t rsa_salt_len;
-	//!< expected plaintext length in bytes, returned by FW in case of
-	//	DECRYPT operation mode
+	//!< RSA salt length in bytes
+	//!<	-only used for PSS signature algorithm scheme
 	uint32_t exp_plaintext_len;
-	//!< signature verification status
+	//!< expected plaintext length in bytes, returned by FW in case of
+	//!<	DECRYPT operation mode
 	hsm_gc_acrypto_verification_status_t verification_status;
+	//!< signature verification status
 } op_gc_acrypto_args_t;
 
 /**

@@ -24,7 +24,7 @@ typedef uint8_t hsm_svc_data_storage_flags_t;
  * Structure specifying the data storage open service member arguments
  */
 typedef struct {
-	hsm_hdl_t data_storage_handle;
+	hsm_hdl_t data_storage_handle;        //!< data storage handle.
 	hsm_svc_data_storage_flags_t flags;   //!< bitmap specifying the services properties.
 	uint8_t reserved[3];
 } open_svc_data_storage_args_t;
@@ -55,8 +55,8 @@ typedef uint8_t hsm_op_data_storage_flags_t;
 typedef struct {
 	uint8_t *data;
 	//!< pointer to the data. In case of store request,
-	//   it will be the input data to store. In case of retrieve,
-	//   it will be the pointer where to load data.
+	//!< it will be the input data to store. In case of retrieve,
+	//!< it will be the pointer where to load data.
 	uint32_t data_size;
 	//!< length in bytes of the data
 	uint32_t data_id;
@@ -93,7 +93,7 @@ typedef struct {
 	//!< signature buffer
 	uint32_t exp_output_size;
 	//!< expected output buffer size in bytes, valid in case of HSM_OUT_TOO_SMALL
-	//   (0x1D) error code
+	//!< (0x1D) error code
 #endif
 } op_data_storage_args_t;
 

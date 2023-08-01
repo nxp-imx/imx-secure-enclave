@@ -28,10 +28,16 @@ typedef struct {
 	hsm_key_type_t key_type;
 	//!< indicates which type of key must be generated.
 	hsm_bit_key_sz_t bit_key_sz;
+	//!< indicates key security size in bits.
 	hsm_key_lifetime_t key_lifetime;
+	//!< this attribute comprises of two indicaters-key persistence level
+	//!< and location where the key is stored.
 	hsm_key_usage_t key_usage;
+	//!< indicates the cryptographic operations that key can execute.
 	hsm_permitted_algo_t permitted_algo;
+	//!< indicates the key permitted algorithm.
 	hsm_key_lifecycle_t lifecycle;
+	//!< indicates the device lifecycle in which key is usable.
 } op_get_key_attr_args_t;
 
 /**

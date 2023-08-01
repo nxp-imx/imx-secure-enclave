@@ -147,37 +147,37 @@ typedef uint8_t hsm_signature_scheme_id_t;
  * Structure to represent the generate sign operation arguments
  */
 typedef struct {
-	//!< identifier of the key to be used for the operation
 	uint32_t key_identifier;
-	//!< pointer to the input (message or message digest) to be signed
+	//!< identifier of the key to be used for the operation
 	uint8_t *message;
-	//!< pointer to the output area where the signature must be stored.
-	//   The signature S=(r,s) is stored in format r||s||Ry where:
-	//   - Ry is an additional byte containing the lsb of y.
-	//     Ry has to be considered valid only if
-	//     the HSM_OP_GENERATE_SIGN_FLAGS_COMPRESSED_POINT is set.
+	//!< pointer to the input (message or message digest) to be signed
 	uint8_t *signature;
-	//!< length in bytes of the output. After signature generation operation,
-	//	 this field will contain the expected signature buffer size, if operation
-	//	 failed due to provided output buffer size being too short.
+	//!< pointer to the output area where the signature must be stored.
+	//!<   The signature S=(r,s) is stored in format r||s||Ry where:
+	//!<   - Ry is an additional byte containing the lsb of y.
+	//!<     Ry has to be considered valid only if
+	//!<     the HSM_OP_GENERATE_SIGN_FLAGS_COMPRESSED_POINT is set.
 	uint16_t signature_size;
-	//!< length in bytes of the input
+	//!< length in bytes of the output. After signature generation operation,
+	//!<	 this field will contain the expected signature buffer size, if operation
+	//!<	 failed due to provided output buffer size being too short.
 	uint32_t message_size;
-	//!< identifier of the digital signature scheme to be used
-	//   for the operation
+	//!< length in bytes of the input
 	hsm_signature_scheme_id_t scheme_id;
+	//!< identifier of the digital signature scheme to be used
+	//!< for the operation
 #ifdef PSA_COMPLIANT
-	//!< Salt length in bytes
 	uint16_t salt_len;
-	//!< expected signature buffer size for output, returned by FW in case
-	//	 the input signature size provided is less than the required size.
+	//!< Salt length in bytes
 	uint16_t exp_signature_size;
+	//!< expected signature buffer size for output, returned by FW in case
+	//!<	 the input signature size provided is less than the required size.
 #else
-	//!< bitmap specifying the svc flow attributes
 	hsm_svc_signature_generation_flags_t svc_flags;
+	//!< bitmap specifying the svc flow attributes
 #endif
-	//!< bitmap specifying the operation attributes
 	hsm_op_generate_sign_flags_t flags;
+	//!< bitmap specifying the operation attributes
 } op_generate_sign_args_t;
 
 /**

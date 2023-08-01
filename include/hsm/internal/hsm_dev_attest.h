@@ -13,13 +13,18 @@
  *  @defgroup group27 Dev attest
  * @{
  */
+
 /**
  * Device Attestation Nounce sizes
  */
 #define DEV_ATTEST_NOUNCE_SIZE_V1    (4)
 #define DEV_ATTEST_NOUNCE_SIZE_V2    (16)
+
 /**
  * Structure describing the device attestation operation member arguments
+ * Memory for storing uid/sha_rom_patch/sha_fw/signature will be allocated
+ * by HSM library.
+ * Caller of the func hsm_dev_attest(), needs to ensure freeing up memory.
  */
 typedef struct {
 	uint16_t soc_id;
@@ -32,13 +37,6 @@ typedef struct {
 	//!< Security Subsystem State Machine state
 	uint8_t  uid_sz;
 	//!< buffer size in bytes for Chip Unique Identifier
-	/**
-	 * Memory for storing uid/sha_rom_patch/sha_fw/
-	 * rsp_nounce_buf/oem_srkh/signature will be
-	 * allocated by HSM library.
-	 * Caller of the func hsm_dev_attest(), needs to
-	 * ensure freeing up of this memory.
-	 */
 	uint8_t  *uid;
 	//!< pointer to the Chip Unique Identifier buffer
 	uint16_t rom_patch_sha_sz;

@@ -22,10 +22,11 @@ typedef uint8_t hsm_svc_mac_flags_t;
  */
 typedef struct {
 #ifndef PSA_COMPLIANT
-	//!< bitmap specifying the services properties.
 	hsm_svc_mac_flags_t flags;
+	//!< bitmap specifying the services properties.
 #endif
 	hsm_hdl_t mac_serv_hdl;
+	//!< indicates the mac handle.
 } open_svc_mac_args_t;
 
 /**
@@ -92,9 +93,9 @@ typedef uint32_t hsm_mac_verification_status_t;
  */
 #ifdef PSA_COMPLIANT
 //!< Following three permitted algos are allowed:
-//   -  PERMITTED_ALGO_HMAC_SHA256			= 0x03800009,
-//   -	PERMITTED_ALGO_HMAC_SHA384			= 0x0380000A,
-//   -	PERMITTED_ALGO_CMAC				= 0x03C00200,
+//!< -  PERMITTED_ALGO_HMAC_SHA256			= 0x03800009,
+//!< -	PERMITTED_ALGO_HMAC_SHA384			= 0x0380000A,
+//!<  -	PERMITTED_ALGO_CMAC				= 0x03C00200,
 typedef hsm_permitted_algo_t hsm_op_mac_one_go_algo_t;
 #else
 typedef uint8_t hsm_op_mac_one_go_algo_t;
@@ -104,44 +105,45 @@ typedef uint8_t hsm_op_mac_one_go_algo_t;
  * Structure describing the mac one go operation member agruments
  */
 typedef struct {
-	//!< identifier of the key to be used for the operation
 	uint32_t key_identifier;
-	//!< algorithm to be used for the operation
+	//!< identifier of the key to be used for the operation
 	hsm_op_mac_one_go_algo_t algorithm;
-	//!< bitmap specifying the operation attributes
+	//!< algorithm to be used for the operation
 	hsm_op_mac_one_go_flags_t flags;
-	//!< pointer to the payload area\n
+	//!< bitmap specifying the operation attributes
 	uint8_t *payload;
-	//!< pointer to the tag area\n
+	//!< pointer to the payload area\n
 	uint8_t *mac;
-	//!< length in bytes of the payload
+	//!< pointer to the tag area\n
 	uint32_t payload_size;
-	//!< length of the tag.
-	//   - Specified in bytes if HSM_OP_MAC_ONE_GO_FLAGS_MAC_LENGTH_IN_BITS
-	//     is clear.
-	//   - Specified in bits when HSM_OP_MAC_ONE_GO_FLAGS_MAC_LENGTH_IN_BITS
-	//     is set.
-	//   Note:
-	//   - When specified in bytes the mac size cannot be less than 4 bytes.
-	//   - When specified in bits the mac size cannot be less than:
-	//     -- the key specific min_mac_len setting if specified for this key
-	//        when generated/injected; or
-	//     -- the min_mac_length value if specified at the key store
-	//        provisioning.
-	//        (if a key specific setting was not specified at key
-	//         generation/injection); or
-	//     -- the default value (32 bit) if a minimum has not been specified
-	//        using one of the above 2 methods.
+	//!< length in bytes of the payload
 	uint16_t mac_size;
+	//!< length of the tag.
+	//!< - Specified in bytes if HSM_OP_MAC_ONE_GO_FLAGS_MAC_LENGTH_IN_BITS
+	//!<   is clear.
+	//!< - Specified in bits when HSM_OP_MAC_ONE_GO_FLAGS_MAC_LENGTH_IN_BITS
+	//!<   is set.
+	//!<   Note:
+	//!<   - When specified in bytes the mac size cannot be less than 4 bytes.
+	//!<   - When specified in bits the mac size cannot be less than:
+	//!<     -- the key specific min_mac_len setting if specified for this key
+	//!<        when generated/injected; or
+	//!<     -- the min_mac_length value if specified at the key store
+	//!<        provisioning.
+	//!<        (if a key specific setting was not specified at key
+	//!<         generation/injection); or
+	//!<     -- the default value (32 bit) if a minimum has not been specified
+	//!<        using one of the above 2 methods.
 	hsm_mac_verification_status_t verification_status;
+	//!< mac verification status.
 #ifdef PSA_COMPLIANT
-	//!< expected mac size for output, returned by FW in case the mac size
-	//	 provided is less than the expected mac size calculated from MAC
-	//	 algorithm.
 	uint16_t exp_mac_size;
+	//!< expected mac size for output, returned by FW in case the mac size
+	//!<	 provided is less than the expected mac size calculated from MAC
+	//!<	 algorithm.
 #else
-	//!< bitmap specifying the services properties.
 	hsm_svc_mac_flags_t svc_flags;
+	//!< bitmap specifying the services properties.
 #endif
 } op_mac_one_go_args_t;
 
