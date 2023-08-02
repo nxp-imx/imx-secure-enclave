@@ -850,7 +850,6 @@ int main(int argc, char *argv[])
         printf(" --> FAILURE\n");
     }
 
-#ifndef CONFIG_PLAT_SECO
     printf("\n---------------------------------------------------\n");
     printf("key deletion test\n");
     printf("---------------------------------------------------\n");
@@ -868,6 +867,7 @@ int main(int argc, char *argv[])
     err = hsm_manage_key(sg0_key_mgmt_srv, &mng_key_args);
     printf("err: 0x%x hsm_manage_key hdl: 0x%08x\n", err, sg0_key_mgmt_srv);
 
+#ifndef CONFIG_PLAT_SECO
     /* Try to use again this key: an error is expected. */
     sm2_eces_dec_args.input = work_area;
     sm2_eces_dec_args.output = work_area3; //plaintext
@@ -884,7 +884,7 @@ int main(int argc, char *argv[])
     } else {
         printf("unexpected error code --> FAILURE\n");
     }
-
+#endif
 
     printf("\n---------------------------------------------------\n");
     printf("key delete with key group check test \n");
@@ -944,7 +944,7 @@ int main(int argc, char *argv[])
     printf("ecies test\n");
     printf("---------------------------------------------------\n");
 #endif
-
+#ifndef CONFIG_PLAT_SECO
     gen_key_args.key_identifier = &key_id;
     gen_key_args.out_size = 64;
     gen_key_args.key_type = HSM_KEY_TYPE_ECDSA_NIST_P256;
