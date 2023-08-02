@@ -778,7 +778,7 @@ int main(int argc, char *argv[])
     err = hsm_open_sm2_eces_service(sg1_key_store_serv, &sm2_eces_dec_svc_args, &sg1_sm2_eces_hdl);
 	printf("err: 0x%x hsm_open_sm2_eces_service: hdl: 0x%08x\n",
 	       err, sg1_sm2_eces_hdl);
-
+#endif
     gen_key_args.key_identifier = &key_id;
     gen_key_args.out_size = 64;
     gen_key_args.key_type = HSM_KEY_TYPE_DSA_SM2_FP_256;
@@ -796,7 +796,7 @@ int main(int argc, char *argv[])
     err = hsm_generate_key(sg0_key_mgmt_srv, &gen_key_args);
 	printf("err: 0x%x hsm_generate_key hdl: 0x%08x\n",
 	       err, sg0_key_mgmt_srv);
-
+#ifndef CONFIG_PLAT_SECO
     sm2_eces_enc_args.input = SM2_test_message;
     sm2_eces_enc_args.output = work_area;
     sm2_eces_enc_args.pub_key = work_area2;
@@ -830,7 +830,7 @@ int main(int argc, char *argv[])
     } else {
         printf(" --> FAILURE\n");
     }
-
+#endif
     printf("\n---------------------------------------------------\n");
     printf("Public key recovery\n");
     printf("---------------------------------------------------\n");
@@ -850,7 +850,7 @@ int main(int argc, char *argv[])
         printf(" --> FAILURE\n");
     }
 
-
+#ifndef CONFIG_PLAT_SECO
     printf("\n---------------------------------------------------\n");
     printf("key deletion test\n");
     printf("---------------------------------------------------\n");
