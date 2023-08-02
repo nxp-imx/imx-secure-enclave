@@ -590,7 +590,6 @@ int main(int argc, char *argv[])
     err = hsm_open_session(&args, &sv1_sess);
     printf("err: 0x%x SV1 hsm_open_session session_hdl: 0x%08x\n", err, sv1_sess);
 
-#ifndef CONFIG_PLAT_SECO
     // opening services for signature generation/verif on SG0 and SG1
 
     key_store_srv_args.key_store_identifier = 1234;
@@ -620,24 +619,30 @@ int main(int argc, char *argv[])
 
     key_mgmt_srv_args.flags = 0;
     err = hsm_open_key_management_service(sg0_key_store_serv, &key_mgmt_srv_args, &sg0_key_mgmt_srv);
-    printf("err: 0x%x hsm_open_key_management_service err: hdl: 0x%08x\n", err, sg0_key_mgmt_srv);
+	printf("err: 0x%x hsm_open_key_management_service hdl: 0x%08x\n",
+	       err, sg0_key_mgmt_srv);
     err = hsm_open_key_management_service(sg1_key_store_serv, &key_mgmt_srv_args, &sg1_key_mgmt_srv);
-    printf("err: 0x%x hsm_open_key_management_service err: hdl: 0x%08x\n", err, sg1_key_mgmt_srv);
+	printf("err: 0x%x hsm_open_key_management_service hdl: 0x%08x\n",
+	       err, sg1_key_mgmt_srv);
 #ifndef PSA_COMPLIANT
     sig_gen_srv_args.flags = 0;
 #endif
     err = hsm_open_signature_generation_service(sg0_key_store_serv, &sig_gen_srv_args, &sg0_sig_gen_serv);
-    printf("err: 0x%x hsm_open_signature_generation_service err: hdl: 0x%08x\n", err, sg0_sig_gen_serv);
+	printf("err: 0x%x hsm_open_signature_generation_service hdl: 0x%08x\n",
+	       err, sg0_sig_gen_serv);
     err = hsm_open_signature_generation_service(sg1_key_store_serv, &sig_gen_srv_args, &sg1_sig_gen_serv);
-    printf("err: 0x%x hsm_open_signature_generation_service err: hdl: 0x%08x\n", err, sg1_sig_gen_serv);
+	printf("err: 0x%x hsm_open_signature_generation_service hdl: 0x%08x\n",
+	       err, sg1_sig_gen_serv);
 
     sig_ver_srv_args.flags = 0;
     err = hsm_open_signature_verification_service(sv0_sess, &sig_ver_srv_args, &sv0_sig_ver_serv);
-    printf("err: 0x%x hsm_open_signature_verification_service err: hdl: 0x%08x\n", err, sv0_sig_ver_serv);
+	printf("err: 0x%x hsm_open_signature_verification_service hdl:0x%08x\n",
+	       err, sv0_sig_ver_serv);
     err = hsm_open_signature_verification_service(sv1_sess, &sig_ver_srv_args, &sv1_sig_ver_serv);
-    printf("err: 0x%x hsm_open_signature_verification_service err: hdl: 0x%08x\n", err, sv1_sig_ver_serv);
+	printf("err: 0x%x hsm_open_signature_verification_service hdl:0x%08x\n",
+	       err, sv1_sig_ver_serv);
 
-
+#ifndef CONFIG_PLAT_SECO
     // SM2 signature test: generate a signature and verify it
     //
     printf("\n---------------------------------------------------\n");
@@ -667,13 +672,11 @@ int main(int argc, char *argv[])
     pthread_join(sig2, NULL);
     printf("completed signature Low prio thread\n");
 #endif
-
 	// RNG tests
 	v2x_rng_test(sv0_sess, &rng_get_random_args);
 	v2x_rng_test(sv1_sess, &rng_get_random_args);
 	v2x_rng_test(sg0_sess, &rng_get_random_args);
 	v2x_rng_test(sg1_sess, &rng_get_random_args);
-
 #ifndef CONFIG_PLAT_SECO
     // SM3 hash test
 
@@ -735,9 +738,11 @@ int main(int argc, char *argv[])
     printf("---------------------------------------------------\n");
     cipher_srv_args.flags = 0U;
     err = hsm_open_cipher_service(sg0_key_store_serv, &cipher_srv_args, &sg0_cipher_hdl);
-    printf("err: 0x%x hsm_open_cipher_service err: hdl: 0x%08x\n", err, sg0_cipher_hdl);
+	printf("err: 0x%x hsm_open_cipher_service: hdl: 0x%08x\n",
+	       err, sg0_cipher_hdl);
     err = hsm_open_cipher_service(sg1_key_store_serv, &cipher_srv_args, &sg1_cipher_hdl);
-    printf("err: 0x%x hsm_open_cipher_service err: hdl: 0x%08x\n", err, sg1_cipher_hdl);
+	printf("err: 0x%x hsm_open_cipher_service: hdl: 0x%08x\n",
+	       err, sg1_cipher_hdl);
 
     cipher_args1.tag = "HIGH_P";
     cipher_args1.key_mgmt_srv = sg0_key_mgmt_srv;
@@ -768,9 +773,11 @@ int main(int argc, char *argv[])
 
     sm2_eces_dec_svc_args.flags = 0U;
     err = hsm_open_sm2_eces_service(sg0_key_store_serv, &sm2_eces_dec_svc_args, &sg0_sm2_eces_hdl);
-    printf("err: 0x%x hsm_open_sm2_eces_service err: hdl: 0x%08x\n", err, sg0_sm2_eces_hdl);
+	printf("err: 0x%x hsm_open_sm2_eces_service: hdl: 0x%08x\n",
+	       err, sg0_sm2_eces_hdl);
     err = hsm_open_sm2_eces_service(sg1_key_store_serv, &sm2_eces_dec_svc_args, &sg1_sm2_eces_hdl);
-    printf("err: 0x%x hsm_open_sm2_eces_service err: hdl: 0x%08x\n", err, sg1_sm2_eces_hdl);
+	printf("err: 0x%x hsm_open_sm2_eces_service: hdl: 0x%08x\n",
+	       err, sg1_sm2_eces_hdl);
 
     gen_key_args.key_identifier = &key_id;
     gen_key_args.out_size = 64;
@@ -787,7 +794,8 @@ int main(int argc, char *argv[])
 #endif
     gen_key_args.out_key = work_area2; // public key needed for the encryption
     err = hsm_generate_key(sg0_key_mgmt_srv, &gen_key_args);
-    printf("err: 0x%x hsm_generate_key err: hdl: 0x%08x\n", err, sg0_key_mgmt_srv);
+	printf("err: 0x%x hsm_generate_key hdl: 0x%08x\n",
+	       err, sg0_key_mgmt_srv);
 
     sm2_eces_enc_args.input = SM2_test_message;
     sm2_eces_enc_args.output = work_area;
@@ -847,7 +855,6 @@ int main(int argc, char *argv[])
     printf("key deletion test\n");
     printf("---------------------------------------------------\n");
 
-#ifdef CONFIG_PLAT_SECO
     /* Test deletion of last generated key. */
     mng_key_args.key_identifier = &key_id;
     mng_key_args.kek_identifier = 0;
@@ -860,7 +867,6 @@ int main(int argc, char *argv[])
 
     err = hsm_manage_key(sg0_key_mgmt_srv, &mng_key_args);
     printf("err: 0x%x hsm_manage_key hdl: 0x%08x\n", err, sg0_key_mgmt_srv);
-#endif
 
     /* Try to use again this key: an error is expected. */
     sm2_eces_dec_args.input = work_area;
@@ -899,7 +905,8 @@ int main(int argc, char *argv[])
 #endif
     gen_key_args.out_key = work_area2; // public key needed for the encryption
     err = hsm_generate_key(sg0_key_mgmt_srv, &gen_key_args);
-    printf("err: 0x%x hsm_generate_key err: hdl: 0x%08x\n", err, sg0_key_mgmt_srv);
+	printf("err: 0x%x hsm_generate_key hdl: 0x%08x\n",
+	       err, sg0_key_mgmt_srv);
 
 #ifdef CONFIG_PLAT_SECO
     /* Test deletion of last generated key with bad key group */
@@ -953,7 +960,8 @@ int main(int argc, char *argv[])
 #endif
     gen_key_args.out_key = work_area2; // public key needed for the encryption
     err = hsm_generate_key(sg0_key_mgmt_srv, &gen_key_args);
-    printf("err: 0x%x hsm_generate_key err: hdl: 0x%08x\n", err, sg0_key_mgmt_srv);
+	printf("err: 0x%x hsm_generate_key hdl: 0x%08x\n",
+	       err, sg0_key_mgmt_srv);
 
     op_ecies_enc_args.input = ecies_input;
     op_ecies_enc_args.pub_key = work_area2;
@@ -970,7 +978,8 @@ int main(int argc, char *argv[])
     op_ecies_enc_args.flags = 0u;
     op_ecies_enc_args.reserved= 0u;
     err = hsm_ecies_encryption(sg0_sess, &op_ecies_enc_args);
-    printf("err: 0x%x hsm_ecies_encryption err: hdl: 0x%08x\n", err, sg0_key_mgmt_srv);
+	printf("err: 0x%x hsm_ecies_encryption hdl: 0x%08x\n",
+	       err, sg0_key_mgmt_srv);
     printf("output:\n"); // we need to decrypt it with the associated private key to check if the result is correct
     for (j=0; j<3*32; j++) {
         printf("0x%02x ", work_area[j]);
@@ -991,7 +1000,8 @@ int main(int argc, char *argv[])
     op_ecies_dec_args.key_type = HSM_KEY_TYPE_ECDSA_NIST_P256;
     op_ecies_dec_args.flags = 0;
     err = hsm_ecies_decryption(sg0_cipher_hdl, &op_ecies_dec_args);
-    printf("err: 0x%x hsm_ecies_decryption err: hdl: 0x%08x\n", err, sg0_cipher_hdl);
+	printf("err: 0x%x hsm_ecies_decryption hdl: 0x%08x\n",
+	       err, sg0_cipher_hdl);
 
     if (memcmp(ecies_input, work_area3, 16) == 0) {
         printf(" --> SUCCESS\n");
@@ -1026,7 +1036,8 @@ int main(int argc, char *argv[])
     key_exch.signed_msg_size = 0;
 
     err = hsm_key_exchange(sg0_key_mgmt_srv, &key_exch);
-    printf("err: 0x%x hsm_key_exchange err hdl: 0x%08x\n", err, sg0_key_mgmt_srv);
+	printf("err: 0x%x hsm_key_exchange hdl: 0x%08x\n",
+	       err, sg0_key_mgmt_srv);
 
     printf("Receiver pubk:\n");
     for (j=0; j<64; j++) {
@@ -1056,7 +1067,8 @@ int main(int argc, char *argv[])
 #endif
     gen_key_args.out_key = work_area2;
     err = hsm_generate_key(sg0_key_mgmt_srv, &gen_key_args);
-    printf("err: 0x%x hsm_generate_key err: hdl: 0x%08x\n", err, sg0_key_mgmt_srv);
+	printf("err: 0x%x hsm_generate_key hdl: 0x%08x\n",
+	       err, sg0_key_mgmt_srv);
 
     key_exch.key_identifier = key_id;
     key_exch.shared_key_identifier_array = (uint8_t *)&key_id_sm4;
@@ -1080,7 +1092,8 @@ int main(int argc, char *argv[])
     key_exch.signed_msg_size = 0;
 
     err = hsm_key_exchange(sg0_key_mgmt_srv, &key_exch);
-    printf("err: 0x%x hsm_key_exchange err hdl: 0x%08x\n", err, sg0_key_mgmt_srv);
+	printf("err: 0x%x hsm_key_exchange hdl: 0x%08x\n",
+	       err, sg0_key_mgmt_srv);
 
     printf("Receiver pubk:\n");
     for (j=0; j<64; j++) {
@@ -1097,7 +1110,8 @@ int main(int argc, char *argv[])
     printf("---------------------------------------------------\n");
     cipher_srv_args.flags = 0U;
     err = hsm_open_cipher_service(sg0_key_store_serv, &cipher_srv_args, &sg0_cipher_hdl);
-    printf("err: 0x%x hsm_open_cipher_service err: hdl: 0x%08x\n", err, sg0_cipher_hdl);
+	printf("err: 0x%x hsm_open_cipher_service hdl: 0x%08x\n",
+	       err, sg0_cipher_hdl);
 
     cipher_args.key_identifier = key_id_sm4;
     cipher_args.iv = 0;
@@ -1137,7 +1151,8 @@ int main(int argc, char *argv[])
     key_exch.signed_msg_size = 0;
 
     err = hsm_key_exchange(sg0_key_mgmt_srv, &key_exch);
-    printf("err: 0x%x hsm_key_exchange err hdl: 0x%08x\n", err, sg0_key_mgmt_srv);
+	printf("err: 0x%x hsm_key_exchange hdl: 0x%08x\n",
+	       err, sg0_key_mgmt_srv);
 
     printf("Receiver pubk:\n");
     for (j=0; j<64; j++) {
@@ -1154,7 +1169,8 @@ int main(int argc, char *argv[])
     mac_srv_args.flags = 0u;
 #endif
     err = hsm_open_mac_service(sg0_key_store_serv, &mac_srv_args, &sg0_mac_hdl);
-    printf("err: 0x%x hsm_open_mac_service err: hdl: 0x%08x\n", err, sg0_mac_hdl);
+	printf("err: 0x%x hsm_open_mac_service hdl: 0x%08x\n",
+	       err, sg0_mac_hdl);
 
     gen_key_args.key_identifier = &key_id;
     gen_key_args.out_size = 0U;
@@ -1171,7 +1187,8 @@ int main(int argc, char *argv[])
 #endif
     gen_key_args.out_key = NULL;
     err = hsm_generate_key(sg0_key_mgmt_srv, &gen_key_args);
-    printf("err: 0x%x hsm_generate_key err: hdl: 0x%08x\n", err, sg0_key_mgmt_srv);
+	printf("err: 0x%x hsm_generate_key hdl: 0x%08x\n",
+	       err, sg0_key_mgmt_srv);
 
     mac_one_go.key_identifier = key_id;
 #ifdef PSA_COMPLIANT
@@ -1227,7 +1244,8 @@ int main(int argc, char *argv[])
 #endif
     gen_key_args.out_key = NULL;
     err = hsm_generate_key(sg0_key_mgmt_srv, &gen_key_args);
-    printf("err: 0x%x hsm_generate_key err: hdl: 0x%08x\n", err, sg0_key_mgmt_srv);
+	printf("err: 0x%x hsm_generate_key hdl: 0x%08x\n",
+	       err, sg0_key_mgmt_srv);
 
     auth_enc_gcm.key_identifier = key_id;
     auth_enc_gcm.iv = &SM2_test_message[256];
@@ -1241,7 +1259,7 @@ int main(int argc, char *argv[])
     auth_enc_gcm.input_size = 32;
     auth_enc_gcm.output_size = 32+16+12;
     err = hsm_auth_enc(sg0_cipher_hdl, &auth_enc_gcm);
-    printf("err: 0x%x hsm_auth_enc err: hdl: 0x%08x\n", err, sg0_cipher_hdl);
+	printf("err: 0x%x hsm_auth_enc hdl: 0x%08x\n", err, sg0_cipher_hdl);
 
 
     printf("IV :\n");
@@ -1264,7 +1282,7 @@ int main(int argc, char *argv[])
     auth_enc_gcm.output_size = 32;
 
     err = hsm_auth_enc(sg0_cipher_hdl, &auth_enc_gcm);
-    printf("err: 0x%x hsm_auth_enc err: hdl: 0x%08x\n", err, sg0_cipher_hdl);
+	printf("err: 0x%x hsm_auth_enc hdl: 0x%08x\n", err, sg0_cipher_hdl);
 
     if (memcmp(SM2_test_message, work_area4, 32) == 0) {
         printf(" --> SUCCESS\n");
@@ -1284,7 +1302,7 @@ int main(int argc, char *argv[])
     auth_enc_gcm.input_size = 32;
     auth_enc_gcm.output_size = 32+16+12;
     err = hsm_auth_enc(sg0_cipher_hdl, &auth_enc_gcm);
-    printf("err: 0x%x hsm_auth_enc err: hdl: 0x%08x\n", err, sg0_cipher_hdl);
+	printf("err: 0x%x hsm_auth_enc hdl: 0x%08x\n", err, sg0_cipher_hdl);
 
 
     printf("IV :\n");
@@ -1307,7 +1325,7 @@ int main(int argc, char *argv[])
     auth_enc_gcm.output_size = 32;
 
     err = hsm_auth_enc(sg0_cipher_hdl, &auth_enc_gcm);
-    printf("err: 0x%x hsm_auth_enc err: hdl: 0x%08x\n", err, sg0_cipher_hdl);
+	printf("err: 0x%x hsm_auth_enc hdl: 0x%08x\n", err, sg0_cipher_hdl);
 
     if (memcmp(SM2_test_message, work_area4, 32) == 0) {
         printf(" --> SUCCESS\n");
@@ -1327,7 +1345,7 @@ int main(int argc, char *argv[])
     auth_enc_gcm.input_size = 32;
     auth_enc_gcm.output_size = 32+16+12;
     err = hsm_auth_enc(sg0_cipher_hdl, &auth_enc_gcm);
-    printf("err: 0x%x hsm_auth_enc err: hdl: 0x%08x\n", err, sg0_cipher_hdl);
+	printf("err: 0x%x hsm_auth_enc hdl: 0x%08x\n", err, sg0_cipher_hdl);
 
     printf("IV :\n");
     for (j=0; j<12; j++) {
@@ -1349,7 +1367,7 @@ int main(int argc, char *argv[])
     auth_enc_gcm.output_size = 32;
 
     err = hsm_auth_enc(sg0_cipher_hdl, &auth_enc_gcm);
-    printf("err: 0x%x hsm_auth_enc err: hdl: 0x%08x\n", err, sg0_cipher_hdl);
+	printf("err: 0x%x hsm_auth_enc hdl: 0x%08x\n", err, sg0_cipher_hdl);
 
     if (memcmp(SM2_test_message, work_area4, 32) == 0) {
         printf(" --> SUCCESS\n");
@@ -1377,7 +1395,8 @@ int main(int argc, char *argv[])
 #endif
     gen_key_args.out_key = work_area2;
     err = hsm_generate_key(sg0_key_mgmt_srv, &gen_key_args);
-    printf("err: 0x%x hsm_generate_key err: hdl: 0x%08x\n", err, sg0_key_mgmt_srv);
+	printf("err: 0x%x hsm_generate_key hdl: 0x%08x\n",
+	       err, sg0_key_mgmt_srv);
 
     gen_key_args.key_identifier = &exp_fct_key_id;
     gen_key_args.out_size = 0U;
@@ -1394,7 +1413,8 @@ int main(int argc, char *argv[])
 #endif
     gen_key_args.out_key = NULL;
     err = hsm_generate_key(sg0_key_mgmt_srv, &gen_key_args);
-    printf("err: 0x%x hsm_generate_key err: hdl: 0x%08x\n", err, sg0_key_mgmt_srv);
+	printf("err: 0x%x hsm_generate_key hdl: 0x%08x\n",
+	       err, sg0_key_mgmt_srv);
 
     st_butt_key_expansion.key_identifier = master_key_id;
     st_butt_key_expansion.expansion_fct_key_identifier = exp_fct_key_id;
@@ -1415,7 +1435,8 @@ int main(int argc, char *argv[])
     st_butt_key_expansion.key_group = 1;
     st_butt_key_expansion.key_info = 0;
     err = hsm_standalone_butterfly_key_expansion(sg0_key_mgmt_srv, &st_butt_key_expansion);
-    printf("err: 0x%x hsm_standalone_butterfly_key_expansion err: hdl: 0x%08x\n", err, sg0_key_mgmt_srv);
+	printf("err: 0x%x hsm_standalone_butterfly_key_expansion hdl: 0x%08x\n",
+	       err, sg0_key_mgmt_srv);
 
     printf("Derived SM2 public key  :\n");
     for (j=0; j<64; j++) {
@@ -1439,7 +1460,8 @@ int main(int argc, char *argv[])
 #endif
     gen_key_args.out_key = work_area2;
     err = hsm_generate_key(sg0_key_mgmt_srv, &gen_key_args);
-    printf("err: 0x%x hsm_generate_key err: hdl: 0x%08x\n", err, sg0_key_mgmt_srv);
+	printf("err: 0x%x hsm_generate_key hdl: 0x%08x\n",
+	       err, sg0_key_mgmt_srv);
 
     gen_key_args.key_identifier = &exp_fct_key_id;
     gen_key_args.out_size = 0U;
@@ -1456,7 +1478,8 @@ int main(int argc, char *argv[])
 #endif
     gen_key_args.out_key = NULL;
     err = hsm_generate_key(sg0_key_mgmt_srv, &gen_key_args);
-    printf("err: 0x%x hsm_generate_key err: hdl: 0x%08x\n", err, sg0_key_mgmt_srv);
+	printf("err: 0x%x hsm_generate_key hdl: 0x%08x\n",
+	       err, sg0_key_mgmt_srv);
 
     st_butt_key_expansion.key_identifier = master_key_id;
     st_butt_key_expansion.expansion_fct_key_identifier = exp_fct_key_id;
@@ -1477,7 +1500,8 @@ int main(int argc, char *argv[])
     st_butt_key_expansion.key_group = 1;
     st_butt_key_expansion.key_info = 0;
     err = hsm_standalone_butterfly_key_expansion(sg0_key_mgmt_srv, &st_butt_key_expansion);
-    printf("err: 0x%x hsm_standalone_butterfly_key_expansion err: hdl: 0x%08x\n", err, sg0_key_mgmt_srv);
+	printf("err: 0x%x hsm_standalone_butterfly_key_expansion hdl: 0x%08x\n",
+	       err, sg0_key_mgmt_srv);
 
     printf("Derived P256 public key  :\n");
     for (j=0; j<64; j++) {
@@ -1506,7 +1530,8 @@ int main(int argc, char *argv[])
 #endif
     gen_key_args.out_key = NULL;
     err = hsm_generate_key(sg0_key_mgmt_srv, &gen_key_args);
-    printf("err: 0x%x hsm_generate_key err: hdl: 0x%08x\n", err, sg0_key_mgmt_srv);
+	printf("err: 0x%x hsm_generate_key hdl: 0x%08x\n",
+	       err, sg0_key_mgmt_srv);
 
     auth_enc_gcm.key_identifier = key_id;
     auth_enc_gcm.iv = NULL;
@@ -1520,7 +1545,7 @@ int main(int argc, char *argv[])
     auth_enc_gcm.input_size = 23;
     auth_enc_gcm.output_size = 23+16+12;
     err = hsm_auth_enc(sg0_cipher_hdl, &auth_enc_gcm);
-    printf("err: 0x%x hsm_auth_enc err: hdl: 0x%08x\n", err, sg0_cipher_hdl);
+	printf("err: 0x%x hsm_auth_enc hdl: 0x%08x\n", err, sg0_cipher_hdl);
 
     auth_enc_gcm.key_identifier = key_id;
     auth_enc_gcm.iv = &work_area3[23+16];
@@ -1534,7 +1559,7 @@ int main(int argc, char *argv[])
     auth_enc_gcm.input_size = 23 + 16;
     auth_enc_gcm.output_size = 23;
     err = hsm_auth_enc(sg0_cipher_hdl, &auth_enc_gcm);
-    printf("err: 0x%x hsm_auth_enc err: hdl: 0x%08x\n", err, sg0_cipher_hdl);
+	printf("err: 0x%x hsm_auth_enc hdl: 0x%08x\n", err, sg0_cipher_hdl);
 
     if (memcmp(sm4_ccm_ptx, work_area4, 23) == 0) {
         printf(" --> SUCCESS\n");
@@ -1549,7 +1574,8 @@ int main(int argc, char *argv[])
 
     key_generic_crypto_args.flags = 0u;
     err = hsm_open_key_generic_crypto_service(sg0_sess, &key_generic_crypto_args, &key_generic_crypto);
-    printf("err: 0x%x hsm_open_key_generic_crypto_service err: hdl: 0x%08x\n", err, sg0_sess);
+	printf("err: 0x%x hsm_open_key_generic_crypto_service hdl: 0x%08x\n",
+	       err, sg0_sess);
 
     key_generic_crypto_srv_args.key = sm4_ccm_key;
     key_generic_crypto_srv_args.key_size = 16u;
@@ -1565,7 +1591,8 @@ int main(int argc, char *argv[])
     key_generic_crypto_srv_args.input_size = 23;
     key_generic_crypto_srv_args.output_size = 23+16;
     err = hsm_key_generic_crypto(key_generic_crypto, &key_generic_crypto_srv_args);
-    printf("err: 0x%x hsm_key_generic_crypto err: hdl: 0x%08x\n", err, key_generic_crypto);
+	printf("err: 0x%x hsm_key_generic_crypto hdl: 0x%08x\n",
+	       err, key_generic_crypto);
 
     if (memcmp(sm4_ccm_ctx_tag, work_area3, 23+16) == 0) {
         printf(" --> SUCCESS\n");
@@ -1587,22 +1614,24 @@ int main(int argc, char *argv[])
     key_generic_crypto_srv_args.input_size = 23 +16;
     key_generic_crypto_srv_args.output_size = 23;
     err = hsm_key_generic_crypto(key_generic_crypto, &key_generic_crypto_srv_args);
-    printf("err: 0x%x hsm_key_generic_crypto err: hdl: 0x%08x\n", err, key_generic_crypto);
+	printf("err: 0x%x hsm_key_generic_crypto hdl: 0x%08x\n",
+	       err, key_generic_crypto);
 
     if (memcmp(sm4_ccm_ptx, work_area4, 23) == 0) {
         printf(" --> SUCCESS\n");
     } else {
         printf(" --> FAILURE\n");
     }
-
+#endif
     // Close all services and sessions
     printf("\n---------------------------------------------------\n");
     printf("Closing services and sessions\n");
     printf("---------------------------------------------------\n");
 
+#ifndef CONFIG_PLAT_SECO
     err = hsm_close_hash_service(hash_serv);
     printf("err: 0x%x hsm_close_hash_service hdl: 0x%08x\n", err, hash_serv);
-
+#endif
     err = hsm_close_signature_verification_service(sv0_sig_ver_serv);
     printf("err: 0x%x hsm_close_signature_verification_service hdl: 0x%08x\n", err, sv0_sig_ver_serv);
     err = hsm_close_signature_verification_service(sv1_sig_ver_serv);
@@ -1613,14 +1642,14 @@ int main(int argc, char *argv[])
     err = hsm_close_signature_generation_service(sg1_sig_gen_serv);
     printf("err: 0x%x hsm_close_signature_generation_service hdl: 0x%08x\n", err, sg1_sig_gen_serv);
 
+#ifndef CONFIG_PLAT_SECO
     err = hsm_close_sm2_eces_service(sg0_sm2_eces_hdl);
     printf("err: 0x%x hsm_close_sm2_eces_service hdl: 0x%08x\n", err, sg0_sm2_eces_hdl);
     err = hsm_close_sm2_eces_service(sg1_sm2_eces_hdl);
     printf("err: 0x%x hsm_close_sm2_eces_service hdl: 0x%08x\n", err, sg1_sm2_eces_hdl);
-
     err = hsm_close_mac_service(sg0_mac_hdl);
     printf("err: 0x%x hsm_close_mac_service hdl: 0x%x\n", err, sg0_mac_hdl);
-
+#endif
     err = hsm_close_key_management_service(sg0_key_mgmt_srv);
     printf("err: 0x%x hsm_close_key_management_service hdl: 0x%x\n", err, sg0_key_mgmt_srv);
     err = hsm_close_key_management_service(sg1_key_mgmt_srv);
@@ -1628,8 +1657,10 @@ int main(int argc, char *argv[])
 
     err = hsm_close_key_store_service(sg0_key_store_serv);
     printf("err: 0x%x hsm_close_key_store_service hdl: 0x%08x\n", err, sg0_key_store_serv);
+
     err = hsm_close_key_store_service(sg1_key_store_serv);
     printf("err: 0x%x hsm_close_key_store_service hdl: 0x%08x\n", err, sg1_key_store_serv);
+#ifndef CONFIG_PLAT_SECO
     err = hsm_close_key_generic_crypto_service(key_generic_crypto);
     printf("err: 0x%x hsm_close_key_generic_crypto_service hdl: 0x%x\n", err, key_generic_crypto);
 #endif
