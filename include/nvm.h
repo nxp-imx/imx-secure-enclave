@@ -26,9 +26,11 @@ uint32_t get_nvmd_status(void *ctx);
 
 void set_nvmd_status_stop(void *ctx);
 
-#define NVM_FLAGS_V2X    (0x02u)
-#define NVM_FLAGS_SHE    (0x01u)
-#define NVM_FLAGS_HSM    (0x00u)
+#define NVM_FLAGS_V2X		(0x02u)
+#define NVM_FLAGS_SHE		(0x01u)
+#define NVM_FLAGS_HSM		(0x00u)
+#define NVM_FLAGS_V2X_SHE	(NVM_FLAGS_V2X | NVM_FLAGS_SHE)
+#define NVM_FLAGS_V2X_HSM	(NVM_FLAGS_V2X | NVM_FLAGS_HSM)
 
 #define NVM_STATUS_UNDEF    (0x00u)
 #define NVM_STATUS_STARTING (0x01u)

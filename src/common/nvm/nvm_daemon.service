@@ -8,7 +8,8 @@ User=root
 EnvironmentFile=/etc/nvmd.conf
 ExecStart=/usr/bin/nvm_daemon \
 	$NVMD_STORAGE_FILENAME \
-	$NVMD_STORAGE_DIRNAME
+	$NVMD_STORAGE_DIRNAME \
+	$NVMD_MU_SESSION_FLAG
 
 [Install]
 WantedBy=basic.target

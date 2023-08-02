@@ -95,8 +95,8 @@ int main(int argc, char *argv[])
 	int flags = 0;
 	uint32_t err = 0;
 
-	if (argc < 3) {
-		printf("Usage: ./nvm_daemon <file_name> <directory>\n");
+	if (argc < 4) {
+		printf("Usage: ./nvm_daemon <file_name> <directory> <flag>\n");
 		return 0;
 	}
 
@@ -111,12 +111,14 @@ int main(int argc, char *argv[])
 	if (sigaction(SIGINT, &action, NULL))
 		se_warn("failed to register ctrl-c signal handler\n");
 
-	flags |= NVM_FLAGS_HSM;
-	if (plat_os_abs_has_v2x_hw()) {
-		flags |= NVM_FLAGS_V2X;
+	flags = atoi(argv[3]);
+
+	if (flags < 0) {
+		se_err("Invalid flag value %d\n", flags);
+		return 0;
 	}
 
-	err = nvm_manager(flags, &nvm_ctx, argv[1], argv[2]);
+	err = nvm_manager((uint8_t)(flags), &nvm_ctx, argv[1], argv[2]);
 	if (err)
 		printf("Error: NVM Daemon exited with error(0x%x).\n", err);
 

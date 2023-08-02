@@ -116,18 +116,22 @@ static uint32_t nvm_open_session(uint8_t flags, struct nvm_ctx_st *nvm_ctx)
 		}
 
 		/* Open the Storage session on the MU */
-		if ((flags & NVM_FLAGS_V2X) != 0u) {
-			if ((flags & NVM_FLAGS_SHE) != 0u) {
-				nvm_ctx->mu_type = MU_CHANNEL_V2X_SHE_NVM;
-			} else {
-				nvm_ctx->mu_type = MU_CHANNEL_V2X_HSM_NVM;
-			}
-		} else {
-			if ((flags & NVM_FLAGS_SHE) != 0u) {
-				nvm_ctx->mu_type = MU_CHANNEL_PLAT_SHE_NVM;
-			} else {
-				nvm_ctx->mu_type = MU_CHANNEL_PLAT_HSM_NVM;
-			}
+		switch (flags) {
+		case NVM_FLAGS_SHE:
+			nvm_ctx->mu_type = MU_CHANNEL_PLAT_SHE_NVM;
+			break;
+		case NVM_FLAGS_V2X_SHE:
+			nvm_ctx->mu_type = MU_CHANNEL_V2X_SHE_NVM;
+			break;
+		case NVM_FLAGS_HSM:
+			nvm_ctx->mu_type = MU_CHANNEL_PLAT_HSM_NVM;
+			break;
+		case NVM_FLAGS_V2X_HSM:
+			nvm_ctx->mu_type = MU_CHANNEL_V2X_HSM_NVM;
+			break;
+		default:
+			nvm_ctx->mu_type = MU_CHANNEL_PLAT_HSM_NVM;
+			break;
 		}
 
 		nvm_ctx->phdl = plat_os_abs_open_mu_channel(nvm_ctx->mu_type,
