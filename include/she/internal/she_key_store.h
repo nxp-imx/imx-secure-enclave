@@ -63,7 +63,7 @@
  */
 #define SHE_STORAGE_CREATE_SUCCESS              0u
 /**
- * New storage created but its usage is restricted to a limited security state of the chip.
+ * New storage created but its usage is restricted to limited security state of chip.
  */
 #define SHE_STORAGE_CREATE_WARNING              1u
 /**
