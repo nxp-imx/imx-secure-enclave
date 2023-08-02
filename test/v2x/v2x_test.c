@@ -642,7 +642,6 @@ int main(int argc, char *argv[])
 	printf("err: 0x%x hsm_open_signature_verification_service hdl:0x%08x\n",
 	       err, sv1_sig_ver_serv);
 
-#ifndef CONFIG_PLAT_SECO
     // SM2 signature test: generate a signature and verify it
     //
     printf("\n---------------------------------------------------\n");
@@ -671,12 +670,13 @@ int main(int argc, char *argv[])
 
     pthread_join(sig2, NULL);
     printf("completed signature Low prio thread\n");
-#endif
+
 	// RNG tests
 	v2x_rng_test(sv0_sess, &rng_get_random_args);
 	v2x_rng_test(sv1_sess, &rng_get_random_args);
 	v2x_rng_test(sg0_sess, &rng_get_random_args);
 	v2x_rng_test(sg1_sess, &rng_get_random_args);
+
 #ifndef CONFIG_PLAT_SECO
     // SM3 hash test
 
