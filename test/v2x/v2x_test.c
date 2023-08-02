@@ -677,7 +677,6 @@ int main(int argc, char *argv[])
 	v2x_rng_test(sg0_sess, &rng_get_random_args);
 	v2x_rng_test(sg1_sess, &rng_get_random_args);
 
-#ifndef CONFIG_PLAT_SECO
     // SM3 hash test
 
     printf("\n---------------------------------------------------\n");
@@ -706,6 +705,7 @@ int main(int argc, char *argv[])
         printf(" --> FAILURE\n");
     }
 
+#ifndef CONFIG_PLAT_SECO
     printf("\n---------------------------------------------------\n");
     printf("SM2 get Z test\n");
     printf("---------------------------------------------------\n");
@@ -1628,10 +1628,8 @@ int main(int argc, char *argv[])
     printf("Closing services and sessions\n");
     printf("---------------------------------------------------\n");
 
-#ifndef CONFIG_PLAT_SECO
     err = hsm_close_hash_service(hash_serv);
     printf("err: 0x%x hsm_close_hash_service hdl: 0x%08x\n", err, hash_serv);
-#endif
     err = hsm_close_signature_verification_service(sv0_sig_ver_serv);
     printf("err: 0x%x hsm_close_signature_verification_service hdl: 0x%08x\n", err, sv0_sig_ver_serv);
     err = hsm_close_signature_verification_service(sv1_sig_ver_serv);
