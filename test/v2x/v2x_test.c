@@ -12,7 +12,7 @@
 #include <string.h>
 #include <time.h>
 #include <unistd.h>
-
+#include <plat_utils.h>
 
 static uint8_t  SM2_test_message[300] = {
     // Note that the first 32 Bytes are the "Z" value that can be retrieved with hsm_sm2_get_z()
@@ -390,6 +390,95 @@ static void *cipher_loop_thread(void *arg)
     return NULL;
 }
 
+static void v2x_rng_test(hsm_hdl_t sess_hdl, op_get_random_args_t *rng_get_random_args)
+{
+#ifndef PSA_COMPLIANT
+	open_svc_rng_args_t rng_srv_args;
+#endif
+	hsm_hdl_t rng_serv_hdl;
+	int err, i;
+	uint8_t rng_out_buff[4096];
+
+	printf("\n---------------------------------------------------\n");
+	printf("RNG test\n");
+	printf("---------------------------------------------------\n");
+
+#ifndef PSA_COMPLIANT
+	rng_srv_args.flags = 0;
+	err = hsm_open_rng_service(sess_hdl, &rng_srv_args, &rng_serv_hdl);
+	se_info("err: 0x%x hsm_open_rng_service hdl: 0x%08x\n", err, rng_serv_hdl);
+#endif
+	rng_get_random_args->output = rng_out_buff;
+	rng_get_random_args->random_size = 3;
+
+#ifdef PSA_COMPLIANT
+	err =  hsm_get_random(sess_hdl, rng_get_random_args);
+	printf("err: 0x%x hsm_get_random sess_hdl: 0x%08x, rand size=0x%08x\n",
+	       err, sess_hdl, rng_get_random_args->random_size);
+#else
+	err =  hsm_get_random(rng_serv_hdl, rng_get_random_args);
+	printf("err: 0x%x hsm_get_random srv_hdl: 0x%08x, rand size=0x%08x\n",
+	       err, rng_serv_hdl, rng_get_random_args->random_size);
+#endif
+	for (i = 0; i < rng_get_random_args->random_size; i++)
+		printf("%02x", rng_out_buff[i]);
+	printf("\n");
+
+	rng_get_random_args->random_size = 176;
+
+#ifdef PSA_COMPLIANT
+	err =  hsm_get_random(sess_hdl, rng_get_random_args);
+	printf("err: 0x%x hsm_get_random sess_hdl: 0x%08x, rand size=0x%08x\n",
+	       err, sess_hdl, rng_get_random_args->random_size);
+#else
+	err =  hsm_get_random(rng_serv_hdl, rng_get_random_args);
+	printf("err: 0x%x hsm_get_random srv_hdl: 0x%08x, rand size=0x%08x\n",
+	       err, rng_serv_hdl, rng_get_random_args->random_size);
+#endif
+	for (i = 0; i < rng_get_random_args->random_size; i++)
+		printf("%02x", rng_out_buff[i]);
+	printf("\n");
+
+	rng_get_random_args->random_size = 2050;
+
+#ifdef PSA_COMPLIANT
+	err =  hsm_get_random(sess_hdl, rng_get_random_args);
+	printf("err: 0x%x hsm_get_random sess_hdl: 0x%08x, rand size=0x%08x\n",
+	       err, sess_hdl, rng_get_random_args->random_size);
+#else
+	err =  hsm_get_random(rng_serv_hdl, rng_get_random_args);
+	printf("err: 0x%x hsm_get_random srv_hdl: 0x%08x, rand size=0x%08x\n",
+	       err, rng_serv_hdl, rng_get_random_args->random_size);
+#endif
+	for (i = 0; i < rng_get_random_args->random_size; i++)
+		printf("%02x", rng_out_buff[i]);
+	printf("\n");
+
+	rng_get_random_args->random_size = 4096;
+
+#ifdef PSA_COMPLIANT
+	err =  hsm_get_random(sess_hdl, rng_get_random_args);
+	printf("err: 0x%x hsm_get_random sess_hdl: 0x%08x, rand size=0x%08x\n",
+	       err, sess_hdl, rng_get_random_args->random_size);
+#else
+	err =  hsm_get_random(rng_serv_hdl, rng_get_random_args);
+	printf("err: 0x%x hsm_get_random srv_hdl: 0x%08x, rand size=0x%08x\n",
+	       err, rng_serv_hdl, rng_get_random_args->random_size);
+#endif
+	for (i = 0; i < rng_get_random_args->random_size; i++)
+		printf("%02x", rng_out_buff[i]);
+	printf("\n");
+
+#ifndef PSA_COMPLIANT
+	err = hsm_close_rng_service(rng_serv_hdl);
+	se_info("RNG Service Closed: 0x%x hsm_close_rng_service hdl: 0x%x\n",
+		err, rng_serv_hdl);
+#endif
+
+	printf("\n---------------------------------------------------\n");
+	printf("RNG test Complete\n");
+	printf("---------------------------------------------------\n");
+}
 
 int main(int argc, char *argv[])
 {
@@ -401,7 +490,6 @@ int main(int argc, char *argv[])
     open_svc_sign_gen_args_t sig_gen_srv_args;
     open_svc_sign_ver_args_t sig_ver_srv_args;
     open_svc_cipher_args_t cipher_srv_args;
-    open_svc_rng_args_t rng_srv_args;
     open_svc_key_generic_crypto_args_t key_generic_crypto_args;
 
     op_hash_one_go_args_t hash_args;
@@ -422,7 +510,6 @@ int main(int argc, char *argv[])
     hsm_hdl_t sg1_sess, sv1_sess;
     hsm_hdl_t sg0_key_store_serv, sg0_sig_gen_serv, sg0_key_mgmt_srv, sg0_cipher_hdl;
     hsm_hdl_t sg1_key_store_serv, sg1_sig_gen_serv, sg1_key_mgmt_srv, sg1_cipher_hdl;
-    hsm_hdl_t sv0_rng_serv, sv1_rng_serv, sg0_rng_serv, sg1_rng_serv;
     hsm_hdl_t sv0_sig_ver_serv;
     hsm_hdl_t sv1_sig_ver_serv;
     hsm_hdl_t hash_serv;
@@ -455,7 +542,6 @@ int main(int argc, char *argv[])
     op_key_generic_crypto_args_t key_generic_crypto_srv_args;
 
     uint8_t recovered_key[256];
-    uint8_t rng_out_buff[4096];
 
     srand (time (NULL));
 #ifndef CONFIG_PLAT_SECO
@@ -580,51 +666,15 @@ int main(int argc, char *argv[])
 
     pthread_join(sig2, NULL);
     printf("completed signature Low prio thread\n");
+#endif
 
-    // RNG srv tests
-    printf("\n---------------------------------------------------\n");
-    printf("RNG test\n");
-    printf("---------------------------------------------------\n");
-    rng_srv_args.flags = 0;
-    err = hsm_open_rng_service(sv0_sess, &rng_srv_args, &sv0_rng_serv);
-    printf("err: 0x%x hsm_open_rng_service hdl: 0x%08x\n", err, sv0_rng_serv);
-    err = hsm_open_rng_service(sv1_sess, &rng_srv_args, &sv1_rng_serv);
-    printf("err: 0x%x hsm_open_rng_service hdl: 0x%08x\n", err, sv1_rng_serv);
-    err = hsm_open_rng_service(sg0_sess, &rng_srv_args, &sg0_rng_serv);
-    printf("err: 0x%x hsm_open_rng_service hdl: 0x%08x\n", err, sg0_rng_serv);
-    err = hsm_open_rng_service(sg1_sess, &rng_srv_args, &sg1_rng_serv);
-    printf("err: 0x%x hsm_open_rng_service hdl: 0x%08x\n", err, sg1_rng_serv);
+	// RNG tests
+	v2x_rng_test(sv0_sess, &rng_get_random_args);
+	v2x_rng_test(sv1_sess, &rng_get_random_args);
+	v2x_rng_test(sg0_sess, &rng_get_random_args);
+	v2x_rng_test(sg1_sess, &rng_get_random_args);
 
-    rng_get_random_args.output = rng_out_buff;
-    rng_get_random_args.random_size = 3;
-#ifdef PSA_COMPLIANT
-    err =  hsm_get_random(sv0_sess, &rng_get_random_args);
-#else
-    err =  hsm_get_random(sv0_rng_serv, &rng_get_random_args);
-#endif
-    printf("err: 0x%x hsm_get_random srv_hdl: 0x%08x, rand size=0x%08x\n", err, sv0_rng_serv, rng_get_random_args.random_size);
-    rng_get_random_args.random_size = 176;
-#ifdef PSA_COMPLIANT
-    err =  hsm_get_random(sv1_sess, &rng_get_random_args);
-#else
-    err =  hsm_get_random(sv1_rng_serv, &rng_get_random_args);
-#endif
-    printf("err: 0x%x hsm_get_random srv_hdl: 0x%08x, rand size=0x%08x\n", err, sv1_rng_serv, rng_get_random_args.random_size);
-    rng_get_random_args.random_size = 2050;
-#ifdef PSA_COMPLIANT
-    err =  hsm_get_random(sg0_sess, &rng_get_random_args);
-#else
-    err =  hsm_get_random(sg0_rng_serv, &rng_get_random_args);
-#endif
-    printf("err: 0x%x hsm_get_random srv_hdl: 0x%08x, rand size=0x%08x\n", err, sg0_rng_serv, rng_get_random_args.random_size);
-    rng_get_random_args.random_size = 4096;
-#ifdef PSA_COMPLIANT
-    err =  hsm_get_random(sg1_sess, &rng_get_random_args);
-#else
-    err =  hsm_get_random(sg1_rng_serv, &rng_get_random_args);
-#endif
-    printf("err: 0x%x hsm_get_random srv_hdl: 0x%08x, rand size=0x%08x\n", err, sg1_rng_serv, rng_get_random_args.random_size);
-
+#ifndef CONFIG_PLAT_SECO
     // SM3 hash test
 
     printf("\n---------------------------------------------------\n");
@@ -1580,17 +1630,6 @@ int main(int argc, char *argv[])
     printf("err: 0x%x hsm_close_key_store_service hdl: 0x%08x\n", err, sg0_key_store_serv);
     err = hsm_close_key_store_service(sg1_key_store_serv);
     printf("err: 0x%x hsm_close_key_store_service hdl: 0x%08x\n", err, sg1_key_store_serv);
-
-    err = hsm_close_rng_service(sv0_rng_serv);
-    printf("err: 0x%x hsm_close_rng_service hdl: 0x%x\n", err, sv0_rng_serv);
-    err = hsm_close_rng_service(sv1_rng_serv);
-    printf("err: 0x%x hsm_close_rng_service hdl: 0x%x\n", err, sv1_rng_serv);
-
-    err = hsm_close_rng_service(sg0_rng_serv);
-    printf("err: 0x%x hsm_close_rng_service hdl: 0x%x\n", err, sg0_rng_serv);
-    err = hsm_close_rng_service(sg1_rng_serv);
-    printf("err: 0x%x hsm_close_rng_service hdl: 0x%x\n", err, sg1_rng_serv);
-
     err = hsm_close_key_generic_crypto_service(key_generic_crypto);
     printf("err: 0x%x hsm_close_key_generic_crypto_service hdl: 0x%x\n", err, key_generic_crypto);
 #endif
@@ -1613,3 +1652,4 @@ int main(int argc, char *argv[])
 #endif
     return 0;
 }
+

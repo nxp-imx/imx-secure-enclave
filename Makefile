@@ -146,7 +146,7 @@ $(SHE_TEST): $(SHE_TEST_OBJ) $(SHE_LIB)
 	$(CC) $^  -o $@ ${TEST_INCLUDE_PATHS} ${COMMON_TEST_INC} $(TEST_CFLAGS) $(GCOV_FLAGS)
 
 V2X_TEST_OBJ=$(wildcard test/v2x/*.c)
-$(V2X_TEST): $(V2X_TEST_OBJ) $(HSM_LIB) $(NVM_LIB)
+$(V2X_TEST): $(V2X_TEST_OBJ) $(HSM_LIB)
 	$(CC) $^  -o $@ ${INCLUDE_PATHS} $(CFLAGS) $(LDFLAGS) -lpthread $(GCOV_FLAGS)
 
 # NVM Daemon
