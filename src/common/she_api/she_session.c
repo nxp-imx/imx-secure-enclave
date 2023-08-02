@@ -55,7 +55,9 @@ she_err_t she_close_session(she_hdl_t session_hdl)
 	return err;
 }
 
-she_err_t open_session(open_session_args_t *args, struct she_hdl_s **hdl, uint32_t mu_type)
+she_err_t open_session(open_session_args_t *args,
+		       struct she_hdl_s **hdl,
+		       uint32_t mu_type)
 {
 	struct plat_mu_params mu_params = {'\0'};
 	struct she_hdl_s *thdl = NULL;
@@ -166,7 +168,7 @@ she_err_t she_open_session(open_session_args_t *args, she_hdl_t *session_hdl)
 
 		*session_hdl = hdl->session_handle;
 
-		printf("open session : 0x%x : 0x%x\n", hdl->session_handle, *session_hdl);
+		printf("open session 0x%x : 0x%x\n", hdl->session_handle, *session_hdl);
 
 		if (!she_v2x_mu) {
 			/* Get a SECURE RAM partition to be used as shared buffer */
@@ -185,7 +187,8 @@ she_err_t she_open_session(open_session_args_t *args, she_hdl_t *session_hdl)
 
 			err = sab_rating_to_she_err(rsp_code);
 			if (err != SHE_NO_ERROR) {
-				se_err("SHE RSP Error: SAB_SHARED_BUF_REQ [0x%x].\n", err);
+				se_err("SHE RSP Error: SAB_SHARED_BUF_REQ [0x%x].\n",
+				       err);
 				break;
 			}
 			printf("Get shared buffer 0x%x : 0x%x\n",
