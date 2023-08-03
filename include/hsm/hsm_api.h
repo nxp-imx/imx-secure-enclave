@@ -8,6 +8,10 @@
 
 #include <stdint.h>
 
+#ifdef __cplusplus
+extern "C" {
+#endif
+
 #ifndef PSA_COMPLIANT
 #include "hsm_api2.h"
 #endif
@@ -378,5 +382,9 @@ hsm_err_t hsm_do_auth_enc(hsm_hdl_t key_store_hdl, op_auth_enc_args_t *auth_enc_
 hsm_err_t hsm_do_mac(hsm_hdl_t key_store_hdl,
 		     op_mac_one_go_args_t *mac_one_go);
 /** @} end of mac service flow */
+
+#ifdef __cplusplus
+}
+#endif
 
 #endif
