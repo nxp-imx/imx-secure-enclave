@@ -103,6 +103,8 @@ hsm_err_t hsm_close_session(hsm_hdl_t session_hdl);
 #include "internal/hsm_key_management.h"
 
 #include "internal/hsm_key_generate.h"
+
+#include "internal/hsm_manage_key_group.h"
 /** @} end of key management service flow */
 
 /**

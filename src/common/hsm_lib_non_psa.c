@@ -18,19 +18,6 @@
 #include "plat_os_abs.h"
 #include "plat_utils.h"
 
-struct sab_cmd_manage_key_group_msg {
-	struct sab_mu_hdr hdr;
-	uint32_t key_management_handle;
-	uint16_t key_group;
-	uint8_t flags;
-	uint8_t rsv;
-};
-
-struct sab_cmd_manage_key_group_rsp {
-	struct sab_mu_hdr hdr;
-	uint32_t rsp_code;
-};
-
 struct sab_cmd_butterfly_key_exp_msg {
 	struct sab_mu_hdr hdr;
 	uint32_t key_management_handle;
@@ -486,55 +473,6 @@ uint32_t sab_close_sm2_eces(struct plat_os_abs_hdl *phdl,
 		ret = rsp.rsp_code;
 	} while (false);
 	return ret;
-}
-
-hsm_err_t hsm_manage_key_group(hsm_hdl_t key_management_hdl,
-			       op_manage_key_group_args_t *args)
-{
-	struct sab_cmd_manage_key_group_msg cmd;
-	struct sab_cmd_manage_key_group_rsp rsp;
-	uint32_t cmd_msg_sz = sizeof(struct sab_cmd_manage_key_group_msg);
-	uint32_t rsp_msg_sz = sizeof(struct sab_cmd_manage_key_group_rsp);
-	int32_t error;
-	struct hsm_service_hdl_s *serv_ptr;
-	hsm_err_t err = HSM_GENERAL_ERROR;
-
-	do {
-		if (!args)
-			break;
-
-		serv_ptr = service_hdl_to_ptr(key_management_hdl);
-		if (!serv_ptr) {
-			err = HSM_UNKNOWN_HANDLE;
-			break;
-		}
-
-		/* Send the keys store open command to platform. */
-		plat_fill_cmd_msg_hdr(&cmd.hdr,
-				      SAB_MANAGE_KEY_GROUP_REQ,
-				      cmd_msg_sz,
-				      serv_ptr->session->mu_type);
-		cmd.key_management_handle = key_management_hdl;
-		cmd.key_group = args->key_group;
-		cmd.flags = args->flags;
-		cmd.rsv = 0;
-
-		/* Send the message to platform. */
-		error = plat_send_msg_and_get_resp(serv_ptr->session->phdl,
-						   (uint32_t *)&cmd,
-						   cmd_msg_sz,
-						   (uint32_t *)&rsp,
-						   rsp_msg_sz);
-		if (error != 0)
-			break;
-
-		sab_err_map(SAB_MANAGE_KEY_GROUP_REQ, rsp.rsp_code);
-
-		err = sab_rating_to_hsm_err(rsp.rsp_code);
-
-	} while (false);
-
-	return err;
 }
 
 hsm_err_t hsm_butterfly_key_expansion(hsm_hdl_t key_management_hdl,

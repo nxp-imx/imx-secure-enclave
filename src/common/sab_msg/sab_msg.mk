@@ -180,6 +180,12 @@ SAB_MSG_SRC	+= \
 		$(PLAT_COMMON_PATH)/sab_msg/sab_key_generate.o
 endif
 
+ifneq (${MT_SAB_MANAGE_KEY_GROUP},0x0)
+DEFINES		+=	-DMT_SAB_MANAGE_KEY_GROUP=${MT_SAB_MANAGE_KEY_GROUP}
+SAB_MSG_SRC	+= \
+		$(PLAT_COMMON_PATH)/sab_msg/sab_manage_key_group.o
+endif
+
 ifneq (${MT_SAB_GC_AKEY_GEN},0x0)
 DEFINES		+=	-DMT_SAB_GC_AKEY_GEN=${MT_SAB_GC_AKEY_GEN}
 SAB_MSG_SRC	+= \

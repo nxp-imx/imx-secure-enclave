@@ -30,6 +30,10 @@
 #include "sab_key_generate.h"
 #endif
 
+#if MT_SAB_MANAGE_KEY_GROUP
+#include "sab_manage_key_group.h"
+#endif
+
 #if MT_SAB_GC_AKEY_GEN
 #include "sab_gc_akey_gen.h"
 #endif
@@ -186,6 +190,15 @@ static  int init_proc_sab_hsm_msg_engine(msg_type_t msg_type,
 			ret = add_sab_msg_handler(msg_id, MT_SAB_KEY_GENERATE,
 						  prepare_msg_generatekey,
 						  proc_msg_rsp_generatekey);
+		}
+		break;
+#endif
+#if MT_SAB_MANAGE_KEY_GROUP
+	case SAB_MANAGE_KEY_GROUP_REQ:
+		if (msg_type == MT_SAB_MANAGE_KEY_GROUP) {
+			ret = add_sab_msg_handler(msg_id, MT_SAB_MANAGE_KEY_GROUP,
+						  prepare_msg_manage_key_group,
+						  proc_msg_rsp_manage_key_group);
 		}
 		break;
 #endif
