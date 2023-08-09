@@ -330,8 +330,12 @@ uint32_t process_sab_rcv_send_msg(struct nvm_ctx_st *nvm_ctx_param,
 		nb_words = cmd_msg_sz / (uint32_t)sizeof(uint32_t);
 		if (nb_words > SAB_STORAGE_NB_WORDS_MAX_WO_CRC &&
 		    plat_validate_msg_crc(cmd, cmd_msg_sz) == 1) {
+#ifdef PSA_COMPLIANT
 			/* Send error to FW through the command response */
 			rsp_msg_info = SAB_CRC_FAILURE_STATUS;
+#else
+			rsp_msg_info = SAB_SUCCESS_STATUS;
+#endif
 		} else {
 			rsp_msg_info = SAB_SUCCESS_STATUS;
 		}
