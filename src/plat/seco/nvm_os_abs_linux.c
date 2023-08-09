@@ -134,7 +134,7 @@ uint32_t get_chunk_file_path(char **path,
 	/* 1 extra byte in path_len is for accommodating null termination char
 	 * \0 in path string.
 	 */
-	path_len += (blob_id_sz * 2);
+	path_len += (blob_id_sz * 2) + 1u;
 
 	*path = (char *)plat_os_abs_malloc(path_len);
 
