@@ -32,7 +32,7 @@ PLAT_PATH := src/plat/$(PLAT)
 PLAT_COMMON_PATH := src/common
 TEST_COMMON_TV_PATH := test/common/test_vectors
 
-INCLUDE_PATHS := -I${PLAT_PATH}/include -I${PLAT_COMMON_PATH}/include -Iinclude -Iinclude/hsm -Iinclude/she
+INCLUDE_PATHS := -I${PLAT_PATH}/include -I${PLAT_COMMON_PATH}/include -Iinclude -Iinclude/hsm -Iinclude/she -Iinclude/common
 
 NVM_OBJECTS := \
 	$(PLAT_COMMON_PATH)/nvm/nvm_manager.o \

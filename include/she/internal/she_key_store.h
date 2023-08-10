@@ -6,8 +6,8 @@
 #ifndef SHE_KEY_STORE_H
 #define SHE_KEY_STORE_H
 
-#include "internal/hsm_key_store.h"
 #include "internal/she_handle.h"
+#include "common/key_store.h"
 
 /**
  * @defgroup group2 Key store

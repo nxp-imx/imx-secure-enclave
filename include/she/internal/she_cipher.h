@@ -7,6 +7,7 @@
 #define SHE_CIPHER_H
 
 #include "internal/she_handle.h"
+#include "common/cipher.h"
 
 /**
  * @defgroup group4 Ciphering

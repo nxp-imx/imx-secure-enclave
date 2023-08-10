@@ -3,7 +3,7 @@
  * Copyright 2023 NXP
  */
 
-#include "internal/hsm_key_store.h"
+#include "common/key_store.h"
 
 #include "sab_key_store.h"
 

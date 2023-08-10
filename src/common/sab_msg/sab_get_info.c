@@ -7,7 +7,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 
-#include "internal/hsm_get_info.h"
+#include "common/get_info.h"
 
 #include "sab_get_info.h"
 

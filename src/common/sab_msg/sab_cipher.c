@@ -5,7 +5,7 @@
 
 #include <string.h>
 
-#include "internal/hsm_cipher.h"
+#include "common/cipher.h"
 
 #include "sab_cipher.h"
 #include "sab_messaging.h"

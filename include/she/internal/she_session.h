@@ -7,6 +7,7 @@
 #define SHE_SESSION_H
 
 #include <stdint.h>
+#include "common/session.h"
 
 /**
  *  @defgroup group1 Session

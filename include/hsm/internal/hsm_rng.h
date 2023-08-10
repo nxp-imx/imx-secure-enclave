@@ -10,20 +10,14 @@
 #include "internal/hsm_utils.h"
 #include "internal/hsm_key.h"
 
+#include "common/rng.h"
+
 /**
  *  @defgroup group7 Random number generation
  * @{
  */
 
 #ifndef PSA_COMPLIANT
-typedef uint8_t hsm_svc_rng_flags_t;
-typedef struct {
-	//!< bitmap indicating the service flow properties
-	hsm_svc_rng_flags_t flags;
-	uint8_t reserved[3];
-	hsm_hdl_t rng_hdl;
-} open_svc_rng_args_t;
-
 /**
  * Open a random number generation service flow\n
  * User can call this function only after having opened a session.\n
@@ -46,19 +40,6 @@ hsm_err_t hsm_open_rng_service(hsm_hdl_t session_hdl, open_svc_rng_args_t *args,
  */
 hsm_err_t hsm_close_rng_service(hsm_hdl_t rng_hdl);
 #endif
-
-/**
- * Structure detailing the get random number operation member arguments
- */
-typedef struct {
-	uint8_t *output;                        //!< pointer to the output area where the random number must be written
-	uint32_t random_size;                   //!< length in bytes of the random number to be provided.
-#ifndef PSA_COMPLIANT
-	hsm_svc_rng_flags_t svc_flags;
-	//!< bitmap indicating the service flow properties
-	uint8_t reserved[3];
-#endif
-} op_get_random_args_t;
 
 /**
  * Get a freshly generated random number\n

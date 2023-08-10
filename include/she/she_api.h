@@ -13,7 +13,6 @@
 
 #if MT_SAB_SESSION
 #include "internal/she_session.h"
-#include "internal/hsm_session.h"
 #endif
 
 #if MT_SAB_SHARED_BUF
@@ -21,12 +20,11 @@
 #endif
 
 #if MT_SAB_KEY_STORE
-#include "internal/hsm_key_store.h"
 #include "internal/she_key_store.h"
 #endif
 
 #if MT_SAB_GET_INFO
-#include "internal/hsm_get_info.h"
+#include "internal/she_get_info.h"
 #endif
 
 #if MT_SAB_OPEN_UTILS
@@ -34,7 +32,6 @@
 #endif
 
 #if MT_SAB_CIPHER
-#include "internal/hsm_cipher.h"
 #include "internal/she_cipher.h"
 #endif
 

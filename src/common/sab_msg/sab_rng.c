@@ -5,7 +5,7 @@
 
 #include <string.h>
 
-#include "internal/hsm_rng.h"
+#include "common/rng.h"
 #include "sab_rng.h"
 #include "sab_messaging.h"
 

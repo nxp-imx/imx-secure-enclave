@@ -9,6 +9,7 @@
 #include "internal/hsm_handle.h"
 #include "internal/hsm_utils.h"
 #include "internal/hsm_common_def.h"
+#include "common/cipher.h"
 
 #define CIPHER_OPEN_FLAGS_DEFAULT       0x0u
 /**
@@ -20,16 +21,6 @@
  * Bit field describing the open cipher service requested operation
  */
 typedef uint8_t hsm_svc_cipher_flags_t;
-/**
- * Structure describing the open cipher service members
- */
-typedef struct {
-	hsm_hdl_t cipher_hdl;
-	//!< handle identifying the cipher service flow
-	hsm_svc_cipher_flags_t flags;
-	//!< bitmap specifying the services properties
-	uint8_t reserved[3];
-} open_svc_cipher_args_t;
 
 /**
  * - Open a cipher service flow.
@@ -100,48 +91,6 @@ typedef uint8_t hsm_op_cipher_one_go_flags_t;
  */
 #define HSM_CIPHER_ONE_GO_FLAGS_ENCRYPT \
 				((hsm_op_cipher_one_go_flags_t)(1u << 0))
-
-/**
- * Structure describing the cipher one go operation arguments
- */
-typedef struct {
-	uint32_t key_identifier;
-	//!< identifier of the key to be used for the operation
-	uint8_t *iv;
-	//!< pointer to the initialization vector (nonce in case of AES CCM)
-	uint16_t iv_size;
-	//!< length in bytes of the initialization vector.
-	//!<   it must be 0 for algorithms not using the initialization vector.
-	//!<   It must be 12 for AES in CCM mode
-	hsm_svc_cipher_flags_t svc_flags;
-	//!< bitmap specifying the services properties.
-	hsm_op_cipher_one_go_flags_t flags;
-	//!< bitmap specifying the operation attributes
-	hsm_op_cipher_one_go_algo_t cipher_algo;
-	//!< algorithm to be used for the operation
-	uint8_t *input;
-	//!< pointer to the input area:
-	//!<   - plaintext for encryption
-	//!<   - ciphertext for decryption
-	//!<     Note: In case of CCM it is the purported ciphertext.
-	uint8_t *output;
-	//!< pointer to the output area:
-	//!<   - ciphertext for encryption
-	//!<     Note: In case of CCM it is the output of the
-	//!<           generation-encryption process.
-	//!<   - plaintext for decryption
-	uint32_t input_size;
-	//!< length in bytes of the input.
-	//!<   - In case of CBC and ECB, the input size should be multiple of
-	//!<     a block cipher size (16 bytes).
-	uint32_t output_size;
-	//!< length in bytes of the output
-#ifdef PSA_COMPLIANT
-	uint32_t exp_output_size;
-	//!< expected output buffer size in bytes, valid in case of HSM_OUT_TOO_SMALL
-	//!<   (0x1D) error code
-#endif
-} op_cipher_one_go_args_t;
 
 /**
  * Perform ciphering operation\n

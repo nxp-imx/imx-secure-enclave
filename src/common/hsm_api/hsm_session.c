@@ -31,9 +31,6 @@ static const uint32_t mu_table[MU_CONFIG_NB] = {
 	MU_CHANNEL_V2X_SV0,       // low latency, high prio, no key store
 };
 
-static struct hsm_session_hdl_s hsm_sessions[HSM_MAX_SESSIONS] = {};
-static struct hsm_service_hdl_s hsm_services[HSM_MAX_SERVICES] = {};
-
 hsm_err_t hsm_close_session(hsm_hdl_t session_hdl)
 {
 	struct hsm_session_hdl_s *s_ptr;
@@ -67,10 +64,6 @@ hsm_err_t hsm_close_session(hsm_hdl_t session_hdl)
 
 		delete_session(s_ptr);
 
-		plat_os_abs_memset((uint8_t *)hsm_sessions, 0, HSM_MAX_SESSIONS);
-
-		plat_os_abs_memset((uint8_t *)hsm_services, 0, HSM_MAX_SERVICES);
-
 		// TODO: should we close all associated services here ?
 		// or sanity check that all services have been closed ?
 	} while (false);
@@ -87,8 +80,6 @@ hsm_err_t hsm_open_session(open_session_args_t *args, hsm_hdl_t *session_hdl)
 	uint8_t session_priority, operating_mode;
 	uint32_t rsp_code = SAB_NO_MESSAGE_RATING;
 
-	plat_os_abs_memset((uint8_t *)hsm_sessions, 0, HSM_MAX_SESSIONS);
-	plat_os_abs_memset((uint8_t *)hsm_services, 0, HSM_MAX_SERVICES);
 	plat_os_abs_memset((uint8_t *)&mu_params, 0, sizeof(mu_params));
 
 	do {
