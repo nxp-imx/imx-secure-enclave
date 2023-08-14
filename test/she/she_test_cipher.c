@@ -7,7 +7,75 @@
 #include "she_api.h"
 #include "plat_utils.h"
 
-she_err_t do_she_cipher_test(she_hdl_t session_hdl)
+she_err_t she_ecb_test(she_hdl_t session_hdl)
+{
+	op_cipher_one_go_args_t cipher_args = {0};
+	uint8_t hash_data[16] = {0x7f, 0x4e, 0x91, 0xa2, 0x01, 0x1a, 0x6d, 0x57,
+				 0x4e, 0x1e, 0x80, 0x43, 0x17, 0x88, 0x38, 0xce};
+	uint8_t ciphered_data[16] = {0};
+	uint8_t expected_data[16] = {0x69, 0xc4, 0xe0, 0xd8, 0x6a, 0x7b, 0x04, 0x30,
+				     0xd8, 0xcd, 0xb7, 0x80, 0x70, 0xb4, 0xc5, 0x5a};
+	uint8_t deciphered_data[16] = {0};
+	uint8_t i = 0;
+
+	she_err_t err;
+
+	/* Encrypt operation */
+	cipher_args.key_identifier = SHE_KEY_10;
+	cipher_args.iv = NULL;
+	cipher_args.iv_size = 0u;
+	cipher_args.cipher_algo = SHE_CIPHER_ONE_GO_ALGO_AES_ECB;
+	cipher_args.flags = SHE_CIPHER_ONE_GO_FLAGS_ENCRYPT;
+	cipher_args.input = hash_data;
+	cipher_args.output = ciphered_data;
+	cipher_args.input_size = sizeof(hash_data);
+	cipher_args.output_size = sizeof(ciphered_data);
+
+	se_print("--- ECB CIPHER TEST STARTED ---\n");
+	err = she_cipher_one_go(session_hdl, &cipher_args);
+	if (err) {
+		se_print("ECB Encrypt: ret:0x%x ---> TEST FAILED\n", err);
+		return err;
+	}
+
+	for (i = 0; i < 16; i++) {
+		if ((i % 10) == 0)
+			printf("\n");
+		printf("%02x:%02x ", cipher_args.output[i], expected_data[i]);
+	}
+
+	/* Decrypt operation */
+	memset(&deciphered_data, 0, sizeof(deciphered_data));
+	memset(&cipher_args, 0, sizeof(cipher_args));
+	cipher_args.key_identifier = SHE_KEY_10;
+	cipher_args.iv = NULL;
+	cipher_args.iv_size = 0u;
+	cipher_args.cipher_algo = SHE_CIPHER_ONE_GO_ALGO_AES_ECB;
+	cipher_args.flags = SHE_CIPHER_ONE_GO_FLAGS_DECRYPT;
+	cipher_args.input = ciphered_data;
+	cipher_args.output = deciphered_data;
+	cipher_args.input_size = sizeof(ciphered_data);
+	cipher_args.output_size = sizeof(deciphered_data);
+
+	err = she_cipher_one_go(session_hdl, &cipher_args);
+	if (err) {
+		se_print("ECB Decrypt: ret:0x%x ---> TEST FAILED\n", err);
+		return err;
+	}
+
+	for (i = 0; i < 16; i++) {
+		if ((i % 10) == 0)
+			printf("\n");
+		printf("%02x:%02x ", cipher_args.output[i], hash_data[i]);
+	}
+
+	if (memcmp(hash_data, cipher_args.output, sizeof(hash_data)) != 0)
+		se_print("Decrypted data doesn't match encrypted data [FAIL]\n");
+
+	return err;
+}
+
+she_err_t she_cbc_test(she_hdl_t session_hdl)
 {
 	op_cipher_one_go_args_t cipher_args = {0};
 	uint8_t iv_data[16] = {0x00, 0x01, 0x02, 0x03, 0x04, 0x05, 0x06, 0x07,
@@ -33,9 +101,12 @@ she_err_t do_she_cipher_test(she_hdl_t session_hdl)
 	cipher_args.input_size = sizeof(hash_data);
 	cipher_args.output_size = sizeof(ciphered_data);
 
-	se_print("--- CIPHER TEST STARTED ---\n");
+	se_print("--- CBC CIPHER TEST STARTED ---\n");
 	err = she_cipher_one_go(session_hdl, &cipher_args);
-	se_print("Encrypt: she_cipher_one_go ret:0x%x\n", err);
+	if (err) {
+		se_print("CBC Encrypt: ret:0x%x ---> TEST FAILED\n", err);
+		return err;
+	}
 
 	for (i = 0; i < 16; i++) {
 		if ((i % 10) == 0)
@@ -57,17 +128,38 @@ she_err_t do_she_cipher_test(she_hdl_t session_hdl)
 	cipher_args.output_size = sizeof(deciphered_data);
 
 	err = she_cipher_one_go(session_hdl, &cipher_args);
-	se_print("Decrypt: she_cipher_one_go ret:0x%x\n", err);
+	if (err) {
+		se_print("CBC Decrypt: ret:0x%x ---> TEST FAILED\n", err);
+		return err;
+	}
+
 	for (i = 0; i < 16; i++) {
 		if ((i % 10) == 0)
 			printf("\n");
 		printf("%02x:%02x ", cipher_args.output[i], hash_data[i]);
 	}
 
-	if (memcmp(hash_data, cipher_args.output, sizeof(hash_data)) == 0)
-		se_print("Decrypted data matches encrypted data [PASS]\n");
-	else
+	if (memcmp(hash_data, cipher_args.output, sizeof(hash_data)) != 0)
 		se_print("Decrypted data doesn't match encrypted data [FAIL]\n");
+
+	return err;
+}
+
+she_err_t do_she_cipher_test(she_hdl_t session_hdl)
+{
+	she_err_t err;
+
+	err = she_cbc_test(session_hdl);
+	if (err)
+		se_print("CBC CIPHER TEST ---> FAILED\n");
+	else
+		se_print("CBC CIPHER TEST ---> PASSED\n");
+
+	err = she_ecb_test(session_hdl);
+	if (err)
+		se_print("ECB CIPHER TEST ---> FAILED\n");
+	else
+		se_print("ECB CIPHER TEST ---> PASSED\n");
 
 	return err;
 }

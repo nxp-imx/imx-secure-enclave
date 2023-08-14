@@ -40,7 +40,7 @@ she_err_t she_close_cipher_service(she_hdl_t session_hdl);
 /** @} end of Ciphering */
 
 /**
- * @defgroup group9 CMD_ENC_CBC and CMD_DEC_CBC
+ * @defgroup group9 CMD_ENC_CBC / CMD_DEC_CBC and CMD_ENC_ECB / CMD_DEC_ECB
  * \ingroup group100
  * @{
  */
@@ -87,8 +87,8 @@ typedef uint8_t she_op_cipher_one_go_flags_t;
 /**
  * Perform ciphering operation i.e.
  *
- * CBC encryption/decryption of a given plaintext/ciphertext with the key
- * identified by key_id.
+ * CBC encryption/decryption and ECB encryption/decryption of a given
+ * plaintext/ciphertext with the key identified by key_id.
  *
  * User can call this function only after having opened a cipher service flow
  *
