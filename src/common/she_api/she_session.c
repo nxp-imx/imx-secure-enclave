@@ -146,23 +146,9 @@ she_err_t she_open_session(open_session_args_t *args, she_hdl_t *session_hdl)
 		if (err != SHE_NO_ERROR)
 			break;
 
-		sab_err = process_sab_msg(hdl->phdl,
-					  hdl->mu_type,
-					  SAB_GET_INFO_REQ,
-					  MT_SAB_GET_INFO,
-					  hdl->session_handle,
-					  &info_args, &rsp_code);
-
-		err = sab_rating_to_she_err(sab_err);
-
+		err = she_get_info(hdl->session_handle, &info_args);
 		if (err != SHE_NO_ERROR) {
-			se_err("SHE Error: SAB_GET_INFO_REQ [0x%x].\n", err);
-			break;
-		}
-
-		err = sab_rating_to_she_err(rsp_code);
-		if (err != SHE_NO_ERROR) {
-			se_err("SHE RSP Error: SAB_GET_INFO_REQ [0x%x].\n", err);
+			se_err("SHE Error: Failed to get SHE info 0x%x\n", err);
 			break;
 		}
 
