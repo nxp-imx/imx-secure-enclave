@@ -186,6 +186,13 @@ static  int init_proc_sab_she_msg_engine(msg_type_t msg_type,
 						  proc_msg_rsp_key_update);
 		}
 		break;
+	case SAB_SHE_KEY_UPDATE_EXT:
+		if (msg_type == MT_SAB_KEY_UPDATE) {
+			ret = add_sab_msg_handler(msg_id, MT_SAB_KEY_UPDATE,
+						  prepare_msg_key_update_ext,
+						  proc_msg_rsp_key_update_ext);
+		}
+		break;
 #endif
 	default:
 		break;
