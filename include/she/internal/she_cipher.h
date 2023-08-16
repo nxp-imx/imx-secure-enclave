@@ -10,7 +10,8 @@
 #include "common/cipher.h"
 
 /**
- * @defgroup group9 Ciphering
+ * @defgroup group10 CMD_ENC_CBC / CMD_DEC_CBC and CMD_ENC_ECB / CMD_DEC_ECB
+ * \ingroup group100
  * @{
  */
 
@@ -36,14 +37,6 @@ she_err_t she_open_cipher_service(she_hdl_t session_hdl,
  * \return error code.
  */
 she_err_t she_close_cipher_service(she_hdl_t session_hdl);
-
-/** @} end of Ciphering */
-
-/**
- * @defgroup group9 CMD_ENC_CBC / CMD_DEC_CBC and CMD_ENC_ECB / CMD_DEC_ECB
- * \ingroup group100
- * @{
- */
 
 /**
  * Bit field indicating the requested cipher operations
@@ -99,5 +92,5 @@ typedef uint8_t she_op_cipher_one_go_flags_t;
  */
 she_err_t she_cipher_one_go(she_hdl_t session_hdl, op_cipher_one_go_args_t *args);
 
-/** @} end of CMD_ENC_CBC and CMD_DEC_CBC group */
+/** @} end of Ciphering */
 #endif

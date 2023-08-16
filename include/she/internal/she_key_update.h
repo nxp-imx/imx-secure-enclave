@@ -22,6 +22,7 @@
 
 /**
  * Identifiers for SHE keys.
+ * Refer SHE specification for more information.
  */
 #define SHE_KEY_1	(0x04)
 #define SHE_KEY_2	(0x05)
