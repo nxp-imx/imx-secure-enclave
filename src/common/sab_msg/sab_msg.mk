@@ -248,6 +248,12 @@ SAB_MSG_SRC	+= \
 		$(PLAT_COMMON_PATH)/sab_msg/sab_sm2_get_z.o
 endif
 
+ifneq (${MT_SAB_KEY_EXCHANGE},0x0)
+DEFINES		+=	-DMT_SAB_KEY_EXCHANGE=${MT_SAB_KEY_EXCHANGE}
+SAB_MSG_SRC	+= \
+		$(PLAT_COMMON_PATH)/sab_msg/sab_key_exchange.o
+endif
+
 ifneq (${MT_SAB_SHARED_BUF},0x0)
 DEFINES		+=	-DMT_SAB_SHARED_BUF=${MT_SAB_SHARED_BUF}
 SHE_SAB_MSG_SRC	+= \

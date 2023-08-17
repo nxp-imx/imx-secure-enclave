@@ -159,6 +159,12 @@ HSM_API_SRC	+= \
 		$(PLAT_COMMON_PATH)/hsm_api/hsm_sm2_get_z.o
 endif
 
+ifneq (${MT_SAB_KEY_EXCHANGE},0x0)
+DEFINES		+=	-DHSM_KEY_EXCHANGE
+HSM_API_SRC	+= \
+		$(PLAT_COMMON_PATH)/hsm_api/hsm_key_exchange.o
+endif
+
 ifneq (${MT_SAB_DEV_ATTEST},0x0)
 DEFINES		+=	-DHSM_DEV_ATTEST
 HSM_API_SRC	+= \

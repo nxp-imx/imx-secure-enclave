@@ -106,6 +106,10 @@
 #include "sab_sm2_get_z.h"
 #endif
 
+#if MT_SAB_KEY_EXCHANGE
+#include "sab_key_exchange.h"
+#endif
+
 #if MT_SAB_SESSION
 #include "sab_session.h"
 #endif
@@ -531,6 +535,15 @@ static  int init_proc_sab_hsm_msg_engine(msg_type_t msg_type,
 			ret = add_sab_msg_handler(msg_id, MT_SAB_SM2_GET_Z,
 						  prepare_msg_sm2_get_z,
 						  proc_msg_rsp_sm2_get_z);
+		}
+		break;
+#endif
+#if MT_SAB_KEY_EXCHANGE
+	case SAB_KEY_EXCHANGE_REQ:
+		if (msg_type == MT_SAB_KEY_EXCHANGE) {
+			ret = add_sab_msg_handler(msg_id, MT_SAB_KEY_EXCHANGE,
+						  prepare_msg_key_exchange,
+						  proc_msg_rsp_key_exchange);
 		}
 		break;
 #endif
