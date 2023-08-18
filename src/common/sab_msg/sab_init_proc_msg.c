@@ -102,6 +102,10 @@
 #include "sab_auth_enc.h"
 #endif
 
+#if MT_SAB_SM2_ECES
+#include "sab_sm2_eces.h"
+#endif
+
 #if MT_SAB_SM2_GET_Z
 #include "sab_sm2_get_z.h"
 #endif
@@ -526,6 +530,36 @@ static  int init_proc_sab_hsm_msg_engine(msg_type_t msg_type,
 			ret = add_sab_msg_handler(msg_id, MT_SAB_AUTH_ENC,
 						  prepare_msg_auth_enc,
 						  proc_msg_rsp_auth_enc);
+		}
+		break;
+#endif
+#if MT_SAB_SM2_ECES
+	case SAB_SM2_ECES_DEC_OPEN_REQ:
+		if (msg_type == MT_SAB_SM2_ECES) {
+			ret = add_sab_msg_handler(msg_id, MT_SAB_SM2_ECES,
+						  prepare_msg_sm2_eces_open_req,
+						  proc_msg_rsp_sm2_eces_open_req);
+		}
+		break;
+	case SAB_SM2_ECES_DEC_CLOSE_REQ:
+		if (msg_type == MT_SAB_SM2_ECES) {
+			ret = add_sab_msg_handler(msg_id, MT_SAB_SM2_GET_Z,
+						  prepare_msg_sm2_eces_close_req,
+						  proc_msg_rsp_sm2_eces_close_req);
+		}
+		break;
+	case SAB_SM2_ECES_ENC_REQ:
+		if (msg_type == MT_SAB_SM2_ECES) {
+			ret = add_sab_msg_handler(msg_id, MT_SAB_SM2_ECES,
+						  prepare_msg_sm2_eces_encryption,
+						  proc_msg_rsp_sm2_eces_encryption);
+		}
+		break;
+	case SAB_SM2_ECES_DEC_REQ:
+		if (msg_type == MT_SAB_SM2_ECES) {
+			ret = add_sab_msg_handler(msg_id, MT_SAB_SM2_ECES,
+						  prepare_msg_sm2_eces_decryption,
+						  proc_msg_rsp_sm2_eces_decryption);
 		}
 		break;
 #endif

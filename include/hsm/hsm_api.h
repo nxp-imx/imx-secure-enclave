@@ -23,6 +23,8 @@ extern "C" {
 
 #include "internal/hsm_sm2_get_z.h"
 
+#include "internal/hsm_sm2_eces.h"
+
 #include "internal/hsm_key_exchange.h"
 
 #include "internal/hsm_key_gen_ext.h"
