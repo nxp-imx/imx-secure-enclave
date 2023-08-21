@@ -152,7 +152,6 @@ static void ecies_tests(hsm_hdl_t hsm_session_hdl)
     op_ecies_enc_args.key_type = HSM_KEY_TYPE_ECDSA_NIST_P256;
 #endif
     op_ecies_enc_args.flags = 0u;
-    op_ecies_enc_args.reserved= 0u;
 
     err = hsm_ecies_encryption(hsm_session_hdl, &op_ecies_enc_args);
     printf("hsm_ecies_encrypt ret:0x%x \n", err);

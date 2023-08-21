@@ -242,6 +242,12 @@ SAB_MSG_SRC	+= \
 		$(PLAT_COMMON_PATH)/sab_msg/sab_auth_enc.o
 endif
 
+ifneq (${MT_SAB_ECIES},0x0)
+DEFINES		+=	-DMT_SAB_ECIES=${MT_SAB_ECIES}
+SAB_MSG_SRC	+= \
+		$(PLAT_COMMON_PATH)/sab_msg/sab_ecies.o
+endif
+
 ifneq (${MT_SAB_SM2_ECES},0x0)
 DEFINES		+=	-DMT_SAB_SM2_ECES=${MT_SAB_SM2_ECES}
 SAB_MSG_SRC	+= \

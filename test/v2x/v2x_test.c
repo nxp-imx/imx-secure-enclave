@@ -974,7 +974,6 @@ int main(int argc, char *argv[])
     op_ecies_enc_args.out_size = 3*32;
     op_ecies_enc_args.key_type = HSM_KEY_TYPE_ECDSA_NIST_P256;
     op_ecies_enc_args.flags = 0u;
-    op_ecies_enc_args.reserved= 0u;
     err = hsm_ecies_encryption(sg0_sess, &op_ecies_enc_args);
 	printf("err: 0x%x hsm_ecies_encryption hdl: 0x%08x\n",
 	       err, sg0_key_mgmt_srv);

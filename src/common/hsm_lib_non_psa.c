@@ -45,29 +45,6 @@ struct sab_cmd_butterfly_key_exp_rsp {
 	uint32_t dest_key_identifier;
 };
 
-struct sab_cmd_ecies_decrypt_msg {
-	struct sab_mu_hdr hdr;
-	uint32_t cipher_handle;
-	uint32_t key_id;
-	uint32_t input_address;
-	uint32_t p1_addr;
-	uint32_t p2_addr;
-	uint32_t output_address;
-	uint32_t input_size;
-	uint32_t output_size;
-	uint16_t p1_size;
-	uint16_t p2_size;
-	uint16_t mac_size;
-	uint8_t key_type;
-	uint8_t flags;
-	uint32_t crc;
-};
-
-struct sab_cmd_ecies_decrypt_rsp {
-	struct sab_mu_hdr hdr;
-	uint32_t rsp_code;
-};
-
 struct sab_import_pub_key_msg {
 	struct sab_mu_hdr hdr;
 	uint32_t sig_ver_hdl;
@@ -125,36 +102,6 @@ struct sab_public_key_decompression_msg {
 };
 
 struct sab_public_key_decompression_rsp {
-	struct sab_mu_hdr hdr;
-	uint32_t rsp_code;
-};
-
-struct sab_cmd_ecies_encrypt_msg {
-	struct sab_mu_hdr hdr;
-	uint32_t sesssion_handle;
-	uint32_t input_addr_ext;
-	uint32_t input_addr;
-	uint32_t key_addr_ext;
-	uint32_t key_addr;
-	uint32_t p1_addr_ext;
-	uint32_t p1_addr;
-	uint32_t p2_addr_ext;
-	uint32_t p2_addr;
-	uint32_t output_addr_ext;
-	uint32_t output_addr;
-	uint32_t input_size;
-	uint16_t p1_size;
-	uint16_t p2_size;
-	uint16_t key_size;
-	uint16_t mac_size;
-	uint32_t output_size;
-	uint8_t key_type;
-	uint8_t flags;
-	uint16_t reserved;
-	uint32_t crc;
-};
-
-struct sab_cmd_ecies_encrypt_rsp {
 	struct sab_mu_hdr hdr;
 	uint32_t rsp_code;
 };
@@ -366,87 +313,6 @@ hsm_err_t hsm_butterfly_key_expansion(hsm_hdl_t key_management_hdl,
 	return err;
 }
 
-hsm_err_t hsm_ecies_decryption(hsm_hdl_t cipher_hdl, op_ecies_dec_args_t *args)
-{
-	struct sab_cmd_ecies_decrypt_msg cmd;
-	struct sab_cmd_ecies_decrypt_rsp rsp;
-	uint32_t cmd_msg_sz = sizeof(struct sab_cmd_ecies_decrypt_msg);
-	uint32_t rsp_msg_sz = sizeof(struct sab_cmd_ecies_decrypt_rsp);
-	int32_t error;
-	struct hsm_service_hdl_s *serv_ptr;
-	hsm_err_t err = HSM_GENERAL_ERROR;
-
-	do {
-		if (!args)
-			break;
-
-		serv_ptr = service_hdl_to_ptr(cipher_hdl);
-		if (!serv_ptr) {
-			err = HSM_UNKNOWN_HANDLE;
-			break;
-		}
-
-		/* Send the keys store open command to platform. */
-		plat_fill_cmd_msg_hdr(&cmd.hdr,
-				      SAB_CIPHER_ECIES_DECRYPT_REQ,
-				      cmd_msg_sz,
-				      serv_ptr->session->mu_type);
-
-		cmd.cipher_handle = cipher_hdl;
-		cmd.key_id = args->key_identifier;
-		set_phy_addr_to_words(&cmd.input_address,
-				      0u,
-				      plat_os_abs_data_buf(serv_ptr->session->phdl,
-							   args->input,
-							   args->input_size,
-							   DATA_BUF_IS_INPUT));
-		set_phy_addr_to_words(&cmd.p1_addr,
-				      0u,
-				      plat_os_abs_data_buf(serv_ptr->session->phdl,
-							   args->p1,
-							   args->p1_size,
-							   DATA_BUF_IS_INPUT));
-		set_phy_addr_to_words(&cmd.p2_addr,
-				      0u,
-				      plat_os_abs_data_buf(serv_ptr->session->phdl,
-							   args->p2,
-							   args->p2_size,
-							   DATA_BUF_IS_INPUT));
-		set_phy_addr_to_words(&cmd.output_address,
-				      0u,
-				      plat_os_abs_data_buf(serv_ptr->session->phdl,
-							   args->output,
-							   args->output_size,
-							   0u));
-		cmd.input_size = args->input_size;
-		cmd.output_size = args->output_size;
-		cmd.p1_size = args->p1_size;
-		cmd.p2_size = args->p2_size;
-		cmd.mac_size = args->mac_size;
-		cmd.key_type = args->key_type;
-		cmd.flags = args->flags;
-		cmd.crc = 0u;
-		cmd.crc = plat_compute_msg_crc((uint32_t *)&cmd,
-					       (uint32_t)(sizeof(cmd) - sizeof(uint32_t)));
-
-		/* Send the message to platform. */
-		error = plat_send_msg_and_get_resp(serv_ptr->session->phdl,
-						   (uint32_t *)&cmd,
-						   cmd_msg_sz,
-						   (uint32_t *)&rsp,
-						   rsp_msg_sz);
-		if (error != 0)
-			break;
-
-		sab_err_map(SAB_MSG, SAB_CIPHER_ECIES_DECRYPT_REQ, rsp.rsp_code);
-
-		err = sab_rating_to_hsm_err(rsp.rsp_code);
-
-	} while (false);
-
-	return err;
-}
-
 hsm_err_t hsm_import_public_key(hsm_hdl_t signature_ver_hdl,
 				op_import_public_key_args_t *args,
 				uint32_t *key_ref)
@@ -648,97 +514,6 @@ hsm_err_t hsm_pub_key_decompression(hsm_hdl_t session_hdl,
 			break;
 
 		sab_err_map(SAB_MSG, SAB_PUB_KEY_DECOMPRESSION_REQ, rsp.rsp_code);
-
-		err = sab_rating_to_hsm_err(rsp.rsp_code);
-	} while (false);
-
-	return err;
-}
-
-hsm_err_t hsm_ecies_encryption(hsm_hdl_t session_hdl, op_ecies_enc_args_t *args)
-{
-	struct sab_cmd_ecies_encrypt_msg cmd = {0};
-	struct sab_cmd_ecies_encrypt_rsp rsp = {0};
-	uint32_t cmd_msg_sz = sizeof(struct sab_cmd_ecies_encrypt_msg);
-	uint32_t rsp_msg_sz = sizeof(struct sab_cmd_ecies_encrypt_rsp);
-	int32_t error;
-	struct hsm_session_hdl_s *sess_ptr;
-	hsm_err_t err = HSM_GENERAL_ERROR;
-
-	do {
-		if (!args || !session_hdl)
-			break;
-
-		sess_ptr = session_hdl_to_ptr(session_hdl);
-		if (!sess_ptr) {
-			err = HSM_UNKNOWN_HANDLE;
-			break;
-		}
-
-		/* Send the keys store open command to platform. */
-		plat_fill_cmd_msg_hdr(&cmd.hdr,
-				      SAB_ECIES_ENC_REQ,
-				      cmd_msg_sz,
-				      sess_ptr->mu_type);
-		cmd.sesssion_handle = session_hdl;
-		cmd.input_addr_ext = 0u;
-		set_phy_addr_to_words(&cmd.input_addr,
-				      0u,
-				      plat_os_abs_data_buf(sess_ptr->phdl,
-							   args->input,
-							   args->input_size,
-							   DATA_BUF_IS_INPUT));
-		cmd.key_addr_ext = 0u;
-		set_phy_addr_to_words(&cmd.key_addr,
-				      0u,
-				      plat_os_abs_data_buf(sess_ptr->phdl,
-							   args->pub_key,
-							   args->pub_key_size,
-							   DATA_BUF_IS_INPUT));
-		cmd.p1_addr_ext = 0u;
-		set_phy_addr_to_words(&cmd.p1_addr,
-				      0u,
-				      plat_os_abs_data_buf(sess_ptr->phdl,
-							   args->p1,
-							   args->p1_size,
-							   DATA_BUF_IS_INPUT));
-		cmd.p2_addr_ext = 0u;
-		set_phy_addr_to_words(&cmd.p2_addr,
-				      0u,
-				      plat_os_abs_data_buf(sess_ptr->phdl,
-							   args->p2,
-							   args->p2_size,
-							   DATA_BUF_IS_INPUT));
-		cmd.output_addr_ext = 0u;
-		set_phy_addr_to_words(&cmd.output_addr,
-				      0u,
-				      plat_os_abs_data_buf(sess_ptr->phdl,
-							   args->output,
-							   args->out_size,
-							   0u));
-		cmd.input_size = args->input_size;
-		cmd.p1_size = args->p1_size;
-		cmd.p2_size = args->p2_size;
-		cmd.key_size = args->pub_key_size;
-		cmd.mac_size = args->mac_size;
-		cmd.output_size = args->out_size;
-		cmd.key_type = args->key_type;
-		cmd.flags = args->flags;
-		cmd.reserved = 0u;
-		cmd.crc = 0u;
-		cmd.crc = plat_compute_msg_crc((uint32_t *)&cmd,
-					       (uint32_t)(sizeof(cmd) - sizeof(uint32_t)));
-
-		/* Send the message to platform. */
-		error = plat_send_msg_and_get_resp(sess_ptr->phdl,
-						   (uint32_t *)&cmd,
-						   cmd_msg_sz,
-						   (uint32_t *)&rsp,
-						   rsp_msg_sz);
-		if (error != 0)
-			break;
-
-		sab_err_map(SAB_MSG, SAB_ECIES_ENC_REQ, rsp.rsp_code);
 
 		err = sab_rating_to_hsm_err(rsp.rsp_code);
 	} while (false);

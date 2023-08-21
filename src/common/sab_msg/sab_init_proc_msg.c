@@ -102,6 +102,10 @@
 #include "sab_auth_enc.h"
 #endif
 
+#if MT_SAB_ECIES
+#include "sab_ecies.h"
+#endif
+
 #if MT_SAB_SM2_ECES
 #include "sab_sm2_eces.h"
 #endif
@@ -530,6 +534,22 @@ static  int init_proc_sab_hsm_msg_engine(msg_type_t msg_type,
 			ret = add_sab_msg_handler(msg_id, MT_SAB_AUTH_ENC,
 						  prepare_msg_auth_enc,
 						  proc_msg_rsp_auth_enc);
+		}
+		break;
+#endif
+#if MT_SAB_ECIES
+	case SAB_ECIES_ENC_REQ:
+		if (msg_type == MT_SAB_ECIES) {
+			ret = add_sab_msg_handler(msg_id, MT_SAB_ECIES,
+						  prepare_msg_ecies_encryption,
+						  proc_msg_rsp_ecies_encryption);
+		}
+		break;
+	case SAB_CIPHER_ECIES_DECRYPT_REQ:
+		if (msg_type == MT_SAB_ECIES) {
+			ret = add_sab_msg_handler(msg_id, MT_SAB_ECIES,
+						  prepare_msg_ecies_decryption,
+						  proc_msg_rsp_ecies_decryption);
 		}
 		break;
 #endif
