@@ -102,6 +102,10 @@
 #include "sab_auth_enc.h"
 #endif
 
+#if MT_SAB_ST_BUT
+#include "sab_st_butterfly.h"
+#endif
+
 #if MT_SAB_ECIES
 #include "sab_ecies.h"
 #endif
@@ -534,6 +538,15 @@ static  int init_proc_sab_hsm_msg_engine(msg_type_t msg_type,
 			ret = add_sab_msg_handler(msg_id, MT_SAB_AUTH_ENC,
 						  prepare_msg_auth_enc,
 						  proc_msg_rsp_auth_enc);
+		}
+		break;
+#endif
+#if MT_SAB_ST_BUT
+	case SAB_ST_BUT_KEY_EXP_REQ:
+		if (msg_type == MT_SAB_ST_BUT) {
+			ret = add_sab_msg_handler(msg_id, MT_SAB_AUTH_ENC,
+						  prepare_msg_st_butterfly,
+						  proc_msg_rsp_st_butterfly);
 		}
 		break;
 #endif

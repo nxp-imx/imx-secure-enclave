@@ -23,6 +23,8 @@ extern "C" {
 
 #include "internal/hsm_sm2_get_z.h"
 
+#include "internal/hsm_st_butterfly.h"
+
 #include "internal/hsm_ecies.h"
 
 #include "internal/hsm_sm2_eces.h"

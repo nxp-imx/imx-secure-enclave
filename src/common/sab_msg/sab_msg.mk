@@ -242,6 +242,12 @@ SAB_MSG_SRC	+= \
 		$(PLAT_COMMON_PATH)/sab_msg/sab_auth_enc.o
 endif
 
+ifneq (${MT_SAB_ST_BUT},0x0)
+DEFINES		+=	-DMT_SAB_ST_BUT=${MT_SAB_ST_BUT}
+SAB_MSG_SRC	+= \
+		$(PLAT_COMMON_PATH)/sab_msg/sab_st_butterfly.o
+endif
+
 ifneq (${MT_SAB_ECIES},0x0)
 DEFINES		+=	-DMT_SAB_ECIES=${MT_SAB_ECIES}
 SAB_MSG_SRC	+= \

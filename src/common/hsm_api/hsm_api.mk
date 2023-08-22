@@ -153,6 +153,12 @@ HSM_API_SRC	+= \
 		$(PLAT_COMMON_PATH)/hsm_api/hsm_auth_enc.o
 endif
 
+ifneq (${MT_SAB_ST_BUT},0x0)
+DEFINES		+=	-DHSM_ST_BUT
+HSM_API_SRC	+= \
+		$(PLAT_COMMON_PATH)/hsm_api/hsm_st_butterfly.o
+endif
+
 ifneq (${MT_SAB_ECIES},0x0)
 DEFINES		+=	-DHSM_ECIES
 HSM_API_SRC	+= \
