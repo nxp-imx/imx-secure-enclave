@@ -43,10 +43,14 @@ struct global_info_s {
 	//!< SoC Revision
 	uint16_t lifecycle;
 	//!< Device Lifecycle
+	uint32_t lib_newness_ver;
+	//!< Secure Enclave Library Newness Version
 	uint32_t lib_major_ver;
 	//!< Secure Enclave Library Major Version
 	uint32_t lib_minor_ver;
 	//!< Secure Enclave Library Minor Version
+	uint32_t nvm_newness_ver;
+	//!< NVM Library Newness Version
 	uint32_t nvm_major_ver;
 	//!< NVM Library Major Version
 	uint32_t nvm_minor_ver;

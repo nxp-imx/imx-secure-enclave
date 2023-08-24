@@ -129,10 +129,12 @@ void print_global_info(void)
 	       get_soc_id_str(global_info.soc_id),
 	       get_soc_rev_str(global_info.soc_rev));
 	printf("%s Lifecycle\n", get_soc_lf_str(global_info.lifecycle));
-	printf("LIB Version %u.%u\n",
+	printf("LIB Version %u.%u.%u\n",
+	       global_info.lib_newness_ver,
 	       global_info.lib_major_ver,
 	       global_info.lib_minor_ver);
-	printf("NVM Version %u.%u\n",
+	printf("NVM Version %u.%u.%u\n",
+	       global_info.nvm_newness_ver,
 	       global_info.nvm_major_ver,
 	       global_info.nvm_minor_ver);
 	printf("Build ID %s\n", global_info.se_commit_id);

@@ -335,8 +335,10 @@ void populate_global_info(hsm_hdl_t hsm_session_hdl)
 		global_info.ver = HSM_API_VERSION_1;
 
 	global_info.lifecycle = dev_getinfo_args.lmda_val;
+	global_info.lib_newness_ver = LIB_NEWNESS_VER;
 	global_info.lib_major_ver = LIB_MAJOR_VER;
 	global_info.lib_minor_ver = LIB_MINOR_VER;
+	global_info.nvm_newness_ver = NVM_NEWNESS_VER;
 	global_info.nvm_major_ver = NVM_MAJOR_VER;
 	global_info.nvm_minor_ver = NVM_MINOR_VER;
 	if (strlen(LIB_COMMIT_ID) == GINFO_COMMIT_ID_SZ)
@@ -359,10 +361,12 @@ void show_global_info(void)
 		get_soc_id_str(global_info.soc_id),
 		get_soc_rev_str(global_info.soc_rev));
 	se_info("%s Lifecycle\n", get_soc_lf_str(global_info.lifecycle));
-	se_info("LIB Version %u.%u\n",
+	se_info("LIB Version %u.%u.%u\n",
+		global_info.lib_newness_ver,
 		global_info.lib_major_ver,
 		global_info.lib_minor_ver);
-	se_info("NVM Version %u.%u\n",
+	se_info("NVM Version %u.%u.%u\n",
+		global_info.nvm_newness_ver,
 		global_info.nvm_major_ver,
 		global_info.nvm_minor_ver);
 	se_info("Build ID %s\n", global_info.se_commit_id);

@@ -1,4 +1,6 @@
+#define LIB_NEWNESS_VER 1
 #define LIB_MAJOR_VER 1
 #define LIB_MINOR_VER 0
+#define NVM_NEWNESS_VER 1
 #define NVM_MAJOR_VER 1
 #define NVM_MINOR_VER 0
