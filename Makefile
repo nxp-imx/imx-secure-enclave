@@ -64,9 +64,9 @@ all_tests:= $(SHE_TEST) $(HSM_TEST) $(HSM_PERF_TEST) $(V2X_TEST)
 all_libs:= $(SHE_LIB) $(NVM_LIB) $(HSM_LIB)
 
 # Make targets, must need NVM-Daemon to run successfully.
-tests: install_version $(all_tests) $(NVM_DAEMON)
-libs: install_version $(all_libs) $(NVM_DAEMON)
-all: install_version $(all_libs) $(all_tests) $(NVM_DAEMON)
+tests: install_version $(all_tests) $(NVM_DAEMON) clean_ver_hfile
+libs: install_version $(all_libs) $(NVM_DAEMON) clean_ver_hfile
+all: install_version $(all_libs) $(all_tests) $(NVM_DAEMON) clean_ver_hfile
 
 .PHONY: all clean
 
@@ -179,7 +179,6 @@ hsm_doc_seco: include/hsm/hsm_api.h
 	rm -rf doc/latex/
 
 install: libs
-	rm -f ${SE_VER_FILE}
 	mkdir -p $(DESTDIR)$(LIBDIR) $(DESTDIR)$(INCLUDEDIR)
 	$(foreach i, $(LIB_NAMES),\
 		ln -s -f $(i).$(SO_EXT) $(i).so.$(MAJOR_VER); \
@@ -205,3 +204,6 @@ install_version: .git/HEAD .git/index
 	echo "#define LIB_COMMIT_ID \"$(shell git rev-parse HEAD)\"" >> ${SE_VER_FILE}
 	cat se_version.txt >> ${SE_VER_FILE}
 	echo "#endif" >> ${SE_VER_FILE}
+
+clean_ver_hfile:
+	rm -f ${SE_VER_FILE}
