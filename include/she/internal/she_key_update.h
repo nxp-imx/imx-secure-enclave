@@ -73,12 +73,12 @@ typedef struct {
  * The request is completed only when the new key has been written in the NVM.
  * The monotonic counter is incremented for each successful update.
  *
- * \param session_hdl pointer to the handle identifying the current session.
+ * \param utils_handle handle identifying the utils service.
  * \param args pointer to the structure containing the function arguments.
  *
  * \return error code
  */
-she_err_t she_key_update(she_hdl_t session_hdl, op_key_update_args_t *args);
+she_err_t she_key_update(she_hdl_t utils_handle, op_key_update_args_t *args);
 
 /*
  * User can use this flag to perform multiple updates before writing the key store
@@ -129,12 +129,12 @@ typedef struct {
  * The request is completed only when the key store is written in the NVM
  * and the monotonic counter is incremented
  *
- * \param session_hdl pointer to the handle identifying the current session.
+ * \param utils_handle handle identifying the utils service
  * \param args pointer to the structure containing the function arguments.
  *
  * \return error code
  */
-she_err_t she_key_update_ext(she_hdl_t session_hdl, op_key_update_ext_args_t *args);
+she_err_t she_key_update_ext(she_hdl_t utils_handle, op_key_update_ext_args_t *args);
 
 /** @} end of CMD_LOAD_KEY group */
 #endif

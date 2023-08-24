@@ -35,21 +35,21 @@ typedef struct {
  * Open SHE utils service flow on the specified key store.
  * The SHE utils service flow can be opened only after opening SHE key storage handle.
  *
- * \param session_hdl pointer to the handle identifying the current session.
+ * \param key_store_handle handle identifying the key store service.
  * \param args pointer to the structure containing the function arguments.
  *
  * \return error code.
  */
-she_err_t she_open_utils(she_hdl_t session_hdl, op_open_utils_args_t *args);
+she_err_t she_open_utils(she_hdl_t key_store_handle, op_open_utils_args_t *args);
 
 /**
  * Terminate a previously opened utils service flow
  *
- * \param session_hdl: pointer to the handle identifying the current session.
+ * \param utils_handle handle identifying the utils service.
  *
  * \return error code.
  */
-she_err_t she_close_utils(she_hdl_t session_hdl);
+she_err_t she_close_utils(she_hdl_t utils_handle);
 
 /** @} end of utils group */
 #endif

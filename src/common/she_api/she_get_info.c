@@ -8,7 +8,7 @@
 
 she_err_t she_get_info(she_hdl_t session_hdl, op_get_info_args_t *args)
 {
-	struct she_hdl_s *hdl;
+	struct she_session_hdl_s *sess_ptr;
 	she_err_t err = SHE_GENERAL_ERROR;
 	uint32_t sab_err;
 	uint32_t rsp_code = SAB_NO_MESSAGE_RATING;
@@ -18,19 +18,21 @@ she_err_t she_get_info(she_hdl_t session_hdl, op_get_info_args_t *args)
 		return err;
 	}
 
-	hdl = she_session_hdl_to_ptr(session_hdl);
-	if (!hdl) {
-		se_err("Handle not found\n");
+	sess_ptr = she_session_hdl_to_ptr(session_hdl);
+	if (!sess_ptr) {
+		se_err("Handle pointer not found\n");
 		return err;
 	}
 
-	sab_err = process_sab_msg(hdl->phdl,
-				  hdl->mu_type,
+	sab_err = process_sab_msg(sess_ptr->phdl,
+				  sess_ptr->mu_type,
 				  SAB_GET_INFO_REQ,
 				  MT_SAB_GET_INFO,
-				  hdl->session_handle,
+				  (uint32_t)session_hdl,
 				  args,
 				  &rsp_code);
+
+	sess_ptr->last_rating = rsp_code;
 
 	err = sab_rating_to_she_err(sab_err);
 

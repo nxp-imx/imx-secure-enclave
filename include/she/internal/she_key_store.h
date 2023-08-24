@@ -86,7 +86,7 @@
 /**
  * Open a service flow on the specified key store.
  *
- * \param session_hdl pointer to the handle identifying the current session.
+ * \param session_hdl SHE handle identifying the current session.
  * \param args pointer to the structure containing the function arguments.
  *
  * \return error code.
@@ -97,11 +97,11 @@ she_err_t she_open_key_store_service(she_hdl_t session_hdl,
 /**
  * Terminate a previously opened key store service flow
  *
- * \param session_hdl: pointer to handle identifying the SHE session.
+ * \param key_store_handle handle identifying the key store service.
  *
  * \return error code.
  */
-she_err_t she_close_key_store_service(she_hdl_t session_hdl);
+she_err_t she_close_key_store_service(she_hdl_t key_store_handle);
 
 /** @} end of key store service flow */
 

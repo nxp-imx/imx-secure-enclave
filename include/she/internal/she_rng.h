@@ -32,11 +32,11 @@ she_err_t she_open_rng_service(she_hdl_t session_hdl, open_svc_rng_args_t *args)
 /**
  * Terminate a previously opened rng service flow
  *
- * \param session_hdl handle identifying the current session.
+ * \param rng_handle handle identifying the RNG session.
  *
  * \return error code
  */
-she_err_t she_close_rng_service(she_hdl_t session_hdl);
+she_err_t she_close_rng_service(she_hdl_t rng_handle);
 /** @} end of CMD_INIT_RNG group */
 #endif
 
@@ -50,12 +50,12 @@ she_err_t she_close_rng_service(she_hdl_t session_hdl);
  * The random number generator has to be initialized by CMD_INIT_RNG before random
  * numbers can be supplied.
  *
- * \param session_hdl pointer to the SHE session handler
+ * \param rng_handle handle identifying the RNG service
  * \param args pointer to the structure containing the function arguments.
  *
  * \return error code
  */
-she_err_t she_get_random(she_hdl_t session_hdl, op_get_random_args_t *args);
+she_err_t she_get_random(she_hdl_t rng_handle, op_get_random_args_t *args);
 
 /**
  * size of random data for SHE
@@ -88,12 +88,12 @@ typedef struct {
  * The random number generator has to be initialized by CMD_INIT_RNG before the
  * seed can be extended.
  *
- * \param hdl pointer to the SHE session handler
- * \param entropy pointer to the entropy vector (128bits) to use for the operation
+ * \param rng_handle handle identifying the RNG service
+ * \param args pointer to the structure containing entropy vector (128bits)
  *
  * \return error code
  */
-she_err_t she_extend_seed(she_hdl_t session_hdl, op_rng_extend_seed_t *args);
+she_err_t she_extend_seed(she_hdl_t rng_handle, op_rng_extend_seed_t *args);
 
 /**
  * size of entropy for SHE

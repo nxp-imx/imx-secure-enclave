@@ -36,6 +36,10 @@ int main(int argc, char *argv[])
 	struct sigaction she_test_sigact = {0};
 	open_session_args_t open_session_args = {0};
 	op_get_status_args_t op_get_status_args = {0};
+	open_svc_key_store_args_t open_svc_key_store_args = {0};
+	op_open_utils_args_t utils_args = {'\0'};
+	open_svc_cipher_args_t cipher_args = {'\0'};
+	she_hdl_t key_store_hdl;
 	she_err_t err;
 
 	if (argc == 2 && (strcmp("--help", argv[1]) == 0 || strcmp("-h", argv[1]) == 0)) {
@@ -60,7 +64,49 @@ int main(int argc, char *argv[])
 	}
 	se_print("she_open_session PASS\n");
 
-	err = she_get_status(she_session_hdl, &op_get_status_args);
+	/* Get the access to the SHE keystore */
+	open_svc_key_store_args.key_store_identifier	= 0x0;
+	open_svc_key_store_args.authentication_nonce	= 0xbec00001;
+#ifndef PSA_COMPLIANT
+	open_svc_key_store_args.max_updates_number	= 300;
+#endif
+	open_svc_key_store_args.flags			=
+		KEY_STORE_OPEN_FLAGS_CREATE | KEY_STORE_OPEN_FLAGS_SHE;
+
+	err = she_open_key_store_service(she_session_hdl,
+					 &open_svc_key_store_args);
+	if (err != SHE_NO_ERROR) {
+		se_err("SHE Error: Failed to open key store 0x%x\n", err);
+		she_close_session(she_session_hdl);
+		return 0;
+	}
+
+	key_store_hdl = open_svc_key_store_args.key_store_hdl;
+	se_print("KEY store handle : 0x%x\n", key_store_hdl);
+
+	/* open SHE utils service. */
+	err = she_open_utils(key_store_hdl, &utils_args);
+	if (err != SHE_NO_ERROR) {
+		se_err("SHE Error: Failed to open SHE utils 0x%x\n", err);
+		she_close_key_store_service(key_store_hdl);
+		she_close_session(she_session_hdl);
+		return 0;
+	}
+
+	se_print("Utils handle : 0x%x\n", utils_args.utils_handle);
+
+	err = she_open_cipher_service(key_store_hdl, &cipher_args);
+	if (err != SHE_NO_ERROR) {
+		se_err("SHE Error: Failed to open cipher service 0x%x\n", err);
+		she_close_utils(utils_args.utils_handle);
+		she_close_key_store_service(key_store_hdl);
+		she_close_session(she_session_hdl);
+		return 0;
+	}
+
+	se_print("Cipher handle : 0x%x\n", cipher_args.cipher_hdl);
+
+	err = she_get_status(utils_args.utils_handle, &op_get_status_args);
 	if (!err)
 		se_print("CMD_GET_STATUS successful 0x%x\n",
 			 op_get_status_args.sreg);
@@ -69,19 +115,22 @@ int main(int argc, char *argv[])
 	if (err)
 		se_print("Error[0x%x]: RNG test Failed.\n", err);
 
-	err = she_get_status(she_session_hdl, &op_get_status_args);
+	err = she_get_status(utils_args.utils_handle, &op_get_status_args);
 	if (!err)
 		se_print("CMD_GET_STATUS successful 0x%x\n",
 			 op_get_status_args.sreg);
 
-	err = do_she_key_update_test(she_session_hdl);
+	err = do_she_key_update_test(utils_args.utils_handle);
 	if (err)
 		se_print("Error[0x%x]: Key Update test Failed.\n", err);
 
-	err = do_she_cipher_test(she_session_hdl);
+	err = do_she_cipher_test(cipher_args.cipher_hdl);
 	if (err)
 		se_print("Error[0x%x]: Cipher test Failed.\n", err);
 
+	she_close_cipher_service(cipher_args.cipher_hdl);
+	she_close_utils(utils_args.utils_handle);
+	she_close_key_store_service(key_store_hdl);
 	err = she_close_session(she_session_hdl);
 
 	se_print("she_close_session ret:0x%x\n", err);

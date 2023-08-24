@@ -48,6 +48,11 @@
 #endif
 
 /**
+ *  @defgroup group1 Session
+ *  @{
+ */
+
+/**
  *
  * \param args pointer to the structure containing the function arguments.
 
@@ -66,5 +71,29 @@ she_err_t she_open_session(open_session_args_t *args, she_hdl_t *session_hdl);
  * \return error code.
  */
 she_err_t she_close_session(she_hdl_t session_hdl);
+
+/** @} end of session group */
+
+/**
+ *  @defgroup group11 last rating code
+ *  \ingroup group100
+ *  @{
+ */
+/**
+ * Report rating code from last command
+ *
+ * SHE API defines standard errors that should be returned by API calls.
+ * Error code reported by SECO are "translated" to these SHE error codes.
+ * This API allow user to get the error code reported by SECO for the last
+ * command before its translation to SHE error codes. This shoudl be used
+ * for debug purpose only.
+ *
+ * \param session_hdl SHE session handler
+ *
+ * \return rating code reported by last command
+ */
+uint32_t she_get_last_rating_code(she_hdl_t session_hdl);
+
+/** @} end of last rating code group */
 
 #endif

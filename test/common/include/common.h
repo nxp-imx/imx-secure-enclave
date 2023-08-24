@@ -73,8 +73,8 @@ int get_cmdline_arg(void);
 time_t get_ele_perf_time(void);
 
 she_err_t do_she_rng_test(she_hdl_t session_hdl);
-she_err_t do_she_key_update_test(she_hdl_t session_hdl);
+she_err_t do_she_key_update_test(she_hdl_t utils_handle);
 
-she_err_t do_she_cipher_test(she_hdl_t session_hdl);
+she_err_t do_she_cipher_test(she_hdl_t cipher_handle);
 
 #endif

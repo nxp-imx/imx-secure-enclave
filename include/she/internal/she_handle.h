@@ -21,32 +21,40 @@
 /**
  * Maximum sessions supported
  */
-#define SHE_MAX_SESSIONS        (16u)
+#define SHE_MAX_SESSIONS	(8u)
+//!< Maximum sessions supported.
+
+#define SHE_MAX_SERVICES	(32u)
+//!< Maximum services supported.
+
+/**
+ * Structure describing the session handle members
+ */
+struct she_session_hdl_s {
+	struct plat_os_abs_hdl *phdl;
+	//!< Pointer to OS device node.
+	uint32_t session_hdl;
+	//!< Session handle.
+	uint32_t mu_type;
+	//!< Session MU type.
+	uint32_t last_rating;
+	//!< last error code returned by command.
+};
+
+/**
+ * Structure describing the service handle members
+ */
+struct she_service_hdl_s {
+	struct she_session_hdl_s *session;
+	//!< Pointer to session handle.
+	uint32_t service_hdl;
+	//!< Service handle.
+};
 
 /**
  *  Define the SHE handle type
  */
 typedef uint32_t she_hdl_t;
-
-/**
- * Structure describing the session handle members
- */
-struct she_hdl_s {
-	struct plat_os_abs_hdl *phdl;
-	//!< Pointer to OS device node.
-	uint32_t session_handle;
-	//!< Session handle.
-	uint32_t key_store_handle;
-	//!< handle to access key store
-	uint32_t cipher_handle;
-	//!< handle to access cipher services
-	uint32_t rng_handle;
-	//!< RNG handle
-	uint32_t utils_handle;
-	//!< handle to access utility
-	uint32_t mu_type;
-	//!< Session MU type.
-};
 
 /**
  * Returns pointer to the session handle\n
@@ -55,7 +63,7 @@ struct she_hdl_s {
  *
  * \return pointer to the session handle.
  */
-struct she_hdl_s *she_session_hdl_to_ptr(uint32_t hdl);
+struct she_session_hdl_s *she_session_hdl_to_ptr(uint32_t hdl);
 
 /**
  * Delete the session\n
@@ -63,14 +71,38 @@ struct she_hdl_s *she_session_hdl_to_ptr(uint32_t hdl);
  * \param s_ptr pointer identifying the session.
  *
  */
-void delete_she_session(struct she_hdl_s *s_ptr);
+void delete_she_session(struct she_session_hdl_s *s_ptr);
 
 /**
  *  Add the session\n
  *
  * \return pointer to the session.
  */
-struct she_hdl_s *add_she_session(void);
+struct she_session_hdl_s *add_she_session(void);
+
+/**
+ * Returns pointer to the service handle\n
+ *
+ * \param hdl identifying the session handle.
+ *
+ * \return pointer to the service handle.
+ */
+struct she_service_hdl_s *she_service_hdl_to_ptr(uint32_t hdl);
+
+/**
+ * Delete the service\n
+ *
+ * \param s_ptr pointer identifying the service.
+ *
+ */
+void delete_she_service(struct she_service_hdl_s *s_ptr);
+
+/**
+ * Add the service\n
+ *
+ * \return pointer to the service.
+ */
+struct she_service_hdl_s *add_she_service(struct she_session_hdl_s *session);
 
 /** @} end of session group */
 #endif

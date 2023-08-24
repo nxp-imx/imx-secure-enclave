@@ -7,7 +7,7 @@
 #include "she_api.h"
 #include "plat_utils.h"
 
-she_err_t she_ecb_test(she_hdl_t session_hdl)
+she_err_t she_ecb_test(she_hdl_t cipher_handle)
 {
 	op_cipher_one_go_args_t cipher_args = {0};
 	uint8_t hash_data[16] = {0x7f, 0x4e, 0x91, 0xa2, 0x01, 0x1a, 0x6d, 0x57,
@@ -32,7 +32,7 @@ she_err_t she_ecb_test(she_hdl_t session_hdl)
 	cipher_args.output_size = sizeof(ciphered_data);
 
 	se_print("--- ECB CIPHER TEST STARTED ---\n");
-	err = she_cipher_one_go(session_hdl, &cipher_args);
+	err = she_cipher_one_go(cipher_handle, &cipher_args);
 	if (err) {
 		se_print("ECB Encrypt: ret:0x%x ---> TEST FAILED\n", err);
 		return err;
@@ -57,7 +57,7 @@ she_err_t she_ecb_test(she_hdl_t session_hdl)
 	cipher_args.input_size = sizeof(ciphered_data);
 	cipher_args.output_size = sizeof(deciphered_data);
 
-	err = she_cipher_one_go(session_hdl, &cipher_args);
+	err = she_cipher_one_go(cipher_handle, &cipher_args);
 	if (err) {
 		se_print("ECB Decrypt: ret:0x%x ---> TEST FAILED\n", err);
 		return err;
@@ -75,7 +75,7 @@ she_err_t she_ecb_test(she_hdl_t session_hdl)
 	return err;
 }
 
-she_err_t she_cbc_test(she_hdl_t session_hdl)
+she_err_t she_cbc_test(she_hdl_t cipher_handle)
 {
 	op_cipher_one_go_args_t cipher_args = {0};
 	uint8_t iv_data[16] = {0x00, 0x01, 0x02, 0x03, 0x04, 0x05, 0x06, 0x07,
@@ -102,7 +102,7 @@ she_err_t she_cbc_test(she_hdl_t session_hdl)
 	cipher_args.output_size = sizeof(ciphered_data);
 
 	se_print("--- CBC CIPHER TEST STARTED ---\n");
-	err = she_cipher_one_go(session_hdl, &cipher_args);
+	err = she_cipher_one_go(cipher_handle, &cipher_args);
 	if (err) {
 		se_print("CBC Encrypt: ret:0x%x ---> TEST FAILED\n", err);
 		return err;
@@ -127,7 +127,7 @@ she_err_t she_cbc_test(she_hdl_t session_hdl)
 	cipher_args.input_size = sizeof(ciphered_data);
 	cipher_args.output_size = sizeof(deciphered_data);
 
-	err = she_cipher_one_go(session_hdl, &cipher_args);
+	err = she_cipher_one_go(cipher_handle, &cipher_args);
 	if (err) {
 		se_print("CBC Decrypt: ret:0x%x ---> TEST FAILED\n", err);
 		return err;
@@ -145,17 +145,17 @@ she_err_t she_cbc_test(she_hdl_t session_hdl)
 	return err;
 }
 
-she_err_t do_she_cipher_test(she_hdl_t session_hdl)
+she_err_t do_she_cipher_test(she_hdl_t cipher_handle)
 {
 	she_err_t err;
 
-	err = she_cbc_test(session_hdl);
+	err = she_cbc_test(cipher_handle);
 	if (err)
 		se_print("CBC CIPHER TEST ---> FAILED\n");
 	else
 		se_print("CBC CIPHER TEST ---> PASSED\n");
 
-	err = she_ecb_test(session_hdl);
+	err = she_ecb_test(cipher_handle);
 	if (err)
 		se_print("ECB CIPHER TEST ---> FAILED\n");
 	else

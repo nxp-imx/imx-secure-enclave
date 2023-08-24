@@ -32,11 +32,11 @@ she_err_t she_open_cipher_service(she_hdl_t session_hdl,
 /**
  * Terminate a previously opened cipher service flow
  *
- * \param session_hdl: pointer to handle identifying the SHE session.
+ * \param cipher_handle: handle identifying the Cipher service.
  *
  * \return error code.
  */
-she_err_t she_close_cipher_service(she_hdl_t session_hdl);
+she_err_t she_close_cipher_service(she_hdl_t cipher_handle);
 
 /**
  * Bit field indicating the requested cipher operations
@@ -90,7 +90,7 @@ typedef uint8_t she_op_cipher_one_go_flags_t;
  *
  * \return error code
  */
-she_err_t she_cipher_one_go(she_hdl_t session_hdl, op_cipher_one_go_args_t *args);
+she_err_t she_cipher_one_go(she_hdl_t cipher_handle, op_cipher_one_go_args_t *args);
 
 /** @} end of Ciphering */
 #endif

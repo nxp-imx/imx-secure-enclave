@@ -6,37 +6,45 @@
 #include "she_api.h"
 #include "sab_process_msg.h"
 
-she_err_t she_open_cipher_service(she_hdl_t session_hdl,
+she_err_t she_open_cipher_service(she_hdl_t key_store_handle,
 				  open_svc_cipher_args_t *args)
 {
-	struct she_hdl_s *hdl;
+	struct she_service_hdl_s *serv_ptr;
+	struct she_service_hdl_s *serv_ptr_1;
 	she_err_t err = SHE_GENERAL_ERROR;
 	uint32_t sab_err;
 	uint32_t rsp_code = SAB_NO_MESSAGE_RATING;
 
-	if (!args) {
-		se_err("args cannot be NULL\n");
+	if (!args || !key_store_handle) {
+		se_err("args/key store handle cannot be NULL\n");
 		return err;
 	}
 
-	hdl = she_session_hdl_to_ptr(session_hdl);
-	if (!hdl || !hdl->key_store_handle) {
-		se_err("Handle not found\n");
+	serv_ptr = she_service_hdl_to_ptr(key_store_handle);
+	if (!serv_ptr) {
+		se_err("Handle pointer not found\n");
 		return err;
 	}
 
-	sab_err = process_sab_msg(hdl->phdl,
-				  hdl->mu_type,
+	serv_ptr_1 = add_she_service(serv_ptr->session);
+	if (!serv_ptr_1)
+		return err;
+
+	sab_err = process_sab_msg(serv_ptr->session->phdl,
+				  serv_ptr->session->mu_type,
 				  SAB_CIPHER_OPEN_REQ,
 				  MT_SAB_CIPHER,
-				  hdl->key_store_handle,
+				  key_store_handle,
 				  args,
 				  &rsp_code);
+
+	serv_ptr->session->last_rating = rsp_code;
 
 	err = sab_rating_to_she_err(sab_err);
 
 	if (err != SHE_NO_ERROR) {
 		se_err("SHE Error: SAB_CIPHER_OPEN_REQ [0x%x].\n", err);
+		delete_she_service(serv_ptr_1);
 		return err;
 	}
 
@@ -44,32 +52,36 @@ she_err_t she_open_cipher_service(she_hdl_t session_hdl,
 
 	if (err != SHE_NO_ERROR) {
 		se_err("SHE RSP Error: SAB_CIPHER_OPEN_REQ [0x%x].\n", err);
+		delete_she_service(serv_ptr_1);
 		return err;
 	}
 
+	serv_ptr_1->service_hdl = args->cipher_hdl;
 	return err;
 }
 
-she_err_t she_close_cipher_service(she_hdl_t session_hdl)
+she_err_t she_close_cipher_service(she_hdl_t cipher_handle)
 {
-	struct she_hdl_s *hdl;
+	struct she_service_hdl_s *serv_ptr;
 	she_err_t err = SHE_GENERAL_ERROR;
 	uint32_t sab_err;
 	uint32_t rsp_code = SAB_NO_MESSAGE_RATING;
 
-	hdl = she_session_hdl_to_ptr(session_hdl);
-	if (!hdl || !hdl->cipher_handle) {
-		se_err("Handle not found\n");
+	serv_ptr = she_service_hdl_to_ptr(cipher_handle);
+	if (!serv_ptr) {
+		se_err("service pointer not found\n");
 		return err;
 	}
 
-	sab_err = process_sab_msg(hdl->phdl,
-				  hdl->mu_type,
+	sab_err = process_sab_msg(serv_ptr->session->phdl,
+				  serv_ptr->session->mu_type,
 				  SAB_CIPHER_CLOSE_REQ,
 				  MT_SAB_CIPHER,
-				  hdl->cipher_handle,
+				  cipher_handle,
 				  NULL,
 				  &rsp_code);
+
+	serv_ptr->session->last_rating = rsp_code;
 
 	err = sab_rating_to_she_err(sab_err);
 
@@ -83,36 +95,38 @@ she_err_t she_close_cipher_service(she_hdl_t session_hdl)
 		return err;
 	}
 
-	hdl->cipher_handle = 0;
+	delete_she_service(serv_ptr);
 
 	return err;
 }
 
-she_err_t she_cipher_one_go(she_hdl_t session_hdl, op_cipher_one_go_args_t *args)
+she_err_t she_cipher_one_go(she_hdl_t cipher_handle, op_cipher_one_go_args_t *args)
 {
-	struct she_hdl_s *hdl;
+	struct she_service_hdl_s *serv_ptr;
 	she_err_t err = SHE_GENERAL_ERROR;
 	uint32_t sab_err;
 	uint32_t rsp_code = SAB_NO_MESSAGE_RATING;
 
-	if (!args) {
-		se_err("args cannot be NULL\n");
+	if (!args || !cipher_handle) {
+		se_err("Invalid input parameters\n");
 		return err;
 	}
 
-	hdl = she_session_hdl_to_ptr(session_hdl);
-	if (!hdl || !hdl->cipher_handle) {
-		se_err("Handle not found\n");
+	serv_ptr = she_service_hdl_to_ptr(cipher_handle);
+	if (!serv_ptr) {
+		se_err("Service pointer not found\n");
 		return err;
 	}
 
-	sab_err = process_sab_msg(hdl->phdl,
-				  hdl->mu_type,
+	sab_err = process_sab_msg(serv_ptr->session->phdl,
+				  serv_ptr->session->mu_type,
 				  SAB_CIPHER_ONE_GO_REQ,
 				  MT_SAB_CIPHER,
-				  hdl->cipher_handle,
+				  (uint32_t)cipher_handle,
 				  args,
 				  &rsp_code);
+
+	serv_ptr->session->last_rating = rsp_code;
 
 	err = sab_rating_to_she_err(sab_err);
 

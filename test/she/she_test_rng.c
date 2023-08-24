@@ -25,16 +25,17 @@ she_err_t she_do_rng(she_hdl_t session_hdl,
 		se_err("Error[0x%x]: RNG Service Open failed.\n", op_err);
 		return op_err;
 	}
-	op_err =  she_extend_seed(session_hdl, rng_extend_seed_args);
 
+	se_print("RNG handle 0x%x\n", rng_srv_args.rng_hdl);
+
+	op_err =  she_extend_seed(rng_srv_args.rng_hdl, rng_extend_seed_args);
 	if (op_err) {
 		se_err("Error[0x%x]: RNG failed for extend seed.\n", op_err);
 		return op_err;
 	}
 #endif
 
-	op_err =  she_get_random(session_hdl, rng_get_random_args);
-
+	op_err =  she_get_random(rng_srv_args.rng_hdl, rng_get_random_args);
 	if (op_err) {
 		se_err("Error[0x%x]: RNG failed for size (extend_seed) =%d.\n",
 		       op_err, rng_get_random_args->random_size);
@@ -42,7 +43,7 @@ she_err_t she_do_rng(she_hdl_t session_hdl,
 	}
 
 #ifndef PSA_COMPLIANT
-	err = she_close_rng_service(session_hdl);
+	err = she_close_rng_service(rng_srv_args.rng_hdl);
 	if (err) {
 		se_err("Error[0x%x]: RNG Service Close failed.\n", err);
 		if (op_err == SHE_NO_ERROR)

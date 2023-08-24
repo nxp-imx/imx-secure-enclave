@@ -6,31 +6,33 @@
 #include "she_api.h"
 #include "sab_process_msg.h"
 
-she_err_t she_get_status(she_hdl_t session_hdl, op_get_status_args_t *args)
+she_err_t she_get_status(she_hdl_t utils_handle, op_get_status_args_t *args)
 {
-	struct she_hdl_s *hdl;
+	struct she_service_hdl_s *serv_ptr;
 	she_err_t err = SHE_GENERAL_ERROR;
 	uint32_t sab_err;
 	uint32_t rsp_code = SAB_NO_MESSAGE_RATING;
 
-	if (!args) {
-		se_err("args cannot be NULL\n");
+	if (!args || !utils_handle) {
+		se_err("Invalid input parameters\n");
 		return err;
 	}
 
-	hdl = she_session_hdl_to_ptr(session_hdl);
-	if (!hdl || !hdl->utils_handle) {
-		se_err("Handle not found\n");
+	serv_ptr = she_service_hdl_to_ptr(utils_handle);
+	if (!serv_ptr) {
+		se_err("Handle pointer not found\n");
 		return err;
 	}
 
-	sab_err = process_sab_msg(hdl->phdl,
-				  hdl->mu_type,
+	sab_err = process_sab_msg(serv_ptr->session->phdl,
+				  serv_ptr->session->mu_type,
 				  SAB_SHE_GET_STATUS,
 				  MT_SAB_GET_STATUS,
-				  hdl->utils_handle,
+				  (uint32_t)utils_handle,
 				  args,
 				  &rsp_code);
+
+	serv_ptr->session->last_rating = rsp_code;
 
 	err = sab_rating_to_she_err(sab_err);
 

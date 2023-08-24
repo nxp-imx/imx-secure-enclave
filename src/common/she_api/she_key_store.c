@@ -9,7 +9,8 @@
 she_err_t she_open_key_store_service(she_hdl_t session_hdl,
 				     open_svc_key_store_args_t *args)
 {
-	struct she_hdl_s *hdl;
+	struct she_session_hdl_s *sess_ptr;
+	struct she_service_hdl_s *serv_ptr;
 	she_err_t err = SHE_GENERAL_ERROR;
 	uint32_t sab_err;
 	uint32_t rsp_code = SAB_NO_MESSAGE_RATING;
@@ -22,8 +23,12 @@ she_err_t she_open_key_store_service(she_hdl_t session_hdl,
 	if (!session_hdl)
 		return err;
 
-	hdl = she_session_hdl_to_ptr(session_hdl);
-	if (!hdl)
+	sess_ptr = she_session_hdl_to_ptr(session_hdl);
+	if (!sess_ptr)
+		return err;
+
+	serv_ptr = add_she_service(sess_ptr);
+	if (!serv_ptr)
 		return err;
 
 #ifndef PSA_COMPLIANT
@@ -33,7 +38,7 @@ she_err_t she_open_key_store_service(she_hdl_t session_hdl,
 
 	/* Send the signed message to platform if provided here. */
 	if (args->signed_message) {
-		sab_err = plat_os_abs_send_signed_message(hdl->phdl,
+		sab_err = plat_os_abs_send_signed_message(sess_ptr->phdl,
 							  args->signed_message,
 							  args->signed_msg_size);
 		if (sab_err == PLAT_FAILURE)
@@ -41,17 +46,20 @@ she_err_t she_open_key_store_service(she_hdl_t session_hdl,
 	}
 
 	/* Get the access to the SHE keystore */
-	sab_err = process_sab_msg(hdl->phdl,
-				  hdl->mu_type,
+	sab_err = process_sab_msg(sess_ptr->phdl,
+				  sess_ptr->mu_type,
 				  SAB_KEY_STORE_OPEN_REQ,
 				  MT_SAB_KEY_STORE,
-				  hdl->session_handle,
+				  sess_ptr->session_hdl,
 				  args, &rsp_code);
+
+	sess_ptr->last_rating = rsp_code;
 
 	err = sab_rating_to_she_err(sab_err);
 
 	if (err != SHE_NO_ERROR) {
 		se_err("SHE Error: SAB_KEY_STORE_OPEN_REQ [0x%x].\n", err);
+		delete_she_service(serv_ptr);
 		return err;
 	}
 
@@ -59,32 +67,42 @@ she_err_t she_open_key_store_service(she_hdl_t session_hdl,
 
 	if (err != SHE_NO_ERROR) {
 		se_err("SHE RSP Error: SAB_KEY_STORE_OPEN_REQ [0x%x].\n", err);
+		delete_she_service(serv_ptr);
 		return err;
 	}
+
+	serv_ptr->service_hdl = args->key_store_hdl;
 
 	return err;
 }
 
-she_err_t she_close_key_store_service(she_hdl_t session_hdl)
+she_err_t she_close_key_store_service(she_hdl_t key_store_handle)
 {
-	struct she_hdl_s *hdl;
+	struct she_service_hdl_s *serv_ptr;
 	she_err_t err = SHE_GENERAL_ERROR;
 	uint32_t sab_err;
 	uint32_t rsp_code = SAB_NO_MESSAGE_RATING;
 
-	hdl = she_session_hdl_to_ptr(session_hdl);
-	if (!hdl || !hdl->key_store_handle) {
-		se_err("Handle not found\n");
+	if (!key_store_handle) {
+		se_err("Invalid parameter\n");
 		return err;
 	}
 
-	sab_err = process_sab_msg(hdl->phdl,
-				  hdl->mu_type,
+	serv_ptr = she_service_hdl_to_ptr(key_store_handle);
+	if (!serv_ptr) {
+		se_err("Service pointer not found\n");
+		return err;
+	}
+
+	sab_err = process_sab_msg(serv_ptr->session->phdl,
+				  serv_ptr->session->mu_type,
 				  SAB_KEY_STORE_CLOSE_REQ,
 				  MT_SAB_KEY_STORE,
-				  hdl->key_store_handle,
+				  (uint32_t)key_store_handle,
 				  NULL,
 				  &rsp_code);
+
+	serv_ptr->session->last_rating = rsp_code;
 
 	err = sab_rating_to_she_err(sab_err);
 
@@ -98,7 +116,7 @@ she_err_t she_close_key_store_service(she_hdl_t session_hdl)
 		return err;
 	}
 
-	hdl->key_store_handle = 0;
+	delete_she_service(serv_ptr);
 
 	return err;
 }

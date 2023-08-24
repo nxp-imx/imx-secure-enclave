@@ -7,7 +7,7 @@
 #include "she_api.h"
 #include "plat_utils.h"
 
-she_err_t she_key_update_ext_test(she_hdl_t session_hdl)
+she_err_t she_key_update_ext_test(she_hdl_t utils_handle)
 {
 	op_key_update_ext_args_t key_update_ext_args = {0};
 	uint8_t i = 0;
@@ -57,7 +57,7 @@ she_err_t she_key_update_ext_test(she_hdl_t session_hdl)
 	key_update_ext_args.m4_size = sizeof(m4);
 	key_update_ext_args.m5_size = sizeof(m5);
 
-	err = she_key_update_ext(session_hdl, &key_update_ext_args);
+	err = she_key_update_ext(utils_handle, &key_update_ext_args);
 	if (err) {
 		se_err("Error[0x%x]: she_key_update_ext failed.\n", err);
 		return err;
@@ -80,7 +80,7 @@ she_err_t she_key_update_ext_test(she_hdl_t session_hdl)
 	key_update_ext_args.m4_size = sizeof(m4);
 	key_update_ext_args.m5_size = sizeof(m5);
 
-	err = she_key_update_ext(session_hdl, &key_update_ext_args);
+	err = she_key_update_ext(utils_handle, &key_update_ext_args);
 	if (err) {
 		se_err("Error[0x%x]: she_key_update_ext failed.\n", err);
 		return err;
@@ -90,7 +90,7 @@ she_err_t she_key_update_ext_test(she_hdl_t session_hdl)
 	return err;
 }
 
-she_err_t she_key_update_test(she_hdl_t session_hdl)
+she_err_t she_key_update_test(she_hdl_t utils_handle)
 {
 	op_key_update_args_t key_update_args = {0};
 	uint8_t i = 0;
@@ -139,7 +139,7 @@ she_err_t she_key_update_test(she_hdl_t session_hdl)
 	key_update_args.m4_size = sizeof(m4);
 	key_update_args.m5_size = sizeof(m5);
 
-	err = she_key_update(session_hdl, &key_update_args);
+	err = she_key_update(utils_handle, &key_update_args);
 	if (err) {
 		se_err("Error[0x%x]: she_key_update failed.\n", err);
 		return err;
@@ -161,7 +161,7 @@ she_err_t she_key_update_test(she_hdl_t session_hdl)
 	key_update_args.m4_size = sizeof(m4);
 	key_update_args.m5_size = sizeof(m5);
 
-	err = she_key_update(session_hdl, &key_update_args);
+	err = she_key_update(utils_handle, &key_update_args);
 	if (err) {
 		se_err("Error[0x%x]: she_key_update failed.\n", err);
 		return err;
@@ -171,19 +171,19 @@ she_err_t she_key_update_test(she_hdl_t session_hdl)
 	return err;
 }
 
-she_err_t do_she_key_update_test(she_hdl_t session_hdl)
+she_err_t do_she_key_update_test(she_hdl_t utils_handle)
 {
 	she_err_t err;
 
 	se_print("------ KEY UPDATE TEST STARTING ------\n");
-	err = she_key_update_test(session_hdl);
+	err = she_key_update_test(utils_handle);
 	if (err)
 		se_print("KEY UPDATE TEST ---> FAILED\n\n");
 	else
 		se_print("KEY UPDATE TEST ---> PASSED\n\n");
 
 	se_print("------ KEY UPDATE EXT TEST STARTING ------\n");
-	err = she_key_update_ext_test(session_hdl);
+	err = she_key_update_ext_test(utils_handle);
 	if (err)
 		se_print("KEY UPDATE EXT TEST ---> FAILED\n\n");
 	else
