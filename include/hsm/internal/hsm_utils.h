@@ -211,12 +211,15 @@ hsm_err_t sab_rating_to_hsm_err(uint32_t sab_err);
  * return the number of bytes required for representing length of the
  * length field of the input TLV buffer
  *
- * \param tlv_buf pointer to the input TLV buffer
- * \param len pointer for getting the length of length field, in bytes,
+ * \param len_buf pointer to the TLV's length buffer
+ * \param len_buf_length length of the TLV's length buffer, in bytes
+ * \param data_len pointer for getting the data len from length field, in bytes,
  *
  * \return number of bytes representing the length
  */
-uint32_t get_tlv_data_len(uint8_t *tlv_buf, uint32_t *len);
+uint32_t get_tlv_data_len(uint8_t *len_buf,
+			  uint32_t len_buf_length,
+			  uint32_t *data_len);
 /**
  * return the index of the next TLV data buffer
  *
@@ -225,6 +228,7 @@ uint32_t get_tlv_data_len(uint8_t *tlv_buf, uint32_t *len);
  * \param tag TAG of the data buffer which is to be fetched from TLV
  * \param tag_len length of the tag in bytes
  * \param tlv_buf pointer to the input TLV buffer
+ * \param tlv_buf_len length of the TLV buffer, in bytes
  *
  * \return index of the next TLV data buffer
  */
@@ -232,5 +236,6 @@ uint32_t decode_from_tlv_buf(uint8_t **data,
 			     uint32_t *len,
 			     uint8_t tag,
 			     uint8_t tag_len,
-			     uint8_t *tlv_buf);
+			     uint8_t *tlv_buf,
+			     uint32_t tlv_buf_len);
 #endif

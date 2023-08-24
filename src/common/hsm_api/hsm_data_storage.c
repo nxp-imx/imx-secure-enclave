@@ -305,7 +305,8 @@ uint8_t decode_enc_data_tlv(op_data_storage_args_t *args)
 						 &uuid_len,
 						 ENC_DATA_TLV_DEV_UUID_TAG,
 						 ENC_DATA_TLV_DEV_UUID_TAG_LEN,
-						 &args->data[next_tlv_data_idx]);
+						 &args->data[next_tlv_data_idx],
+						 args->data_size - next_tlv_data_idx);
 
 	if (next_tlv_data_idx >= args->data_size)
 		goto out;
@@ -315,7 +316,8 @@ uint8_t decode_enc_data_tlv(op_data_storage_args_t *args)
 						    &iv_len,
 						    ENC_DATA_TLV_IV_TAG,
 						    ENC_DATA_TLV_IV_TAG_LEN,
-						    &args->data[next_tlv_data_idx]));
+						    &args->data[next_tlv_data_idx],
+						    args->data_size - next_tlv_data_idx));
 
 	if (next_tlv_data_idx >= args->data_size)
 		goto out;
@@ -325,7 +327,8 @@ uint8_t decode_enc_data_tlv(op_data_storage_args_t *args)
 						    &args->ciphertext_len,
 						    ENC_DATA_TLV_ENC_DATA_TAG,
 						    ENC_DATA_TLV_ENC_DATA_TAG_LEN,
-						    &args->data[next_tlv_data_idx]));
+						    &args->data[next_tlv_data_idx],
+						    args->data_size - next_tlv_data_idx));
 
 	if (next_tlv_data_idx >= args->data_size)
 		goto out;
@@ -334,7 +337,8 @@ uint8_t decode_enc_data_tlv(op_data_storage_args_t *args)
 			    &signature_len,
 			    ENC_DATA_TLV_SIGN_TAG,
 			    ENC_DATA_TLV_SIGN_TAG_LEN,
-			    &args->data[next_tlv_data_idx]);
+			    &args->data[next_tlv_data_idx],
+			    args->data_size - next_tlv_data_idx);
 
 	args->uuid_len = TO_UINT16_T(uuid_len);
 	args->iv_len = TO_UINT16_T(iv_len);

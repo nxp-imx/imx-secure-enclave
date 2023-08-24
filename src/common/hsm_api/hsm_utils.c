@@ -208,33 +208,39 @@ hsm_err_t sab_rating_to_hsm_err(uint32_t sab_err)
 	return hsm_err;
 }
 
-uint32_t get_tlv_data_len(uint8_t *tlv_buf, uint32_t *len)
+uint32_t get_tlv_data_len(uint8_t *len_buf,
+			  uint32_t len_buf_length,
+			  uint32_t *data_len)
 {
-	if (!tlv_buf)
+	if (!len_buf)
 		return 0;
 
 	uint8_t len_of_len = 0;
 	uint32_t temp_len = 0;
 	uint8_t i = 0;
 
-	if (tlv_buf[0] < TLV_LEN_GREATER_THAN_ONE_BYTE) {
-		temp_len = tlv_buf[0];
+	if (len_buf[0] < TLV_LEN_GREATER_THAN_ONE_BYTE) {
+		temp_len = len_buf[0];
 	} else {
 		/**
 		 * Read number of bytes containing the length of TLV variable
 		 * Length field, in case it is greater than 127 bytes.
 		 */
-		len_of_len = tlv_buf[0] & 0x0F;
+		len_of_len = len_buf[0] & 0x0F;
+
+		if (len_of_len >= len_buf_length)
+			goto out;
 
 		while (i < len_of_len) {
 			i++;
 			temp_len <<= 8;
-			temp_len = temp_len | tlv_buf[i];
+			temp_len = temp_len | len_buf[i];
 		}
 	}
 
-	if (len)
-		*len = temp_len;
+out:
+	if (data_len)
+		*data_len = temp_len;
 
 	return len_of_len + 1;
 }
@@ -243,18 +249,26 @@ uint32_t decode_from_tlv_buf(uint8_t **data,
 			     uint32_t *len,
 			     uint8_t tag,
 			     uint8_t tag_len,
-			     uint8_t *tlv_buf)
+			     uint8_t *tlv_buf,
+			     uint32_t tlv_buf_len)
 {
 	uint64_t next_tlv_data_buf_idx = 0;
 	uint8_t len_of_len;
 
-	if (!data || !len || !tlv_buf)
+	if (!data || !len || !tlv_buf || !tlv_buf_len)
 		goto out;
 
 	if (tlv_buf[0] != tag)
 		goto out;
 
-	len_of_len = get_tlv_data_len(&tlv_buf[tag_len], len);
+	if (tag_len >= tlv_buf_len) {
+		next_tlv_data_buf_idx = tag_len;
+		goto out;
+	}
+
+	len_of_len = get_tlv_data_len(&tlv_buf[tag_len],
+				      tlv_buf_len - tag_len,
+				      len);
 
 	if (*len) {
 		*data = plat_os_abs_malloc(*len);
@@ -263,7 +277,11 @@ uint32_t decode_from_tlv_buf(uint8_t **data,
 			goto out;
 		}
 
-		plat_os_abs_memcpy(*data, &tlv_buf[tag_len + len_of_len], *len);
+		if (((tag_len + len_of_len) < tlv_buf_len) &&
+		    (*len <= (tlv_buf_len - tag_len - len_of_len)))
+			plat_os_abs_memcpy(*data,
+					   &tlv_buf[tag_len + len_of_len],
+					   *len);
 	}
 
 	next_tlv_data_buf_idx = tag_len + len_of_len + *len;

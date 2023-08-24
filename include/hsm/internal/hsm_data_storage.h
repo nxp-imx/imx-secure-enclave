@@ -70,6 +70,10 @@ typedef struct {
 	 * In case RETRIEVE, if the data retrieved is in TLV format
 	 * which was stored by Encrypted Data Storage API. The TLV
 	 * format data will be decoded to fill the following fields.
+	 * Memory for storing uuid/iv/ciphertext/payload/signature
+	 * will be allocated by HSM library.
+	 * Caller of the function decode_enc_data_tlv(), needs to
+	 * ensure freeing up memory.
 	 */
 	uint16_t uuid_len;
 	//!< Device UUID length in bytes

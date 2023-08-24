@@ -370,6 +370,25 @@ void enc_data_storage_test(hsm_hdl_t key_mgmt_hdl, hsm_hdl_t key_store_hdl)
 		printf("Fail: Decrypted data doesn't match stored Plain data\n\n");
 
 	/**
+	 * Freeing memory allocated by HSM library, after using
+	 * decode_enc_data_tlv().
+	 */
+	if (data_storage_args.uuid)
+		free(data_storage_args.uuid);
+
+	if (data_storage_args.iv)
+		free(data_storage_args.iv);
+
+	if (data_storage_args.ciphertext)
+		free(data_storage_args.ciphertext);
+
+	if (data_storage_args.signature)
+		free(data_storage_args.signature);
+
+	if (data_storage_args.payload)
+		free(data_storage_args.payload);
+
+	/**
 	 * Retrieve again, the encrypted and signed data previously stored in
 	 * NVM. If Read Once flag, was set during storing the data, the stored
 	 * data will be erased and overwritten with 0s.
