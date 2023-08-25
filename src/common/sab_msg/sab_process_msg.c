@@ -13,6 +13,15 @@
 #include "plat_os_abs.h"
 #include "plat_utils.h"
 
+static struct eng_op ep = {
+	.cancel_signal = 0
+};
+
+void send_cancel_signal_to_engine(void)
+{
+	ep.cancel_signal = 1;
+}
+
 static uint32_t (*prepare_sab_msg[MAX_MSG_TYPE - 1][SAB_MSG_MAX_ID])
 						(void *phdl, void *cmd_buf,
 						 void *rsp_buf,
@@ -143,6 +152,11 @@ uint32_t process_sab_msg(struct plat_os_abs_hdl *phdl,
 		}
 	}
 
+	if (ep.cancel_signal) {
+		ep.cancel_signal = 0;
+		return SAB_SHE_GENERAL_ERROR_RATING;
+	}
+
 #ifdef DEBUG
 	printf("\n---------- MSG Command with msg id[0x%x] = %d -------------\n", msg_id, msg_id);
 	hexdump(cmd, cmd_msg_sz/sizeof(uint32_t));
@@ -157,6 +171,11 @@ uint32_t process_sab_msg(struct plat_os_abs_hdl *phdl,
 	if (error) {
 		error = SAB_NO_MESSAGE_RATING;
 		goto out;
+	}
+
+	if (ep.cancel_signal) {
+		ep.cancel_signal = 0;
+		return SAB_SHE_GENERAL_ERROR_RATING;
 	}
 
 	/* Add CRC in response if needed */

@@ -96,4 +96,15 @@ uint32_t she_get_last_rating_code(she_hdl_t session_hdl);
 
 /** @} end of last rating code group */
 
+/**
+ *  @defgroup group12 CMD_CANCEL
+ *  \ingroup group100
+ *  @{
+ */
+/**
+ * interrupt any given function and discard all calculations and results.
+ */
+void she_cmd_cancel(void);
+/** @} end of CANCEL group */
+
 #endif

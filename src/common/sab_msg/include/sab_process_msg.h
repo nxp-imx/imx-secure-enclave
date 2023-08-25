@@ -22,6 +22,10 @@ typedef enum {
 	ALREADY_DONE
 } sab_msg_init_info_t;
 
+struct eng_op {
+	uint8_t cancel_signal;
+};
+
 sab_msg_init_info_t add_sab_msg_handler(uint32_t msg_id, msg_type_t msg_type,
 					uint32_t (*prep_sab_msg_handler)
 								(void *phdl,
@@ -74,4 +78,5 @@ void init_proc_sab_msg_rcv_eng(msg_type_t msg_type,
 void init_sab_hsm_msg_engine(msg_type_t msg_type);
 void init_sab_nvm_msg_engine(msg_type_t msg_type);
 void init_sab_she_msg_engine(msg_type_t msg_type);
+void send_cancel_signal_to_engine(void);
 #endif
