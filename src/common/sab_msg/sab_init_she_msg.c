@@ -42,6 +42,10 @@
 #include "sab_key_update.h"
 #endif
 
+#if MT_SAB_PLAIN_KEY
+#include "sab_load_plain_key.h"
+#endif
+
 static  int init_proc_sab_she_msg_engine(msg_type_t msg_type,
 					 uint32_t msg_id)
 {
@@ -194,6 +198,16 @@ static  int init_proc_sab_she_msg_engine(msg_type_t msg_type,
 		}
 		break;
 #endif
+#if MT_SAB_PLAIN_KEY
+	case SAB_SHE_PLAIN_KEY_UPDATE:
+		if (msg_type == MT_SAB_PLAIN_KEY) {
+			ret = add_sab_msg_handler(msg_id, MT_SAB_PLAIN_KEY,
+						  prepare_msg_load_plain_key,
+						  proc_msg_rsp_load_plain_key);
+		}
+		break;
+#endif
+
 	default:
 		break;
 	}

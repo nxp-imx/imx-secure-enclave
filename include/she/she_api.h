@@ -47,6 +47,10 @@
 #include "internal/she_key_update.h"
 #endif
 
+#if MT_SAB_PLAIN_KEY
+#include "internal/she_load_plain_key.h"
+#endif
+
 /**
  *  @defgroup group1 Session
  *  @{

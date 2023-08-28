@@ -10,10 +10,6 @@
 #include "sab_msg_def.h"
 
 /* Update key */
-
-#define M1_M3_M5_KEY_SIZE_IN_WORDS	(SHE_KEY_SIZE_IN_BYTES >> 2)
-#define M2_M4_KEY_SIZE_IN_WORDS		(SHE_KEY_SIZE_IN_BYTES >> 1)
-
 struct sab_she_key_update_msg {
 	struct sab_mu_hdr hdr;
 	uint32_t utils_handle;

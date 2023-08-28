@@ -45,6 +45,7 @@ MT_SAB_UTILS		:=	${FMW}
 MT_SAB_GET_STATUS	:=	${FMW}
 MT_SAB_KEY_UPDATE	:=	${FMW}
 MT_SAB_CANCEL		:=	${FMW}
+MT_SAB_PLAIN_KEY	:=	${FMW}
 
 # API(s) supported by ROM
 MT_SAB_DEBUG_DUMP	:=	${ROM}

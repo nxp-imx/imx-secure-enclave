@@ -59,6 +59,12 @@ SHE_API_SRC	+= \
 		$(PLAT_COMMON_PATH)/she_api/she_cancel.o
 endif
 
+ifneq (${MT_SAB_PLAIN_KEY},0x0)
+DEFINES		+=	-DSHE_PLAIN_KEY
+SHE_API_SRC	+= \
+		$(PLAT_COMMON_PATH)/she_api/she_load_plain_key.o
+endif
+
 OBJECTS		+= $(SHE_API_SRC)
 
 INCLUDE_PATHS	+= \

@@ -8,33 +8,13 @@
 
 #include "internal/she_handle.h"
 #include "internal/she_utils.h"
+#include "internal/she_key.h"
 
 /**
  * @defgroup group9 CMD_LOAD_KEY
  * \ingroup group100
  * @{
  */
-
-/**
- * SHE keys are 128 bits (16 bytes) long.
- */
-#define SHE_KEY_SIZE_IN_BYTES	16u
-
-/**
- * Identifiers for SHE keys.
- * Refer SHE specification for more information.
- */
-#define SHE_KEY_1	(0x04)
-#define SHE_KEY_2	(0x05)
-#define SHE_KEY_3	(0x06)
-#define SHE_KEY_4	(0x07)
-#define SHE_KEY_5	(0x08)
-#define SHE_KEY_6	(0x09)
-#define SHE_KEY_7	(0x0a)
-#define SHE_KEY_8	(0x0b)
-#define SHE_KEY_9	(0x0c)
-#define SHE_KEY_10	(0x0d)
-#define SHE_RAM_KEY	(0x0e)
 
 /**
  * Structure describing the key update operation arguments
