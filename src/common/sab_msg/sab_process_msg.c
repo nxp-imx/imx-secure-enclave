@@ -176,8 +176,13 @@ uint32_t process_sab_msg(struct plat_os_abs_hdl *phdl,
 
 	*rsp_code = (*(rsp + 1));
 
-	if (SAB_STATUS_SUCCESS(msg_type) != *rsp_code)
-		sab_err_map(msg_id, *rsp_code);
+	/* Debug prints for any case other than success.
+	 * - print error.
+	 * - print waring with success.
+	 */
+	if (SAB_STATUS_SUCCESS(msg_type) != GET_STATUS_CODE(*rsp_code) ||
+	    GET_RATING_CODE(*rsp_code) != SAB_NO_MESSAGE_RATING)
+		sab_err_map(msg_type, msg_id, *rsp_code);
 
 	if (process_sab_msg_rsp[msg_type - 1][msg_id] == NULL) {
 		error = SAB_NO_MESSAGE_RATING;

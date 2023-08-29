@@ -432,7 +432,7 @@ uint32_t sab_open_sm2_eces(struct plat_os_abs_hdl *phdl,
 		if (error != 0)
 			break;
 
-		sab_err_map(SAB_SM2_ECES_DEC_OPEN_REQ, rsp.rsp_code);
+		sab_err_map(SAB_MSG, SAB_SM2_ECES_DEC_OPEN_REQ, rsp.rsp_code);
 
 		ret = rsp.rsp_code;
 		*sm2_eces_handle = rsp.sm2_eces_handle;
@@ -468,7 +468,7 @@ uint32_t sab_close_sm2_eces(struct plat_os_abs_hdl *phdl,
 		if (error != 0)
 			break;
 
-		sab_err_map(SAB_SM2_ECES_DEC_CLOSE_REQ, rsp.rsp_code);
+		sab_err_map(SAB_MSG, SAB_SM2_ECES_DEC_CLOSE_REQ, rsp.rsp_code);
 
 		ret = rsp.rsp_code;
 	} while (false);
@@ -554,7 +554,7 @@ hsm_err_t hsm_butterfly_key_expansion(hsm_hdl_t key_management_hdl,
 		if (error != 0)
 			break;
 
-		sab_err_map(SAB_BUT_KEY_EXP_REQ, rsp.rsp_code);
+		sab_err_map(SAB_MSG, SAB_BUT_KEY_EXP_REQ, rsp.rsp_code);
 
 		err = sab_rating_to_hsm_err(rsp.rsp_code);
 		if (err == HSM_NO_ERROR &&
@@ -640,7 +640,7 @@ hsm_err_t hsm_ecies_decryption(hsm_hdl_t cipher_hdl, op_ecies_dec_args_t *args)
 		if (error != 0)
 			break;
 
-		sab_err_map(SAB_CIPHER_ECIES_DECRYPT_REQ, rsp.rsp_code);
+		sab_err_map(SAB_MSG, SAB_CIPHER_ECIES_DECRYPT_REQ, rsp.rsp_code);
 
 		err = sab_rating_to_hsm_err(rsp.rsp_code);
 
@@ -697,7 +697,7 @@ hsm_err_t hsm_import_public_key(hsm_hdl_t signature_ver_hdl,
 		if (error != 0)
 			break;
 
-		sab_err_map(SAB_IMPORT_PUB_KEY, rsp.rsp_code);
+		sab_err_map(SAB_MSG, SAB_IMPORT_PUB_KEY, rsp.rsp_code);
 
 		err = sab_rating_to_hsm_err(rsp.rsp_code);
 		*key_ref = rsp.key_ref;
@@ -782,7 +782,7 @@ hsm_err_t hsm_pub_key_reconstruction(hsm_hdl_t session_hdl,
 		if (error != 0)
 			break;
 
-		sab_err_map(SAB_PUB_KEY_RECONSTRUCTION_REQ, rsp.rsp_code);
+		sab_err_map(SAB_MSG, SAB_PUB_KEY_RECONSTRUCTION_REQ, rsp.rsp_code);
 
 		err = sab_rating_to_hsm_err(rsp.rsp_code);
 	} while (false);
@@ -849,7 +849,7 @@ hsm_err_t hsm_pub_key_decompression(hsm_hdl_t session_hdl,
 		if (error != 0)
 			break;
 
-		sab_err_map(SAB_PUB_KEY_DECOMPRESSION_REQ, rsp.rsp_code);
+		sab_err_map(SAB_MSG, SAB_PUB_KEY_DECOMPRESSION_REQ, rsp.rsp_code);
 
 		err = sab_rating_to_hsm_err(rsp.rsp_code);
 	} while (false);
@@ -940,7 +940,7 @@ hsm_err_t hsm_ecies_encryption(hsm_hdl_t session_hdl, op_ecies_enc_args_t *args)
 		if (error != 0)
 			break;
 
-		sab_err_map(SAB_ECIES_ENC_REQ, rsp.rsp_code);
+		sab_err_map(SAB_MSG, SAB_ECIES_ENC_REQ, rsp.rsp_code);
 
 		err = sab_rating_to_hsm_err(rsp.rsp_code);
 	} while (false);
@@ -1004,7 +1004,7 @@ hsm_err_t hsm_export_root_key_encryption_key(hsm_hdl_t session_hdl,
 		if (error != 0)
 			break;
 
-		sab_err_map(SAB_ROOT_KEK_EXPORT_REQ, rsp.rsp_code);
+		sab_err_map(SAB_MSG, SAB_ROOT_KEK_EXPORT_REQ, rsp.rsp_code);
 
 		err = sab_rating_to_hsm_err(rsp.rsp_code);
 
@@ -1077,7 +1077,7 @@ hsm_err_t hsm_sm2_get_z(hsm_hdl_t session_hdl, op_sm2_get_z_args_t *args)
 		if (error != 0)
 			break;
 
-		sab_err_map(SAB_SM2_GET_Z_REQ, rsp.rsp_code);
+		sab_err_map(SAB_MSG, SAB_SM2_GET_Z_REQ, rsp.rsp_code);
 
 		err = sab_rating_to_hsm_err(rsp.rsp_code);
 	} while (false);
@@ -1151,7 +1151,7 @@ hsm_err_t hsm_sm2_eces_encryption(hsm_hdl_t session_hdl, op_sm2_eces_enc_args_t 
 		if (error != 0)
 			break;
 
-		sab_err_map(SAB_SM2_ECES_ENC_REQ, rsp.rsp_code);
+		sab_err_map(SAB_MSG, SAB_SM2_ECES_ENC_REQ, rsp.rsp_code);
 
 		err = sab_rating_to_hsm_err(rsp.rsp_code);
 	} while (false);
@@ -1285,7 +1285,7 @@ hsm_err_t hsm_sm2_eces_decryption(hsm_hdl_t sm2_eces_hdl, op_sm2_eces_dec_args_t
 		if (error != 0)
 			break;
 
-		sab_err_map(SAB_SM2_ECES_DEC_REQ, rsp.rsp_code);
+		sab_err_map(SAB_MSG, SAB_SM2_ECES_DEC_REQ, rsp.rsp_code);
 
 		err = sab_rating_to_hsm_err(rsp.rsp_code);
 	} while (false);
@@ -1386,7 +1386,7 @@ hsm_err_t hsm_key_exchange(hsm_hdl_t key_management_hdl, op_key_exchange_args_t 
 		if (error != 0)
 			break;
 
-		sab_err_map(SAB_KEY_EXCHANGE_REQ, rsp.rsp_code);
+		sab_err_map(SAB_MSG, SAB_KEY_EXCHANGE_REQ, rsp.rsp_code);
 
 		err = sab_rating_to_hsm_err(rsp.rsp_code);
 
@@ -1453,7 +1453,7 @@ hsm_err_t hsm_tls_finish(hsm_hdl_t key_management_hdl, op_tls_finish_args_t *arg
 		if (error != 0)
 			break;
 
-		sab_err_map(SAB_TLS_FINISH_REQ, rsp.rsp_code);
+		sab_err_map(SAB_MSG, SAB_TLS_FINISH_REQ, rsp.rsp_code);
 
 		err = sab_rating_to_hsm_err(rsp.rsp_code);
 
@@ -1538,7 +1538,7 @@ hsm_err_t hsm_standalone_butterfly_key_expansion(hsm_hdl_t key_management_hdl,
 		if (error != 0)
 			break;
 
-		sab_err_map(SAB_ST_BUT_KEY_EXP_REQ, rsp.rsp_code);
+		sab_err_map(SAB_MSG, SAB_ST_BUT_KEY_EXP_REQ, rsp.rsp_code);
 
 		err = sab_rating_to_hsm_err(rsp.rsp_code);
 		if (err  == HSM_NO_ERROR &&
@@ -1605,7 +1605,7 @@ hsm_err_t hsm_open_key_generic_crypto_service(hsm_hdl_t session_hdl,
 			break;
 		}
 
-		sab_err_map(SAB_KEY_GENERIC_CRYPTO_SRV_OPEN_REQ, rsp.rsp_code);
+		sab_err_map(SAB_MSG, SAB_KEY_GENERIC_CRYPTO_SRV_OPEN_REQ, rsp.rsp_code);
 
 		err = sab_rating_to_hsm_err(rsp.rsp_code);
 		if (err != HSM_NO_ERROR) {
@@ -1652,7 +1652,9 @@ hsm_err_t hsm_close_key_generic_crypto_service(hsm_hdl_t key_generic_crypto_hdl)
 						   (uint32_t *)&rsp,
 						   rsp_msg_sz);
 		if (error == 0) {
-			sab_err_map(SAB_KEY_GENERIC_CRYPTO_SRV_CLOSE_REQ, rsp.rsp_code);
+			sab_err_map(SAB_MSG,
+				    SAB_KEY_GENERIC_CRYPTO_SRV_CLOSE_REQ,
+				    rsp.rsp_code);
 			err = sab_rating_to_hsm_err(rsp.rsp_code);
 		}
 		delete_service(serv_ptr);
@@ -1747,7 +1749,7 @@ hsm_err_t hsm_key_generic_crypto(hsm_hdl_t key_generic_crypto_hdl,
 		if (error != 0)
 			break;
 
-		sab_err_map(SAB_KEY_GENERIC_CRYPTO_SRV_REQ, rsp.rsp_code);
+		sab_err_map(SAB_MSG, SAB_KEY_GENERIC_CRYPTO_SRV_REQ, rsp.rsp_code);
 
 		err = sab_rating_to_hsm_err(rsp.rsp_code);
 
