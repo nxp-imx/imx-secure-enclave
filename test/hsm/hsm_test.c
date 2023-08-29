@@ -436,16 +436,18 @@ static void transient_key_tests(hsm_hdl_t sess_hdl, hsm_hdl_t key_store_hdl)
 	printf("hsm_butterfly_key_expansion ret:0x%x\n", hsmret);
 #endif
 
-	memset(&open_sig_gen_args, 0, sizeof(open_sig_gen_args));
-	hsmret = hsm_open_signature_generation_service(key_store_hdl,
-					&open_sig_gen_args, &sig_gen_hdl);
-	printf("hsm_open_signature_generation_service ret:0x%x\n", hsmret);
 #ifdef SECONDARY_API_SUPPORTED
 	hsm_sign_verify_tests(sess_hdl, key_store_hdl, master_key_id,
 			      signature_data, sizeof(signature_data),
 			      hash_data, sizeof(hash_data),
 			      pub_key, sizeof(pub_key));
 #else
+	memset(&open_sig_gen_args, 0, sizeof(open_sig_gen_args));
+	hsmret = hsm_open_signature_generation_service(key_store_hdl,
+						       &open_sig_gen_args,
+						       &sig_gen_hdl);
+	printf("hsm_open_signature_generation_service ret:0x%x\n", hsmret);
+
 	memset(&sig_gen_args, 0, sizeof(sig_gen_args));
 #ifdef CONFIG_PLAT_SECO
 	sig_gen_args.key_identifier = butterfly_key_id;
