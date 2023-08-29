@@ -10,11 +10,13 @@
 #include "test_utils_tv.h"
 #include "plat_utils.h"
 
-static void data_storage_test_run(hsm_hdl_t key_store_hdl, uint16_t data_id,
-						uint32_t data_size, uint8_t *data,
-						hsm_op_data_storage_flags_t flags,
-						uint8_t exp_data_storage_hsm_rsp,
-						int8_t *test_status)
+static void data_storage_test_run(hsm_hdl_t key_store_hdl,
+				  uint32_t data_id,
+				  uint32_t data_size,
+				  uint8_t *data,
+				  hsm_op_data_storage_flags_t flags,
+				  uint8_t exp_data_storage_hsm_rsp,
+				  int8_t *test_status)
 {
 	hsm_err_t hsmret = HSM_GENERAL_ERROR;
 	op_data_storage_args_t data_storage_args = {0};
@@ -97,7 +99,7 @@ static int8_t prepare_and_run_data_storage_test(hsm_hdl_t key_store_hdl, FILE *f
 
 	uint8_t *data = NULL;
 	uint32_t data_size = 0;
-	uint16_t data_id = 0;
+	uint32_t data_id = 0;
 	hsm_op_data_storage_flags_t flags;
 	uint8_t exp_data_storage_hsm_rsp = 0;
 
@@ -132,7 +134,7 @@ static int8_t prepare_and_run_data_storage_test(hsm_hdl_t key_store_hdl, FILE *f
 
 		if (strcmp(param_name, "DATA_ID") == 0) {
 
-			data_id = (uint16_t)parse_param_value(param_value_token,
+			data_id = (uint32_t)parse_param_value(param_value_token,
 							param_name, &input_ctr, &invalid_read);
 
 		} else if (strcmp(param_name, "DATA_SIZE") == 0) {

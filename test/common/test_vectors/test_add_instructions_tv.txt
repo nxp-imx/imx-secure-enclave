@@ -367,7 +367,7 @@ FORMAT and PARAMETERS for DATA STORAGE Tests:
 #Test Description (Optional line)
 TEST_DATA_STORAGE_<PSA/NON_PSA>_5<n>_<a/b>
 
-DATA_ID           HEX (uint16_t)  #Identifier of the data block
+DATA_ID           HEX (uint32_t)  #Identifier of the data block
 DATA_SIZE         DEC (uint32_t)  #Data Size provided before input Data buffer
 
 DATA       	DEC (again mention DATA_SIZE) #Next line have ', ' separated values
