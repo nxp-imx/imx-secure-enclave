@@ -434,6 +434,12 @@ static void transient_key_tests(hsm_hdl_t sess_hdl, hsm_hdl_t key_store_hdl)
 	butterfly_gen_args.key_info = HSM_KEY_INFO_TRANSIENT;
 	hsmret = hsm_butterfly_key_expansion(key_mgmt_hdl, &butterfly_gen_args);
 	printf("hsm_butterfly_key_expansion ret:0x%x\n", hsmret);
+
+	key_management(DELETE,
+		       key_mgmt_hdl,
+		       &butterfly_key_id,
+		       101,
+		       HSM_KEY_TYPE_ECDSA_NIST_P256);
 #endif
 
 #ifdef SECONDARY_API_SUPPORTED
@@ -504,9 +510,6 @@ static void transient_key_tests(hsm_hdl_t sess_hdl, hsm_hdl_t key_store_hdl)
 	printf("hsm_close_signature_verification_service ret:0x%x\n", hsmret);
 #endif
 
-#ifdef CONFIG_PLAT_SECO
-	key_management(DELETE, key_mgmt_hdl, &butterfly_key_id, 101, HSM_KEY_TYPE_ECDSA_NIST_P256);
-#endif
 	memset(&key_gen_args, 0, sizeof(key_gen_args));
 	key_gen_args.key_identifier = &sym_key_id;
 	key_gen_args.out_size = 0;
@@ -595,13 +598,12 @@ static void transient_key_tests(hsm_hdl_t sess_hdl, hsm_hdl_t key_store_hdl)
 
 #ifdef PSA_COMPLIANT
 	key_management(KEYATTR, key_mgmt_hdl, &sym_key_id, 50, HSM_KEY_TYPE_AES);
+	key_management(DELETE, key_mgmt_hdl, &sym_key_id, 50, HSM_KEY_TYPE_AES);
+#else
+	key_management(DELETE, key_mgmt_hdl, &sym_key_id, 50, HSM_KEY_TYPE_AES_256);
 #endif
 
-#ifndef PSA_COMPLIANT
-	key_management(DELETE, key_mgmt_hdl, &sym_key_id, 50, HSM_KEY_TYPE_AES_256);
-#else
-	key_management(DELETE, key_mgmt_hdl, &sym_key_id, 50, HSM_KEY_TYPE_AES);
-
+#ifdef PSA_COMPLIANT
 	printf("----------------------------------------------------------\n");
 	printf("Import Key Test\n");
 	printf("----------------------------------------------------------\n");
@@ -760,13 +762,6 @@ int main(int argc, char *argv[])
 #endif
 #endif
 	transient_key_tests(hsm_session_hdl, key_store_hdl);
-
-#ifdef FW_ISSUE
-	/* Data size = 4 works fine with all the previous cases occupying the
-	 * firmware heap.
-	 */
-	data_storage_test(key_store_hdl, 4);
-#endif
 
 #ifdef PSA_COMPLIANT
 	if (global_info.soc_id == SOC_IMX93 &&
