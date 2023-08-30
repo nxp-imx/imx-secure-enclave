@@ -31,6 +31,7 @@ MT_SAB_GET_INFO		:=	${FMW}
 MT_SAB_AUTH_ENC		:=	${FMW}
 MT_SAB_DATA_STORAGE	:=	${FMW}
 MT_SAB_ENC_DATA_STORAGE	:=	${FMW}
+MT_SAB_SM2_GET_Z	:=      ${NOT_SUPPORTED}
 
 
 # Below SHE APIs will be supported on i.mx95 only.

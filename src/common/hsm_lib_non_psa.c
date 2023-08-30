@@ -175,29 +175,6 @@ struct sab_root_kek_export_rsp {
 	uint32_t rsp_code;
 };
 
-/* SM2 Get Z */
-struct sab_cmd_sm2_get_z_msg {
-	struct sab_mu_hdr hdr;
-	uint32_t session_handle;
-	uint32_t input_address_ext;
-	uint32_t public_key_address;
-	uint32_t id_address;
-	uint32_t output_address_ext;
-	uint32_t z_value_address;
-	uint16_t public_key_size;
-	uint8_t id_size;
-	uint8_t z_size;
-	uint8_t key_type;
-	uint8_t flags;
-	uint16_t reserved;
-	uint32_t crc;
-};
-
-struct sab_cmd_sm2_get_z_rsp {
-	struct sab_mu_hdr hdr;
-	uint32_t rsp_code;
-};
-
 /* SM2 ECES ENC */
 struct sab_cmd_sm2_eces_enc_msg {
 	struct sab_mu_hdr hdr;
@@ -1008,78 +985,6 @@ hsm_err_t hsm_export_root_key_encryption_key(hsm_hdl_t session_hdl,
 
 		err = sab_rating_to_hsm_err(rsp.rsp_code);
 
-	} while (false);
-
-	return err;
-}
-
-hsm_err_t hsm_sm2_get_z(hsm_hdl_t session_hdl, op_sm2_get_z_args_t *args)
-{
-	struct sab_cmd_sm2_get_z_msg cmd;
-	struct sab_cmd_sm2_get_z_rsp rsp;
-	uint32_t cmd_msg_sz = sizeof(struct sab_cmd_sm2_get_z_msg);
-	uint32_t rsp_msg_sz = sizeof(struct sab_cmd_sm2_get_z_rsp);
-	int32_t error;
-	struct hsm_session_hdl_s *sess_ptr;
-	hsm_err_t err = HSM_GENERAL_ERROR;
-
-	do {
-		if (!args || !session_hdl)
-			break;
-
-		sess_ptr = session_hdl_to_ptr(session_hdl);
-		if (!sess_ptr) {
-			err = HSM_UNKNOWN_HANDLE;
-			break;
-		}
-
-		plat_fill_cmd_msg_hdr(&cmd.hdr,
-				      SAB_SM2_GET_Z_REQ,
-				      cmd_msg_sz,
-				      sess_ptr->mu_type);
-
-		cmd.session_handle = session_hdl;
-		cmd.input_address_ext = 0u;
-		set_phy_addr_to_words(&cmd.public_key_address,
-				      0u,
-				      plat_os_abs_data_buf(sess_ptr->phdl,
-							   args->public_key,
-							   args->public_key_size,
-							   DATA_BUF_IS_INPUT));
-		set_phy_addr_to_words(&cmd.id_address,
-				      0u,
-				      plat_os_abs_data_buf(sess_ptr->phdl,
-							   args->identifier,
-							   args->id_size,
-							   DATA_BUF_IS_INPUT));
-		cmd.output_address_ext = 0U;
-		set_phy_addr_to_words(&cmd.z_value_address,
-				      0u,
-				      plat_os_abs_data_buf(sess_ptr->phdl,
-							   args->z_value,
-							   args->z_size,
-							   0u));
-		cmd.public_key_size = args->public_key_size;
-		cmd.id_size = args->id_size;
-		cmd.z_size = args->z_size;
-		cmd.key_type = args->key_type;
-		cmd.flags = args->flags;
-		cmd.reserved = 0u;
-		cmd.crc = 0u;
-		cmd.crc = plat_compute_msg_crc((uint32_t *)&cmd,
-					       (uint32_t)(sizeof(cmd) - sizeof(uint32_t)));
-
-		error = plat_send_msg_and_get_resp(sess_ptr->phdl,
-						   (uint32_t *)&cmd,
-						   cmd_msg_sz,
-						   (uint32_t *)&rsp,
-						   rsp_msg_sz);
-		if (error != 0)
-			break;
-
-		sab_err_map(SAB_MSG, SAB_SM2_GET_Z_REQ, rsp.rsp_code);
-
-		err = sab_rating_to_hsm_err(rsp.rsp_code);
 	} while (false);
 
 	return err;

@@ -31,6 +31,7 @@ MT_SAB_ENC_DATA_STORAGE	:=	${NOT_SUPPORTED}
 MT_SAB_SESSION		:=	${FMW}
 MT_SAB_KEY_STORE        :=      ${FMW}
 MT_SAB_KEY_MANAGEMENT   :=      ${FMW}
+MT_SAB_SM2_GET_Z	:=      ${FMW}
 
 # Below SHE APIs will be supported on i.mx8dxl only.
 MT_SAB_SHARED_BUF	:=	${FMW}

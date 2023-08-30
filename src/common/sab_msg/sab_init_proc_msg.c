@@ -102,6 +102,10 @@
 #include "sab_auth_enc.h"
 #endif
 
+#if MT_SAB_SM2_GET_Z
+#include "sab_sm2_get_z.h"
+#endif
+
 #if MT_SAB_SESSION
 #include "sab_session.h"
 #endif
@@ -518,6 +522,15 @@ static  int init_proc_sab_hsm_msg_engine(msg_type_t msg_type,
 			ret = add_sab_msg_handler(msg_id, MT_SAB_AUTH_ENC,
 						  prepare_msg_auth_enc,
 						  proc_msg_rsp_auth_enc);
+		}
+		break;
+#endif
+#if MT_SAB_SM2_GET_Z
+	case SAB_SM2_GET_Z_REQ:
+		if (msg_type == MT_SAB_SM2_GET_Z) {
+			ret = add_sab_msg_handler(msg_id, MT_SAB_SM2_GET_Z,
+						  prepare_msg_sm2_get_z,
+						  proc_msg_rsp_sm2_get_z);
 		}
 		break;
 #endif
