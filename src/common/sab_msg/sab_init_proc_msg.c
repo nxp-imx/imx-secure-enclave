@@ -102,6 +102,10 @@
 #include "sab_auth_enc.h"
 #endif
 
+#if MT_SAB_KEY_GENERIC_CRYPTO
+#include "sab_key_generic_crypto.h"
+#endif
+
 #if MT_SAB_ST_BUT
 #include "sab_st_butterfly.h"
 #endif
@@ -538,6 +542,29 @@ static  int init_proc_sab_hsm_msg_engine(msg_type_t msg_type,
 			ret = add_sab_msg_handler(msg_id, MT_SAB_AUTH_ENC,
 						  prepare_msg_auth_enc,
 						  proc_msg_rsp_auth_enc);
+		}
+		break;
+#endif
+#if MT_SAB_KEY_GENERIC_CRYPTO
+	case SAB_KEY_GENERIC_CRYPTO_SRV_OPEN_REQ:
+		if (msg_type == MT_SAB_KEY_GENERIC_CRYPTO) {
+			ret = add_sab_msg_handler(msg_id, MT_SAB_KEY_GENERIC_CRYPTO,
+						  prepare_msg_key_generic_crypto_open,
+						  proc_msg_rsp_key_generic_crypto_open);
+		}
+		break;
+	case SAB_KEY_GENERIC_CRYPTO_SRV_CLOSE_REQ:
+		if (msg_type == MT_SAB_KEY_GENERIC_CRYPTO) {
+			ret = add_sab_msg_handler(msg_id, MT_SAB_KEY_GENERIC_CRYPTO,
+						  prepare_msg_key_generic_crypto_close,
+						  proc_msg_rsp_key_generic_crypto_close);
+		}
+		break;
+	case SAB_KEY_GENERIC_CRYPTO_SRV_REQ:
+		if (msg_type == MT_SAB_KEY_GENERIC_CRYPTO) {
+			ret = add_sab_msg_handler(msg_id, MT_SAB_KEY_GENERIC_CRYPTO,
+						  prepare_msg_key_generic_crypto,
+						  proc_msg_rsp_key_generic_crypto);
 		}
 		break;
 #endif
