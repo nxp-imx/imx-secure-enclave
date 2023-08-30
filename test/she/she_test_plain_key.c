@@ -39,6 +39,39 @@ she_err_t she_load_plain_key_test(she_hdl_t utils_handle)
 	return err;
 }
 
+she_err_t she_export_plain_key_test(she_hdl_t utils_handle)
+{
+	op_export_plain_key_args_t export_plain_key_args = {0};
+	uint8_t i = 0;
+	uint8_t m1[SHE_KEY_SIZE_IN_BYTES] = {0};
+	uint8_t m2[2 * SHE_KEY_SIZE_IN_BYTES] = {0};
+	uint8_t m3[SHE_KEY_SIZE_IN_BYTES] = {0};
+	uint8_t m4[2 * SHE_KEY_SIZE_IN_BYTES] = {0};
+	uint8_t m5[SHE_KEY_SIZE_IN_BYTES] = {0};
+	she_err_t err;
+
+	export_plain_key_args.m1 = m1;
+	export_plain_key_args.m2 = m2;
+	export_plain_key_args.m3 = m3;
+	export_plain_key_args.m4 = m4;
+	export_plain_key_args.m5 = m5;
+	export_plain_key_args.m1_size = sizeof(m1);
+	export_plain_key_args.m2_size = sizeof(m2);
+	export_plain_key_args.m3_size = sizeof(m3);
+	export_plain_key_args.m4_size = sizeof(m4);
+	export_plain_key_args.m5_size = sizeof(m5);
+
+	err = she_export_plain_key(utils_handle, &export_plain_key_args);
+	if (err) {
+		se_err("Error[0x%x]: she_export_plain_key failed.\n", err);
+		return err;
+	}
+
+	se_print("SHE EXPORT PLAIN KEY TEST --> PASSED\n");
+
+	return err;
+}
+
 she_err_t do_she_plain_key_test(she_hdl_t utils_handle)
 {
 	she_err_t err;
@@ -49,6 +82,12 @@ she_err_t do_she_plain_key_test(she_hdl_t utils_handle)
 		se_print("LOAD PLAIN KEY TEST ---> FAILED\n\n");
 	else
 		se_print("LOAD PLAIN KEY TEST ---> PASSED\n\n");
+
+	err = she_export_plain_key_test(utils_handle);
+	if (err)
+		se_print("EXPORT PLAIN KEY TEST ---> FAILED\n\n");
+	else
+		se_print("EXPORT PLAIN KEY TEST ---> PASSED\n\n");
 
 	return err;
 }

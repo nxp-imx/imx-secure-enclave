@@ -305,7 +305,8 @@ endif
 ifneq (${MT_SAB_PLAIN_KEY},0x0)
 DEFINES		+=	-DMT_SAB_PLAIN_KEY=${MT_SAB_PLAIN_KEY}
 SHE_SAB_MSG_SRC	+= \
-		$(PLAT_COMMON_PATH)/sab_msg/sab_load_plain_key.o
+		$(PLAT_COMMON_PATH)/sab_msg/sab_load_plain_key.o \
+		$(PLAT_COMMON_PATH)/sab_msg/sab_export_plain_key.o
 endif
 
 OBJECTS		+= $(SAB_MSG_SRC) \

@@ -49,6 +49,7 @@
 
 #if MT_SAB_PLAIN_KEY
 #include "internal/she_load_plain_key.h"
+#include "internal/she_export_plain_key.h"
 #endif
 
 /**

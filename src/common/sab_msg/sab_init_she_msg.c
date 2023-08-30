@@ -44,6 +44,7 @@
 
 #if MT_SAB_PLAIN_KEY
 #include "sab_load_plain_key.h"
+#include "sab_export_plain_key.h"
 #endif
 
 static  int init_proc_sab_she_msg_engine(msg_type_t msg_type,
@@ -204,6 +205,13 @@ static  int init_proc_sab_she_msg_engine(msg_type_t msg_type,
 			ret = add_sab_msg_handler(msg_id, MT_SAB_PLAIN_KEY,
 						  prepare_msg_load_plain_key,
 						  proc_msg_rsp_load_plain_key);
+		}
+		break;
+	case SAB_SHE_PLAIN_KEY_EXPORT:
+		if (msg_type == MT_SAB_PLAIN_KEY) {
+			ret = add_sab_msg_handler(msg_id, MT_SAB_PLAIN_KEY,
+						  prepare_msg_export_plain_key,
+						  proc_msg_rsp_export_plain_key);
 		}
 		break;
 #endif
