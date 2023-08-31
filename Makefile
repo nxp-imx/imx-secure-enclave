@@ -198,7 +198,7 @@ install_tests: install tests
 	cp $(TEST_COMMON_TV_PATH)/$(TEST_VECTOR_FNAME) $(DESTDIR)$(TEST_VECTOR_DEFAULT_DIR)
 	cp $(TEST_COMMON_TV_PATH)/$(TEST_BLOB_FNAME) $(DESTDIR)$(TEST_VECTOR_DEFAULT_DIR)
 
-install_version: .git/HEAD .git/index
+install_version: .git
 	echo "#ifndef SE_VERSION_H" > ${SE_VER_FILE}
 	echo "#define SE_VERSION_H" >> ${SE_VER_FILE}
 	echo "#define LIB_COMMIT_ID \"$(shell git rev-parse HEAD)\"" >> ${SE_VER_FILE}
