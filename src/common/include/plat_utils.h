@@ -39,6 +39,13 @@
 #define PLAT_WRITE_FAILURE  (0x0u)
 #define PLAT_OPEN_FAILURE   (0xFFFFFFFFu)
 
+/**
+ * Library platform error codes
+ */
+#define PLAT_MEMCPY_FAIL             0x02u
+#define PLAT_ERR_OUT_OF_MEMORY       0x03u
+#define PLAT_DATA_BUF_SETUP_FAIL     0x04u
+
 typedef enum {
 	NOT_SUPPORTED,
 	ROM_MSG,

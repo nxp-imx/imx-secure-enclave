@@ -226,6 +226,81 @@
 #define SAB_READ_FAILURE_RATING                 (0xFEu)
 #define SAB_FATAL_FAILURE_RATING                (0xFFu)
 
+/**
+ * Helps in returning PLAT errors info in addition to
+ * library error code
+ */
+#define SAB_LIB_ERR_PLAT_SHIFT                  (0x8u)
+
+/**
+ * SAB library level ratings
+ */
+#define SAB_LIB_SUCCESS                         (0xE000u)
+#define SAB_LIB_INVALID_MSG_HANDLER             (0xE300u)
+#define SAB_LIB_CMD_MSG_PREP_FAIL               (0xE400u)
+#define SAB_LIB_CMD_RSP_TRANSACT_FAIL           (0xE500u)
+#define SAB_LIB_RSP_PROC_FAIL                   (0xE600u)
+#define SAB_LIB_CRC_FAIL                        (0xE700u)
+#define SAB_LIB_ERROR                           (0xEF00u)
+
+/**
+ * Following Library error codes need to be treated same as SAB errors
+ */
+#define SAB_LIB_CMD_UNSUPPORTED \
+	(SAB_CMD_NOT_SUPPORTED_RATING << SAB_LIB_ERR_PLAT_SHIFT)
+#define SAB_LIB_CMD_INVALID \
+	(SAB_INVALID_MESSAGE_RATING << SAB_LIB_ERR_PLAT_SHIFT)
+#define SAB_LIB_SHE_CANCEL_ERROR \
+	(SAB_SHE_GENERAL_ERROR_RATING << SAB_LIB_ERR_PLAT_SHIFT)
+
+/**
+ * Engine macros for setting and comparing library error path,
+ *	-SEND MSG PATH for Prepare CMD MSG, adding CRC etc.
+ *	-RECEIVE RESP PATH for Parse RESP, Validate CRC etc.
+ */
+#define ENGN_SEND_CMD_PATH_FLAG                 (0x0u)
+#define ENGN_RCV_RESP_PATH_FLAG                 (0x00010000u)
+
+/**
+ * Macros used during setting and parsing Library error status,
+ * Path of the error received, and Plat error
+ */
+#define LIB_ERR_PATH_MASK                       (0x00FF0000u)
+#define LIB_ERR_STATUS_MASK                     (0x0000FF00u)
+#define LIB_ERR_PLAT_MASK                       (0x000000FF)
+#define LIB_ERR_PATH_SHIFT                      (0x10u)
+#define LIB_ERR_STATUS_SHIFT                    (0x8u)
+#define LIB_ERR_PLAT_SHIFT                      (0x0u)
+
+/**
+ * Set library error path(direction), library platform error
+ * in the Library error code
+ */
+#define RCVMSG_ENGN_ERR(lib_err_status) \
+		(ENGN_RCV_RESP_PATH_FLAG | \
+		 (lib_err_status) | \
+		 PLAT_SUCCESS)
+#define SENDMSG_ENGN_ERR(lib_err_status) \
+		(ENGN_SEND_CMD_PATH_FLAG | \
+		 (lib_err_status) | \
+		 PLAT_SUCCESS)
+
+/**
+ * Parse Error path(direction), Library error status, Platform error
+ * from library error code.
+ */
+#define PARSE_LIB_ERR_PATH(lib_err) \
+		((lib_err) & LIB_ERR_PATH_MASK)
+#define PARSE_LIB_ERR_STATUS(lib_err) \
+		((lib_err) & LIB_ERR_STATUS_MASK)
+#define PARSE_LIB_ERR_PLAT(lib_err) \
+		((lib_err) & LIB_ERR_PLAT_MASK)
+
+/**
+ * For ease of enhancements in SAB APIs error code
+ */
+#define SAB_LIB_STATUS(sab_lib_err)             (sab_lib_err)
+
 struct sab_mu_hdr {
     uint8_t ver;
     uint8_t size;

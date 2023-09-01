@@ -35,7 +35,7 @@ hsm_err_t hsm_close_session(hsm_hdl_t session_hdl)
 {
 	struct hsm_session_hdl_s *s_ptr;
 	hsm_err_t err = HSM_UNKNOWN_HANDLE;
-	uint32_t sab_err;
+	uint32_t lib_err;
 	uint32_t rsp_code = SAB_NO_MESSAGE_RATING;
 
 	do {
@@ -46,16 +46,17 @@ hsm_err_t hsm_close_session(hsm_hdl_t session_hdl)
 		if (!s_ptr)
 			break;
 
-		sab_err = process_sab_msg(s_ptr->phdl,
+		lib_err = process_sab_msg(s_ptr->phdl,
 					  s_ptr->mu_type,
 					  SAB_SESSION_CLOSE_REQ,
 					  MT_SAB_SESSION,
 					  session_hdl,
 					  NULL, &rsp_code);
-		err = sab_rating_to_hsm_err(sab_err);
 
+		err = lib_err_to_hsm_err(lib_err);
 		if (err != HSM_NO_ERROR)
-			se_err("HSM Error: SAB_SESSION_CLOSE_REQ [0x%x].\n", err);
+			break;
+
 		err = sab_rating_to_hsm_err(rsp_code);
 		if (err != HSM_NO_ERROR)
 			se_err("HSM RSP Error: SAB_SESSION_CLOSE_REQ [0x%x].\n", err);
@@ -76,7 +77,7 @@ hsm_err_t hsm_open_session(open_session_args_t *args, hsm_hdl_t *session_hdl)
 	struct hsm_session_hdl_s *s_ptr = NULL;
 	struct plat_mu_params mu_params;
 	hsm_err_t err = HSM_GENERAL_ERROR;
-	uint32_t sab_err;
+	uint32_t lib_err;
 	uint8_t session_priority, operating_mode;
 	uint32_t rsp_code = SAB_NO_MESSAGE_RATING;
 
@@ -127,18 +128,17 @@ hsm_err_t hsm_open_session(open_session_args_t *args, hsm_hdl_t *session_hdl)
 		args->session_priority = session_priority;
 		args->operating_mode = operating_mode;
 
-		sab_err = process_sab_msg(s_ptr->phdl,
+		lib_err = process_sab_msg(s_ptr->phdl,
 					  s_ptr->mu_type,
 					  SAB_SESSION_OPEN_REQ,
 					  MT_SAB_SESSION,
 					  s_ptr->session_hdl,
 					  args, &rsp_code);
 
-		err = sab_rating_to_hsm_err(sab_err);
-		if (err != HSM_NO_ERROR) {
-			se_err("HSM Error: SAB_SESSION_OPEN_REQ [0x%x].\n", err);
+		err = lib_err_to_hsm_err(lib_err);
+		if (err != HSM_NO_ERROR)
 			break;
-		}
+
 		err = sab_rating_to_hsm_err(rsp_code);
 		if (err != HSM_NO_ERROR) {
 			se_err("HSM RSP Error: SAB_SESSION_OPEN_REQ [0x%x].\n", err);

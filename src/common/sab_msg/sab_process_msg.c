@@ -39,12 +39,12 @@ static uint32_t prep_sab_msg_not_supported(void *phdl, void *cmd_buf,
 					   uint32_t msg_hdl, void *args)
 {
 	printf("Error: CMD not supported.\n");
-	return SAB_CMD_NOT_SUPPORTED_RATING;
+	return SAB_LIB_STATUS(SAB_LIB_CMD_UNSUPPORTED);
 }
 
 static uint32_t proc_sab_msg_rsp_not_supported(void *rsp_buf, void *args)
 {
-	return SAB_CMD_NOT_SUPPORTED_RATING;
+	return SAB_LIB_STATUS(SAB_LIB_CMD_UNSUPPORTED);
 }
 
 sab_msg_init_info_t add_sab_msg_handler(uint32_t msg_id, msg_type_t msg_type,
@@ -99,6 +99,18 @@ static void hexdump(uint32_t buf[], uint32_t size)
 }
 #endif
 
+static uint8_t err_handling_v2_support(uint8_t msg_id)
+{
+	uint8_t ret = 0;
+
+	if (msg_id == SAB_SESSION_OPEN_REQ ||
+	    msg_id == SAB_SESSION_CLOSE_REQ ||
+	    msg_id == ROM_DEV_GETINFO_REQ)
+		ret = 1;
+
+	return ret;
+}
+
 uint32_t process_sab_msg(struct plat_os_abs_hdl *phdl,
 			 uint32_t mu_type,
 			 uint8_t msg_id,
@@ -117,27 +129,59 @@ uint32_t process_sab_msg(struct plat_os_abs_hdl *phdl,
 	plat_os_abs_memset((uint8_t *)cmd, 0x0, MAX_CMD_WORD_SZ * WORD_SZ);
 	plat_os_abs_memset((uint8_t *)rsp, 0x0, MAX_CMD_RSP_WORD_SZ * WORD_SZ);
 
+	/**
+	 * Check if CMD is valid or not, i.e.
+	 *	-MSG Type value is in valid range
+	 *	-MSG ID is in valid range
+	 */
 	if (msg_type <= NOT_SUPPORTED || msg_type >= MAX_MSG_TYPE) {
-		error = SAB_INVALID_MESSAGE_RATING;
+		if (err_handling_v2_support(msg_id))
+			error = SENDMSG_ENGN_ERR(SAB_LIB_CMD_INVALID);
+		else
+			error = SAB_INVALID_MESSAGE_RATING;
+
 		goto out;
 	}
 
 	if (msg_id == SAB_MSG_MAX_ID) {
-		error = SAB_NO_MESSAGE_RATING;
+		if (err_handling_v2_support(msg_id))
+			error = SENDMSG_ENGN_ERR(SAB_LIB_CMD_INVALID);
+		else
+			error = SAB_NO_MESSAGE_RATING;
+
 		goto out;
 	}
 
+	/**
+	 * Check if some valid function pointer for preparing CMD msg
+	 * has been mapped.
+	 *
+	 * Before accessing the function, through function pointer mapped, NULL
+	 * check is important.
+	 */
 	if (prepare_sab_msg[msg_type - 1][msg_id] == NULL) {
-		error = SAB_NO_MESSAGE_RATING;
+		if (err_handling_v2_support(msg_id))
+			error = SENDMSG_ENGN_ERR(SAB_LIB_INVALID_MSG_HANDLER);
+		else
+			error = SAB_NO_MESSAGE_RATING;
+
 		goto out;
 	}
 
 	error = prepare_sab_msg[msg_type - 1][msg_id](phdl, &cmd, &rsp, &cmd_msg_sz,
 					&rsp_msg_sz, msg_hdl, args);
 
-	if (error) {
-		error = SAB_NO_MESSAGE_RATING;
-		goto out;
+	if (err_handling_v2_support(msg_id)) {
+		if (PARSE_LIB_ERR_STATUS(error) != SAB_LIB_SUCCESS) {
+			error = ENGN_SEND_CMD_PATH_FLAG | error;
+			goto out;
+		}
+
+	} else {
+		if (error) {
+			error = SAB_NO_MESSAGE_RATING;
+			goto out;
+		}
 	}
 
 	plat_build_cmd_msg_hdr((struct sab_mu_hdr *)cmd, msg_type,
@@ -147,13 +191,23 @@ uint32_t process_sab_msg(struct plat_os_abs_hdl *phdl,
 	nb_words = cmd_msg_sz / (uint32_t)sizeof(uint32_t);
 	if (nb_words > SAB_STORAGE_NB_WORDS_MAX_WO_CRC) {
 		if (plat_add_msg_crc(cmd, cmd_msg_sz)) {
-			error = SAB_NO_MESSAGE_RATING;
+			if (err_handling_v2_support(msg_id))
+				error = SENDMSG_ENGN_ERR(SAB_LIB_CRC_FAIL);
+			else
+				error = SAB_NO_MESSAGE_RATING;
+
 			goto out;
 		}
 	}
 
 	if (ep.cancel_signal) {
 		ep.cancel_signal = 0;
+
+		if (err_handling_v2_support(msg_id)) {
+			error = SAB_LIB_SHE_CANCEL_ERROR;
+			goto out;
+		}
+
 		return SAB_SHE_GENERAL_ERROR_RATING;
 	}
 
@@ -168,13 +222,24 @@ uint32_t process_sab_msg(struct plat_os_abs_hdl *phdl,
 	 */
 	error = plat_send_msg_and_rcv_resp(phdl,
 		cmd, cmd_msg_sz, rsp, &rsp_msg_sz);
+
 	if (error) {
-		error = SAB_NO_MESSAGE_RATING;
+		if (err_handling_v2_support(msg_id))
+			error = RCVMSG_ENGN_ERR(SAB_LIB_CMD_RSP_TRANSACT_FAIL);
+		else
+			error = SAB_NO_MESSAGE_RATING;
+
 		goto out;
 	}
 
 	if (ep.cancel_signal) {
 		ep.cancel_signal = 0;
+
+		if (err_handling_v2_support(msg_id)) {
+			error = SAB_LIB_SHE_CANCEL_ERROR;
+			goto out;
+		}
+
 		return SAB_SHE_GENERAL_ERROR_RATING;
 	}
 
@@ -182,7 +247,11 @@ uint32_t process_sab_msg(struct plat_os_abs_hdl *phdl,
 	nb_words = rsp_msg_sz / (uint32_t)sizeof(uint32_t);
 	if (nb_words > SAB_STORAGE_NB_WORDS_MAX_WO_CRC) {
 		if (plat_validate_msg_crc(rsp, rsp_msg_sz)) {
-			error = SAB_NO_MESSAGE_RATING;
+			if (err_handling_v2_support(msg_id))
+				error = RCVMSG_ENGN_ERR(SAB_LIB_CRC_FAIL);
+			else
+				error = SAB_NO_MESSAGE_RATING;
+
 			goto out;
 		}
 	}
@@ -193,6 +262,9 @@ uint32_t process_sab_msg(struct plat_os_abs_hdl *phdl,
 	printf("\n-------------------MSG END-----------------------------------\n");
 #endif
 
+	/**
+	 * Assigning API response code received from FW
+	 */
 	*rsp_code = (*(rsp + 1));
 
 	/* Debug prints for any case other than success.
@@ -204,12 +276,47 @@ uint32_t process_sab_msg(struct plat_os_abs_hdl *phdl,
 		sab_err_map(msg_type, msg_id, *rsp_code);
 
 	if (process_sab_msg_rsp[msg_type - 1][msg_id] == NULL) {
-		error = SAB_NO_MESSAGE_RATING;
+		if (err_handling_v2_support(msg_id))
+			error = RCVMSG_ENGN_ERR(SAB_LIB_INVALID_MSG_HANDLER);
+		else
+			error = SAB_NO_MESSAGE_RATING;
+
 		goto out;
 	}
 
 	error = process_sab_msg_rsp[msg_type - 1][msg_id](&rsp, args);
+
+	if (err_handling_v2_support(msg_id)) {
+		if (PARSE_LIB_ERR_STATUS(error) != SAB_LIB_SUCCESS) {
+			error = ENGN_RCV_RESP_PATH_FLAG | error;
+			goto out;
+		}
+	} else {
+		/**
+		 * For the APIs not yet supporting new error handling approach,
+		 * still the previous/same SAB error code needs to be returned.
+		 * Handling the case of SAB_CMD_NOT_SUPPORTED_RATING here.
+		 */
+		if (error == SAB_LIB_CMD_UNSUPPORTED)
+			error = SAB_CMD_NOT_SUPPORTED_RATING;
+	}
+
+	/**
+	 * Returning Library Success code if reached till here.
+	 */
+	if (err_handling_v2_support(msg_id))
+		error = RCVMSG_ENGN_ERR(SAB_LIB_SUCCESS);
 out:
+	/**
+	 * printing Plat errors and Library errors if occurred.
+	 */
+	if (err_handling_v2_support(msg_id) &&
+	    PARSE_LIB_ERR_STATUS(error) != SAB_LIB_SUCCESS) {
+		se_err("LIB Error: CMD [0x%x] error [0x%06x]\n", msg_id, error);
+		plat_lib_err_map(msg_id, PARSE_LIB_ERR_PLAT(error));
+		sab_lib_err_map(msg_id, PARSE_LIB_ERR_STATUS(error));
+	}
+
 	return error;
 }
 

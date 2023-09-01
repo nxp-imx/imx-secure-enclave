@@ -186,6 +186,24 @@ uint64_t plat_os_abs_data_buf(struct plat_os_abs_hdl *phdl, uint8_t *src, uint32
 #define SEC_MEM_SHORT_ADDR_MASK   0xFFFFu
 
 /**
+ * Enhanced PLAT API for Setup data buffer for command processing.
+ *
+ * \param phdl pointer to the session handle for which this data buffer is used
+ * \param addr the address to be inserted in the message to Secure-Enclave
+ * Platform, to indicate him this buffer.
+ * \param src pointer to the data if input or to the area where the output
+ * should be written.
+ * \param size length in bytes of the input data or max size of the output.
+ * \param flags data buffer options as described above. Interpreted as a bit-field.
+ *
+ * \return error code, PLAT_SUCCESS in case of success, failure otherwise.
+ */
+uint32_t plat_os_abs_data_buf_v2(struct plat_os_abs_hdl *phdl,
+				 uint64_t *addr,
+				 uint8_t *src,
+				 uint32_t size,
+				 uint32_t flags);
+/**
  * Compute the CRC of a buffer.
  *
  * Used for basic check of integrity on the storage to avoid sending a corrupted blob to Secure-Enclave Platform.
@@ -222,6 +240,17 @@ void plat_os_abs_memset(uint8_t *dst, uint8_t val, uint32_t len);
 void plat_os_abs_memcpy(uint8_t *dst, uint8_t *src, uint32_t len);
 
 /**
+ * Copy the content of a buffer to another location.
+ *
+ * \param dst pointer to the destination buffer where data should be copied
+ * \param src pointer to the source buffer from where data should be copied
+ * \param len number of bytes to be copied
+ *
+ * \return error code, PLAT_SUCCESS in case of success, failure otherwise.
+ */
+uint32_t plat_os_abs_memcpy_v2(uint8_t *dst, uint8_t *src, uint32_t len);
+
+/**
  * Dynamically allocate memory.
  *
  * \param size number of bytes to be allocated
@@ -229,6 +258,16 @@ void plat_os_abs_memcpy(uint8_t *dst, uint8_t *src, uint32_t len);
  * \return pointer to the allocated buffer or NULL in case of error.
  */
 uint8_t *plat_os_abs_malloc(uint32_t size);
+
+/**
+ * Dynamically allocate memory.
+ *
+ * \param mem_p pointer to the pointer to get allocated memory address
+ * \param size number of bytes to be allocated
+ *
+ * \return error code, PLAT_SUCCESS in case of success, failure otherwise.
+ */
+uint32_t plat_os_abs_malloc_v2(uint8_t **mem_p, uint32_t size);
 
 /**
  * Free a previously allocated buffer.

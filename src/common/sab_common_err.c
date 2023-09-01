@@ -43,3 +43,78 @@ void sab_err_map(uint8_t msg_type, uint8_t sab_cmd, uint32_t rsp_code)
 	printf("\n%s\n", sab_err_str);
 }
 
+void sab_lib_err_map(uint8_t msg_id, uint32_t sab_lib_err)
+{
+	if (sab_lib_err == SAB_LIB_SUCCESS)
+		return;
+
+	switch (sab_lib_err) {
+	case SAB_LIB_CMD_UNSUPPORTED:
+		se_err("\nSAB LIB Error: CMD [0x%x] SAB_LIB_CMD_UNSUPPORTED (0x%x)\n",
+		       msg_id, sab_lib_err);
+		break;
+
+	case SAB_LIB_CMD_INVALID:
+		se_err("\nSAB LIB Error: CMD [0x%x] SAB_LIB_CMD_INVALID (0x%x)\n",
+		       msg_id, sab_lib_err);
+		break;
+
+	case SAB_LIB_INVALID_MSG_HANDLER:
+		se_err("\nSAB LIB Error: CMD [0x%x] SAB_LIB_INVALID_MSG_HANDLER (0x%x)\n",
+		       msg_id, sab_lib_err);
+		break;
+
+	case SAB_LIB_CMD_MSG_PREP_FAIL:
+		se_err("\nSAB LIB Error: CMD [0x%x] SAB_LIB_CMD_MSG_PREP_FAIL (0x%x)\n",
+		       msg_id, sab_lib_err);
+		break;
+
+	case SAB_LIB_CMD_RSP_TRANSACT_FAIL:
+		se_err("\nSAB LIB Error: CMD [0x%x] SAB_LIB_CMD_RSP_TRANSACT_FAIL (0x%x)\n",
+		       msg_id, sab_lib_err);
+		break;
+
+	case SAB_LIB_RSP_PROC_FAIL:
+		se_err("\nSAB LIB Error: CMD [0x%x] SAB_LIB_RSP_PROC_FAIL (0x%x)\n",
+		       msg_id, sab_lib_err);
+		break;
+
+	case SAB_LIB_CRC_FAIL:
+		se_err("\nSAB LIB Error: CMD [0x%x] SAB_LIB_CRC_FAIL (0x%x)\n",
+		       msg_id, sab_lib_err);
+		break;
+
+	case SAB_LIB_SHE_CANCEL_ERROR:
+		se_err("\nSAB LIB Error: CMD [0x%x] SAB_LIB_SHE_CANCEL_ERROR (0x%x)\n",
+		       msg_id, sab_lib_err);
+		break;
+
+	case SAB_LIB_ERROR:
+		se_err("\nSAB LIB Error: CMD [0x%x] SAB_LIB_ERROR (0x%x)\n",
+		       msg_id, sab_lib_err);
+		break;
+
+	default:
+		break;
+	}
+}
+
+void plat_lib_err_map(uint8_t msg_id, uint32_t plat_lib_err)
+{
+	switch (plat_lib_err) {
+	case PLAT_MEMCPY_FAIL:
+		se_err("\nPLAT LIB Error: CMD [0x%x] PLAT_MEMCPY_FAIL\n",
+		       msg_id);
+		break;
+	case PLAT_ERR_OUT_OF_MEMORY:
+		se_err("\nPLAT LIB Error: CMD [0x%x] PLAT_ERR_OUT_OF_MEMORY\n",
+		       msg_id);
+		break;
+	case PLAT_DATA_BUF_SETUP_FAIL:
+		se_err("\nPLAT LIB Error: CMD [0x%x] PLAT_DATA_BUF_SETUP_FAIL\n",
+		       msg_id);
+		break;
+	default:
+		break;
+	}
+}

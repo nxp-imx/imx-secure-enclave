@@ -208,6 +208,39 @@ hsm_err_t sab_rating_to_hsm_err(uint32_t sab_err)
 	return hsm_err;
 }
 
+static uint8_t is_lib_err(uint32_t err)
+{
+	uint8_t ret = 0;
+
+	/**
+	 * If the library error is one of these,
+	 * they need to be treated as SAB error
+	 */
+	if (err == SAB_LIB_CMD_UNSUPPORTED ||
+	    err == SAB_LIB_CMD_INVALID ||
+	    err == SAB_LIB_SHE_CANCEL_ERROR)
+		ret = 1;
+
+	return ret;
+}
+
+hsm_err_t lib_err_to_hsm_err(uint32_t lib_err)
+{
+	hsm_err_t ret = HSM_LIB_ERROR;
+	uint32_t lib_err_status = PARSE_LIB_ERR_STATUS(lib_err);
+
+	if (lib_err_status == SAB_LIB_SUCCESS)
+		return HSM_NO_ERROR;
+
+	if (PARSE_LIB_ERR_PATH(lib_err) == ENGN_RCV_RESP_PATH_FLAG)
+		return HSM_NO_ERROR;
+
+	if (is_lib_err(lib_err))
+		ret = sab_err_rating_to_hsm_err(GET_RATING_CODE(lib_err_status));
+
+	return ret;
+}
+
 uint32_t get_tlv_data_len(uint8_t *len_buf,
 			  uint32_t len_buf_length,
 			  uint32_t *data_len)

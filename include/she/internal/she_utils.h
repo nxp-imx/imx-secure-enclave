@@ -46,12 +46,23 @@ typedef enum {
 	//!< Error not covered by other codes occurred.
 	SHE_UNKNOWN_WARNING	= 0x27,
 	//!< SHE Unknown Warning
-	SHE_FATAL_FAILURE       = 0x29
+	SHE_FATAL_FAILURE       = 0x29,
 	//!< A fatal failure occurred, SHE goes in unrecoverable
 	//!< error state not replying to further requests
+	SHE_LIB_ERROR		= 0xEF,
+	//!< SHE library error
 } she_err_t;
 
 /** @} end of error code group */
 
 she_err_t sab_rating_to_she_err(uint32_t sab_err);
+
+/**
+ * maps the library error to SHE error
+ *
+ * \param library error
+ *
+ * \return SHE error
+ */
+she_err_t lib_err_to_she_err(uint32_t lib_err);
 #endif

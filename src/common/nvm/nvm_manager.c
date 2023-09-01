@@ -87,7 +87,7 @@ void nvm_close_session(void *ctx)
 					      MT_SAB_SESSION,
 					      nvm_ctx->session_handle,
 					      NULL, &rsp_code);
-			if (ret != SAB_SUCCESS_STATUS)
+			if (PARSE_LIB_ERR_STATUS(ret) != SAB_LIB_SUCCESS)
 				se_err("Warn: Failure in Session Close.\n");
 			nvm_ctx->session_handle = 0u;
 		}
@@ -159,7 +159,8 @@ static uint32_t nvm_open_session(uint8_t flags, struct nvm_ctx_st *nvm_ctx)
 				      (uint32_t)sess_args.session_hdl,
 				      &sess_args, &rsp_code);
 		ret = rsp_code;
-		if (err != SAB_SUCCESS_STATUS) {
+		if (PARSE_LIB_ERR_STATUS(err) != SAB_LIB_SUCCESS) {
+			err = SAB_FAILURE_STATUS;
 			nvm_ctx->session_handle = 0u;
 			break;
 		}

@@ -204,6 +204,8 @@ typedef enum {
 	/**<A fatal failure occurred, the HSM goes in unrecoverable
 	 * error state not replying to further requests
 	 */
+	HSM_LIB_ERROR                       = 0xEF,
+	/**< HSM library failure */
 	HSM_SERVICES_DISABLED               = 0xF4,
 	/**<Message neither handled by ROM nor FW */
 	HSM_UNKNOWN_WARNING                 = 0xFC,
@@ -220,6 +222,15 @@ typedef enum {
 /** @} end of error code group */
 
 hsm_err_t sab_rating_to_hsm_err(uint32_t sab_err);
+
+/**
+ * maps the library error to HSM error
+ *
+ * \param library error
+ *
+ * \return HSM error code
+ */
+hsm_err_t lib_err_to_hsm_err(uint32_t lib_err);
 
 #define TLV_LEN_GREATER_THAN_ONE_BYTE           0x80
 

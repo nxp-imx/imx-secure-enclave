@@ -59,7 +59,7 @@ she_err_t open_session(open_session_args_t *args,
 	struct plat_mu_params mu_params = {'\0'};
 	struct she_session_hdl_s *thdl = NULL;
 	she_err_t err = SHE_GENERAL_ERROR;
-	uint32_t sab_err;
+	uint32_t lib_err;
 	uint32_t rsp_code = SAB_NO_MESSAGE_RATING;
 
 	thdl = add_she_session();
@@ -85,19 +85,17 @@ she_err_t open_session(open_session_args_t *args,
 	args->operating_mode = 0U;
 
 	/* Open the SHE session on Platform's side */
-	sab_err = process_sab_msg(thdl->phdl,
+	lib_err = process_sab_msg(thdl->phdl,
 				  thdl->mu_type,
 				  SAB_SESSION_OPEN_REQ,
 				  MT_SAB_SESSION,
 				  thdl->session_hdl,
 				  args, &rsp_code);
 
-	err = sab_rating_to_she_err(sab_err);
+	err = lib_err_to_she_err(lib_err);
 
-	if (err != SHE_NO_ERROR) {
-		se_err("SHE Error: SAB_SESSION_OPEN_REQ [0x%x].\n", err);
+	if (err != SHE_NO_ERROR)
 		return err;
-	}
 
 	err = sab_rating_to_she_err(rsp_code);
 	if (err != SHE_NO_ERROR) {
