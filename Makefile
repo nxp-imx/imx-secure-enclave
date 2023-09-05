@@ -166,10 +166,13 @@ she_doc: include/she/she_api.h
 
 hsm_doc_ele: include/hsm/hsm_api.h
 	rm -rf doc/latex/
+	rm -rf doc/rtf/
 	doxygen doc/hsm/ELE_Doxyfile
 	make -C ./doc/latex pdf
 	cp doc/latex/refman.pdf doc/ele_hsm_api_document.pdf
+	cp doc/rtf/refman.rtf doc/ele_hsm_api_document.rtf
 	rm -rf doc/latex/
+	rm -rf doc/rtf/
 
 hsm_doc_seco: include/hsm/hsm_api.h
 	rm -rf doc/latex/
