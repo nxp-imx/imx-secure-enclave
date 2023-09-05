@@ -46,7 +46,7 @@ typedef uint8_t hsm_svc_key_store_flags_t;
 //!< Must only be set at key store creation.
 #define HSM_SVC_KEY_STORE_FLAGS_STRICT_OPERATION \
 			((hsm_svc_key_store_flags_t)(1u << 7))
-//!< The request is completed only when the new key store has been written in
+//!< The request is completed only when the new key store has been written
 //!< in the NVM. This applicable for CREATE operations only.
 
 /**

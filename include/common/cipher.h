@@ -9,6 +9,11 @@
 #include <stdint.h>
 
 /**
+ *  @defgroup group4 Ciphering
+ * @{
+ */
+
+/**
  * Structure describing the open cipher service members
  */
 typedef struct {
@@ -29,8 +34,8 @@ typedef struct {
 	//!< pointer to the initialization vector (nonce in case of AES CCM)
 	uint16_t iv_size;
 	//!< length in bytes of the initialization vector.
-	//   it must be 0 for algorithms not using the initialization vector.
-	//   It must be 12 for AES in CCM mode
+	//!< it must be 0 for algorithms not using the initialization vector.
+	//!< It must be 12 for AES in CCM mode
 	uint8_t svc_flags;
 	//!< bitmap specifying the services properties.
 	uint8_t flags;
@@ -43,19 +48,19 @@ typedef struct {
 	//!< algorithm to be used for the operation
 	uint8_t *input;
 	//!< pointer to the input area:
-	//   - plaintext for encryption
-	//   - ciphertext for decryption
-	//     Note: In case of CCM it is the purported ciphertext.
+	//!< - plaintext for encryption
+	//!< - ciphertext for decryption
+	//!<   Note: In case of CCM it is the purported ciphertext.
 	uint8_t *output;
 	//!< pointer to the output area:
-	//   - ciphertext for encryption
-	//     Note: In case of CCM it is the output of the
-	//           generation-encryption process.
-	//   - plaintext for decryption
+	//!< - ciphertext for encryption
+	//!<   Note: In case of CCM it is the output of the
+	//!<         generation-encryption process.
+	//!< - plaintext for decryption
 	uint32_t input_size;
 	//!< length in bytes of the input.
-	//   - In case of CBC and ECB, the input size should be multiple of
-	//     a block cipher size (16 bytes).
+	//!< - In case of CBC and ECB, the input size should be multiple of
+	//!<   a block cipher size (16 bytes).
 	uint32_t output_size;
 	//!< length in bytes of the output
 #ifdef PSA_COMPLIANT
@@ -64,4 +69,5 @@ typedef struct {
 #endif
 } op_cipher_one_go_args_t;
 
+/** @} end of cipher service flow */
 #endif

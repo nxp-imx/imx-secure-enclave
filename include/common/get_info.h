@@ -9,6 +9,11 @@
 #include <stdint.h>
 
 /**
+ *  @defgroup group25 Get Info
+ * @{
+ */
+
+/**
  * Structure describing the get info operation member arguments
  */
 typedef struct {
@@ -39,4 +44,5 @@ typedef struct {
 	//!<   - value 0.
 } op_get_info_args_t;
 
+/** @} end of Get info operation */
 #endif

@@ -8,6 +8,11 @@
 
 #include <stdint.h>
 
+/**
+ *  @defgroup group7 Random number generation
+ * @{
+ */
+
 #ifndef PSA_COMPLIANT
 typedef uint8_t svc_rng_flags_t;
 typedef struct {
@@ -34,4 +39,5 @@ typedef struct {
 #endif
 } op_get_random_args_t;
 
+/** @} end of rng service flow */
 #endif

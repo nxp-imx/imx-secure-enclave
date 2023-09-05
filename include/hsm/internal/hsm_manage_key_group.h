@@ -11,15 +11,18 @@
 #include "internal/hsm_handle.h"
 
 #define MAX_VALID_KEY_GROUP (0x64)
-
+/**
+ *  @defgroup group3 Key management
+ * @{
+ */
 typedef uint8_t hsm_op_manage_key_group_flags_t;
 typedef struct {
-	//!< it must be a value in the range 0-1023.
-	//Keys belonging to the same group can be cached in the HSM local memory
-	//through the hsm_manage_key_group API.
 	hsm_key_group_t key_group;
-	//!< bitmap specifying the operation properties.
+	//!< It must be a value in the range 0-1023.
+	//!< Keys belonging to the same group can be cached in the HSM local memory
+	//!< through the hsm_manage_key_group API.
 	hsm_op_manage_key_group_flags_t flags;
+	//!< bitmap specifying the operation properties.
 	uint8_t reserved;
 } op_manage_key_group_args_t;
 
@@ -47,8 +50,8 @@ hsm_err_t hsm_manage_key_group(hsm_hdl_t key_management_hdl,
 	((hsm_op_manage_key_group_flags_t)(1u << 0))
 
 //!< HSM may export the key group in the external NVM to free up the local
-//	 memory. HSM will copy the key group in the local memory again in case
-//	 of key group usage/update.
+//!< memory. HSM will copy the key group in the local memory again in case
+//!< of key group usage/update.
 #define HSM_OP_MANAGE_KEY_GROUP_FLAGS_CACHE_UNLOCK \
 	((hsm_op_manage_key_group_flags_t)(1u << 1))
 
@@ -62,12 +65,12 @@ hsm_err_t hsm_manage_key_group(hsm_hdl_t key_management_hdl,
 	((hsm_op_manage_key_group_flags_t)(1u << 3))
 
 //!< When used in conjunction with SYNC key group or SYNC key store and storage
-//	 only, the request is completed only when the monotonic counter has been updated.
+//!< only, the request is completed only when the monotonic counter has been updated.
 #define HSM_OP_MANAGE_KEY_GROUP_FLAGS_MONOTONIC \
 	((hsm_op_manage_key_group_flags_t)(1u << 5))
 
 //!< The request is completed only when the update has been written in the NVM.
-//	 Not applicable for cache lockdown/unlock.
+//!< Not applicable for cache lockdown/unlock.
 #define HSM_OP_MANAGE_KEY_GROUP_FLAGS_SYNC_KEYSTORE \
 	((hsm_op_manage_key_group_flags_t)(1u << 6))
 #else
@@ -77,7 +80,7 @@ hsm_err_t hsm_manage_key_group(hsm_hdl_t key_management_hdl,
 #endif
 
 //!< The request is completed only when the update has been written in the NVM.
-//	 Not applicable for cache lockdown/unlock.
+//!< Not applicable for cache lockdown/unlock.
 #define HSM_OP_MANAGE_KEY_GROUP_FLAGS_STRICT_OPERATION \
 	((hsm_op_manage_key_group_flags_t)(1u << 7))
 

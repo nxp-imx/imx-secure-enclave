@@ -9,6 +9,11 @@
 #include <stdint.h>
 
 /**
+ *  @defgroup group1 Session
+ *  @{
+ */
+
+/**
  * Structure detailing the open session operation member arguments
  */
 typedef struct {
@@ -30,4 +35,5 @@ typedef struct {
 #endif
 } open_session_args_t;
 
+/** @} end of session group */
 #endif

@@ -7,6 +7,10 @@
 #define KEY_STORE_H
 
 #include <stdint.h>
+/**
+ *  @defgroup group2 Key store
+ * @{
+ */
 
 /**
  * Structure specifying the open key store service member arguments
@@ -52,4 +56,5 @@ typedef struct {
 	//!< key store re-provisioning.
 } open_svc_key_store_args_t;
 
+/** @} end of key store service flow */
 #endif

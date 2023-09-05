@@ -29,6 +29,11 @@
 #define HSM_API_VERSION_2    0x2
 
 /**
+ *  @defgroup group30 Global Information
+ *  @{
+ */
+
+/**
  * Global Information structure contain information about SoC and the Library.
  * It will be used globally to take platform specific decisions.
  */
@@ -71,6 +76,7 @@ extern struct global_info_s global_info;
  * \param hsm_session_hdl identifying the active session.
  */
 void populate_global_info(hsm_hdl_t hsm_session_hdl);
+
 /**
  * This function prints the Global Information of library
  */
@@ -89,6 +95,7 @@ uint8_t hsm_get_dev_attest_api_ver(void);
  * \return String represention of the SoC ID
  */
 const char *get_soc_id_str(uint16_t soc_id);
+
 /**
  * This function returns a string representating SoC Revision
  *
@@ -97,6 +104,7 @@ const char *get_soc_id_str(uint16_t soc_id);
  * \return String represention of the SoC Revision
  */
 const char *get_soc_rev_str(uint16_t soc_rev);
+
 /**
  * This function returns a string representating Lifecycle
  *
@@ -105,6 +113,8 @@ const char *get_soc_rev_str(uint16_t soc_rev);
  * \return a string represention of Lifecycle
  */
 const char *get_soc_lf_str(uint16_t lifecycle);
+/** @} end of global information */
+
 #endif
 
 /**
