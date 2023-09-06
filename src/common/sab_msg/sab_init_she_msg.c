@@ -47,6 +47,10 @@
 #include "sab_export_plain_key.h"
 #endif
 
+#if MT_SAB_FAST_MAC
+#include "sab_fast_mac.h"
+#endif
+
 static  int init_proc_sab_she_msg_engine(msg_type_t msg_type,
 					 uint32_t msg_id)
 {
@@ -212,6 +216,22 @@ static  int init_proc_sab_she_msg_engine(msg_type_t msg_type,
 			ret = add_sab_msg_handler(msg_id, MT_SAB_PLAIN_KEY,
 						  prepare_msg_export_plain_key,
 						  proc_msg_rsp_export_plain_key);
+		}
+		break;
+#endif
+#if MT_SAB_FAST_MAC
+	case SAB_FAST_MAC_REQ:
+		if (msg_type == MT_SAB_FAST_MAC) {
+			ret = add_sab_msg_handler(msg_id, MT_SAB_FAST_MAC,
+						  prepare_msg_fast_mac,
+						  proc_msg_rsp_fast_mac);
+		}
+		break;
+	case SAB_SHE_FAST_MAC_MUBUFF_REQ:
+		if (msg_type == MT_SAB_FAST_MAC) {
+			ret = add_sab_msg_handler(msg_id, MT_SAB_FAST_MAC,
+						  prepare_msg_v2x_fast_mac,
+						  proc_msg_rsp_v2x_fast_mac);
 		}
 		break;
 #endif

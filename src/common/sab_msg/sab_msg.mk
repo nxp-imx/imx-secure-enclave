@@ -309,6 +309,12 @@ SHE_SAB_MSG_SRC	+= \
 		$(PLAT_COMMON_PATH)/sab_msg/sab_export_plain_key.o
 endif
 
+ifneq (${MT_SAB_FAST_MAC},0x0)
+DEFINES		+=	-DMT_SAB_FAST_MAC=${MT_SAB_FAST_MAC}
+SHE_SAB_MSG_SRC	+= \
+		$(PLAT_COMMON_PATH)/sab_msg/sab_fast_mac.o
+endif
+
 OBJECTS		+= $(SAB_MSG_SRC) \
 		$(SAB_RCVMSG_SRC) \
 		$(SHE_SAB_MSG_SRC) \

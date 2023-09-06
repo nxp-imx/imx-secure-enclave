@@ -173,6 +173,14 @@ she_err_t she_open_session(open_session_args_t *args, she_hdl_t *session_hdl)
 			}
 			se_print("Get shared buffer 0x%x : 0x%x\n",
 				 buf_args.shared_buf_offset, buf_args.shared_buf_size);
+			/* Configure the shared buffer. */
+			err = plat_os_abs_configure_shared_buf(hdl->phdl,
+							       buf_args.shared_buf_offset,
+							       buf_args.shared_buf_size);
+			if (err != 0) {
+				se_err("Fail to configure shared buffer [0x%x].\n", err);
+				break;
+			}
 		}
 	} while (false);
 

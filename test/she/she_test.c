@@ -124,6 +124,10 @@ int main(int argc, char *argv[])
 	if (err)
 		se_print("Error[0x%x]: Key Update test Failed.\n", err);
 
+	err = do_she_fast_mac_test(utils_args.utils_handle);
+	if (err)
+		se_print("Error[0x%x]: MAC test Failed.\n", err);
+
 	err = do_she_plain_key_test(utils_args.utils_handle);
 	if (err)
 		se_print("Error[0x%x]: Plain Key test Failed.\n", err);

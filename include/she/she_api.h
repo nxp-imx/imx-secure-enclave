@@ -52,6 +52,12 @@
 #include "internal/she_export_plain_key.h"
 #endif
 
+#if MT_SAB_FAST_MAC
+#include "internal/she_fast_mac.h"
+#endif
+
+extern uint8_t she_v2x_mu;
+
 /**
  *  @defgroup group1 Session
  *  @{

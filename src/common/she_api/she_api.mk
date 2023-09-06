@@ -66,6 +66,12 @@ SHE_API_SRC	+= \
 		$(PLAT_COMMON_PATH)/she_api/she_export_plain_key.o
 endif
 
+ifneq (${MT_SAB_FAST_MAC},0x0)
+DEFINES		+=	-DSHE_FAST_MAC
+SHE_API_SRC	+= \
+		$(PLAT_COMMON_PATH)/she_api/she_fast_mac.o
+endif
+
 OBJECTS		+= $(SHE_API_SRC)
 
 INCLUDE_PATHS	+= \
