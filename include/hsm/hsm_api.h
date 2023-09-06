@@ -133,6 +133,17 @@ hsm_err_t hsm_close_session(hsm_hdl_t session_hdl);
  */
 hsm_err_t hsm_do_cipher(hsm_hdl_t cipher_hdl,
 			op_cipher_one_go_args_t *cipher_one_go);
+#ifdef PSA_COMPLIANT
+/**
+ *\addtogroup iMX8ULP
+ * \ref group4
+ *
+ * - \ref HSM_CIPHER_ONE_GO_ALGO_OFB is not supported
+ * - \ref HSM_AEAD_ALGO_GCM is not supported
+ * - \ref HSM_AEAD_ALGO_ALL_AEAD is not supported
+ *
+ */
+#endif
 /** @} end of cipher service flow */
 
 /**

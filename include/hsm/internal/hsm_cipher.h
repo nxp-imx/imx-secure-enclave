@@ -44,16 +44,16 @@ hsm_err_t hsm_open_cipher_service(hsm_hdl_t key_store_hdl,
  */
 #ifdef PSA_COMPLIANT
 typedef enum {
-	//!< CTR (AES supported).
 	HSM_CIPHER_ONE_GO_ALGO_CTR = ALGO_CIPHER_CTR,
-	//!< CFB (AES supported).
+	//!< CTR (AES supported).
 	HSM_CIPHER_ONE_GO_ALGO_CFB = ALGO_CIPHER_CFB,
-	//!< OFB (AES supported).
+	//!< CFB (AES supported).
 	HSM_CIPHER_ONE_GO_ALGO_OFB = ALGO_CIPHER_OFB,
-	//!< ECB no padding (AES, SM4 supported).
+	//!< OFB (AES supported).
 	HSM_CIPHER_ONE_GO_ALGO_ECB = ALGO_CIPHER_ECB_NO_PAD,
-	//!< CBC no padding (AES, SM4 supported).
+	//!< ECB no padding (AES, SM4 supported).
 	HSM_CIPHER_ONE_GO_ALGO_CBC = ALGO_CIPHER_CBC_NO_PAD,
+	//!< CBC no padding (AES, SM4 supported).
 } hsm_op_cipher_one_go_algo_t;
 
 #else
@@ -81,6 +81,7 @@ typedef uint8_t hsm_op_cipher_one_go_algo_t;
  * Bit field indicating the requested operations
  */
 typedef uint8_t hsm_op_cipher_one_go_flags_t;
+
 /**
  * Bit indicating the decrypt operation
  */

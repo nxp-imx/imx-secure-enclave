@@ -20,8 +20,12 @@
  */
 #ifdef PSA_COMPLIANT
 typedef enum {
-	//!< CCM (AES CCM)
 	HSM_AEAD_ALGO_CCM = ALGO_CCM,
+	//!< CCM (AES CCM)
+	HSM_AEAD_ALGO_GCM = ALGO_GCM,
+	//!< GCM (AES GCM)
+	HSM_AEAD_ALGO_ALL_AEAD = ALGO_ALL_AEAD,
+	//!< ALL AEAD (ALL AEAD)
 } hsm_op_auth_enc_algo_t;
 
 #else

@@ -125,91 +125,97 @@ const char *get_soc_lf_str(uint16_t lifecycle);
  * Error codes returned by HSM functions.
  */
 typedef enum {
-	/**<    Success. */
 	HSM_NO_ERROR                        = 0x0,
-	/**< 	The received message is invalid or unknown. */
+	/**<Success. */
 	HSM_INVALID_MESSAGE                 = 0x1,
-	/**<	The provided address is invalid or doesn’t respect the
-	 *		API requirements. */
+	/**<The received message is invalid or unknown. */
 	HSM_INVALID_ADDRESS                 = 0x2,
-	/**< 	The provided identifier is not known. */
-	HSM_UNKNOWN_ID                      = 0x3,
-	/**< 	One of the parameter provided in the command is invalid. */
-	HSM_INVALID_PARAM                   = 0x4,
-	/**< 	NVM generic issue. */
-	HSM_NVM_ERROR                       = 0x5,
-	/**< 	There is not enough memory to handle the requested operation. */
-	HSM_OUT_OF_MEMORY                   = 0x6,
-	/**< 	Unknown session/service handle. */
-	HSM_UNKNOWN_HANDLE                  = 0x7,
-	/**< 	The key store identified by the provided “key store Id”
-	 * doesn’t exist and the “create” flag is not set. */
-	HSM_UNKNOWN_KEY_STORE               = 0x8,
-	/**< 	Key store authentication fails. */
-	HSM_KEY_STORE_AUTH                  = 0x9,
-	/**< 	An error occurred in the key store internal processing. */
-	HSM_KEY_STORE_ERROR                 = 0xA,
-	/**< 	An element (key store, key…) with the provided ID
-	 * 		already exists. */
-	HSM_ID_CONFLICT                     = 0xB,
-	/**< 	The internal RNG is not started. */
-	HSM_RNG_NOT_STARTED                 = 0xC,
-	/**< 	The functionality is not supported for the current
-	 * 		session/service/key store configuration. */
-	HSM_CMD_NOT_SUPPORTED               = 0xD,
-	/**< 	Invalid lifecycle for requested operation. */
-	HSM_INVALID_LIFECYCLE               = 0xE,
-	/**< 	A key store with the same attributes already exists. */
-	HSM_KEY_STORE_CONFLICT              = 0xF,
-	/**<	The current key store reaches the max number of
-	 * 		monotonic counter updates, updates are still allowed
-	 * 		but monotonic counter will not be blown. */
-	HSM_KEY_STORE_COUNTER               = 0x10,
-	/**<	The requested feature is not supported by the firwware. */
-	HSM_FEATURE_NOT_SUPPORTED           = 0x11,
-	/**<	Self tests report an issue */
-	HSM_SELF_TEST_FAILURE               = 0x12,
-	/**<	The HSM is not ready to handle the current request */
-	HSM_NOT_READY_RATING                = 0x13,
-	/**<	The required service/operation is disabled */
-	HSM_FEATURE_DISABLED                = 0x14,
-	/**<	Not enough space to store the key in the key group */
-	HSM_KEY_GROUP_FULL                  = 0x19,
-	/**<	Impossible to retrieve key group */
-	HSM_CANNOT_RETRIEVE_KEY_GROUP       = 0x1A,
-	/**<	Key not supported */
-	HSM_KEY_NOT_SUPPORTED               = 0x1B,
-	/**<	Trying to delete a permanent key */
-	HSM_CANNOT_DELETE_PERMANENT_KEY     = 0x1C,
-	/**<	Output buffer size is too small */
-	HSM_OUT_TOO_SMALL                   = 0x1D,
-	/**<	Data is Read Once, and has already been retrieved */
-	HSM_DATA_ALREADY_RETRIEVED          = 0x1F,
-	/**<	Command CRC check error */
-	HSM_CRC_CHECK_ERR                   = 0xB9,
-	/**<    In OEM closed lifecycle, Signed message signature verification
-	 *      failure
+	/**<The provided address is invalid or doesn’t respect the
+	 * API requirements.
 	 */
+	HSM_UNKNOWN_ID                      = 0x3,
+	/**<The provided identifier is not known. */
+	HSM_INVALID_PARAM                   = 0x4,
+	/**<One of the parameter provided in the command is invalid. */
+	HSM_NVM_ERROR                       = 0x5,
+	/**<NVM generic issue. */
+	HSM_OUT_OF_MEMORY                   = 0x6,
+	/**<There is not enough memory to handle the requested operation. */
+	HSM_UNKNOWN_HANDLE                  = 0x7,
+	/**<Unknown session/service handle. */
+	HSM_UNKNOWN_KEY_STORE               = 0x8,
+	/**<The key store identified by the provided “key store Id”
+	 * doesn’t exist and the “create” flag is not set.
+	 */
+	HSM_KEY_STORE_AUTH                  = 0x9,
+	/**<Key store authentication fails. */
+	HSM_KEY_STORE_ERROR                 = 0xA,
+	/**<An error occurred in the key store internal processing. */
+	HSM_ID_CONFLICT                     = 0xB,
+	/**<An element (key store, key…) with the provided ID
+	 * already exists.
+	 */
+	HSM_RNG_NOT_STARTED                 = 0xC,
+	/**<The internal RNG is not started. */
+	HSM_CMD_NOT_SUPPORTED               = 0xD,
+	/**<The functionality is not supported for the current
+	 * session/service/key store configuration.
+	 */
+	HSM_INVALID_LIFECYCLE               = 0xE,
+	/**<Invalid lifecycle for requested operation. */
+	HSM_KEY_STORE_CONFLICT              = 0xF,
+	/**<A key store with the same attributes already exists. */
+	HSM_KEY_STORE_COUNTER               = 0x10,
+	/**<The current key store reaches the max number of
+	 * monotonic counter updates, updates are still allowed
+	 * but monotonic counter will not be blown.
+	 */
+	HSM_FEATURE_NOT_SUPPORTED           = 0x11,
+	/**<The requested feature is not supported by the firwware. */
+	HSM_SELF_TEST_FAILURE               = 0x12,
+	/**<Self tests report an issue */
+	HSM_NOT_READY_RATING                = 0x13,
+	/**<The HSM is not ready to handle the current request */
+	HSM_FEATURE_DISABLED                = 0x14,
+	/**<The required service/operation is disabled */
+	HSM_KEY_GROUP_FULL                  = 0x19,
+	/**<Not enough space to store the key in the key group */
+	HSM_CANNOT_RETRIEVE_KEY_GROUP       = 0x1A,
+	/**<Impossible to retrieve key group */
+	HSM_KEY_NOT_SUPPORTED               = 0x1B,
+	/**<Key not supported */
+	HSM_CANNOT_DELETE_PERMANENT_KEY     = 0x1C,
+	/**<Trying to delete a permanent key */
+	HSM_OUT_TOO_SMALL                   = 0x1D,
+	/**<Output buffer size is too small */
+	HSM_DATA_ALREADY_RETRIEVED          = 0x1F,
+	/**<Data is Read Once, and has already been retrieved */
+	HSM_CRC_CHECK_ERR = 0xB9,
+	/**<Command CRC check error */
 	HSM_OEM_CLOSED_LC_SIGNED_MSG_VERIFICATION_FAIL = 0xF0,
-	/**<    Warning: In OEM open lifecycles, Signed message signature
-	 *      verification failure
+	/**<In OEM closed lifecycle, Signed message signature verification
+	 * failure
 	 */
 	HSM_OEM_OPEN_LC_SIGNED_MSG_VERIFICATION_FAIL = 0xF0,
-	/**<	A fatal failure occurred, the HSM goes in unrecoverable
-	 * 	error state not replying to further requests */
-	HSM_FATAL_FAILURE                   = 0x29,
-	/**<	Message neither handled by ROM nor FW */
-	HSM_SERVICES_DISABLED               = 0xF4,
-	/**<	Unknown warnings */
-	HSM_UNKNOWN_WARNING                 = 0xFC,
-	/**<    Failure in verification status of operations such as
-	 *      MAC verification, Signature verification.
+	/**<Warning: In OEM open lifecycles, Signed message signature
+	 * verification failure
 	 */
+	HSM_FATAL_FAILURE                   = 0x29,
+	/**<A fatal failure occurred, the HSM goes in unrecoverable
+	 * error state not replying to further requests
+	 */
+	HSM_SERVICES_DISABLED               = 0xF4,
+	/**<Message neither handled by ROM nor FW */
+	HSM_UNKNOWN_WARNING                 = 0xFC,
+	/**<Unknown warnings */
 	HSM_SIGNATURE_INVALID               = 0xFD,
-	/**<	Unknown errors */
+	/**<Failure in verification status of operations such as
+	 * MAC verification, Signature verification.
+	 */
 	HSM_UNKNOWN_ERROR                   = 0xFE,
-	/**<	Error in case General Error is received */
+	/**<Unknown errors */
 	HSM_GENERAL_ERROR                   = 0xFF,
+	/**<Error in case General Error is received */
 } hsm_err_t;
 /** @} end of error code group */
 
