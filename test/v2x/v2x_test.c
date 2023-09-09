@@ -705,7 +705,6 @@ int main(int argc, char *argv[])
         printf(" --> FAILURE\n");
     }
 
-#ifndef CONFIG_PLAT_SECO
     printf("\n---------------------------------------------------\n");
     printf("SM2 get Z test\n");
     printf("---------------------------------------------------\n");
@@ -778,7 +777,7 @@ int main(int argc, char *argv[])
     err = hsm_open_sm2_eces_service(sg1_key_store_serv, &sm2_eces_dec_svc_args, &sg1_sm2_eces_hdl);
 	printf("err: 0x%x hsm_open_sm2_eces_service: hdl: 0x%08x\n",
 	       err, sg1_sm2_eces_hdl);
-#endif
+
     gen_key_args.key_identifier = &key_id;
     gen_key_args.out_size = 64;
     gen_key_args.key_type = HSM_KEY_TYPE_DSA_SM2_FP_256;
@@ -796,7 +795,7 @@ int main(int argc, char *argv[])
     err = hsm_generate_key(sg0_key_mgmt_srv, &gen_key_args);
 	printf("err: 0x%x hsm_generate_key hdl: 0x%08x\n",
 	       err, sg0_key_mgmt_srv);
-#ifndef CONFIG_PLAT_SECO
+
     sm2_eces_enc_args.input = SM2_test_message;
     sm2_eces_enc_args.output = work_area;
     sm2_eces_enc_args.pub_key = work_area2;
@@ -830,7 +829,7 @@ int main(int argc, char *argv[])
     } else {
         printf(" --> FAILURE\n");
     }
-#endif
+
     printf("\n---------------------------------------------------\n");
     printf("Public key recovery\n");
     printf("---------------------------------------------------\n");
@@ -867,7 +866,6 @@ int main(int argc, char *argv[])
     err = hsm_manage_key(sg0_key_mgmt_srv, &mng_key_args);
     printf("err: 0x%x hsm_manage_key hdl: 0x%08x\n", err, sg0_key_mgmt_srv);
 
-#ifndef CONFIG_PLAT_SECO
     /* Try to use again this key: an error is expected. */
     sm2_eces_dec_args.input = work_area;
     sm2_eces_dec_args.output = work_area3; //plaintext
@@ -1156,7 +1154,7 @@ int main(int argc, char *argv[])
         if (j%16 == 15)
             printf("\n");
     }
-#endif
+
     // mac test
     printf("\n---------------------------------------------------\n");
     printf("MAC ONE GO Test \n");
@@ -1371,7 +1369,6 @@ int main(int argc, char *argv[])
         printf(" --> FAILURE\n");
     }
 
-#ifndef CONFIG_PLAT_SECO
     // Standalone butterfly key expansion
     printf("\n---------------------------------------------------\n");
     printf("Standalone butterfly key expansion Test \n");
@@ -1506,7 +1503,7 @@ int main(int argc, char *argv[])
         if (j%16 == 15)
             printf("\n");
     }
-#endif
+
     // SM4 CCM
     printf("\n---------------------------------------------------\n");
     printf("SM4 CCM Test \n");
@@ -1564,7 +1561,6 @@ int main(int argc, char *argv[])
         printf(" --> FAILURE\n");
     }
 
-#ifndef CONFIG_PLAT_SECO
     // Key Generic crypto service
     printf("\n---------------------------------------------------\n");
     printf("Key Generic crypto service  \n");
@@ -1620,7 +1616,7 @@ int main(int argc, char *argv[])
     } else {
         printf(" --> FAILURE\n");
     }
-#endif
+
     // Close all services and sessions
     printf("\n---------------------------------------------------\n");
     printf("Closing services and sessions\n");
@@ -1638,12 +1634,11 @@ int main(int argc, char *argv[])
     err = hsm_close_signature_generation_service(sg1_sig_gen_serv);
     printf("err: 0x%x hsm_close_signature_generation_service hdl: 0x%08x\n", err, sg1_sig_gen_serv);
 
-#ifndef CONFIG_PLAT_SECO
     err = hsm_close_sm2_eces_service(sg0_sm2_eces_hdl);
     printf("err: 0x%x hsm_close_sm2_eces_service hdl: 0x%08x\n", err, sg0_sm2_eces_hdl);
     err = hsm_close_sm2_eces_service(sg1_sm2_eces_hdl);
     printf("err: 0x%x hsm_close_sm2_eces_service hdl: 0x%08x\n", err, sg1_sm2_eces_hdl);
-#endif
+
     err = hsm_close_mac_service(sg0_mac_hdl);
     printf("err: 0x%x hsm_close_mac_service hdl: 0x%x\n", err, sg0_mac_hdl);
     err = hsm_close_key_management_service(sg0_key_mgmt_srv);
@@ -1656,10 +1651,10 @@ int main(int argc, char *argv[])
 
     err = hsm_close_key_store_service(sg1_key_store_serv);
     printf("err: 0x%x hsm_close_key_store_service hdl: 0x%08x\n", err, sg1_key_store_serv);
-#ifndef CONFIG_PLAT_SECO
+
     err = hsm_close_key_generic_crypto_service(key_generic_crypto);
     printf("err: 0x%x hsm_close_key_generic_crypto_service hdl: 0x%x\n", err, key_generic_crypto);
-#endif
+
     err = hsm_close_session(sg0_sess);
     printf("err: 0x%x SG hsm_close_session hdl: 0x%x\n", err, sg0_sess);
 
