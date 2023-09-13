@@ -106,6 +106,10 @@
 #include "sab_key_generic_crypto.h"
 #endif
 
+#if MT_SAB_BUT
+#include "sab_butterfly.h"
+#endif
+
 #if MT_SAB_ST_BUT
 #include "sab_st_butterfly.h"
 #endif
@@ -571,9 +575,18 @@ static  int init_proc_sab_hsm_msg_engine(msg_type_t msg_type,
 #if MT_SAB_ST_BUT
 	case SAB_ST_BUT_KEY_EXP_REQ:
 		if (msg_type == MT_SAB_ST_BUT) {
-			ret = add_sab_msg_handler(msg_id, MT_SAB_AUTH_ENC,
+			ret = add_sab_msg_handler(msg_id, MT_SAB_ST_BUT,
 						  prepare_msg_st_butterfly,
 						  proc_msg_rsp_st_butterfly);
+		}
+		break;
+#endif
+#if MT_SAB_BUT
+	case SAB_BUT_KEY_EXP_REQ:
+		if (msg_type == MT_SAB_BUT) {
+			ret = add_sab_msg_handler(msg_id, MT_SAB_BUT,
+						  prepare_msg_butterfly,
+						  proc_msg_rsp_butterfly);
 		}
 		break;
 #endif

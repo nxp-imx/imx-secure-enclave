@@ -248,6 +248,12 @@ SAB_MSG_SRC	+= \
 		$(PLAT_COMMON_PATH)/sab_msg/sab_key_generic_crypto.o
 endif
 
+ifneq (${MT_SAB_BUT},0x0)
+DEFINES		+=	-DMT_SAB_BUT=${MT_SAB_BUT}
+SAB_MSG_SRC	+= \
+		$(PLAT_COMMON_PATH)/sab_msg/sab_butterfly.o
+endif
+
 ifneq (${MT_SAB_ST_BUT},0x0)
 DEFINES		+=	-DMT_SAB_ST_BUT=${MT_SAB_ST_BUT}
 SAB_MSG_SRC	+= \

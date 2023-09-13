@@ -480,6 +480,71 @@ static void v2x_rng_test(hsm_hdl_t sess_hdl, op_get_random_args_t *rng_get_rando
 	printf("---------------------------------------------------\n");
 }
 
+static void v2x_transient_key_tests(hsm_hdl_t sg0_key_mgmt_srv)
+{
+	uint8_t exp_data[32] = {
+		0xA4, 0x3A, 0x19, 0x55, 0x9A, 0xA4, 0x15, 0xE5,
+		0xCB, 0xD7, 0x84, 0xEB, 0x44, 0x14, 0xC0, 0x37,
+		0x44, 0xC8, 0xFE, 0xF6, 0x15, 0xF6, 0x5E, 0x9B,
+		0x63, 0x23, 0x5E, 0x2F, 0xDE, 0x44, 0xA3, 0x8E };
+	op_butt_key_exp_args_t butterfly_gen_args;
+	uint32_t butterfly_key_id;
+	uint8_t pub_key[64];
+	uint32_t master_key_id = 0;
+	hsm_err_t err;
+	op_generate_key_args_t key_gen_args;
+
+	// Butterfly key expansion
+	printf("\n---------------------------------------------------\n");
+	printf("Butterfly key expansion Test\n");
+	printf("---------------------------------------------------\n");
+
+	memset(pub_key, 0, sizeof(pub_key));
+	memset(&key_gen_args, 0, sizeof(key_gen_args));
+	key_gen_args.key_identifier = &master_key_id;
+	key_gen_args.out_size = sizeof(pub_key);
+	key_gen_args.key_group = 4;
+#ifdef PSA_COMPLIANT
+	key_gen_args.key_lifetime = HSM_SE_KEY_STORAGE_PERSISTENT;
+	key_gen_args.key_usage = HSM_KEY_USAGE_SIGN_HASH
+		| HSM_KEY_USAGE_VERIFY_HASH;
+	key_gen_args.permitted_algo = PERMITTED_ALGO_ECDSA_SHA256;
+	key_gen_args.flags = HSM_OP_KEY_GENERATION_FLAGS_STRICT_OPERATION;
+	key_gen_args.key_type = HSM_KEY_TYPE_ECC_NIST;
+	key_gen_args.bit_key_sz = HSM_KEY_SIZE_ECC_NIST_256;
+	key_gen_args.key_lifecycle = 0;
+#else
+	key_gen_args.flags = HSM_OP_KEY_GENERATION_FLAGS_CREATE;
+	key_gen_args.key_info = HSM_KEY_INFO_TRANSIENT | HSM_KEY_INFO_MASTER;
+	key_gen_args.key_type = HSM_KEY_TYPE_ECDSA_NIST_P256;
+#endif
+	key_gen_args.out_key = pub_key;
+	err = hsm_generate_key(sg0_key_mgmt_srv, &key_gen_args);
+	printf("hsm_generate_key ret:0x%x\n", err);
+
+	printf("\nPersistent key created, Key ID (HEX): 0x%x  (DEC): %u\n",
+	       master_key_id, master_key_id);
+
+	memset(&butterfly_gen_args, 0, sizeof(butterfly_gen_args));
+	butterfly_gen_args.key_identifier = master_key_id;
+	butterfly_gen_args.expansion_function_value = exp_data;
+	butterfly_gen_args.hash_value = NULL;
+	butterfly_gen_args.pr_reconstruction_value = NULL;
+	butterfly_gen_args.expansion_function_value_size = sizeof(exp_data);
+	butterfly_gen_args.hash_value_size = 0;
+	butterfly_gen_args.pr_reconstruction_value_size = 0;
+	butterfly_gen_args.flags = HSM_OP_BUTTERFLY_KEY_FLAGS_CREATE |
+				HSM_OP_BUTTERFLY_KEY_FLAGS_EXPLICIT_CERTIF;
+	butterfly_gen_args.dest_key_identifier = &butterfly_key_id;
+	butterfly_gen_args.output = pub_key;
+	butterfly_gen_args.output_size = sizeof(pub_key);
+	butterfly_gen_args.key_type = HSM_KEY_TYPE_ECDSA_NIST_P256;
+	butterfly_gen_args.key_group = 101;
+	butterfly_gen_args.key_info = HSM_KEY_INFO_TRANSIENT;
+	err = hsm_butterfly_key_expansion(sg0_key_mgmt_srv, &butterfly_gen_args);
+	printf("hsm_butterfly_key_expansion ret:0x%x\n", err);
+}
+
 int main(int argc, char *argv[])
 {
     open_session_args_t args;
@@ -1503,6 +1568,8 @@ int main(int argc, char *argv[])
         if (j%16 == 15)
             printf("\n");
     }
+
+	v2x_transient_key_tests(sg0_key_mgmt_srv);
 
     // SM4 CCM
     printf("\n---------------------------------------------------\n");
