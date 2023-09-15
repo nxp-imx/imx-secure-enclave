@@ -108,6 +108,7 @@ static uint8_t err_handling_v2_support(uint8_t msg_id)
 	    msg_id == ROM_DEV_GETINFO_REQ ||
 	    msg_id == SAB_SHE_FAST_MAC_MUBUFF_REQ ||
 	    msg_id == SAB_BUT_KEY_EXP_REQ ||
+	    msg_id == SAB_PUB_KEY_DECOMPRESSION_REQ ||
 	    msg_id == SAB_FAST_MAC_REQ)
 		ret = 1;
 

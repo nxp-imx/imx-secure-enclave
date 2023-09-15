@@ -59,26 +59,6 @@ struct sab_public_key_reconstruct_rsp {
 	uint32_t rsp_code;
 };
 
-struct sab_public_key_decompression_msg {
-	struct sab_mu_hdr hdr;
-	uint32_t sesssion_handle;
-	uint32_t input_address_ext;
-	uint32_t input_address;
-	uint32_t output_address_ext;
-	uint32_t output_address;
-	uint16_t input_size;
-	uint16_t out_size;
-	uint8_t key_type;
-	uint8_t flags;
-	uint16_t rsv;
-	uint32_t crc;
-};
-
-struct sab_public_key_decompression_rsp {
-	struct sab_mu_hdr hdr;
-	uint32_t rsp_code;
-};
-
 struct sab_root_kek_export_msg {
 	struct sab_mu_hdr hdr;
 	uint32_t session_handle;
@@ -248,73 +228,6 @@ hsm_err_t hsm_pub_key_reconstruction(hsm_hdl_t session_hdl,
 			break;
 
 		sab_err_map(SAB_MSG, SAB_PUB_KEY_RECONSTRUCTION_REQ, rsp.rsp_code);
-
-		err = sab_rating_to_hsm_err(rsp.rsp_code);
-	} while (false);
-
-	return err;
-}
-
-hsm_err_t hsm_pub_key_decompression(hsm_hdl_t session_hdl,
-				    op_pub_key_dec_args_t *args)
-{
-	struct sab_public_key_decompression_msg cmd;
-	struct sab_public_key_decompression_rsp rsp;
-	uint32_t cmd_msg_sz = sizeof(struct sab_public_key_decompression_msg);
-	uint32_t rsp_msg_sz = sizeof(struct sab_public_key_decompression_rsp);
-	int32_t error;
-	struct hsm_session_hdl_s *sess_ptr;
-	hsm_err_t err = HSM_GENERAL_ERROR;
-
-	do {
-		if (!args || !session_hdl)
-			break;
-
-		sess_ptr = session_hdl_to_ptr(session_hdl);
-		if (!sess_ptr) {
-			err = HSM_UNKNOWN_HANDLE;
-			break;
-		}
-
-		/* Send the keys store open command to platform. */
-		plat_fill_cmd_msg_hdr(&cmd.hdr,
-				      SAB_PUB_KEY_DECOMPRESSION_REQ,
-				      cmd_msg_sz,
-				      sess_ptr->mu_type);
-		cmd.sesssion_handle = session_hdl;
-		cmd.input_address_ext = 0u;
-		set_phy_addr_to_words(&cmd.input_address,
-				      0u,
-				      plat_os_abs_data_buf(sess_ptr->phdl,
-							   args->key,
-							   args->key_size,
-							   DATA_BUF_IS_INPUT));
-		cmd.output_address_ext = 0u;
-		set_phy_addr_to_words(&cmd.output_address,
-				      0u,
-				      plat_os_abs_data_buf(sess_ptr->phdl,
-							   args->out_key,
-							   args->out_key_size,
-							   0u));
-		cmd.input_size = args->key_size;
-		cmd.out_size = args->out_key_size;
-		cmd.key_type = args->key_type;
-		cmd.flags = args->flags;
-		cmd.rsv = 0u;
-		cmd.crc = 0u;
-		cmd.crc = plat_compute_msg_crc((uint32_t *)&cmd,
-					       (uint32_t)(sizeof(cmd) - sizeof(uint32_t)));
-
-		/* Send the message to platform. */
-		error = plat_send_msg_and_get_resp(sess_ptr->phdl,
-						   (uint32_t *)&cmd,
-						   cmd_msg_sz,
-						   (uint32_t *)&rsp,
-						   rsp_msg_sz);
-		if (error != 0)
-			break;
-
-		sab_err_map(SAB_MSG, SAB_PUB_KEY_DECOMPRESSION_REQ, rsp.rsp_code);
 
 		err = sab_rating_to_hsm_err(rsp.rsp_code);
 	} while (false);

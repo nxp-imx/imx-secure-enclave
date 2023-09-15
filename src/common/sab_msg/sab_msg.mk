@@ -248,6 +248,12 @@ SAB_MSG_SRC	+= \
 		$(PLAT_COMMON_PATH)/sab_msg/sab_key_generic_crypto.o
 endif
 
+ifneq (${MT_SAB_PUB_KEY_DECOMPRESSION},0x0)
+DEFINES		+=	-DMT_SAB_PUB_KEY_DECOMPRESSION=${MT_SAB_PUB_KEY_DECOMPRESSION}
+SAB_MSG_SRC	+= \
+		$(PLAT_COMMON_PATH)/sab_msg/sab_pub_key_decompression.o
+endif
+
 ifneq (${MT_SAB_BUT},0x0)
 DEFINES		+=	-DMT_SAB_BUT=${MT_SAB_BUT}
 SAB_MSG_SRC	+= \

@@ -34,6 +34,7 @@ MT_SAB_KEY_MANAGEMENT   :=      ${FMW}
 MT_SAB_KEY_GENERIC_CRYPTO:=     ${FMW}
 MT_SAB_ST_BUT		:=      ${FMW}
 MT_SAB_BUT		:=      ${FMW}
+MT_SAB_PUB_KEY_DECOMPRESSION:=      ${FMW}
 MT_SAB_ECIES		:=      ${FMW}
 MT_SAB_SM2_ECES		:=      ${FMW}
 MT_SAB_SM2_GET_Z	:=      ${FMW}

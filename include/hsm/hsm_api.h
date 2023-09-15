@@ -21,6 +21,8 @@ extern "C" {
 #include "internal/hsm_utils.h"
 #include "internal/hsm_key_store.h"
 
+#include "internal/hsm_pub_key_decompression.h"
+
 #include "internal/hsm_butterfly.h"
 
 #include "internal/hsm_sm2_get_z.h"

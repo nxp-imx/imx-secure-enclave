@@ -159,6 +159,12 @@ HSM_API_SRC	+= \
 		$(PLAT_COMMON_PATH)/hsm_api/hsm_key_generic_crypto.o
 endif
 
+ifneq (${MT_SAB_PUB_KEY_DECOMPRESSION},0x0)
+DEFINES		+=	-DHSM_PUB_KEY_DECOMPRESSION
+HSM_API_SRC	+= \
+		$(PLAT_COMMON_PATH)/hsm_api/hsm_pub_key_decompression.o
+endif
+
 ifneq (${MT_SAB_BUT},0x0)
 DEFINES		+=	-DHSM_BUT
 HSM_API_SRC	+= \
