@@ -228,6 +228,20 @@ static uint8_t is_lib_err(uint32_t err)
 	return ret;
 }
 
+hsm_err_t plat_err_to_hsm_err(uint8_t msg_id, uint32_t lib_err, uint8_t dir)
+{
+	hsm_err_t ret = HSM_NO_ERROR;
+
+	if (lib_err != PLAT_SUCCESS) {
+		plat_lib_err_map(msg_id, lib_err);
+
+		if (dir == HSM_PREPARE)
+			ret = HSM_LIB_ERROR;
+	}
+
+	return ret;
+}
+
 hsm_err_t lib_err_to_hsm_err(uint32_t lib_err)
 {
 	hsm_err_t ret = HSM_LIB_ERROR;

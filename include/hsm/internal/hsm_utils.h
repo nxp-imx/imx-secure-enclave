@@ -9,6 +9,9 @@
 #include "stdbool.h"
 #include "stdint.h"
 
+#define HSM_PREPARE	0x66
+#define HSM_RESPONSE	0x99
+
 #ifdef PSA_COMPLIANT
 #include "internal/hsm_handle.h"
 
@@ -224,6 +227,17 @@ typedef enum {
 /** @} end of error code group */
 
 hsm_err_t sab_rating_to_hsm_err(uint32_t sab_err);
+
+/**
+ * maps the plat error to HSM error
+ *
+ * \param msg_id message id of the message
+ * \param lib_err platform API error
+ * \param dir direction before/after invoking sab engine
+ *
+ * \return HSM error code
+ */
+hsm_err_t plat_err_to_hsm_err(uint8_t msg_id, uint32_t lib_err, uint8_t dir);
 
 /**
  * maps the library error to HSM error

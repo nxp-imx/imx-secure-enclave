@@ -59,22 +59,6 @@ struct sab_public_key_reconstruct_rsp {
 	uint32_t rsp_code;
 };
 
-struct sab_root_kek_export_msg {
-	struct sab_mu_hdr hdr;
-	uint32_t session_handle;
-	uint32_t root_kek_address_ext;
-	uint32_t root_kek_address;
-	uint8_t root_kek_size;
-	uint8_t flags;
-	uint16_t reserved;
-	uint32_t crc;
-};
-
-struct sab_root_kek_export_rsp {
-	struct sab_mu_hdr hdr;
-	uint32_t rsp_code;
-};
-
 struct sab_cmd_tls_finish_msg {
 	struct sab_mu_hdr hdr;
 	uint32_t        key_management_handle;
@@ -230,71 +214,6 @@ hsm_err_t hsm_pub_key_reconstruction(hsm_hdl_t session_hdl,
 		sab_err_map(SAB_MSG, SAB_PUB_KEY_RECONSTRUCTION_REQ, rsp.rsp_code);
 
 		err = sab_rating_to_hsm_err(rsp.rsp_code);
-	} while (false);
-
-	return err;
-}
-
-hsm_err_t hsm_export_root_key_encryption_key(hsm_hdl_t session_hdl,
-					     op_export_root_kek_args_t *args)
-{
-	struct sab_root_kek_export_msg cmd;
-	struct sab_root_kek_export_rsp rsp;
-	uint32_t cmd_msg_sz = sizeof(struct sab_root_kek_export_msg);
-	uint32_t rsp_msg_sz = sizeof(struct sab_root_kek_export_rsp);
-	struct hsm_session_hdl_s *sess_ptr;
-	int32_t error;
-	hsm_err_t err = HSM_GENERAL_ERROR;
-
-	do {
-		if (!args || !session_hdl)
-			break;
-
-		sess_ptr = session_hdl_to_ptr(session_hdl);
-		if (!sess_ptr) {
-			err = HSM_UNKNOWN_HANDLE;
-			break;
-		}
-
-		/* Send the signed message to platform if provided here. */
-		if (args->signed_message) {
-			(void)plat_os_abs_send_signed_message(sess_ptr->phdl,
-							      args->signed_message,
-							      args->signed_msg_size);
-		}
-
-		plat_fill_cmd_msg_hdr(&cmd.hdr,
-				      SAB_ROOT_KEK_EXPORT_REQ,
-				      cmd_msg_sz,
-				      sess_ptr->mu_type);
-		cmd.session_handle = session_hdl;
-		cmd.root_kek_address_ext = 0;
-		set_phy_addr_to_words(&cmd.root_kek_address,
-				      0u,
-				      plat_os_abs_data_buf(sess_ptr->phdl,
-							   args->out_root_kek,
-							   args->root_kek_size,
-							   0u));
-		cmd.flags = args->flags;
-		cmd.root_kek_size = args->root_kek_size;
-		cmd.reserved = 0u;
-		cmd.crc = 0;
-		cmd.crc = plat_compute_msg_crc((uint32_t *)&cmd,
-					       (uint32_t)(sizeof(cmd) - sizeof(uint32_t)));
-
-		error = plat_send_msg_and_get_resp(sess_ptr->phdl,
-						   (uint32_t *)&cmd,
-						   cmd_msg_sz,
-						   (uint32_t *)&rsp,
-						   rsp_msg_sz);
-
-		if (error != 0)
-			break;
-
-		sab_err_map(SAB_MSG, SAB_ROOT_KEK_EXPORT_REQ, rsp.rsp_code);
-
-		err = sab_rating_to_hsm_err(rsp.rsp_code);
-
 	} while (false);
 
 	return err;

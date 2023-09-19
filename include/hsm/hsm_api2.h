@@ -118,43 +118,6 @@ hsm_err_t hsm_pub_key_reconstruction(hsm_hdl_t session_hdl,
  */
 /** @} end of public key reconstruction operation */
 
-/**
- *  @defgroup group14 Root KEK export
- * @{
- */
-typedef uint8_t hsm_op_export_root_kek_flags_t;
-typedef struct {
-	//!< pointer to signed_message authorizing the operation
-	uint8_t *signed_message;
-	//!< pointer to the output area where the derived root kek
-	//   (key encryption key) must be written
-	uint8_t *out_root_kek;
-	//!< size of the signed_message authorizing the operation
-	uint16_t signed_msg_size;
-	//!< length in bytes of the root kek. Must be 32 bytes.
-	uint8_t root_kek_size;
-	//!< flags bitmap specifying the operation attributes.
-	hsm_op_export_root_kek_flags_t flags;
-	uint8_t reserved[2];
-} op_export_root_kek_args_t;
-
-/**
- * Export the root key encryption key. This key is derived on chip.
- * It can be common or chip unique.
- * This key will be used to import key in the key store through the manage key API.
- *
- * \param session_hdl handle identifying the current session.
- * \param args pointer to the structure containing the function arguments.
- *
- * \return error code
- */
-hsm_err_t hsm_export_root_key_encryption_key(hsm_hdl_t session_hdl,
-					     op_export_root_kek_args_t *args);
-#define HSM_OP_EXPORT_ROOT_KEK_FLAGS_COMMON_KEK \
-		((hsm_op_export_root_kek_flags_t)(1u << 0))
-#define HSM_OP_EXPORT_ROOT_KEK_FLAGS_UNIQUE_KEK \
-		((hsm_op_export_root_kek_flags_t)(0u << 0))
-/** @} end of export root key encryption key operation */
 /** \}*/
 #endif
 #endif

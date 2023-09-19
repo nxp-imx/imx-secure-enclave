@@ -636,6 +636,31 @@ static void v2x_public_key_test(hsm_hdl_t hsm_session_hdl)
 #endif
 }
 
+static void v2x_root_kek_export_test(hsm_hdl_t sg0_sess)
+{
+	uint8_t out[64];
+	uint32_t i;
+	hsm_err_t err;
+
+	op_export_root_kek_args_t hsm_op_export_root_kek_args;
+
+	hsm_op_export_root_kek_args.out_root_kek = out;
+	hsm_op_export_root_kek_args.flags = 0x01u;
+	hsm_op_export_root_kek_args.root_kek_size = 32;
+
+	err = hsm_export_root_key_encryption_key(sg0_sess, &hsm_op_export_root_kek_args);
+
+	printf("hsm_export_root_key_encryption_key ret:0x%x\n", err);
+#ifdef DEBUG
+	printf("output:\n");
+	for (i = 0; i < 64; i++) {
+		printf("0x%x ", out[i]);
+		if (i % 8 == 7)
+			printf("\n");
+	}
+#endif
+}
+
 int main(int argc, char *argv[])
 {
     open_session_args_t args;
@@ -837,6 +862,11 @@ int main(int argc, char *argv[])
 	printf("PUB KEY DECOMPRESSION test\n");
 	printf("---------------------------------------------------\n");
 	v2x_public_key_test(sv0_sess);
+
+	printf("\n---------------------------------------------------\n");
+	printf("Root KEK Export\n");
+	printf("---------------------------------------------------\n");
+	v2x_root_kek_export_test(sg0_sess);
 
     // SM3 hash test
 

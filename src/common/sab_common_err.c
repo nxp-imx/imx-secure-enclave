@@ -114,6 +114,10 @@ void plat_lib_err_map(uint8_t msg_id, uint32_t plat_lib_err)
 		se_err("\nPLAT LIB Error: CMD [0x%x] PLAT_DATA_BUF_SETUP_FAIL\n",
 		       msg_id);
 		break;
+	case PLAT_SIGNED_MESSAGE_SETUP_FAIL:
+		se_err("\nPLAT LIB Error: CMD [0x%x] PLAT_SIGNED_MESSAGE_SETUP_FAIL\n",
+		       msg_id);
+		break;
 	default:
 		break;
 	}

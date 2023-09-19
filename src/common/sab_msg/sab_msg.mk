@@ -248,6 +248,12 @@ SAB_MSG_SRC	+= \
 		$(PLAT_COMMON_PATH)/sab_msg/sab_key_generic_crypto.o
 endif
 
+ifneq (${MT_SAB_ROOT_KEK_EXPORT},0x0)
+DEFINES		+=	-DMT_SAB_ROOT_KEK_EXPORT=${MT_SAB_ROOT_KEK_EXPORT}
+SAB_MSG_SRC	+= \
+		$(PLAT_COMMON_PATH)/sab_msg/sab_root_kek_export.o
+endif
+
 ifneq (${MT_SAB_PUB_KEY_DECOMPRESSION},0x0)
 DEFINES		+=	-DMT_SAB_PUB_KEY_DECOMPRESSION=${MT_SAB_PUB_KEY_DECOMPRESSION}
 SAB_MSG_SRC	+= \

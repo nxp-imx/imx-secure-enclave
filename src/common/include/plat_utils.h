@@ -42,10 +42,11 @@
 /**
  * Library platform error codes
  */
-#define PLAT_MEMCPY_FAIL             0x02u
-#define PLAT_ERR_OUT_OF_MEMORY       0x03u
-#define PLAT_DATA_BUF_SETUP_FAIL     0x04u
-#define PLAT_CONF_SHARED_BUF_FAIL    0x08u
+#define PLAT_MEMCPY_FAIL               0x02u
+#define PLAT_ERR_OUT_OF_MEMORY         0x03u
+#define PLAT_DATA_BUF_SETUP_FAIL       0x04u
+#define PLAT_SIGNED_MESSAGE_SETUP_FAIL 0x05u
+#define PLAT_CONF_SHARED_BUF_FAIL      0x08u
 
 typedef enum {
 	NOT_SUPPORTED,

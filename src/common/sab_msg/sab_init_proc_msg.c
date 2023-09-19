@@ -106,6 +106,10 @@
 #include "sab_key_generic_crypto.h"
 #endif
 
+#if MT_SAB_ROOT_KEK_EXPORT
+#include "sab_root_kek_export.h"
+#endif
+
 #if MT_SAB_PUB_KEY_DECOMPRESSION
 #include "sab_pub_key_decompression.h"
 #endif
@@ -532,6 +536,15 @@ static  int init_proc_sab_hsm_msg_engine(msg_type_t msg_type,
 			ret = add_sab_msg_handler(msg_id, MT_SAB_VERIFY_SIGN,
 						  prepare_msg_verify_sign,
 						  proc_msg_rsp_verify_sign);
+		}
+		break;
+#endif
+#if MT_SAB_ROOT_KEK_EXPORT
+	case SAB_ROOT_KEK_EXPORT_REQ:
+		if (msg_type == MT_SAB_ROOT_KEK_EXPORT) {
+			ret = add_sab_msg_handler(msg_id, MT_SAB_ROOT_KEK_EXPORT,
+						  prepare_msg_root_kek_export,
+						  proc_msg_rsp_root_kek_export);
 		}
 		break;
 #endif

@@ -401,3 +401,38 @@ uint32_t plat_os_abs_send_signed_message(struct plat_os_abs_hdl *phdl,
 
 	return TO_UINT32_T(err);
 }
+
+uint32_t plat_os_abs_signed_message_v2(struct plat_os_abs_hdl *phdl,
+				       uint8_t *signed_message,
+				       uint32_t msg_len)
+{
+	/* Send the message to the kernel that will forward to SCU.*/
+	struct seco_mu_ioctl_signed_message msg;
+	uint32_t err = PLAT_SUCCESS;
+	int32_t ret;
+
+	if (!phdl) {
+		err = PLAT_SIGNED_MESSAGE_SETUP_FAIL;
+		goto out;
+	}
+
+	msg.message = signed_message;
+	msg.msg_size = msg_len;
+
+	ret = ioctl(phdl->fd, SECO_MU_IOCTL_SIGNED_MESSAGE, &msg);
+
+	if (ret < 0) {
+		err = PLAT_SIGNED_MESSAGE_SETUP_FAIL;
+		se_err("\nPLAT ioctl error[%d]: %s\n",
+		       errno,
+		       strerror(errno));
+		return err;
+	} else if (ret == 0) {
+		/* Fix me imx_sc_to_linux_errno() in imx-scu.c return -EIO. */
+		err = msg.error_code;
+		return PLAT_SUCCESS;
+	}
+
+out:
+	return err;
+}
