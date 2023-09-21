@@ -9,7 +9,7 @@
 #include <stdio.h>
 #include <stdint.h>
 
-#define SAB_ERR_MAP_N 23
+#define SAB_ERR_MAP_N 24
 #define SAB_ERR_MAP_SZ 256
 
 struct sab_err_map_s {

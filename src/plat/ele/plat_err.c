@@ -29,6 +29,7 @@ static struct sab_err_map_s sab_err_str_map[SAB_ERR_MAP_N] = {
 	{0x1C29, "Trying to delete a permanent key"},
 	{0x1D29, "Output public key size is too small"},
 	{0xB929, "Command CRC check error"},
+	{0xF229, "Invalid Lifecycle operation"},
 };
 
 

@@ -208,6 +208,7 @@
 #define SAB_OUT_LEN_TOO_SHORT_RATING            (0x1Du)
 #define SAB_DATA_ALREADY_RETRIEVED_RATING       (0x1Fu)
 #define SAB_CRC_CHECK_FAIL_RATING               (0xB9u)
+#define SAB_INVALID_LIFECYCLE_OP_RATING         (0xF2u)
 
 /* SHE specific rating */
 #define SAB_SHE_SEQUENCE_ERROR_RATING           (0xD1u)     /**< Invalid sequence of commands. */

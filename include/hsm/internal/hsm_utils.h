@@ -206,6 +206,8 @@ typedef enum {
 	 */
 	HSM_LIB_ERROR                       = 0xEF,
 	/**< HSM library failure */
+	HSM_INVALID_LIFECYCLE_OP            = 0xF2,
+	/**<	Invalid Lifecycle operation (ROM) */
 	HSM_SERVICES_DISABLED               = 0xF4,
 	/**<Message neither handled by ROM nor FW */
 	HSM_UNKNOWN_WARNING                 = 0xFC,

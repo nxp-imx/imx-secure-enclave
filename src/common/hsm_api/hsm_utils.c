@@ -165,6 +165,10 @@ static hsm_err_t sab_err_rating_to_hsm_err(uint8_t sab_err_rating)
 				hsm_err);
 		break;
 
+	case HSM_INVALID_LIFECYCLE_OP:
+		se_err("\nHSM Error: HSM_INVALID_LIFECYCLE_OP (0x%x)\n", hsm_err);
+		break;
+
 	case HSM_SERVICES_DISABLED:
 		se_err("\nHSM Error: HSM_SERVICES_DISABLED (0x%x)\n", hsm_err);
 		break;
