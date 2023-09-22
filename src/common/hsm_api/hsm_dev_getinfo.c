@@ -55,3 +55,27 @@ hsm_err_t hsm_dev_getinfo(hsm_hdl_t session_hdl, op_dev_getinfo_args_t *args)
 
 	return err;
 }
+
+hsm_key_lifecycle_t hsm_get_lc_from_lmda(hsm_lmda_val_t lmda_val)
+{
+	hsm_key_lifecycle_t ret = HSM_KEY_LIFECYCLE_INVALID;
+
+	switch (lmda_val)  {
+	case HSM_LMDA_OEM_OPEN:
+		ret = HSM_KEY_LIFECYCLE_OPEN;
+		break;
+
+	case HSM_LMDA_OEM_CLOSED:
+		ret = HSM_KEY_LIFECYCLE_CLOSED;
+		break;
+
+	case HSM_LMDA_OEM_LOCKED:
+		ret = HSM_KEY_LIFECYCLE_CLOSED_LOCKED;
+		break;
+
+	default:
+		break;
+	}
+
+	return ret;
+}

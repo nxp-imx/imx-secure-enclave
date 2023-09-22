@@ -53,6 +53,8 @@ void dev_get_info(hsm_hdl_t sess_hdl)
 		printf("SoC ID = 0x%x\n", dev_getinfo_args.soc_id);
 		printf("SoC Rev = 0x%x\n", dev_getinfo_args.soc_rev);
 		printf("LMDA Val = 0x%x\n", dev_getinfo_args.lmda_val);
+		printf("Lifecycle = 0x%x\n",
+		       hsm_get_lc_from_lmda(dev_getinfo_args.lmda_val));
 		printf("SSM State = 0x%x\n", dev_getinfo_args.ssm_state);
 		printf("UID:");
 		hexdump((uint32_t *)dev_getinfo_args.uid,

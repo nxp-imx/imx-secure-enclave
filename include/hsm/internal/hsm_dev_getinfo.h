@@ -7,6 +7,7 @@
 #define HSM_DEV_GET_INFO_H
 
 #include "internal/hsm_handle.h"
+#include "internal/hsm_key.h"
 #include "internal/hsm_utils.h"
 
 /**
@@ -64,6 +65,26 @@ typedef struct {
  */
 
 hsm_err_t hsm_dev_getinfo(hsm_hdl_t sess_hdl, op_dev_getinfo_args_t *args);
+
+/**
+ * LMDA values
+ */
+typedef enum {
+	/**< LMDA value for OEM Open state */
+	HSM_LMDA_OEM_OPEN                 = 0x10,
+	/**< LMDA value for OEM Closed state */
+	HSM_LMDA_OEM_CLOSED               = 0x40,
+	/**< LMDA value for OEM Locked state */
+	HSM_LMDA_OEM_LOCKED               = 0x200,
+} hsm_lmda_val_t;
+
+/**
+ * return the lifecycle value corresponding to the given LMDA value
+ * \param lmda_val LMDA value
+ *
+ * \return lc Lifecycle value
+ */
+hsm_key_lifecycle_t hsm_get_lc_from_lmda(hsm_lmda_val_t lmda_val);
 
 /** @} end of dev info operation */
 #endif
