@@ -110,6 +110,7 @@ static uint8_t err_handling_v2_support(uint8_t msg_id)
 	    msg_id == SAB_BUT_KEY_EXP_REQ ||
 	    msg_id == SAB_PUB_KEY_DECOMPRESSION_REQ ||
 	    msg_id == SAB_ROOT_KEK_EXPORT_REQ ||
+	    msg_id == SAB_PUB_KEY_RECONSTRUCTION_REQ ||
 	    msg_id == SAB_FAST_MAC_REQ)
 		ret = 1;
 

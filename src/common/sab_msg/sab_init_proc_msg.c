@@ -110,6 +110,10 @@
 #include "sab_root_kek_export.h"
 #endif
 
+#if MT_SAB_PUB_KEY_RECONSTRUCTION
+#include "sab_pub_key_reconstruction.h"
+#endif
+
 #if MT_SAB_PUB_KEY_DECOMPRESSION
 #include "sab_pub_key_decompression.h"
 #endif
@@ -586,6 +590,15 @@ static  int init_proc_sab_hsm_msg_engine(msg_type_t msg_type,
 			ret = add_sab_msg_handler(msg_id, MT_SAB_KEY_GENERIC_CRYPTO,
 						  prepare_msg_key_generic_crypto,
 						  proc_msg_rsp_key_generic_crypto);
+		}
+		break;
+#endif
+#if MT_SAB_PUB_KEY_RECONSTRUCTION
+	case SAB_PUB_KEY_RECONSTRUCTION_REQ:
+		if (msg_type == MT_SAB_PUB_KEY_RECONSTRUCTION) {
+			ret = add_sab_msg_handler(msg_id, MT_SAB_PUB_KEY_RECONSTRUCTION,
+						  prepare_msg_pub_key_reconstruction,
+						  proc_msg_rsp_pub_key_reconstruction);
 		}
 		break;
 #endif

@@ -165,6 +165,12 @@ HSM_API_SRC	+= \
 		$(PLAT_COMMON_PATH)/hsm_api/hsm_root_kek_export.o
 endif
 
+ifneq (${MT_SAB_PUB_KEY_RECONSTRUCTION},0x0)
+DEFINES		+=	-DHSM_PUB_KEY_RECONSTRUCTION
+HSM_API_SRC	+= \
+		$(PLAT_COMMON_PATH)/hsm_api/hsm_pub_key_reconstruction.o
+endif
+
 ifneq (${MT_SAB_PUB_KEY_DECOMPRESSION},0x0)
 DEFINES		+=	-DHSM_PUB_KEY_DECOMPRESSION
 HSM_API_SRC	+= \
