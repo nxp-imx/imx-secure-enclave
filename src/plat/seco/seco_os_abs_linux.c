@@ -235,6 +235,24 @@ int32_t plat_os_abs_configure_shared_buf(struct plat_os_abs_hdl *phdl, uint32_t 
     return error;
 }
 
+/* Map the shared buffer allocated by Seco. */
+uint32_t plat_os_abs_configure_shared_buf_v2(struct plat_os_abs_hdl *phdl,
+					     uint32_t shared_buf_off,
+					     uint32_t size)
+{
+	int32_t ret;
+	uint32_t error = PLAT_SUCCESS;
+	struct seco_mu_ioctl_shared_mem_cfg cfg;
+
+	cfg.base_offset = shared_buf_off;
+	cfg.size = size;
+	ret = ioctl(phdl->fd, SECO_MU_IOCTL_SHARED_BUF_CFG, &cfg);
+
+	if (ret != 0)
+		error = PLAT_CONF_SHARED_BUF_FAIL;
+
+	return error;
+}
 
 uint64_t plat_os_abs_data_buf(struct plat_os_abs_hdl *phdl, uint8_t *src, uint32_t size, uint32_t flags)
 {
@@ -254,6 +272,37 @@ uint64_t plat_os_abs_data_buf(struct plat_os_abs_hdl *phdl, uint8_t *src, uint32
     return io.seco_addr;
 }
 
+uint32_t plat_os_abs_data_buf_v2(struct plat_os_abs_hdl *phdl,
+				 uint64_t *addr,
+				 uint8_t *src,
+				 uint32_t size,
+				 uint32_t flags)
+{
+	struct seco_mu_ioctl_setup_iobuf io;
+	uint32_t err = PLAT_SUCCESS;
+	int32_t ret;
+
+	if (!addr) {
+		err = PLAT_DATA_BUF_SETUP_FAIL;
+		return err;
+	}
+
+	io.user_buf = src;
+	io.length = size;
+	io.flags = flags;
+
+	ret = ioctl(phdl->fd, SECO_MU_IOCTL_SETUP_IOBUF, &io);
+
+	*addr = io.seco_addr;
+
+	if (ret != 0) {
+		*addr = 0;
+		err = PLAT_DATA_BUF_SETUP_FAIL;
+	}
+
+	return err;
+}
+
 void plat_os_abs_memset(uint8_t *dst, uint8_t val, uint32_t len)
 {
     (void)memset(dst, (int32_t)val, len);
@@ -267,9 +316,53 @@ void plat_os_abs_memcpy(uint8_t *dst, uint8_t *src, uint32_t len)
 	(void)memcpy(dst, src, len);
 }
 
+uint32_t plat_os_abs_memcpy_v2(uint8_t *dst, uint8_t *src, uint32_t len)
+{
+	uint32_t err = PLAT_SUCCESS;
+	void *ret;
+
+	if (!dst || !src) {
+		err = PLAT_MEMCPY_FAIL;
+		goto out;
+	}
+
+	if (len == NO_LENGTH)
+		len = TO_UINT32_T(strlen(src));
+
+	ret = (void *)memcpy(dst, src, len);
+
+	if (!ret)
+		err = PLAT_MEMCPY_FAIL;
+
+out:
+	return err;
+}
+
 uint8_t *plat_os_abs_malloc(uint32_t size)
 {
     return (uint8_t *)malloc(size);
+}
+
+uint32_t plat_os_abs_malloc_v2(uint8_t **mem_p, uint32_t size)
+{
+	uint32_t ret = PLAT_SUCCESS;
+
+	if (!mem_p || !size) {
+		ret = PLAT_ERR_OUT_OF_MEMORY;
+		goto out;
+	}
+
+	*mem_p =  (uint8_t *)malloc(size);
+
+	if (!(*mem_p) || errno == ENOMEM) {
+		ret = PLAT_ERR_OUT_OF_MEMORY;
+		se_err("\nPLAT malloc error[%d]: %s\n",
+		       errno,
+		       strerror(errno));
+	}
+
+out:
+	return ret;
 }
 
 void plat_os_abs_free(void *ptr)

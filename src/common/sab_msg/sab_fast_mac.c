@@ -18,7 +18,7 @@ uint32_t prepare_msg_fast_mac(void *phdl,
 			      uint32_t msg_hdl,
 			      void *args)
 {
-	uint32_t ret = SAB_ENGN_PASS;
+	uint32_t err = SAB_LIB_STATUS(SAB_LIB_SUCCESS);
 	struct sab_she_fast_mac_msg *cmd =
 		(struct sab_she_fast_mac_msg *)cmd_buf;
 
@@ -34,7 +34,7 @@ uint32_t prepare_msg_fast_mac(void *phdl,
 	*cmd_msg_sz = sizeof(struct sab_she_fast_mac_msg);
 	*rsp_msg_sz = sizeof(struct sab_she_fast_mac_rsp);
 
-	return ret;
+	return err;
 }
 
 uint32_t prepare_msg_v2x_fast_mac(void *phdl,
@@ -45,7 +45,7 @@ uint32_t prepare_msg_v2x_fast_mac(void *phdl,
 				  uint32_t msg_hdl,
 				  void *args)
 {
-	uint32_t ret = SAB_ENGN_PASS;
+	uint32_t err = SAB_LIB_STATUS(SAB_LIB_SUCCESS);
 	struct sab_she_v2x_fast_mac_msg *cmd =
 		(struct sab_she_v2x_fast_mac_msg *)cmd_buf;
 
@@ -64,37 +64,39 @@ uint32_t prepare_msg_v2x_fast_mac(void *phdl,
 	*cmd_msg_sz = sizeof(struct sab_she_v2x_fast_mac_msg);
 	*rsp_msg_sz = sizeof(struct sab_she_fast_mac_rsp);
 
-	return ret;
+	return err;
 }
 
 uint32_t proc_msg_rsp_fast_mac(void *rsp_buf, void *args)
 {
+	uint32_t err = SAB_LIB_STATUS(SAB_LIB_SUCCESS);
 	struct sab_she_fast_mac_rsp *rsp =
 		(struct sab_she_fast_mac_rsp *)rsp_buf;
 
 	op_fast_seco_mac_t *op_args = (op_fast_seco_mac_t *)args;
 
 	if (rsp->rsp_code != SAB_SUCCESS_STATUS)
-		return rsp->rsp_code;
+		return err;
 
 	if (op_args->flags & SHE_FAST_MAC_FLAGS_VERIFICATION)
 		op_args->verification_status = rsp->verification_status;
 
-	return SAB_SUCCESS_STATUS;
+	return err;
 }
 
 uint32_t proc_msg_rsp_v2x_fast_mac(void *rsp_buf, void *args)
 {
+	uint32_t err = SAB_LIB_STATUS(SAB_LIB_SUCCESS);
 	struct sab_she_fast_mac_rsp *rsp =
 		(struct sab_she_fast_mac_rsp *)rsp_buf;
 
 	op_fast_v2x_mac_t *op_args = (op_fast_v2x_mac_t *)args;
 
 	if (rsp->rsp_code != SAB_SUCCESS_STATUS)
-		return rsp->rsp_code;
+		return err;
 
 	if (op_args->flags & SHE_FAST_MAC_FLAGS_VERIFICATION)
 		op_args->verification_status = rsp->verification_status;
 
-	return SAB_SUCCESS_STATUS;
+	return err;
 }

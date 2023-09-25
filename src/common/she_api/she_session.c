@@ -8,6 +8,7 @@
 
 #include "she_api.h"
 #include "sab_process_msg.h"
+#include "sab_common_err.h"
 
 uint8_t she_v2x_mu;
 
@@ -15,7 +16,7 @@ she_err_t she_close_session(she_hdl_t session_hdl)
 {
 	struct she_session_hdl_s *hdl;
 	she_err_t err = SHE_GENERAL_ERROR;
-	uint32_t sab_err;
+	uint32_t lib_err;
 	uint32_t rsp_code = SAB_NO_MESSAGE_RATING;
 
 	if (!session_hdl)
@@ -25,19 +26,17 @@ she_err_t she_close_session(she_hdl_t session_hdl)
 	if (!hdl)
 		return err;
 
-	sab_err = process_sab_msg(hdl->phdl,
+	lib_err = process_sab_msg(hdl->phdl,
 				  hdl->mu_type,
 				  SAB_SESSION_CLOSE_REQ,
 				  MT_SAB_SESSION,
 				  hdl->session_hdl,
 				  NULL, &rsp_code);
 
-	err = sab_rating_to_she_err(sab_err);
+	err = lib_err_to_she_err(lib_err);
 
-	if (err != SHE_NO_ERROR) {
-		se_err("SHE Error: SAB_SESSION_CLOSE_REQ [0x%x].\n", err);
+	if (err != SHE_NO_ERROR)
 		return err;
-	}
 
 	err = sab_rating_to_she_err(rsp_code);
 	if (err != SHE_NO_ERROR) {
@@ -114,7 +113,7 @@ she_err_t she_open_session(open_session_args_t *args, she_hdl_t *session_hdl)
 {
 	struct she_session_hdl_s *hdl = NULL;
 	she_err_t err = SHE_GENERAL_ERROR;
-	uint32_t sab_err;
+	uint32_t sab_err, ret;
 	op_get_info_args_t info_args = {'\0'};
 	op_shared_buf_args_t buf_args = {'\0'};
 	uint32_t rsp_code = SAB_NO_MESSAGE_RATING;
@@ -174,11 +173,14 @@ she_err_t she_open_session(open_session_args_t *args, she_hdl_t *session_hdl)
 			se_print("Get shared buffer 0x%x : 0x%x\n",
 				 buf_args.shared_buf_offset, buf_args.shared_buf_size);
 			/* Configure the shared buffer. */
-			err = plat_os_abs_configure_shared_buf(hdl->phdl,
-							       buf_args.shared_buf_offset,
-							       buf_args.shared_buf_size);
-			if (err != 0) {
-				se_err("Fail to configure shared buffer [0x%x].\n", err);
+			ret = plat_os_abs_configure_shared_buf_v2
+					(hdl->phdl,
+					 buf_args.shared_buf_offset,
+					 buf_args.shared_buf_size);
+			if (ret != PLAT_SUCCESS) {
+				se_err("Fail to configure shared buffer [0x%x].\n", ret);
+				plat_lib_err_map(SAB_SHARED_BUF_REQ, ret);
+				err = SHE_LIB_ERROR;
 				break;
 			}
 		}

@@ -184,6 +184,24 @@ int32_t plat_os_abs_configure_shared_buf(struct plat_os_abs_hdl *phdl, uint32_t 
     return error;
 }
 
+/* Map the shared buffer allocated by Seco. */
+uint32_t plat_os_abs_configure_shared_buf_v2(struct plat_os_abs_hdl *phdl,
+					     uint32_t shared_buf_off,
+					     uint32_t size)
+{
+	int32_t ret;
+	uint32_t error = PLAT_SUCCESS;
+	struct ele_mu_ioctl_shared_mem_cfg cfg;
+
+	cfg.base_offset = shared_buf_off;
+	cfg.size = size;
+	ret = ioctl(phdl->fd, ELE_MU_IOCTL_SHARED_BUF_CFG, &cfg);
+
+	if (ret != 0)
+		error = PLAT_CONF_SHARED_BUF_FAIL;
+
+	return error;
+}
 
 uint64_t plat_os_abs_data_buf(struct plat_os_abs_hdl *phdl, uint8_t *src, uint32_t size, uint32_t flags)
 {
@@ -215,7 +233,7 @@ uint32_t plat_os_abs_data_buf_v2(struct plat_os_abs_hdl *phdl,
 
 	if (!addr) {
 		err = PLAT_DATA_BUF_SETUP_FAIL;
-		goto out;
+		return err;
 	}
 
 	io.user_buf = src;
@@ -231,7 +249,6 @@ uint32_t plat_os_abs_data_buf_v2(struct plat_os_abs_hdl *phdl,
 		err = PLAT_DATA_BUF_SETUP_FAIL;
 	}
 
-out:
 	return err;
 }
 

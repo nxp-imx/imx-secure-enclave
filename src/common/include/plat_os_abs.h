@@ -144,6 +144,24 @@ uint32_t plat_os_abs_read_mu_message(struct plat_os_abs_hdl *phdl,
 int32_t plat_os_abs_configure_shared_buf(struct plat_os_abs_hdl *phdl, uint32_t shared_buf_off, uint32_t size);
 
 /**
+ * Configure the use of shared buffer in secure memory
+ *
+ * Secure-Enclave Platform allocates a shared buffer in secure memory to
+ * exchange data. Offset in secure memory and sizes are provided by Secure-Enclave
+ * Platform in a message decoded by caller. These information are provided to
+ * the platform dependent layer through this API to avoid parsing incoming messages here.
+ *
+ * \param phdl pointer to the session handle associated to this shared buffer.
+ * \param shared_buf_offset offset of the shared buffer in secure memory.
+ * \param size allocated shared buffer size in bytes.
+ *
+ * \return PLAT_SUCCESS in case of success. Any other value means error.
+ */
+uint32_t plat_os_abs_configure_shared_buf_v2(struct plat_os_abs_hdl *phdl,
+					     uint32_t shared_buf_off,
+					     uint32_t size);
+
+/**
  * Setup data buffer for command processing
  *
  * The command messages sent to Secure-Enclave Platform, most of the time do not carry the data to be processed.

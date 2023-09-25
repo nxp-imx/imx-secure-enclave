@@ -105,7 +105,9 @@ static uint8_t err_handling_v2_support(uint8_t msg_id)
 
 	if (msg_id == SAB_SESSION_OPEN_REQ ||
 	    msg_id == SAB_SESSION_CLOSE_REQ ||
-	    msg_id == ROM_DEV_GETINFO_REQ)
+	    msg_id == ROM_DEV_GETINFO_REQ ||
+	    msg_id == SAB_SHE_FAST_MAC_MUBUFF_REQ ||
+	    msg_id == SAB_FAST_MAC_REQ)
 		ret = 1;
 
 	return ret;
