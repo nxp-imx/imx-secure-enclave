@@ -32,9 +32,10 @@ hsm_err_t hsm_export_root_key_encryption_key(hsm_hdl_t session_hdl,
 
 		/* Send the signed message to platform if provided here. */
 		if (args->signed_message) {
-			lib_err = plat_os_abs_signed_message_v2(sess_ptr->phdl,
-								args->signed_message,
-								args->signed_msg_size);
+			lib_err = plat_os_abs_send_signed_message_v2
+					(sess_ptr->phdl,
+					 args->signed_message,
+					 args->signed_msg_size);
 
 			err = plat_err_to_hsm_err(SAB_ROOT_KEK_EXPORT_REQ,
 						  lib_err,

@@ -77,5 +77,7 @@ she_err_t do_she_key_update_test(she_hdl_t utils_handle);
 she_err_t do_she_plain_key_test(she_hdl_t utils_handle);
 she_err_t do_she_cipher_test(she_hdl_t cipher_handle);
 she_err_t do_she_fast_mac_test(she_hdl_t utils_handle);
+she_err_t do_she_ext_fast_mac_test(she_hdl_t utils_handle);
+she_err_t do_she_create_storage_test(she_hdl_t session_handle, she_hdl_t *key_store_hdl);
 
 #endif

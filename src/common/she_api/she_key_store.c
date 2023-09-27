@@ -12,7 +12,7 @@ she_err_t she_open_key_store_service(she_hdl_t session_hdl,
 	struct she_session_hdl_s *sess_ptr;
 	struct she_service_hdl_s *serv_ptr;
 	she_err_t err = SHE_GENERAL_ERROR;
-	uint32_t sab_err;
+	uint32_t lib_err;
 	uint32_t rsp_code = SAB_NO_MESSAGE_RATING;
 
 	if (!args) {
@@ -32,21 +32,25 @@ she_err_t she_open_key_store_service(she_hdl_t session_hdl,
 		return err;
 
 #ifndef PSA_COMPLIANT
-	if (args->min_mac_length == MIN_MAC_LEN_SET)
-		args->flags |= KEY_STORE_OPEN_FLAGS_SET_MAC_LEN;
+	if (!(args->flags & KEY_STORE_OPEN_FLAGS_SET_MAC_LEN))
+		args->min_mac_length = 0;
 #endif
 
 	/* Send the signed message to platform if provided here. */
 	if (args->signed_message) {
-		sab_err = plat_os_abs_send_signed_message(sess_ptr->phdl,
-							  args->signed_message,
-							  args->signed_msg_size);
-		if (sab_err == PLAT_FAILURE)
-			return sab_err;
+		lib_err = plat_os_abs_send_signed_message_v2(sess_ptr->phdl,
+							     args->signed_message,
+							     args->signed_msg_size);
+		err = plat_err_to_she_err(SAB_KEY_STORE_OPEN_REQ,
+					  lib_err,
+					  SHE_PREPARE);
+
+		if (err != SHE_NO_ERROR)
+			return err;
 	}
 
 	/* Get the access to the SHE keystore */
-	sab_err = process_sab_msg(sess_ptr->phdl,
+	lib_err = process_sab_msg(sess_ptr->phdl,
 				  sess_ptr->mu_type,
 				  SAB_KEY_STORE_OPEN_REQ,
 				  MT_SAB_KEY_STORE,
@@ -54,15 +58,13 @@ she_err_t she_open_key_store_service(she_hdl_t session_hdl,
 				  args, &rsp_code);
 
 	sess_ptr->last_rating = rsp_code;
-
-	err = sab_rating_to_she_err(sab_err);
-
+#ifdef V2
+	err = lib_err_to_she_err(lib_err);
 	if (err != SHE_NO_ERROR) {
-		se_err("SHE Error: SAB_KEY_STORE_OPEN_REQ [0x%x].\n", err);
 		delete_she_service(serv_ptr);
 		return err;
 	}
-
+#endif
 	err = sab_rating_to_she_err(rsp_code);
 
 	if (err != SHE_NO_ERROR) {
@@ -80,7 +82,7 @@ she_err_t she_close_key_store_service(she_hdl_t key_store_handle)
 {
 	struct she_service_hdl_s *serv_ptr;
 	she_err_t err = SHE_GENERAL_ERROR;
-	uint32_t sab_err;
+	uint32_t lib_err;
 	uint32_t rsp_code = SAB_NO_MESSAGE_RATING;
 
 	if (!key_store_handle) {
@@ -94,7 +96,7 @@ she_err_t she_close_key_store_service(she_hdl_t key_store_handle)
 		return err;
 	}
 
-	sab_err = process_sab_msg(serv_ptr->session->phdl,
+	lib_err = process_sab_msg(serv_ptr->session->phdl,
 				  serv_ptr->session->mu_type,
 				  SAB_KEY_STORE_CLOSE_REQ,
 				  MT_SAB_KEY_STORE,
@@ -104,12 +106,10 @@ she_err_t she_close_key_store_service(she_hdl_t key_store_handle)
 
 	serv_ptr->session->last_rating = rsp_code;
 
-	err = sab_rating_to_she_err(sab_err);
-
-	if (err != SHE_NO_ERROR) {
-		se_err("SHE Error: SAB_KEY_STORE_CLOSE_REQ [0x%x].\n", err);
+	err = lib_err_to_she_err(lib_err);
+	if (err != SHE_NO_ERROR)
 		return err;
-	}
+
 	err = sab_rating_to_she_err(rsp_code);
 	if (err != SHE_NO_ERROR) {
 		se_err("SHE RSP Error: SAB_KEY_STORE_CLOSE_REQ [0x%x].\n", err);

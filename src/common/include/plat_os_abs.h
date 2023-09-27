@@ -393,9 +393,9 @@ uint32_t plat_os_abs_send_signed_message(struct plat_os_abs_hdl *phdl,
  * \param signed_message pointer to the signed message.
  * \param msg_len length of the signed message
  */
-uint32_t plat_os_abs_signed_message_v2(struct plat_os_abs_hdl *phdl,
-				       uint8_t *signed_message,
-				       uint32_t msg_len);
+uint32_t plat_os_abs_send_signed_message_v2(struct plat_os_abs_hdl *phdl,
+					    uint8_t *signed_message,
+					    uint32_t msg_len);
 
 /**
  * Get the file path of a chunk.

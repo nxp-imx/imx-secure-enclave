@@ -27,15 +27,6 @@
  */
 
 /**
- * Minimum mac length not set
- */
-#define MIN_MAC_LEN_NOT_SET	BIT(0)
-/**
- * Minimum mac length is set
- */
-#define MIN_MAC_LEN_SET		BIT(1)
-
-/**
  * default flags
  */
 #define KEY_STORE_OPEN_FLAGS_DEFAULT                0x0u

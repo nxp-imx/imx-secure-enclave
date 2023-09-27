@@ -64,24 +64,13 @@ int main(int argc, char *argv[])
 	}
 	se_print("she_open_session PASS\n");
 
-	/* Get the access to the SHE keystore */
-	open_svc_key_store_args.key_store_identifier	= 0x0;
-	open_svc_key_store_args.authentication_nonce	= 0xbec00001;
-#ifndef PSA_COMPLIANT
-	open_svc_key_store_args.max_updates_number	= 300;
-#endif
-	open_svc_key_store_args.flags			=
-		KEY_STORE_OPEN_FLAGS_CREATE | KEY_STORE_OPEN_FLAGS_SHE;
-
-	err = she_open_key_store_service(she_session_hdl,
-					 &open_svc_key_store_args);
-	if (err != SHE_NO_ERROR) {
-		se_err("SHE Error: Failed to open key store 0x%x\n", err);
+	err = do_she_create_storage_test(she_session_hdl, &key_store_hdl);
+	if (err) {
+		se_print("Error[0x%x]: storage Creation test Failed.\n", err);
 		she_close_session(she_session_hdl);
 		return 0;
 	}
 
-	key_store_hdl = open_svc_key_store_args.key_store_hdl;
 	se_print("KEY store handle : 0x%x\n", key_store_hdl);
 
 	/* open SHE utils service. */
@@ -127,6 +116,10 @@ int main(int argc, char *argv[])
 	err = do_she_fast_mac_test(utils_args.utils_handle);
 	if (err)
 		se_print("Error[0x%x]: MAC test Failed.\n", err);
+
+	err = do_she_ext_fast_mac_test(utils_args.utils_handle);
+	if (err)
+		se_print("Error[0x%x]: EXT MAC test Failed.\n", err);
 
 	err = do_she_plain_key_test(utils_args.utils_handle);
 	if (err)
