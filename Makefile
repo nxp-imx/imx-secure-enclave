@@ -12,6 +12,7 @@ LIBDIR ?= /usr/$(base_libdir)
 INCLUDEDIR ?= /usr/include
 SYSTEMD_DIR ?= /etc/systemd/system
 ETC_DIR ?= /etc
+SCRIPTS_INSTALL_PATH ?= /usr/local/bin/
 TEST_VECTOR_DEFAULT_DIR ?= /usr/share/se/test_vectors
 PLAT ?= seco
 MAJOR_VER := 1
@@ -19,6 +20,8 @@ DEFINES += -DLIB_MAJOR_VERSION=${MAJOR_VER}
 NVM_DAEMON := nvm_daemon
 NVMD_CONF_FILE := nvmd.conf
 SYSTEMD_NVM_SERVICE := nvm_daemon.service
+NVMD_CONFIG_SCRIPT := nvmd_conf_setup.sh
+SE_SCRIPTS_PATH := ./scripts/
 TEST_VECTOR_FNAME ?= test_vectors_*.tv
 TEST_BLOB_FNAME ?= *.blob
 OPENSSL_PATH ?= ../openssl/
@@ -193,6 +196,8 @@ install: libs
 	mkdir -p $(DESTDIR)$(SYSTEMD_DIR)
 	cp $(PLAT_COMMON_PATH)/nvm/$(SYSTEMD_NVM_SERVICE) $(DESTDIR)$(SYSTEMD_DIR)
 	cp $(PLAT_COMMON_PATH)/nvm/$(NVMD_CONF_FILE) $(DESTDIR)$(ETC_DIR)
+	mkdir -p $(DESTDIR)$(SCRIPTS_INSTALL_PATH)
+	cp $(SE_SCRIPTS_PATH)/$(NVMD_CONFIG_SCRIPT) $(DESTDIR)$(SCRIPTS_INSTALL_PATH)
 	cp -a include/* $(DESTDIR)$(INCLUDEDIR)
 
 install_tests: install tests
