@@ -266,6 +266,12 @@ SAB_MSG_SRC	+= \
 		$(PLAT_COMMON_PATH)/sab_msg/sab_pub_key_decompression.o
 endif
 
+ifneq (${MT_SAB_TLS_FINISH},0x0)
+DEFINES		+=	-DMT_SAB_TLS_FINISH=${MT_SAB_TLS_FINISH}
+SAB_MSG_SRC	+= \
+		$(PLAT_COMMON_PATH)/sab_msg/sab_tls_finish.o
+endif
+
 ifneq (${MT_SAB_BUT},0x0)
 DEFINES		+=	-DMT_SAB_BUT=${MT_SAB_BUT}
 SAB_MSG_SRC	+= \

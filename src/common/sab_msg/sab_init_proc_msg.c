@@ -122,6 +122,10 @@
 #include "sab_butterfly.h"
 #endif
 
+#if MT_SAB_TLS_FINISH
+#include "sab_tls_finish.h"
+#endif
+
 #if MT_SAB_ST_BUT
 #include "sab_st_butterfly.h"
 #endif
@@ -608,6 +612,15 @@ static  int init_proc_sab_hsm_msg_engine(msg_type_t msg_type,
 			ret = add_sab_msg_handler(msg_id, MT_SAB_PUB_KEY_DECOMPRESSION,
 						  prepare_msg_pub_key_decompression,
 						  proc_msg_rsp_pub_key_decompression);
+		}
+		break;
+#endif
+#if MT_SAB_TLS_FINISH
+	case SAB_TLS_FINISH_REQ:
+		if (msg_type == MT_SAB_TLS_FINISH) {
+			ret = add_sab_msg_handler(msg_id, MT_SAB_TLS_FINISH,
+						  prepare_msg_tls_finish,
+						  proc_msg_rsp_tls_finish);
 		}
 		break;
 #endif

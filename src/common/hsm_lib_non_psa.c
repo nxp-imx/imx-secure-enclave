@@ -33,25 +33,6 @@ struct sab_import_pub_key_rsp {
 	uint32_t key_ref;
 };
 
-struct sab_cmd_tls_finish_msg {
-	struct sab_mu_hdr hdr;
-	uint32_t        key_management_handle;
-	uint32_t        key_identifier;
-	uint32_t        handshake_hash_input_addr;
-	uint32_t        verify_data_output_addr;
-	uint16_t        handshake_hash_input_size;
-	uint16_t        verify_data_output_size;
-	uint8_t         flags;
-	uint8_t         hash_algorithm;
-	uint16_t        reserved;
-	uint32_t        crc;
-};
-
-struct sab_cmd_tls_finish_rsp {
-	struct sab_mu_hdr hdr;
-	uint32_t rsp_code;
-};
-
 hsm_err_t hsm_import_public_key(hsm_hdl_t signature_ver_hdl,
 				op_import_public_key_args_t *args,
 				uint32_t *key_ref)
@@ -104,73 +85,6 @@ hsm_err_t hsm_import_public_key(hsm_hdl_t signature_ver_hdl,
 
 		err = sab_rating_to_hsm_err(rsp.rsp_code);
 		*key_ref = rsp.key_ref;
-	} while (false);
-
-	return err;
-}
-
-hsm_err_t hsm_tls_finish(hsm_hdl_t key_management_hdl, op_tls_finish_args_t *args)
-{
-	struct sab_cmd_tls_finish_msg cmd;
-	struct sab_cmd_tls_finish_rsp rsp;
-	uint32_t cmd_msg_sz = sizeof(struct sab_cmd_tls_finish_msg);
-	uint32_t rsp_msg_sz = sizeof(struct sab_cmd_tls_finish_rsp);
-	int32_t error;
-	struct hsm_service_hdl_s *serv_ptr;
-	hsm_err_t err = HSM_GENERAL_ERROR;
-
-	do {
-		if (!args)
-			break;
-
-		serv_ptr = service_hdl_to_ptr(key_management_hdl);
-		if (!serv_ptr) {
-			err = HSM_UNKNOWN_HANDLE;
-			break;
-		}
-
-		/* Prepare the plat commmand */
-		plat_fill_cmd_msg_hdr(&cmd.hdr,
-				      SAB_TLS_FINISH_REQ,
-				      cmd_msg_sz,
-				      serv_ptr->session->mu_type);
-
-		cmd.key_management_handle = key_management_hdl;
-		cmd.key_identifier = args->key_identifier;
-		set_phy_addr_to_words(&cmd.handshake_hash_input_addr,
-				      0u,
-				      plat_os_abs_data_buf(serv_ptr->session->phdl,
-							   args->handshake_hash_input,
-							   args->handshake_hash_input_size,
-							   DATA_BUF_IS_INPUT));
-		set_phy_addr_to_words(&cmd.verify_data_output_addr,
-				      0u,
-				      plat_os_abs_data_buf(serv_ptr->session->phdl,
-							   args->verify_data_output,
-							   args->verify_data_output_size,
-							   0u));
-		cmd.handshake_hash_input_size = args->handshake_hash_input_size;
-		cmd.verify_data_output_size = args->verify_data_output_size;
-		cmd.flags = args->flags;
-		cmd.hash_algorithm = args->hash_algorithm;
-		cmd.reserved = 0;
-		cmd.crc = 0u;
-		cmd.crc = plat_compute_msg_crc((uint32_t *)&cmd,
-					       (uint32_t)(sizeof(cmd) - sizeof(uint32_t)));
-
-		/* Send the message to platform. */
-		error = plat_send_msg_and_get_resp(serv_ptr->session->phdl,
-						   (uint32_t *)&cmd,
-						   cmd_msg_sz,
-						   (uint32_t *)&rsp,
-						   rsp_msg_sz);
-		if (error != 0)
-			break;
-
-		sab_err_map(SAB_MSG, SAB_TLS_FINISH_REQ, rsp.rsp_code);
-
-		err = sab_rating_to_hsm_err(rsp.rsp_code);
-
 	} while (false);
 
 	return err;
