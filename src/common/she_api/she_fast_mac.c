@@ -37,10 +37,11 @@ she_err_t she_verify_mac_v2x(struct she_service_hdl_s *serv_ptr,
 				      SHE_MAC_SIZE,
 				      DATA_BUF_IS_INPUT | DATA_BUF_SHE_V2X);
 
-	if (ret != PLAT_SUCCESS) {
-		plat_lib_err_map(SAB_SHE_FAST_MAC_MUBUFF_REQ, ret);
-		return SHE_LIB_ERROR;
-	}
+	err = plat_err_to_she_err(SAB_SHE_FAST_MAC_MUBUFF_REQ,
+				  ret,
+				  SHE_PREPARE);
+	if (err != SHE_NO_ERROR)
+		return err;
 
 	lib_err = process_sab_msg(serv_ptr->session->phdl,
 				  serv_ptr->session->mu_type,
@@ -106,10 +107,13 @@ she_err_t she_verify_mac_seco(struct she_service_hdl_s *serv_ptr,
 					      DATA_BUF_IS_INPUT |
 					      DATA_BUF_USE_SEC_MEM |
 					      DATA_BUF_SHORT_ADDR);
-		if (ret != PLAT_SUCCESS) {
-			plat_lib_err_map(SAB_FAST_MAC_REQ, ret);
-			return SHE_LIB_ERROR;
-		}
+
+		err = plat_err_to_she_err(SAB_FAST_MAC_REQ,
+					  ret,
+					  SHE_PREPARE);
+		if (err != SHE_NO_ERROR)
+			return err;
+
 		mac_args.data_offset = temp & SEC_MEM_SHORT_ADDR_MASK;
 
 		ret = plat_os_abs_data_buf_v2(serv_ptr->session->phdl,
@@ -121,10 +125,11 @@ she_err_t she_verify_mac_seco(struct she_service_hdl_s *serv_ptr,
 					      DATA_BUF_SHORT_ADDR);
 	}
 
-	if (ret != PLAT_SUCCESS) {
-		plat_lib_err_map(SAB_FAST_MAC_REQ, ret);
-		return SHE_LIB_ERROR;
-	}
+	err = plat_err_to_she_err(SAB_FAST_MAC_REQ,
+				  ret,
+				  SHE_PREPARE);
+	if (err != SHE_NO_ERROR)
+		return err;
 
 	if (args->mac_length_encoding == MAC_BITS_LENGTH)
 		mac_args.flags |= SHE_FAST_MAC_FLAGS_VERIF_BIT_LEN;
@@ -215,10 +220,11 @@ she_err_t she_generate_mac_v2x(struct she_service_hdl_s *serv_ptr,
 				      SHE_MAC_SIZE,
 				      DATA_BUF_SHE_V2X);
 
-	if (ret != PLAT_SUCCESS) {
-		plat_lib_err_map(SAB_SHE_FAST_MAC_MUBUFF_REQ, ret);
-		return SHE_LIB_ERROR;
-	}
+	err = plat_err_to_she_err(SAB_SHE_FAST_MAC_MUBUFF_REQ,
+				  ret,
+				  SHE_PREPARE);
+	if (err != SHE_NO_ERROR)
+		return err;
 
 	lib_err = process_sab_msg(serv_ptr->session->phdl,
 				  serv_ptr->session->mu_type,
@@ -278,10 +284,12 @@ she_err_t she_generate_mac_seco(struct she_service_hdl_s *serv_ptr,
 					      DATA_BUF_IS_INPUT |
 					      DATA_BUF_USE_SEC_MEM |
 					      DATA_BUF_SHORT_ADDR);
-		if (ret != PLAT_SUCCESS) {
-			plat_lib_err_map(SAB_FAST_MAC_REQ, ret);
-			return SHE_LIB_ERROR;
-		}
+
+		err = plat_err_to_she_err(SAB_FAST_MAC_REQ,
+					  ret,
+					  SHE_PREPARE);
+		if (err != SHE_NO_ERROR)
+			return err;
 
 		mac_args.data_offset = temp & SEC_MEM_SHORT_ADDR_MASK;
 
@@ -293,10 +301,11 @@ she_err_t she_generate_mac_seco(struct she_service_hdl_s *serv_ptr,
 					      DATA_BUF_SHORT_ADDR);
 	}
 
-	if (ret != PLAT_SUCCESS) {
-		plat_lib_err_map(SAB_FAST_MAC_REQ, ret);
-		return SHE_LIB_ERROR;
-	}
+	err = plat_err_to_she_err(SAB_FAST_MAC_REQ,
+				  ret,
+				  SHE_PREPARE);
+	if (err != SHE_NO_ERROR)
+		return err;
 
 	lib_err = process_sab_msg(serv_ptr->session->phdl,
 				  serv_ptr->session->mu_type,

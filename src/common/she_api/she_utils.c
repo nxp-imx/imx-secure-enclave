@@ -133,6 +133,20 @@ static uint8_t is_lib_err(uint32_t err)
 	return ret;
 }
 
+she_err_t plat_err_to_she_err(uint8_t msg_id, uint32_t lib_err, uint8_t dir)
+{
+	she_err_t ret = SHE_NO_ERROR;
+
+	if (lib_err != PLAT_SUCCESS) {
+		plat_lib_err_map(msg_id, lib_err);
+
+		if (dir == SHE_PREPARE)
+			ret = SHE_LIB_ERROR;
+	}
+
+	return ret;
+}
+
 she_err_t lib_err_to_she_err(uint32_t lib_err)
 {
 	she_err_t ret = SHE_LIB_ERROR;

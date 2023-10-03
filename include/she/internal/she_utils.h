@@ -8,6 +8,9 @@
 
 #include <stdint.h>
 
+#define SHE_PREPARE	0x66
+#define SHE_RESPONSE	0x99
+
 /**
  * @defgroup group0 Error codes
  * Error codes returned by SHE functions.
@@ -56,6 +59,17 @@ typedef enum {
 /** @} end of error code group */
 
 she_err_t sab_rating_to_she_err(uint32_t sab_err);
+
+/**
+ * maps the plat error to SHE error
+ *
+ * \param msg_id message id of the message
+ * \param lib_err platform API error
+ * \param dir direction before/after invoking sab engine
+ *
+ * \return SHE error code
+ */
+she_err_t plat_err_to_she_err(uint8_t msg_id, uint32_t lib_err, uint8_t dir);
 
 /**
  * maps the library error to SHE error

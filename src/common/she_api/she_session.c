@@ -8,7 +8,6 @@
 
 #include "she_api.h"
 #include "sab_process_msg.h"
-#include "sab_common_err.h"
 
 uint8_t she_v2x_mu;
 
@@ -177,12 +176,13 @@ she_err_t she_open_session(open_session_args_t *args, she_hdl_t *session_hdl)
 					(hdl->phdl,
 					 buf_args.shared_buf_offset,
 					 buf_args.shared_buf_size);
-			if (ret != PLAT_SUCCESS) {
-				se_err("Fail to configure shared buffer [0x%x].\n", ret);
-				plat_lib_err_map(SAB_SHARED_BUF_REQ, ret);
-				err = SHE_LIB_ERROR;
+
+			err = plat_err_to_she_err(SAB_SHARED_BUF_REQ,
+						  ret,
+						  SHE_RESPONSE);
+			if (err != SHE_NO_ERROR)
 				break;
-			}
+
 		}
 	} while (false);
 
