@@ -112,6 +112,7 @@ static uint8_t err_handling_v2_support(uint8_t msg_id)
 	    msg_id == SAB_ROOT_KEK_EXPORT_REQ ||
 	    msg_id == SAB_PUB_KEY_RECONSTRUCTION_REQ ||
 	    msg_id == SAB_TLS_FINISH_REQ ||
+	    msg_id == SAB_IMPORT_PUB_KEY ||
 	    msg_id == SAB_FAST_MAC_REQ)
 		ret = 1;
 

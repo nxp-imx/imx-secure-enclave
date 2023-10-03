@@ -177,6 +177,12 @@ HSM_API_SRC	+= \
 		$(PLAT_COMMON_PATH)/hsm_api/hsm_pub_key_decompression.o
 endif
 
+ifneq (${MT_SAB_IMPORT_PUB_KEY},0x0)
+DEFINES		+=	-DHSM_IMPORT_PUB_KEY
+HSM_API_SRC	+= \
+		$(PLAT_COMMON_PATH)/hsm_api/hsm_import_pub_key.o
+endif
+
 ifneq (${MT_SAB_TLS_FINISH},0x0)
 DEFINES		+=	-DHSM_TLS_FINISH
 HSM_API_SRC	+= \

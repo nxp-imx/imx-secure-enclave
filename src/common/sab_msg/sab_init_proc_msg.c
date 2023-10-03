@@ -122,6 +122,10 @@
 #include "sab_butterfly.h"
 #endif
 
+#if MT_SAB_IMPORT_PUB_KEY
+#include "sab_import_pub_key.h"
+#endif
+
 #if MT_SAB_TLS_FINISH
 #include "sab_tls_finish.h"
 #endif
@@ -612,6 +616,15 @@ static  int init_proc_sab_hsm_msg_engine(msg_type_t msg_type,
 			ret = add_sab_msg_handler(msg_id, MT_SAB_PUB_KEY_DECOMPRESSION,
 						  prepare_msg_pub_key_decompression,
 						  proc_msg_rsp_pub_key_decompression);
+		}
+		break;
+#endif
+#if MT_SAB_IMPORT_PUB_KEY
+	case SAB_IMPORT_PUB_KEY:
+		if (msg_type == MT_SAB_IMPORT_PUB_KEY) {
+			ret = add_sab_msg_handler(msg_id, MT_SAB_IMPORT_PUB_KEY,
+						  prepare_msg_import_pub_key,
+						  proc_msg_rsp_import_pub_key);
 		}
 		break;
 #endif

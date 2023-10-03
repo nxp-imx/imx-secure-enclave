@@ -12,14 +12,12 @@
 extern "C" {
 #endif
 
-#ifndef PSA_COMPLIANT
-#include "hsm_api2.h"
-#endif
-
 #include "internal/hsm_handle.h"
 #include "internal/hsm_key.h"
 #include "internal/hsm_utils.h"
 #include "internal/hsm_key_store.h"
+
+#include "internal/hsm_import_pub_key.h"
 
 #include "internal/hsm_root_kek_export.h"
 

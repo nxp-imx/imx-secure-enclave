@@ -266,6 +266,12 @@ SAB_MSG_SRC	+= \
 		$(PLAT_COMMON_PATH)/sab_msg/sab_pub_key_decompression.o
 endif
 
+ifneq (${MT_SAB_IMPORT_PUB_KEY},0x0)
+DEFINES		+=	-DMT_SAB_IMPORT_PUB_KEY=${MT_SAB_IMPORT_PUB_KEY}
+SAB_MSG_SRC	+= \
+		$(PLAT_COMMON_PATH)/sab_msg/sab_import_pub_key.o
+endif
+
 ifneq (${MT_SAB_TLS_FINISH},0x0)
 DEFINES		+=	-DMT_SAB_TLS_FINISH=${MT_SAB_TLS_FINISH}
 SAB_MSG_SRC	+= \

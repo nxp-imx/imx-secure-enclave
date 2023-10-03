@@ -3,26 +3,33 @@
  * Copyright 2023 NXP
  */
 
-#ifndef HSM_API2_H
-#define HSM_API2_H
+#ifndef HSM_IMPORT_PUB_KEY_H
+#define HSM_IMPORT_PUB_KEY_H
 
-#ifndef PSA_COMPLIANT
-#include <stdint.h>
-
+#include "internal/hsm_utils.h"
 #include "internal/hsm_handle.h"
 #include "internal/hsm_key.h"
-#include "internal/hsm_utils.h"
 
+/**
+ * Bit field describing the operation attributes
+ */
 typedef uint8_t hsm_op_import_public_key_flags_t;
+
+/**
+ * Structure describing the import public key member arguments
+ */
 typedef struct {
-	//!< pointer to the public key to be imported
+	uint32_t *key_ref;
+	//!< key reference where the 4 bytes key reference to be used as
+	//!< key in the hsm_verify_signature will be stored.
 	uint8_t *key;
-	//!< length in bytes of the input key
+	//!< pointer to the public key to be imported
 	uint16_t key_size;
-	//!< indicates the type of the key to be imported.
+	//!< length in bytes of the input key
 	hsm_key_type_t key_type;
-	//!< bitmap specifying the operation attributes
+	//!< indicates the type of the key to be imported.
 	hsm_op_import_public_key_flags_t flags;
+	//!< bitmap specifying the operation attributes
 } op_import_public_key_args_t;
 
 /**
@@ -40,15 +47,10 @@ typedef struct {
  *
  * \param signature_ver_hdl handle identifying the signature verification service flow.
  * \param args pointer to the structure containing the function arguments.
- * \param key_ref pointer to where the 4 bytes key reference to be used as
- *        key in the hsm_verify_signature will be stored.
  *
  * \return error code
  */
 hsm_err_t hsm_import_public_key(hsm_hdl_t signature_ver_hdl,
-				op_import_public_key_args_t *args,
-				uint32_t *key_ref);
+				op_import_public_key_args_t *args);
 
-/** \}*/
-#endif
 #endif

@@ -42,6 +42,7 @@ MT_SAB_SM2_ECES		:=      ${NOT_SUPPORTED}
 MT_SAB_SM2_GET_Z	:=      ${NOT_SUPPORTED}
 MT_SAB_KEY_EXCHANGE	:=      ${NOT_SUPPORTED}
 MT_SAB_TLS_FINISH	:=      ${NOT_SUPPORTED}
+MT_SAB_IMPORT_PUB_KEY	:=      ${NOT_SUPPORTED}
 
 
 # Below SHE APIs will be supported on i.mx95 only.
