@@ -12,7 +12,6 @@ LIBDIR ?= /usr/$(base_libdir)
 INCLUDEDIR ?= /usr/include
 SYSTEMD_DIR ?= /etc/systemd/system
 ETC_DIR ?= /etc
-SCRIPTS_INSTALL_PATH ?= /usr/local/bin/
 TEST_VECTOR_DEFAULT_DIR ?= /usr/share/se/test_vectors
 PLAT ?= seco
 MAJOR_VER := 1
@@ -193,11 +192,10 @@ install: libs
 		cp -av --no-preserve=ownership "$(i).$(SO_EXT)" "$(i).so.$(MAJOR_VER)" "$(i).so" $(DESTDIR)$(LIBDIR);)
 	mkdir -p $(DESTDIR)$(BINDIR)
 	cp $(NVM_DAEMON) $(DESTDIR)$(BINDIR)
+	cp $(SE_SCRIPTS_PATH)/$(NVMD_CONFIG_SCRIPT) $(DESTDIR)$(BINDIR)
 	mkdir -p $(DESTDIR)$(SYSTEMD_DIR)
 	cp $(PLAT_COMMON_PATH)/nvm/$(SYSTEMD_NVM_SERVICE) $(DESTDIR)$(SYSTEMD_DIR)
 	cp $(PLAT_COMMON_PATH)/nvm/$(NVMD_CONF_FILE) $(DESTDIR)$(ETC_DIR)
-	mkdir -p $(DESTDIR)$(SCRIPTS_INSTALL_PATH)
-	cp $(SE_SCRIPTS_PATH)/$(NVMD_CONFIG_SCRIPT) $(DESTDIR)$(SCRIPTS_INSTALL_PATH)
 	cp -a include/* $(DESTDIR)$(INCLUDEDIR)
 
 install_tests: install tests
