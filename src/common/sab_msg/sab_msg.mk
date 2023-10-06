@@ -351,6 +351,12 @@ SHE_SAB_MSG_SRC	+= \
 		$(PLAT_COMMON_PATH)/sab_msg/sab_fast_mac.o
 endif
 
+ifneq (${MT_SAB_GET_ID},0x0)
+DEFINES		+=	-DMT_SAB_GET_ID=${MT_SAB_GET_ID}
+SHE_SAB_MSG_SRC	+= \
+		$(PLAT_COMMON_PATH)/sab_msg/sab_get_id.o
+endif
+
 OBJECTS		+= $(SAB_MSG_SRC) \
 		$(SAB_RCVMSG_SRC) \
 		$(SHE_SAB_MSG_SRC) \

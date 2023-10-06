@@ -121,6 +121,10 @@ int main(int argc, char *argv[])
 	if (err)
 		se_print("Error[0x%x]: EXT MAC test Failed.\n", err);
 
+	err = do_she_get_id_test(utils_args.utils_handle);
+	if (err)
+		se_print("Error[0x%x]: GET ID test Failed.\n", err);
+
 	err = do_she_plain_key_test(utils_args.utils_handle);
 	if (err)
 		se_print("Error[0x%x]: Plain Key test Failed.\n", err);

@@ -56,6 +56,10 @@
 #include "internal/she_fast_mac.h"
 #endif
 
+#if MT_SAB_GET_ID
+#include "internal/she_get_id.h"
+#endif
+
 extern uint8_t she_v2x_mu;
 
 /**

@@ -72,6 +72,12 @@ SHE_API_SRC	+= \
 		$(PLAT_COMMON_PATH)/she_api/she_fast_mac.o
 endif
 
+ifneq (${MT_SAB_GET_ID},0x0)
+DEFINES		+=	-DSHE_GET_ID
+SHE_API_SRC	+= \
+		$(PLAT_COMMON_PATH)/she_api/she_get_id.o
+endif
+
 OBJECTS		+= $(SHE_API_SRC)
 
 INCLUDE_PATHS	+= \
