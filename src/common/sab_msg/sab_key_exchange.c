@@ -23,11 +23,13 @@ uint32_t prepare_msg_key_exchange(void *phdl,
 	struct sab_cmd_key_exchange_msg *cmd =
 		(struct sab_cmd_key_exchange_msg *)cmd_buf;
 	op_key_exchange_args_t *op_args = (op_key_exchange_args_t *)args;
+#ifndef PSA_COMPLIANT
 	uint64_t addr = 0;
+#endif
 
 	if (!op_args)
 		return SAB_ENGN_FAIL;
-
+#ifndef PSA_COMPLIANT
 	/* Send the signed message to platform if provided here. */
 	if (op_args->signed_message) {
 		(void)plat_os_abs_send_signed_message(phdl,
@@ -46,7 +48,6 @@ uint32_t prepare_msg_key_exchange(void *phdl,
 	if (!addr)
 		return SAB_ENGN_FAIL;
 
-	cmd->key_management_handle = msg_hdl;
 	cmd->key_identifier = op_args->key_identifier;
 	set_phy_addr_to_words(&cmd->shared_key_identifier_array,
 			      0u,
@@ -87,6 +88,32 @@ uint32_t prepare_msg_key_exchange(void *phdl,
 	cmd->shared_key_identifier_array_size = op_args->shared_key_identifier_array_size;
 	cmd->kdf_input_size = op_args->kdf_input_size;
 	cmd->kdf_output_size = op_args->kdf_output_size;
+#else
+	cmd->signed_content_sz = op_args->signed_content_sz;
+	set_phy_addr_to_words(&cmd->signed_content_addr,
+			      0u,
+			      plat_os_abs_data_buf((struct plat_os_abs_hdl *)phdl,
+						   op_args->signed_content,
+						   op_args->signed_content_sz,
+						   DATA_BUF_IS_INPUT));
+
+	cmd->peer_pubkey_sz = op_args->peer_pubkey_sz;
+	set_phy_addr_to_words(&cmd->peer_pubkey_addr,
+			      0u,
+			      plat_os_abs_data_buf((struct plat_os_abs_hdl *)phdl,
+						   op_args->peer_pubkey,
+						   op_args->peer_pubkey_sz,
+						   DATA_BUF_IS_INPUT));
+
+	cmd->user_fixed_info_sz = op_args->user_fixed_info_sz;
+	set_phy_addr_to_words(&cmd->user_fixed_info_addr,
+			      0u,
+			      plat_os_abs_data_buf((struct plat_os_abs_hdl *)phdl,
+						   op_args->user_fixed_info,
+						   op_args->user_fixed_info_sz,
+						   DATA_BUF_IS_INPUT));
+#endif
+	cmd->key_management_handle = msg_hdl;
 	cmd->flags = op_args->flags;
 	cmd->crc = 0u;
 
@@ -103,5 +130,9 @@ uint32_t proc_msg_rsp_key_exchange(void *rsp_buf, void *args)
 	struct sab_cmd_key_exchange_rsp *rsp =
 		(struct sab_cmd_key_exchange_rsp *)rsp_buf;
 
+#ifdef PSA_COMPLIANT
+	op_args->out_derived_key_id = rsp->derived_key_id;
+	op_args->out_salt_sz = rsp->salt_sz;
+#endif
 	return SAB_SUCCESS_STATUS;
 }

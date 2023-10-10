@@ -105,6 +105,7 @@ typedef enum {
 	HSM_KEY_TYPE_RSA                    = 0x7001,
 	HSM_KEY_TYPE_ECC_BP_R1              = 0x7130,
 	HSM_KEY_TYPE_ECC_NIST               = 0x7112,
+	HSM_KEY_TYPE_OEM_IMPORT_MK_SK       = 0x9200,
 #else
 	/* NON-PSA Compliant key types.
 	 */
@@ -164,6 +165,9 @@ typedef enum {
 	HSM_KEY_SIZE_ECC_BP_T1_256	= 256,
 	HSM_KEY_SIZE_ECC_BP_T1_320	= 320,
 	HSM_KEY_SIZE_ECC_BP_T1_384	= 384,
+	HSM_KEY_SIZE_OEM_IMPORT_MK_SK_128 = 128,
+	HSM_KEY_SIZE_OEM_IMPORT_MK_SK_192 = 192,
+	HSM_KEY_SIZE_OEM_IMPORT_MK_SK_256 = 256,
 } hsm_bit_key_sz_t;
 
 /**
