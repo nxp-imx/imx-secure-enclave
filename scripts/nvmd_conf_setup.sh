@@ -1,5 +1,9 @@
 #!/bin/bash
 
+# SPDX-License-Identifier: BSD-3-Clause
+#
+# Copyright 2023 NXP
+
 set -eu
 
 nvm_conf_fpath="/etc/nvmd.conf"
