@@ -73,7 +73,7 @@ hsm_err_t do_cipher_test(hsm_hdl_t key_store_hdl, hsm_hdl_t key_mgmt_hdl)
 			HSM_KEY_TYPE_AES_256,
 #else
 			HSM_SE_KEY_STORAGE_VOLATILE,
-			HSM_KEY_USAGE_DERIVE | HSM_KEY_USAGE_ENCRYPT | HSM_KEY_USAGE_DECRYPT,
+			HSM_KEY_USAGE_ENCRYPT | HSM_KEY_USAGE_DECRYPT,
 			PERMITTED_ALGO_ALL_CIPHER,
 			HSM_KEY_SIZE_AES_256,
 			0,
