@@ -493,6 +493,7 @@ static void v2x_transient_key_tests(hsm_hdl_t sg0_key_mgmt_srv)
 	uint32_t master_key_id = 0;
 	hsm_err_t err;
 	op_generate_key_args_t key_gen_args;
+	op_manage_key_group_args_t manage_key_group_args;
 
 	// Butterfly key expansion
 	printf("\n---------------------------------------------------\n");
@@ -525,6 +526,13 @@ static void v2x_transient_key_tests(hsm_hdl_t sg0_key_mgmt_srv)
 	printf("\nPersistent key created, Key ID (HEX): 0x%x  (DEC): %u\n",
 	       master_key_id, master_key_id);
 
+	memset(&manage_key_group_args, 0, sizeof(manage_key_group_args));
+	manage_key_group_args.key_group = 4;
+	// Unlock key group
+	manage_key_group_args.flags = 0x1;
+	err = hsm_manage_key_group(sg0_key_mgmt_srv, &manage_key_group_args);
+	printf("hsm_manage_key_group ret:0x%x\n", err);
+
 	memset(&butterfly_gen_args, 0, sizeof(butterfly_gen_args));
 	butterfly_gen_args.key_identifier = master_key_id;
 	butterfly_gen_args.expansion_function_value = exp_data;
@@ -543,6 +551,13 @@ static void v2x_transient_key_tests(hsm_hdl_t sg0_key_mgmt_srv)
 	butterfly_gen_args.key_info = HSM_KEY_INFO_TRANSIENT;
 	err = hsm_butterfly_key_expansion(sg0_key_mgmt_srv, &butterfly_gen_args);
 	printf("hsm_butterfly_key_expansion ret:0x%x\n", err);
+
+	memset(&manage_key_group_args, 0, sizeof(manage_key_group_args));
+	manage_key_group_args.key_group = 4;
+	// Delete existing key group
+	manage_key_group_args.flags = 0x2;
+	err = hsm_manage_key_group(sg0_key_mgmt_srv, &manage_key_group_args);
+	printf("hsm_manage_key_group ret:0x%x\n", err);
 }
 
 /* input  Qx||lsb_Qy */
