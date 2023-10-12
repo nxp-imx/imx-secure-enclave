@@ -19,64 +19,108 @@ uint32_t prepare_msg_key_exchange(void *phdl,
 				  uint32_t msg_hdl,
 				  void *args)
 {
-	uint32_t ret = SAB_ENGN_PASS;
+	uint32_t err = SAB_LIB_STATUS(SAB_LIB_CMD_MSG_PREP_FAIL);
 	struct sab_cmd_key_exchange_msg *cmd =
 		(struct sab_cmd_key_exchange_msg *)cmd_buf;
 	op_key_exchange_args_t *op_args = (op_key_exchange_args_t *)args;
-#ifndef PSA_COMPLIANT
-	uint64_t addr = 0;
-#endif
+	uint64_t phy_addr = 0;
+	uint32_t ret;
 
 	if (!op_args)
-		return SAB_ENGN_FAIL;
+		return err;
+
 #ifndef PSA_COMPLIANT
 	/* Send the signed message to platform if provided here. */
 	if (op_args->signed_message) {
-		(void)plat_os_abs_send_signed_message(phdl,
-						      op_args->signed_message,
-						      op_args->signed_msg_size);
+		ret = plat_os_abs_send_signed_message_v2(phdl,
+							 op_args->signed_message,
+							 op_args->signed_msg_size);
+		if (ret != PLAT_SUCCESS) {
+			err |= ret;
+			goto exit;
+		}
+
 	}
 
-	addr = plat_os_abs_data_buf((struct plat_os_abs_hdl *)phdl,
-				    op_args->shared_key_identifier_array,
-				    op_args->shared_key_identifier_array_size,
-				    (((op_args->flags &
-				    HSM_OP_KEY_EXCHANGE_FLAGS_UPDATE) ==
-				    HSM_OP_KEY_EXCHANGE_FLAGS_UPDATE)
-				    ? DATA_BUF_IS_INPUT : 0u));
+	ret = plat_os_abs_data_buf_v2((struct plat_os_abs_hdl *)phdl,
+				      &phy_addr,
+				      op_args->shared_key_identifier_array,
+				      op_args->shared_key_identifier_array_size,
+				      (((op_args->flags &
+				      HSM_OP_KEY_EXCHANGE_FLAGS_UPDATE) ==
+				      HSM_OP_KEY_EXCHANGE_FLAGS_UPDATE)
+				      ? DATA_BUF_IS_INPUT : 0u));
 
-	if (!addr)
-		return SAB_ENGN_FAIL;
+	if (ret != PLAT_SUCCESS) {
+		err |= ret;
+		goto exit;
+	}
 
 	cmd->key_identifier = op_args->key_identifier;
 	set_phy_addr_to_words(&cmd->shared_key_identifier_array,
 			      0u,
-			      addr);
+			      phy_addr);
+
+	ret =  plat_os_abs_data_buf_v2((struct plat_os_abs_hdl *)phdl,
+				       &phy_addr,
+				       op_args->ke_input,
+				       op_args->ke_input_size,
+				       DATA_BUF_IS_INPUT);
+
+	if (ret != PLAT_SUCCESS) {
+		err |= ret;
+		goto exit;
+	}
 
 	set_phy_addr_to_words(&cmd->ke_input_addr,
 			      0u,
-			      plat_os_abs_data_buf((struct plat_os_abs_hdl *)phdl,
-						   op_args->ke_input,
-						   op_args->ke_input_size,
-						   DATA_BUF_IS_INPUT));
+			      phy_addr);
+
+	ret = plat_os_abs_data_buf_v2((struct plat_os_abs_hdl *)phdl,
+				      &phy_addr,
+				      op_args->ke_output,
+				      op_args->ke_output_size,
+				      0u);
+
+	if (ret != PLAT_SUCCESS) {
+		err |= ret;
+		goto exit;
+	}
+
 	set_phy_addr_to_words(&cmd->ke_output_addr,
 			      0u,
-			      plat_os_abs_data_buf((struct plat_os_abs_hdl *)phdl,
-						   op_args->ke_output,
-						   op_args->ke_output_size,
-						   0u));
+			      phy_addr);
+
+	ret = plat_os_abs_data_buf_v2((struct plat_os_abs_hdl *)phdl,
+				      &phy_addr,
+				      op_args->kdf_input,
+				      op_args->kdf_input_size,
+				      DATA_BUF_IS_INPUT);
+
+	if (ret != PLAT_SUCCESS) {
+		err |= ret;
+		goto exit;
+	}
+
 	set_phy_addr_to_words(&cmd->kdf_input_data,
 			      0u,
-			      plat_os_abs_data_buf((struct plat_os_abs_hdl *)phdl,
-						   op_args->kdf_input,
-						   op_args->kdf_input_size,
-						   DATA_BUF_IS_INPUT));
+			      phy_addr);
+
+	ret = plat_os_abs_data_buf_v2((struct plat_os_abs_hdl *)phdl,
+				      &phy_addr,
+				      op_args->kdf_output,
+				      op_args->kdf_output_size,
+				      0u);
+
+	if (ret != PLAT_SUCCESS) {
+		err |= ret;
+		goto exit;
+	}
+
 	set_phy_addr_to_words(&cmd->kdf_output_data,
 			      0u,
-			      plat_os_abs_data_buf((struct plat_os_abs_hdl *)phdl,
-						   op_args->kdf_output,
-						   op_args->kdf_output_size,
-						   0u));
+			      phy_addr);
+
 	cmd->shared_key_group = op_args->shared_key_group;
 	cmd->shared_key_info = op_args->shared_key_info;
 	cmd->shared_key_type = op_args->shared_key_type;
@@ -90,28 +134,52 @@ uint32_t prepare_msg_key_exchange(void *phdl,
 	cmd->kdf_output_size = op_args->kdf_output_size;
 #else
 	cmd->signed_content_sz = op_args->signed_content_sz;
+	ret = plat_os_abs_data_buf_v2((struct plat_os_abs_hdl *)phdl,
+				      &phy_addr,
+				      op_args->signed_content,
+				      op_args->signed_content_sz,
+				      DATA_BUF_IS_INPUT);
+
+	if (ret != PLAT_SUCCESS) {
+		err |= ret;
+		goto exit;
+	}
+
 	set_phy_addr_to_words(&cmd->signed_content_addr,
 			      0u,
-			      plat_os_abs_data_buf((struct plat_os_abs_hdl *)phdl,
-						   op_args->signed_content,
-						   op_args->signed_content_sz,
-						   DATA_BUF_IS_INPUT));
+			      phy_addr);
 
 	cmd->peer_pubkey_sz = op_args->peer_pubkey_sz;
+	ret = plat_os_abs_data_buf_v2((struct plat_os_abs_hdl *)phdl,
+				      &phy_addr,
+				      op_args->peer_pubkey,
+				      op_args->peer_pubkey_sz,
+				      DATA_BUF_IS_INPUT);
+
+	if (ret != PLAT_SUCCESS) {
+		err |= ret;
+		goto exit;
+	}
+
 	set_phy_addr_to_words(&cmd->peer_pubkey_addr,
 			      0u,
-			      plat_os_abs_data_buf((struct plat_os_abs_hdl *)phdl,
-						   op_args->peer_pubkey,
-						   op_args->peer_pubkey_sz,
-						   DATA_BUF_IS_INPUT));
+			      phy_addr);
 
 	cmd->user_fixed_info_sz = op_args->user_fixed_info_sz;
+	ret = plat_os_abs_data_buf_v2((struct plat_os_abs_hdl *)phdl,
+				      &phy_addr,
+				      op_args->user_fixed_info,
+				      op_args->user_fixed_info_sz,
+				      DATA_BUF_IS_INPUT);
+
+	if (ret != PLAT_SUCCESS) {
+		err |= ret;
+		goto exit;
+	}
+
 	set_phy_addr_to_words(&cmd->user_fixed_info_addr,
 			      0u,
-			      plat_os_abs_data_buf((struct plat_os_abs_hdl *)phdl,
-						   op_args->user_fixed_info,
-						   op_args->user_fixed_info_sz,
-						   DATA_BUF_IS_INPUT));
+			      phy_addr);
 #endif
 	cmd->key_management_handle = msg_hdl;
 	cmd->flags = op_args->flags;
@@ -120,11 +188,14 @@ uint32_t prepare_msg_key_exchange(void *phdl,
 	*cmd_msg_sz = sizeof(struct sab_cmd_key_exchange_msg);
 	*rsp_msg_sz = sizeof(struct sab_cmd_key_exchange_rsp);
 
-	return ret;
+	err = SAB_LIB_STATUS(SAB_LIB_SUCCESS);
+exit:
+	return err;
 }
 
 uint32_t proc_msg_rsp_key_exchange(void *rsp_buf, void *args)
 {
+	uint32_t err = SAB_LIB_STATUS(SAB_LIB_SUCCESS);
 	op_key_exchange_args_t *op_args =
 		(op_key_exchange_args_t *)args;
 	struct sab_cmd_key_exchange_rsp *rsp =
@@ -134,5 +205,5 @@ uint32_t proc_msg_rsp_key_exchange(void *rsp_buf, void *args)
 	op_args->out_derived_key_id = rsp->derived_key_id;
 	op_args->out_salt_sz = rsp->salt_sz;
 #endif
-	return SAB_SUCCESS_STATUS;
+	return err;
 }
