@@ -130,6 +130,7 @@ hsm_err_t hsm_open_rng_service(hsm_hdl_t session_hdl,
 		}
 
 		*rng_hdl = args->rng_hdl;
+		serv_ptr->service_hdl = *rng_hdl;
 	} while (false);
 
 	return err;
