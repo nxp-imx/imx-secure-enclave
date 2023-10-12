@@ -60,4 +60,26 @@ uint32_t prepare_msg_key_store_close_req(void *phdl,
 					 void *args);
 
 uint32_t proc_msg_rsp_key_store_close_req(void *rsp_buf, void *args);
+
+#if MT_SAB_KEY_STORE_REPROV_EN
+struct sab_cmd_key_store_reprov_en_msg {
+	struct sab_mu_hdr hdr;
+	uint32_t signed_msg_msb_addr;
+	uint32_t signed_msg_lsb_addr;
+};
+
+struct sab_cmd_key_store_reprov_en_rsp {
+	struct sab_mu_hdr hdr;
+	uint32_t rsp_code;
+};
+
+uint32_t prepare_msg_key_store_reprov_en_req(void *phdl,
+					     void *cmd_buf, void *rsp_buf,
+					     uint32_t *cmd_msg_sz,
+					     uint32_t *rsp_msg_sz,
+					     uint32_t msg_hdl,
+					     void *args);
+
+uint32_t proc_msg_rsp_key_store_reprov_en_req(void *rsp_buf, void *args);
+#endif
 #endif

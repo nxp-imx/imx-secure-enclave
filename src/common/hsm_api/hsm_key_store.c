@@ -131,3 +131,54 @@ hsm_err_t hsm_close_key_store_service(hsm_hdl_t key_store_hdl)
 
 	return err;
 }
+
+hsm_err_t hsm_key_store_reprov_en(hsm_hdl_t session_hdl,
+				  op_key_store_reprov_en_args_t *args)
+{
+	uint32_t error;
+	hsm_err_t err = HSM_GENERAL_ERROR;
+	struct hsm_session_hdl_s *sess_ptr;
+	uint32_t rsp_code = SAB_NO_MESSAGE_RATING;
+
+	do {
+		if (!args)
+			break;
+
+		if (!session_hdl) {
+			err = HSM_UNKNOWN_HANDLE;
+			break;
+		}
+
+		sess_ptr = session_hdl_to_ptr(session_hdl);
+		if (!sess_ptr) {
+			err = HSM_UNKNOWN_HANDLE;
+			break;
+		}
+
+		error = process_sab_msg(sess_ptr->phdl,
+					sess_ptr->mu_type,
+					SAB_KEY_STORE_REPROV_EN_REQ,
+					MT_SAB_KEY_STORE_REPROV_EN,
+					(uint32_t)session_hdl,
+					args,
+					&rsp_code);
+
+		err = sab_rating_to_hsm_err(error);
+
+		if (err != HSM_NO_ERROR) {
+			se_err("HSM Error: SAB_KEY_STORE_REPROV_EN_REQ [0x%x].\n",
+			       err);
+			break;
+		}
+
+		err = sab_rating_to_hsm_err(rsp_code);
+
+		if (err != HSM_NO_ERROR) {
+			se_err("HSM RSP Error: SAB_KEY_STORE_REPROV_EN_REQ [0x%x].\n",
+			       err);
+			break;
+		}
+	} while (false);
+
+	return err;
+}

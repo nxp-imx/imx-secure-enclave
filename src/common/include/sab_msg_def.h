@@ -60,6 +60,7 @@
 #define SAB_KEY_STORE_OPEN_REQ                  0x30u
 #define SAB_KEY_STORE_CLOSE_REQ                 0x31u
 #define SAB_PUB_KEY_RECOVERY_REQ                0x32u
+#define SAB_KEY_STORE_REPROV_EN_REQ             0x3Fu
 
 #define SAB_KEY_MANAGEMENT_OPEN_REQ             0x40u
 #define SAB_KEY_MANAGEMENT_CLOSE_REQ            0x41u

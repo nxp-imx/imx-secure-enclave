@@ -75,6 +75,15 @@ hsm_err_t hsm_open_key_store_service(hsm_hdl_t session_hdl,
  */
 hsm_err_t hsm_close_key_store_service(hsm_hdl_t key_store_hdl);
 
+/**
+ *
+ * \param session_hdl pointer to the handle identifying the current session.
+ * \param args pointer to the structure containing the function arguments.
+ *
+ * \return error code.
+ */
+hsm_err_t hsm_key_store_reprov_en(hsm_hdl_t session_hdl,
+				  op_key_store_reprov_en_args_t *args);
 /** @} end of key store service flow */
 
 #endif

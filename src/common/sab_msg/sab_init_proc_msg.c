@@ -422,6 +422,15 @@ static  int init_proc_sab_hsm_msg_engine(msg_type_t msg_type,
 						  proc_msg_rsp_key_store_close_req);
 		}
 		break;
+#if MT_SAB_KEY_STORE_REPROV_EN
+	case SAB_KEY_STORE_REPROV_EN_REQ:
+		if (msg_type == MT_SAB_KEY_STORE_REPROV_EN) {
+			ret = add_sab_msg_handler(msg_id, MT_SAB_KEY_STORE_REPROV_EN,
+						  prepare_msg_key_store_reprov_en_req,
+						  proc_msg_rsp_key_store_reprov_en_req);
+		}
+		break;
+#endif
 #endif
 #if MT_SAB_KEY_MANAGEMENT
 	case SAB_KEY_MANAGEMENT_OPEN_REQ:

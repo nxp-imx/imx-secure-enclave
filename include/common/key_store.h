@@ -56,5 +56,15 @@ typedef struct {
 	//!< key store re-provisioning.
 } open_svc_key_store_args_t;
 
+/**
+ * Structure describing the key store reprovisioning enable operation arguments
+ */
+typedef struct {
+	uint8_t *signed_message;
+	//!< signed content payload
+	uint32_t signed_msg_size;
+	//!< signed content payload size in bytes
+} op_key_store_reprov_en_args_t;
+
 /** @} end of key store service flow */
 #endif
