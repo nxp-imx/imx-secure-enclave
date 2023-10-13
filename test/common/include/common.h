@@ -40,6 +40,9 @@ void hsm_sign_verify_tests(hsm_hdl_t sess_hdl, hsm_hdl_t key_store_hdl,
 hsm_err_t auth_enc_test(hsm_hdl_t key_store_hdl, hsm_hdl_t key_mgmt_hdl);
 hsm_err_t gc_akey_gen_test(hsm_hdl_t session_hdl);
 hsm_err_t gc_acrypto_test(hsm_hdl_t session_hdl);
+hsm_err_t key_exchange_test(hsm_hdl_t hsm_session_hdl,
+			    hsm_hdl_t key_store_hdl,
+			    hsm_hdl_t key_mgmt_hdl);
 
 void get_device_info(hsm_hdl_t sess_hdl);
 void perform_dev_attestation(hsm_hdl_t sess_hdl);

@@ -18,10 +18,10 @@
 
 hsm_err_t hsm_key_exchange(hsm_hdl_t key_management_hdl, op_key_exchange_args_t *args)
 {
-	int32_t error = 1;
+	uint32_t lib_err;
 	struct hsm_service_hdl_s *serv_ptr;
 	hsm_err_t err = HSM_GENERAL_ERROR;
-	uint32_t rsp_code;
+	uint32_t rsp_code = SAB_NO_MESSAGE_RATING;
 
 	do {
 		if (!args)
@@ -38,19 +38,17 @@ hsm_err_t hsm_key_exchange(hsm_hdl_t key_management_hdl, op_key_exchange_args_t 
 			break;
 		}
 
-		error = process_sab_msg(serv_ptr->session->phdl,
-					serv_ptr->session->mu_type,
-					SAB_KEY_EXCHANGE_REQ,
-					MT_SAB_KEY_EXCHANGE,
-					(uint32_t)key_management_hdl,
-					args, &rsp_code);
+		lib_err = process_sab_msg(serv_ptr->session->phdl,
+					  serv_ptr->session->mu_type,
+					  SAB_KEY_EXCHANGE_REQ,
+					  MT_SAB_KEY_EXCHANGE,
+					  (uint32_t)key_management_hdl,
+					  args, &rsp_code);
 
-		err = sab_rating_to_hsm_err(error);
+		err = lib_err_to_hsm_err(lib_err);
 
-		if (err != HSM_NO_ERROR) {
-			se_err("HSM Error: SAB_KEY_EXCHANGE_REQ [0x%x].\n", err);
+		if (err != HSM_NO_ERROR)
 			break;
-		}
 
 		err = sab_rating_to_hsm_err(rsp_code);
 

@@ -11,6 +11,16 @@
 struct sab_cmd_key_exchange_msg {
 	struct sab_mu_hdr hdr;
 	uint32_t key_management_handle;
+#ifdef PSA_COMPLIANT
+	uint16_t flags;
+	uint16_t reserved;
+	uint32_t signed_content_addr;
+	uint32_t signed_content_sz;
+	uint32_t peer_pubkey_addr;
+	uint32_t peer_pubkey_sz;
+	uint32_t user_fixed_info_addr;
+	uint32_t user_fixed_info_sz;
+#else
 	uint32_t key_identifier;
 	uint32_t shared_key_identifier_array;
 	uint32_t ke_input_addr;
@@ -29,12 +39,17 @@ struct sab_cmd_key_exchange_msg {
 	uint8_t kdf_input_size;
 	uint8_t kdf_output_size;
 	uint8_t flags;
+#endif
 	uint32_t crc;
 };
 
 struct sab_cmd_key_exchange_rsp {
 	struct sab_mu_hdr hdr;
 	uint32_t rsp_code;
+#ifdef PSA_COMPLIANT
+	uint32_t derived_key_id;
+	uint32_t salt_sz;
+#endif
 };
 
 uint32_t prepare_msg_key_exchange(void *phdl,

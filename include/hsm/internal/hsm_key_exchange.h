@@ -16,6 +16,33 @@
  * @{
  */
 
+#ifdef PSA_COMPLIANT
+/**
+ * Bitmap specifying the key exchange operation properties
+ */
+typedef uint16_t hsm_op_key_exchange_flags_t;
+
+/**
+ * Enum describing Key Exchange algorithms supported
+ */
+typedef enum {
+	//!< ECDH HKDF SHA256
+	HSM_KEY_EXCHANGE_ECDH_HKDF_SHA256 = 0x09020109,
+	//!< ECDH HKDF SHA384
+	HSM_KEY_EXCHANGE_ECDH_HKDF_SHA384 = 0x0902010A,
+} hsm_op_key_exchange_algo_t;
+
+/**
+ * Enum describing Key Derivation algorithms supported
+ */
+typedef enum {
+	//!< HKDF SHA256 (HMAC two-step)
+	HSM_KEY_DERIVATION_HKDF_SHA256 = 0x08000109,
+	//!< HKDF SHA384 (HMAC two-step)
+	HSM_KEY_DERIVATION_HKDF_SHA384 = 0x0800010A,
+} hsm_op_key_derivation_algo_t;
+
+#else
 /**
  * Bitmap specifying the KDF algorithm
  */
@@ -30,11 +57,31 @@ typedef uint8_t hsm_key_exchange_scheme_id_t;
  * Bitmap specifying the key exchange operation properties
  */
 typedef uint8_t hsm_op_key_exchange_flags_t;
+#endif
 
 /**
  * Structure describing the key exchange operation member arguments
  */
 typedef struct {
+#ifdef PSA_COMPLIANT
+	uint32_t signed_content_sz;
+	//!< Input signed content payload size in bytes
+	uint8_t *signed_content;
+	//!< Input signed content payload buffer
+	uint32_t peer_pubkey_sz;
+	//!< Input peer public key size in bytes
+	uint8_t *peer_pubkey;
+	//!< Input peer public key buffer
+	uint32_t user_fixed_info_sz;
+	//!< Input user fixed info size in bytes
+	uint8_t *user_fixed_info;
+	//!< Input user fixed info buffer (optional i.e. can be NULL)
+	uint32_t out_derived_key_id;
+	//!< Identifier of the derived key, with FW Resp
+	uint32_t out_salt_sz;
+	//!< salt size in bytes, from FW Resp. It is equal to the hash
+	//!< (in bytes) of hash algorithm used in the key exchange algorithm.
+#else
 	uint32_t key_identifier;
 	//!< Identifier of the key used for derivation.
 	//!< It must be zero, if HSM_OP_KEY_EXCHANGE_FLAGS_GENERATE_EPHEMERAL is set.
@@ -82,12 +129,13 @@ typedef struct {
 	//!< length in bytes of the input data of the KDF.
 	uint8_t kdf_output_size;
 	//!< length in bytes of the non sensitive output data related to the KDF.
-	hsm_op_key_exchange_flags_t flags;
-	//!< bitmap specifying the operation properties
 	uint8_t *signed_message;
 	//!< pointer to the signed_message authorizing the operation.
 	uint16_t signed_msg_size;
 	//!< size of the signed_message authorizing the operation.
+#endif
+	hsm_op_key_exchange_flags_t flags;
+	//!< bitmap specifying the operation properties
 } op_key_exchange_args_t;
 
 /**
@@ -218,6 +266,7 @@ typedef struct {
 hsm_err_t hsm_key_exchange(hsm_hdl_t key_management_hdl,
 			   op_key_exchange_args_t *args);
 
+#ifndef PSA_COMPLIANT
 #define HSM_KDF_ALG_FOR_SM2 \
 	((hsm_kdf_algo_id_t)0x10u)
 //!< SM2 Key exchange KDF algorithm
@@ -297,7 +346,18 @@ hsm_err_t hsm_key_exchange(hsm_hdl_t key_management_hdl,
 #define HSM_OP_KEY_EXCHANGE_FLAGS_USE_TLS_EMS  \
 	((hsm_op_key_exchange_flags_t)(1u << 4))
 //!< Use extended master secret for TLS KDFs
+#else
+//!< Use zeros salt
+#define HSM_OP_KEY_EXCHANGE_FLAGS_SALT_ZERO \
+	((hsm_op_key_exchange_flags_t)(0u << 0))
+//!< Use peer public key hash salt
+#define HSM_OP_KEY_EXCHANGE_FLAGS_SALT_PEER_PUBKEY_HASH \
+	((hsm_op_key_exchange_flags_t)(1u << 0))
+//!< Use peer public key hash salt
+#define HSM_OP_KEY_EXCHANGE_FLAGS_MONOTIC_COUNTER_INC \
+	((hsm_op_key_exchange_flags_t)(1u << 5))
 
+#endif
 #define HSM_OP_KEY_EXCHANGE_FLAGS_STRICT_OPERATION \
 	((hsm_op_key_exchange_flags_t)(1u << 7))
 //!< The request is completed only when the new key has been written in the NVM.

@@ -613,6 +613,12 @@ static void transient_key_tests(hsm_hdl_t sess_hdl, hsm_hdl_t key_store_hdl)
 			       0,
 			       HSM_KEY_TYPE_AES);
 	printf("----------------------------------------------------------\n");
+
+	//Key Exchange API test
+	if (global_info.soc_id == SOC_IMX93 &&
+	    global_info.soc_rev == SOC_REV_A1)
+		key_exchange_test(sess_hdl, key_store_hdl, key_mgmt_hdl);
+
 #endif
 	hsmret = hsm_close_key_management_service(key_mgmt_hdl);
 	printf("hsm_close_key_management_service ret:0x%x\n", hsmret);
