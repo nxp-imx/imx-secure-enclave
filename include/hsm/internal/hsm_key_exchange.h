@@ -354,14 +354,16 @@ hsm_err_t hsm_key_exchange(hsm_hdl_t key_management_hdl,
 #define HSM_OP_KEY_EXCHANGE_FLAGS_SALT_PEER_PUBKEY_HASH \
 	((hsm_op_key_exchange_flags_t)(1u << 0))
 //!< Use peer public key hash salt
-#define HSM_OP_KEY_EXCHANGE_FLAGS_MONOTIC_COUNTER_INC \
+#define HSM_OP_KEY_EXCHANGE_FLAGS_MONOTONIC \
 	((hsm_op_key_exchange_flags_t)(1u << 5))
-
+//!< When used in conjunction with STRICT flag, the request is completed only when
+//!< the monotonic counter has been updated.
 #endif
 #define HSM_OP_KEY_EXCHANGE_FLAGS_STRICT_OPERATION \
 	((hsm_op_key_exchange_flags_t)(1u << 7))
 //!< The request is completed only when the new key has been written in the NVM.
 //!< This applicable for persistent key only.
+//!< NOTE: In latest ELE FW API guide, STRICT has been replaced with SYNC.
 
 /**
  *\addtogroup qxp_specific

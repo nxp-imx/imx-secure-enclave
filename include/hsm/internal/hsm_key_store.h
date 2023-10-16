@@ -44,10 +44,15 @@ typedef uint8_t hsm_svc_key_store_flags_t;
 //!< If set, minimum mac length specified in min_mac_length field will be
 //!< stored in the key store when creating the key store.
 //!< Must only be set at key store creation.
+#define HSM_SVC_KEY_STORE_FLAGS_MONOTONIC \
+	((hsm_svc_key_store_flags_t)(1u << 5))
+//!< When used in conjunction with STRICT flag, the request is completed only when
+//!< the monotonic counter has been updated.
 #define HSM_SVC_KEY_STORE_FLAGS_STRICT_OPERATION \
 			((hsm_svc_key_store_flags_t)(1u << 7))
 //!< The request is completed only when the new key store has been written
 //!< in the NVM. This applicable for CREATE operations only.
+//!< NOTE: In latest ELE FW API guide, STRICT has been replaced with SYNC.
 
 /**
  * Open a service flow on the specified key store.
