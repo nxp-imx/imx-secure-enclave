@@ -43,6 +43,7 @@ hsm_err_t gc_acrypto_test(hsm_hdl_t session_hdl);
 hsm_err_t key_exchange_test(hsm_hdl_t hsm_session_hdl,
 			    hsm_hdl_t key_store_hdl,
 			    hsm_hdl_t key_mgmt_hdl);
+hsm_err_t test_key_store_reprov_en(hsm_hdl_t session_hdl);
 
 void get_device_info(hsm_hdl_t sess_hdl);
 void perform_dev_attestation(hsm_hdl_t sess_hdl);
