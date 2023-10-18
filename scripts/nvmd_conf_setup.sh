@@ -40,7 +40,7 @@ function imx8dxlevk_nvmd_config()
 
     case ${loc_config_id} in
         0)
-            nvmd_config_setup "/etc/seco/seco_hsm_master" "/etc/hsm/" "0"
+            nvmd_config_setup "/etc/hsm/seco_hsm_master" "/etc/hsm/" "0"
             ;;
 
         1)
@@ -67,7 +67,7 @@ function imx95evk_nvmd_config()
 
     case ${loc_config_id} in
         0)
-            nvmd_config_setup "/etc/ele/ele_nvm_master" "/etc/hsm/" "0"
+            nvmd_config_setup "/etc/hsm/ele_nvm_master" "/etc/hsm/" "0"
             ;;
 
         2)
