@@ -409,6 +409,9 @@ static void transient_key_tests(hsm_hdl_t sess_hdl, hsm_hdl_t key_store_hdl)
 		pub_key_sz = sizeof(pub_key);
 	}
 
+	pub_key_arg = pub_key;
+	pub_key_sz = sizeof(pub_key);
+
 	hsmret = do_key_recovery_test(key_store_hdl, key_mgmt_hdl, master_key_id,
 						pub_key_arg, pub_key_sz);
 	if (hsmret)

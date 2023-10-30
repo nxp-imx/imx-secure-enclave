@@ -1,6 +1,6 @@
 // SPDX-License-Identifier: BSD-3-Clause
 /*
- * Copyright 2022 NXP
+ * Copyright 2022-2023 NXP
  */
 
 #include <stdio.h>
@@ -31,7 +31,7 @@ hsm_err_t do_key_recovery_test(hsm_hdl_t key_store_hdl, hsm_hdl_t key_mgmt_hdl,
 		args.out_key      = pub_key;
 	}
 #ifndef PSA_COMPLIANT
-	args.key_type     = HSM_PUBKEY_TYPE_ECC_NIST;
+	args.key_type     = HSM_KEY_TYPE_ECDSA_NIST_P256;
 	args.flags        = 0;
 #endif
 	err = hsm_pub_key_recovery(key_store_hdl, &args);
