@@ -215,7 +215,7 @@ uint32_t plat_rcvmsg_cmd(struct plat_os_abs_hdl *phdl,
 		printf("\n---------- MSG Command with msg id[0x%x] = %d -------------\n",
 			*rcv_msg_cmd_id, *rcv_msg_cmd_id);
 		hexdump(cmd, *cmd_len);
-		printf("\n-------------------MSG RSP END-----------------------------------\n");
+		printf("\n------------------MSG CMD END--------------------\n");
 #endif
 		err = PLAT_SUCCESS;
 	} while (false);
