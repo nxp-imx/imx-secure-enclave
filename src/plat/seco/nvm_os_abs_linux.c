@@ -19,13 +19,6 @@
 #include "plat_utils.h"
 #include "seco_mu_ioctl.h"
 
-static char SECO_NVM_SHE_STORAGE_FILE[] = "/etc/seco_she_nvm";
-
-static char V2X_NVM_SHE_STORAGE_FILE[] = "/etc/v2x_she_nvm";
-static char V2X_NVM_HSM_STORAGE_FILE[] = "/etc/v2x_hsm/v2x_nvm_master";
-static char V2X_NVM_HSM_STORAGE_CHUNK_PATH[] = "/etc/v2x_hsm/";
-
-
 /* Write data in a file located in NVM. Return the size of the written data. */
 uint32_t plat_os_abs_storage_write(struct plat_os_abs_hdl *phdl,
 				   uint8_t *src, uint32_t size,
@@ -37,16 +30,16 @@ uint32_t plat_os_abs_storage_write(struct plat_os_abs_hdl *phdl,
 
 	switch (phdl->type) {
 	case MU_CHANNEL_PLAT_SHE_NVM:
-		path = SECO_NVM_SHE_STORAGE_FILE;
+		path = nvm_fname;
 		break;
 	case MU_CHANNEL_PLAT_HSM_NVM:
 		path = nvm_fname;
 		break;
 	case MU_CHANNEL_V2X_SHE_NVM:
-		path = V2X_NVM_SHE_STORAGE_FILE;
+		path = nvm_fname;
 		break;
 	case MU_CHANNEL_V2X_HSM_NVM:
-		path = V2X_NVM_HSM_STORAGE_FILE;
+		path = nvm_fname;
 		break;
 	default:
 		path = NULL;
@@ -82,16 +75,16 @@ uint32_t plat_os_abs_storage_read(struct plat_os_abs_hdl *phdl,
 
 	switch (phdl->type) {
 	case MU_CHANNEL_PLAT_SHE_NVM:
-		path = SECO_NVM_SHE_STORAGE_FILE;
+		path = nvm_fname;
 		break;
 	case MU_CHANNEL_PLAT_HSM_NVM:
 		path = nvm_fname;
 		break;
 	case MU_CHANNEL_V2X_SHE_NVM:
-		path = V2X_NVM_SHE_STORAGE_FILE;
+		path = nvm_fname;
 		break;
 	case MU_CHANNEL_V2X_HSM_NVM:
-		path = V2X_NVM_HSM_STORAGE_FILE;
+		path = nvm_fname;
 		break;
 	default:
 		path = NULL;
@@ -177,7 +170,9 @@ uint32_t plat_os_abs_storage_write_chunk(struct plat_os_abs_hdl *phdl,
 	if (phdl->type == MU_CHANNEL_PLAT_HSM_NVM) {
 		n = get_chunk_file_path(&path, nvm_storage_dname, blob_id);
 	} else if (phdl->type == MU_CHANNEL_V2X_HSM_NVM) {
-		n = get_chunk_file_path(&path, V2X_NVM_HSM_STORAGE_CHUNK_PATH, blob_id);
+		n = get_chunk_file_path(&path, nvm_storage_dname, blob_id);
+	} else if (phdl->type == MU_CHANNEL_V2X_SHE_NVM) {
+		n = get_chunk_file_path(&path, nvm_storage_dname, blob_id);
 	} else {
 		path = NULL;
 	}
@@ -218,7 +213,9 @@ uint32_t plat_os_abs_storage_read_chunk(struct plat_os_abs_hdl *phdl,
 	if (phdl->type == MU_CHANNEL_PLAT_HSM_NVM) {
 		n = get_chunk_file_path(&path, nvm_storage_dname, blob_id);
 	} else if (phdl->type == MU_CHANNEL_V2X_HSM_NVM) {
-		n = get_chunk_file_path(&path, V2X_NVM_HSM_STORAGE_CHUNK_PATH, blob_id);
+		n = get_chunk_file_path(&path, nvm_storage_dname, blob_id);
+	} else if (phdl->type == MU_CHANNEL_V2X_SHE_NVM) {
+		n = get_chunk_file_path(&path, nvm_storage_dname, blob_id);
 	} else {
 		path = NULL;
 	}
