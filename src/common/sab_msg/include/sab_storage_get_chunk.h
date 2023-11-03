@@ -13,7 +13,10 @@ struct sab_cmd_key_store_chunk_get_msg {
 	struct sab_mu_hdr hdr;
 	uint32_t storage_handle;
 	struct sab_blob_id blob_id;
+#ifdef PSA_COMPLIANT
+// structure is 4 words for non PSA-COMPLIANT
 	uint32_t crc;
+#endif
 };
 
 struct sab_cmd_key_store_chunk_get_rsp {

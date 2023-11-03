@@ -59,13 +59,17 @@ typedef struct {
 	//!< it will be the pointer where to load data.
 	uint32_t data_size;
 	//!< length in bytes of the data
+#ifdef PSA_COMPLIANT
 	uint32_t data_id;
+#else
+	uint16_t data_id;
+#endif
 	//!< id of the data
 	hsm_op_data_storage_flags_t flags;
 	//!< flags bitmap specifying the operation attributes.
+#ifdef PSA_COMPLIANT
 	hsm_svc_data_storage_flags_t svc_flags;
 	//!< bitmap specifying the services properties.
-#ifdef PSA_COMPLIANT
 	/**
 	 * In case RETRIEVE, if the data retrieved is in TLV format
 	 * which was stored by Encrypted Data Storage API. The TLV
@@ -113,7 +117,11 @@ hsm_err_t hsm_data_storage(hsm_hdl_t data_storage_hdl, op_data_storage_args_t *a
 #define HSM_OP_DATA_STORAGE_FLAGS_EL2GO    ((hsm_op_data_storage_flags_t)(1u << 0))
 #define HSM_OP_DATA_STORAGE_FLAGS_DEFAULT  ((hsm_op_data_storage_flags_t)(0u << 0))
 //!< Store data.
+#ifdef PSA_COMPLIANT
 #define HSM_OP_DATA_STORAGE_FLAGS_STORE    ((hsm_op_data_storage_flags_t)(1u << 1))
+#else
+#define HSM_OP_DATA_STORAGE_FLAGS_STORE    ((hsm_op_data_storage_flags_t)(1u << 0))
+#endif
 //!< Retrieve data.
 #define HSM_OP_DATA_STORAGE_FLAGS_RETRIEVE ((hsm_op_data_storage_flags_t)(0u << 1))
 

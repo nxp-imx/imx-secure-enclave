@@ -14,8 +14,11 @@
 #include "hsm_api.h"
 #include "common.h"
 #include "nvm.h"
-
+#ifdef PSA_COMPLIANT
 #define DATA_ID			0x12345678
+#else
+#define DATA_ID			0x1234
+#endif
 #define ENC_DATA_ID		0x45321781
 
 #define LINE_SIZE		12
@@ -146,6 +149,10 @@ void data_storage_test(hsm_hdl_t key_store_hdl, int arg)
 		return;
 	}
 
+	memset(&data_storage_args, 0, sizeof(op_data_storage_args_t));
+#ifdef PSA_COMPLIANT
+	data_storage_args.svc_flags = 0;
+#endif
 	data_storage_args.data = test_data;
 	data_storage_args.data_size = size;
 	data_storage_args.data_id = DATA_ID;
@@ -159,8 +166,9 @@ void data_storage_test(hsm_hdl_t key_store_hdl, int arg)
 	}
 
 	memset(&data_storage_args, 0, sizeof(op_data_storage_args_t));
-
-	data_storage_args.flags = 0;
+#ifdef PSA_COMPLIANT
+	data_storage_args.svc_flags = 0;
+#endif
 	data_storage_args.data = recieved_data;
 	data_storage_args.data_size = size;
 	data_storage_args.data_id = DATA_ID;
@@ -172,9 +180,6 @@ void data_storage_test(hsm_hdl_t key_store_hdl, int arg)
 		dump_firmware_log(get_hsm_session_hdl());
 		return;
 	}
-
-	test_status(test_data, recieved_data, size,
-			"SAB_DATA_STORAGE_REQ");
 
 	err = hsm_close_data_storage_service(data_storage_hdl);
 	if (err) {

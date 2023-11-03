@@ -176,9 +176,9 @@ hsm_err_t hsm_data_ops(hsm_hdl_t key_store_hdl,
 	/* Stores the error status of the main operation.
 	 */
 	hsm_err_t op_err;
-
+#ifdef PSA_COMPLIANT
 	open_data_args.flags = args->svc_flags;
-
+#endif
 	op_err = hsm_open_data_storage_service(key_store_hdl, &open_data_args,
 					    &data_storage_hdl);
 	if (op_err) {
