@@ -504,6 +504,26 @@ static void transient_key_tests(hsm_hdl_t sess_hdl, hsm_hdl_t key_store_hdl)
 
 	hsmret = hsm_close_signature_verification_service(sig_ver_hdl);
 	printf("hsm_close_signature_verification_service ret:0x%x\n", hsmret);
+
+#ifdef CONFIG_PLAT_SECO
+	key_management(DELETE,
+		       key_mgmt_hdl,
+		       &butterfly_key_id,
+		       101,
+		       HSM_KEY_TYPE_ECDSA_NIST_P256);
+
+	key_management(DELETE,
+		       key_mgmt_hdl,
+		       &master_key_id,
+		       02,
+		       HSM_KEY_TYPE_ECDSA_NIST_P256);
+#else
+	key_management(DELETE,
+		       key_mgmt_hdl,
+		       &master_key_id,
+		       02,
+		       HSM_KEY_TYPE_ECC_NIST);
+#endif
 #endif
 
 	memset(&key_gen_args, 0, sizeof(key_gen_args));
