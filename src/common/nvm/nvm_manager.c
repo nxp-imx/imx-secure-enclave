@@ -96,7 +96,8 @@ void nvm_close_session(void *ctx)
 		nvm_ctx->phdl = NULL;
 	}
 
-	plat_os_abs_free(nvm_ctx);
+	if (nvm_ctx->status != NVM_STATUS_RUNNING)
+		plat_os_abs_free(nvm_ctx);
 }
 
 static uint32_t nvm_open_session(uint8_t flags, struct nvm_ctx_st *nvm_ctx)
@@ -316,7 +317,7 @@ uint32_t nvm_manager(uint8_t flags,
 			    nvm_ctx->status == NVM_STATUS_RUNNING) {
 				retry = 1;
 				/* handle case when platform/V2X are reset */
-				plat_os_abs_close_session(nvm_ctx->phdl);
+				nvm_close_session(nvm_ctx);
 				nvm_ctx->phdl = NULL;
 				break;
 			}
