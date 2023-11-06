@@ -8,6 +8,8 @@
 
 #include <stdint.h>
 
+#include "common/global_info.h"
+
 #define SHE_PREPARE	0x66
 #define SHE_RESPONSE	0x99
 

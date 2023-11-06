@@ -16,7 +16,7 @@ static uint8_t validate_input(op_dev_attest_args_t *args)
 {
 	uint8_t ret = 0;
 
-	if (global_info.ver == HSM_API_VERSION_1)
+	if (hsm_get_dev_attest_api_ver() == HSM_API_VERSION_1)
 		ret = args->nounce_sz != DEV_ATTEST_NOUNCE_SIZE_V1;
 	else
 		ret = args->nounce_sz != DEV_ATTEST_NOUNCE_SIZE_V2;

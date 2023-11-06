@@ -30,6 +30,22 @@ void plat_she_test_usage(void)
 	printf("Options:\n");
 }
 
+void print_global_info(void)
+{
+	printf("-----------------------------------------------------------\n");
+	printf("Global Info:\n");
+	printf("-----------------------------------------------------------\n");
+
+	printf("%s %s\n", get_soc_id_str(se_get_soc_id()),
+	       get_soc_rev_str(se_get_soc_rev()));
+	printf("%s Lifecycle\n", get_soc_lf_str(se_get_chip_lifecycle()));
+	printf("Fips mode 0x%x\n", se_get_fips_mode());
+	printf("LIB Version: %s\n", se_get_lib_version());
+	printf("NVM Version: %s\n", se_get_nvm_version());
+	printf("Build ID: %s\n", se_get_commit_id());
+	printf("-----------------------------------------------------------\n");
+}
+
 /* Test entry function. */
 int main(int argc, char *argv[])
 {
@@ -63,6 +79,8 @@ int main(int argc, char *argv[])
 		return 0;
 	}
 	se_print("she_open_session PASS\n");
+
+	print_global_info();
 
 	err = do_she_create_storage_test(she_session_hdl, &key_store_hdl);
 	if (err) {

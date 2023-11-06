@@ -5,6 +5,7 @@
 HSM_API_SRC	+= \
 		$(PLAT_COMMON_PATH)/hsm_api/hsm_handle.o \
 		$(PLAT_COMMON_PATH)/hsm_api/hsm_utils.o \
+		$(PLAT_COMMON_PATH)/se_global_info.o \
 
 ifneq (${MT_SAB_SESSION},0x0)
 DEFINES		+=	-DHSM_SESSION

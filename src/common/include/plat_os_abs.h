@@ -160,7 +160,19 @@ int32_t plat_os_abs_configure_shared_buf(struct plat_os_abs_hdl *phdl, uint32_t 
 uint32_t plat_os_abs_configure_shared_buf_v2(struct plat_os_abs_hdl *phdl,
 					     uint32_t shared_buf_off,
 					     uint32_t size);
-
+/**
+ * Get SoC Info (SoC ID, SoC Rev)
+ *
+ * \param phdl pointer to the session handle
+ * \param soc_id pointer to get the soc_id
+ * \param soc_rev pointer to get the soc_rev
+ *
+ * \return PLAT_SUCCESS/PLAT_FAILURE
+ *
+ */
+uint32_t plat_os_abs_get_soc_info(struct plat_os_abs_hdl *phdl,
+				  uint32_t *soc_id,
+				  uint32_t *soc_rev);
 /**
  * Setup data buffer for command processing
  *

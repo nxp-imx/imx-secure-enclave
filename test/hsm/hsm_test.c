@@ -631,8 +631,8 @@ static void transient_key_tests(hsm_hdl_t sess_hdl, hsm_hdl_t key_store_hdl)
 			       HSM_KEY_TYPE_AES);
 	printf("----------------------------------------------------------\n");
 
-	if (global_info.soc_id == SOC_IMX93 &&
-	    global_info.soc_rev == SOC_REV_A1) {
+	if (se_get_soc_id() == SOC_IMX93 &&
+	    se_get_soc_rev() == SOC_REV_A1) {
 		//Key Exchange API test
 		key_exchange_test(sess_hdl, key_store_hdl, key_mgmt_hdl);
 
@@ -718,11 +718,10 @@ int main(int argc, char *argv[])
 	} else
 		printf("hsm_open_session PASS\n");
 
-#ifdef PSA_COMPLIANT
 	print_global_info();
 	if (argc == 2 && (strcmp("--info", argv[1]) == 0 || strcmp("-i", argv[1]) == 0))
 		goto ginfo_out;
-#endif
+
 	get_device_info(hsm_session_hdl);
 	perform_dev_attestation(hsm_session_hdl);
 	/* To test this api, customised firmware is used.
@@ -788,8 +787,8 @@ int main(int argc, char *argv[])
 	transient_key_tests(hsm_session_hdl, key_store_hdl);
 
 #ifdef PSA_COMPLIANT
-	if (global_info.soc_id == SOC_IMX93 &&
-	    global_info.soc_rev == SOC_REV_A1) {
+	if (se_get_soc_id() == SOC_IMX93 &&
+	    se_get_soc_rev() == SOC_REV_A1) {
 		gc_akey_gen_test(hsm_session_hdl);
 		gc_acrypto_test(hsm_session_hdl);
 	}

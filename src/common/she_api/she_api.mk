@@ -4,6 +4,7 @@
 
 SHE_API_SRC	+= $(PLAT_COMMON_PATH)/she_api/she_handle.o \
 		$(PLAT_COMMON_PATH)/she_api/she_utils.o \
+		$(PLAT_COMMON_PATH)/se_global_info.o \
 
 ifneq (${MT_SAB_SESSION},0x0)
 DEFINES		+=	-DSHE_SESSION

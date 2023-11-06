@@ -436,3 +436,29 @@ uint32_t plat_os_abs_send_signed_message_v2(struct plat_os_abs_hdl *phdl,
 out:
 	return err;
 }
+
+uint32_t plat_os_abs_get_soc_info(struct plat_os_abs_hdl *phdl,
+				  uint32_t *soc_id,
+				  uint32_t *soc_rev)
+{
+	struct seco_mu_ioctl_get_soc_info soc_info;
+	int32_t ret = PLAT_SUCCESS;
+
+	if (!phdl || !soc_id || !soc_rev) {
+		ret = PLAT_FAILURE;
+		goto out;
+	}
+
+	ret = ioctl(phdl->fd, SECO_MU_IOCTL_GET_SOC_INFO, &soc_info);
+	if (ret < 0) {
+		ret = PLAT_FAILURE;
+		se_err("\nPLAT ioctl error[%d]: %s\n",
+		       errno,
+		       strerror(errno));
+	}
+
+	*soc_id = soc_info.soc_id;
+	*soc_rev = soc_info.soc_rev;
+out:
+	return ret;
+}

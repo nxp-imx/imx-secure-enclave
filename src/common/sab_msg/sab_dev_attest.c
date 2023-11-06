@@ -107,10 +107,10 @@ uint32_t prepare_msg_dev_attest(void *phdl, void *cmd_buf, void *rsp_buf,
 {
 	uint32_t ret = SAB_ENGN_FAIL;
 
-	if (global_info.ver == HSM_API_VERSION_1)
+	if (hsm_get_dev_attest_api_ver() == HSM_API_VERSION_1)
 		ret = prepare_msg_dev_attest_v1(phdl, cmd_buf, rsp_buf, cmd_msg_sz,
 						rsp_msg_sz, msg_hdl, args);
-	else if (global_info.ver == HSM_API_VERSION_2)
+	else if (hsm_get_dev_attest_api_ver() == HSM_API_VERSION_2)
 		ret = prepare_msg_dev_attest_v2(phdl, cmd_buf, rsp_buf, cmd_msg_sz,
 						rsp_msg_sz, msg_hdl, args);
 
@@ -183,7 +183,7 @@ uint32_t proc_msg_rsp_dev_attest(void *rsp_buf, void *args)
 	 * this API, now the version dependent fields have to be filled based on
 	 * the version supported.
 	 */
-	if (global_info.ver == HSM_API_VERSION_1) {
+	if (hsm_get_dev_attest_api_ver() == HSM_API_VERSION_1) {
 		rsp_nounce_data_buf_sz = DEV_ATTEST_NOUNCE_SIZE_V1;
 		rsp_nounce_data_buf = rsp_w_data_v1->nounce;
 		signature_data_buf = rsp_w_data_v1->signature;
@@ -252,7 +252,7 @@ uint32_t proc_msg_rsp_dev_attest(void *rsp_buf, void *args)
 			   info_data_buf,
 			   info_data_buf_sz);
 
-	if (global_info.ver == HSM_API_VERSION_2) {
+	if (hsm_get_dev_attest_api_ver() == HSM_API_VERSION_2) {
 		op_args->oem_srkh = plat_os_abs_malloc(DEV_GETINFO_OEM_SRKH_SZ);
 		if (!op_args->oem_srkh) {
 			plat_os_abs_free(op_args->uid);

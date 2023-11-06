@@ -6,119 +6,13 @@
 #ifndef HSM_UTILS_H
 #define HSM_UTILS_H
 
-#include "stdbool.h"
 #include "stdint.h"
+
+#include "internal/hsm_handle.h"
+#include "common/global_info.h"
 
 #define HSM_PREPARE	0x66
 #define HSM_RESPONSE	0x99
-
-#ifdef PSA_COMPLIANT
-#include "internal/hsm_handle.h"
-
-#define SOC_IMX8ULP 0x84d
-#define SOC_IMX93   0x9300
-
-#define SOC_REV_A0  0xa000
-#define SOC_REV_A1  0xa100
-#define SOC_REV_A2  0xa200
-
-#define SOC_LF_OPEN  0x10
-#define SOC_LF_CLOSED 0x20
-#define SOC_LF_CLOSED_LOCKED 0x40
-
-#define GINFO_COMMIT_ID_SZ   40
-
-#define HSM_API_VERSION_1    0x1
-#define HSM_API_VERSION_2    0x2
-
-/**
- *  @defgroup group30 Global Information
- *  @{
- */
-
-/**
- * Global Information structure contain information about SoC and the Library.
- * It will be used globally to take platform specific decisions.
- */
-struct global_info_s {
-	bool is_populated;
-	//!< to ensure global info is populated once.
-	uint8_t ver;
-	//!< Supported version of HSM APIs
-	uint16_t soc_id;
-	//!< SoC ID
-	uint16_t soc_rev;
-	//!< SoC Revision
-	uint16_t lifecycle;
-	//!< Device Lifecycle
-	uint32_t lib_newness_ver;
-	//!< Secure Enclave Library Newness Version
-	uint32_t lib_major_ver;
-	//!< Secure Enclave Library Major Version
-	uint32_t lib_minor_ver;
-	//!< Secure Enclave Library Minor Version
-	uint32_t nvm_newness_ver;
-	//!< NVM Library Newness Version
-	uint32_t nvm_major_ver;
-	//!< NVM Library Major Version
-	uint32_t nvm_minor_ver;
-	//!< NVM Library Minor Version
-	char se_commit_id[GINFO_COMMIT_ID_SZ];
-	//!< Secure Enclave Build Commit ID
-};
-
-/**
- * Global Information structure instance which will be populated and later be
- * used for getting the required platform or library details.
- */
-extern struct global_info_s global_info;
-
-/**
- * This function is called to populate the Global Info structure
- *
- * \param hsm_session_hdl identifying the active session.
- */
-void populate_global_info(hsm_hdl_t hsm_session_hdl);
-
-/**
- * This function prints the Global Information of library
- */
-void show_global_info(void);
-
-/**
- * This function returns the version supported for Device Attestation.
- */
-uint8_t hsm_get_dev_attest_api_ver(void);
-
-/**
- * This function returns a string representating SoC ID
- *
- * \param soc_id SoC ID fetched from Global Info
- *
- * \return String represention of the SoC ID
- */
-const char *get_soc_id_str(uint16_t soc_id);
-
-/**
- * This function returns a string representating SoC Revision
- *
- * \param soc_rev SoC Revision fetched from Global Info
- *
- * \return String represention of the SoC Revision
- */
-const char *get_soc_rev_str(uint16_t soc_rev);
-
-/**
- * This function returns a string representating Lifecycle
- *
- * \param lifecycle value fetched from Global Info
- *
- * \return a string represention of Lifecycle
- */
-const char *get_soc_lf_str(uint16_t lifecycle);
-/** @} end of global information */
-
-#endif
 
 /**
  *  @defgroup group0 Error codes

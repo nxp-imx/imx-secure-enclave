@@ -7,6 +7,7 @@
 
 #include "sab_msg_def.h"
 #include "internal/she_utils.h"
+#include "internal/she_get_info.h"
 #include "plat_utils.h"
 #include "sab_common_err.h"
 #include "plat_err_def.h"
@@ -162,4 +163,29 @@ she_err_t lib_err_to_she_err(uint32_t lib_err)
 		ret = sab_err_rating_to_she_err(GET_RATING_CODE(lib_err_status));
 
 	return ret;
+}
+
+void se_get_info(uint32_t session_hdl, op_get_info_args_t *args)
+{
+	she_err_t err;
+
+	err = she_get_info(session_hdl, args);
+	if (err != SHE_NO_ERROR)
+		se_err("\nGlobal Info: she_get_info failed err:0x%x\n", err);
+}
+
+void se_get_soc_info(uint32_t session_hdl,
+		     uint32_t *soc_id,
+		     uint32_t *soc_rev)
+{
+	struct she_session_hdl_s *s_ptr;
+	uint32_t ret;
+
+	s_ptr = she_session_hdl_to_ptr(session_hdl);
+	if (s_ptr)
+		ret = plat_os_abs_get_soc_info(s_ptr->phdl,
+					       soc_id,
+					       soc_rev);
+	if (!s_ptr || ret != PLAT_SUCCESS)
+		se_err("Global Info: failed to get SoC info.\n");
 }

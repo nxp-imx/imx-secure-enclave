@@ -201,6 +201,10 @@ she_err_t she_open_session(open_session_args_t *args, she_hdl_t *session_hdl)
 			*session_hdl = 0u; /* force an invalid value.*/
 	}
 
+	//populate Global Info structure
+	if (err == SHE_NO_ERROR && !is_global_info_populated())
+		populate_global_info(*session_hdl);
+
 	return err;
 }
 

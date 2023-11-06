@@ -1,6 +1,6 @@
 // SPDX-License-Identifier: BSD-3-Clause
 /*
- * Copyright 2019-2021 NXP
+ * Copyright 2019-2021, 2023 NXP
  */
 
 #ifndef SECO_MU_IOCTL_H
@@ -31,6 +31,11 @@ struct seco_mu_ioctl_signed_message {
 	uint32_t error_code;
 };
 
+struct seco_mu_ioctl_get_soc_info {
+	uint32_t soc_id;
+	uint32_t soc_rev;
+};
+
 #define SECO_MU_IO_FLAGS_IS_INTPUT	(0x01u)
 #define SECO_MU_IO_FLAGS_USE_SEC_MEM	(0x02u)
 #define SECO_MU_IO_FLAGS_USE_SHORT_ADDR	(0x04u)
@@ -45,5 +50,7 @@ struct seco_mu_ioctl_signed_message {
 			struct seco_mu_ioctl_get_mu_info)
 #define SECO_MU_IOCTL_SIGNED_MESSAGE	_IOWR(SECO_MU_IOCTL, 0x05, \
 			struct seco_mu_ioctl_signed_message)
+#define SECO_MU_IOCTL_GET_SOC_INFO	_IOR(SECO_MU_IOCTL, 0x06, \
+			struct seco_mu_ioctl_get_soc_info)
 
 #endif
