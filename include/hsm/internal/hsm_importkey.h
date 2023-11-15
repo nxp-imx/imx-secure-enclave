@@ -30,10 +30,18 @@ typedef uint8_t hsm_op_import_key_flags_t;
 	((hsm_op_import_key_flags_t)(1u << 0))
 //!< Bit 0: set 1 means input is E2GO_TLV.
 
-#define HSM_OP_IMPORT_KEY_INPUT_SIGNED_MSG \
+#define HSM_OP_IMPORT_KEY_INPUT_ELE_TLV \
 	((hsm_op_import_key_flags_t)(0u << 0))
-//!< Bit 0: set 0 means input is signed message.
+//!< Bit 0: set 0 means input is ELE TLV.
 
+#define HSM_OP_IMPORT_KEY_FLAGS_AUTOMATIC_GROUP \
+	((hsm_op_import_key_flags_t)(0u << 2))
+//!< Bit 2: set 0 means ELE automatically choose key group.
+
+#define HSM_OP_IMPORT_KEY_FLAGS_GROUP_FIELD \
+	((hsm_op_import_key_flags_t)(1u << 2))
+//!< Bit 2: set 1 means ELE store key in key group set by key group field.
+//
 #define HSM_OP_IMPORT_KEY_FLAGS_STRICT_OPERATION \
 	((hsm_op_import_key_flags_t)(1u << 7))
 //!< Bit 7: Strict: Request completed - New key written to NVM with updated MC.
@@ -52,9 +60,13 @@ typedef struct {
 	uint32_t  input_size;
 	//!< Size in bytes of:
 	//!< - EdgeLock 2GO TLV can be found.
-	//!< - Ignore this field if not E2GO_TLV.
+	//!< - ELE TLV can be found.
 	hsm_op_import_key_flags_t flags;
 	//!< bitmap specifying the operation properties.
+	uint16_t key_group;
+	//!< In case of import key ELE option:
+	//!< - The imported key group.
+	//!< - Ignore this field if not ELE option.
 } op_import_key_args_t;
 
 /**
