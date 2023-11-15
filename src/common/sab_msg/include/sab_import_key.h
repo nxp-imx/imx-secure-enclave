@@ -17,7 +17,8 @@ struct sab_cmd_import_key_msg {
 	uint8_t rsv[3];
 	uint32_t input_lsb_addr;
 	uint32_t input_size;
-	uint32_t rsv1;
+	uint16_t key_group;
+	uint16_t rsv1;
 	uint32_t crc;
 };
 

@@ -28,6 +28,8 @@ uint32_t prepare_msg_importkey(void *phdl,
 
 	cmd->key_management_hdl = msg_hdl;
 	cmd->flags = op_args->flags;
+	if (!(cmd->flags & HSM_OP_IMPORT_KEY_INPUT_E2GO_TLV))
+		cmd->key_group = op_args->key_group;
 
 	set_phy_addr_to_words(&cmd->input_lsb_addr,
 			      0u,

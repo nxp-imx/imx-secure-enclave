@@ -30,12 +30,6 @@ hsm_err_t hsm_import_key(hsm_hdl_t key_management_hdl,
 		if (!args->input_lsb_addr || args->input_size == 0)
 			break;
 
-		if ((args->flags & HSM_OP_IMPORT_KEY_INPUT_E2GO_TLV) ==
-				HSM_OP_IMPORT_KEY_INPUT_SIGNED_MSG) {
-			se_err("Flag value not supported.\n");
-			break;
-		}
-
 		if (!key_management_hdl) {
 			err = HSM_UNKNOWN_HANDLE;
 			break;
