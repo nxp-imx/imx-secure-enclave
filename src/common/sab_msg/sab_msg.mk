@@ -99,6 +99,12 @@ SAB_MSG_SRC	+= \
 		$(PLAT_COMMON_PATH)/sab_msg/sab_debug_dump.o
 endif
 
+ifneq (${MT_SAB_PUB_KEY_ATTEST},0x0)
+DEFINES		+=	-DMT_SAB_PUB_KEY_ATTEST=${MT_SAB_PUB_KEY_ATTEST}
+SAB_MSG_SRC	+= \
+		$(PLAT_COMMON_PATH)/sab_msg/sab_pub_key_attest.o
+endif
+
 ifneq (${MT_SAB_DEV_ATTEST},0x0)
 DEFINES		+=	-DMT_SAB_DEV_ATTEST=${MT_SAB_DEV_ATTEST}
 SAB_MSG_SRC	+= \

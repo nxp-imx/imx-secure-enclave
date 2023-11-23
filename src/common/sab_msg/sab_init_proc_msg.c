@@ -22,6 +22,10 @@
 #include "sab_dev_attest.h"
 #endif
 
+#if MT_SAB_PUB_KEY_ATTEST
+#include "sab_pub_key_attest.h"
+#endif
+
 #if MT_SAB_GET_INFO
 #include "sab_get_info.h"
 #endif
@@ -525,6 +529,15 @@ static  int init_proc_sab_hsm_msg_engine(msg_type_t msg_type,
 			ret = add_sab_msg_handler(msg_id, MT_SAB_SIGN_GEN,
 						  prepare_msg_sign_generate,
 						  proc_msg_rsp_sign_generate);
+		}
+		break;
+#endif
+#if MT_SAB_PUB_KEY_ATTEST
+	case SAB_PUB_KEY_ATTEST_REQ:
+		if (msg_type == MT_SAB_PUB_KEY_ATTEST) {
+			ret = add_sab_msg_handler(msg_id, MT_SAB_PUB_KEY_ATTEST,
+						  prepare_msg_pub_key_attest,
+						  proc_msg_rsp_pub_key_attest);
 		}
 		break;
 #endif

@@ -231,6 +231,12 @@ HSM_API_SRC	+= \
 		$(PLAT_COMMON_PATH)/hsm_api/hsm_dev_attest.o
 endif
 
+ifneq (${MT_SAB_PUB_KEY_ATTEST},0x0)
+DEFINES		+=	-DHSM_PUB_KEY_ATTEST
+HSM_API_SRC	+= \
+		$(PLAT_COMMON_PATH)/hsm_api/hsm_pub_key_attest.o
+endif
+
 ifneq (${MT_SAB_DEV_GETINFO},0x0)
 DEFINES		+=	-DHSM_DEV_GETINFO
 HSM_API_SRC	+= \

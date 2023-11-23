@@ -191,6 +191,31 @@ hsm_err_t hsm_do_cipher(hsm_hdl_t cipher_hdl,
  * \return error code
  */
 hsm_err_t hsm_do_sign(hsm_hdl_t key_store_hdl, op_generate_sign_args_t *args);
+
+#ifdef PSA_COMPLIANT
+#include "internal/hsm_pub_key_attest.h"
+
+/**
+ * Secondary API to attest the public key of an asymmetric key present in the ELE
+ * FW key storage (generated or imported).\n
+ *
+ * This API does the following:
+ * 1. Open a service flow for signature generation.\n
+ * 2. Perform the operation to attest the public key of required asymmetric key
+ * present in the ELE FW key storage.\n
+ * 3. Post performing the operation, terminate the previously opened\n
+ *    signature-generation service flow.\n
+ *
+ * User can call this function only after having opened a key-store.\n
+ *
+ * \param key_store_hdl handle identifying the current key-store.
+ * \param args pointer to the structure containing the function arguments.
+ *
+ * \return error code
+ */
+hsm_err_t hsm_do_pub_key_attest(hsm_hdl_t key_store_hdl,
+				op_pub_key_attest_args_t *args);
+#endif
 /** @} end of signature generation service flow */
 
 /**

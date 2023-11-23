@@ -45,6 +45,11 @@ hsm_err_t key_exchange_test(hsm_hdl_t hsm_session_hdl,
 			    hsm_hdl_t key_mgmt_hdl);
 hsm_err_t test_key_store_reprov_en(hsm_hdl_t session_hdl);
 
+/**
+ * This function is used to test the Public Key Attestation API
+ */
+void pub_key_attest_test(hsm_hdl_t key_store_hdl, hsm_hdl_t key_mgmt_hdl);
+
 void get_device_info(hsm_hdl_t sess_hdl);
 void perform_dev_attestation(hsm_hdl_t sess_hdl);
 void lc_update_info(hsm_hdl_t sess_hdl);
