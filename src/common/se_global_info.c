@@ -20,9 +20,9 @@ struct global_info_s {
 	//!< to ensure global info is populated once.
 	uint8_t ver;
 	//!< Supported version of HSM APIs
-	uint32_t soc_id;
+	uint16_t soc_id;
 	//!< SoC ID
-	uint32_t soc_rev;
+	uint16_t soc_rev;
 	//!< SoC Revision
 	uint16_t lifecycle;
 	//!< Device Lifecycle
@@ -189,12 +189,12 @@ uint8_t hsm_get_dev_attest_api_ver(void)
 }
 #endif
 
-uint32_t se_get_soc_id(void)
+uint16_t se_get_soc_id(void)
 {
 	return global_info.soc_id;
 }
 
-uint32_t se_get_soc_rev(void)
+uint16_t se_get_soc_rev(void)
 {
 	return global_info.soc_rev;
 }

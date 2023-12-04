@@ -32,8 +32,8 @@ struct seco_mu_ioctl_signed_message {
 };
 
 struct seco_mu_ioctl_get_soc_info {
-	uint32_t soc_id;
-	uint32_t soc_rev;
+	uint16_t soc_id;
+	uint16_t soc_rev;
 };
 
 #define SECO_MU_IO_FLAGS_IS_INTPUT	(0x01u)

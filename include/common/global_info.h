@@ -79,12 +79,12 @@ uint8_t hsm_get_dev_attest_api_ver(void);
 /**
  * Get SoC ID.
  */
-uint32_t se_get_soc_id(void);
+uint16_t se_get_soc_id(void);
 
 /**
  * Get SoC Revision.
  */
-uint32_t se_get_soc_rev(void);
+uint16_t se_get_soc_rev(void);
 
 /**
  * Get Chip-lifecycle.
@@ -176,6 +176,6 @@ void se_get_info(uint32_t session_hdl,
 /**
  * Get SoC Info for Global Info setup
  */
-void se_get_soc_info(uint32_t session_hdl, uint32_t *soc_id, uint32_t *soc_rev);
+void se_get_soc_info(uint32_t session_hdl, uint16_t *soc_id, uint16_t *soc_rev);
 /** @} end of Global Info operation */
 #endif

@@ -438,8 +438,8 @@ out:
 }
 
 uint32_t plat_os_abs_get_soc_info(struct plat_os_abs_hdl *phdl,
-				  uint32_t *soc_id,
-				  uint32_t *soc_rev)
+				  uint16_t *soc_id,
+				  uint16_t *soc_rev)
 {
 	struct seco_mu_ioctl_get_soc_info soc_info;
 	int32_t ret = PLAT_SUCCESS;
@@ -460,5 +460,5 @@ uint32_t plat_os_abs_get_soc_info(struct plat_os_abs_hdl *phdl,
 	*soc_id = soc_info.soc_id;
 	*soc_rev = soc_info.soc_rev;
 out:
-	return ret;
+	return TO_UINT32_T(ret);
 }

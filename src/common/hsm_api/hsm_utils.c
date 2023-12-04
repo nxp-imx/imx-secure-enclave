@@ -345,8 +345,8 @@ void se_get_info(uint32_t session_hdl, op_get_info_args_t *args)
 }
 
 void se_get_soc_info(uint32_t session_hdl,
-		     uint32_t *soc_id,
-		     uint32_t *soc_rev)
+		     uint16_t *soc_id,
+		     uint16_t *soc_rev)
 {
 #ifdef PSA_COMPLIANT
 	hsm_err_t err;

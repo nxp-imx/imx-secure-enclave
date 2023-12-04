@@ -171,8 +171,8 @@ uint32_t plat_os_abs_configure_shared_buf_v2(struct plat_os_abs_hdl *phdl,
  *
  */
 uint32_t plat_os_abs_get_soc_info(struct plat_os_abs_hdl *phdl,
-				  uint32_t *soc_id,
-				  uint32_t *soc_rev);
+				  uint16_t *soc_id,
+				  uint16_t *soc_rev);
 /**
  * Setup data buffer for command processing
  *
