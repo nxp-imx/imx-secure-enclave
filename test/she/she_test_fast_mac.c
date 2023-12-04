@@ -51,26 +51,28 @@ she_err_t she_verify_mac_test(she_hdl_t utils_handle)
 		return SHE_GENERAL_ERROR;
 	}
 
-	memset(&verify_mac_args, 0, sizeof(verify_mac_args));
-	verify_mac_args.key_ext = 0x00;
-	verify_mac_args.key_id = SHE_KEY_1 | verify_mac_args.key_ext;
-	verify_mac_args.mac = input_mac2;
-	verify_mac_args.mac_length = SHE_MAC_SIZE;
-	verify_mac_args.message = message2;
-	verify_mac_args.message_length = sizeof(message2);
-	verify_mac_args.mac_length_encoding = MAC_BYTES_LENGTH;
+	if (!she_v2x_mu) {
+		memset(&verify_mac_args, 0, sizeof(verify_mac_args));
+		verify_mac_args.key_ext = 0x00;
+		verify_mac_args.key_id = SHE_KEY_1 | verify_mac_args.key_ext;
+		verify_mac_args.mac = input_mac2;
+		verify_mac_args.mac_length = SHE_MAC_SIZE;
+		verify_mac_args.message = message2;
+		verify_mac_args.message_length = sizeof(message2);
+		verify_mac_args.mac_length_encoding = MAC_BYTES_LENGTH;
 
-	err = she_verify_mac(utils_handle, &verify_mac_args);
-	if (err) {
-		se_err("Error[0x%x]: she_verify_mac failed.\n", err);
-		return err;
-	}
+		err = she_verify_mac(utils_handle, &verify_mac_args);
+		if (err) {
+			se_err("Error[0x%x]: she_verify_mac failed.\n", err);
+			return err;
+		}
 
-	if (verify_mac_args.verification_status == SHE_MAC_VERIFICATION_SUCCESS) {
-		se_print("SHE VERIFY FAST MAC (40 BYTES) --> PASSED\n");
-	} else {
-		se_print("SHE VERIFY FAST MAC (40 BYTES) --> FAILED\n");
-		return SHE_GENERAL_ERROR;
+		if (verify_mac_args.verification_status == SHE_MAC_VERIFICATION_SUCCESS) {
+			se_print("SHE VERIFY FAST MAC (40 BYTES) --> PASSED\n");
+		} else {
+			se_print("SHE VERIFY FAST MAC (40 BYTES) --> FAILED\n");
+			return SHE_GENERAL_ERROR;
+		}
 	}
 	return err;
 }
@@ -120,37 +122,40 @@ she_err_t she_generate_mac_test(she_hdl_t utils_handle)
 
 	if (memcmp(expected_mac, generate_mac_args.mac, sizeof(expected_mac)) != 0) {
 		se_print("Generated MAC doesn't match expected MAC [FAIL]\n");
-		return err;
+		return SHE_GENERAL_ERROR;
 	}
 
 	se_print("SHE GENERATE FAST MAC (16 BYTES) --> PASSED\n");
 
-	memset(&generate_mac_args, 0, sizeof(generate_mac_args));
-	generate_mac_args.key_ext = 0x00;
-	generate_mac_args.key_id = SHE_KEY_5 | generate_mac_args.key_ext;
-	generate_mac_args.mac = mac;
-	generate_mac_args.message = message2;
-	generate_mac_args.message_length = sizeof(message2);
+	if (!she_v2x_mu) {
+		memset(&generate_mac_args, 0, sizeof(generate_mac_args));
+		generate_mac_args.key_ext = 0x00;
+		generate_mac_args.key_id = SHE_KEY_5 | generate_mac_args.key_ext;
+		generate_mac_args.mac = mac;
+		generate_mac_args.message = message2;
+		generate_mac_args.message_length = sizeof(message2);
 
-	err = she_generate_mac(utils_handle, &generate_mac_args);
-	if (err) {
-		se_err("Error[0x%x]: she_generate_mac failed.\n", err);
-		return err;
+		err = she_generate_mac(utils_handle, &generate_mac_args);
+		if (err) {
+			se_err("Error[0x%x]: she_generate_mac failed.\n", err);
+			return err;
+		}
+
+		for (i = 0; i < SHE_MAC_SIZE; i++) {
+			if ((i % 10) == 0)
+				printf("\n");
+			printf("%02x:%02x ", generate_mac_args.mac[i], expected_mac2[i]);
+		}
+		printf("\n");
+
+		if (memcmp(expected_mac2, generate_mac_args.mac,
+			   sizeof(expected_mac2)) != 0) {
+			se_print("Generated MAC doesn't match expected MAC [FAIL]\n");
+			return SHE_GENERAL_ERROR;
+		}
+
+		se_print("SHE GENERATE FAST MAC (40 BYTES) --> PASSED\n");
 	}
-
-	for (i = 0; i < SHE_MAC_SIZE; i++) {
-		if ((i % 10) == 0)
-			printf("\n");
-		printf("%02x:%02x ", generate_mac_args.mac[i], expected_mac2[i]);
-	}
-	printf("\n");
-
-	if (memcmp(expected_mac2, generate_mac_args.mac, sizeof(expected_mac2)) != 0) {
-		se_print("Generated MAC doesn't match expected MAC [FAIL]\n");
-		return err;
-	}
-
-	se_print("SHE GENERATE FAST MAC (40 BYTES) --> PASSED\n");
 	return err;
 }
 
