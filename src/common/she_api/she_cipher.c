@@ -40,7 +40,7 @@ she_err_t she_open_cipher_service(she_hdl_t key_store_handle,
 
 	serv_ptr->session->last_rating = rsp_code;
 
-	err = sab_rating_to_she_err(sab_err);
+	err = sab_rating_to_she_err(sab_err, serv_ptr->session->phdl);
 
 	if (err != SHE_NO_ERROR) {
 		se_err("SHE Error: SAB_CIPHER_OPEN_REQ [0x%x].\n", err);
@@ -48,7 +48,7 @@ she_err_t she_open_cipher_service(she_hdl_t key_store_handle,
 		return err;
 	}
 
-	err = sab_rating_to_she_err(rsp_code);
+	err = sab_rating_to_she_err(rsp_code, serv_ptr->session->phdl);
 
 	if (err != SHE_NO_ERROR) {
 		se_err("SHE RSP Error: SAB_CIPHER_OPEN_REQ [0x%x].\n", err);
@@ -83,13 +83,13 @@ she_err_t she_close_cipher_service(she_hdl_t cipher_handle)
 
 	serv_ptr->session->last_rating = rsp_code;
 
-	err = sab_rating_to_she_err(sab_err);
+	err = sab_rating_to_she_err(sab_err, serv_ptr->session->phdl);
 
 	if (err != SHE_NO_ERROR) {
 		se_err("SHE Error: SAB_CIPHER_CLOSE_REQ [0x%x].\n", err);
 		return err;
 	}
-	err = sab_rating_to_she_err(rsp_code);
+	err = sab_rating_to_she_err(rsp_code, serv_ptr->session->phdl);
 	if (err != SHE_NO_ERROR) {
 		se_err("SHE RSP Error: SAB_CIPHER_CLOSE_REQ [0x%x].\n", err);
 		return err;
@@ -128,14 +128,14 @@ she_err_t she_cipher_one_go(she_hdl_t cipher_handle, op_cipher_one_go_args_t *ar
 
 	serv_ptr->session->last_rating = rsp_code;
 
-	err = sab_rating_to_she_err(sab_err);
+	err = sab_rating_to_she_err(sab_err, serv_ptr->session->phdl);
 
 	if (err != SHE_NO_ERROR) {
 		se_err("SHE Error: SAB_CIPHER_ONE_GO_REQ [0x%x].\n", err);
 		return err;
 	}
 
-	err = sab_rating_to_she_err(rsp_code);
+	err = sab_rating_to_she_err(rsp_code, serv_ptr->session->phdl);
 
 	if (err != SHE_NO_ERROR) {
 		se_err("SHE RSP Error: SAB_CIPHER_ONE_GO_REQ [0x%x].\n", err);

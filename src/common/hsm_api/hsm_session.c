@@ -57,7 +57,7 @@ hsm_err_t hsm_close_session(hsm_hdl_t session_hdl)
 		if (err != HSM_NO_ERROR)
 			break;
 
-		err = sab_rating_to_hsm_err(rsp_code);
+		err = sab_rating_to_hsm_err(rsp_code, s_ptr->phdl);
 		if (err != HSM_NO_ERROR)
 			se_err("HSM RSP Error: SAB_SESSION_CLOSE_REQ [0x%x].\n", err);
 
@@ -139,7 +139,7 @@ hsm_err_t hsm_open_session(open_session_args_t *args, hsm_hdl_t *session_hdl)
 		if (err != HSM_NO_ERROR)
 			break;
 
-		err = sab_rating_to_hsm_err(rsp_code);
+		err = sab_rating_to_hsm_err(rsp_code, s_ptr->phdl);
 		if (err != HSM_NO_ERROR) {
 			se_err("HSM RSP Error: SAB_SESSION_OPEN_REQ [0x%x].\n", err);
 			break;

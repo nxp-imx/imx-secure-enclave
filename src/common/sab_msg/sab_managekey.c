@@ -52,19 +52,22 @@ uint32_t prepare_msg_managekey(void *phdl,
 
 uint32_t proc_msg_rsp_managekey(void *rsp_buf, void *args)
 {
+	uint32_t err = SAB_LIB_STATUS(SAB_LIB_SUCCESS);
 	op_manage_key_args_t *op_args = (op_manage_key_args_t *) args;
 	struct sab_cmd_manage_key_rsp *rsp =
 		(struct sab_cmd_manage_key_rsp *) rsp_buf;
 
-	if (!op_args)
-		return SAB_FAILURE_STATUS;
+	if (!op_args) {
+		err = SAB_LIB_STATUS(SAB_LIB_ERROR);
+		goto exit;
+	}
 
 	if ((op_args->flags & HSM_OP_MANAGE_KEY_FLAGS_IMPORT_CREATE)
 			== HSM_OP_MANAGE_KEY_FLAGS_IMPORT_CREATE) {
 		*(op_args->key_identifier) = rsp->key_identifier;
 	}
-
-	return SAB_SUCCESS_STATUS;
+exit:
+	return err;
 }
 
 uint32_t prepare_msg_managekey_ext(void *phdl,

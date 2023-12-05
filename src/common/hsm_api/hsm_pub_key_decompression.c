@@ -41,7 +41,7 @@ hsm_err_t hsm_pub_key_decompression(hsm_hdl_t session_hdl,
 		if (err != HSM_NO_ERROR)
 			break;
 
-		err = sab_rating_to_hsm_err(rsp_code);
+		err = sab_rating_to_hsm_err(rsp_code, sess_ptr->phdl);
 		if (err != HSM_NO_ERROR) {
 			se_err("HSM RSP Error: SAB_PUB_KEY_DECOMPRESSION [0x%x].\n", err);
 			break;

@@ -36,11 +36,13 @@ uint32_t prepare_msg_load_plain_key(void *phdl,
 
 uint32_t proc_msg_rsp_load_plain_key(void *rsp_buf, void *args)
 {
+	uint32_t err = SAB_LIB_STATUS(SAB_LIB_SUCCESS);
 	struct sab_she_load_plain_key_rsp *rsp =
 		(struct sab_she_load_plain_key_rsp *)rsp_buf;
 
-	if (rsp->rsp_code != SAB_SUCCESS_STATUS)
-		return rsp->rsp_code;
+	if (GET_STATUS_CODE(rsp->rsp_code) == SAB_FAILURE_STATUS)
+		goto exit;
 
-	return SAB_SUCCESS_STATUS;
+exit:
+	return err;
 }

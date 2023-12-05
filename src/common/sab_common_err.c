@@ -7,18 +7,19 @@
 #include "sab_msg_def.h"
 #include "plat_utils.h"
 
-void sab_err_map(uint8_t msg_type, uint8_t sab_cmd, uint32_t rsp_code)
+void sab_err_map(uint32_t sab_success_tag,
+		 uint8_t sab_cmd, uint32_t rsp_code)
 {
 	struct sab_err_map_s *sab_err_map_ptr = NULL;
 	uint8_t sab_err_str[256];
 	uint8_t i = 0;
 
-	sab_err_map_ptr = get_sab_err_str_map();
-
-	if (GET_STATUS_CODE(rsp_code) == SAB_STATUS_SUCCESS(msg_type)) {
+	if (GET_STATUS_CODE(rsp_code) == sab_success_tag) {
 		/* print for warnings. */
 		return;
 	}
+
+	sab_err_map_ptr = get_sab_err_str_map();
 
 	for (i = 0; i < SAB_ERR_MAP_N; i++) {
 		if (rsp_code == sab_err_map_ptr[i].sab_err) {

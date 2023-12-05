@@ -31,18 +31,21 @@ uint32_t prepare_msg_get_status(void *phdl,
 
 uint32_t proc_msg_rsp_get_status(void *rsp_buf, void *args)
 {
+	uint32_t err = SAB_LIB_STATUS(SAB_LIB_SUCCESS);
 	op_get_status_args_t *op_args =
 		(op_get_status_args_t *)args;
 	struct sab_cmd_get_status_rsp *rsp =
 		(struct sab_cmd_get_status_rsp *)rsp_buf;
 
-	if (!op_args)
-		return SAB_FAILURE_STATUS;
+	if (!op_args) {
+		err = SAB_LIB_STATUS(SAB_LIB_RSP_PROC_FAIL);
+		goto exit;
+	}
 
-	if (rsp->rsp_code != SAB_SUCCESS_STATUS)
-		return rsp->rsp_code;
+	if (GET_STATUS_CODE(rsp->rsp_code) == SAB_FAILURE_STATUS)
+		goto exit;
 
 	op_args->sreg = rsp->sreg;
-
-	return SAB_SUCCESS_STATUS;
+exit:
+	return err;
 }

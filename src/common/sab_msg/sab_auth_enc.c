@@ -72,16 +72,20 @@ uint32_t prepare_msg_auth_enc(void *phdl,
 
 uint32_t proc_msg_rsp_auth_enc(void *rsp_buf, void *args)
 {
+	uint32_t err = SAB_LIB_STATUS(SAB_LIB_SUCCESS);
 	op_auth_enc_args_t *op_args =
 		(op_auth_enc_args_t *) args;
 	struct sab_cmd_auth_enc_rsp *rsp =
 		(struct sab_cmd_auth_enc_rsp *) rsp_buf;
 
 #ifdef PSA_COMPLIANT
-	if (!op_args)
-		return SAB_FAILURE_STATUS;
+	if (!op_args) {
+		err = SAB_LIB_STATUS(SAB_LIB_RSP_PROC_FAIL);
+		goto exit;
+	}
 
 	op_args->exp_output_size = rsp->output_size;
+exit:
 #endif
-	return SAB_SUCCESS_STATUS;
+	return err;
 }

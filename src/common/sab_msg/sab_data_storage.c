@@ -50,18 +50,22 @@ uint32_t prepare_msg_data_storage(void *phdl,
 
 uint32_t proc_msg_rsp_data_storage(void *rsp_buf, void *args)
 {
+	uint32_t err = SAB_LIB_STATUS(SAB_LIB_SUCCESS);
 	op_data_storage_args_t *op_args = (op_data_storage_args_t *)args;
 	struct sab_cmd_data_storage_rsp *rsp =
 		(struct sab_cmd_data_storage_rsp *)rsp_buf;
 
 #ifdef PSA_COMPLIANT
-	if (!op_args)
-		return SAB_FAILURE_STATUS;
+	if (!op_args) {
+		err = SAB_LIB_STATUS(SAB_LIB_RSP_PROC_FAIL);
+		goto exit;
+	}
 
 	op_args->exp_output_size = rsp->out_data_size;
+exit:
 #endif
 
-	return SAB_SUCCESS_STATUS;
+	return err;
 }
 
 #if MT_SAB_ENC_DATA_STORAGE
@@ -115,16 +119,19 @@ uint32_t prepare_msg_enc_data_storage(void *phdl,
 
 uint32_t proc_msg_rsp_enc_data_storage(void *rsp_buf, void *args)
 {
+	uint32_t err = SAB_LIB_STATUS(SAB_LIB_SUCCESS);
 	op_enc_data_storage_args_t *op_args = (op_enc_data_storage_args_t *)args;
 	struct sab_cmd_enc_data_storage_rsp *rsp =
 		(struct sab_cmd_enc_data_storage_rsp *)rsp_buf;
 
-	if (!op_args)
-		return SAB_FAILURE_STATUS;
+	if (!op_args) {
+		err = SAB_LIB_STATUS(SAB_LIB_RSP_PROC_FAIL);
+		goto exit;
+	}
 
 	op_args->out_data_size = rsp->out_data_size;
-
-	return SAB_SUCCESS_STATUS;
+exit:
+	return err;
 }
 #endif
 
@@ -154,16 +161,19 @@ uint32_t prepare_msg_data_storage_open_req(void *phdl,
 
 uint32_t proc_msg_rsp_data_storage_open_req(void *rsp_buf, void *args)
 {
+	uint32_t err = SAB_LIB_STATUS(SAB_LIB_SUCCESS);
 	struct sab_cmd_data_storage_open_rsp *rsp =
 		(struct sab_cmd_data_storage_open_rsp *) rsp_buf;
 	open_svc_data_storage_args_t *op_args = (open_svc_data_storage_args_t *) args;
 
-	if (!op_args)
-		return SAB_FAILURE_STATUS;
+	if (!op_args) {
+		err = SAB_LIB_STATUS(SAB_LIB_RSP_PROC_FAIL);
+		goto exit;
+	}
 
 	op_args->data_storage_handle = rsp->data_storage_handle;
-
-	return SAB_SUCCESS_STATUS;
+exit:
+	return err;
 }
 
 uint32_t prepare_msg_data_storage_close_req(void *phdl,
@@ -187,5 +197,7 @@ uint32_t prepare_msg_data_storage_close_req(void *phdl,
 
 uint32_t proc_msg_rsp_data_storage_close_req(void *rsp_buf, void *args)
 {
-	return SAB_SUCCESS_STATUS;
+	uint32_t err = SAB_LIB_STATUS(SAB_LIB_SUCCESS);
+
+	return err;
 }

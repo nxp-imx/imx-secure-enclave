@@ -36,12 +36,15 @@ uint32_t prepare_msg_debugdump(void *phdl,
 
 uint32_t proc_msg_rsp_debugdump(void *rsp_buf, void *args)
 {
+	uint32_t err = SAB_LIB_STATUS(SAB_LIB_SUCCESS);
 	struct rom_cmd_firmware_dump_rsp *rsp =
 		(struct rom_cmd_firmware_dump_rsp *) rsp_buf;
 	op_debug_dump_args_t *op_args = (op_debug_dump_args_t *) args;
 
-	if (!op_args)
-		return SAB_FAILURE_STATUS;
+	if (!op_args) {
+		err = SAB_LIB_STATUS(SAB_LIB_RSP_PROC_FAIL);
+		goto exit;
+	}
 
 	/* 1 word for header
 	 * 2 word for rsp_code
@@ -52,8 +55,10 @@ uint32_t proc_msg_rsp_debugdump(void *rsp_buf, void *args)
 	 * safe-check. Added check on size as memory op (memcpy) going to use it.
 	 */
 	if ((rsp->hdr.size <= ROM_BUF_DUMP_HDR_MIN_SIZE) ||
-		(rsp->hdr.size > (ROM_BUF_DUMP_MAX_WSIZE + 3)))
-		return SAB_FAILURE_STATUS;
+		(rsp->hdr.size > (ROM_BUF_DUMP_MAX_WSIZE + 3))) {
+		err = SAB_LIB_STATUS(SAB_LIB_ERROR);
+		goto exit;
+	}
 
 	op_args->dump_buf_len = rsp->hdr.size - 3;
 
@@ -66,6 +71,6 @@ uint32_t proc_msg_rsp_debugdump(void *rsp_buf, void *args)
 	} else {
 		op_args->is_dump_pending = false;
 	}
-
-	return SAB_SUCCESS_STATUS;
+exit:
+	return err;
 }

@@ -76,7 +76,7 @@ void nvm_close_session(void *ctx)
 					      MT_SAB_STORAGE_CLOSE,
 					      (uint32_t)nvm_ctx->storage_handle,
 					      NULL, &rsp_code);
-			if (ret != SAB_SUCCESS_STATUS)
+			if (ret != plat_sab_success_tag(nvm_ctx->phdl))
 				se_err("Warn: Failure in Storage Close.\n");
 			nvm_ctx->storage_handle = 0u;
 		}
@@ -112,7 +112,7 @@ static uint32_t nvm_open_session(uint8_t flags, struct nvm_ctx_st *nvm_ctx)
 	do {
 		/* Check if structure is already in use */
 		if (nvm_ctx->phdl) {
-			err = SAB_SUCCESS_STATUS;
+			err = plat_sab_success_tag(nvm_ctx->phdl);
 			break;
 		}
 
@@ -185,7 +185,7 @@ static uint32_t nvm_open_session(uint8_t flags, struct nvm_ctx_st *nvm_ctx)
 					(uint32_t)nvm_ctx->session_handle,
 					args, &rsp_code);
 		ret = rsp_code;
-		if (err != SAB_SUCCESS_STATUS) {
+		if (err != plat_sab_success_tag(nvm_ctx->phdl)) {
 			nvm_ctx->storage_handle = 0u;
 			break;
 		} else {
@@ -199,7 +199,7 @@ static uint32_t nvm_open_session(uint8_t flags, struct nvm_ctx_st *nvm_ctx)
 	}
 
 	/* Clean-up in case of error. */
-	if (err != SAB_SUCCESS_STATUS) {
+	if (err == SAB_FAILURE_STATUS) {
 		if (nvm_ctx->session_handle)
 			nvm_close_session(nvm_ctx);
 		//clean nvm_ctx
@@ -257,7 +257,7 @@ uint32_t nvm_manager(uint8_t flags,
 
 		nvm_ctx->status = NVM_STATUS_STARTING;
 
-		if (nvm_open_session(flags, nvm_ctx) != SAB_SUCCESS_STATUS) {
+		if (nvm_open_session(flags, nvm_ctx) == SAB_FAILURE_STATUS) {
 			err = 1;
 			break;
 		}
@@ -290,7 +290,7 @@ uint32_t nvm_manager(uint8_t flags,
 					if (nvm_storage_import(nvm_ctx,
 								data,
 								data_len)
-							!= SAB_SUCCESS_STATUS)
+						!= plat_sab_success_tag(nvm_ctx->phdl))
 						se_err("Warn: Failure in Master Storage Data Import.\n");
 				}
 				plat_os_abs_free(data);

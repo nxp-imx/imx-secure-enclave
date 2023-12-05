@@ -41,13 +41,13 @@ hsm_err_t hsm_get_info(hsm_hdl_t session_hdl, op_get_info_args_t *args)
 					session_hdl,
 					args, &rsp_code);
 
-		err = sab_rating_to_hsm_err(error);
+		err = sab_rating_to_hsm_err(error, sess_ptr->phdl);
 
 		if (err != HSM_NO_ERROR) {
 			se_err("HSM Error: SAB_GET_INFO_REQ [0x%x].\n", err);
 			break;
 		}
-		err = sab_rating_to_hsm_err(rsp_code);
+		err = sab_rating_to_hsm_err(rsp_code, sess_ptr->phdl);
 		if (err != HSM_NO_ERROR) {
 			se_err("HSM RSP Error: SAB_GET_INFO_REQ [0x%x].\n",
 				err);

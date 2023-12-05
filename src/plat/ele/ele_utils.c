@@ -9,6 +9,13 @@
 #include "plat_os_abs.h"
 #include "plat_utils.h"
 
+uint32_t plat_sab_success_tag(void *phdl)
+{
+	struct plat_os_abs_hdl *l_phdl = (struct plat_os_abs_hdl *)phdl;
+
+	return 0xD6;
+}
+
 /* Soon to be depricated to help descriminate between ROM and Firmware API */
 void plat_fill_cmd_msg_hdr(struct sab_mu_hdr *hdr,
 			   uint8_t cmd, uint32_t len,

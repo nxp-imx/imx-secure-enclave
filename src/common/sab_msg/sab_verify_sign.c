@@ -41,16 +41,20 @@ uint32_t prepare_msg_verify_sign_open(void *phdl,
 
 uint32_t proc_msg_rsp_verify_sign_open(void *rsp_buf, void *args)
 {
+	uint32_t err = SAB_LIB_STATUS(SAB_LIB_SUCCESS);
 	struct sab_signature_verify_open_rsp *rsp =
 			(struct sab_signature_verify_open_rsp *)rsp_buf;
 	open_svc_sign_ver_args_t *op_args = (open_svc_sign_ver_args_t *)args;
 
-	if (!op_args)
-		return SAB_FAILURE_STATUS;
+	if (!op_args) {
+		err = SAB_LIB_STATUS(SAB_LIB_RSP_PROC_FAIL);
+		goto exit;
+	}
 
 	op_args->sig_ver_hdl = rsp->sig_ver_hdl;
 
-	return SAB_SUCCESS_STATUS;
+exit:
+	return err;
 }
 
 uint32_t prepare_msg_verify_sign_close(void *phdl,
@@ -74,7 +78,9 @@ uint32_t prepare_msg_verify_sign_close(void *phdl,
 
 uint32_t proc_msg_rsp_verify_sign_close(void *rsp_buf, void *args)
 {
-	return SAB_SUCCESS_STATUS;
+	uint32_t err = SAB_LIB_STATUS(SAB_LIB_SUCCESS);
+
+	return err;
 }
 
 uint32_t prepare_msg_verify_sign(void *phdl,
@@ -131,14 +137,18 @@ uint32_t prepare_msg_verify_sign(void *phdl,
 
 uint32_t proc_msg_rsp_verify_sign(void *rsp_buf, void *args)
 {
+	uint32_t err = SAB_LIB_STATUS(SAB_LIB_SUCCESS);
 	struct sab_signature_verify_rsp *rsp =
 			(struct sab_signature_verify_rsp *)rsp_buf;
 	op_verify_sign_args_t *op_args = (op_verify_sign_args_t *)args;
 
-	if (!op_args)
-		return SAB_FAILURE_STATUS;
+	if (!op_args) {
+		err = SAB_LIB_STATUS(SAB_LIB_RSP_PROC_FAIL);
+		goto exit;
+	}
 
 	op_args->verification_status = rsp->verification_status;
 
-	return SAB_SUCCESS_STATUS;
+exit:
+	return err;
 }

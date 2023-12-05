@@ -55,7 +55,7 @@ hsm_err_t hsm_export_root_key_encryption_key(hsm_hdl_t session_hdl,
 		if (err != HSM_NO_ERROR)
 			break;
 
-		err = sab_rating_to_hsm_err(rsp_code);
+		err = sab_rating_to_hsm_err(rsp_code, sess_ptr->phdl);
 
 		if (err != HSM_NO_ERROR) {
 			se_err("HSM RSP Error: SAB_ROOT_KEK_EXPORT_REQ [0x%x].\n",

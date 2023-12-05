@@ -49,14 +49,17 @@ uint32_t prepare_msg_importkey(void *phdl,
 
 uint32_t proc_msg_rsp_importkey(void *rsp_buf, void *args)
 {
+	uint32_t err = SAB_LIB_STATUS(SAB_LIB_SUCCESS);
 	op_import_key_args_t *op_args = (op_import_key_args_t *) args;
 	struct sab_cmd_import_key_rsp *rsp =
 		(struct sab_cmd_import_key_rsp *) rsp_buf;
 
-	if (!op_args)
-		return SAB_FAILURE_STATUS;
+	if (!op_args) {
+		err = SAB_LIB_STATUS(SAB_LIB_RSP_PROC_FAIL);
+		goto exit;
+	}
 
 	op_args->key_identifier = rsp->key_identifier;
-
-	return SAB_SUCCESS_STATUS;
+exit:
+	return err;
 }

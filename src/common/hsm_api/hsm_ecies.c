@@ -36,13 +36,13 @@ hsm_err_t hsm_ecies_encryption(hsm_hdl_t session_hdl, op_ecies_enc_args_t *args)
 					  args,
 					  &rsp_code);
 
-		err = sab_rating_to_hsm_err(sab_err);
+		err = sab_rating_to_hsm_err(sab_err, sess_ptr->phdl);
 		if (err != HSM_NO_ERROR) {
 			se_err("HSM Error: SAB_ECIES_ENC_REQ [0x%x].\n", err);
 			break;
 		}
 
-		err = sab_rating_to_hsm_err(rsp_code);
+		err = sab_rating_to_hsm_err(rsp_code, sess_ptr->phdl);
 		if (err != HSM_NO_ERROR) {
 			se_err("HSM RSP Error: SAB_ECIES_ENC_REQ [0x%x].\n", err);
 			break;
@@ -78,13 +78,13 @@ hsm_err_t hsm_ecies_decryption(hsm_hdl_t cipher_hdl, op_ecies_dec_args_t *args)
 					  args,
 					  &rsp_code);
 
-		err = sab_rating_to_hsm_err(sab_err);
+		err = sab_rating_to_hsm_err(sab_err, serv_ptr->session->phdl);
 		if (err != HSM_NO_ERROR) {
 			se_err("HSM Error: SAB_CIPHER_ECIES_DECRYPT_REQ [0x%x].\n", err);
 			break;
 		}
 
-		err = sab_rating_to_hsm_err(rsp_code);
+		err = sab_rating_to_hsm_err(rsp_code, serv_ptr->session->phdl);
 		if (err != HSM_NO_ERROR) {
 			se_err("HSM RSP Error: SAB_ECIES_DECRYPT_REQ [0x%x].\n", err);
 			break;

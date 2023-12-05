@@ -40,7 +40,7 @@ hsm_err_t hsm_tls_finish(hsm_hdl_t key_management_hdl, op_tls_finish_args_t *arg
 		if (err != HSM_NO_ERROR)
 			break;
 
-		err = sab_rating_to_hsm_err(rsp_code);
+		err = sab_rating_to_hsm_err(rsp_code, serv_ptr->session->phdl);
 		if (err != HSM_NO_ERROR) {
 			se_err("HSM RSP Error: SAB_TLS_FINISH_REQ [0x%x].\n", err);
 			break;

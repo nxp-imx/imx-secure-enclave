@@ -41,14 +41,14 @@ hsm_err_t hsm_prepare_signature(hsm_hdl_t signature_gen_hdl,
 					(uint32_t)signature_gen_hdl,
 					args, &rsp_code);
 
-		err = sab_rating_to_hsm_err(error);
+		err = sab_rating_to_hsm_err(error, serv_ptr->session->phdl);
 		if (err != HSM_NO_ERROR) {
 			se_err("HSM Error: SAB_SIGNATURE_PREPARE_REQ [0x%x].\n",
 			       err);
 			break;
 		}
 
-		err = sab_rating_to_hsm_err(rsp_code);
+		err = sab_rating_to_hsm_err(rsp_code, serv_ptr->session->phdl);
 		if (err != HSM_NO_ERROR)
 			se_err("HSM RSP Error: SAB_SIGNATURE_PREPARE_REQ [0x%x].\n",
 			       err);

@@ -50,14 +50,14 @@ hsm_err_t hsm_open_data_storage_service(hsm_hdl_t key_store_hdl,
 					(uint32_t)key_store_hdl,
 					args, &rsp_code);
 
-		err = sab_rating_to_hsm_err(error);
+		err = sab_rating_to_hsm_err(error, key_store_serv_ptr->session->phdl);
 
 		if (err != HSM_NO_ERROR) {
 			se_err("HSM Error: SAB_DATA_STORAGE_OPEN_REQ [0x%x].\n", err);
 			break;
 		}
 
-		err = sab_rating_to_hsm_err(rsp_code);
+		err = sab_rating_to_hsm_err(rsp_code, key_store_serv_ptr->session->phdl);
 		if (err != HSM_NO_ERROR) {
 			se_err("HSM Error: SAB_DATA_STORAGE_OPEN_REQ [0x%x].\n",
 				err);
@@ -95,14 +95,14 @@ hsm_err_t hsm_close_data_storage_service(hsm_hdl_t data_storage_hdl)
 					(uint32_t)data_storage_hdl,
 					NULL, &rsp_code);
 
-		err = sab_rating_to_hsm_err(error);
+		err = sab_rating_to_hsm_err(error, serv_ptr->session->phdl);
 
 		if (err != HSM_NO_ERROR) {
 			se_err("HSM Error: SAB_DATA_STORAGE_CLOSE_REQ [0x%x].\n", err);
 			break;
 		}
 
-		err = sab_rating_to_hsm_err(rsp_code);
+		err = sab_rating_to_hsm_err(rsp_code, serv_ptr->session->phdl);
 		if (err != HSM_NO_ERROR) {
 			se_err("HSM RSP Error: SAB_DATA_STORAGE_CLOSE_REQ [0x%x].\n",
 				err);
@@ -149,14 +149,14 @@ hsm_err_t hsm_data_storage(hsm_hdl_t data_storage_hdl,
 					(uint32_t)data_storage_hdl,
 					args, &rsp_code);
 
-		err = sab_rating_to_hsm_err(error);
+		err = sab_rating_to_hsm_err(error, serv_ptr->session->phdl);
 
 		if (err != HSM_NO_ERROR) {
 			se_err("HSM Error: SAB_DATA_STORAGE_REQ [0x%x].\n", err);
 			break;
 		}
 
-		err = sab_rating_to_hsm_err(rsp_code);
+		err = sab_rating_to_hsm_err(rsp_code, serv_ptr->session->phdl);
 		if (err != HSM_NO_ERROR) {
 			se_err("HSM RSP Error: SAB_DATA_STORAGE_REQ [0x%x].\n",
 				err);
@@ -234,14 +234,14 @@ hsm_err_t hsm_enc_data_storage(hsm_hdl_t data_storage_hdl,
 					(uint32_t)data_storage_hdl,
 					args, &rsp_code);
 
-		err = sab_rating_to_hsm_err(error);
+		err = sab_rating_to_hsm_err(error, serv_ptr->session->phdl);
 
 		if (err != HSM_NO_ERROR) {
 			se_err("HSM Error: SAB_ENC_DATA_STORAGE_REQ [0x%x].\n", err);
 			break;
 		}
 
-		err = sab_rating_to_hsm_err(rsp_code);
+		err = sab_rating_to_hsm_err(rsp_code, serv_ptr->session->phdl);
 		if (err != HSM_NO_ERROR) {
 			se_err("HSM RSP Error: SAB_ENC_DATA_STORAGE_REQ [0x%x].\n",
 			       err);

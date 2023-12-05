@@ -52,16 +52,19 @@ uint32_t prepare_msg_key_recovery(void *phdl,
 
 uint32_t proc_msg_rsp_key_recovery(void *rsp_buf, void *args)
 {
+	uint32_t err = SAB_LIB_STATUS(SAB_LIB_SUCCESS);
 	op_pub_key_recovery_args_t *op_args = (op_pub_key_recovery_args_t *) args;
 	struct sab_cmd_pub_key_recovery_rsp *rsp =
 		(struct sab_cmd_pub_key_recovery_rsp *) rsp_buf;
 
 #ifdef PSA_COMPLIANT
-	if (!op_args)
-		return SAB_FAILURE_STATUS;
+	if (!op_args) {
+		err = SAB_LIB_STATUS(SAB_LIB_RSP_PROC_FAIL);
+		goto exit;
+	}
 
 	op_args->exp_out_key_size = rsp->out_key_size;
+exit:
 #endif
-
-	return SAB_SUCCESS_STATUS;
+	return err;
 }

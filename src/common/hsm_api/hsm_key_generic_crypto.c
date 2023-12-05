@@ -43,7 +43,7 @@ hsm_err_t hsm_open_key_generic_crypto_service(hsm_hdl_t session_hdl,
 					args,
 					&rsp_code);
 
-		err = sab_rating_to_hsm_err(error);
+		err = sab_rating_to_hsm_err(error, serv_ptr->session->phdl);
 
 		if (err != HSM_NO_ERROR) {
 			se_err("HSM Error: SAB_KEY_GENERIC_CRYPTO_OPEN [0x%x].\n", err);
@@ -51,7 +51,7 @@ hsm_err_t hsm_open_key_generic_crypto_service(hsm_hdl_t session_hdl,
 			break;
 		}
 
-		err = sab_rating_to_hsm_err(rsp_code);
+		err = sab_rating_to_hsm_err(rsp_code, serv_ptr->session->phdl);
 
 		if (err != HSM_NO_ERROR) {
 			se_err("HSM RSP Error:SAB_KEY_GENERIC_CRYPTO_OPEN [0x%x]\n", err);
@@ -91,7 +91,7 @@ hsm_err_t hsm_close_key_generic_crypto_service(hsm_hdl_t key_generic_crypto_hdl)
 					NULL,
 					&rsp_code);
 
-		err = sab_rating_to_hsm_err(error);
+		err = sab_rating_to_hsm_err(error, serv_ptr->session->phdl);
 
 		if (err != HSM_NO_ERROR) {
 			se_err("HSM Error: SAB_KEY_GENERIC_CRYPTO_CLOSE [0x%x]\n", err);
@@ -99,7 +99,7 @@ hsm_err_t hsm_close_key_generic_crypto_service(hsm_hdl_t key_generic_crypto_hdl)
 			break;
 		}
 
-		err = sab_rating_to_hsm_err(rsp_code);
+		err = sab_rating_to_hsm_err(rsp_code, serv_ptr->session->phdl);
 
 		if (err != HSM_NO_ERROR)
 			se_err("HSM RSP Err:SAB_KEY_GENERIC_CRYPTO_CLOSE [0x%x]\n", err);
@@ -146,14 +146,14 @@ hsm_err_t hsm_key_generic_crypto(hsm_hdl_t key_generic_crypto_hdl,
 					args,
 					&rsp_code);
 
-		err = sab_rating_to_hsm_err(error);
+		err = sab_rating_to_hsm_err(error, serv_ptr->session->phdl);
 
 		if (err != HSM_NO_ERROR) {
 			se_err("HSM Error: SAB_KEY_GENERIC_CRYPTO_SRV [0x%x].\n", err);
 			break;
 		}
 
-		err = sab_rating_to_hsm_err(rsp_code);
+		err = sab_rating_to_hsm_err(rsp_code, serv_ptr->session->phdl);
 
 		if (err != HSM_NO_ERROR) {
 			se_err("HSM RSP Error:SAB_KEY_GENERIC_CRYPTO_SRV [0x%x].\n", err);

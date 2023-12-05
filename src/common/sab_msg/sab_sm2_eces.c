@@ -41,17 +41,20 @@ uint32_t prepare_msg_sm2_eces_open_req(void *phdl,
 
 uint32_t proc_msg_rsp_sm2_eces_open_req(void *rsp_buf, void *args)
 {
+	uint32_t err = SAB_LIB_STATUS(SAB_LIB_SUCCESS);
 	struct sab_cmd_sm2_eces_dec_open_rsp *rsp =
 		(struct sab_cmd_sm2_eces_dec_open_rsp *)rsp_buf;
 	open_svc_sm2_eces_args_t *op_args =
 		(open_svc_sm2_eces_args_t *)args;
 
-	if (!op_args)
-		return SAB_FAILURE_STATUS;
+	if (!op_args) {
+		err = SAB_LIB_STATUS(SAB_LIB_RSP_PROC_FAIL);
+		goto exit;
+	}
 
 	op_args->sm2_eces_hdl = rsp->sm2_eces_handle;
-
-	return SAB_SUCCESS_STATUS;
+exit:
+	return err;
 }
 
 uint32_t prepare_msg_sm2_eces_close_req(void *phdl,
@@ -75,10 +78,11 @@ uint32_t prepare_msg_sm2_eces_close_req(void *phdl,
 
 uint32_t proc_msg_rsp_sm2_eces_close_req(void *rsp_buf, void *args)
 {
+	uint32_t err = SAB_LIB_STATUS(SAB_LIB_SUCCESS);
 	struct sab_cmd_sm2_eces_dec_close_rsp *rsp =
 		(struct sab_cmd_sm2_eces_dec_close_rsp *)rsp_buf;
 
-	return SAB_SUCCESS_STATUS;
+	return err;
 }
 
 uint32_t prepare_msg_sm2_eces_encryption(void *phdl,
@@ -136,10 +140,11 @@ uint32_t prepare_msg_sm2_eces_encryption(void *phdl,
 
 uint32_t proc_msg_rsp_sm2_eces_encryption(void *rsp_buf, void *args)
 {
+	uint32_t err = SAB_LIB_STATUS(SAB_LIB_SUCCESS);
 	struct sab_cmd_sm2_eces_enc_rsp *rsp =
 		(struct sab_cmd_sm2_eces_enc_rsp *)rsp_buf;
 
-	return SAB_SUCCESS_STATUS;
+	return err;
 }
 
 uint32_t prepare_msg_sm2_eces_decryption(void *phdl,
@@ -189,8 +194,9 @@ uint32_t prepare_msg_sm2_eces_decryption(void *phdl,
 
 uint32_t proc_msg_rsp_sm2_eces_decryption(void *rsp_buf, void *args)
 {
+	uint32_t err = SAB_LIB_STATUS(SAB_LIB_SUCCESS);
 	struct sab_cmd_sm2_eces_dec_rsp *rsp =
 		(struct sab_cmd_sm2_eces_dec_rsp *)rsp_buf;
 
-	return SAB_SUCCESS_STATUS;
+	return err;
 }

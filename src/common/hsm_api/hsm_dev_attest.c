@@ -58,13 +58,13 @@ hsm_err_t hsm_dev_attest(hsm_hdl_t session_hdl, op_dev_attest_args_t *args)
 					HSM_HANDLE_NONE,
 					args, &rsp_code);
 
-		err = sab_rating_to_hsm_err(error);
+		err = sab_rating_to_hsm_err(error, sess_ptr->phdl);
 
 		if (err != HSM_NO_ERROR) {
 			se_err("HSM Error: SAB_DEV_ATTEST_REQ [0x%x].\n", err);
 			break;
 		}
-		err = sab_rating_to_hsm_err(rsp_code);
+		err = sab_rating_to_hsm_err(rsp_code, sess_ptr->phdl);
 		if (err != HSM_NO_ERROR) {
 			se_err("HSM RSP Error: SAB_DEV_ATTEST_REQ [0x%x].\n",
 				err);

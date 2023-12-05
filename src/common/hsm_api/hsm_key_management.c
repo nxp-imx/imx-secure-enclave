@@ -48,7 +48,7 @@ hsm_err_t hsm_open_key_management_service(hsm_hdl_t key_store_hdl,
 					args,
 					&rsp_code);
 
-		err = sab_rating_to_hsm_err(error);
+		err = sab_rating_to_hsm_err(error, key_store_serv_ptr->session->phdl);
 
 		if (err != HSM_NO_ERROR) {
 			se_err("HSM Error: SAB_KEY_MANAGEMENT_OPEN_REQ [0x%x].\n",
@@ -57,7 +57,7 @@ hsm_err_t hsm_open_key_management_service(hsm_hdl_t key_store_hdl,
 			break;
 		}
 
-		err = sab_rating_to_hsm_err(rsp_code);
+		err = sab_rating_to_hsm_err(rsp_code, key_store_serv_ptr->session->phdl);
 
 		if (err != HSM_NO_ERROR) {
 			se_err("HSM RSP Error: SAB_KEY_MANAGEMENT_OPEN_REQ [0x%x].\n",
@@ -97,7 +97,7 @@ hsm_err_t hsm_close_key_management_service(hsm_hdl_t key_management_hdl)
 					NULL,
 					&rsp_code);
 
-		err = sab_rating_to_hsm_err(error);
+		err = sab_rating_to_hsm_err(error, serv_ptr->session->phdl);
 
 		if (err != HSM_NO_ERROR) {
 			se_err("HSM Error: SAB_KEY_MANAGEMENT_CLOSE_REQ [0x%x].\n",
@@ -106,7 +106,7 @@ hsm_err_t hsm_close_key_management_service(hsm_hdl_t key_management_hdl)
 			break;
 		}
 
-		err = sab_rating_to_hsm_err(rsp_code);
+		err = sab_rating_to_hsm_err(rsp_code, serv_ptr->session->phdl);
 
 		if (err != HSM_NO_ERROR)
 			se_err("HSM RSP Error: SAB_KEY_MANAGEMENT_CLOSE_REQ [0x%x].\n",

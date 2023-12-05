@@ -34,17 +34,20 @@ uint32_t prepare_msg_key_management_open_req(void *phdl,
 
 uint32_t proc_msg_rsp_key_management_open_req(void *rsp_buf, void *args)
 {
+	uint32_t err = SAB_LIB_STATUS(SAB_LIB_SUCCESS);
 	struct sab_cmd_key_management_open_rsp *rsp =
 		(struct sab_cmd_key_management_open_rsp *)rsp_buf;
 	open_svc_key_management_args_t *op_args =
 		(open_svc_key_management_args_t *)args;
 
-	if (!op_args)
-		return SAB_FAILURE_STATUS;
+	if (!op_args) {
+		err = SAB_LIB_STATUS(SAB_LIB_RSP_PROC_FAIL);
+		goto exit;
+	}
 
 	op_args->key_management_hdl = rsp->key_management_handle;
-
-	return SAB_SUCCESS_STATUS;
+exit:
+	return err;
 }
 
 uint32_t prepare_msg_key_management_close_req(void *phdl,
@@ -68,5 +71,7 @@ uint32_t prepare_msg_key_management_close_req(void *phdl,
 
 uint32_t proc_msg_rsp_key_management_close_req(void *rsp_buf, void *args)
 {
-	return SAB_SUCCESS_STATUS;
+	uint32_t err = SAB_LIB_STATUS(SAB_LIB_SUCCESS);
+
+	return err;
 }

@@ -55,13 +55,13 @@ hsm_err_t hsm_lc_update(hsm_hdl_t session_hdl, op_lc_update_msg_args_t *args)
 					HSM_HANDLE_NONE,
 					args, &rsp_code);
 
-		err = sab_rating_to_hsm_err(error);
+		err = sab_rating_to_hsm_err(error, sess_ptr->phdl);
 
 		if (err != HSM_NO_ERROR) {
 			se_err("HSM Lib Error: %s [0x%x].\n", msg, err);
 			break;
 		}
-		err = sab_rating_to_hsm_err(rsp_code);
+		err = sab_rating_to_hsm_err(rsp_code, sess_ptr->phdl);
 
 		if (err != HSM_NO_ERROR)
 			se_err("HSM RSP Error: %s [0x%x].\n", msg, err);

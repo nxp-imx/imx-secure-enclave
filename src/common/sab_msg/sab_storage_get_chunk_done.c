@@ -32,7 +32,7 @@ uint32_t parse_cmd_prep_rsp_storage_get_chunk_done(struct nvm_ctx_st *nvm_ctx_pa
 	}
 
 	/* Do not execute operation if error is detected in previous steps */
-	if (*rsp_msg_info != SAB_SUCCESS_STATUS) {
+	if (*rsp_msg_info != plat_sab_success_tag(nvm_ctx_param->phdl)) {
 		finish_rsp->rsp_code = *rsp_msg_info;
 		goto out;
 	}
@@ -43,7 +43,7 @@ uint32_t parse_cmd_prep_rsp_storage_get_chunk_done(struct nvm_ctx_st *nvm_ctx_pa
 		goto out;
 	}
 
-	finish_rsp->rsp_code = SAB_SUCCESS_STATUS;
+	finish_rsp->rsp_code = plat_sab_success_tag(nvm_ctx_param->phdl);
 
 out:
 	*rsp_msg_info = sizeof(struct sab_cmd_key_store_chunk_get_done_rsp);

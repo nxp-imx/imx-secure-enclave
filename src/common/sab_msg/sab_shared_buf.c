@@ -31,19 +31,22 @@ uint32_t prepare_msg_shared_buf(void *phdl,
 
 uint32_t proc_msg_rsp_shared_buf(void *rsp_buf, void *args)
 {
+	uint32_t err = SAB_LIB_STATUS(SAB_LIB_SUCCESS);
 	op_shared_buf_args_t *op_args =
 		(op_shared_buf_args_t *)args;
 	struct sab_cmd_shared_buf_rsp *rsp =
 		(struct sab_cmd_shared_buf_rsp *)rsp_buf;
 
-	if (!op_args)
-		return SAB_FAILURE_STATUS;
+	if (!op_args) {
+		err = SAB_LIB_STATUS(SAB_LIB_RSP_PROC_FAIL);
+		goto exit;
+	}
 
-	if (rsp->rsp_code != SAB_SUCCESS_STATUS)
-		return rsp->rsp_code;
+	if (GET_STATUS_CODE(rsp->rsp_code) == SAB_FAILURE_STATUS)
+		goto exit;
 
 	op_args->shared_buf_offset = rsp->shared_buf_offset;
 	op_args->shared_buf_size = rsp->shared_buf_size;
-
-	return SAB_SUCCESS_STATUS;
+exit:
+	return err;
 }

@@ -40,17 +40,20 @@ uint32_t prepare_msg_key_generic_crypto_open(void *phdl,
 
 uint32_t proc_msg_rsp_key_generic_crypto_open(void *rsp_buf, void *args)
 {
+	uint32_t err = SAB_LIB_STATUS(SAB_LIB_SUCCESS);
 	struct sab_key_generic_crypto_srv_open_rsp *rsp =
 		(struct sab_key_generic_crypto_srv_open_rsp *)rsp_buf;
 	open_svc_key_generic_crypto_args_t *op_args =
 		(open_svc_key_generic_crypto_args_t *)args;
 
-	if (!op_args)
-		return SAB_FAILURE_STATUS;
+	if (!op_args) {
+		err = SAB_LIB_STATUS(SAB_LIB_RSP_PROC_FAIL);
+		goto exit;
+	}
 
 	op_args->key_generic_crypto_hdl = rsp->key_generic_crypto_srv_handle;
-
-	return SAB_SUCCESS_STATUS;
+exit:
+	return err;
 }
 
 uint32_t prepare_msg_key_generic_crypto_close(void *phdl,
@@ -74,10 +77,11 @@ uint32_t prepare_msg_key_generic_crypto_close(void *phdl,
 
 uint32_t proc_msg_rsp_key_generic_crypto_close(void *rsp_buf, void *args)
 {
+	uint32_t err = SAB_LIB_STATUS(SAB_LIB_SUCCESS);
 	struct sab_key_generic_crypto_srv_close_rsp *rsp =
 		(struct sab_key_generic_crypto_srv_close_rsp *)rsp_buf;
 
-	return SAB_SUCCESS_STATUS;
+	return err;
 }
 
 uint32_t prepare_msg_key_generic_crypto(void *phdl,
@@ -151,8 +155,9 @@ uint32_t prepare_msg_key_generic_crypto(void *phdl,
 
 uint32_t proc_msg_rsp_key_generic_crypto(void *rsp_buf, void *args)
 {
+	uint32_t err = SAB_LIB_STATUS(SAB_LIB_SUCCESS);
 	struct sab_key_generic_crypto_srv_rsp *rsp =
 		(struct sab_key_generic_crypto_srv_rsp *)rsp_buf;
 
-	return SAB_SUCCESS_STATUS;
+	return err;
 }

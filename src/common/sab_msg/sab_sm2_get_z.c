@@ -62,10 +62,11 @@ uint32_t prepare_msg_sm2_get_z(void *phdl,
 
 uint32_t proc_msg_rsp_sm2_get_z(void *rsp_buf, void *args)
 {
+	uint32_t err = SAB_LIB_STATUS(SAB_LIB_SUCCESS);
 	op_sm2_get_z_args_t *op_args =
 		(op_sm2_get_z_args_t *)args;
 	struct sab_cmd_sm2_get_z_rsp *rsp =
 		(struct sab_cmd_sm2_get_z_rsp *)rsp_buf;
 
-	return SAB_SUCCESS_STATUS;
+	return err;
 }

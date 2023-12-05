@@ -40,14 +40,14 @@ she_err_t she_extend_seed(she_hdl_t rng_handle, op_rng_extend_seed_t *args)
 
 	serv_ptr->session->last_rating = rsp_code;
 
-	err = sab_rating_to_she_err(error);
+	err = sab_rating_to_she_err(error, serv_ptr->session->phdl);
 
 	if (err != SHE_NO_ERROR) {
 		se_err("SHE Error: SAB_RNG_EXTEND_SEED [0x%x].\n", err);
 		return err;
 	}
 
-	err = sab_rating_to_she_err(rsp_code);
+	err = sab_rating_to_she_err(rsp_code, serv_ptr->session->phdl);
 
 	if (err != SHE_NO_ERROR)
 		se_err("SHE RSP Error: SAB_RNG_EXTEND_SEED [0x%x].\n", err);
@@ -89,14 +89,14 @@ she_err_t she_get_random(she_hdl_t rng_handle, op_get_random_args_t *args)
 
 	serv_ptr->session->last_rating = rsp_code;
 
-	err = sab_rating_to_she_err(error);
+	err = sab_rating_to_she_err(error, serv_ptr->session->phdl);
 
 	if (err != SHE_NO_ERROR) {
 		se_err("SHE Error: SAB_RNG_GET_RANDOM [0x%x].\n", err);
 		return err;
 	}
 
-	err = sab_rating_to_she_err(rsp_code);
+	err = sab_rating_to_she_err(rsp_code, serv_ptr->session->phdl);
 
 	if (err != SHE_NO_ERROR)
 		se_err("SHE RSP Error: SAB_RNG_GET_RANDOM [0x%x].\n", err);
@@ -146,7 +146,7 @@ she_err_t she_open_rng_service(she_hdl_t session_hdl,
 
 	sess_ptr->last_rating = rsp_code;
 
-	err = sab_rating_to_she_err(error);
+	err = sab_rating_to_she_err(error, sess_ptr->phdl);
 
 	if (err != SHE_NO_ERROR) {
 		se_err("SHE Error: SAB_RNG_OPEN_REQ [0x%x].\n", err);
@@ -154,7 +154,7 @@ she_err_t she_open_rng_service(she_hdl_t session_hdl,
 		return err;
 	}
 
-	err = sab_rating_to_she_err(rsp_code);
+	err = sab_rating_to_she_err(rsp_code, sess_ptr->phdl);
 
 	if (err != SHE_NO_ERROR) {
 		se_err("SHE RSP Error: SAB_RNG_OPEN_REQ [0x%x].\n", err);
@@ -196,14 +196,14 @@ she_err_t she_close_rng_service(she_hdl_t rng_handle)
 
 	serv_ptr->session->last_rating = rsp_code;
 
-	err = sab_rating_to_she_err(error);
+	err = sab_rating_to_she_err(error, serv_ptr->session->phdl);
 
 	if (err != SHE_NO_ERROR) {
 		se_err("SHE Error: SAB_RNG_CLOE_REQ [0x%x].\n", err);
 		return err;
 	}
 
-	err = sab_rating_to_she_err(rsp_code);
+	err = sab_rating_to_she_err(rsp_code, serv_ptr->session->phdl);
 
 	if (err != SHE_NO_ERROR)
 		se_err("SHE RSP Error: SAB_RNG_CLOSE_REQ [0x%x].\n", err);

@@ -770,7 +770,7 @@ uint32_t parse_cmd_prep_rsp_storage_key_db(struct nvm_ctx_st *nvm_ctx_param,
 	if (*cmd_len != (uint32_t)sizeof(struct sab_cmd_key_db_msg))
 		goto out;
 
-	if (*rsp_msg_info != SAB_SUCCESS_STATUS) {
+	if (*rsp_msg_info != plat_sab_success_tag(nvm_ctx_param->phdl)) {
 		rsp->rsp = *rsp_msg_info;
 		goto out;
 	}
@@ -778,7 +778,7 @@ uint32_t parse_cmd_prep_rsp_storage_key_db(struct nvm_ctx_st *nvm_ctx_param,
 	err = storage_key_db(nvm_ctx_param->phdl, nvm_ctx_param->key_db,
 			     nvm_ctx_param->nvm_dname, &fw_id, msg);
 	if (!err) {
-		rsp->rsp = SAB_SUCCESS_STATUS;
+		rsp->rsp = plat_sab_success_tag(nvm_ctx_param->phdl);
 		rsp->fw_id = fw_id;
 	}
 

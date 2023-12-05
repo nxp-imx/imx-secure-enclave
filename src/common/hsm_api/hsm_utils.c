@@ -195,11 +195,11 @@ static hsm_err_t sab_err_rating_to_hsm_err(uint8_t sab_err_rating)
 	return hsm_err;
 }
 
-hsm_err_t sab_rating_to_hsm_err(uint32_t sab_err)
+hsm_err_t sab_rating_to_hsm_err(uint32_t sab_err, void *phdl)
 {
 	hsm_err_t hsm_err = HSM_GENERAL_ERROR;
 
-	if (GET_STATUS_CODE(sab_err) == SAB_SUCCESS_STATUS)
+	if (GET_STATUS_CODE(sab_err) == plat_sab_success_tag(phdl))
 		hsm_err = sab_success_rating_to_hsm_warning(GET_RATING_CODE(sab_err));
 	else
 		hsm_err = sab_err_rating_to_hsm_err(GET_RATING_CODE(sab_err));

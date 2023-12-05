@@ -29,5 +29,7 @@ uint32_t prepare_msg_storage_close(void *phdl,
 
 uint32_t proc_msg_rsp_storage_close(void *rsp_buf, void *args)
 {
-	return SAB_SUCCESS_STATUS;
+	uint32_t err = SAB_LIB_STATUS(SAB_LIB_SUCCESS);
+
+	return err;
 }

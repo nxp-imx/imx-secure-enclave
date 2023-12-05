@@ -74,7 +74,7 @@ uint32_t proc_msg_rsp_dev_getinfo(void *rsp_buf, void *args)
 	if (!op_args)
 		goto exit;
 
-	if (rsp->rsp_code != SAB_SUCCESS_STATUS) {
+	if (GET_STATUS_CODE(rsp->rsp_code) == SAB_FAILURE_STATUS) {
 		err = SAB_LIB_STATUS(SAB_LIB_SUCCESS);
 		goto exit;
 	}

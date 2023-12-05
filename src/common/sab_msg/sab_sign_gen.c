@@ -38,16 +38,19 @@ uint32_t prepare_msg_sign_gen_open(void *phdl,
 
 uint32_t proc_msg_rsp_sign_gen_open(void *rsp_buf, void *args)
 {
+	uint32_t err = SAB_LIB_STATUS(SAB_LIB_SUCCESS);
 	struct sab_signature_gen_open_rsp *rsp =
 				(struct sab_signature_gen_open_rsp *) rsp_buf;
 	open_svc_sign_gen_args_t *op_args = (open_svc_sign_gen_args_t *)args;
 
-	if (!op_args)
-		return SAB_FAILURE_STATUS;
+	if (!op_args) {
+		err = SAB_LIB_STATUS(SAB_LIB_RSP_PROC_FAIL);
+		goto exit;
+	}
 
 	op_args->signature_gen_hdl = rsp->sig_gen_hdl;
-
-	return SAB_SUCCESS_STATUS;
+exit:
+	return err;
 }
 
 uint32_t prepare_msg_sign_gen_close(void *phdl,
@@ -71,7 +74,9 @@ uint32_t prepare_msg_sign_gen_close(void *phdl,
 
 uint32_t proc_msg_rsp_sign_gen_close(void *rsp_buf, void *args)
 {
-	return SAB_SUCCESS_STATUS;
+	uint32_t err = SAB_LIB_STATUS(SAB_LIB_SUCCESS);
+
+	return err;
 }
 
 uint32_t prepare_msg_sign_generate(void *phdl,
@@ -120,17 +125,21 @@ uint32_t prepare_msg_sign_generate(void *phdl,
 
 uint32_t proc_msg_rsp_sign_generate(void *rsp_buf, void *args)
 {
+	uint32_t err = SAB_LIB_STATUS(SAB_LIB_SUCCESS);
 	op_generate_sign_args_t *op_args =
 			(op_generate_sign_args_t *)args;
 	struct sab_signature_generate_rsp *rsp =
 			(struct sab_signature_generate_rsp *)rsp_buf;
 
 #ifdef PSA_COMPLIANT
-	if (!op_args)
-		return SAB_FAILURE_STATUS;
+	if (!op_args) {
+		err = SAB_LIB_STATUS(SAB_LIB_RSP_PROC_FAIL);
+		goto exit;
+	}
 
 	op_args->exp_signature_size = rsp->signature_size;
 #endif
 
-	return SAB_SUCCESS_STATUS;
+exit:
+	return err;
 }

@@ -43,14 +43,14 @@ she_err_t she_export_plain_key(she_hdl_t utils_handle,
 
 	serv_ptr->session->last_rating = rsp_code;
 
-	err = sab_rating_to_she_err(sab_err);
+	err = sab_rating_to_she_err(sab_err, serv_ptr->session->phdl);
 
 	if (err != SHE_NO_ERROR) {
 		se_err("SHE Error: SAB_SHE_PLAIN_KEY_EXPORT [0x%x].\n", err);
 		return err;
 	}
 
-	err = sab_rating_to_she_err(rsp_code);
+	err = sab_rating_to_she_err(rsp_code, serv_ptr->session->phdl);
 
 	if (err != SHE_NO_ERROR) {
 		se_err("SHE RSP Error: SAB_SHE_PLAIN_KEY_EXPORT [0x%x].\n", err);

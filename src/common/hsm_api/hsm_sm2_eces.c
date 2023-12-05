@@ -43,14 +43,14 @@ hsm_err_t hsm_open_sm2_eces_service(hsm_hdl_t key_store_hdl,
 					  args,
 					  &rsp_code);
 
-		err = sab_rating_to_hsm_err(sab_err);
+		err = sab_rating_to_hsm_err(sab_err, key_store_serv_ptr->session->phdl);
 		if (err != HSM_NO_ERROR) {
 			se_err("HSM Error: SAB_SM2_ECES_DEC_OPEN_REQ [0x%x].\n", err);
 			delete_service(sm2_eces_serv_ptr);
 			break;
 		}
 
-		err = sab_rating_to_hsm_err(rsp_code);
+		err = sab_rating_to_hsm_err(rsp_code, key_store_serv_ptr->session->phdl);
 		if (err != HSM_NO_ERROR) {
 			se_err("HSM RSP Error: SAB_SM2_ECES_DEC_OPEN_REQ [0x%x].\n", err);
 			delete_service(sm2_eces_serv_ptr);
@@ -88,13 +88,13 @@ hsm_err_t hsm_close_sm2_eces_service(hsm_hdl_t sm2_eces_hdl)
 					  NULL,
 					  &rsp_code);
 
-		err = sab_rating_to_hsm_err(sab_err);
+		err = sab_rating_to_hsm_err(sab_err, serv_ptr->session->phdl);
 		if (err != HSM_NO_ERROR) {
 			se_err("HSM Error: SAB_SM2_ECES_DEC_CLOSE_REQ [0x%x].\n", err);
 			break;
 		}
 
-		err = sab_rating_to_hsm_err(rsp_code);
+		err = sab_rating_to_hsm_err(rsp_code, serv_ptr->session->phdl);
 		if (err != HSM_NO_ERROR) {
 			se_err("HSM RSP Error:SAB_SM2_ECES_DEC_CLOSE_REQ [0x%x].\n", err);
 			break;
@@ -131,13 +131,13 @@ hsm_err_t hsm_sm2_eces_encryption(hsm_hdl_t session_hdl, op_sm2_eces_enc_args_t 
 					  args,
 					  &rsp_code);
 
-		err = sab_rating_to_hsm_err(sab_err);
+		err = sab_rating_to_hsm_err(sab_err, sess_ptr->phdl);
 		if (err != HSM_NO_ERROR) {
 			se_err("HSM Error: SAB_SM2_ECES_ENC_REQ [0x%x].\n", err);
 			break;
 		}
 
-		err = sab_rating_to_hsm_err(rsp_code);
+		err = sab_rating_to_hsm_err(rsp_code, sess_ptr->phdl);
 		if (err != HSM_NO_ERROR) {
 			se_err("HSM RSP Error: SAB_SM2_ECES_ENC_REQ [0x%x].\n", err);
 			break;
@@ -173,13 +173,13 @@ hsm_err_t hsm_sm2_eces_decryption(hsm_hdl_t sm2_eces_hdl, op_sm2_eces_dec_args_t
 					  args,
 					  &rsp_code);
 
-		err = sab_rating_to_hsm_err(sab_err);
+		err = sab_rating_to_hsm_err(sab_err, serv_ptr->session->phdl);
 		if (err != HSM_NO_ERROR) {
 			se_err("HSM Error: SAB_SM2_ECES_DEC_REQ [0x%x].\n", err);
 			break;
 		}
 
-		err = sab_rating_to_hsm_err(rsp_code);
+		err = sab_rating_to_hsm_err(rsp_code, serv_ptr->session->phdl);
 		if (err != HSM_NO_ERROR) {
 			se_err("HSM RSP Error: SAB_SM2_ECES_DEC_REQ [0x%x].\n", err);
 			break;

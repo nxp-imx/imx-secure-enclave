@@ -71,17 +71,20 @@ uint32_t prepare_msg_st_butterfly(void *phdl,
 
 uint32_t proc_msg_rsp_st_butterfly(void *rsp_buf, void *args)
 {
+	uint32_t err = SAB_LIB_STATUS(SAB_LIB_SUCCESS);
 	op_st_butt_key_exp_args_t *op_args = (op_st_butt_key_exp_args_t *)args;
 	struct sab_cmd_st_butterfly_key_exp_rsp *rsp =
 		(struct sab_cmd_st_butterfly_key_exp_rsp *)rsp_buf;
 
-	if (!op_args)
-		return SAB_FAILURE_STATUS;
+	if (!op_args) {
+		err = SAB_LIB_STATUS(SAB_LIB_RSP_PROC_FAIL);
+		goto exit;
+	}
 
 	if ((op_args->flags & HSM_OP_ST_BUTTERFLY_KEY_FLAGS_CREATE)
 			== HSM_OP_ST_BUTTERFLY_KEY_FLAGS_CREATE) {
 		*op_args->dest_key_identifier = rsp->dest_key_identifier;
 	}
-
-	return SAB_SUCCESS_STATUS;
+exit:
+	return err;
 }

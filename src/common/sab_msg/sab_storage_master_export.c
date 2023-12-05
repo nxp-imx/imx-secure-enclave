@@ -40,7 +40,7 @@ uint32_t parse_cmd_prep_rsp_storage_master_export(struct nvm_ctx_st *nvm_ctx_par
 	}
 
 	/* Do not execute operation if error is detected in previous steps */
-	if (*rsp_msg_info != SAB_SUCCESS_STATUS) {
+	if (*rsp_msg_info != plat_sab_success_tag(nvm_ctx_param->phdl)) {
 		resp->rsp_code = *rsp_msg_info;
 		goto out;
 	}
@@ -69,10 +69,10 @@ uint32_t parse_cmd_prep_rsp_storage_master_export(struct nvm_ctx_st *nvm_ctx_par
 							   *data + NVM_HEADER_SZ,
 							   msg->key_store_size,
 							   0u));
-		resp->rsp_code = SAB_SUCCESS_STATUS;
+		resp->rsp_code = plat_sab_success_tag(nvm_ctx_param->phdl);
 	} else {
 		resp->key_store_export_address = 0;
-		resp->rsp_code = SAB_FAILURE_STATUS;
+		resp->rsp_code = plat_sab_success_tag(nvm_ctx_param->phdl);
 	}
 
 	resp->storage_handle = nvm_ctx_param->storage_handle;

@@ -120,7 +120,7 @@ typedef enum {
 } hsm_err_t;
 /** @} end of error code group */
 
-hsm_err_t sab_rating_to_hsm_err(uint32_t sab_err);
+hsm_err_t sab_rating_to_hsm_err(uint32_t sab_err, void *phdl);
 
 /**
  * maps the plat error to HSM error

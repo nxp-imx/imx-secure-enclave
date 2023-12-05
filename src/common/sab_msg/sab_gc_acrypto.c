@@ -100,16 +100,19 @@ uint32_t prepare_msg_gc_acrypto(void *phdl,
 
 uint32_t proc_msg_gc_acrypto(void *rsp_buf, void *args)
 {
+	uint32_t err = SAB_LIB_STATUS(SAB_LIB_SUCCESS);
 	struct sab_cmd_gc_acrypto_rsp *rsp =
 			(struct sab_cmd_gc_acrypto_rsp *)rsp_buf;
 	op_gc_acrypto_args_t *op_args =
 			(op_gc_acrypto_args_t *)args;
 
-	if (!op_args)
-		return SAB_FAILURE_STATUS;
+	if (!op_args) {
+		err = SAB_LIB_STATUS(SAB_LIB_RSP_PROC_FAIL);
+		goto exit;
+	}
 
 	op_args->exp_plaintext_len = rsp->plaintext_len;
 	op_args->verification_status = rsp->verification_status;
-
-	return SAB_SUCCESS_STATUS;
+exit:
+	return err;
 }

@@ -42,7 +42,7 @@ uint32_t parse_cmd_prep_rsp_storage_get_chunk(struct nvm_ctx_st *nvm_ctx_param,
 	}
 
 	/* Do not execute operation if error is detected in previous steps */
-	if (*rsp_msg_info != SAB_SUCCESS_STATUS) {
+	if (*rsp_msg_info != plat_sab_success_tag(nvm_ctx_param->phdl)) {
 		resp->rsp_code = *rsp_msg_info;
 		goto out;
 	}
@@ -89,7 +89,7 @@ uint32_t parse_cmd_prep_rsp_storage_get_chunk(struct nvm_ctx_st *nvm_ctx_param,
 							   nvm_hdr.size - NVM_HEADER_SZ,
 							   DATA_BUF_IS_INPUT));
 
-		resp->rsp_code = SAB_SUCCESS_STATUS;
+		resp->rsp_code = plat_sab_success_tag(nvm_ctx_param->phdl);
 	} else {
 		resp->chunk_size = 0u;
 		resp->chunk_addr = 0u;

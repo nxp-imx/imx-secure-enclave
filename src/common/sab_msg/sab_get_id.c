@@ -48,27 +48,28 @@ uint32_t proc_msg_rsp_get_id(void *rsp_buf, void *args)
 	uint32_t ret;
 
 	if (!op_args)
-		return err;
+		goto exit;
 
-	if (rsp->rsp_code != SAB_SUCCESS_STATUS) {
+	if (GET_STATUS_CODE(rsp->rsp_code) == SAB_FAILURE_STATUS) {
 		err = SAB_LIB_STATUS(SAB_LIB_SUCCESS);
-		return err;
+		goto exit;
 	}
 
 	ret = plat_os_abs_memcpy_v2(op_args->mac, rsp->mac, SHE_MAC_SIZE);
 	if (ret != PLAT_SUCCESS) {
 		err |= ret;
-		return err;
+		goto exit;
 	}
 
 	ret = plat_os_abs_memcpy_v2(op_args->id, rsp->id, SHE_ID_SIZE);
 	if (ret != PLAT_SUCCESS) {
 		err |= ret;
-		return err;
+		goto exit;
 	}
 
 	op_args->sreg = rsp->sreg;
 
 	err = SAB_LIB_STATUS(SAB_LIB_SUCCESS);
+exit:
 	return err;
 }

@@ -68,13 +68,13 @@ hsm_err_t hsm_hash_one_go(hsm_hdl_t hash_hdl,
 					(uint32_t)hash_hdl,
 					args, &rsp_code);
 
-		err = sab_rating_to_hsm_err(error);
+		err = sab_rating_to_hsm_err(error, sess_ptr->phdl);
 
 		if (err != HSM_NO_ERROR) {
 			se_err("HSM Error: SAB_HASH_ONE_GO_REQ [0x%x].\n", err);
 			break;
 		}
-		err = sab_rating_to_hsm_err(rsp_code);
+		err = sab_rating_to_hsm_err(rsp_code, sess_ptr->phdl);
 		if (err != HSM_NO_ERROR)
 			se_err("HSM RSP Error: SAB_HASH_ONE_GO_REQ [0x%x].\n",
 				err);
@@ -123,7 +123,7 @@ hsm_err_t hsm_open_hash_service(hsm_hdl_t session_hdl,
 					session_hdl,
 					args, &rsp_code);
 
-		err = sab_rating_to_hsm_err(error);
+		err = sab_rating_to_hsm_err(error, serv_ptr->session->phdl);
 
 		if (err != HSM_NO_ERROR) {
 			se_err("HSM Error: SAB_HASH_OPEN_REQ [0x%x].\n", err);
@@ -131,7 +131,7 @@ hsm_err_t hsm_open_hash_service(hsm_hdl_t session_hdl,
 			break;
 		}
 
-		err = sab_rating_to_hsm_err(rsp_code);
+		err = sab_rating_to_hsm_err(rsp_code, serv_ptr->session->phdl);
 		if (err != HSM_NO_ERROR) {
 			se_err("HSM RSP Error: SAB_HASH_OPEN_REQ [0x%x].\n",
 				err);
@@ -170,12 +170,12 @@ hsm_err_t hsm_close_hash_service(hsm_hdl_t hash_hdl)
 					(uint32_t)hash_hdl,
 					&args, &rsp_code);
 
-		err = sab_rating_to_hsm_err(error);
+		err = sab_rating_to_hsm_err(error, serv_ptr->session->phdl);
 
 		if (err != HSM_NO_ERROR)
 			se_err("HSM Error: SAB_HASH_CLOSE_REQ [0x%x].\n", err);
 
-		err = sab_rating_to_hsm_err(rsp_code);
+		err = sab_rating_to_hsm_err(rsp_code, serv_ptr->session->phdl);
 		if (err != HSM_NO_ERROR)
 			se_err("HSM RSP Error: SAB_HASH_CLOSE_REQ [0x%x].\n",
 				err);

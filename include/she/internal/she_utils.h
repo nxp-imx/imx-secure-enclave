@@ -60,7 +60,7 @@ typedef enum {
 
 /** @} end of error code group */
 
-she_err_t sab_rating_to_she_err(uint32_t sab_err);
+she_err_t sab_rating_to_she_err(uint32_t sab_err, void *phdl);
 
 /**
  * maps the plat error to SHE error

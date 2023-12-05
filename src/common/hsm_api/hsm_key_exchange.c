@@ -50,7 +50,7 @@ hsm_err_t hsm_key_exchange(hsm_hdl_t key_management_hdl, op_key_exchange_args_t 
 		if (err != HSM_NO_ERROR)
 			break;
 
-		err = sab_rating_to_hsm_err(rsp_code);
+		err = sab_rating_to_hsm_err(rsp_code, serv_ptr->session->phdl);
 
 		if (err != HSM_NO_ERROR)
 			se_err("HSM RSP Error: SAB_KEY_EXCHANGE_REQ [0x%x].\n", err);

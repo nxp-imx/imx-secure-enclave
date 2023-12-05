@@ -45,7 +45,9 @@ uint32_t prepare_msg_extend_seed(void *phdl,
 
 uint32_t proc_msg_rsp_extend_seed(void *rsp_buf, void *args)
 {
-	return SAB_SUCCESS_STATUS;
+	uint32_t err = SAB_LIB_STATUS(SAB_LIB_SUCCESS);
+
+	return err;
 }
 #endif
 
@@ -90,7 +92,9 @@ uint32_t prepare_msg_get_rng(void *phdl,
 
 uint32_t proc_msg_rsp_get_rng(void *rsp_buf, void *args)
 {
-	return SAB_SUCCESS_STATUS;
+	uint32_t err = SAB_LIB_STATUS(SAB_LIB_SUCCESS);
+
+	return err;
 }
 
 #ifndef PSA_COMPLIANT
@@ -129,16 +133,19 @@ uint32_t prepare_msg_rng_open_req(void *phdl,
 
 uint32_t proc_msg_rsp_rng_open_req(void *rsp_buf, void *args)
 {
+	uint32_t err = SAB_LIB_STATUS(SAB_LIB_SUCCESS);
 	struct sab_cmd_rng_open_rsp *rsp =
 		(struct sab_cmd_rng_open_rsp *) rsp_buf;
 	open_svc_rng_args_t *op_args = (open_svc_rng_args_t *) args;
 
-	if (!op_args)
-		return SAB_FAILURE_STATUS;
+	if (!op_args) {
+		err = SAB_LIB_STATUS(SAB_LIB_RSP_PROC_FAIL);
+		goto exit;
+	}
 
 	op_args->rng_hdl = rsp->rng_handle;
-
-	return SAB_SUCCESS_STATUS;
+exit:
+	return err;
 }
 
 uint32_t prepare_msg_rng_close_req(void *phdl,
@@ -164,6 +171,8 @@ uint32_t prepare_msg_rng_close_req(void *phdl,
 
 uint32_t proc_msg_rsp_rng_close_req(void *rsp_buf, void *args)
 {
-	return SAB_SUCCESS_STATUS;
+	uint32_t err = SAB_LIB_STATUS(SAB_LIB_SUCCESS);
+
+	return err;
 }
 #endif

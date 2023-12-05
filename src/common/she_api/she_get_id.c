@@ -38,7 +38,7 @@ she_err_t she_get_id(she_hdl_t utils_handle, op_get_id_args_t *args)
 	if (err != SHE_NO_ERROR)
 		return err;
 
-	err = sab_rating_to_she_err(rsp_code);
+	err = sab_rating_to_she_err(rsp_code, serv_ptr->session->phdl);
 
 	if (err != SHE_NO_ERROR) {
 		se_err("SHE RSP Error: SAB_SHE_GET_ID [0x%x].\n", err);

@@ -51,14 +51,14 @@ hsm_err_t hsm_open_signature_verification_service(hsm_hdl_t session_hdl,
 					(uint32_t)session_hdl,
 					args, &rsp_code);
 
-		err = sab_rating_to_hsm_err(error);
+		err = sab_rating_to_hsm_err(error, serv_ptr->session->phdl);
 		if (err != HSM_NO_ERROR) {
 			se_err("HSM Error: SAB_SIGNATURE_VERIFICATION_OPEN_REQ [0x%x].\n", err);
 			delete_service(serv_ptr);
 			break;
 		}
 
-		err = sab_rating_to_hsm_err(rsp_code);
+		err = sab_rating_to_hsm_err(rsp_code, serv_ptr->session->phdl);
 		if (err != HSM_NO_ERROR) {
 			se_err("HSM RSP Error: SAB_SIGNATURE_VERIFICATION_OPEN_REQ [0x%x].\n", err);
 			delete_service(serv_ptr);
@@ -93,14 +93,14 @@ hsm_err_t hsm_close_signature_verification_service(hsm_hdl_t signature_ver_hdl)
 					(uint32_t)signature_ver_hdl,
 					NULL, &rsp_code);
 
-		err = sab_rating_to_hsm_err(error);
+		err = sab_rating_to_hsm_err(error, serv_ptr->session->phdl);
 		if (err != HSM_NO_ERROR) {
 			se_err("HSM Error: SAB_SIGNATURE_VERIFICATION_CLOSE_REQ [0x%x].\n", err);
 			delete_service(serv_ptr);
 			break;
 		}
 
-		err = sab_rating_to_hsm_err(rsp_code);
+		err = sab_rating_to_hsm_err(rsp_code, serv_ptr->session->phdl);
 		if (err != HSM_NO_ERROR) {
 			se_err("HSM RSP Error: SAB_SIGNATURE_VERIFICATION_CLOSE_REQ [0x%x].\n", err);
 		}
@@ -143,7 +143,7 @@ hsm_err_t hsm_verify_signature(hsm_hdl_t signature_ver_hdl,
 					(uint32_t)signature_ver_hdl,
 					args, &rsp_code);
 
-		err = sab_rating_to_hsm_err(error);
+		err = sab_rating_to_hsm_err(error, serv_ptr->session->phdl);
 		if (err != HSM_NO_ERROR) {
 			se_err("HSM Error: SAB_SIGNATURE_VERIFY_REQ [0x%x].\n",
 				err);
@@ -152,7 +152,7 @@ hsm_err_t hsm_verify_signature(hsm_hdl_t signature_ver_hdl,
 
 		*status = args->verification_status;
 
-		err = sab_rating_to_hsm_err(rsp_code);
+		err = sab_rating_to_hsm_err(rsp_code, serv_ptr->session->phdl);
 
 		if (err != HSM_NO_ERROR) {
 			se_err("HSM RSP Error: SAB_SIGNATURE_VERIFY_REQ [0x%x].\n",

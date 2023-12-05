@@ -37,7 +37,7 @@ she_err_t she_close_session(she_hdl_t session_hdl)
 	if (err != SHE_NO_ERROR)
 		return err;
 
-	err = sab_rating_to_she_err(rsp_code);
+	err = sab_rating_to_she_err(rsp_code, hdl->phdl);
 	if (err != SHE_NO_ERROR) {
 		se_err("SHE RSP Error: SAB_SESSION_CLOSE_REQ [0x%x].\n", err);
 		return err;
@@ -95,7 +95,7 @@ she_err_t open_session(open_session_args_t *args,
 	if (err != SHE_NO_ERROR)
 		return err;
 
-	err = sab_rating_to_she_err(rsp_code);
+	err = sab_rating_to_she_err(rsp_code, thdl->phdl);
 	if (err != SHE_NO_ERROR) {
 		se_err("SHE RSP Error: SAB_SESSION_OPEN_REQ [0x%x].\n", err);
 		return err;
@@ -157,13 +157,13 @@ she_err_t she_open_session(open_session_args_t *args, she_hdl_t *session_hdl)
 						  hdl->session_hdl,
 						  &buf_args, &rsp_code);
 
-			err = sab_rating_to_she_err(sab_err);
+			err = sab_rating_to_she_err(sab_err, hdl->phdl);
 			if (err != SHE_NO_ERROR) {
 				se_err("SHE Error: SAB_SHARED_BUF_REQ [0x%x].\n", err);
 				break;
 			}
 
-			err = sab_rating_to_she_err(rsp_code);
+			err = sab_rating_to_she_err(rsp_code, hdl->phdl);
 			if (err != SHE_NO_ERROR) {
 				se_err("SHE RSP Error: SAB_SHARED_BUF_REQ [0x%x].\n",
 				       err);

@@ -90,18 +90,22 @@ uint32_t prepare_msg_mac_one_go(void *phdl,
 
 uint32_t proc_msg_rsp_mac_one_go(void *rsp_buf, void *args)
 {
+	uint32_t err = SAB_LIB_STATUS(SAB_LIB_SUCCESS);
 	op_mac_one_go_args_t *op_args = (op_mac_one_go_args_t *) args;
 	struct sab_cmd_mac_one_go_rsp *rsp =
 		(struct sab_cmd_mac_one_go_rsp *) rsp_buf;
 
-	if (!op_args)
-		return SAB_FAILURE_STATUS;
+	if (!op_args) {
+		err = SAB_LIB_STATUS(SAB_LIB_RSP_PROC_FAIL);
+		goto exit;
+	}
 
 	op_args->verification_status = rsp->verification_status;
 #ifdef PSA_COMPLIANT
 	op_args->exp_mac_size = rsp->output_mac_size;
 #endif
-	return SAB_SUCCESS_STATUS;
+exit:
+	return err;
 }
 
 uint32_t prepare_msg_mac_open_req(void *phdl,
@@ -132,16 +136,19 @@ uint32_t prepare_msg_mac_open_req(void *phdl,
 
 uint32_t proc_msg_rsp_mac_open_req(void *rsp_buf, void *args)
 {
+	uint32_t err = SAB_LIB_STATUS(SAB_LIB_SUCCESS);
 	struct sab_cmd_mac_open_rsp *rsp =
 		(struct sab_cmd_mac_open_rsp *) rsp_buf;
 	open_svc_mac_args_t *op_args = (open_svc_mac_args_t *) args;
 
-	if (!op_args)
-		return SAB_FAILURE_STATUS;
+	if (!op_args) {
+		err = SAB_LIB_STATUS(SAB_LIB_RSP_PROC_FAIL);
+		goto exit;
+	}
 
 	op_args->mac_serv_hdl = rsp->mac_handle;
-
-	return SAB_SUCCESS_STATUS;
+exit:
+	return err;
 }
 
 uint32_t prepare_msg_mac_close_req(void *phdl,
@@ -165,5 +172,7 @@ uint32_t prepare_msg_mac_close_req(void *phdl,
 
 uint32_t proc_msg_rsp_mac_close_req(void *rsp_buf, void *args)
 {
-	return SAB_SUCCESS_STATUS;
+	uint32_t err = SAB_LIB_STATUS(SAB_LIB_SUCCESS);
+
+	return err;
 }

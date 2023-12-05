@@ -55,14 +55,14 @@ hsm_err_t hsm_get_random(hsm_hdl_t rng_hdl, op_get_random_args_t *args)
 					(uint32_t)rng_hdl,
 					args, &rsp_code);
 
-		err = sab_rating_to_hsm_err(error);
+		err = sab_rating_to_hsm_err(error, sess_ptr->phdl);
 
 		if (err != HSM_NO_ERROR) {
 			se_err("HSM Error: SAB_RNG_GET_RANDOM [0x%x].\n", err);
 			break;
 		}
 
-		err = sab_rating_to_hsm_err(rsp_code);
+		err = sab_rating_to_hsm_err(rsp_code, sess_ptr->phdl);
 
 		if (err != HSM_NO_ERROR) {
 			se_err("HSM RSP Error: SAB_RNG_GET_RANDOM [0x%x].\n", err);
@@ -113,7 +113,7 @@ hsm_err_t hsm_open_rng_service(hsm_hdl_t session_hdl,
 					(uint32_t)session_hdl,
 					args, &rsp_code);
 
-		err = sab_rating_to_hsm_err(error);
+		err = sab_rating_to_hsm_err(error, sess_ptr->phdl);
 
 		if (err != HSM_NO_ERROR) {
 			se_err("HSM Error: SAB_RNG_OPEN_REQ [0x%x].\n", err);
@@ -121,7 +121,7 @@ hsm_err_t hsm_open_rng_service(hsm_hdl_t session_hdl,
 			break;
 		}
 
-		err = sab_rating_to_hsm_err(rsp_code);
+		err = sab_rating_to_hsm_err(rsp_code, sess_ptr->phdl);
 
 		if (err != HSM_NO_ERROR) {
 			se_err("HSM RSP Error: SAB_RNG_OPEN_REQ [0x%x].\n", err);
@@ -160,14 +160,14 @@ hsm_err_t hsm_close_rng_service(hsm_hdl_t rng_hdl)
 					(uint32_t)rng_hdl,
 					NULL, &rsp_code);
 
-		err = sab_rating_to_hsm_err(error);
+		err = sab_rating_to_hsm_err(error, serv_ptr->session->phdl);
 
 		if (err != HSM_NO_ERROR) {
 			se_err("HSM Error: SAB_RNG_CLOE_REQ [0x%x].\n", err);
 			break;
 		}
 
-		err = sab_rating_to_hsm_err(rsp_code);
+		err = sab_rating_to_hsm_err(rsp_code, serv_ptr->session->phdl);
 
 		if (err != HSM_NO_ERROR) {
 			se_err("HSM RSP Error: SAB_RNG_CLOSE_REQ [0x%x].\n", err);

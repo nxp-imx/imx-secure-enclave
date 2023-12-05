@@ -34,14 +34,14 @@ she_err_t she_get_info(she_hdl_t session_hdl, op_get_info_args_t *args)
 
 	sess_ptr->last_rating = rsp_code;
 
-	err = sab_rating_to_she_err(sab_err);
+	err = sab_rating_to_she_err(sab_err, sess_ptr->phdl);
 
 	if (err != SHE_NO_ERROR) {
 		se_err("SHE Error: SAB_GET_INFO_REQ [0x%x].\n", err);
 		return err;
 	}
 
-	err = sab_rating_to_she_err(rsp_code);
+	err = sab_rating_to_she_err(rsp_code, sess_ptr->phdl);
 
 	if (err != SHE_NO_ERROR) {
 		se_err("SHE RSP Error: SAB_GET_INFO_REQ [0x%x].\n", err);

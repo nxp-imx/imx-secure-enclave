@@ -79,10 +79,11 @@ uint32_t prepare_msg_ecies_encryption(void *phdl,
 
 uint32_t proc_msg_rsp_ecies_encryption(void *rsp_buf, void *args)
 {
+	uint32_t err = SAB_LIB_STATUS(SAB_LIB_SUCCESS);
 	struct sab_cmd_ecies_encrypt_rsp *rsp =
 		(struct sab_cmd_ecies_encrypt_rsp *)rsp_buf;
 
-	return SAB_SUCCESS_STATUS;
+	return err;
 }
 
 uint32_t prepare_msg_ecies_decryption(void *phdl,
@@ -144,9 +145,10 @@ uint32_t prepare_msg_ecies_decryption(void *phdl,
 
 uint32_t proc_msg_rsp_ecies_decryption(void *rsp_buf, void *args)
 {
+	uint32_t err = SAB_LIB_STATUS(SAB_LIB_SUCCESS);
 	struct sab_cmd_ecies_decrypt_rsp *rsp =
 		(struct sab_cmd_ecies_decrypt_rsp *)rsp_buf;
 
-	return SAB_SUCCESS_STATUS;
+	return err;
 }
 

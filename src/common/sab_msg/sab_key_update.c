@@ -37,21 +37,24 @@ uint32_t prepare_msg_key_update(void *phdl,
 
 uint32_t proc_msg_rsp_key_update(void *rsp_buf, void *args)
 {
+	uint32_t err = SAB_LIB_STATUS(SAB_LIB_SUCCESS);
 	op_key_update_args_t *op_args =
 		(op_key_update_args_t *)args;
 	struct sab_she_key_update_rsp *rsp =
 		(struct sab_she_key_update_rsp *)rsp_buf;
 
-	if (!op_args)
-		return SAB_FAILURE_STATUS;
+	if (!op_args) {
+		err = SAB_LIB_STATUS(SAB_LIB_RSP_PROC_FAIL);
+		goto exit;
+	}
 
-	if (rsp->rsp_code != SAB_SUCCESS_STATUS)
-		return rsp->rsp_code;
+	if (GET_STATUS_CODE(rsp->rsp_code) == SAB_FAILURE_STATUS)
+		goto exit;
 
 	plat_os_abs_memcpy(op_args->m4, (uint8_t *)rsp->m4, op_args->m4_size);
 	plat_os_abs_memcpy(op_args->m5, (uint8_t *)rsp->m5, op_args->m5_size);
-
-	return SAB_SUCCESS_STATUS;
+exit:
+	return err;
 }
 
 uint32_t prepare_msg_key_update_ext(void *phdl,
@@ -83,20 +86,23 @@ uint32_t prepare_msg_key_update_ext(void *phdl,
 
 uint32_t proc_msg_rsp_key_update_ext(void *rsp_buf, void *args)
 {
+	uint32_t err = SAB_LIB_STATUS(SAB_LIB_SUCCESS);
 	op_key_update_ext_args_t *op_args =
 		(op_key_update_ext_args_t *)args;
 	struct sab_she_key_update_ext_rsp *rsp =
 		(struct sab_she_key_update_ext_rsp *)rsp_buf;
 
-	if (!op_args)
-		return SAB_FAILURE_STATUS;
+	if (!op_args) {
+		err = SAB_LIB_STATUS(SAB_LIB_RSP_PROC_FAIL);
+		goto exit;
+	}
 
-	if (rsp->rsp_code != SAB_SUCCESS_STATUS)
-		return rsp->rsp_code;
+	if (GET_STATUS_CODE(rsp->rsp_code) == SAB_FAILURE_STATUS)
+		goto exit;
 
 	plat_os_abs_memcpy(op_args->m4, (uint8_t *)rsp->m4, op_args->m4_size);
 	plat_os_abs_memcpy(op_args->m5, (uint8_t *)rsp->m5, op_args->m5_size);
-
-	return SAB_SUCCESS_STATUS;
+exit:
+	return err;
 }
 

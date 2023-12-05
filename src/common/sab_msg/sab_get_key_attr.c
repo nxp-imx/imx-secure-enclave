@@ -36,12 +36,15 @@ uint32_t prepare_msg_get_key_attr(void *phdl,
 
 uint32_t proc_msg_rsp_get_key_attr(void *rsp_buf, void *args)
 {
+	uint32_t err = SAB_LIB_STATUS(SAB_LIB_SUCCESS);
 	op_get_key_attr_args_t *op_args = (op_get_key_attr_args_t *) args;
 	struct sab_cmd_get_key_attr_rsp *rsp =
 		(struct sab_cmd_get_key_attr_rsp *) rsp_buf;
 
-	if (!op_args)
-		return SAB_FAILURE_STATUS;
+	if (!op_args) {
+		err = SAB_LIB_STATUS(SAB_LIB_RSP_PROC_FAIL);
+		goto exit;
+	}
 
 	op_args->key_type = rsp->type;
 	op_args->bit_key_sz = rsp->size_bits;
@@ -49,5 +52,6 @@ uint32_t proc_msg_rsp_get_key_attr(void *rsp_buf, void *args)
 	op_args->key_usage = rsp->usage;
 	op_args->permitted_algo = rsp->algo;
 	op_args->lifecycle = rsp->lifecycle;
-	return SAB_SUCCESS_STATUS;
+exit:
+	return err;
 }

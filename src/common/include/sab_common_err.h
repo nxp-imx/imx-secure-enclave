@@ -18,7 +18,8 @@ struct sab_err_map_s {
 };
 
 struct sab_err_map_s *get_sab_err_str_map(void);
-void sab_err_map(uint8_t msg_type, uint8_t sab_cmd, uint32_t rsp_code);
+void sab_err_map(uint32_t sab_success_tag,
+		 uint8_t sab_cmd, uint32_t rsp_code);
 /**
  * prints error description for HSM library errors
  */

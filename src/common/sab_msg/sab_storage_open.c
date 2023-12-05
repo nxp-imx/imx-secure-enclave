@@ -38,15 +38,19 @@ uint32_t prepare_msg_storage_open(void *phdl,
 
 uint32_t proc_msg_rsp_storage_open(void *rsp_buf, void *args)
 {
+	uint32_t err = SAB_LIB_STATUS(SAB_LIB_SUCCESS);
 	struct sab_cmd_storage_open_rsp *rsp =
 		(struct sab_cmd_storage_open_rsp *)rsp_buf;
 	op_storage_open_args_t *op_args =
 		(op_storage_open_args_t *)args;
 
-	if (!op_args)
-		return SAB_FAILURE_STATUS;
+	if (!op_args) {
+		err = SAB_LIB_STATUS(SAB_LIB_RSP_PROC_FAIL);
+		goto exit;
+	}
 
 	op_args->storage_handle = rsp->storage_handle;
+exit:
 
-	return SAB_SUCCESS_STATUS;
+	return err;
 }

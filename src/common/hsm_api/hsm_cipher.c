@@ -50,13 +50,13 @@ hsm_err_t hsm_open_cipher_service(hsm_hdl_t key_store_hdl,
 					(uint32_t)key_store_hdl,
 					args, &rsp_code);
 
-		err = sab_rating_to_hsm_err(error);
+		err = sab_rating_to_hsm_err(error, key_store_serv_ptr->session->phdl);
 
 		if (err != HSM_NO_ERROR) {
 			se_err("HSM Error: SAB_CIPHER_OPEN_REQ [0x%x].\n", err);
 			break;
 		}
-		err = sab_rating_to_hsm_err(rsp_code);
+		err = sab_rating_to_hsm_err(rsp_code, key_store_serv_ptr->session->phdl);
 		if (err != HSM_NO_ERROR) {
 			se_err("HSM RSP Error: SAB_CIPHER_OPEN_REQ [0x%x].\n",
 				err);
@@ -93,13 +93,13 @@ hsm_err_t hsm_close_cipher_service(hsm_hdl_t cipher_hdl)
 					(uint32_t)cipher_hdl,
 					NULL, &rsp_code);
 
-		err = sab_rating_to_hsm_err(error);
+		err = sab_rating_to_hsm_err(error, serv_ptr->session->phdl);
 
 		if (err != HSM_NO_ERROR) {
 			se_err("HSM Error: SAB_CIPHER_CLOSE_REQ [0x%x].\n", err);
 			break;
 		}
-		err = sab_rating_to_hsm_err(rsp_code);
+		err = sab_rating_to_hsm_err(rsp_code, serv_ptr->session->phdl);
 		if (err != HSM_NO_ERROR) {
 			se_err("HSM RSP Error: SAB_CIPHER_CLOSE_REQ [0x%x].\n",
 				err);
@@ -139,13 +139,13 @@ hsm_err_t hsm_cipher_one_go(hsm_hdl_t cipher_hdl, op_cipher_one_go_args_t *args)
 					(uint32_t)cipher_hdl,
 					args, &rsp_code);
 
-		err = sab_rating_to_hsm_err(error);
+		err = sab_rating_to_hsm_err(error, serv_ptr->session->phdl);
 
 		if (err != HSM_NO_ERROR) {
 			se_err("HSM Error: SAB_CIPHER_ONE_GO_REQ [0x%x].\n", err);
 			break;
 		}
-		err = sab_rating_to_hsm_err(rsp_code);
+		err = sab_rating_to_hsm_err(rsp_code, serv_ptr->session->phdl);
 		if (err != HSM_NO_ERROR) {
 			se_err("HSM RSP Error: SAB_CIPHER_ONE_GO_REQ [0x%x].\n",
 				err);

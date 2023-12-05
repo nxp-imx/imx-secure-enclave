@@ -281,9 +281,10 @@ uint32_t process_sab_msg(struct plat_os_abs_hdl *phdl,
 	 * - print error.
 	 * - print waring with success.
 	 */
-	if (SAB_STATUS_SUCCESS(msg_type) != GET_STATUS_CODE(*rsp_code) ||
+	if (plat_sab_success_tag(phdl) != GET_STATUS_CODE(*rsp_code) ||
 	    GET_RATING_CODE(*rsp_code) != SAB_NO_MESSAGE_RATING)
-		sab_err_map(msg_type, msg_id, *rsp_code);
+		sab_err_map(plat_sab_success_tag(phdl),
+			    msg_id, *rsp_code);
 
 	if (process_sab_msg_rsp[msg_type - 1][msg_id] == NULL) {
 		if (err_handling_v2_support(msg_id))
@@ -309,6 +310,8 @@ uint32_t process_sab_msg(struct plat_os_abs_hdl *phdl,
 		 */
 		if (error == SAB_LIB_CMD_UNSUPPORTED)
 			error = SAB_CMD_NOT_SUPPORTED_RATING;
+		else
+			error = plat_sab_success_tag(phdl);
 	}
 
 	/**
@@ -416,7 +419,7 @@ uint32_t process_sab_rcv_send_msg(struct nvm_ctx_st *nvm_ctx_param,
 	uint32_t error;
 	uint32_t rcvmsg_cmd_id = SAB_STORAGE_NVM_LAST_CMD;
 	uint32_t cmd_msg_sz = MAX_CMD_WORD_SZ * sizeof(uint32_t);
-	uint32_t rsp_msg_info = SAB_SUCCESS_STATUS;
+	uint32_t rsp_msg_info = plat_sab_success_tag(nvm_ctx_param->phdl);
 	uint32_t nb_words = 0;
 	uint32_t cmd[MAX_CMD_WORD_SZ];
 	uint32_t rsp[MAX_CMD_RSP_WORD_SZ];
@@ -470,10 +473,10 @@ uint32_t process_sab_rcv_send_msg(struct nvm_ctx_st *nvm_ctx_param,
 			/* Send error to FW through the command response */
 			rsp_msg_info = SAB_CRC_FAILURE_STATUS;
 #else
-			rsp_msg_info = SAB_SUCCESS_STATUS;
+			rsp_msg_info = plat_sab_success_tag(nvm_ctx_param->phdl);
 #endif
 		} else {
-			rsp_msg_info = SAB_SUCCESS_STATUS;
+			rsp_msg_info = plat_sab_success_tag(nvm_ctx_param->phdl);
 		}
 	}
 
@@ -500,7 +503,7 @@ uint32_t process_sab_rcv_send_msg(struct nvm_ctx_st *nvm_ctx_param,
 		goto out;
 	}
 
-	if (error != SAB_SUCCESS_STATUS)
+	if (error != plat_sab_success_tag(nvm_ctx_param->phdl))
 		se_warn("Warn: command 0x%x failed with 0x%x error code.\n", rcvmsg_cmd_id, error);
 
 	plat_build_rsp_msg_hdr((struct sab_mu_hdr *)rsp, msg_type,

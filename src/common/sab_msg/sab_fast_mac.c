@@ -75,7 +75,7 @@ uint32_t proc_msg_rsp_fast_mac(void *rsp_buf, void *args)
 
 	op_fast_seco_mac_t *op_args = (op_fast_seco_mac_t *)args;
 
-	if (rsp->rsp_code != SAB_SUCCESS_STATUS)
+	if (GET_STATUS_CODE(rsp->rsp_code) == SAB_FAILURE_STATUS)
 		return err;
 
 	if (op_args->flags & SHE_FAST_MAC_FLAGS_VERIFICATION)
@@ -92,7 +92,7 @@ uint32_t proc_msg_rsp_v2x_fast_mac(void *rsp_buf, void *args)
 
 	op_fast_v2x_mac_t *op_args = (op_fast_v2x_mac_t *)args;
 
-	if (rsp->rsp_code != SAB_SUCCESS_STATUS)
+	if (GET_STATUS_CODE(rsp->rsp_code) == SAB_FAILURE_STATUS)
 		return err;
 
 	if (op_args->flags & SHE_FAST_MAC_FLAGS_VERIFICATION)

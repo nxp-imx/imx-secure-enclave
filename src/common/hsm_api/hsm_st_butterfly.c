@@ -37,13 +37,13 @@ hsm_err_t hsm_standalone_butterfly_key_expansion(hsm_hdl_t key_management_hdl,
 					  args,
 					  &rsp_code);
 
-		err = sab_rating_to_hsm_err(sab_err);
+		err = sab_rating_to_hsm_err(sab_err, serv_ptr->session->phdl);
 		if (err != HSM_NO_ERROR) {
 			se_err("HSM Error: SAB_ST_BUT_KEY_EXP_REQ [0x%x].\n", err);
 			break;
 		}
 
-		err = sab_rating_to_hsm_err(rsp_code);
+		err = sab_rating_to_hsm_err(rsp_code, serv_ptr->session->phdl);
 		if (err != HSM_NO_ERROR) {
 			se_err("HSM RSP Error: SAB_ST_BUT_KEY_EXP_REQ [0x%x].\n", err);
 			break;

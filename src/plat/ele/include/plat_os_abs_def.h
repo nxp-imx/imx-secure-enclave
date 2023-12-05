@@ -46,6 +46,8 @@ struct key_db_fd {
 	int volatile_fd;
 };
 
+uint32_t plat_sab_success_tag(void *phdl);
+
 #define SAB_BLOB_ID_STRUCT_SIZE (12u)
 struct sab_blob_id {
 	uint32_t metadata;

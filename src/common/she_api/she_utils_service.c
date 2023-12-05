@@ -40,7 +40,7 @@ she_err_t she_open_utils(she_hdl_t key_store_handle, op_open_utils_args_t *args)
 
 	serv_ptr->session->last_rating = rsp_code;
 
-	err = sab_rating_to_she_err(sab_err);
+	err = sab_rating_to_she_err(sab_err, serv_ptr->session->phdl);
 
 	if (err != SHE_NO_ERROR) {
 		se_err("SHE Error: SAB_SHE_UTILS_OPEN [0x%x].\n", err);
@@ -48,7 +48,7 @@ she_err_t she_open_utils(she_hdl_t key_store_handle, op_open_utils_args_t *args)
 		return err;
 	}
 
-	err = sab_rating_to_she_err(rsp_code);
+	err = sab_rating_to_she_err(rsp_code, serv_ptr->session->phdl);
 
 	if (err != SHE_NO_ERROR) {
 		se_err("SHE RSP Error: SAB_SHE_UTILS_OPEN [0x%x].\n", err);
@@ -84,13 +84,13 @@ she_err_t she_close_utils(she_hdl_t utils_handle)
 
 	serv_ptr->session->last_rating = rsp_code;
 
-	err = sab_rating_to_she_err(sab_err);
+	err = sab_rating_to_she_err(sab_err, serv_ptr->session->phdl);
 
 	if (err != SHE_NO_ERROR) {
 		se_err("SHE Error: SAB_SHE_UTILS_CLOSE [0x%x].\n", err);
 		return err;
 	}
-	err = sab_rating_to_she_err(rsp_code);
+	err = sab_rating_to_she_err(rsp_code, serv_ptr->session->phdl);
 	if (err != SHE_NO_ERROR) {
 		se_err("SHE RSP Error: SAB_SHE_UTILS_CLOSE [0x%x].\n", err);
 		return err;

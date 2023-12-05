@@ -59,7 +59,7 @@ she_err_t she_verify_mac_v2x(struct she_service_hdl_s *serv_ptr,
 		return err;
 	}
 
-	err = sab_rating_to_she_err(rsp_code);
+	err = sab_rating_to_she_err(rsp_code, serv_ptr->session->phdl);
 
 	if (err != SHE_NO_ERROR) {
 		se_err("SHE RSP Error: SAB_SHE_FAST_MAC_MUBUFF_REQ [0x%x].\n", err);
@@ -150,7 +150,7 @@ she_err_t she_verify_mac_seco(struct she_service_hdl_s *serv_ptr,
 		return err;
 	}
 
-	err = sab_rating_to_she_err(rsp_code);
+	err = sab_rating_to_she_err(rsp_code, serv_ptr->session->phdl);
 
 	if (err != SHE_NO_ERROR) {
 		se_err("SHE RSP Error: SAB_FAST_MAC_REQ (Verify) [0x%x].\n", err);
@@ -242,7 +242,7 @@ she_err_t she_generate_mac_v2x(struct she_service_hdl_s *serv_ptr,
 		return err;
 	}
 
-	err = sab_rating_to_she_err(rsp_code);
+	err = sab_rating_to_she_err(rsp_code, serv_ptr->session->phdl);
 
 	if (err != SHE_NO_ERROR) {
 		se_err("SHE RSP Error: SAB_SHE_FAST_MAC_MUBUFF_REQ [0x%x].\n", err);
@@ -323,7 +323,7 @@ she_err_t she_generate_mac_seco(struct she_service_hdl_s *serv_ptr,
 		return err;
 	}
 
-	err = sab_rating_to_she_err(rsp_code);
+	err = sab_rating_to_she_err(rsp_code, serv_ptr->session->phdl);
 
 	if (err != SHE_NO_ERROR) {
 		se_err("SHE RSP Error: SAB_FAST_MAC_REQ [0x%x].\n", err);

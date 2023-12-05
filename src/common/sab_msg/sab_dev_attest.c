@@ -119,6 +119,7 @@ uint32_t prepare_msg_dev_attest(void *phdl, void *cmd_buf, void *rsp_buf,
 
 uint32_t proc_msg_rsp_dev_attest(void *rsp_buf, void *args)
 {
+	uint32_t err = SAB_LIB_STATUS(SAB_LIB_RSP_PROC_FAIL);
 	op_dev_attest_args_t *op_args = (op_dev_attest_args_t *)args;
 	struct sab_cmd_dev_attest_rsp *rsp =
 		(struct sab_cmd_dev_attest_rsp *) rsp_buf;
@@ -137,10 +138,12 @@ uint32_t proc_msg_rsp_dev_attest(void *rsp_buf, void *args)
 	uint8_t *info_data_buf;
 
 	if (!op_args)
-		return SAB_FAILURE_STATUS;
-
-	if (rsp->rsp_code != SAB_SUCCESS_STATUS)
 		goto exit;
+
+	if (GET_STATUS_CODE(rsp->rsp_code) == SAB_FAILURE_STATUS) {
+		err = SAB_LIB_STATUS(SAB_LIB_SUCCESS);
+		goto exit;
+	}
 
 	op_args->soc_id = rsp_w_data_v1->d_info.soc_id;
 	op_args->soc_rev = rsp_w_data_v1->d_info.soc_rev;
@@ -272,6 +275,7 @@ uint32_t proc_msg_rsp_dev_attest(void *rsp_buf, void *args)
 		op_args->csal_state = rsp_w_data_v2->d_addn_info.csal_state;
 		op_args->trng_state = rsp_w_data_v2->d_addn_info.trng_state;
 	}
+	err = SAB_LIB_STATUS(SAB_LIB_SUCCESS);
 exit:
-	return SAB_SUCCESS_STATUS;
+	return err;
 }

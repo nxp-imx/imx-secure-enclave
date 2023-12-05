@@ -38,8 +38,9 @@ struct plat_mu_params {
 #define MU_CHANNEL_V2X_SHE_NVM    (0x15u)
 #define MU_CHANNEL_V2X_HSM_NVM    (0x16u)
 
-#define SAB_BLOB_ID_STRUCT_SIZE (8u)
+uint32_t plat_sab_success_tag(void *phdl);
 
+#define SAB_BLOB_ID_STRUCT_SIZE (8u)
 struct sab_blob_id {
 	uint32_t id;
 	uint32_t ext;

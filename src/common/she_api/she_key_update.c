@@ -42,14 +42,14 @@ she_err_t she_key_update(she_hdl_t utils_handle, op_key_update_args_t *args)
 
 	serv_ptr->session->last_rating = rsp_code;
 
-	err = sab_rating_to_she_err(sab_err);
+	err = sab_rating_to_she_err(sab_err, serv_ptr->session->phdl);
 
 	if (err != SHE_NO_ERROR) {
 		se_err("SHE Error: SAB_SHE_KEY_UPDATE [0x%x].\n", err);
 		return err;
 	}
 
-	err = sab_rating_to_she_err(rsp_code);
+	err = sab_rating_to_she_err(rsp_code, serv_ptr->session->phdl);
 
 	if (err != SHE_NO_ERROR) {
 		se_err("SHE RSP Error: SAB_SHE_KEY_UPDATE [0x%x].\n", err);
@@ -95,14 +95,14 @@ she_err_t she_key_update_ext(she_hdl_t utils_handle, op_key_update_ext_args_t *a
 
 	serv_ptr->session->last_rating = rsp_code;
 
-	err = sab_rating_to_she_err(sab_err);
+	err = sab_rating_to_she_err(sab_err, serv_ptr->session->phdl);
 
 	if (err != SHE_NO_ERROR) {
 		se_err("SHE Error: SAB_SHE_KEY_UPDATE_EXT [0x%x].\n", err);
 		return err;
 	}
 
-	err = sab_rating_to_she_err(rsp_code);
+	err = sab_rating_to_she_err(rsp_code, serv_ptr->session->phdl);
 
 	if (err != SHE_NO_ERROR) {
 		se_err("SHE RSP Error: SAB_SHE_KEY_UPDATE_EXT [0x%x].\n", err);

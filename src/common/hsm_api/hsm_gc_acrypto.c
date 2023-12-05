@@ -37,13 +37,13 @@ hsm_err_t hsm_gc_acrypto(hsm_hdl_t session_hdl, op_gc_acrypto_args_t *args)
 					(uint32_t)session_hdl,
 					args, &rsp_code);
 
-		err = sab_rating_to_hsm_err(error);
+		err = sab_rating_to_hsm_err(error, sess_ptr->phdl);
 
 		if (err != HSM_NO_ERROR) {
 			se_err("HSM Error: SAB_GC_ACRYPTO_REQ [0x%x].\n", err);
 			break;
 		}
-		err = sab_rating_to_hsm_err(rsp_code);
+		err = sab_rating_to_hsm_err(rsp_code, sess_ptr->phdl);
 
 		if (err == HSM_NO_ERROR &&
 		    args->op_mode == HSM_GC_ACRYPTO_OP_MODE_SIGN_VER &&

@@ -32,23 +32,24 @@ uint32_t prepare_msg_get_info(void *phdl, void *cmd_buf, void *rsp_buf,
 
 uint32_t proc_msg_rsp_get_info(void *rsp_buf, void *args)
 {
+	uint32_t err = SAB_LIB_STATUS(SAB_LIB_RSP_PROC_FAIL);
 	op_get_info_args_t *op_args = (op_get_info_args_t *) args;
 	struct sab_cmd_get_info_rsp *rsp =
 		(struct sab_cmd_get_info_rsp *) rsp_buf;
-	uint32_t ret = SAB_SUCCESS_STATUS;
 
 	if (!op_args)
-		return SAB_FAILURE_STATUS;
-
-	if (rsp->rsp_code != SAB_SUCCESS_STATUS)
 		goto exit;
+
+	if (GET_STATUS_CODE(rsp->rsp_code) == SAB_FAILURE_STATUS) {
+		err = SAB_LIB_STATUS(SAB_LIB_SUCCESS);
+		goto exit;
+	}
 
 	op_args->user_sab_id = rsp->user_sab_id;
 	op_args->chip_unq_id_sz = CHIP_UNIQUE_ID_SZ;
 	op_args->chip_unique_id = plat_os_abs_malloc(CHIP_UNIQUE_ID_SZ);
-	if (op_args->chip_unique_id == NULL) {
+	if (!op_args->chip_unique_id)
 		goto exit;
-	}
 
 	plat_os_abs_memcpy(op_args->chip_unique_id,
 			   rsp->uid,
@@ -58,6 +59,8 @@ uint32_t proc_msg_rsp_get_info(void *rsp_buf, void *args)
 	op_args->version = rsp->version;
 	op_args->version_ext = rsp->version_ext;
 	op_args->fips_mode = rsp->fips_mode;
+	/* Reaching here, means success. */
+	err = SAB_LIB_STATUS(SAB_LIB_SUCCESS);
 exit:
-	return ret;
+	return err;
 }

@@ -106,11 +106,11 @@ static she_err_t sab_err_rating_to_she_err(uint8_t sab_err_rating)
 	return she_err;
 }
 
-she_err_t sab_rating_to_she_err(uint32_t sab_err)
+she_err_t sab_rating_to_she_err(uint32_t sab_err, void *phdl)
 {
 	she_err_t she_err = SHE_GENERAL_ERROR;
 
-	if (GET_STATUS_CODE(sab_err) == SAB_SUCCESS_STATUS)
+	if (GET_STATUS_CODE(sab_err) == plat_sab_success_tag(phdl))
 		she_err = sab_success_rating_to_she_warning(GET_RATING_CODE(sab_err));
 	else
 		she_err = sab_err_rating_to_she_err(GET_RATING_CODE(sab_err));
