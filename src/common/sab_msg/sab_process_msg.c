@@ -195,7 +195,7 @@ uint32_t process_sab_msg(struct plat_os_abs_hdl *phdl,
 	}
 
 	plat_build_cmd_msg_hdr((struct sab_mu_hdr *)cmd, msg_type,
-				msg_id, cmd_msg_sz, mu_type);
+			       msg_id, cmd_msg_sz, mu_type, phdl);
 
 	/* Add CRC in cmd if needed */
 	nb_words = cmd_msg_sz / (uint32_t)sizeof(uint32_t);
@@ -507,8 +507,10 @@ uint32_t process_sab_rcv_send_msg(struct nvm_ctx_st *nvm_ctx_param,
 		se_warn("Warn: command 0x%x failed with 0x%x error code.\n", rcvmsg_cmd_id, error);
 
 	plat_build_rsp_msg_hdr((struct sab_mu_hdr *)rsp, msg_type,
-				rcvmsg_cmd_id,
-				rsp_msg_info, nvm_ctx_param->mu_type);
+			       rcvmsg_cmd_id,
+			       rsp_msg_info,
+			       nvm_ctx_param->mu_type,
+			       nvm_ctx_param->phdl);
 
 	/* Add CRC in response if needed */
 	nb_words = rsp_msg_info / (uint32_t)sizeof(uint32_t);

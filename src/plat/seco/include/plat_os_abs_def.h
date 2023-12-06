@@ -11,9 +11,18 @@
 #define NO_LENGTH                   0x0u
 #define MAX_FNAME_DNAME_SZ          256u
 
+struct mu_info {
+	uint8_t cmd_tag;
+	uint8_t rsp_tag;
+	uint8_t success_tag;
+	uint8_t base_api_ver;
+	uint8_t fw_api_ver;
+};
+
 struct plat_os_abs_hdl {
-    int32_t fd;
-    uint32_t type;
+	int32_t fd;
+	uint32_t type;
+	struct mu_info mu_info;
 };
 
 

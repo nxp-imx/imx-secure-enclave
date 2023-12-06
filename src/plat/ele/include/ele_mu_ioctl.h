@@ -1,6 +1,6 @@
 // SPDX-License-Identifier: BSD-3-Clause
 /*
- * Copyright 2021 NXP
+ * Copyright 2021, 2023 NXP
  */
 
 #ifndef ELE_MU_IOCTL_H
@@ -25,6 +25,11 @@ struct ele_mu_ioctl_get_mu_info {
 	uint8_t interrupt_idx;
 	uint8_t tz;
 	uint8_t did;
+	uint8_t cmd_tag;
+	uint8_t rsp_tag;
+	uint8_t success_tag;
+	uint8_t base_api_ver;
+	uint8_t fw_api_ver;
 };
 
 struct ele_mu_ioctl_signed_message {

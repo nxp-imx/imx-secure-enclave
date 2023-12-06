@@ -62,13 +62,11 @@ static inline uint32_t bf_popcount(uint32_t x)
 }
 
 void plat_build_cmd_msg_hdr(struct sab_mu_hdr *hdr, msg_type_t msg_type,
-			uint8_t cmd, uint32_t len, uint32_t mu_type);
+			uint8_t cmd, uint32_t len, uint32_t mu_type,
+			struct plat_os_abs_hdl *phdl);
 void plat_build_rsp_msg_hdr(struct sab_mu_hdr *hdr, msg_type_t msg_type,
-			uint8_t cmd, uint32_t len, uint32_t mu_type);
-
-void plat_fill_cmd_msg_hdr(struct sab_mu_hdr *hdr, uint8_t cmd, uint32_t len, uint32_t mu_type);
-
-void plat_fill_rsp_msg_hdr(struct sab_mu_hdr *hdr, uint8_t cmd, uint32_t len, uint32_t mu_type);
+			uint8_t cmd, uint32_t len, uint32_t mu_type,
+			struct plat_os_abs_hdl *phdl);
 
 int32_t plat_send_msg_and_get_resp(struct plat_os_abs_hdl *phdl, uint32_t *cmd, uint32_t cmd_len, uint32_t *rsp, uint32_t rsp_len);
 

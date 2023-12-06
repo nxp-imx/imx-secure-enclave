@@ -18,12 +18,6 @@
 #include "plat_utils.h"
 #include "ele_mu_ioctl.h"
 
-
-#define SHE_DEFAULT_DID             0x7u
-#define SHE_DEFAULT_TZ              0x0u
-#define SHE_DEFAULT_MU              0x2u
-#define SHE_DEFAULT_INTERRUPT_IDX   0x0u
-
 /*
  * MU1: SHE user + SHE storage
  * MU2: HSM user + HSM storage
@@ -79,21 +73,26 @@ struct plat_os_abs_hdl *plat_os_abs_open_mu_channel(uint32_t type, struct plat_m
             }
         }
 
-        if (phdl != NULL) {
-            phdl->type = type;
+	if (phdl) {
+		phdl->type = type;
 
-            error = ioctl(phdl->fd, ELE_MU_IOCTL_GET_MU_INFO, &info_ioctl);
-            if (error == 0) {
-                mu_params->mu_id = info_ioctl.ele_mu_id;
-                mu_params->interrupt_idx = info_ioctl.interrupt_idx;
-                mu_params->tz = info_ioctl.tz;
-                mu_params->did = info_ioctl.did;
-            } else {
-                mu_params->mu_id = SHE_DEFAULT_MU;
-                mu_params->interrupt_idx = SHE_DEFAULT_INTERRUPT_IDX;
-                mu_params->tz = SHE_DEFAULT_TZ;
-                mu_params->did = SHE_DEFAULT_DID;
-            }
+		error = ioctl(phdl->fd, ELE_MU_IOCTL_GET_MU_INFO, &info_ioctl);
+		if (error == 0) {
+			mu_params->mu_id = info_ioctl.ele_mu_id;
+			mu_params->interrupt_idx = info_ioctl.interrupt_idx;
+			mu_params->tz = info_ioctl.tz;
+			mu_params->did = info_ioctl.did;
+			phdl->mu_info.cmd_tag = info_ioctl.cmd_tag;
+			phdl->mu_info.rsp_tag = info_ioctl.rsp_tag;
+			phdl->mu_info.success_tag = info_ioctl.success_tag;
+			phdl->mu_info.base_api_ver = info_ioctl.base_api_ver;
+			phdl->mu_info.fw_api_ver = info_ioctl.fw_api_ver;
+		} else {
+			/* Close the device. */
+			(void)close(phdl->fd);
+			plat_os_abs_free(phdl);
+			phdl = NULL;
+		}
 
             if (is_nvm != 0u) {
                 /* for NVM: configure the device to accept incoming commands. */
