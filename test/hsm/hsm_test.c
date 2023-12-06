@@ -82,7 +82,7 @@ static void public_key_test(hsm_hdl_t hsm_session_hdl)
     }
 #endif
 
-#ifdef CONFIG_PLAT_SECO
+#ifndef PSA_COMPLIANT
     /* Brainpool R1 256 */
     hsm_op_pub_key_dec_args.key = ECC_BRAINPOOL_R1_256_Qx;
     hsm_op_pub_key_dec_args.out_key = out;
@@ -417,7 +417,7 @@ static void transient_key_tests(hsm_hdl_t sess_hdl, hsm_hdl_t key_store_hdl)
 	if (hsmret)
 		printf("Error[0x%x]: PUB KEY RECOVERY test failed.\n\n", hsmret);
 
-#ifdef CONFIG_PLAT_SECO
+#ifndef PSA_COMPLIANT
 	memset(&butterfly_gen_args, 0, sizeof(butterfly_gen_args));
 	butterfly_gen_args.key_identifier = master_key_id;
 	butterfly_gen_args.expansion_function_value = exp_data;
@@ -451,7 +451,7 @@ static void transient_key_tests(hsm_hdl_t sess_hdl, hsm_hdl_t key_store_hdl)
 	printf("hsm_open_signature_generation_service ret:0x%x\n", hsmret);
 
 	memset(&sig_gen_args, 0, sizeof(sig_gen_args));
-#ifdef CONFIG_PLAT_SECO
+#ifndef PSA_COMPLIANT
 	sig_gen_args.key_identifier = butterfly_key_id;
 #else
 	sig_gen_args.key_identifier = master_key_id;
@@ -505,7 +505,7 @@ static void transient_key_tests(hsm_hdl_t sess_hdl, hsm_hdl_t key_store_hdl)
 	hsmret = hsm_close_signature_verification_service(sig_ver_hdl);
 	printf("hsm_close_signature_verification_service ret:0x%x\n", hsmret);
 
-#ifdef CONFIG_PLAT_SECO
+#ifndef PSA_COMPLIANT
 	key_management(DELETE,
 		       key_mgmt_hdl,
 		       &butterfly_key_id,
@@ -530,7 +530,7 @@ static void transient_key_tests(hsm_hdl_t sess_hdl, hsm_hdl_t key_store_hdl)
 	key_gen_args.key_identifier = &sym_key_id;
 	key_gen_args.out_size = 0;
 	key_gen_args.key_group = 50;
-#ifdef CONFIG_PLAT_SECO
+#ifndef PSA_COMPLIANT
 	key_gen_args.flags = HSM_OP_KEY_GENERATION_FLAGS_CREATE;
 	key_gen_args.key_type = HSM_KEY_TYPE_AES_256;
 	key_gen_args.key_info = HSM_KEY_INFO_TRANSIENT;
@@ -759,7 +759,7 @@ int main(int argc, char *argv[])
 	if (err)
 		printf("Error[0x%x]: RNG test Failed.\n", err);
 #endif
-#ifdef CONFIG_PLAT_SECO
+#ifndef PSA_COMPLIANT
         public_key_test(hsm_session_hdl);
 
         ecies_tests(hsm_session_hdl);

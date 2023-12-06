@@ -41,7 +41,7 @@ static uint8_t  test_msg[300] = {
 };
 
 static hsm_err_t generate_key(hsm_hdl_t key_mgmt_hdl,
-#ifdef CONFIG_PLAT_SECO
+#ifndef PSA_COMPLIANT
 			      hsm_key_info_t key_info,
 #else
 			      hsm_key_lifetime_t key_lifetime,
@@ -58,7 +58,7 @@ static hsm_err_t generate_key(hsm_hdl_t key_mgmt_hdl,
 	key_gen_args.key_identifier = key_identifier;
 	key_gen_args.out_size = 0;
 	key_gen_args.key_group = MAC_KEY_GROUP;
-#ifdef CONFIG_PLAT_SECO
+#ifndef PSA_COMPLIANT
 	key_gen_args.flags = HSM_OP_KEY_GENERATION_FLAGS_CREATE;
 	key_gen_args.key_info = key_info;
 #else

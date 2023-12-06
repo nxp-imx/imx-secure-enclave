@@ -6,7 +6,7 @@
 
 set -eu
 
-nvm_conf_fpath="/etc/nvmd.conf"
+nvm_conf_fpath="/etc/nvmd_seco.conf"
 
 function nvmd_config_setup()
 {
@@ -18,20 +18,6 @@ function nvmd_config_setup()
   sed -i ${nvmd_config_storage_dirname} ${nvm_conf_fpath}
   sed -i ${nvmd_config_storage_filename} ${nvm_conf_fpath}
   sed -i ${nvmd_config_mu_session_flag} ${nvm_conf_fpath}
-}
-
-function imx_ele_nvmd_config()
-{
-    local loc_config_id=$1
-
-    case ${loc_config_id} in
-        0)
-            nvmd_config_setup "/etc/ele/ele_nvm_master" "/etc/ele/" "0"
-            ;;
-        *)
-            printf "Unsupported NVM-D config opted.\n"
-            ;;
-    esac
 }
 
 function imx8dxlevk_nvmd_config()
@@ -66,9 +52,6 @@ function imx95evk_nvmd_config()
     local loc_config_id=$1
 
     case ${loc_config_id} in
-        0)
-            nvmd_config_setup "/etc/hsm/ele_nvm_master" "/etc/hsm/" "0"
-            ;;
 
         2)
             nvmd_config_setup "/etc/v2x_hsm/v2x_hsm_master" "/etc/v2x_hsm/" "2"
@@ -99,12 +82,12 @@ function usage()
     printf "\tNVMD_MU_SESSION_FLAG=NVM_FLAGS_SHE | NVM_FLAGS_V2X (3)\n\n"
 
     printf "Usage:\n\t./nvmd_conf_setup.sh plat=PLATFORM config_id=NVM_CONFIG_ID\n\n"
-    printf "\tPLATFORM: imx8dxlevk, imx8ulpevk, imx93evk, imx95evk\n"
+    printf "\tPLATFORM: imx8dxlevk, imx95evk\n"
     printf "\tNVM_CONFIG_IDs:\n"
-    printf "\t\t0 : \n"
-    printf "\t\t1 : Not Supported for iMX8ULP/iMX93/iMX95\n"
-    printf "\t\t2 : Not Supported for iMX8ULP/iMX93\n"
-    printf "\t\t3 : Not Supported for iMX8ULP/iMX93\n"
+    printf "\t\t0 : Not Supported i.MX95\n"
+    printf "\t\t1 : Not Supported i.MX95\n"
+    printf "\t\t2 :\n"
+    printf "\t\t3 :\n"
 
     exit
 }
@@ -138,18 +121,10 @@ do
     shift
 done
 
-#based on platform (iMX8DXL/iMX8ULP/iMX93/iMX95), choose function for NVM-D config update
+#based on platform (iMX8DXL/iMX95), choose function for NVM-D config update
 case ${opt_plat} in
     imx8dxlevk)
         imx8dxlevk_nvmd_config ${opt_config_id}
-        ;;
-
-    imx8ulpevk)
-        imx_ele_nvmd_config ${opt_config_id}
-        ;;
-
-    imx93evk)
-        imx_ele_nvmd_config ${opt_config_id}
         ;;
 
     imx95evk)

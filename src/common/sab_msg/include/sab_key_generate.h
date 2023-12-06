@@ -14,7 +14,7 @@ struct sab_cmd_generate_key_msg {
 	struct sab_mu_hdr hdr;
 	uint32_t key_management_handle;
 	uint32_t key_identifier;
-#ifdef CONFIG_PLAT_SECO
+#ifndef PSA_COMPLIANT
 	uint16_t out_pub_key_sz;
 	uint8_t flags;
 	uint8_t key_type;
@@ -40,7 +40,7 @@ struct sab_cmd_generate_key_rsp {
 	struct sab_mu_hdr hdr;
 	uint32_t rsp_code;
 	uint32_t key_identifier;
-#ifndef CONFIG_PLAT_SECO
+#ifdef PSA_COMPLIANT
 	uint16_t out_key_sz;
 	uint16_t reserved;
 #endif

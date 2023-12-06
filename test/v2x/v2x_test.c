@@ -201,7 +201,7 @@ static void *sig_loop_thread(void *arg)
         gen_key_args.out_size = 64;
         gen_key_args.key_type = HSM_KEY_TYPE_DSA_SM2_FP_256;
         gen_key_args.key_group = 12;
-#ifdef CONFIG_PLAT_SECO
+#ifndef PSA_COMPLIANT
         gen_key_args.flags = ((i%4 == 0) ? HSM_OP_KEY_GENERATION_FLAGS_CREATE : HSM_OP_KEY_GENERATION_FLAGS_UPDATE);
         gen_key_args.key_info = 0U;
 #else
@@ -253,7 +253,7 @@ static void *sig_loop_thread(void *arg)
     gen_key_args.out_size = 64;
     gen_key_args.key_type = HSM_KEY_TYPE_ECDSA_NIST_P256;
     gen_key_args.key_group = 12;
-#ifdef CONFIG_PLAT_SECO
+#ifndef PSA_COMPLIANT
     gen_key_args.flags = HSM_OP_KEY_GENERATION_FLAGS_CREATE;
     gen_key_args.key_info = 0U;
 #else
@@ -339,7 +339,7 @@ static void *cipher_loop_thread(void *arg)
         gen_key_args.out_size = 0;
         gen_key_args.key_type = HSM_KEY_TYPE_SM4_128;
         gen_key_args.key_group = 14;
-#ifdef CONFIG_PLAT_SECO
+#ifndef PSA_COMPLIANT
         gen_key_args.flags = ((i%4 == 0) ? HSM_OP_KEY_GENERATION_FLAGS_CREATE : HSM_OP_KEY_GENERATION_FLAGS_UPDATE);
         gen_key_args.key_info = 0U;
 #else
@@ -757,7 +757,7 @@ int main(int argc, char *argv[])
     op_sm2_eces_dec_args_t sm2_eces_dec_args;
     op_get_random_args_t rng_get_random_args;
     op_auth_enc_args_t auth_enc_args;
-#ifdef CONFIG_PLAT_SECO
+#ifndef PSA_COMPLIANT
     op_manage_key_args_t mng_key_args;
 #endif
     op_ecies_enc_args_t op_ecies_enc_args;
@@ -801,7 +801,7 @@ int main(int argc, char *argv[])
     uint8_t recovered_key[256];
 
     srand (time (NULL));
-#ifndef CONFIG_PLAT_SECO
+#ifdef PSA_COMPLIANT
     printf("\n---------------------------------------------------\n");
     printf("Starting storage manager \n");
     printf("---------------------------------------------------\n");
@@ -1054,7 +1054,7 @@ int main(int argc, char *argv[])
     gen_key_args.out_size = 64;
     gen_key_args.key_type = HSM_KEY_TYPE_DSA_SM2_FP_256;
     gen_key_args.key_group = 12;
-#ifdef CONFIG_PLAT_SECO
+#ifndef PSA_COMPLIANT
     gen_key_args.flags = HSM_OP_KEY_GENERATION_FLAGS_CREATE;
     gen_key_args.key_info = 0U;
 #else
@@ -1163,7 +1163,7 @@ int main(int argc, char *argv[])
     gen_key_args.out_size = 64;
     gen_key_args.key_type = HSM_KEY_TYPE_DSA_SM2_FP_256;
     gen_key_args.key_group = 12;
-#ifdef CONFIG_PLAT_SECO
+#ifndef PSA_COMPLIANT
     gen_key_args.flags = HSM_OP_KEY_GENERATION_FLAGS_CREATE;
     gen_key_args.key_info = 0U;
 #else
@@ -1177,7 +1177,7 @@ int main(int argc, char *argv[])
 	printf("err: 0x%x hsm_generate_key hdl: 0x%08x\n",
 	       err, sg0_key_mgmt_srv);
 
-#ifdef CONFIG_PLAT_SECO
+#ifndef PSA_COMPLIANT
     /* Test deletion of last generated key with bad key group */
     mng_key_args.key_identifier = &key_id;
     mng_key_args.kek_identifier = 0;
@@ -1217,7 +1217,7 @@ int main(int argc, char *argv[])
     gen_key_args.out_size = 64;
     gen_key_args.key_type = HSM_KEY_TYPE_ECDSA_NIST_P256;
     gen_key_args.key_group = 12;
-#ifdef CONFIG_PLAT_SECO
+#ifndef PSA_COMPLIANT
     gen_key_args.flags = HSM_OP_KEY_GENERATION_FLAGS_CREATE;
     gen_key_args.key_info = 0U;
 #else
@@ -1322,7 +1322,7 @@ int main(int argc, char *argv[])
     gen_key_args.out_size = 64;
     gen_key_args.key_type = HSM_KEY_TYPE_DSA_SM2_FP_256;
     gen_key_args.key_group = 12;
-#ifdef CONFIG_PLAT_SECO
+#ifndef PSA_COMPLIANT
     gen_key_args.flags = HSM_OP_KEY_GENERATION_FLAGS_CREATE;
     gen_key_args.key_info = 0U;
 #else
@@ -1442,7 +1442,7 @@ int main(int argc, char *argv[])
     gen_key_args.out_size = 0U;
     gen_key_args.key_type = HSM_KEY_TYPE_AES_256;
     gen_key_args.key_group = 12;
-#ifdef CONFIG_PLAT_SECO
+#ifndef PSA_COMPLIANT
     gen_key_args.flags = HSM_OP_KEY_GENERATION_FLAGS_CREATE;
     gen_key_args.key_info = 0U;
 #else
@@ -1499,7 +1499,7 @@ int main(int argc, char *argv[])
     gen_key_args.out_size = 0U;
     gen_key_args.key_type = HSM_KEY_TYPE_AES_256;
     gen_key_args.key_group = 12;
-#ifdef CONFIG_PLAT_SECO
+#ifndef PSA_COMPLIANT
     gen_key_args.flags = HSM_OP_KEY_GENERATION_FLAGS_CREATE;
     gen_key_args.key_info = 0U;
 #else
@@ -1650,7 +1650,7 @@ int main(int argc, char *argv[])
     gen_key_args.out_size = 64;
     gen_key_args.key_type = HSM_KEY_TYPE_DSA_SM2_FP_256;
     gen_key_args.key_group = 1;
-#ifdef CONFIG_PLAT_SECO
+#ifndef PSA_COMPLIANT
     gen_key_args.flags = HSM_OP_KEY_GENERATION_FLAGS_CREATE;
     gen_key_args.key_info = HSM_KEY_INFO_MASTER;
 #else
@@ -1668,7 +1668,7 @@ int main(int argc, char *argv[])
     gen_key_args.out_size = 0U;
     gen_key_args.key_type = HSM_KEY_TYPE_SM4_128;
     gen_key_args.key_group = 1;
-#ifdef CONFIG_PLAT_SECO
+#ifndef PSA_COMPLIANT
     gen_key_args.flags = HSM_OP_KEY_GENERATION_FLAGS_CREATE;
     gen_key_args.key_info = 0;
 #else
@@ -1715,7 +1715,7 @@ int main(int argc, char *argv[])
     gen_key_args.out_size = 64;
     gen_key_args.key_type = HSM_KEY_TYPE_ECDSA_NIST_P256;
     gen_key_args.key_group = 1;
-#ifdef CONFIG_PLAT_SECO
+#ifndef PSA_COMPLIANT
     gen_key_args.flags = HSM_OP_KEY_GENERATION_FLAGS_CREATE;
     gen_key_args.key_info = HSM_KEY_INFO_MASTER;
 #else
@@ -1733,7 +1733,7 @@ int main(int argc, char *argv[])
     gen_key_args.out_size = 0U;
     gen_key_args.key_type = HSM_KEY_TYPE_AES_128;
     gen_key_args.key_group = 1;
-#ifdef CONFIG_PLAT_SECO
+#ifndef PSA_COMPLIANT
     gen_key_args.flags = HSM_OP_KEY_GENERATION_FLAGS_CREATE;
     gen_key_args.key_info = 0;
 #else
@@ -1787,7 +1787,7 @@ int main(int argc, char *argv[])
     gen_key_args.out_size = 0U;
     gen_key_args.key_type = HSM_KEY_TYPE_SM4_128;
     gen_key_args.key_group = 2U;
-#ifdef CONFIG_PLAT_SECO
+#ifndef PSA_COMPLIANT
     gen_key_args.flags = HSM_OP_KEY_GENERATION_FLAGS_CREATE;
     gen_key_args.key_info = 0U;
 #else
@@ -1940,7 +1940,7 @@ int main(int argc, char *argv[])
 
     err = hsm_close_session(sv1_sess);
     printf("err: 0x%x SV hsm_close_session hdl: 0x%x\n", err, sv1_sess);
-#ifndef CONFIG_PLAT_SECO
+#ifdef PSA_COMPLIANT
     if (get_nvmd_status(v2x_nvm_ctx) != NVM_STATUS_STOPPED) {
         pthread_cancel(tid);
     }

@@ -49,7 +49,7 @@ uint32_t parse_cmd_prep_rsp_storage_get_chunk(struct nvm_ctx_st *nvm_ctx_param,
 
 	blob_id = &msg->blob_id;
 
-#ifdef CONFIG_PLAT_SECO
+#ifndef PSA_COMPLIANT
 	if (!blob_id->id && !blob_id->ext) {
 #else
 	if (!blob_id->metadata && !blob_id->id && !blob_id->ext) {

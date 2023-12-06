@@ -18,7 +18,7 @@ static hsm_err_t generate_key(hsm_hdl_t key_mgmt_hdl,
 				hsm_op_key_gen_flags_t flags,
 				uint8_t *out_key,
 				uint16_t out_size,
-#ifdef CONFIG_PLAT_SECO
+#ifndef PSA_COMPLIANT
 				hsm_key_info_t key_info,
 #else
 				hsm_key_lifetime_t key_lifetime,
@@ -37,7 +37,7 @@ static hsm_err_t generate_key(hsm_hdl_t key_mgmt_hdl,
 	key_gen_args.out_size = out_size;
 	key_gen_args.flags = flags;
 	key_gen_args.key_group = key_group;
-#ifdef CONFIG_PLAT_SECO
+#ifndef PSA_COMPLIANT
 	key_gen_args.key_info = key_info;
 #else
 	key_gen_args.key_lifetime = key_lifetime;

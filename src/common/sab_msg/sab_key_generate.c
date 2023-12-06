@@ -34,7 +34,7 @@ uint32_t prepare_msg_generatekey(void *phdl,
 	cmd->key_type = op_args->key_type;
 	cmd->key_group = op_args->key_group;
 	cmd->key_identifier = *(op_args->key_identifier);
-#ifdef CONFIG_PLAT_SECO
+#ifndef PSA_COMPLIANT
 	cmd->key_info = op_args->key_info;
 #else
 	cmd->key_lifetime = op_args->key_lifetime;
@@ -70,7 +70,7 @@ uint32_t proc_msg_rsp_generatekey(void *rsp_buf, void *args)
 		goto exit;
 	}
 
-#ifdef CONFIG_PLAT_SECO
+#ifndef PSA_COMPLIANT
 	if ((op_args->flags & HSM_OP_KEY_GENERATION_FLAGS_CREATE)
 			== HSM_OP_KEY_GENERATION_FLAGS_CREATE)
 #endif

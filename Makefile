@@ -16,13 +16,13 @@ TEST_VECTOR_DEFAULT_DIR ?= /usr/share/se/test_vectors
 PLAT ?= seco
 MAJOR_VER := 1
 DEFINES += -DLIB_MAJOR_VERSION=${MAJOR_VER}
-NVM_DAEMON := nvm_daemon
-NVMD_CONF_FILE := nvmd.conf
-SYSTEMD_NVM_SERVICE := nvm_daemon.service
-NVMD_CONFIG_SCRIPT := nvmd_conf_setup.sh
+INCLUDE_HEADERS_CP =
+NVMD_CONFIG_SCRIPT_CP =
+
+NVMD_CONF_FILE = nvmd.conf
+NVM_DAEMON = nvm_daemon
+
 SE_SCRIPTS_PATH := ./scripts/
-TEST_VECTOR_FNAME ?= test_vectors_*.tv
-TEST_BLOB_FNAME ?= *.blob
 OPENSSL_PATH ?= ../openssl/
 SE_VER_FILE := ./include/hsm/internal/se_version.h
 
@@ -32,7 +32,6 @@ endif
 
 PLAT_PATH := src/plat/$(PLAT)
 PLAT_COMMON_PATH := src/common
-TEST_COMMON_TV_PATH := test/common/test_vectors
 
 INCLUDE_PATHS := -I${PLAT_PATH}/include -I${PLAT_COMMON_PATH}/include -Iinclude -Iinclude/hsm -Iinclude/she -Iinclude/common
 
@@ -46,24 +45,27 @@ OBJECTS	:= $(NVM_OBJECTS)\
 	$(PLAT_COMMON_PATH)/she_lib.o \
 	$(PLAT_COMMON_PATH)/hsm_lib.o
 
+NVM_LIB :=
+NVM_LIB_MAJOR :=
+HSM_LIB :=
+HSM_LIB_MAJOR :=
+SHE_LIB :=
+SHE_LIB_MAJOR :=
+SO_EXT =
+
 include $(PLAT_COMMON_PATH)/sab_msg/sab_msg.mk
 include $(PLAT_COMMON_PATH)/hsm_api/hsm_api.mk
 include $(PLAT_COMMON_PATH)/she_api/she_api.mk
 include $(PLAT_PATH)/$(PLAT).mk
 
+TEST_COMMON_TV_PATH := test/common/test_vectors/$(PSA)
+
 LIB_NAMES := $(HSM_LIB_NAME) $(NVM_LIB_NAME) $(SHE_LIB_NAME)
-
-SO_EXT := so.${MAJOR_VER}.${MINOR_VER}
-
-NVM_LIB := $(NVM_LIB_NAME).$(SO_EXT)
-NVM_LIB_MAJOR := $(NVM_LIB_NAME).so.$(MAJOR_VER)
-HSM_LIB := $(HSM_LIB_NAME).$(SO_EXT)
-HSM_LIB_MAJOR := $(HSM_LIB_NAME).so.$(MAJOR_VER)
-SHE_LIB := $(SHE_LIB_NAME).$(SO_EXT)
-SHE_LIB_MAJOR := $(SHE_LIB_NAME).so.$(MAJOR_VER)
 
 all_tests:= $(SHE_TEST) $(HSM_TEST) $(HSM_PERF_TEST) $(V2X_TEST)
 all_libs:= $(SHE_LIB) $(NVM_LIB) $(HSM_LIB)
+
+SYSTEMD_NVM_SERVICE = $(NVM_DAEMON).service
 
 # Make targets, must need NVM-Daemon to run successfully.
 tests: install_version $(all_tests) $(NVM_DAEMON) clean_ver_hfile
@@ -192,18 +194,17 @@ install: libs
 		cp -av --no-preserve=ownership "$(i).$(SO_EXT)" "$(i).so.$(MAJOR_VER)" "$(i).so" $(DESTDIR)$(LIBDIR);)
 	mkdir -p $(DESTDIR)$(BINDIR)
 	cp $(NVM_DAEMON) $(DESTDIR)$(BINDIR)
-	cp $(SE_SCRIPTS_PATH)/$(NVMD_CONFIG_SCRIPT) $(DESTDIR)$(BINDIR)
 	mkdir -p $(DESTDIR)$(SYSTEMD_DIR)
 	cp $(PLAT_COMMON_PATH)/nvm/$(SYSTEMD_NVM_SERVICE) $(DESTDIR)$(SYSTEMD_DIR)
 	cp $(PLAT_COMMON_PATH)/nvm/$(NVMD_CONF_FILE) $(DESTDIR)$(ETC_DIR)
-	cp -a include/* $(DESTDIR)$(INCLUDEDIR)
+	$(INCLUDE_HEADERS_CP)
+	$(NVMD_CONFIG_SCRIPT_CP)
 
 install_tests: install tests
 	mkdir -p $(DESTDIR)$(BINDIR)
 	cp $(all_tests) $(DESTDIR)$(BINDIR)
 	mkdir -p $(DESTDIR)$(TEST_VECTOR_DEFAULT_DIR)
-	cp $(TEST_COMMON_TV_PATH)/$(TEST_VECTOR_FNAME) $(DESTDIR)$(TEST_VECTOR_DEFAULT_DIR)
-	cp $(TEST_COMMON_TV_PATH)/$(TEST_BLOB_FNAME) $(DESTDIR)$(TEST_VECTOR_DEFAULT_DIR)
+	cp -r $(TEST_COMMON_TV_PATH) $(DESTDIR)$(TEST_VECTOR_DEFAULT_DIR)
 
 install_version: .git
 	echo "#ifndef SE_VERSION_H" > ${SE_VER_FILE}

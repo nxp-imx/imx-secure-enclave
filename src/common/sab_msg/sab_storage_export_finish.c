@@ -114,7 +114,7 @@ uint32_t parse_cmd_prep_rsp_storage_finish_export(struct nvm_ctx_st *nvm_ctx_par
 		}
 	}
 
-#if MT_SAB_STORAGE_KEY_DB_REQ && !defined(CONFIG_PLAT_SECO)
+#if MT_SAB_STORAGE_KEY_DB_REQ
 	/* Update key database if needed */
 	err = storage_key_db_save_persistent(blob_id, nvm_ctx_param);
 	if (err != 0u)

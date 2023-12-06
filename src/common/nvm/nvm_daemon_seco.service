@@ -1,0 +1,15 @@
+
+[Unit]
+Description=SECO Blob Process
+Before=initrd-root-fs.target initrd-fs.target initrd.target
+
+[Service]
+User=root
+EnvironmentFile=/etc/nvmd_seco.conf
+ExecStart=/usr/bin/nvm_daemon_seco \
+	$NVMD_STORAGE_FILENAME \
+	$NVMD_STORAGE_DIRNAME \
+	$NVMD_MU_SESSION_FLAG
+
+[Install]
+WantedBy=basic.target
