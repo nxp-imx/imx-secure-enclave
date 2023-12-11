@@ -68,11 +68,14 @@ she_err_t open_session(open_session_args_t *args,
 			   (uint32_t)sizeof(struct she_session_hdl_s));
 
 	/* Open the SHE session on the MU */
-	thdl->mu_type = mu_type;
-	thdl->phdl = plat_os_abs_open_mu_channel(thdl->mu_type, &mu_params);
+	thdl->phdl = plat_os_abs_open_mu_channel(mu_type, &mu_params);
 	if (!thdl->phdl)
 		return err;
 
+	/* On some platform, SHE can run on Secure-enclave FW,
+	 * rather than V2X FW
+	 */
+	thdl->mu_type = thdl->phdl->type;
 #ifndef PSA_COMPLIANT
 	args->mu_id = mu_params.mu_id;
 	args->tz = mu_params.tz;
@@ -138,15 +141,19 @@ she_err_t she_open_session(open_session_args_t *args, she_hdl_t *session_hdl)
 			err = open_session(args, &hdl, MU_CHANNEL_V2X_SHE);
 			if (err != SHE_NO_ERROR)
 				break;
-
-			she_v2x_mu = 1;
 		}
-		printf("she_v2x_mu 0x%x\n", she_v2x_mu);
 
 		*session_hdl = hdl->session_hdl;
 
-		se_print("open session : 0x%x : 0x%x\n",
-			 hdl->session_hdl, *session_hdl);
+		//populate Global Info structure
+		if (err == SHE_NO_ERROR && !is_global_info_populated())
+			populate_global_info(*session_hdl);
+
+		if ((se_get_soc_id() != SOC_IMX8DXL) ||
+		    (info_args.fips_mode & 0x01))
+			she_v2x_mu = 1;
+
+		printf("she_v2x_mu 0x%x\n", she_v2x_mu);
 
 		if (!she_v2x_mu) {
 			/* Get a SECURE RAM partition to be used as shared buffer */
@@ -200,10 +207,6 @@ she_err_t she_open_session(open_session_args_t *args, she_hdl_t *session_hdl)
 		if (session_hdl)
 			*session_hdl = 0u; /* force an invalid value.*/
 	}
-
-	//populate Global Info structure
-	if (err == SHE_NO_ERROR && !is_global_info_populated())
-		populate_global_info(*session_hdl);
 
 	return err;
 }

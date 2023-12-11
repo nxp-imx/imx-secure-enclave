@@ -176,7 +176,15 @@ static uint32_t nvm_open_session(uint8_t flags, struct nvm_ctx_st *nvm_ctx)
 			break;
 
 		plat_os_abs_memset((uint8_t *)args, 0u, (uint32_t)sizeof(op_storage_open_args_t));
-		args->flags = flags;
+
+		/*
+		 * Flag: 0 -> HSM storage service,
+		 *       1 -> SHE storage service
+		 */
+		if (flags)
+			args->flags = 1;
+		else
+			args->flags = 0;
 
 		err = process_sab_msg(nvm_ctx->phdl,
 					nvm_ctx->mu_type,

@@ -110,6 +110,17 @@ struct plat_os_abs_hdl *plat_os_abs_open_mu_channel(uint32_t type, struct plat_m
 				plat_os_abs_free(phdl);
 				phdl = NULL;
 			}
+		} else if (type == MU_CHANNEL_PLAT_SHE) {
+			/* on boards where SHE is on V2X, open() will fail on non-V2X
+			 * MU Type, so try opening V2X here e.g. i.MX95
+			 */
+			type = MU_CHANNEL_V2X_SHE;
+			device_path = V2X_MU_SHE_PATH;
+			phdl->fd = open(device_path, O_RDWR);
+			if (phdl->fd < 0) {
+				plat_os_abs_free(phdl);
+				phdl = NULL;
+			}
 		} else {
 			plat_os_abs_free(phdl);
 			phdl = NULL;

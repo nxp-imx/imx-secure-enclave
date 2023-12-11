@@ -14,18 +14,18 @@ she_err_t she_create_storage_test(she_hdl_t session_handle, she_hdl_t *key_store
 {
 	open_svc_key_store_args_t key_store_args = {0};
 	she_err_t err = SHE_GENERAL_ERROR;
+	static int id;
 
 	/* Get the access to the SHE keystore */
-	key_store_args.key_store_identifier	= 0x0;
+	key_store_args.key_store_identifier	= 0x0 + id++;
 	key_store_args.authentication_nonce	= 0xbec00001;
 #ifndef PSA_COMPLIANT
 	key_store_args.max_updates_number	= 300;
 #endif
 	key_store_args.flags			= KEY_STORE_OPEN_FLAGS_CREATE |
-						  KEY_STORE_OPEN_FLAGS_SHE |
-						  KEY_STORE_OPEN_FLAGS_SET_MAC_LEN;
+						  KEY_STORE_OPEN_FLAGS_SHE;
 
-	key_store_args.min_mac_length		= 0x22;
+	key_store_args.min_mac_length		= 0x0;
 
 	err = she_open_key_store_service(session_handle,
 					 &key_store_args);
@@ -34,7 +34,7 @@ she_err_t she_create_storage_test(she_hdl_t session_handle, she_hdl_t *key_store
 		return err;
 	}
 
-	se_print("KEY store handle : 0x%x\n", key_store_args.key_store_hdl);
+	se_print("key id : %d\n", key_store_args.key_store_identifier);
 
 	*key_store_hdl = key_store_args.key_store_hdl;
 

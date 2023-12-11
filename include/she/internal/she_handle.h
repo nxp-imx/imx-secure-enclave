@@ -18,14 +18,14 @@
  */
 #define SHE_HANDLE_NONE		(0x0)
 
-/**
- * Maximum sessions supported
- */
 #define SHE_MAX_SESSIONS	(8u)
 //!< Maximum sessions supported.
 
 #define SHE_MAX_SERVICES	(32u)
 //!< Maximum services supported.
+
+#define MAX_KEY_STORE_SESSIONS	(5u)
+//!< Maximum Key store sessions supported.
 
 /**
  * Structure describing the session handle members
