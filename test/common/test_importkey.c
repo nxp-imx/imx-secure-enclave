@@ -569,7 +569,7 @@ uint32_t test_key_import(hsm_hdl_t key_mgmt_hdl, hsm_hdl_t key_store_hdl)
 	uint8_t *import_key_buf;
 	struct import_key_data imkd[] = {
 		{
-			.fname = "/usr/share/se/test_vectors/el2go_aes_test.blob",
+			.fname = "/usr/share/se/test_vectors/psa/el2go_aes_test.blob",
 			.key_id = 0x10000090,
 		},
 	};
