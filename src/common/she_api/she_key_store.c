@@ -105,11 +105,11 @@ she_err_t she_close_key_store_service(she_hdl_t key_store_handle)
 				  &rsp_code);
 
 	serv_ptr->session->last_rating = rsp_code;
-
+#ifdef V2
 	err = lib_err_to_she_err(lib_err);
 	if (err != SHE_NO_ERROR)
 		return err;
-
+#endif
 	err = sab_rating_to_she_err(rsp_code, serv_ptr->session->phdl);
 	if (err != SHE_NO_ERROR) {
 		se_err("SHE RSP Error: SAB_KEY_STORE_CLOSE_REQ [0x%x].\n", err);
