@@ -182,6 +182,9 @@ hsm_err_t do_mac_test(hsm_hdl_t key_store_hdl, hsm_hdl_t key_mgmt_hdl)
 			HSM_OP_MAC_ONE_GO_ALGO_AES_CMAC, 16, 16, 8);
 #endif
 
+	if (se_get_soc_id() == SOC_IMX95)
+		goto out;
+
 #if PLAT_ELE_FEAT_NOT_SUPPORTED
 	printf("HSM_KEY_TYPE_HMAC_224 & HSM_OP_MAC_ONE_GO_ALGO_HMAC_SHA_224:");
 	sym_key_id = 0;
@@ -268,7 +271,7 @@ hsm_err_t do_mac_test(hsm_hdl_t key_store_hdl, hsm_hdl_t key_mgmt_hdl)
 	mac_one_go_test(sym_key_id, sg0_mac_hdl,
 			HSM_OP_MAC_ONE_GO_ALGO_HMAC_SHA_512, 32, 16, 8);
 #endif
-
+out:
 	err = hsm_close_mac_service(sg0_mac_hdl);
 	printf("0x%x hsm_close_mac_service hdl: 0x%x\n", err, sg0_mac_hdl);
 	printf("---------------------------------------------------\n\n");
@@ -372,6 +375,10 @@ hsm_err_t hsm_mac_test(hsm_hdl_t key_store_hdl, hsm_hdl_t key_mgmt_hdl)
 
 	err = hsm_do_mac(key_store_hdl, &mac_one_go);
 	status(&mac_one_go);
+
+	if (se_get_soc_id() == SOC_IMX95)
+		goto out;
+
 #if PLAT_ELE_FEAT_NOT_SUPPORTED
 	printf("HSM_KEY_TYPE_HMAC_224 & HSM_OP_MAC_ONE_GO_ALGO_HMAC_SHA_224:");
 	sym_key_id = 0;
@@ -510,6 +517,7 @@ hsm_err_t hsm_mac_test(hsm_hdl_t key_store_hdl, hsm_hdl_t key_mgmt_hdl)
 	err = hsm_do_mac(key_store_hdl, &mac_one_go);
 	status(&mac_one_go);
 #endif
+out:
 	printf("\n---------------------------------------------------\n");
 	printf("SECONDARY API: DO MAC Test Complete\n");
 	printf("---------------------------------------------------\n\n");

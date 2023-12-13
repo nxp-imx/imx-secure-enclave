@@ -133,7 +133,8 @@ void populate_global_info(uint32_t session_hdl)
 	plat_os_abs_memset((uint8_t *)&global_info, 0, sizeof(global_info));
 	se_get_soc_info(session_hdl, &global_info.soc_id, &global_info.soc_rev);
 #ifdef PSA_COMPLIANT
-	if (global_info.soc_id == SOC_IMX93 && global_info.soc_rev == SOC_REV_A1)
+	if ((global_info.soc_id == SOC_IMX93 && global_info.soc_rev == SOC_REV_A1) ||
+	    global_info.soc_id == SOC_IMX95)
 		global_info.ver = HSM_API_VERSION_2;
 	else
 		global_info.ver = HSM_API_VERSION_1;
