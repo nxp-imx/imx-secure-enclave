@@ -47,7 +47,6 @@ struct she_session_hdl_s *add_she_session(void)
 			break;
 		}
 	}
-	printf("%s %d , 0x%p\n", __func__, i, s_ptr);
 	return s_ptr;
 }
 

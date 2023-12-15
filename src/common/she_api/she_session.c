@@ -133,7 +133,6 @@ she_err_t she_open_session(open_session_args_t *args, she_hdl_t *session_hdl)
 			se_err("SHE Error: Failed to get SHE info 0x%x\n", err);
 			break;
 		}
-		printf("info_args.fips_mode 0x%x\n", info_args.fips_mode);
 
 		if (info_args.fips_mode & 0x01) {
 			she_close_session(hdl->session_hdl);
@@ -153,7 +152,6 @@ she_err_t she_open_session(open_session_args_t *args, she_hdl_t *session_hdl)
 		    (info_args.fips_mode & 0x01))
 			she_v2x_mu = 1;
 
-		printf("she_v2x_mu 0x%x\n", she_v2x_mu);
 
 		if (!she_v2x_mu) {
 			/* Get a SECURE RAM partition to be used as shared buffer */
