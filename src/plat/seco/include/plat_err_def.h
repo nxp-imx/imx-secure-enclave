@@ -282,7 +282,7 @@ uint8_t plat_sab_err_rating_to_she_err_map[SAB_ERR_MAP_SZ] = {
 	SHE_GENERAL_ERROR,		//0x08 [08]
 	SHE_GENERAL_ERROR,		///0x09 [09]
 	SHE_GENERAL_ERROR,		//0x0A [10]
-	SHE_GENERAL_ERROR,		//0x0B [11]
+	SHE_ID_CONFLICT,		//0x0B [11]
 	SHE_GENERAL_ERROR,		//0x0C [12]
 	SHE_GENERAL_ERROR,		//0x0D [13]
 	SHE_KEY_INVALID,		//0x0E [14]

@@ -45,8 +45,8 @@ typedef enum {
 	//!< Internal debugging is not possible.
 	SHE_BUSY                = 0xA,
 	//!< A function of SHE is called while another function is still processing.
-	SHE_MEMORY_FAILURE      = 0xB,
-	//!< Memory error (e.g. flipped bits).
+	SHE_ID_CONFLICT		= 0xB,
+	//!< An element (key storage, key…) with the provided ID already exists
 	SHE_GENERAL_ERROR       = 0xC,
 	//!< Error not covered by other codes occurred.
 	SHE_UNKNOWN_WARNING	= 0x27,
@@ -54,6 +54,8 @@ typedef enum {
 	SHE_FATAL_FAILURE       = 0x29,
 	//!< A fatal failure occurred, SHE goes in unrecoverable
 	//!< error state not replying to further requests
+	SHE_MEMORY_FAILURE      = 0xDB,
+	//!< Memory error (e.g. flipped bits).
 	SHE_LIB_ERROR		= 0xEF,
 	//!< SHE library error
 } she_err_t;
