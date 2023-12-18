@@ -38,7 +38,7 @@ function imx8dxlevk_nvmd_config()
             ;;
 
         3)
-            nvmd_config_setup "/etc/vx2_she/v2x_she_master" "/etc/v2x_she/" "3"
+            nvmd_config_setup "/etc/v2x_she/v2x_she_master" "/etc/v2x_she/" "3"
             ;;
 
         *)
@@ -58,7 +58,7 @@ function imx95evk_nvmd_config()
             ;;
 
         3)
-            nvmd_config_setup "/etc/vx2_she/v2x_she_master" "/etc/v2x_she/" "3"
+            nvmd_config_setup "/etc/v2x_she/v2x_she_master" "/etc/v2x_she/" "3"
             ;;
 
         *)
