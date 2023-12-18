@@ -283,7 +283,7 @@ hsm_err_t do_hash_stream_test(hsm_hdl_t hash_sess)
 	uint8_t hash_temp_input2[75];
 	uint8_t hash_temp_input3[75];
 	uint8_t hash_temp_input4[75];
-	uint8_t ctx_input[256];
+	uint8_t *ctx_input = NULL;
 
 	memset(hash_temp_input1, 0, sizeof(hash_temp_input1));
 	memset(hash_temp_input2, 0, sizeof(hash_temp_input2));
@@ -309,8 +309,14 @@ hsm_err_t do_hash_stream_test(hsm_hdl_t hash_sess)
 		for (i = 0; i < 75; i++)
 			hash_temp_input1[i] = hash_test_message[i];
 
-		memset(ctx_input, 0, sizeof(ctx_input));
 #ifdef PSA_COMPLIANT
+		ctx_input = (uint8_t *)malloc(hash_args.context_size);
+		if (!ctx_input) {
+			printf("\nError: failed to allocate memory for HASH ctx.\n");
+			goto out;
+		}
+
+		memset(ctx_input, 0, hash_args.context_size);
 		hash_args.ctx = ctx_input;
 		hash_args.ctx_size = hash_args.context_size;
 #endif
@@ -349,6 +355,9 @@ hsm_err_t do_hash_stream_test(hsm_hdl_t hash_sess)
 
 		err = hsm_do_hash(hash_sess, &hash_args);
 
+		if (ctx_input)
+			free(ctx_input);
+
 		if (hash_args.algo == HSM_HASH_ALGO_SHA_256)
 			test_status(SHA256_HASH, hash_work_area,
 				    sizeof(SHA256_HASH), "HSM_HASH_ALGO_SHA_256");
@@ -362,7 +371,7 @@ hsm_err_t do_hash_stream_test(hsm_hdl_t hash_sess)
 			test_status(SHA512_HASH, hash_work_area,
 				    sizeof(SHA512_HASH), "HSM_HASH_ALGO_SHA_512");
 	}
-
+out:
 	printf("\n-----------hash stream operation end---------------\n");
 	return err;
 }
