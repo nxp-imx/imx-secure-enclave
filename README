@@ -1,1 +1,464 @@
-Source code for iMX8ULP, iMX93 HSM Userspace Library.
+Overview
+========
+
+Secure Enclave Userspace Library exposes the user application with API(s) for:
+- HSM
+- SHE
+
+These API(s) are consumed and responded by the NXP HW IP(s):
+- Secure Enclave like ELE400, ELE401, etc., for HSM API(s) and
+- V2X for SHE API(s).
+
+Scope of the document:
+	1. Platforms supported by the library
+	2. How to Build
+	3. Installation steps
+	4. Testing Steps
+	5. Documentation
+	6. Licensing
+	7. Change Log
+
+Abbreviations Used
+==================
+
+ELE: EdgeLock Secure Enclave
+----------------------------
+EdgeLock Secure Enclave is a preconfigured, self-managed and autonomous on-die
+security subsystem, to help in implementing robust and secure system. This
+built-in security subsystem provides scalable options to deploy the security
+for thousands of edge applications.
+
+SHE: Secure Hardware Extension
+------------------------------
+SHE is designed by following the SHE functional specification. One typical example
+of SHE use case is to generate and verify secure messages over a car CAN interface.
+
+V2X: Vehicle to Everything
+--------------------------
+V2X is a crypto accelerator providing similar cryptographic capabilities as
+ELE. It is mostly used for message signature generation and verification.
+
+NVM (Non-Volatile Memory) Manager
+---------------------------------
+NVM Manager, is Linux Kernel daemon linked to shared library (libxxx_nvm.so),
+It is a slave to the ELE FW, and manages storage as directed by FW. The storage
+is maintained on the Linux Filesystem, at rest.
+
+
+1. Supported Platforms
+======================
+
+Build Types
+-----------
+Secure Enclave library build types:
+	- ele     (ELE-HSM)
+	- v2x     (V2X-SHE + V2X-HSM)
+
+
+Table 1: Supported Secure Enclave Library Artifacts Type for each platform
+--------------------------------------------------------------------------
+
++---------------+-----------------------------------------------------------+
+|               |               Supported Library Artifacts Type            |
+|               +-----------------------------------------------------------+
+|    Platform   |      ele    |                     v2x                     |
+|               +-------------+----------------------+----------------------+
+|               |   ELE-HSM   |        V2X-SHE       |        V2X-HSM       |
++===============+=============+======================+======================+
+|    i.MX8ULP   |      yes    |    Not Supported     |     Not Supported    |
++---------------+-------------+----------------------+----------------------+
+|    i.MX93     |      yes    |    Not Supported     |     Not Supported    |
++---------------+-------------+----------------------+----------------------+
+|    i.MX95     |      yes    |          yes         |          yes         |
++---------------+-------------+----------------------+----------------------+
+
+
+Table 2: Secure Enclave Storage (NVM) directories
+-------------------------------------------------
+
++--------+----------------------------+-------------------+-----------------+
+| H/W IP |          Platform          |        HSM        |       SHE       |
++========+============================+===================+=================+
+|  ELE   |   i.MX8ULP/i.MX93/i.MX95   |    /etc/ele/      |     N/A         |
+|        |                            |                   |                 |
+|--------+----------------------------+-------------------+-----------------+
+|  V2X   |          i.MX95            |   /etc/v2x_hsm/   |  /etc/v2x_she/  |
++--------+----------------------------+-------------------+-----------------+
+
+
+2. How to Build
+===============
+
+2.1 Environment
+===============
+
+Toolchain
+---------
+
+- Download the required toolchain
+
+	https://developer.arm.com/downloads/-/arm-gnu-toolchain-downloads
+
+	e.g. gcc-arm-11.2-2022.02-x86_64-aarch64-none-linux-gnu
+
+
+Secure Enclave Build Procedure
+------------------------------
+
+-  Fetch the above repository into the local host
+-  Configure the toolchain, and the environment varibles,
+   "CROSS_COMPILE", "CC", "AR", "RANLIB".
+-  Follow the compilation steps, as described below.
+
+
+Secure Enclave library code repo
+--------------------------------
+
+	git clone https://github.com/nxp-imx/imx-secure-enclave.git
+
+	cd imx-secure-enclave/
+
+	git checkout lf-6.6.3_1.0.0
+
+
+Secure Enclave Environment Setup
+---------------------------------
+
+	export CROSS_COMPILE=$TOOLCHAIN_PATH;
+	export CC=${CROSS_COMPILE}gcc;
+	export AR=${CROSS_COMPILE}ar;
+	export RANLIB=${CROSS_COMPILE}ranlib;
+
+	Example:
+	--------
+
+	export CROSS_COMPILE=/opt/gcc-arm-11.2-2022.02-x86_64-aarch64-none-linux-gnu/bin/aarch64-none-linux-gnu-;
+	export CC=${CROSS_COMPILE}gcc;
+	export AR=${CROSS_COMPILE}ar;
+	export RANLIB=${CROSS_COMPILE}ranlib;
+
+
+2.2 Secure Enclave Library build steps
+======================================
+
+Build Types: ele (PLAT=ele) or v2x (No PLAT input)
+
+-To clean
+
+	make PLAT=$PLAT clean;
+
+-To compile libraries
+
+	make PLAT=$PLAT libs;
+
+-To compile libraries and install
+
+	make PLAT=$PLAT libs install;
+
+-To compile libraries and install, with custom installation path
+
+	make PLAT=$PLAT DESTDIR=$DESTDIR_PATH libs install;
+
+Note #1:
+v2x is the default build type/platform, and PLAT input is not required in the
+make commands.
+
+Note #2:
+export is the default destination/installation directory name. It can be changed
+by using DESTDIR variable with Make compilation and installation command.
+
+Installation involves copying of the compiled shared libraries, binaries, tests,
+and other required files to an installation folder. The folder contains the items
+which are needed to be exported/copied on the board.
+
+Examples:
+---------
+
+-To compile libraries only
+
+ele:
+
+	make PLAT=ele clean; make clean;
+	make PLAT=ele libs;
+
+v2x:
+
+	make PLAT=ele clean; make clean;
+	make libs;
+
+-To compile libraries and install
+
+ele:
+
+	make PLAT=ele clean; make clean;
+	make PLAT=ele libs install;
+
+v2x:
+
+	make PLAT=ele clean; make clean;
+	make libs install;
+
+-To get v2x and ele library artifacts in the installation folder (Two-Step process)
+
+v2x + ele:
+
+	rm -rf export;make PLAT=ele clean; make clean;
+	make libs install;tree export;          // Compile and Install V2X artifacts
+	make clean;                             // Clean V2X specific compiled object files and temp data
+	make PLAT=ele libs install;tree export; // Compile and Install ELE artifacts
+
+
+3. Installation Steps
+=====================
+Secure Enclave library Artifacts to be installed on the Board's rootfs as
+follows:
+
+Shared Library versioning
+-------------------------
+1.0 versioning represents that the library is targeted for ELE (ELE-HSM), while
+0.1 represents that library is for V2X (V2X-SHE, V2X-HSM).
+
+
+ELE: ELE-HSM: Library Artifacts
+-------------------------------
+/usr/lib/libele_hsm.so -> libele_hsm.so.1      (ELE-HSM Shared library)
+/usr/lib/libele_hsm.so.1 -> libele_hsm.so.1.0  (ELE-HSM Shared library)
+/usr/lib/libele_hsm.so.1.0                     (ELE-HSM Shared library)
+/usr/lib/libele_nvm.so -> libele_nvm.so.1      (ELE-NVM Shared library)
+/usr/lib/libele_nvm.so.1 -> libele_nvm.so.1.0  (ELE-NVM Shared library)
+/usr/lib/libele_nvm.so.1.0                     (ELE-NVM Shared library)
+/usr/bin/nvm_daemon                            (NVM Daemon ELE)
+/etc/nvmd.conf                                 (NVM-Daemon ELE configuration file)
+/etc/systemd/system/nvm_daemon.service         (NVM-Daemon ELE service file)
+
+V2X: V2X-SHE + V2X-HSM: Library Artifacts
+-----------------------------------------
+/usr/lib/lib_she.so -> lib_she.so.0            (V2X-SHE Shared library)
+/usr/lib/lib_she.so.0 -> lib_she.so.0.1        (V2X-SHE Shared library)
+/usr/lib/lib_she.so.0.1                        (V2X-SHE Shared library)
+/usr/lib/lib_nvm.so -> lib_nvm.so.0            (V2X-NVM Shared library)
+/usr/lib/lib_nvm.so.0 -> lib_nvm.so.0.1        (V2X-NVM Shared library)
+/usr/lib/lib_nvm.so.0.1                        (V2X-NVM Shared library)
+/usr/lib/lib_hsm.so -> lib_hsm.so.0            (V2X-HSM Shared library)
+/usr/lib/lib_hsm.so.0 -> lib_hsm.so.0.1        (V2X-HSM Shared library)
+/usr/lib/lib_hsm.so.0.1                        (V2X-HSM Shared library)
+/usr/bin/nvm_daemon_v2x                        (NVM Daemon V2X)
+/etc/nvmd_v2x.conf                             (NVM-Daemon V2X configuration file)
+/etc/systemd/system/nvm_daemon_v2x.service     (NVM-Daemon V2X service file)
+/usr/bin/nvmd_conf_setup.sh                    (NVM-Daemon configuration helper script)
+
+
+4. Testing Steps: Compilation, Installation & Execution
+=======================================================
+
+Table 3: Secure Enclave Tests with their target Platform/IP
+-----------------------------------------------------------
+
++--------+----------------------------+-------------------+-----------------+
+|   IP   |          Platform          |     HSM Test      |     SHE Test    |
++========+============================+===================+=================+
+|  ELE   |   i.MX8ULP/i.MX93/i.MX95   | ele_hsm_test      |       N/A       |
+|        |                            | ele_hsm_perf_test |                 |
+|--------+----------------------------+-------------------+-----------------+
+|  V2X   |          i.MX95            |   v2x_hsm_test    |   v2x_she_test  |
++--------+----------------------------+-------------------+-----------------+
+
+Note #3:
+- i.MX95 Platform is newly added. The FW and ROM APIs of ELE-HSM/V2X-SHE, are
+  under testing using this library.
+- V2X-HSM support has not been tested yet.
+- i.MX8DXL Platform planned to added soon, the library APIs are under testing
+  for their desired functionality.
+
+
+Pre-requisites for Secure Enclave Tests
+---------------------------------------
+
+For Library compilation only (without tests), there is no dependency on OpenSSL.
+But with Secure Enclave (ele/ELE-HSM) tests compilation, OpenSSL configured and
+compiled setup is required. By Default, the OpenSSL directory is expected at the
+same directory level as of Secure Enclave directory.
+
+- OpenSSL repo
+
+	git clone https://github.com/openssl/openssl.git
+
+	cd openssl/
+
+	git checkout openssl-3.0
+
+- OpenSSL Configure and Build Steps:
+
+	export CROSS_COMPILE=$TOOLCHAIN_PATH;
+	./Configure -I./include linux-aarch64 shared --prefix=/usr/local --openssldir=lib/ssl;
+	make clean; make depend; make -j32;
+
+	Example:
+	--------
+	export CROSS_COMPILE=/opt/gcc-arm-11.2-2022.02-x86_64-aarch64-none-linux-gnu/bin/aarch64-none-linux-gnu-;
+	./Configure -I./include linux-aarch64 shared --prefix=/usr/local --openssldir=lib/ssl;
+	make clean; make depend; make -j32;
+
+
+Secure Enclave Tests Build Steps
+--------------------------------
+
+-To compile libraries, tests and install
+
+	make PLAT=$PLAT install_tests;
+
+-To compile libraries, tests and install, with custom OpenSSL path
+
+	make PLAT=$PLAT OPENSSL_PATH=$OPENSSL_DIR_PATH install_tests;
+
+-To compile libraries, tests and install, with custom installation path
+
+	make PLAT=$PLAT DESTDIR=$DESTDIR_PATH install_tests;
+
+Note #4:
+OPENSSL_PATH variable can be used with Make compilation command to change the
+default OpenSSL path.
+
+
+Examples:
+---------
+
+-To compile libraries, tests and install:
+
+ele:
+
+	rm -rf export;make PLAT=ele clean; make clean;
+	make PLAT=ele install_tests;tree export;
+
+v2x:
+
+	rm -rf export;make PLAT=ele clean; make clean;
+	make install_tests;tree export;
+
+-To get v2x and ele artifacts (including tests) in the installation folder, (Two-step process)
+
+v2x + ele:
+
+	rm -rf export;make PLAT=ele clean; make clean;
+	make install_tests;tree export;          // Compile and Install V2X artifacts
+	make clean;                              // Clean V2X specific compiled object files and temp data
+	make PLAT=ele install_tests;tree export; // Compile and Install ELE artifacts
+
+
+Test Steps on the Boards
+------------------------
+
+ELE-HSM Tests:
+--------------
+
+	service nvm_daemon start;
+	service nvm_daemon status;
+	ele_hsm_test;
+	ele_hsm_perf_test;
+	service nvm_daemon stop;
+
+V2X-SHE Test:
+-------------
+
+	nvmd_conf_setup.sh plat=imx95evk config_id=3;
+	service nvm_daemon_v2x start;
+	service nvm_daemon_v2x status;
+	v2x_she_test $1 $2 $3;
+	service nvm_daemon_v2x stop;
+
+	Example for v2x_she_test args:
+	------------------------------
+	v2x_she_test 0 2 1
+	v2x_she_test 0 4 2
+	v2x_she_test 1 3 2
+	# Refer v2x_she_test usage for more details
+
+
+Note #5:
+Before running the tests for the first time, it is required to perform the cleanup
+of the Storage/NVM directory (before start of the NVM Daemon) for persistent data.
+The NVM directory may contain the persistent data of some test applications,
+other than the secure enclave tests. In case of conflicting NVM data with other
+test applications or previous runs of itself, the secure enclave tests may fail.
+
+Note #6:
+nvmd_conf_setup.sh can help in setting up the configurations for NVM Daemon,
+before starting it. For e.g., config_id 3 represents configuration for V2X-SHE.
+Refer the usage of "nvmd_conf_setup.sh" for more details.
+
+
+Ensure that following Secure Enclave Tests Artifacts are installed on the
+Board's rootfs:
+
+ELE: ELE-HSM: Tests Artifacts
+-----------------------------
+/usr/bin/ele_hsm_test                                               (ELE-HSM test app)
+/usr/bin/ele_hsm_perf_test                                          (ELE-HSM Performance test app)
+/usr/share/se/test_vectors/psa/el2go_aes_test.blob                  (ELE-HSM test blob file)
+/usr/share/se/test_vectors/psa/test_vectors_set0_kgen_n.tv          (ELE-HSM test vector)
+/usr/share/se/test_vectors/psa/test_vectors_set0_kgen_p.tv          (ELE-HSM test vector)
+/usr/share/se/test_vectors/psa/test_vectors_set1_cipher_n.tv        (ELE-HSM test vector)
+/usr/share/se/test_vectors/psa/test_vectors_set1_cipher_p.tv        (ELE-HSM test vector)
+/usr/share/se/test_vectors/psa/test_vectors_set2_mac_n.tv           (ELE-HSM test vector)
+/usr/share/se/test_vectors/psa/test_vectors_set2_mac_p.tv           (ELE-HSM test vector)
+/usr/share/se/test_vectors/psa/test_vectors_set3_sign_verify_n.tv   (ELE-HSM test vector)
+/usr/share/se/test_vectors/psa/test_vectors_set3_sign_verify_p.tv   (ELE-HSM test vector)
+/usr/share/se/test_vectors/psa/test_vectors_set4_hash_n.tv          (ELE-HSM test vector)
+/usr/share/se/test_vectors/psa/test_vectors_set4_hash_p.tv          (ELE-HSM test vector)
+/usr/share/se/test_vectors/psa/test_vectors_set5_data_storage_p.tv  (ELE-HSM test vector)
+
+V2X: V2X-SHE + V2X-HSM: Tests Artifacts
+---------------------------------------
+/usr/bin/v2x_she_test                          (V2X-SHE test app)
+/usr/bin/v2x_hsm_test                          (V2X-HSM test app)
+/usr/share/se/test_vectors/non_psa/readme.tv   (V2X test vectors readme)
+
+
+5. Documentation
+================
+
+Secure Enclave (HSM/SHE) APIs Documents:
+----------------------------------------
+
+	https://github.com/nxp-imx/imx-secure-enclave/tree/lf-6.6.3_1.0.0/doc
+
+
+6. Licenses
+===========
+
+Almost all sources are under the BSD 3-Clause License.
+For more details, please refer SCR file.
+
+
+7. Changelog
+============
+
+Known Limitations
+-----------------
+
+- ELE-HSM
+
+  i.MX95:
+
+  HMAC operations Not Supported
+  Key Exchange API Not Supported
+  Key Import API Not Supported
+
+- V2X-SHE
+
+  The total (shared + non-shared) number of key-store must be <=5.
+  The processes will fail non-deterministically at any point, if number of
+  key-store is greater than 5.
+
+  If such a case arises, it is required to ensure NVM clean-up, followed by
+  board restart.
+
+New Features
+------------
+
+- ELE-HSM
+ Added Public Key Attestion API support and Test
+
+- V2X-SHE
+ All SHE API(s) are supported on i.MX95.
+ Refer to the SHE API document through Documentation section.
