@@ -12,7 +12,9 @@ LIBDIR = $(libdir)
 INCLUDEDIR ?= /usr/include
 SYSTEMD_DIR ?= /etc/systemd/system
 ETC_DIR ?= /etc
-TEST_VECTOR_DEFAULT_DIR ?= /usr/share/se/test_vectors
+DATA_DIR ?= /usr/share
+TEST_VECTOR_DEFAULT_DIR ?= $(DATA_DIR)/se/test_vectors
+TARGET_README_DIR ?= $(DATA_DIR)/se
 PLAT ?= seco
 MAJOR_VER := 1
 DEFINES += -DLIB_MAJOR_VERSION=${MAJOR_VER}
@@ -197,6 +199,8 @@ install: libs
 	mkdir -p $(DESTDIR)$(SYSTEMD_DIR)
 	cp $(PLAT_COMMON_PATH)/nvm/$(SYSTEMD_NVM_SERVICE) $(DESTDIR)$(SYSTEMD_DIR)
 	cp $(PLAT_COMMON_PATH)/nvm/$(NVMD_CONF_FILE) $(DESTDIR)$(ETC_DIR)
+	mkdir -p $(DESTDIR)$(TARGET_README_DIR)
+	cp README $(DESTDIR)$(TARGET_README_DIR)
 	$(INCLUDE_HEADERS_CP)
 	$(NVMD_CONFIG_SCRIPT_CP)
 
