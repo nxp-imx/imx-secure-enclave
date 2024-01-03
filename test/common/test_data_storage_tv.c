@@ -1,6 +1,6 @@
 // SPDX-License-Identifier: BSD-3-Clause
 /*
- * Copyright 2023 NXP
+ * Copyright 2023-2024 NXP
  */
 
 #include <stdio.h>
@@ -176,6 +176,11 @@ static int8_t prepare_and_run_data_storage_test(hsm_hdl_t key_store_hdl, FILE *f
 
 	if (call_data_storage_test == 1) {
 
+		if (data_size > 2048) {
+			test_status = 2;
+			goto out;
+		}
+
 		se_info("Data ID            : 0x%x\n", data_id);
 		se_info("Data Size          : %u\n", data_size);
 		se_info("\nData               :\n");
@@ -198,6 +203,7 @@ static int8_t prepare_and_run_data_storage_test(hsm_hdl_t key_store_hdl, FILE *f
 		se_info("\nSkipping this Test Case\n");
 	}
 
+out:
 	if (data)
 		free(data);
 
@@ -257,6 +263,10 @@ void data_storage_test_tv(hsm_hdl_t key_store_hdl, FILE *fp, char *line,
 		printf("%s: INVALID\n", test_id);
 		++tdata_storage_invalids;
 		++(*tests_invalid);
+	} else if (test_status == 2) {
+		printf("%s: SKIPPED\n", test_id);
+		--tdata_storage_total;
+		--(*tests_total);
 	}
 
 	if (test_id)
