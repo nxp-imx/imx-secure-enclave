@@ -1,6 +1,6 @@
 // SPDX-License-Identifier: BSD-3-Clause
 /*
- * Copyright 2023 NXP
+ * Copyright 2023-2024 NXP
  */
 
 #ifndef SHE_KEY_STORE_H
@@ -42,6 +42,10 @@
  * Check min mac length
  */
 #define KEY_STORE_OPEN_FLAGS_SET_MAC_LEN            0x8u
+/**
+ * Target key store is a shared key store
+ */
+#define KEY_STORE_OPEN_FLAGS_SHARED		    0x20u
 /**
  * The request is completed only when the key store has been written
  * in the NVM and the monotonic counter has been updated. This flag is

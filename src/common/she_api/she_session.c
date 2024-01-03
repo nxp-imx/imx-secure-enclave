@@ -1,6 +1,6 @@
 // SPDX-License-Identifier: BSD-3-Clause
 /*
- * Copyright 2023 NXP
+ * Copyright 2023-2024 NXP
  */
 
 #include <stdbool.h>
@@ -124,7 +124,7 @@ she_err_t she_open_session(open_session_args_t *args, she_hdl_t *session_hdl)
 		if (!args || !session_hdl)
 			break;
 
-		err = open_session(args, &hdl, MU_CHANNEL_PLAT_SHE);
+		err = open_session(args, &hdl, args->mu_type);
 		if (err != SHE_NO_ERROR)
 			break;
 
@@ -142,11 +142,12 @@ she_err_t she_open_session(open_session_args_t *args, she_hdl_t *session_hdl)
 				break;
 		}
 
+		args->session_hdl = hdl->session_hdl;
 		*session_hdl = hdl->session_hdl;
 
 		//populate Global Info structure
 		if (err == SHE_NO_ERROR && !is_global_info_populated())
-			populate_global_info(*session_hdl);
+			populate_global_info(args->session_hdl);
 
 		if ((se_get_soc_id() != SOC_IMX8DXL) ||
 		    (info_args.fips_mode & 0x01))
@@ -202,8 +203,8 @@ she_err_t she_open_session(open_session_args_t *args, she_hdl_t *session_hdl)
 				delete_she_session(hdl);
 			}
 		}
-		if (session_hdl)
-			*session_hdl = 0u; /* force an invalid value.*/
+		args->session_hdl = 0u; /* force an invalid value.*/
+		*session_hdl = 0u; /* force an invalid value.*/
 	}
 
 	return err;

@@ -1,6 +1,6 @@
 // SPDX-License-Identifier: BSD-3-Clause
 /*
- * Copyright 2023 NXP
+ * Copyright 2023-2024 NXP
  */
 
 #ifndef SHE_UTILS_H
@@ -49,6 +49,8 @@ typedef enum {
 	//!< An element (key storage, key…) with the provided ID already exists
 	SHE_GENERAL_ERROR       = 0xC,
 	//!< Error not covered by other codes occurred.
+	SHE_KEY_STORE_CONFLICT  = 0x0F,
+	//!< The key store already exists (load operation).
 	SHE_UNKNOWN_WARNING	= 0x27,
 	//!< SHE Unknown Warning
 	SHE_FATAL_FAILURE       = 0x29,

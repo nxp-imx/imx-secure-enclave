@@ -1,6 +1,6 @@
 // SPDX-License-Identifier: BSD-3-Clause
 /*
- * Copyright 2022-2023 NXP
+ * Copyright 2022-2024 NXP
  */
 
 #ifndef COMMON_H
@@ -87,7 +87,8 @@ she_err_t do_she_plain_key_test(she_hdl_t utils_handle);
 she_err_t do_she_cipher_test(she_hdl_t cipher_handle);
 she_err_t do_she_fast_mac_test(she_hdl_t utils_handle);
 she_err_t do_she_ext_fast_mac_test(she_hdl_t utils_handle);
-she_err_t do_she_create_storage_test(she_hdl_t session_handle, she_hdl_t *key_store_hdl);
+she_err_t do_she_create_storage_test(she_hdl_t session_handle,
+				     open_svc_key_store_args_t *args);
 she_err_t do_she_get_id_test(she_hdl_t utils_handle);
 
 #endif

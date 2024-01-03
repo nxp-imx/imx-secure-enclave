@@ -1,6 +1,6 @@
 // SPDX-License-Identifier: BSD-3-Clause
 /*
- * Copyright 2023 NXP
+ * Copyright 2023-2024 NXP
  */
 
 #ifndef SHE_API_H
@@ -70,7 +70,6 @@ extern uint8_t she_v2x_mu;
 /**
  *
  * \param args pointer to the structure containing the function arguments.
-
  * \param session_hdl pointer to where the session handle must be written.
  *
  * \return error code.

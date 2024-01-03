@@ -1,6 +1,6 @@
 // SPDX-License-Identifier: BSD-3-Clause
 /*
- * Copyright 2023 NXP
+ * Copyright 2023-2024 NXP
  */
 
 #ifndef PLAT_ERR_DEF_H
@@ -286,7 +286,7 @@ uint8_t plat_sab_err_rating_to_she_err_map[SAB_ERR_MAP_SZ] = {
 	SHE_GENERAL_ERROR,		//0x0C [12]
 	SHE_GENERAL_ERROR,		//0x0D [13]
 	SHE_KEY_INVALID,		//0x0E [14]
-	SHE_GENERAL_ERROR,		//0x0F [15]
+	SHE_KEY_STORE_CONFLICT,		//0x0F [15]
 	SHE_GENERAL_ERROR,		//0x10 [16]
 	SHE_GENERAL_ERROR,		//0x11 [17]
 	SHE_GENERAL_ERROR,		//0x12 [18]

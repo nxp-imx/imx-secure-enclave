@@ -1,6 +1,6 @@
 // SPDX-License-Identifier: BSD-3-Clause
 /*
- * Copyright 2023 NXP
+ * Copyright 2023-2024 NXP
  */
 
 #include <stdbool.h>
@@ -10,37 +10,27 @@
 #include "sab_process_msg.h"
 #include "sab_common_err.h"
 
-she_err_t she_create_storage_test(she_hdl_t session_handle, she_hdl_t *key_store_hdl)
+she_err_t she_create_storage_test(she_hdl_t session_handle,
+				  open_svc_key_store_args_t *args)
 {
-	open_svc_key_store_args_t key_store_args = {0};
 	she_err_t err = SHE_GENERAL_ERROR;
-	static int id;
-
-	/* Get the access to the SHE keystore */
-	key_store_args.key_store_identifier	= 0x0 + id++;
-	key_store_args.authentication_nonce	= 0xbec00001;
-#ifndef PSA_COMPLIANT
-	key_store_args.max_updates_number	= 300;
-#endif
-	key_store_args.flags			= KEY_STORE_OPEN_FLAGS_CREATE |
-						  KEY_STORE_OPEN_FLAGS_SHE;
-
-	key_store_args.min_mac_length		= 0x0;
 
 	err = she_open_key_store_service(session_handle,
-					 &key_store_args);
+					 args);
 	if (err) {
 		se_print("Key Store Open (CREATE) ret 0x%x.\n", err);
 
-		if (err != SHE_ID_CONFLICT) {
+		if (err != SHE_KEY_STORE_CONFLICT && err != SHE_ID_CONFLICT) {
 			se_print("Key Store Open (CREATE) ret 0x%x ---> TEST FAILED\n",
 				 err);
 			return err;
 		}
 
-		key_store_args.flags = KEY_STORE_OPEN_FLAGS_SHE;
+		args->flags &= ~(KEY_STORE_OPEN_FLAGS_CREATE |
+				KEY_STORE_OPEN_FLAGS_STRICT_OPERATION);
+
 		err = she_open_key_store_service(session_handle,
-						 &key_store_args);
+						 args);
 		if (err != SHE_NO_ERROR) {
 			se_print("Key Store Open (LOAD) ret 0x%x ---> TEST FAILED\n",
 				 err);
@@ -48,19 +38,15 @@ she_err_t she_create_storage_test(she_hdl_t session_handle, she_hdl_t *key_store
 		}
 	}
 
-	se_print("key id : %d\n", key_store_args.key_store_identifier);
-
-	*key_store_hdl = key_store_args.key_store_hdl;
-
 	return err;
 }
 
 she_err_t do_she_create_storage_test(she_hdl_t session_handle,
-				     she_hdl_t *key_store_hdl)
+				     open_svc_key_store_args_t *args)
 {
 	she_err_t err;
 
-	err = she_create_storage_test(session_handle, key_store_hdl);
+	err = she_create_storage_test(session_handle, args);
 	if (err)
 		se_print("STORAGE CREATION TEST ---> FAILED\n");
 	else
