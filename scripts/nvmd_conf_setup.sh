@@ -2,22 +2,28 @@
 
 # SPDX-License-Identifier: BSD-3-Clause
 #
-# Copyright 2023 NXP
+# Copyright 2023-2024 NXP
 
 set -eu
 
-nvm_conf_fpath="/etc/nvmd_seco.conf"
+nvmd_conf_fpath="/etc/nvmd.conf"
+nvmd_v2x_conf_fpath="/etc/nvmd_v2x.conf"
 
 function nvmd_config_setup()
 {
+  local nvmd_conf_target=${nvmd_conf_fpath}
   local nvmd_config_storage_filename="/^NVMD_STORAGE_FILENAME=/c\NVMD_STORAGE_FILENAME=$1"
   local nvmd_config_storage_dirname="/^NVMD_STORAGE_DIRNAME=/c\NVMD_STORAGE_DIRNAME=${2}"
   local nvmd_config_mu_session_flag="/^NVMD_MU_SESSION_FLAG=/c\NVMD_MU_SESSION_FLAG=$3"
 
+  if [[ $4 == V2X ]]; then
+	nvmd_conf_target=${nvmd_v2x_conf_fpath}
+  fi
+
   #Change/Replace the line beginning with given string, with the intended one
-  sed -i ${nvmd_config_storage_dirname} ${nvm_conf_fpath}
-  sed -i ${nvmd_config_storage_filename} ${nvm_conf_fpath}
-  sed -i ${nvmd_config_mu_session_flag} ${nvm_conf_fpath}
+  sed -i ${nvmd_config_storage_dirname} ${nvmd_conf_target}
+  sed -i ${nvmd_config_storage_filename} ${nvmd_conf_target}
+  sed -i ${nvmd_config_mu_session_flag} ${nvmd_conf_target}
 }
 
 function imx8dxlevk_nvmd_config()
@@ -26,19 +32,19 @@ function imx8dxlevk_nvmd_config()
 
     case ${loc_config_id} in
         0)
-            nvmd_config_setup "/etc/hsm/seco_hsm_master" "/etc/hsm/" "0"
+            nvmd_config_setup "/etc/hsm/seco_hsm_master" "/etc/hsm/" "0" "SECO"
             ;;
 
         1)
-            nvmd_config_setup "/etc/she/seco_she_master" "/etc/she/" "1"
+            nvmd_config_setup "/etc/she/seco_she_master" "/etc/she/" "1" "SECO"
             ;;
 
         2)
-            nvmd_config_setup "/etc/v2x_hsm/v2x_hsm_master" "/etc/v2x_hsm/" "2"
+            nvmd_config_setup "/etc/v2x_hsm/v2x_hsm_master" "/etc/v2x_hsm/" "2" "V2X"
             ;;
 
         3)
-            nvmd_config_setup "/etc/v2x_she/v2x_she_master" "/etc/v2x_she/" "3"
+            nvmd_config_setup "/etc/v2x_she/v2x_she_master" "/etc/v2x_she/" "3" "V2X"
             ;;
 
         *)
@@ -54,11 +60,11 @@ function imx95evk_nvmd_config()
     case ${loc_config_id} in
 
         2)
-            nvmd_config_setup "/etc/v2x_hsm/v2x_hsm_master" "/etc/v2x_hsm/" "2"
+            nvmd_config_setup "/etc/v2x_hsm/v2x_hsm_master" "/etc/v2x_hsm/" "2" "V2X"
             ;;
 
         3)
-            nvmd_config_setup "/etc/v2x_she/v2x_she_master" "/etc/v2x_she/" "3"
+            nvmd_config_setup "/etc/v2x_she/v2x_she_master" "/etc/v2x_she/" "3" "V2X"
             ;;
 
         *)

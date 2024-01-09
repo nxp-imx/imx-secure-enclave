@@ -31,15 +31,6 @@ void she_test_sig_handler(int ht_signo, siginfo_t *ht_siginfo, void *ht_sigctx)
 	exit(EXIT_SUCCESS);
 }
 
-void plat_she_test_usage(void)
-{
-	printf("she_test usage: seco_she_test [options]\n");
-	printf("Options:\n");
-	printf("1: <SHE session (0,1)>\n");
-	printf("2: <no. of keystores (<=5)>\n");
-	printf("3: <shared key store (<= no. of keystores)>\n");
-}
-
 void print_global_info(void)
 {
 	printf("-----------------------------------------------------------\n");
@@ -192,41 +183,25 @@ void close_services(int key_session_id)
 }
 
 /* Test entry function. */
-int main(int argc, char *argv[])
+void she_tests(uint8_t session_id,
+	       uint8_t num_of_keystores,
+	       uint8_t shared_keystore)
 {
-	uint8_t session_id;
-	uint8_t num_of_keystores;
-	uint8_t shared_keystore;
 	open_session_args_t open_session_args;
-
-	if (argc == 2 &&
-			(strcmp("--help", argv[1]) == 0 || strcmp("-h", argv[1]) == 0)) {
-		plat_she_test_usage();
-		return 0;
-	}
-
-	if (argc < 4) {
-		plat_she_test_usage();
-		return 0;
-	}
-
-	session_id = atoi(argv[1]);
-	num_of_keystores = atoi(argv[2]);
-	shared_keystore = atoi(argv[3]);
 
 	if (session_id > 1) {
 		printf("supported SHE session id : 0, 1\n");
-		return 0;
+		return;
 	}
 
 	if (num_of_keystores > MAX_KEY_STORE_SESSIONS) {
 		printf("supported num of keystores <= %d\n", MAX_KEY_STORE_SESSIONS);
-		return 0;
+		return;
 	}
 
 	if (shared_keystore > num_of_keystores) {
 		printf("shared keystores must be <= num_of_keystores\n");
-		return 0;
+		return;
 	}
 
 	struct sigaction she_test_sigact = {0};
@@ -240,7 +215,7 @@ int main(int argc, char *argv[])
 	/* Register she test signal handler for SIGINT (CTRL+C) signal. */
 	if (sigaction(SIGINT, &she_test_sigact, NULL)) {
 		perror("failed to register she_test_sig_handler\n");
-		return 0;
+		return;
 	}
 
 	if (session_id)
@@ -252,7 +227,7 @@ int main(int argc, char *argv[])
 	err = she_open_session(&open_session_args, &session_hdl);
 	if (err != SHE_NO_ERROR) {
 		se_print("SHE%d open session failed err:0x%x\n", session_id, err);
-		return 0;
+		return;
 	}
 	se_print("SHE%d open session [0x%x] PASS\n",
 		 session_id, session_hdl);
@@ -261,7 +236,7 @@ int main(int argc, char *argv[])
 
 	if (se_get_soc_id() == SOC_IMX8DXL && shared_keystore) {
 		se_print("Shared key store is not supported on this platform\n");
-		return 0;
+		return;
 	}
 
 	for (i = 0; i < (num_of_keystores - shared_keystore); i++)
@@ -280,6 +255,4 @@ int main(int argc, char *argv[])
 	/* close SHE session*/
 	err = she_close_session(session_hdl);
 	se_print("she_close_session ret:0x%x\n", err);
-
-	return 0;
 }

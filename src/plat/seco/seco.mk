@@ -1,19 +1,20 @@
 # SPDX-License-Identifier: BSD-3-Clause
 #
-# Copyright 2021-2023 NXP
+# Copyright 2021-2024 NXP
 #
 
-MINOR_VER := 0
+MAJOR_VER := 0
+MINOR_VER := 1
+COMPATIBLE_MACHINE ?= mx95-nxp-bsp
 
-HSM_TEST := $(PLAT)_hsm_test
-SHE_TEST := $(PLAT)_she_test
-V2X_TEST := $(PLAT)_v2x_test
-SHE_LIB_NAME := lib$(PLAT)_she
-HSM_LIB_NAME := lib$(PLAT)_hsm
-NVM_LIB_NAME := lib$(PLAT)_nvm
-NVMD_CONF_FILE = nvmd_$(PLAT).conf
-NVM_DAEMON = nvm_daemon_$(PLAT)
-NVMD_CONFIG_SCRIPT = nvmd_$(PLAT)_conf_setup.sh
+HSM_TEST := hsm_test
+SHE_TEST := she_test
+V2X_HSM_TEST := v2x_hsm_test
+V2X_SHE_TEST := v2x_she_test
+SHE_LIB_NAME := lib_she
+HSM_LIB_NAME := lib_hsm
+NVM_LIB_NAME := lib_nvm
+NVMD_CONFIG_SCRIPT = nvmd_conf_setup.sh
 
 SO_EXT := so.${MAJOR_VER}.${MINOR_VER}
 NVM_LIB := $(NVM_LIB_NAME).$(SO_EXT)
@@ -26,6 +27,50 @@ SHE_LIB_MAJOR := $(SHE_LIB_NAME).so.$(MAJOR_VER)
 NVMD_CONFIG_SCRIPT_CP := cp $(SE_SCRIPTS_PATH)/$(NVMD_CONFIG_SCRIPT) $(DESTDIR)$(BINDIR)
 INCLUDE_HEADERS_CP = cp -a include/* $(DESTDIR)$(INCLUDEDIR)
 PSA := non_psa
+
+ifeq ($(COMPATIBLE_MACHINE), mx8dxl-nxp-bsp)
+EXPORT_NVM_DAEMON := cp $(NVM_DAEMON) $(DESTDIR)$(BINDIR)
+EXPORT_NVMD_CONF_FILE := cp $(STAGE_DIR)/$(NVMD_CONF_FILE) $(DESTDIR)$(ETC_DIR)
+EXPORT_SYSTEMD_NVM_SERVICE := cp $(STAGE_DIR)/$(SYSTEMD_NVM_SERVICE) $(DESTDIR)$(SYSTEMD_DIR)
+
+#function to prepare the temporary/staging artifacts for SECO
+define prepare_seco_stage_files
+	mkdir -p $(STAGE_DIR)
+	cp $(PLAT_COMMON_PATH)/nvm/$(NVMD_CONF_FILE) $(STAGE_DIR)
+	cp $(PLAT_COMMON_PATH)/nvm/$(SYSTEMD_NVM_SERVICE) $(STAGE_DIR)
+	sed -i "/^NVMD_STORAGE_FILENAME=/c\NVMD_STORAGE_FILENAME=/etc/hsm/seco_hsm_master" \
+		$(STAGE_DIR)/$(NVMD_CONF_FILE)
+	sed -i "/^NVMD_STORAGE_DIRNAME=/c\NVMD_STORAGE_DIRNAME=/etc/hsm/" \
+		$(STAGE_DIR)/$(NVMD_CONF_FILE)
+	sed -i "s/ELE/SECO/g" $(STAGE_DIR)/$(SYSTEMD_NVM_SERVICE)
+endef
+endif
+
+# V2X specific target artifacts names
+TARGET_V2X_NVM_DAEMON := nvm_daemon_v2x
+TARGET_V2X_NVMD_CONF_FILE := nvmd_v2x.conf
+TARGET_V2X_SYSTEMD_NVM_SERVICE := nvm_daemon_v2x.service
+EXPORT_V2X_NVM_DAEMON := cp $(NVM_DAEMON) $(DESTDIR)$(BINDIR)/$(TARGET_V2X_NVM_DAEMON)
+EXPORT_V2X_NVMD_CONF_FILE := cp $(STAGE_DIR)/$(TARGET_V2X_NVMD_CONF_FILE) $(DESTDIR)$(ETC_DIR)
+EXPORT_V2X_SYSTEMD_NVM_SERVICE := cp $(STAGE_DIR)/$(TARGET_V2X_SYSTEMD_NVM_SERVICE) $(DESTDIR)$(SYSTEMD_DIR)
+
+#function to prepare the temporary/staging artifacts for V2X
+define prepare_v2x_stage_files
+	mkdir -p $(STAGE_DIR)
+	cp $(PLAT_COMMON_PATH)/nvm/$(NVMD_CONF_FILE) $(STAGE_DIR)/$(TARGET_V2X_NVMD_CONF_FILE)
+	cp $(PLAT_COMMON_PATH)/nvm/$(SYSTEMD_NVM_SERVICE) $(STAGE_DIR)/$(TARGET_V2X_SYSTEMD_NVM_SERVICE)
+	sed -i "/^NVMD_STORAGE_FILENAME=/c\NVMD_STORAGE_FILENAME=/etc/v2x_she/v2x_she_master" \
+		$(STAGE_DIR)/$(TARGET_V2X_NVMD_CONF_FILE)
+	sed -i "/^NVMD_STORAGE_DIRNAME=/c\NVMD_STORAGE_DIRNAME=/etc/v2x_she/" \
+		$(STAGE_DIR)/$(TARGET_V2X_NVMD_CONF_FILE)
+	sed -i "/^NVMD_MU_SESSION_FLAG=/c\NVMD_MU_SESSION_FLAG=3" \
+		$(STAGE_DIR)/$(TARGET_V2X_NVMD_CONF_FILE)
+	sed -i "s/ELE/V2X/g" $(STAGE_DIR)/$(TARGET_V2X_SYSTEMD_NVM_SERVICE)
+	sed -i "s/$(NVMD_CONF_FILE)/$(TARGET_V2X_NVMD_CONF_FILE)/g" \
+		$(STAGE_DIR)/$(TARGET_V2X_SYSTEMD_NVM_SERVICE)
+	sed -i "s/$(NVM_DAEMON)/$(TARGET_V2X_NVM_DAEMON)/g" \
+		$(STAGE_DIR)/$(TARGET_V2X_SYSTEMD_NVM_SERVICE)
+endef
 
 DEFINES		+=	-DLIB_MINOR_VERSION=${MINOR_VER}\
 			-DCONFIG_COMPRESSED_ECC_POINT

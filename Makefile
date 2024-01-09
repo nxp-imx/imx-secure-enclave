@@ -1,6 +1,6 @@
 # SPDX-License-Identifier: BSD-3-Clause
 #
-# Copyright 2021, 2022, 2023 NXP
+# Copyright 2021-2024 NXP
 #
 
 CFLAGS := -O1 -Werror -Wformat -fPIC
@@ -20,9 +20,18 @@ MAJOR_VER := 1
 DEFINES += -DLIB_MAJOR_VERSION=${MAJOR_VER}
 INCLUDE_HEADERS_CP =
 NVMD_CONFIG_SCRIPT_CP =
+STAGE_DIR := stage_dir
 
 NVMD_CONF_FILE = nvmd.conf
 NVM_DAEMON = nvm_daemon
+SYSTEMD_NVM_SERVICE = $(NVM_DAEMON).service
+
+EXPORT_NVM_DAEMON =
+EXPORT_NVMD_CONF_FILE =
+EXPORT_SYSTEMD_NVM_SERVICE =
+EXPORT_V2X_NVM_DAEMON =
+EXPORT_V2X_NVMD_CONF_FILE =
+EXPORT_V2X_SYSTEMD_NVM_SERVICE =
 
 SE_SCRIPTS_PATH := ./scripts/
 OPENSSL_PATH ?= ../openssl/
@@ -64,10 +73,9 @@ TEST_COMMON_TV_PATH := test/common/test_vectors/$(PSA)
 
 LIB_NAMES := $(HSM_LIB_NAME) $(NVM_LIB_NAME) $(SHE_LIB_NAME)
 
-all_tests:= $(SHE_TEST) $(HSM_TEST) $(HSM_PERF_TEST) $(V2X_TEST)
+all_tests:= $(SHE_TEST) $(HSM_TEST) $(HSM_PERF_TEST) $(V2X_HSM_TEST) $(V2X_SHE_TEST)
 all_libs:= $(SHE_LIB) $(NVM_LIB) $(HSM_LIB)
 
-SYSTEMD_NVM_SERVICE = $(NVM_DAEMON).service
 
 # Make targets, must need NVM-Daemon to run successfully.
 tests: install_version $(all_tests) $(NVM_DAEMON) clean_ver_hfile
@@ -147,13 +155,18 @@ $(HSM_PERF_TEST): $(HSM_PERF_TEST_OBJ) $(HSM_LIB)
 	$(CC) $^  -o $@ ${TEST_INCLUDE_PATHS} ${COMMON_TEST_INC} $(TEST_CFLAGS) $(TEST_PERF_CFLAGS) $(TEST_LDFLAGS) $(GCOV_FLAGS)
 
 SHE_COMMON_TEST_OBJ=$(wildcard test/she/*.c)
-SHE_TEST_OBJ= test/she/she_test.c $(SHE_COMMON_TEST_OBJ)
+SHE_TEST_OBJ= test/she/seco/she_test.c $(SHE_COMMON_TEST_OBJ)
 #SHE test app
 $(SHE_TEST): $(SHE_TEST_OBJ) $(SHE_LIB)
 	$(CC) $^  -o $@ ${TEST_INCLUDE_PATHS} ${COMMON_TEST_INC} $(TEST_CFLAGS) $(GCOV_FLAGS)
 
-V2X_TEST_OBJ=$(wildcard test/v2x/*.c)
-$(V2X_TEST): $(V2X_TEST_OBJ) $(HSM_LIB)
+V2X_SHE_TEST_OBJ= test/she/v2x/v2x_she_test.c $(SHE_COMMON_TEST_OBJ)
+#V2X-SHE test app
+$(V2X_SHE_TEST): $(V2X_SHE_TEST_OBJ) $(SHE_LIB)
+	$(CC) $^  -o $@ ${TEST_INCLUDE_PATHS} ${COMMON_TEST_INC} $(TEST_CFLAGS) $(GCOV_FLAGS)
+
+V2X_HSM_TEST_OBJ=$(wildcard test/v2x/*.c)
+$(V2X_HSM_TEST): $(V2X_HSM_TEST_OBJ) $(HSM_LIB)
 	$(CC) $^  -o $@ ${INCLUDE_PATHS} $(CFLAGS) $(LDFLAGS) -lpthread $(GCOV_FLAGS)
 
 # NVM Daemon
@@ -162,7 +175,7 @@ $(NVM_DAEMON): $(NVM_D_OBJ) $(NVM_LIB)
 	$(CC) $^  -o $@ ${INCLUDE_PATHS} $(CFLAGS) $(LDFLAGS) -lpthread $(GCOV_FLAGS)
 
 clean:
-	rm -rf $(OBJECTS) *.gcno *.a *_test $(TEST_OBJ) $(all_libs) *.so* $(all_tests) $(NVM_DAEMON) ${SE_VER_FILE}
+	rm -rf $(OBJECTS) *.gcno *.a *_test $(TEST_OBJ) $(all_libs) *.so* $(all_tests) $(NVM_DAEMON) ${SE_VER_FILE} $(STAGE_DIR)
 
 she_doc: include/she/she_api.h
 	rm -rf doc/latex/
@@ -195,14 +208,19 @@ install: libs
 		ln -s -f $(i).so.$(MAJOR_VER) $(i).so; \
 		cp -av --no-preserve=ownership "$(i).$(SO_EXT)" "$(i).so.$(MAJOR_VER)" "$(i).so" $(DESTDIR)$(LIBDIR);)
 	mkdir -p $(DESTDIR)$(BINDIR)
-	cp $(NVM_DAEMON) $(DESTDIR)$(BINDIR)
+	$(prepare_seco_stage_files)
+	$(EXPORT_NVM_DAEMON)
 	mkdir -p $(DESTDIR)$(SYSTEMD_DIR)
-	cp $(PLAT_COMMON_PATH)/nvm/$(SYSTEMD_NVM_SERVICE) $(DESTDIR)$(SYSTEMD_DIR)
-	cp $(PLAT_COMMON_PATH)/nvm/$(NVMD_CONF_FILE) $(DESTDIR)$(ETC_DIR)
+	$(EXPORT_SYSTEMD_NVM_SERVICE)
+	$(EXPORT_NVMD_CONF_FILE)
 	mkdir -p $(DESTDIR)$(TARGET_README_DIR)
 	cp README $(DESTDIR)$(TARGET_README_DIR)
 	$(INCLUDE_HEADERS_CP)
 	$(NVMD_CONFIG_SCRIPT_CP)
+	$(prepare_v2x_stage_files)
+	$(EXPORT_V2X_NVM_DAEMON)
+	$(EXPORT_V2X_SYSTEMD_NVM_SERVICE)
+	$(EXPORT_V2X_NVMD_CONF_FILE)
 
 install_tests: install tests
 	mkdir -p $(DESTDIR)$(BINDIR)

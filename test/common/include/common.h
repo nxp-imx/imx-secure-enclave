@@ -90,5 +90,8 @@ she_err_t do_she_ext_fast_mac_test(she_hdl_t utils_handle);
 she_err_t do_she_create_storage_test(she_hdl_t session_handle,
 				     open_svc_key_store_args_t *args);
 she_err_t do_she_get_id_test(she_hdl_t utils_handle);
+void she_tests(uint8_t session_id,
+	       uint8_t num_of_keystores,
+	       uint8_t shared_keystore);
 
 #endif
