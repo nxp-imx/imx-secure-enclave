@@ -1,6 +1,6 @@
 // SPDX-License-Identifier: BSD-3-Clause
 /*
- * Copyright 2022-2023 NXP
+ * Copyright 2022-2024 NXP
  */
 
 #ifndef SAB_COMMON_ERR_H
@@ -9,7 +9,7 @@
 #include <stdio.h>
 #include <stdint.h>
 
-#define SAB_ERR_MAP_N 24
+#define SAB_ERR_MAP_N 42
 #define SAB_ERR_MAP_SZ 256
 
 struct sab_err_map_s {

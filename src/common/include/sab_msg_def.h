@@ -1,6 +1,6 @@
 // SPDX-License-Identifier: BSD-3-Clause
 /*
- * Copyright 2019-2023 NXP
+ * Copyright 2019-2024 NXP
  */
 
 
@@ -164,47 +164,9 @@
 /* Rating code definition */
 #define SAB_NO_MESSAGE_RATING                   (0x00u)
 #define SAB_INVALID_MESSAGE_RATING              (0x01u)
-#define SAB_INVALID_ADDRESS_RATING              (0x02u)
-#define SAB_UNKNOWN_ID_RATING                   (0x03u)
 #define SAB_INVALID_PARAM_RATING                (0x04u)
-#define SAB_NVM_ERROR_RATING                    (0x05u)
-#define SAB_OUT_OF_MEMORY_RATING                (0x06u)
-#define SAB_UNKNOWN_HANDLE_RATING               (0x07u)
-#define SAB_UNKNOWN_KEY_STORE_RATING            (0x08u)
-#define SAB_KEY_STORE_AUTH_RATING               (0x09u)
-#define SAB_KEY_STORAGE_ERROR_RATING            (0x0Au)
-#define SAB_ID_CONFLICT_RATING                  (0x0Bu)
-#define SAB_RNG_NOT_STARTED_RATING              (0x0Cu)
 #define SAB_CMD_NOT_SUPPORTED_RATING            (0x0Du)
-#define SAB_INVALID_LIFECYCLE_RATING            (0x0Eu)
-#define SAB_KEY_STORE_CONFLICT_RATING           (0x0Fu)
-#define SAB_KEY_STORE_COUNTER_RATING            (0x10u)
-#define SAB_FEATURE_NOT_SUPPORTED_RATING        (0x11u)
-#define SAB_SELF_TEST_FAILURE_RATING            (0x12u)
-#define SAB_NOT_READY_RATING                    (0x13u)
-#define SAB_FEATURE_DISABLED_RATING             (0x14u)
-#define SAB_SIGNED_MSG_INVALID_RATING           (0x18u)
-#define SAB_OUT_OF_MEM_TO_STORE_KEY_IN_KEYGRP   (0x19u)
-#define SAB_NOT_POSSIBLE_RETRIEVE_CHUNK         (0x1Au)
-#define SAB_KEY_NOT_SUPPORTED_RATING            (0x1Bu)
-#define SAB_TRYING_TO_DEL_PERM_KEY              (0x1Cu)
-#define SAB_OUT_LEN_TOO_SHORT_RATING            (0x1Du)
-#define SAB_DATA_ALREADY_RETRIEVED_RATING       (0x1Fu)
-#define SAB_CRC_CHECK_FAIL_RATING               (0xB9u)
-#define SAB_INVALID_LIFECYCLE_OP_RATING         (0xF2u)
 
-/* SHE specific rating */
-#define SAB_SHE_SEQUENCE_ERROR_RATING           (0xD1u)     /**< Invalid sequence of commands. */
-#define SAB_SHE_KEY_NOT_AVAILABLE_RATING        (0xD2u)     /**< Key is locked. */
-#define SAB_SHE_KEY_INVALID_RATING              (0xD3u)     /**< Key not allowed for the given operation. */
-#define SAB_SHE_KEY_EMPTY_RATING                (0xD4u)     /**< Key has not beed initialized yet. */
-#define SAB_SHE_NO_SECURE_BOOT_RATING           (0xD5u)     /**< Conditions for a secure boot process are not met. */
-#define SAB_SHE_KEY_WRITE_PROTECTED_RATING      (0xD6u)     /**< Memory slot for this key has been write-protected. */
-#define SAB_SHE_KEY_UPDATE_ERROR_RATING         (0xD7u)     /**< Key update did not succeed due to errors in verification of the messages. */
-#define SAB_SHE_RNG_SEED_RATING                 (0xD8u)     /*< The seed has not been initialized. */
-#define SAB_SHE_NO_DEBUGGING_RATING             (0xD9u)     /**< Internal debugging is not possible. */
-#define SAB_SHE_BUSY_RATING                     (0xDAu)     /**< A function of SHE is called while another function is still processing. */
-#define SAB_SHE_MEMORY_FAILURE_RATING           (0xDBu)     /**< Memory error (e.g. flipped bits) */
 #define SAB_SHE_GENERAL_ERROR_RATING            (0xDCu)     /**< Error not covered by other codes occured. */
 
 #define SAB_READ_FAILURE_RATING                 (0xFEu)

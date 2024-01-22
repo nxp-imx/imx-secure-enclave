@@ -54,22 +54,6 @@
 #define KEY_STORE_OPEN_FLAGS_STRICT_OPERATION       0x80u
 
 /**
- * New storage created successfully.
- */
-#define SHE_STORAGE_CREATE_SUCCESS              0u
-/**
- * New storage created but its usage is restricted to limited security state of chip.
- */
-#define SHE_STORAGE_CREATE_WARNING              1u
-/**
- * Creation of the storage is not authorized.
- */
-#define SHE_STORAGE_CREATE_UNAUTHORIZED         2u
-/**
- * Creation of the storage failed for any other reason.
- */
-#define SHE_STORAGE_CREATE_FAIL                 3u
-/**
  * default number of maximum number of updated for SHE storage.
  */
 #define SHE_STORAGE_NUMBER_UPDATES_DEFAULT      300u

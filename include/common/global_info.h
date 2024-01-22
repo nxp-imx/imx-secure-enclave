@@ -1,6 +1,6 @@
 // SPDX-License-Identifier: BSD-3-Clause
 /*
- * Copyright 2023 NXP
+ * Copyright 2023-2024 NXP
  */
 
 #ifndef GLOBAL_INFO_H
@@ -15,7 +15,6 @@
  */
 
 #include "get_info.h"
-#include "internal/hsm_handle.h"
 
 #define SOC_IMX8DXL 0xe
 #define SOC_IMX8ULP 0x84d
@@ -55,9 +54,9 @@
 /**
  * Populate the Global Info structure
  *
- * \param hsm_session_hdl identifying the session.
+ * \param session_hdl identifying the session.
  */
-void populate_global_info(hsm_hdl_t hsm_session_hdl);
+void populate_global_info(uint32_t session_hdl);
 
 /**
  * Print the Global Info of library

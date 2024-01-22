@@ -7,7 +7,7 @@
 #define SHE_UTILS_H
 
 #include <stdint.h>
-
+#include "common/err.h"
 #include "common/global_info.h"
 
 #define SHE_PREPARE	0x66
@@ -23,43 +23,78 @@
  * Error codes returned by SHE functions.
  */
 typedef enum {
-	SHE_NO_ERROR            = 0x0,
+	SHE_NO_ERROR            = 0x00,
 	//!< Success.
-	SHE_SEQUENCE_ERROR      = 0x1,
-	//!< Invalid sequence of commands.
-	SHE_KEY_NOT_AVAILABLE   = 0x2,
-	//!< Key is locked.
-	SHE_KEY_INVALID         = 0x3,
-	//!< Key not allowed for the given operation.
-	SHE_KEY_EMPTY           = 0x4,
-	//!< Key has not beed initialized yet.
-	SHE_NO_SECURE_BOOT      = 0x5,
-	//!< Conditions for secure boot process are not met.
-	SHE_KEY_WRITE_PROTECTED = 0x6,
-	//!< Memory slot for key has been write-protected.
-	SHE_KEY_UPDATE_ERROR    = 0x7,
-	//!< Key update failed due to errors in verification of the messages.
-	SHE_RNG_SEED            = 0x8,
-	//!< The seed has not been initialized.
-	SHE_NO_DEBUGGING        = 0x9,
-	//!< Internal debugging is not possible.
-	SHE_BUSY                = 0xA,
-	//!< A function of SHE is called while another function is still processing.
-	SHE_ID_CONFLICT		= 0xB,
-	//!< An element (key storage, key…) with the provided ID already exists
-	SHE_GENERAL_ERROR       = 0xC,
-	//!< Error not covered by other codes occurred.
-	SHE_KEY_STORE_CONFLICT  = 0x0F,
+	SHE_INVALID_MESSAGE = SAB_INVALID_MESSAGE,
+	//!< Invalid/Unknown message.
+	SHE_INVALID_ADDRESS = SAB_INVALID_ADDRESS,
+	//!< Invalid Address.
+	SHE_UNKNOWN_ID = SAB_UNKNOWN_ID,
+	//!< Unknown Id.
+	SHE_INVALID_PARAM = SAB_INVALID_PARAM,
+	//!< MU sanity check failed / Invalid parameters.
+	SHE_NVM_ERRO =  SAB_NVM_ERROR,
+	//!< NVM general error.
+	SHE_OUT_OF_MEMORY = SAB_OUT_OF_MEMORY,
+	//!< Internal memory allocation failed.
+	SHE_UNKNOWN_HANDLE = SAB_UNKNOWN_HANDLE,
+	//!< Unknown handle.
+	SHE_UNKNOWN_KEY_STORE = SAB_UNKNOWN_KEY_STORE,
+	//!< Key store with provided key store ID does not exist (load operation).
+	SHE_KEY_STORE_AUTH = SAB_KEY_STORE_AUTH,
+	//!< A key store authentication is failing.
+	SHE_KEY_STORAGE_ERROR = SAB_KEY_STORAGE_ERROR,
+	//!< Key store creation/load failure.
+	SHE_ID_CONFLICT = SAB_ID_CONFLICT,
+	//!< A Key store using the same key id already exists (create operation).
+	SHE_RNG_NOT_STARTED = SAB_RNG_NOT_STARTED,
+	//!< Internal RNG not started.
+	SHE_CMD_NOT_SUPPORTED = SAB_CMD_NOT_SUPPORTED,
+	//!< Functionality not supported on current service configuration.
+	SHE_INVALID_LIFECYCLE = SAB_INVALID_LIFECYCLE,
+	//!< Invalid lifecycle for requested operation.
+	SHE_KEY_STORE_CONFLICT = SAB_KEY_STORE_CONFLICT,
 	//!< The key store already exists (load operation).
-	SHE_UNKNOWN_WARNING	= 0x27,
+	SHE_KEY_STORE_COUNTER = SAB_KEY_STORE_COUNTER,
+	//!< Issue occurred while updating the key store counter.
+	SHE_FEATURE_NOT_SUPPORTED = SAB_FEATURE_NOT_SUPPORTED,
+	//!< Feature is not supported.
+	SHE_SELF_TEST_FAILURE = SAB_SELF_TEST_FAILURE,
+	//!< Self test execution failed.
+	SHE_NOT_READY = SAB_NOT_READY,
+	//!< System not ready to accept service request.
+	SHE_FEATURE_DISABLED = SAB_FEATURE_DISABLED,
+	//!< Feature disabled.
+	SHE_UNKNOWN_WARNING = 0x27,
 	//!< SHE Unknown Warning
-	SHE_FATAL_FAILURE       = 0x29,
-	//!< A fatal failure occurred, SHE goes in unrecoverable
-	//!< error state not replying to further requests
-	SHE_MEMORY_FAILURE      = 0xDB,
-	//!< Memory error (e.g. flipped bits).
-	SHE_LIB_ERROR		= 0xEF,
+	SHE_SEQUENCE_ERROR_RATING = 0xD1,
+	//!< Invalid sequence of commands.
+	SHE_KEY_NOT_AVAILABLE_RATING = 0xD2,
+	//!< Key is locked.
+	SHE_KEY_INVALID_RATING = 0xD3,
+	//!< Key not allowed for the given operation.
+	SHE_KEY_EMPTY_RATING = 0xD4,
+	//!< Key has not been initialized yet.
+	SHE_NO_SECURE_BOOT_RATING = 0xD5,
+	//!< Conditions for a secure boot process are not met.
+	SHE_KEY_WRITE_PROTECTED_RATING = 0xD6,
+	//!< Memory slot for this key has been write-protected.
+	SHE_KEY_UPDATE_ERROR_RATING = 0xD7,
+	//!< Key update did not succeed, errors in verification of message.
+	SHE_RNG_SEED_RATING = 0xD8,
+	//!< The seed has not been initialized.
+	SHE_NO_DEBUGGING_RATING = 0xD9,
+	//!< Internal debugging is not possible.
+	SHE_BUSY_RATING = 0xDA,
+	//!< SHE is busy.
+	SHE_MEMORY_FAILURE_RATING = 0xDB,
+	//!< Memory Error.
+	SHE_GENERAL_ERROR = 0xDC,
+	//!< SHE General error.
+	SHE_LIB_ERROR = 0xEF,
 	//!< SHE library error
+	SHE_FATAL_FAILURE = SAB_FATAL_FAILURE,
+	//!< fatal error
 } she_err_t;
 
 /** @} end of error code group */

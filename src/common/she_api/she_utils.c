@@ -1,6 +1,6 @@
 // SPDX-License-Identifier: BSD-3-Clause
 /*
- * Copyright 2023 NXP
+ * Copyright 2023-2024 NXP
  */
 
 #include <stdio.h>
@@ -23,16 +23,20 @@ static she_err_t sab_success_rating_to_she_warning(uint8_t sab_success_rating)
 	case SHE_NO_ERROR:
 		break;
 
-	case SHE_NO_DEBUGGING:
+	case SAB_INVALID_LIFECYCLE:
+		se_info("\nSHE Warning: SAB_INVALID_LIFECYCLE (0x%x)\n", she_warn);
+		break;
+
+	case SAB_KEY_STORE_COUNTER:
+		se_info("\nSHE Warning: SAB_KEY_STORE_COUNTER (0x%x)\n", she_warn);
+		break;
+
+	case SHE_NO_DEBUGGING_RATING:
 		se_info("\nSHE Warning: SHE_NO_DEBUGGING (0x%x)\n", she_warn);
 		break;
 
-	case SHE_BUSY:
+	case SHE_BUSY_RATING:
 		se_info("\nSHE Warning: SHE_BUSY (0x%x)\n", she_warn);
-		break;
-
-	case SHE_STORAGE_CREATE_WARNING:
-		se_info("\nSHE Warning: SHE_STORAGE_CREATE_WARNING (0x%x)\n", she_warn);
 		break;
 
 	case SHE_UNKNOWN_WARNING:
@@ -50,56 +54,144 @@ static she_err_t sab_err_rating_to_she_err(uint8_t sab_err_rating)
 	she_err_t she_err = plat_sab_err_rating_to_she_err_map[sab_err_rating];
 
 	switch (she_err) {
-	case SHE_GENERAL_ERROR:
-		se_err("\nSHE Error: SHE_GENERAL_ERROR (0x%x)\n", she_err);
+	case SHE_NO_ERROR:
+		se_err("\nSHE Error: SHE_NO_ERROR (0x%x)\n", she_err);
+		break;
+
+	case SAB_INVALID_MESSAGE:
+		se_err("\nSHE Error: SAB_INVALID_MESSAGE (0x%x)\n", she_err);
+		break;
+
+	case SAB_INVALID_ADDRESS:
+		se_err("\nSHE Error: SAB_INVALID_ADDRESS (0x%x)\n", she_err);
+		break;
+
+	case SAB_UNKNOWN_ID:
+		se_err("\nSHE Error: SAB_UNKNOWN_ID (0x%x)\n", she_err);
+		break;
+
+	case SAB_INVALID_PARAM:
+		se_err("\nSHE Error: SAB_INVALID_PARAM (0x%x)\n", she_err);
+		break;
+
+	case SAB_NVM_ERROR:
+		se_err("\nSHE Error: SAB_NVM_ERROR (0x%x)\n", she_err);
+		break;
+
+	case SAB_OUT_OF_MEMORY:
+		se_err("\nSHE Error: SAB_OUT_OF_MEMORY (0x%x)\n", she_err);
+		break;
+
+	case SAB_UNKNOWN_HANDLE:
+		se_err("\nSHE Error: SAB_UNKNOWN_HANDLE (0x%x)\n", she_err);
+		break;
+
+	case SAB_UNKNOWN_KEY_STORE:
+		se_err("\nSHE Error: SAB_UNKNOWN_KEY_STORE (0x%x)\n", she_err);
+		break;
+
+	case SAB_KEY_STORE_AUTH:
+		se_err("\nSHE Error: SAB_KEY_STORE_AUTH (0x%x)\n", she_err);
+		break;
+
+	case SAB_KEY_STORAGE_ERROR:
+		se_err("\nSHE Error: SAB_KEY_STORAGE_ERROR (0x%x)\n", she_err);
+		break;
+
+	case SAB_ID_CONFLICT:
+		se_err("\nSHE Error: SAB_ID_CONFLICT (0x%x)\n", she_err);
+		break;
+
+	case SAB_RNG_NOT_STARTED:
+		se_err("\nSHE Error: SAB_RNG_NOT_STARTED (0x%x)\n", she_err);
+		break;
+
+	case SAB_CMD_NOT_SUPPORTED:
+		se_err("\nSHE Error: SAB_CMD_NOT_SUPPORTED (0x%x)\n", she_err);
+		break;
+
+	case SAB_INVALID_LIFECYCLE:
+		se_err("\nSHE Error: SAB_INVALID_LIFECYCLE (0x%x)\n", she_err);
+		break;
+
+	case SAB_KEY_STORE_CONFLICT:
+		se_err("\nSHE Error: SAB_KEY_STORE_CONFLICT (0x%x)\n", she_err);
+		break;
+
+	case SAB_KEY_STORE_COUNTER:
+		se_err("\nSHE Error: SAB_KEY_STORE_COUNTER (0x%x)\n", she_err);
+		break;
+
+	case SAB_FEATURE_NOT_SUPPORTED:
+		se_err("\nSHE Error: SAB_FEATURE_NOT_SUPPORTED (0x%x)\n", she_err);
+		break;
+
+	case SAB_SELF_TEST_FAILURE:
+		se_err("\nSHE Error: SAB_SELF_TEST_FAILURE (0x%x)\n", she_err);
+		break;
+
+	case SAB_NOT_READY:
+		se_err("\nSHE Error: SAB_NOT_READY (0x%x)\n", she_err);
+		break;
+
+	case SAB_FEATURE_DISABLED:
+		se_err("\nSHE Error: SAB_FEATURE_DISABLED (0x%x)\n", she_err);
+		break;
+
+	case SHE_SEQUENCE_ERROR_RATING:
+		se_err("\nSHE Error: SHE_SEQUENCE_ERROR (0x%x)\n", she_err);
+		break;
+
+	case SHE_KEY_NOT_AVAILABLE_RATING:
+		se_err("\nSHE Error: SHE_KEY_NOT_AVAILABLE (0x%x)\n", she_err);
+		break;
+
+	case SHE_KEY_INVALID_RATING:
+		se_err("\nSHE Error: SHE_KEY_INVALID (0x%x)\n", she_err);
+		break;
+
+	case SHE_KEY_EMPTY_RATING:
+		se_err("\nSHE Error: SHE_KEY_EMPTY (0x%x)\n", she_err);
+		break;
+
+	case SHE_NO_SECURE_BOOT_RATING:
+		se_err("\nSHE Error: SHE_NO_SECURE_BOOT (0x%x)\n", she_err);
+		break;
+
+	case SHE_KEY_WRITE_PROTECTED_RATING:
+		se_err("\nSHE Error: SHE_KEY_WRITE_PROTECTED (0x%x)\n", she_err);
+		break;
+
+	case SHE_KEY_UPDATE_ERROR_RATING:
+		se_err("\nSHE Error: SHE_KEY_UPDATE_ERROR (0x%x)\n", she_err);
+		break;
+
+	case SHE_RNG_SEED_RATING:
+		se_err("\nSHE Error: SHE_RNG_SEED (0x%x)\n", she_err);
+		break;
+
+	case SHE_NO_DEBUGGING_RATING:
+		se_err("\nSHE Error: SHE_NO_DEBUGGING (0x%x)\n", she_err);
+		break;
+
+	case SHE_BUSY_RATING:
+		se_err("\nSHE Error: SHE_BUSY (0x%x)\n", she_err);
+		break;
+
+	case SHE_MEMORY_FAILURE_RATING:
+		se_err("\nSHE Error: SHE_MEMORY_FAILURE (0x%x)\n", she_err);
+		break;
+
+	case SHE_LIB_ERROR:
+		se_err("\nSHE Error: SHE_LIB_ERROR (0x%x)\n", she_err);
 		break;
 
 	case SHE_FATAL_FAILURE:
 		se_err("\nSHE Error: SHE_FATAL_FAILURE (0x%x)\n", she_err);
 		break;
 
-	case SHE_SEQUENCE_ERROR:
-		se_err("\nSHE Error: SHE_SEQUENCE_ERROR (0x%x)\n", she_err);
-		break;
-
-	case SHE_KEY_NOT_AVAILABLE:
-		se_err("\nSHE Error: SHE_KEY_NOT_AVAILABLE (0x%x)\n", she_err);
-		break;
-
-	case SHE_KEY_INVALID:
-		se_err("\nSHE Error: SHE_KEY_INVALID (0x%x)\n", she_err);
-		break;
-
-	case SHE_KEY_EMPTY:
-		se_err("\nSHE Error: SHE_KEY_EMPTY (0x%x)\n", she_err);
-		break;
-
-	case SHE_NO_SECURE_BOOT:
-		se_err("\nSHE Error: SHE_NO_SECURE_BOOT (0x%x)\n", she_err);
-		break;
-
-	case SHE_KEY_WRITE_PROTECTED:
-		se_err("\nSHE Error: SHE_KEY_WRITE_PROTECTED (0x%x)\n", she_err);
-		break;
-
-	case SHE_KEY_UPDATE_ERROR:
-		se_err("\nSHE Error: SHE_KEY_UPDATE_ERROR (0x%x)\n", she_err);
-		break;
-
-	case SHE_RNG_SEED:
-		se_err("\nSHE Error: SHE_RNG_SEED: (0x%x)\n", she_err);
-		break;
-
-	case SHE_NO_DEBUGGING:
-		se_err("\nSHE Error: SHE_NO_DEBUGGING (0x%x)\n", she_err);
-		break;
-
-	case SHE_BUSY:
-		se_err("\nSHE Error: SHE_BUSY (0x%x)\n", she_err);
-		break;
-
-	case SHE_MEMORY_FAILURE:
-		se_err("\nSHE Error: SHE_MEMORY_FAILURE (0x%x)\n", she_err);
+	case SHE_GENERAL_ERROR:
+		se_err("\nSHE Error: SHE_GENERAL_ERROR (0x%x)\n", she_err);
 		break;
 	}
 
