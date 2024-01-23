@@ -135,10 +135,12 @@ void execute_tests(int session_id, int key_session_id)
 	if (!err)
 		se_print("CMD_GET_STATUS successful 0x%x\n", op_get_status_args.sreg);
 
-	err = do_she_key_update_test(utils_args[i].utils_handle);
-	if (err) {
-		se_print("Error[0x%x]: Key Update test Failed.\n", err);
-		return;
+	if (key_store_args[i].flags & KEY_STORE_OPEN_FLAGS_CREATE) {
+		err = do_she_key_update_test(utils_args[i].utils_handle);
+		if (err) {
+			se_print("Error[0x%x]: Key Update test Failed.\n", err);
+			return;
+		}
 	}
 
 	err = do_she_fast_mac_test(utils_args[i].utils_handle);
