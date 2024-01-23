@@ -10,55 +10,19 @@
 
 #include "internal/she_utils.h"
 #include "internal/she_handle.h"
-
-#if MT_SAB_SESSION
 #include "internal/she_session.h"
-#endif
-
-#if MT_SAB_SHARED_BUF
 #include "internal/she_shared_buf.h"
-#endif
-
-#if MT_SAB_KEY_STORE
 #include "internal/she_key_store.h"
-#endif
-
-#if MT_SAB_GET_INFO
 #include "internal/she_get_info.h"
-#endif
-
-#if MT_SAB_UTILS
 #include "internal/she_utils_service.h"
-#endif
-
-#if MT_SAB_CIPHER
 #include "internal/she_cipher.h"
-#endif
-
-#if MT_SAB_GET_STATUS
 #include "internal/she_get_status.h"
-#endif
-
-#if MT_SAB_RNG
 #include "internal/she_rng.h"
-#endif
-
-#if MT_SAB_KEY_UPDATE
 #include "internal/she_key_update.h"
-#endif
-
-#if MT_SAB_PLAIN_KEY
 #include "internal/she_load_plain_key.h"
 #include "internal/she_export_plain_key.h"
-#endif
-
-#if MT_SAB_FAST_MAC
 #include "internal/she_fast_mac.h"
-#endif
-
-#if MT_SAB_GET_ID
 #include "internal/she_get_id.h"
-#endif
 
 extern uint8_t she_v2x_mu;
 
