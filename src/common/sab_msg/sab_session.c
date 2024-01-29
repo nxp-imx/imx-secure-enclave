@@ -1,6 +1,6 @@
 // SPDX-License-Identifier: BSD-3-Clause
 /*
- * Copyright 2023 NXP
+ * Copyright 2023-2024 NXP
  */
 
 #include <string.h>
@@ -33,8 +33,6 @@ uint32_t prepare_msg_session_open_req(void *phdl,
 		cmd->did = op_args->did;
 #endif
 		cmd->interrupt_idx = op_args->interrupt_idx;
-		cmd->priority = op_args->session_priority;
-		cmd->operating_mode = op_args->operating_mode;
 
 	*cmd_msg_sz = sizeof(struct sab_cmd_session_open_msg);
 	*rsp_msg_sz = sizeof(struct sab_cmd_session_open_rsp);

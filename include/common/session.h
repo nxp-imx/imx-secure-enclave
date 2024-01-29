@@ -19,8 +19,8 @@
 typedef struct {
 	uint32_t session_hdl;
 	//!< Session handle.
-	uint32_t mu_type;
-	//!< MU type on which session will be opened
+	uint8_t mu_type;
+	//!< MU with associated functionality on which session will be opened
 	uint8_t session_priority;
 	//!< Priority of the operations performed in this session.
 	uint8_t operating_mode;
@@ -38,4 +38,30 @@ typedef struct {
 } open_session_args_t;
 
 /** @} end of session group */
+
+#define HSM1	(0x1u)
+//!< HSM1 channel on SE, best effort high priority.
+#define HSM2	(0x2u)
+//!< HSM2 channel on SE, best effort high priority.
+#define HSM_NVM	(0x12u)
+//!< HSM NVM channel on SE.
+#define V2X_SG0 (0x3u)
+//!< SG0 channel on V2X, low latency high priority.
+#define V2X_SG1 (0x4u)
+//!< SG1 channel on V2X, low latency low priority.
+#define V2X_SHE (0x5u)
+//!< SHE channel on V2X, low latency  high priority.
+#define SHE1	(0x6u)
+//!< SHE channel on SE,  best effort high priority.
+#define SHE_NVM	(0x13u)
+//!< SHE NVM channel on SE.
+#define V2X_SHE_NVM (0x14u)
+//!< SHE NVM channel on V2X.
+#define V2X_SV0 (0x7u)
+//!< SV0 channel on V2X, low latency high priority.
+#define V2X_SV1 (0x8u)
+//!< SV1 channel on V2X, low latency low priority.
+#define V2X_HSM_NVM (0x15u)
+//!< V2X NVM channel on V2X.
+
 #endif

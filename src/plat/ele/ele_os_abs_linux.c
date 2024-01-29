@@ -24,9 +24,12 @@
  * MU3: unused
  */
 
-static char ELE_MU_HSM_PATH_PRIMARY[] = "/dev/ele_mu2_ch0";
-static char ELE_MU_HSM_NVM_PATH[] = "/dev/ele_mu2_ch1";
-static char ELE_MU_HSM_PATH_SECONDARY[] = "/dev/ele_mu2_ch2";
+char ELE_MU_HSM_PATH_PRIMARY[] = "/dev/hsm1_ch0";
+// This device is for HSM1 channel 0 on SE, best effort high priority.
+char ELE_MU_HSM_NVM_PATH[] = "/dev/hsm1_ch1";
+// This device is for HSM NVM channel on SE.
+char ELE_MU_HSM_PATH_SECONDARY[] = "/dev/hsm1_ch2";
+// This device is for HSM1 channel 2 on SE, best effort high priority.
 
 /* Open a session and returns a pointer to the handle or NULL in case of error.
  * Here it consists in opening the decicated seco MU device file.
@@ -40,37 +43,34 @@ struct plat_os_abs_hdl *plat_os_abs_open_mu_channel(uint32_t type, struct plat_m
     int32_t error;
     uint8_t is_nvm = 0u;
 
-    switch (type) {
-    case MU_CHANNEL_PLAT_HSM:
-        device_path = ELE_MU_HSM_PATH_PRIMARY;
-        break;
-    case MU_CHANNEL_PLAT_HSM_2ND:
-        device_path = ELE_MU_HSM_PATH_SECONDARY;
-        break;
-    case MU_CHANNEL_PLAT_HSM_NVM:
-        device_path = ELE_MU_HSM_NVM_PATH;
-        is_nvm = 1u;
-        break;
-    default:
-        device_path = NULL;
-        break;
-    }
+	switch (type) {
+	case HSM1:
+		device_path = ELE_MU_HSM_PATH_PRIMARY;
+		break;
+	case HSM_NVM:
+		device_path = ELE_MU_HSM_NVM_PATH;
+		is_nvm = 1u;
+		break;
+	default:
+		device_path = NULL;
+		break;
+	}
 
     if ((phdl != NULL) && (device_path != NULL) && (mu_params != NULL)) {
         phdl->fd = open(device_path, O_RDWR);
         /* If open failed return NULL handle. */
         if (phdl->fd < 0) {
-            if (type == MU_CHANNEL_PLAT_HSM) {
-                device_path = ELE_MU_HSM_PATH_SECONDARY;
-                phdl->fd = open(device_path, O_RDWR);
-                if (phdl->fd < 0) {
+		if (type == HSM1) {
+			device_path = ELE_MU_HSM_PATH_SECONDARY;
+			phdl->fd = open(device_path, O_RDWR);
+				if (phdl->fd < 0) {
+					plat_os_abs_free(phdl);
+					phdl = NULL;
+				}
+		} else {
 			plat_os_abs_free(phdl);
 			phdl = NULL;
-                }
-            } else {
-		plat_os_abs_free(phdl);
-		phdl = NULL;
-            }
+		}
         }
 
 	if (phdl) {

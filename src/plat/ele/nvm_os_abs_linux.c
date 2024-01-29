@@ -30,7 +30,7 @@ uint32_t plat_os_abs_storage_write(struct plat_os_abs_hdl *phdl,
 	char *path;
 
 	switch (phdl->type) {
-	case MU_CHANNEL_PLAT_HSM_NVM:
+	case HSM_NVM:
 		path = nvm_fname;
 		break;
 	default:
@@ -66,7 +66,7 @@ uint32_t plat_os_abs_storage_read(struct plat_os_abs_hdl *phdl,
 	char *path;
 
 	switch (phdl->type) {
-	case MU_CHANNEL_PLAT_HSM_NVM:
+	case HSM_NVM:
 		path = nvm_fname;
 		break;
 	default:
@@ -151,7 +151,7 @@ uint32_t plat_os_abs_storage_write_chunk(struct plat_os_abs_hdl *phdl,
 	uint32_t n = 0;
 	char *path = NULL;
 
-	if (phdl->type == MU_CHANNEL_PLAT_HSM_NVM)
+	if (phdl->type == HSM_NVM)
 		n = get_chunk_file_path(&path, nvm_storage_dname, blob_id);
 
 	if (n > 0) {
@@ -187,7 +187,7 @@ uint32_t plat_os_abs_storage_read_chunk(struct plat_os_abs_hdl *phdl,
 	uint32_t n = 0;
 	char *path = NULL;
 
-	if (phdl->type == MU_CHANNEL_PLAT_HSM_NVM)
+	if (phdl->type == HSM_NVM)
 		n = get_chunk_file_path(&path, nvm_storage_dname, blob_id);
 
 	if (n > 0) {
