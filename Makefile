@@ -181,7 +181,7 @@ she_doc: include/she/she_api.h
 	rm -rf doc/latex/
 	doxygen doc/she/SECO_Doxyfile
 	make -C ./doc/latex pdf
-	cp doc/latex/refman.pdf doc/seco_she_api_document.pdf
+	cp doc/latex/refman.pdf doc/she_api_document.pdf
 	rm -rf doc/latex/
 
 hsm_doc_ele: include/hsm/hsm_api.h
