@@ -1,6 +1,6 @@
 // SPDX-License-Identifier: BSD-3-Clause
 /*
- * Copyright 2023 NXP
+ * Copyright 2023-2024 NXP
  */
 
 #include <stdio.h>
@@ -41,7 +41,7 @@ static void sign_verify_test(hsm_hdl_t key_store_hdl,
 	op_pub_key_recovery_args_t pkey_recv_args = {0};
 	uint8_t *loc_pub_key = NULL;
 	hsm_hdl_t hsm_session_hdl = get_hsm_session_hdl();
-	*test_status = 0;
+	*test_status = TEST_STATUS_FAILED;
 
 	signature = (uint8_t *) malloc(signature_size*sizeof(uint8_t));
 
@@ -197,7 +197,7 @@ static void sign_verify_test(hsm_hdl_t key_store_hdl,
 		goto out;
 	}
 
-	*test_status = 1;
+	*test_status = TEST_STATUS_SUCCESS;
 
 out:
 	if (signature)
@@ -216,7 +216,7 @@ static int8_t prepare_and_run_sign_verify_test(hsm_hdl_t key_store_hdl, FILE
 	uint8_t input_ctr = 0;
 	uint8_t invalid_read = 0;
 	uint8_t call_sign_verify_test = -1;
-	int8_t test_status = 0; /* 0 -> FAILED, 1 -> PASSED, -1 -> INVALID*/
+	int8_t test_status = TEST_STATUS_FAILED;
 	size_t len = 0;
 	ssize_t read = 0;
 
@@ -398,7 +398,7 @@ static int8_t prepare_and_run_sign_verify_test(hsm_hdl_t key_store_hdl, FILE
 	}
 
 	if (invalid_read == 1 || read == -1) {
-		test_status = -1;
+		test_status = TEST_STATUS_INVALID;
 
 		/* EOF encountered before reading all param values. */
 		if (read == -1)
@@ -420,7 +420,7 @@ void sign_verify_test_tv(hsm_hdl_t key_store_hdl, FILE *fp, char *line,
 			 uint8_t *tests_passed, uint8_t *tests_failed,
 			 uint8_t *tests_invalid, uint8_t *tests_total)
 {
-	int8_t test_status = 0;
+	int8_t test_status = TEST_STATUS_FAILED;
 	static uint8_t tsign_verify_passed;
 	static uint8_t tsign_verify_failed;
 	static uint8_t tsign_verify_invalids;
@@ -453,21 +453,21 @@ void sign_verify_test_tv(hsm_hdl_t key_store_hdl, FILE *fp, char *line,
 #endif
 	test_status = prepare_and_run_sign_verify_test(key_store_hdl, fp);
 
-	if (test_status == 1) {
+	if (test_status == TEST_STATUS_SUCCESS) {
 		se_info("\nTEST RESULT: SUCCESS\n");
 		++tsign_verify_passed;
 		++(*tests_passed);
 #ifndef ELE_PERF
 		printf("%s: SUCCESS\n", test_id);
 #endif
-	} else if (test_status == 0) {
+	} else if (test_status == TEST_STATUS_FAILED) {
 		se_info("\nTEST RESULT: FAILED\n");
 		++tsign_verify_failed;
 		++(*tests_failed);
 #ifndef ELE_PERF
 		printf("%s: FAILED\n", test_id);
 #endif
-	} else if (test_status == -1) {
+	} else if (test_status == TEST_STATUS_INVALID) {
 		se_info("\nTEST RESULT: INVALID\n");
 		++tsign_verify_invalids;
 		++(*tests_invalid);

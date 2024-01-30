@@ -1,6 +1,6 @@
 // SPDX-License-Identifier: BSD-3-Clause
 /*
- * Copyright 2023 NXP
+ * Copyright 2023-2024 NXP
  */
 
 #include <stdio.h>
@@ -24,7 +24,7 @@ static void mac_test(hsm_hdl_t key_store_hdl, uint32_t key_identifier,
 	hsm_err_t hsmret1 = HSM_GENERAL_ERROR;
 	hsm_err_t hsmret2 = HSM_GENERAL_ERROR;
 	op_mac_one_go_args_t mac_args = {0};
-	*test_status = 0;
+	*test_status = TEST_STATUS_FAILED;
 
 	mac_args.key_identifier = key_identifier;
 	mac_args.algorithm = mac_algo;
@@ -147,7 +147,7 @@ static void mac_test(hsm_hdl_t key_store_hdl, uint32_t key_identifier,
 		goto out;
 	}
 
-	*test_status = 1;
+	*test_status = TEST_STATUS_SUCCESS;
 out:
 	if (mac_args.mac)
 		free(mac_args.mac);
@@ -161,7 +161,7 @@ static int8_t prepare_and_run_mac_test(hsm_hdl_t key_store_hdl, FILE *fp)
 	uint8_t input_ctr = 0;
 	uint8_t invalid_read = 0;
 	uint8_t call_mac_test = -1;
-	int8_t test_status = 0; /* 0 -> FAILED, 1 -> PASSED, -1 -> INVALID*/
+	int8_t test_status = TEST_STATUS_FAILED;
 	size_t len = 0;
 	ssize_t read = 0;
 
@@ -279,6 +279,13 @@ static int8_t prepare_and_run_mac_test(hsm_hdl_t key_store_hdl, FILE *fp)
 
 	if (call_mac_test == 1) {
 
+		if (se_get_soc_id() == SOC_IMX95 &&
+		    (mac_algo == PERMITTED_ALGO_HMAC_SHA256 ||
+		     mac_algo == PERMITTED_ALGO_HMAC_SHA384)) {
+			test_status = TEST_STATUS_SKIPPED;
+			goto out;
+		}
+
 		se_info("Key MGMT TV ID    : %u\n", key_mgmt_tv_id);
 		se_info("Key TV ID         : %u\n", key_tv_id);
 		se_info("MAC Algo          : 0x%x\n", mac_algo);
@@ -304,7 +311,7 @@ static int8_t prepare_and_run_mac_test(hsm_hdl_t key_store_hdl, FILE *fp)
 	}
 
 	if (invalid_read == 1 || read == -1) {
-		test_status = -1;
+		test_status = TEST_STATUS_INVALID;
 
 		/* EOF encountered before reading all param values. */
 		if (read == -1)
@@ -313,6 +320,7 @@ static int8_t prepare_and_run_mac_test(hsm_hdl_t key_store_hdl, FILE *fp)
 		se_info("\nSkipping this Test Case\n");
 	}
 
+out:
 	if (payload_data)
 		free(payload_data);
 
@@ -325,7 +333,7 @@ static int8_t prepare_and_run_mac_test(hsm_hdl_t key_store_hdl, FILE *fp)
 void mac_test_tv(hsm_hdl_t key_store_hdl, FILE *fp, char *line, uint8_t *tests_passed,
 		 uint8_t *tests_failed, uint8_t *tests_invalid, uint8_t *tests_total)
 {
-	int8_t test_status = 0;
+	int8_t test_status = TEST_STATUS_FAILED;
 	static uint8_t tmac_passed;
 	static uint8_t tmac_failed;
 	static uint8_t tmac_invalids;
@@ -357,26 +365,32 @@ void mac_test_tv(hsm_hdl_t key_store_hdl, FILE *fp, char *line, uint8_t *tests_p
 #endif
 	test_status = prepare_and_run_mac_test(key_store_hdl, fp);
 
-	if (test_status == 1) {
+	if (test_status == TEST_STATUS_SUCCESS) {
 		se_info("\nTEST RESULT: SUCCESS\n");
 		++tmac_passed;
 		++(*tests_passed);
 #ifndef ELE_PERF
 		printf("%s: SUCCESS\n", test_id);
 #endif
-	} else if (test_status == 0) {
+	} else if (test_status == TEST_STATUS_FAILED) {
 		se_info("\nTEST RESULT: FAILED\n");
 		++tmac_failed;
 		++(*tests_failed);
 #ifndef ELE_PERF
 		printf("%s: FAILED\n", test_id);
 #endif
-	} else if (test_status == -1) {
+	} else if (test_status == TEST_STATUS_INVALID) {
 		se_info("\nTEST_RESULT: INVALID\n");
 		++tmac_invalids;
 		++(*tests_invalid);
 #ifndef ELE_PERF
 		printf("%s: INVALID\n", test_id);
+#endif
+	} else if (test_status == TEST_STATUS_SKIPPED) {
+		--tmac_total;
+		--(*tests_total);
+#ifndef ELE_PERF
+		printf("%s: SKIPPED\n", test_id);
 #endif
 	}
 

@@ -1,6 +1,6 @@
 // SPDX-License-Identifier: BSD-3-Clause
 /*
- * Copyright 2022-2023 NXP
+ * Copyright 2022-2024 NXP
  */
 
 #include <stdio.h>
@@ -8,6 +8,7 @@
 #include <stdlib.h>
 #include <string.h>
 
+#include "common.h"
 #include "hsm_api.h"
 #include "test_utils_tv.h"
 #include "plat_utils.h"
@@ -90,7 +91,7 @@ static int8_t prepare_and_run_genkey_test(FILE *fp)
 	uint8_t input_ctr = 0;
 	uint8_t invalid_read = 0;
 	uint8_t call_gen_key = -1;
-	int8_t test_status = 0; /* 0 -> FAILED, 1 -> PASSED, -1 -> INVALID*/
+	int8_t test_status = TEST_STATUS_FAILED;
 	size_t len = 0;
 	ssize_t read = 0;
 
@@ -239,6 +240,13 @@ static int8_t prepare_and_run_genkey_test(FILE *fp)
 	}
 
 	if (call_gen_key == 1) {
+#ifdef PSA_COMPLIANT
+		if (se_get_soc_id() == SOC_IMX8ULP &&
+		    key_type == HSM_KEY_TYPE_RSA) {
+			test_status = TEST_STATUS_SKIPPED;
+			goto out;
+		}
+#endif
 		se_info("Key TV ID      : %u\n", key_tv_id);
 		se_info("Key ID         : 0x%x\n", key_identifier);
 
@@ -257,9 +265,9 @@ static int8_t prepare_and_run_genkey_test(FILE *fp)
 			ret = get_key_attributes(key_mgmt_hdl, get_test_key_identifier(key_tv_id));
 
 			if (ret == HSM_NO_ERROR)
-				test_status = 1;
+				test_status = TEST_STATUS_SUCCESS;
 			else
-				test_status = 0;
+				test_status = TEST_STATUS_FAILED;
 
 		} else {
 			se_info("\nKey MGMT TV ID : %u\n", key_mgmt_tv_id);
@@ -291,9 +299,9 @@ static int8_t prepare_and_run_genkey_test(FILE *fp)
 					   &key_identifier);
 
 			if (ret == expected_rsp_code)
-				test_status = 1;
+				test_status = TEST_STATUS_SUCCESS;
 			else
-				test_status = 0;
+				test_status = TEST_STATUS_FAILED;
 
 			se_info("\nhsm_generate_key ret: 0x%x\n", ret);
 
@@ -321,7 +329,7 @@ static int8_t prepare_and_run_genkey_test(FILE *fp)
 	}
 
 	if (invalid_read == 1 || read == -1) {
-		test_status = -1;
+		test_status = TEST_STATUS_INVALID;
 
 		/* EOF encountered before reading all param values. */
 		if (read == -1)
@@ -344,7 +352,7 @@ void generate_key_test_tv(hsm_hdl_t key_store_hdl, FILE *fp, char *line,
 			  uint8_t *tests_passed, uint8_t *tests_failed,
 			  uint8_t *tests_invalid, uint8_t *tests_total)
 {
-	int8_t test_status = 0;
+	int8_t test_status = TEST_STATUS_FAILED;
 	static uint8_t tkgen_passed;
 	static uint8_t tkgen_failed;
 	static uint8_t tkgen_invalids;
@@ -375,21 +383,25 @@ void generate_key_test_tv(hsm_hdl_t key_store_hdl, FILE *fp, char *line,
 #endif
 	test_status = prepare_and_run_genkey_test(fp);
 
-	if (test_status == 1) {
+	if (test_status == TEST_STATUS_SUCCESS) {
 		++tkgen_passed;
 		++(*tests_passed);
 		se_info("\nTEST RESULT: SUCCESS\n");
 		printf("%s: SUCCESS\n", test_id);
-	} else if (test_status == 0) {
+	} else if (test_status == TEST_STATUS_FAILED) {
 		++tkgen_failed;
 		++(*tests_failed);
 		se_info("\nTEST RESULT: FAILED\n");
 		printf("%s: FAILED\n", test_id);
-	} else if (test_status == -1) {
+	} else if (test_status == TEST_STATUS_INVALID) {
 		++tkgen_invalids;
 		++(*tests_invalid);
 		se_info("\nTEST_RESULT: INVALID\n");
 		printf("%s: INVALID\n", test_id);
+	} else if (test_status == TEST_STATUS_SKIPPED) {
+		--tkgen_total;
+		--(*tests_total);
+		printf("%s: SKIPPED\n", test_id);
 	}
 
 	if (test_id)

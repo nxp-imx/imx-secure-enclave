@@ -14,6 +14,11 @@
 #define KEYATTR 3
 #define PERM_TEST_KEY_ID  0x31110011u
 #define PERM_TEST_KEY_GROUP  15
+//Test Status for Test Vectors
+#define TEST_STATUS_INVALID -1
+#define TEST_STATUS_FAILED  0
+#define TEST_STATUS_SUCCESS 1
+#define TEST_STATUS_SKIPPED 2
 
 hsm_err_t do_mac_test(hsm_hdl_t key_store_hdl, hsm_hdl_t key_mgmt_hdl);
 hsm_err_t do_cipher_test(hsm_hdl_t key_store_hdl, hsm_hdl_t key_mgmt_hdl);

@@ -1,6 +1,6 @@
 // SPDX-License-Identifier: BSD-3-Clause
 /*
- * Copyright 2023 NXP
+ * Copyright 2023-2024 NXP
  */
 
 #include <stdio.h>
@@ -25,7 +25,7 @@ static void hash_test_run(hsm_hash_algo_t hash_algo,
 	hsm_err_t hsmret = HSM_GENERAL_ERROR;
 	hsm_hdl_t hash_sess = get_hsm_session_hdl();
 	op_hash_one_go_args_t hash_args = {0};
-	*test_status = 0;
+	*test_status = TEST_STATUS_FAILED;
 
 	hash_args.algo = hash_algo;
 	hash_args.svc_flags = flags;
@@ -84,7 +84,7 @@ static void hash_test_run(hsm_hash_algo_t hash_algo,
 		}
 	}
 
-	*test_status = 1;
+	*test_status = TEST_STATUS_SUCCESS;
 out:
 	if (hash_args.output)
 		free(hash_args.output);
@@ -100,7 +100,7 @@ static int8_t prepare_and_run_hash_test(FILE *fp)
 	uint8_t input_ctr = 0;
 	uint8_t invalid_read = 0;
 	uint8_t call_hash_test = -1;
-	int8_t test_status = 0; /* 0 -> FAILED, 1 -> PASSED, -1 -> INVALID*/
+	int8_t test_status = TEST_STATUS_FAILED;
 	size_t len = 0;
 	ssize_t read = 0;
 
@@ -301,7 +301,7 @@ static int8_t prepare_and_run_hash_test(FILE *fp)
 
 exit:
 	if (invalid_read == 1 || read == -1) {
-		test_status = -1;
+		test_status = TEST_STATUS_INVALID;
 
 		/* EOF encountered before reading all param values. */
 		if (read == -1)
@@ -325,7 +325,7 @@ exit:
 void hash_test_tv(FILE *fp, char *line, uint8_t *tests_passed, uint8_t *tests_failed,
 		  uint8_t *tests_invalid, uint8_t *tests_total)
 {
-	int8_t test_status = 0;
+	int8_t test_status = TEST_STATUS_FAILED;
 	static uint8_t thash_passed;
 	static uint8_t thash_failed;
 	static uint8_t thash_invalids;
@@ -356,17 +356,17 @@ void hash_test_tv(FILE *fp, char *line, uint8_t *tests_passed, uint8_t *tests_fa
 #endif
 	test_status = prepare_and_run_hash_test(fp);
 
-	if (test_status == 1) {
+	if (test_status == TEST_STATUS_SUCCESS) {
 		se_info("\nTEST RESULT: SUCCESS\n");
 		printf("%s: SUCCESS\n", test_id);
 		++thash_passed;
 		++(*tests_passed);
-	} else if (test_status == 0) {
+	} else if (test_status == TEST_STATUS_FAILED) {
 		se_info("\nTEST RESULT: FAILED\n");
 		printf("%s: FAILED\n", test_id);
 		++thash_failed;
 		++(*tests_failed);
-	} else if (test_status == -1) {
+	} else if (test_status == TEST_STATUS_INVALID) {
 		se_info("\nTEST_RESULT: INVALID\n");
 		printf("%s: INVALID\n", test_id);
 		++thash_invalids;

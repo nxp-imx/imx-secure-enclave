@@ -1,6 +1,6 @@
 // SPDX-License-Identifier: BSD-3-Clause
 /*
- * Copyright 2023 NXP
+ * Copyright 2023-2024 NXP
  */
 
 #include <stdio.h>
@@ -20,7 +20,7 @@ static void data_storage_test_run(hsm_hdl_t key_store_hdl,
 {
 	hsm_err_t hsmret = HSM_GENERAL_ERROR;
 	op_data_storage_args_t data_storage_args = {0};
-	*test_status = 0;
+	*test_status = TEST_STATUS_FAILED;
 
 	data_storage_args.data_id = data_id;
 	data_storage_args.data_size = data_size;
@@ -41,7 +41,7 @@ static void data_storage_test_run(hsm_hdl_t key_store_hdl,
 			goto out;
 		}
 
-		*test_status = 1;
+		*test_status = TEST_STATUS_SUCCESS;
 	}
 
 	/* Retrieve Data */
@@ -73,7 +73,7 @@ static void data_storage_test_run(hsm_hdl_t key_store_hdl,
 			goto out;
 		}
 
-		*test_status = 1;
+		*test_status = TEST_STATUS_SUCCESS;
 	}
 
 out:
@@ -88,7 +88,7 @@ static int8_t prepare_and_run_data_storage_test(hsm_hdl_t key_store_hdl, FILE *f
 	uint8_t input_ctr = 0;
 	uint8_t invalid_read = 0;
 	uint8_t call_data_storage_test = -1;
-	int8_t test_status = 0; /* 0 -> FAILED, 1 -> PASSED, -1 -> INVALID*/
+	int8_t test_status = TEST_STATUS_FAILED;
 	size_t len = 0;
 	ssize_t read = 0;
 
@@ -189,7 +189,7 @@ static int8_t prepare_and_run_data_storage_test(hsm_hdl_t key_store_hdl, FILE *f
 	}
 
 	if (invalid_read == 1 || read == -1) {
-		test_status = -1;
+		test_status = TEST_STATUS_INVALID;
 
 		/* EOF encountered before reading all param values. */
 		if (read == -1)
@@ -211,7 +211,7 @@ void data_storage_test_tv(hsm_hdl_t key_store_hdl, FILE *fp, char *line,
 			  uint8_t *tests_passed, uint8_t *tests_failed,
 			  uint8_t *tests_invalid, uint8_t *tests_total)
 {
-	int8_t test_status = 0;
+	int8_t test_status = TEST_STATUS_FAILED;
 	static uint8_t tdata_storage_passed;
 	static uint8_t tdata_storage_failed;
 	static uint8_t tdata_storage_invalids;
@@ -242,17 +242,17 @@ void data_storage_test_tv(hsm_hdl_t key_store_hdl, FILE *fp, char *line,
 #endif
 	test_status = prepare_and_run_data_storage_test(key_store_hdl, fp);
 
-	if (test_status == 1) {
+	if (test_status == TEST_STATUS_SUCCESS) {
 		se_info("\nTEST RESULT: SUCCESS\n");
 		printf("%s: SUCCESS\n", test_id);
 		++tdata_storage_passed;
 		++(*tests_passed);
-	} else if (test_status == 0) {
+	} else if (test_status == TEST_STATUS_FAILED) {
 		se_info("\nTEST RESULT: FAILED\n");
 		printf("%s: FAILED\n", test_id);
 		++tdata_storage_failed;
 		++(*tests_failed);
-	} else if (test_status == -1) {
+	} else if (test_status == TEST_STATUS_INVALID) {
 		se_info("\nTEST_RESULT: INVALID\n");
 		printf("%s: INVALID\n", test_id);
 		++tdata_storage_invalids;
