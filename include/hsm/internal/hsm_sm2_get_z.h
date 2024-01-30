@@ -1,6 +1,6 @@
 // SPDX-License-Identifier: BSD-3-Clause
 /*
- * Copyright 2023 NXP
+ * Copyright 2023-2024 NXP
  */
 
 #ifndef HSM_SM2_GET_Z_H
@@ -10,7 +10,7 @@
 #include "internal/hsm_utils.h"
 #include "internal/hsm_handle.h"
 #include "internal/hsm_key.h"
-
+#ifndef PSA_COMPLIANT
 /**
  *  @defgroup group17 SM2 Get Z
  * @{
@@ -65,4 +65,5 @@ hsm_err_t hsm_sm2_get_z(hsm_hdl_t session_hdl, op_sm2_get_z_args_t *args);
  *
  */
 /** @} end of SM2 Get Z operation */
+#endif
 #endif

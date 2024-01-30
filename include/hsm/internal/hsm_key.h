@@ -1,6 +1,6 @@
 // SPDX-License-Identifier: BSD-3-Clause
 /*
- * Copyright 2022-2023 NXP
+ * Copyright 2022-2024 NXP
  */
 
 #ifndef HSM_KEYS_H
@@ -261,7 +261,7 @@ typedef uint16_t hsm_key_info_t;
  */
 #define HSM_KEY_INFO_TRANSIENT \
 		((hsm_key_info_t)(1u << 1))
-
+#ifndef PSA_COMPLIANT
 /**
  * Bit indicating the key is master key.
  * When set, the key is considered as a master key.
@@ -280,6 +280,6 @@ typedef uint16_t hsm_key_info_t;
  */
 #define HSM_KEY_INFO_KEK \
 		((hsm_key_info_t)(1u << 3))
-
+#endif
 /** @} end of key management service flow */
 #endif

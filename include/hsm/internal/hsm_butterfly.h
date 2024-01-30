@@ -1,6 +1,6 @@
 // SPDX-License-Identifier: BSD-3-Clause
 /*
- * Copyright 2023 NXP
+ * Copyright 2023-2024 NXP
  */
 
 #ifndef HSM_BUT_H
@@ -10,7 +10,7 @@
 #include "internal/hsm_utils.h"
 #include "internal/hsm_handle.h"
 #include "internal/hsm_key.h"
-
+#ifndef PSA_COMPLIANT
 /**
  *  @defgroup group Key Management
  * @{
@@ -165,4 +165,5 @@ hsm_err_t hsm_butterfly_key_expansion(hsm_hdl_t key_management_hdl,
  *
  */
 /** @} end of key management service flow */
+#endif
 #endif

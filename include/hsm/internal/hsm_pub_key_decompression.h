@@ -1,6 +1,6 @@
 // SPDX-License-Identifier: BSD-3-Clause
 /*
- * Copyright 2023 NXP
+ * Copyright 2023-2024 NXP
  */
 
 #ifndef HSM_PUB_KEY_DECOMPRESSION_H
@@ -10,7 +10,7 @@
 #include "internal/hsm_utils.h"
 #include "internal/hsm_handle.h"
 #include "internal/hsm_key.h"
-
+#ifndef PSA_COMPLIANT
 /**
  *  @defgroup group10 Public key decompression
  * @{
@@ -66,5 +66,5 @@ hsm_err_t hsm_pub_key_decompression(hsm_hdl_t session_hdl,
  *        Any call to this API will results in a HSM_FEATURE_DISABLED error.
  */
 /** @} end of public key decompression operation */
-
+#endif
 #endif

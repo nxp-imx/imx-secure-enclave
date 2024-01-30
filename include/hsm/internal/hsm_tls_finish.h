@@ -1,6 +1,6 @@
 // SPDX-License-Identifier: BSD-3-Clause
 /*
- * Copyright 2023 NXP
+ * Copyright 2023-2024 NXP
  */
 
 #ifndef HSM_TLS_FINISH_H
@@ -10,7 +10,7 @@
 #include "internal/hsm_utils.h"
 #include "internal/hsm_handle.h"
 #include "internal/hsm_key_generate.h"
-
+#ifndef PSA_COMPLIANT
 /**
  *  @defgroup group30 TLS finish
  * @{
@@ -91,4 +91,5 @@ hsm_err_t hsm_tls_finish(hsm_hdl_t key_management_hdl,
  * - \ref HSM_OP_TLS_FINISH_FLAGS_SERVER is not supported.
  */
 /** @} end of tls finish operation */
+#endif
 #endif

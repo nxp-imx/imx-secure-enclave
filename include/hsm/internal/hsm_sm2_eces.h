@@ -1,6 +1,6 @@
 // SPDX-License-Identifier: BSD-3-Clause
 /*
- * Copyright 2023 NXP
+ * Copyright 2023-2024 NXP
  */
 
 #ifndef HSM_SM2_ECES_H
@@ -10,7 +10,7 @@
 #include "internal/hsm_utils.h"
 #include "internal/hsm_handle.h"
 #include "internal/hsm_key.h"
-
+#ifndef PSA_COMPLIANT
 /**
  *  @defgroup group18 SM2 ECES
  * @{
@@ -178,4 +178,5 @@ hsm_err_t hsm_sm2_eces_encryption(hsm_hdl_t session_hdl,
  *
  */
 /** @} end of SM2 ECES encryption operation */
+#endif
 #endif

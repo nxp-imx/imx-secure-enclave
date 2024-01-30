@@ -1,6 +1,6 @@
 // SPDX-License-Identifier: BSD-3-Clause
 /*
- * Copyright 2023 NXP
+ * Copyright 2023-2024 NXP
  */
 
 #ifndef HSM_IMPORT_PUB_KEY_H
@@ -9,7 +9,7 @@
 #include "internal/hsm_utils.h"
 #include "internal/hsm_handle.h"
 #include "internal/hsm_key.h"
-
+#ifndef PSA_COMPLIANT
 /**
  * Bit field describing the operation attributes
  */
@@ -53,4 +53,5 @@ typedef struct {
 hsm_err_t hsm_import_public_key(hsm_hdl_t signature_ver_hdl,
 				op_import_public_key_args_t *args);
 
+#endif
 #endif

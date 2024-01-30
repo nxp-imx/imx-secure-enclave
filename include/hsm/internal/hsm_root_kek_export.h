@@ -1,6 +1,6 @@
 // SPDX-License-Identifier: BSD-3-Clause
 /*
- * Copyright 2023 NXP
+ * Copyright 2023-2024 NXP
  */
 
 #ifndef HSM_ROOT_KEK_EXPORT_H
@@ -9,7 +9,7 @@
 #include "internal/hsm_common_def.h"
 #include "internal/hsm_utils.h"
 #include "internal/hsm_handle.h"
-
+#ifndef PSA_COMPLIANT
 /**
  *  @defgroup group14 Root KEK export
  * @{
@@ -61,4 +61,5 @@ hsm_err_t hsm_export_root_key_encryption_key(hsm_hdl_t session_hdl,
 #define HSM_OP_EXPORT_ROOT_KEK_FLAGS_UNIQUE_KEK \
 		((hsm_op_export_root_kek_flags_t)(0u << 0))
 /** @} end of export root key encryption key operation */
+#endif
 #endif

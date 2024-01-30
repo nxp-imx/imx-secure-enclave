@@ -1,6 +1,6 @@
 // SPDX-License-Identifier: BSD-3-Clause
 /*
- * Copyright 2022-2023 NXP
+ * Copyright 2022-2024 NXP
  */
 
 #ifndef HSM_KEY_GEN_EXT_H
@@ -15,7 +15,7 @@
  *  @defgroup group3 Key management
  * @{
  */
-
+#ifndef PSA_COMPLIANT
 /**
  * Structure detailing the key generate operation member arguments
  */
@@ -62,6 +62,6 @@ typedef struct {
  */
 hsm_err_t hsm_generate_key_ext(hsm_hdl_t key_management_hdl,
 				op_generate_key_ext_args_t *args);
-
+#endif
 /** @} end of key management service flow */
 #endif

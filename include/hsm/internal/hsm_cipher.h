@@ -1,6 +1,6 @@
 // SPDX-License-Identifier: BSD-3-Clause
 /*
- * Copyright 2022,2023 NXP
+ * Copyright 2022-2024 NXP
  */
 
 #ifndef HSM_CIPHER_H
@@ -51,9 +51,9 @@ typedef enum {
 	HSM_CIPHER_ONE_GO_ALGO_OFB = ALGO_CIPHER_OFB,
 	//!< OFB (AES supported).
 	HSM_CIPHER_ONE_GO_ALGO_ECB = ALGO_CIPHER_ECB_NO_PAD,
-	//!< ECB no padding (AES, SM4 supported).
+	//!< ECB no padding (AES supported).
 	HSM_CIPHER_ONE_GO_ALGO_CBC = ALGO_CIPHER_CBC_NO_PAD,
-	//!< CBC no padding (AES, SM4 supported).
+	//!< CBC no padding (AES supported).
 } hsm_op_cipher_one_go_algo_t;
 
 #else
