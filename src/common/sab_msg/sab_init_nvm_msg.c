@@ -1,6 +1,6 @@
 // SPDX-License-Identifier: BSD-3-Clause
 /*
- * Copyright 2022-2023 NXP
+ * Copyright 2022-2024 NXP
  */
 
 #include "sab_msg_def.h"
@@ -17,6 +17,9 @@
 #endif
 #if MT_SAB_STORAGE_CHUNK_GET_DONE_REQ
 #include "sab_storage_get_chunk_done.h"
+#endif
+#if MT_SAB_STORAGE_CHUNK_DELETE_REQ
+#include "sab_storage_chunk_delete.h"
 #endif
 #if MT_SAB_STORAGE_CHUNK_EXPORT_REQ
 #include "sab_storage_chunk_export.h"
@@ -92,6 +95,15 @@ static int init_sab_nvm_rcvmsg_eng(msg_type_t msg_type,
  			}
  		break;
  #endif
+#if MT_SAB_STORAGE_CHUNK_DELETE_REQ
+	case SAB_STORAGE_CHUNK_DELETE_REQ:
+		if (msg_type == MT_SAB_STORAGE_CHUNK_DELETE_REQ) {
+			ret = add_sab_rcvmsg_handler((msg_id - start_msg_id),
+						     MT_SAB_STORAGE_CHUNK_DELETE_REQ,
+						     parse_cmd_prep_rsp_chunk_delete);
+			}
+		break;
+#endif
 #if MT_SAB_STORAGE_KEY_DB_REQ
 	case SAB_STORAGE_KEY_DB_REQ:
 		if (msg_type == MT_SAB_STORAGE_KEY_DB_REQ) {

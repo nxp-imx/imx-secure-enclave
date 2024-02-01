@@ -1,6 +1,6 @@
 // SPDX-License-Identifier: BSD-3-Clause
 /*
- * Copyright 2019-2023 NXP
+ * Copyright 2019-2024 NXP
  */
 
 
@@ -422,6 +422,15 @@ uint32_t get_chunk_file_path(char **path,
 			     uint8_t *nvm_storage_dname,
 			     struct sab_blob_id *blob_id);
 
+/**
+ * Remove a file if it exists.
+ *
+ * \param filename path of the file to remove.
+ *
+ * \return PLAT_SUCCESS on success, PLAT_FAILURE on failure.
+ */
+uint32_t plat_os_abs_storage_remove_file(char *filename);
+
 #if MT_SAB_STORAGE_KEY_DB_REQ
 /**
  * Open a key database file descriptor.
@@ -490,16 +499,6 @@ uint32_t plat_os_abs_storage_pwrite(int fd, void *buffer, size_t size, off_t off
  * \return PLAT_SUCCESS on success, PLAT_FAILURE on failure.
  */
 uint32_t plat_os_abs_storage_file_truncate(int fd, off_t length);
-
-/**
- * Remove a file if it exists.
- *
- * \param filename path of the file to remove.
- *
- * \return PLAT_SUCCESS on success, PLAT_FAILURE on failure.
- */
-uint32_t plat_os_abs_storage_remove_file(char *filename);
-
 #endif
 
 /** @} end of porting guide */

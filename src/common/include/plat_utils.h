@@ -1,6 +1,6 @@
 // SPDX-License-Identifier: BSD-3-Clause
 /*
- * Copyright 2019-2023 NXP
+ * Copyright 2019-2024 NXP
  */
 
 
@@ -46,6 +46,7 @@
 #define PLAT_ERR_OUT_OF_MEMORY         0x03u
 #define PLAT_DATA_BUF_SETUP_FAIL       0x04u
 #define PLAT_SIGNED_MESSAGE_SETUP_FAIL 0x05u
+#define PLAT_ERR_NO_SUCH_FILE_DIR      0x06u
 #define PLAT_CONF_SHARED_BUF_FAIL      0x08u
 
 typedef enum {

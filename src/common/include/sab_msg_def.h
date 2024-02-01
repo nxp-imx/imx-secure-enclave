@@ -129,10 +129,11 @@
 #define SAB_STORAGE_CHUNK_GET_REQ               0xE6u
 #define SAB_STORAGE_CHUNK_GET_DONE_REQ          0xE7u
 #define SAB_STORAGE_KEY_DB_REQ                  0xE8u
+#define SAB_STORAGE_CHUNK_DELETE_REQ            0xE9u
 #define SAB_RCVMSG_START_ID                     SAB_STORAGE_OPEN_REQ
-#define SAB_STORAGE_NVM_LAST_CMD                (SAB_STORAGE_KEY_DB_REQ + 1)
+#define SAB_STORAGE_NVM_LAST_CMD                (SAB_STORAGE_CHUNK_DELETE_REQ + 1)
 
-#define SAB_RCVMSG_MAX_ID                       (SAB_STORAGE_KEY_DB_REQ \
+#define SAB_RCVMSG_MAX_ID                       (SAB_STORAGE_CHUNK_DELETE_REQ \
 							- SAB_RCVMSG_START_ID)
 
 #define SAB_SHE_UTILS_OPEN                      0xF0u
@@ -155,6 +156,7 @@
 
 /* Status code definition */
 #define SAB_FAILURE_STATUS                      0x29u
+#define SAB_UNKNOWN_ID_STATUS                   0x0329u
 #define SAB_CRC_FAILURE_STATUS                  0xB929u
 #define SAB_INVALID_MSG_STATUS                  0xF429u
 #define SAB_ENGN_PASS                           0x0u

@@ -1,6 +1,6 @@
 // SPDX-License-Identifier: BSD-3-Clause
 /*
- * Copyright 2021-2023 NXP
+ * Copyright 2021-2024 NXP
  */
 
 #include <stdio.h>
@@ -211,6 +211,23 @@ uint32_t plat_os_abs_storage_read_chunk(struct plat_os_abs_hdl *phdl,
 	return TO_UINT32_T(l);
 }
 
+uint32_t plat_os_abs_storage_remove_file(char *filename)
+{
+	uint32_t ret = PLAT_SUCCESS;
+	int err;
+
+	err = remove(filename);
+	if (err) {
+		se_err("remove error [%d]: %s\n", errno, strerror(errno));
+
+		ret = PLAT_FAILURE;
+		if (errno == ENOENT)
+			ret = PLAT_ERR_NO_SUCH_FILE_DIR;
+	}
+
+	return ret;
+}
+
 #ifdef MT_SAB_STORAGE_KEY_DB_REQ
 uint32_t plat_os_abs_storage_open_key_db_fd(uint8_t *path, int flags, uint32_t mode)
 {
@@ -317,17 +334,5 @@ uint32_t plat_os_abs_storage_file_truncate(int fd, off_t length)
 	}
 
 	return err;
-}
-
-uint32_t plat_os_abs_storage_remove_file(char *filename)
-{
-	uint32_t ret = PLAT_FAILURE;
-	int err;
-
-	err = remove(filename);
-	if (!err || (err && errno == ENOENT))
-		ret = PLAT_SUCCESS;
-
-	return ret;
 }
 #endif
