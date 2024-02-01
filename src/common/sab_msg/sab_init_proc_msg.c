@@ -1,6 +1,6 @@
 // SPDX-License-Identifier: BSD-3-Clause
 /*
- * Copyright 2022-2023 NXP
+ * Copyright 2022-2024 NXP
  */
 
 #include "sab_msg_def.h"
@@ -474,6 +474,15 @@ static  int init_proc_sab_hsm_msg_engine(msg_type_t msg_type,
 						  proc_msg_rsp_data_storage);
 		}
 		break;
+#if MT_SAB_DATA_STORAGE_DELETE
+	case SAB_DATA_STORAGE_DELETE_REQ:
+		if (msg_type == MT_SAB_DATA_STORAGE_DELETE) {
+			ret = add_sab_msg_handler(msg_id, MT_SAB_DATA_STORAGE_DELETE,
+						  prepare_msg_data_storage_delete,
+						  proc_msg_rsp_data_storage_delete);
+		}
+		break;
+#endif
 #if MT_SAB_ENC_DATA_STORAGE
 	case SAB_ENC_DATA_STORAGE_REQ:
 		if (msg_type == MT_SAB_ENC_DATA_STORAGE) {

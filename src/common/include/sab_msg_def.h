@@ -98,6 +98,7 @@
 #define SAB_DATA_STORAGE_CLOSE_REQ              0xA1u
 #define SAB_DATA_STORAGE_REQ                    0xA2u
 #define SAB_ENC_DATA_STORAGE_REQ                0xA3u
+#define SAB_DATA_STORAGE_DELETE_REQ             0xA4u
 
 #define SAB_SM2_GET_Z_REQ                       0xB0U
 #define SAB_SM2_ECES_ENC_REQ                    0xB1U

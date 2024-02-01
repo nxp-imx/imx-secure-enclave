@@ -1,6 +1,6 @@
 // SPDX-License-Identifier: BSD-3-Clause
 /*
- * Copyright 2019-2023 NXP
+ * Copyright 2019-2024 NXP
  */
 
 #include <signal.h>
@@ -794,6 +794,12 @@ int main(int argc, char *argv[])
 		gc_akey_gen_test(hsm_session_hdl);
 		gc_acrypto_test(hsm_session_hdl);
 	}
+
+	/**
+	 * Test the Data DELETE operation on the data stored, with previous
+	 * tests of Data Storage and Encrypted Data Storage
+	 */
+	data_storage_delete_test(key_store_hdl);
 #endif
 	if (argc > 1) {
 		tv_tests_run(key_store_hdl, argv[1]);

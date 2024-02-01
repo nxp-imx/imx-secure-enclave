@@ -1,5 +1,5 @@
 # SPDX-License-Identifier: BSD-3-Clause
-# Copyright 2022-2023 NXP
+# Copyright 2022-2024 NXP
 #
 
 HSM_API_SRC	+= \
@@ -33,9 +33,15 @@ endif
 
 ifneq (${MT_SAB_DATA_STORAGE},0x0)
 DEFINES		+=	-DHSM_DATA_STORAGE
+
 ifneq (${MT_SAB_ENC_DATA_STORAGE},0x0)
 DEFINES		+=	-DHSM_ENC_DATA_STORAGE
 endif
+
+ifneq (${MT_SAB_DATA_STORAGE_DELETE},0x0)
+DEFINES		+=	-DHSM_DATA_STORAGE_DELETE
+endif
+
 HSM_API_SRC	+= \
 		$(PLAT_COMMON_PATH)/hsm_api/hsm_data_storage.o
 endif

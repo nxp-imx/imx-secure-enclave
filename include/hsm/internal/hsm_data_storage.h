@@ -1,6 +1,6 @@
 // SPDX-License-Identifier: BSD-3-Clause
 /*
- * Copyright 2023 NXP
+ * Copyright 2023-2024 NXP
  */
 
 #ifndef HSM_DATA_STORAGE_H
@@ -124,6 +124,27 @@ hsm_err_t hsm_data_storage(hsm_hdl_t data_storage_hdl, op_data_storage_args_t *a
 #endif
 //!< Retrieve data.
 #define HSM_OP_DATA_STORAGE_FLAGS_RETRIEVE ((hsm_op_data_storage_flags_t)(0u << 1))
+
+/**
+ * Structure detailing the data storage delete operation member arguments
+ */
+typedef struct {
+	hsm_svc_data_storage_flags_t svc_flags;
+	//!< bitmap specifying the services properties.
+	uint32_t data_id;
+	//!< id of the data
+} op_data_storage_delete_args_t;
+
+/**
+ * Delete the data object identified by the data_id. \n
+ *
+ * \param data_storage_hdl handle identifying the data storage service flow.
+ * \param args pointer to the structure containing the function arguments.
+ *
+ * \return error code
+ */
+hsm_err_t hsm_data_storage_delete(hsm_hdl_t data_storage_hdl,
+				  op_data_storage_delete_args_t *args);
 
 /**
  * Encrypted Data TLV Tags

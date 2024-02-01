@@ -31,6 +31,7 @@ hsm_err_t do_key_recovery_test(hsm_hdl_t key_store_hdl, hsm_hdl_t key_mgmt_hdl,
 void data_storage_test(hsm_hdl_t key_store_hdl, int arg);
 #ifdef PSA_COMPLIANT
 void enc_data_storage_test(hsm_hdl_t key_mgmt_hdl, hsm_hdl_t key_store_hdl);
+void data_storage_delete_test(hsm_hdl_t key_store_hdl);
 #endif
 void hash_test(hsm_hdl_t hash_sess);
 hsm_err_t do_hash_test(hsm_hdl_t hash_session_hdl);

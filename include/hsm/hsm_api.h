@@ -1,6 +1,6 @@
 // SPDX-License-Identifier: BSD-3-Clause
 /*
- * Copyright 2019-2023 NXP
+ * Copyright 2019-2024 NXP
  */
 
 #ifndef HSM_API_H
@@ -368,6 +368,25 @@ hsm_err_t hsm_do_hash(hsm_hdl_t session_hdl, op_hash_one_go_args_t *args);
  */
 hsm_err_t hsm_data_ops(hsm_hdl_t key_store_hdl,
 			 op_data_storage_args_t *args);
+/**
+ * Secondary API to delete data from the linux
+ * filesystem managed by EdgeLock Enclave Firmware.
+ *
+ * This API does the following:
+ * 1. Open an data storage service Flow\n
+ * 2. Delete the data identified by input Data ID, from the non-volatile storage.
+ * 3. Post performing the operation, terminate the previously opened
+ *    data-storage service flow.\n
+ *
+ * User can call this function only after having opened a key-store.\n
+ *
+ * \param key_store_hdl handle identifying the current key-store.
+ * \param args pointer to the structure containing the function arguments.
+ *
+ * \return error code
+ */
+hsm_err_t hsm_data_delete_ops(hsm_hdl_t key_store_hdl,
+			      op_data_storage_delete_args_t *args);
 /**
  * Secondary API to store encrypted and signed data in NVM.
  *

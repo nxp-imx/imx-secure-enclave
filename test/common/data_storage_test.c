@@ -1,6 +1,6 @@
 // SPDX-License-Identifier: BSD-3-Clause
 /*
- * Copyright 2022-2023 NXP
+ * Copyright 2022-2024 NXP
  */
 
 #include <pthread.h>
@@ -422,6 +422,76 @@ void enc_data_storage_test(hsm_hdl_t key_mgmt_hdl, hsm_hdl_t key_store_hdl)
 	}
 
 out:
+	printf("---------------------------------------------------\n");
+}
+
+void data_storage_delete_test(hsm_hdl_t key_store_hdl)
+{
+	op_data_storage_args_t data_storage_args;
+	op_data_storage_delete_args_t args;
+	hsm_err_t err;
+
+	printf("\n---------------------------------------------------\n");
+	printf("Data Delete API Test\n");
+	printf("---------------------------------------------------\n");
+
+	//Delete Data#1 from NVM storage with DATA_ID
+	memset(&args, 0, sizeof(op_data_storage_delete_args_t));
+	args.data_id = DATA_ID;
+
+	err = hsm_data_delete_ops(key_store_hdl, &args);
+	printf("\nhsm_data_delete_ops [Data#1] err: 0x%x.", err);
+
+	if (se_get_soc_id() != SOC_IMX93) {
+		/**
+		 * Check for HSM_SERVICES_DISABLED can be removed, after FW fix.
+		 * Currently, HSM APIs return HSM_SERVICES_DISABLED instead of
+		 * HSM_CMD_NOT_SUPPORTED, in case of Unsupported CMD.
+		 */
+		if (err == HSM_CMD_NOT_SUPPORTED || err == HSM_SERVICES_DISABLED)
+			printf("(-ve) --> SUCCESS");
+		else
+			printf("(-ve) --> FAILED");
+
+		goto out;
+	}
+
+	/**
+	 * Negative test case:
+	 * Delete Data#2 (Encrypted) from NVM storage with ENC_DATA_ID
+	 * Expected HSM_UNKNOWN_ID, as Data with ENC_DATA_ID was Read only once.
+	 * and was used/deleted during Encrypted Data Storage API test.
+	 */
+	memset(&args, 0, sizeof(op_data_storage_delete_args_t));
+	args.data_id = ENC_DATA_ID;
+
+	err = hsm_data_delete_ops(key_store_hdl, &args);
+	printf("hsm_data_delete_ops [Data#2 (Encrypted)] err: 0x%x (-ve)", err);
+	if (err == HSM_UNKNOWN_ID)
+		printf("--> SUCCESS\n");
+	else
+		printf("--> FAILED\n");
+
+	//Retrieve the Deleted Data#1, Negative case.
+	memset(&data_storage_args, 0, sizeof(data_storage_args));
+	memset(recieved_data, 0, sizeof(recieved_data));
+
+	data_storage_args.svc_flags = 0;
+	data_storage_args.data = recieved_data;
+	data_storage_args.data_size = sizeof(recieved_data);
+	data_storage_args.data_id = DATA_ID;
+	data_storage_args.flags |= HSM_OP_DATA_STORAGE_FLAGS_RETRIEVE;
+
+	err = hsm_data_ops(key_store_hdl, &data_storage_args);
+	printf("hsm_data_ops [Retrieve Data#1] err:0x%x. (-ve)", err);
+	if (err != HSM_GENERAL_ERROR ||
+	    is_buff_empty(recieved_data, sizeof(recieved_data)))
+		printf("--> FAILED\n");
+	else
+		printf("--> SUCCESS\n");
+out:
+	printf("\n---------------------------------------------------\n");
+	printf("Test Complete\n");
 	printf("---------------------------------------------------\n");
 }
 #endif
