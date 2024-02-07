@@ -1,6 +1,6 @@
 // SPDX-License-Identifier: BSD-3-Clause
 /*
- * Copyright 2022-2023 NXP
+ * Copyright 2022-2024 NXP
  */
 
 #include <pthread.h>
@@ -96,6 +96,34 @@ static uint8_t SHA512_HASH[64] = {
 	0x08, 0xed, 0xed, 0x01, 0x70, 0x12, 0xe2, 0xb0, 0x5a, 0xe9, 0xa3, 0x5e,
 	0x41, 0xc4, 0xe7, 0x6e, 0x8c, 0x11, 0x54, 0x35, 0xba, 0x36, 0x53, 0x54,
 	0xeb, 0x62, 0xd0, 0x9f,
+};
+
+static uint8_t SHA3_224_HASH[28] = {
+	0x90, 0x19, 0x12, 0x1a, 0x34, 0x7b, 0x84, 0x7c, 0x5d, 0x43, 0x7b, 0xa0,
+	0xfb, 0xbc, 0xcb, 0x92, 0xf0, 0x4c, 0x6f, 0x65, 0x67, 0xb5, 0xed, 0x7d,
+	0x5a, 0x4f, 0xe9, 0x2e,
+};
+
+static uint8_t SHA3_256_HASH[32] = {
+	0x8d, 0xb2, 0x8b, 0x60, 0xfc, 0x7b, 0x84, 0x2f, 0xc3, 0x3c, 0x43, 0x60,
+	0x58, 0x53, 0x5d, 0x1e, 0xcd, 0xbb, 0x07, 0x5e, 0xbf, 0xc2, 0x49, 0x7d,
+	0x09, 0x5e, 0x8d, 0x65, 0x0a, 0x19, 0x45, 0xf1,
+};
+
+static uint8_t SHA3_384_HASH[48] = {
+	0x23, 0x4f, 0x7e, 0xc6, 0x85, 0x4d, 0xa0, 0x86, 0x63, 0xf2, 0x02, 0x8d,
+	0x4f, 0xca, 0xd9, 0xc3, 0xd7, 0x57, 0x7f, 0x17, 0x9c, 0xf0, 0x4b, 0xcd,
+	0xde, 0x6c, 0x71, 0x28, 0x22, 0xf9, 0x7e, 0x49, 0x51, 0xa8, 0x5b, 0x8b,
+	0x51, 0xd8, 0x4d, 0x04, 0x51, 0x0c, 0x03, 0xc6, 0x05, 0x02, 0x59, 0xe6,
+};
+
+static uint8_t SHA3_512_HASH[64] = {
+	0x60, 0xdd, 0x03, 0xe0, 0x67, 0x29, 0x87, 0xf2, 0x4a, 0x45, 0x73, 0x64,
+	0x74, 0xa4, 0xdd, 0xbe, 0xa2, 0xe9, 0x3c, 0xbf, 0xb2, 0xd2, 0xfe, 0x22,
+	0x23, 0x85, 0xe6, 0xb4, 0xf5, 0x23, 0x4a, 0x45, 0x1c, 0x60, 0x0a, 0xfb,
+	0xfd, 0xbb, 0x8e, 0xe1, 0xdc, 0x46, 0xdf, 0x14, 0x3b, 0x54, 0x39, 0x00,
+	0x0e, 0x94, 0x83, 0x88, 0x95, 0xa4, 0xe5, 0x24, 0xcd, 0xb7, 0xb1, 0x34,
+	0x3d, 0x4c, 0xa0, 0x38,
 };
 
 static uint8_t SM3_HASH[32] = {
@@ -221,8 +249,11 @@ hsm_err_t do_hash_test(hsm_hdl_t hash_sess)
 	hsm_hash_algo_t alg;
 
 	memset(hash_work_area, 0, sizeof(hash_work_area));
-
+#ifdef PSA_COMPLIANT
+	for (alg = HSM_HASH_ALGO_SHA_224; alg <= HSM_HASH_ALGO_SHA3_512; alg++) {
+#else
 	for (alg = HSM_HASH_ALGO_SHA_224; alg <= HSM_HASH_ALGO_SHA_512; alg++) {
+#endif
 		hash_args.algo = alg;
 		if (hash_args.algo == HSM_HASH_ALGO_SHA_256)
 			hash_size = 32;
@@ -232,7 +263,24 @@ hsm_err_t do_hash_test(hsm_hdl_t hash_sess)
 			hash_size = 48;
 		else if (hash_args.algo == HSM_HASH_ALGO_SHA_512)
 			hash_size = 64;
+#ifdef PSA_COMPLIANT
+		else if (hash_args.algo == HSM_HASH_ALGO_SHA3_224)
+			hash_size = 28;
+		else if (hash_args.algo == HSM_HASH_ALGO_SHA3_256)
+			hash_size = 32;
+		else if (hash_args.algo == HSM_HASH_ALGO_SHA3_384)
+			hash_size = 48;
+		else if (hash_args.algo == HSM_HASH_ALGO_SHA3_512)
+			hash_size = 64;
 
+		/**
+		 * When SHA-2 HASH algorithms tests finished, starting the next
+		 * sequence for SHA-3 HASH algos.
+		 * -1 is due to increment of algo value in each run of the loop
+		 */
+		if (hash_args.algo == HSM_HASH_ALGO_SHA_512)
+			alg = HSM_HASH_ALGO_SHA3_224 - 1;
+#endif
 		hash_args.output_size = hash_size;
 		hash_args.output = hash_work_area;
 		hash_args.input = hash_test_message;
@@ -257,6 +305,24 @@ hsm_err_t do_hash_test(hsm_hdl_t hash_sess)
 		else if (hash_args.algo == HSM_HASH_ALGO_SHA_512)
 			test_status(SHA512_HASH, hash_work_area,
 				    sizeof(SHA512_HASH), "HSM_HASH_ALGO_SHA_512");
+#ifdef PSA_COMPLIANT
+		else if (hash_args.algo == HSM_HASH_ALGO_SHA3_224)
+			test_status(SHA3_224_HASH, hash_work_area,
+				    sizeof(SHA3_224_HASH), "HSM_HASH_ALGO_SHA3_224");
+		else if (hash_args.algo == HSM_HASH_ALGO_SHA3_256)
+			test_status(SHA3_256_HASH, hash_work_area,
+				    sizeof(SHA3_256_HASH), "HSM_HASH_ALGO_SHA3_256");
+		else if (hash_args.algo == HSM_HASH_ALGO_SHA3_384)
+			test_status(SHA3_384_HASH, hash_work_area,
+				    sizeof(SHA3_384_HASH), "HSM_HASH_ALGO_SHA3_384");
+		else if (hash_args.algo == HSM_HASH_ALGO_SHA3_512)
+			test_status(SHA3_512_HASH, hash_work_area,
+				    sizeof(SHA3_512_HASH), "HSM_HASH_ALGO_SHA3_512");
+
+		if (se_get_soc_id() != SOC_IMX93 &&
+		    hash_args.algo == HSM_HASH_ALGO_SHA_512)
+			break;
+#endif
 	}
 
 #if PLAT_ELE_FEAT_NOT_SUPPORTED
@@ -291,8 +357,11 @@ hsm_err_t do_hash_stream_test(hsm_hdl_t hash_sess)
 	memset(hash_temp_input4, 0, sizeof(hash_temp_input4));
 
 	memset(hash_work_area, 0, sizeof(hash_work_area));
-
+#ifdef PSA_COMPLIANT
+	for (alg = HSM_HASH_ALGO_SHA_224; alg <= HSM_HASH_ALGO_SHA3_512; alg++) {
+#else
 	for (alg = HSM_HASH_ALGO_SHA_224; alg <= HSM_HASH_ALGO_SHA_512; alg++) {
+#endif
 		hash_args.algo = alg;
 		if (hash_args.algo == HSM_HASH_ALGO_SHA_256)
 			hash_size = 32;
@@ -302,7 +371,24 @@ hsm_err_t do_hash_stream_test(hsm_hdl_t hash_sess)
 			hash_size = 48;
 		else if (hash_args.algo == HSM_HASH_ALGO_SHA_512)
 			hash_size = 64;
+#ifdef PSA_COMPLIANT
+		else if (hash_args.algo == HSM_HASH_ALGO_SHA3_224)
+			hash_size = 28;
+		else if (hash_args.algo == HSM_HASH_ALGO_SHA3_256)
+			hash_size = 32;
+		else if (hash_args.algo == HSM_HASH_ALGO_SHA3_384)
+			hash_size = 48;
+		else if (hash_args.algo == HSM_HASH_ALGO_SHA3_512)
+			hash_size = 64;
 
+		/**
+		 * When SHA-2 HASH algorithms tests finished, starting the next
+		 * sequence for SHA-3 HASH algos.
+		 * -1 is due to increment of algo value in each run of the loop
+		 */
+		if (hash_args.algo == HSM_HASH_ALGO_SHA_512)
+			alg = HSM_HASH_ALGO_SHA3_224 - 1;
+#endif
 		hash_args.svc_flags = HSM_HASH_FLAG_GET_CONTEXT;
 		err = hsm_do_hash(hash_sess, &hash_args);
 
@@ -370,6 +456,24 @@ hsm_err_t do_hash_stream_test(hsm_hdl_t hash_sess)
 		else if (hash_args.algo == HSM_HASH_ALGO_SHA_512)
 			test_status(SHA512_HASH, hash_work_area,
 				    sizeof(SHA512_HASH), "HSM_HASH_ALGO_SHA_512");
+#ifdef PSA_COMPLIANT
+		else if (hash_args.algo == HSM_HASH_ALGO_SHA3_224)
+			test_status(SHA3_224_HASH, hash_work_area,
+				    sizeof(SHA3_224_HASH), "HSM_HASH_ALGO_SHA3_224");
+		else if (hash_args.algo == HSM_HASH_ALGO_SHA3_256)
+			test_status(SHA3_256_HASH, hash_work_area,
+				    sizeof(SHA3_256_HASH), "HSM_HASH_ALGO_SHA3_256");
+		else if (hash_args.algo == HSM_HASH_ALGO_SHA3_384)
+			test_status(SHA3_384_HASH, hash_work_area,
+				    sizeof(SHA3_384_HASH), "HSM_HASH_ALGO_SHA3_384");
+		else if (hash_args.algo == HSM_HASH_ALGO_SHA3_512)
+			test_status(SHA3_512_HASH, hash_work_area,
+				    sizeof(SHA3_512_HASH), "HSM_HASH_ALGO_SHA3_512");
+
+		if (se_get_soc_id() != SOC_IMX93 &&
+		    hash_args.algo == HSM_HASH_ALGO_SHA_512)
+			break;
+#endif
 	}
 out:
 	printf("\n-----------hash stream operation end---------------\n");
