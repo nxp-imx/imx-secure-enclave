@@ -1,6 +1,6 @@
 // SPDX-License-Identifier: BSD-3-Clause
 /*
- * Copyright 2023 NXP
+ * Copyright 2023-2024 NXP
  */
 
 #ifndef SHE_UTILS_SERVICE_H
@@ -11,15 +11,15 @@
 
 /**
  * @defgroup group3 Utils
- * User must open a SHE utils service flow in order to perform the following
- * operations:
+ * The SHE utils service flow can be opened only after opening SHE key storage handle.
+ *
+ * User must open a SHE utils service flow in order to perform all operations:
  * - Create a utils handle
  * - perform SHE key update extension
  * - update SHE plain key
  * - export SHE plain key
  * - get SHE identity (UID)
  * - get SHE status register
- * - perform MAC generation and verification in fast mode for a SHE session on V2X
  * - perform MAC generation and verification in fast mode for a SHE session
  * @{
  */

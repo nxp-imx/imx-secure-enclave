@@ -6,6 +6,10 @@
 #ifndef ERR_H
 #define ERR_H
 
+/**
+ * @defgroup group0 Error codes
+ * @{
+ */
 #define	SAB_INVALID_MESSAGE	0x01
 //!< Invalid/Unknown message.
 #define	SAB_INVALID_ADDRESS	0x02
@@ -49,5 +53,7 @@
 
 #define SAB_FATAL_FAILURE	0xFF
 //!< fatal error
+
+/** @} end of error code group */
 
 #endif

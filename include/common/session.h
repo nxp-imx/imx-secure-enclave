@@ -31,9 +31,9 @@ typedef struct {
 	uint8_t mu_id;
 	//!< index of the MU as per PLAT point of view.
 	uint8_t tz;
-	//!< indicate if current partition has TZ enabled.
+	//!< Trust Zone (secure) flag - Reflects the XRDC configuration on the MU
 	uint8_t did;
-	//!< DID of the calling partition.
+	//!< DID associated with the MU in the XRDC configuration.
 #endif
 } open_session_args_t;
 

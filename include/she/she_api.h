@@ -27,8 +27,13 @@
 extern uint8_t she_v2x_mu;
 
 /**
- *  @defgroup group1 Session
- *  @{
+ * @defgroup group1 Session
+ * SHE session is the first session to be opened, all other
+ * sessions are based on it.
+ *
+ * All functions and related data types required for opening a
+ * SHE session are described below.
+ * @{
  */
 
 /**
@@ -42,7 +47,7 @@ she_err_t she_open_session(open_session_args_t *args, she_hdl_t *session_hdl);
 
 /**
  * Terminate a previously opened session. All the services opened under this
-   session are closed as well \n
+ * session are closed as well
  *
  * \param session_hdl pointer to the handle identifying the session to be closed.
  *
@@ -55,18 +60,20 @@ she_err_t she_close_session(she_hdl_t session_hdl);
 /**
  *  @defgroup group11 last rating code
  *  \ingroup group100
+ *  We can get last rating code (error) using the below described function.
+ *  This information is helpful during debugging an issue
  *  @{
  */
 /**
  * Report rating code from last command
  *
  * SHE API defines standard errors that should be returned by API calls.
- * Error code reported by SECO are "translated" to these SHE error codes.
- * This API allow user to get the error code reported by SECO for the last
- * command before its translation to SHE error codes. This shoudl be used
+ * Error code reported by SECO/V2X are "translated" to these SHE error codes.
+ * This API allow user to get the error code reported by SECO/V2X for the last
+ * command before its translation to SHE error codes. This should be used
  * for debug purpose only.
  *
- * \param session_hdl SHE session handler
+ * \param session_hdl SHE session handle
  *
  * \return rating code reported by last command
  */
@@ -77,6 +84,10 @@ uint32_t she_get_last_rating_code(she_hdl_t session_hdl);
 /**
  *  @defgroup group12 CMD_CANCEL
  *  \ingroup group100
+ *  To cancel any running command, we can use below described command.
+ *  This is helpful if we have mistakenly send an incorrect command and
+ *  want to stop the execution of that command or discard the results if
+ *  command has already been executed.
  *  @{
  */
 /**

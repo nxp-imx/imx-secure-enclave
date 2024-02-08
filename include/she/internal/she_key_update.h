@@ -1,6 +1,6 @@
 // SPDX-License-Identifier: BSD-3-Clause
 /*
- * Copyright 2023 NXP
+ * Copyright 2023-2024 NXP
  */
 
 #ifndef SHE_KEY_UPDATE_H
@@ -13,8 +13,12 @@
 /**
  * @defgroup group9 CMD_LOAD_KEY
  * \ingroup group100
+ * Supports two variations of KEY update.
  * @{
  */
+
+#define SHE_LOAD_KEY_EXT_FLAGS_STRICT_OPERATION		BIT(7)
+//!< User can use this flag to perform multiple updates before\n writing the key store into the NVM and incrementing the monotonic counter.
 
 /**
  * Structure describing the key update operation arguments
@@ -49,7 +53,8 @@ typedef struct {
 } op_key_update_args_t;
 
 /**
- * Update an internal key of SHE with the protocol specified by SHE.
+ * Update an internal key of SHE based on memory update protocol
+ * refer specification for more information.
  * The request is completed only when the new key has been written in the NVM.
  * The monotonic counter is incremented for each successful update.
  *
@@ -59,12 +64,6 @@ typedef struct {
  * \return error code
  */
 she_err_t she_key_update(she_hdl_t utils_handle, op_key_update_args_t *args);
-
-/*
- * User can use this flag to perform multiple updates before writing the key store
- * into the NVM and incrementing the monotonic counter.
- */
-#define SHE_LOAD_KEY_EXT_FLAGS_STRICT_OPERATION		BIT(7)
 
 /**
  * Structure describing the key update extension operation arguments
@@ -104,7 +103,7 @@ typedef struct {
  * This is an extension of the CMD_LOAD_KEY
  * The functionality of the CMD_LOAD_KEY is extended by adding a flag argument
  * The updates to the key store must be considered as effective only after an
- * operation specifying the flag "STRICT OPERATION" is aknowledged by SHE
+ * operation specifying the flag "STRICT OPERATION" is acknowledged by SHE
  *
  * The request is completed only when the key store is written in the NVM
  * and the monotonic counter is incremented

@@ -1,6 +1,6 @@
 // SPDX-License-Identifier: BSD-3-Clause
 /*
- * Copyright 2023 NXP
+ * Copyright 2023-2024 NXP
  */
 
 #ifndef CIPHER_H
@@ -22,6 +22,7 @@ typedef struct {
 	uint8_t flags;
 	//!< bitmap specifying the services properties
 	uint8_t reserved[3];
+	//!< reserved bits
 } open_svc_cipher_args_t;
 
 /**
@@ -35,7 +36,7 @@ typedef struct {
 	uint16_t iv_size;
 	//!< length in bytes of the initialization vector.
 	//!< it must be 0 for algorithms not using the initialization vector.
-	//!< It must be 12 for AES in CCM mode
+	//!< It must be 12 for AES in CCM mode (not valid for SHE)
 	uint8_t svc_flags;
 	//!< bitmap specifying the services properties.
 	uint8_t flags;

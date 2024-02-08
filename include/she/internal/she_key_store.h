@@ -11,11 +11,10 @@
 
 /**
  * @defgroup group2 Key store
- * User must open a key store service flow in order to perform the following
- * operations:
+ * User must open a key store service flow in order to perform all operations on keys.
  *  - create a new key store
  *  - perform operations involving keys stored in the key store
- *  (ciphering, signature generation...)
+ *  (ciphering, MAC generation/verification...)
  *  - perform a key store reprovisioning using a signed message.
  *  A key store re-provisioning results in erasing all the key stores handled
  *  by the SHE.
@@ -26,41 +25,26 @@
  * @{
  */
 
-/**
- * default flags
- */
 #define KEY_STORE_OPEN_FLAGS_DEFAULT                0x0u
-/**
- * Create a key store
- */
-#define KEY_STORE_OPEN_FLAGS_CREATE                 0x1u
-/**
- * Target key store is a SHE key store
- */
-#define KEY_STORE_OPEN_FLAGS_SHE                    0x2u
-/**
- * Check min mac length
- */
-#define KEY_STORE_OPEN_FLAGS_SET_MAC_LEN            0x8u
-/**
- * Target key store is a shared key store
- */
-#define KEY_STORE_OPEN_FLAGS_SHARED		    0x20u
-/**
- * The request is completed only when the key store has been written
- * in the NVM and the monotonic counter has been updated. This flag is
- * applicable for CREATE operation only
- */
-#define KEY_STORE_OPEN_FLAGS_STRICT_OPERATION       0x80u
+//!< default flags
 
-/**
- * default number of maximum number of updated for SHE storage.
- */
-#define SHE_STORAGE_NUMBER_UPDATES_DEFAULT      300u
-/**
- * default MAC verification length in bits
- */
-#define SHE_STORAGE_MIN_MAC_BIT_LENGTH_DEFAULT  32u
+#define KEY_STORE_OPEN_FLAGS_CREATE                 0x1u
+//!< Create a key store
+
+#define KEY_STORE_OPEN_FLAGS_SHE                    0x2u
+//!< Target key store is a SHE key store
+
+#define KEY_STORE_OPEN_FLAGS_SET_MAC_LEN            0x8u
+//!< Check min mac length
+
+#define KEY_STORE_OPEN_FLAGS_SHARED		    0x20u
+//!< Target key store is a shared key store (applicable only for i.MX95)
+
+#define KEY_STORE_OPEN_FLAGS_STRICT_OPERATION       0x80u
+//!< The request is completed only when the key store has been written\n in the NVM and the monotonic counter has been updated. This flag is\n applicable for CREATE operation only
+
+#define SHE_STORAGE_MIN_MAC_BIT_LENGTH_DEFAULT      32u
+//!< default MAC verification length in bits
 
 /**
  * Open a service flow on the specified key store.

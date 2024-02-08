@@ -16,6 +16,8 @@
 /**
  * @defgroup group0 Error codes
  * Error codes returned by SHE functions.
+ *
+ * Details on all error codes returned by SHE APIs
  * @{
  */
 
@@ -115,7 +117,7 @@ she_err_t plat_err_to_she_err(uint8_t msg_id, uint32_t lib_err, uint8_t dir);
 /**
  * maps the library error to SHE error
  *
- * \param library error
+ * \param lib_err library error
  *
  * \return SHE error
  */

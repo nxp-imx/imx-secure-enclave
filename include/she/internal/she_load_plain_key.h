@@ -1,6 +1,6 @@
 // SPDX-License-Identifier: BSD-3-Clause
 /*
- * Copyright 2023 NXP
+ * Copyright 2023-2024 NXP
  */
 
 #ifndef SHE_LOAD_PLAIN_KEY_H
@@ -13,6 +13,8 @@
 /**
  * @defgroup group13 CMD_LOAD_PLAIN_KEY
  * \ingroup group100
+ * Key is handed over in plaintext. A plain key can only be loaded
+ * into the RAM_KEY slot.
  * @{
  */
 
@@ -27,8 +29,8 @@ typedef struct {
 /**
  * Load a key as plaintext to the RAM_KEY slot without encryption and verification.
  *
- * \param hdl pointer to the SHE utils handle
- * \param key pointer to the plaintext key to be loaded - 128bits
+ * \param utils_handle pointer to the SHE utils handle
+ * \param args pointer to structure contaiing function arguments
  *
  * \return error code
  */

@@ -1,6 +1,6 @@
 // SPDX-License-Identifier: BSD-3-Clause
 /*
- * Copyright 2023 NXP
+ * Copyright 2023-2024 NXP
  */
 
 #ifndef SHE_HANDLE_H
@@ -13,10 +13,8 @@
  *  @{
  */
 
-/**
- * Handle not available
- */
 #define SHE_HANDLE_NONE		(0x0)
+//!< Handle not available
 
 #define SHE_MAX_SESSIONS	(8u)
 //!< Maximum sessions supported.
@@ -57,7 +55,7 @@ struct she_service_hdl_s {
 typedef uint32_t she_hdl_t;
 
 /**
- * Returns pointer to the session handle\n
+ * Returns pointer to the session handle
  *
  * \param hdl identifying the session handle.
  *
@@ -66,7 +64,7 @@ typedef uint32_t she_hdl_t;
 struct she_session_hdl_s *she_session_hdl_to_ptr(uint32_t hdl);
 
 /**
- * Delete the session\n
+ * Delete the session
  *
  * \param s_ptr pointer identifying the session.
  *
@@ -74,14 +72,14 @@ struct she_session_hdl_s *she_session_hdl_to_ptr(uint32_t hdl);
 void delete_she_session(struct she_session_hdl_s *s_ptr);
 
 /**
- *  Add the session\n
+ *  Add the session
  *
  * \return pointer to the session.
  */
 struct she_session_hdl_s *add_she_session(void);
 
 /**
- * Returns pointer to the service handle\n
+ * Returns pointer to the service handle
  *
  * \param hdl identifying the session handle.
  *
@@ -90,7 +88,7 @@ struct she_session_hdl_s *add_she_session(void);
 struct she_service_hdl_s *she_service_hdl_to_ptr(uint32_t hdl);
 
 /**
- * Delete the service\n
+ * Delete the service
  *
  * \param s_ptr pointer identifying the service.
  *
@@ -98,7 +96,7 @@ struct she_service_hdl_s *she_service_hdl_to_ptr(uint32_t hdl);
 void delete_she_service(struct she_service_hdl_s *s_ptr);
 
 /**
- * Add the service\n
+ * Add the service
  *
  * \return pointer to the service.
  */
