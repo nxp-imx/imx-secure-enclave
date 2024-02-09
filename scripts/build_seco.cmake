@@ -47,10 +47,10 @@ if(NOT ELE_FOUND)
 
         if(NOT ${ELE_MAKE_FOR_COVERITY} EQUAL 0)
                 message(STATUS "Building EdgeLock Enclave libs")
-                set(ELE_MAKE_ARGS clean libs PLAT=seco DESTDIR=${ELE_ROOT})
+		set(ELE_MAKE_ARGS clean libs PLAT=seco DESTDIR=${ELE_ROOT} COMPATIBLE_MACHINE=${COMPATIBLE_MACHINE})
         else()
                 message(STATUS "Building EdgeLock Enclave libs & tests")
-                set(ELE_MAKE_ARGS clean all install_tests PLAT=seco DESTDIR=${ELE_ROOT})
+		set(ELE_MAKE_ARGS clean all install_tests PLAT=seco DESTDIR=${ELE_ROOT} COMPATIBLE_MACHINE=${COMPATIBLE_MACHINE})
         endif()
 
         execute_process(COMMAND make ${ELE_MAKE_ARGS}

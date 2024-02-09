@@ -156,7 +156,7 @@ function openssl()
 
 function seco()
 {
-    cmd_script="cmake ${opt_toolchain} ${opt_openssl}"
+    cmd_script="cmake ${opt_toolchain} ${opt_openssl} ${opt_compatible_mach}"
     seco_script="${script_dir}/build_seco.cmake"
 
     printf "\033[0;32m\n"
@@ -762,6 +762,11 @@ do
             opt_platform="${arg#*=}"
             opt_platform="-DPLATFORM=${opt_platform}"
             ;;
+
+        compatible_mach=*)
+	    opt_compatible_mach="${arg#*=}"
+	    opt_compatible_mach="-DCOMPATIBLE_MACHINE=${opt_compatible_mach}"
+	    ;;
 
         out=*)
             opt_out="${arg#*=}"
