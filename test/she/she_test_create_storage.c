@@ -27,7 +27,8 @@ she_err_t she_create_storage_test(she_hdl_t session_handle,
 		}
 
 		args->flags &= ~(KEY_STORE_OPEN_FLAGS_CREATE |
-				KEY_STORE_OPEN_FLAGS_STRICT_OPERATION);
+				KEY_STORE_OPEN_FLAGS_STRICT_OPERATION |
+				KEY_STORE_OPEN_FLAGS_SET_MAC_LEN);
 
 		err = she_open_key_store_service(session_handle,
 						 args);

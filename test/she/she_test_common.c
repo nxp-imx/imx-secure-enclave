@@ -69,9 +69,10 @@ void execute_tests(int session_id, int key_session_id)
 
 	key_store_args[i].flags		 |= KEY_STORE_OPEN_FLAGS_CREATE |
 					    KEY_STORE_OPEN_FLAGS_SHE |
-					    KEY_STORE_OPEN_FLAGS_STRICT_OPERATION;
+					    KEY_STORE_OPEN_FLAGS_STRICT_OPERATION |
+					    KEY_STORE_OPEN_FLAGS_SET_MAC_LEN;
 
-	key_store_args[i].min_mac_length        = 0x0;
+	key_store_args[i].min_mac_length        = 64;
 
 #ifndef PSA_COMPLIANT
 	key_store_args[i].max_updates_number   = 300;
@@ -148,13 +149,10 @@ void execute_tests(int session_id, int key_session_id)
 		}
 	}
 
-	if (!she_v2x_mu) {
-		err = do_she_ext_fast_mac_test
-			(utils_args[i].utils_handle);
-		if (err) {
-			se_print("Error[0x%x]: EXT MAC test Failed.\n", err);
-			return;
-		}
+	err = do_she_ext_fast_mac_test(utils_args[i].utils_handle);
+	if (err) {
+		se_print("Error[0x%x]: EXT MAC test Failed.\n", err);
+		return;
 	}
 
 	err = do_she_get_id_test(utils_args[i].utils_handle);

@@ -1,6 +1,6 @@
 // SPDX-License-Identifier: BSD-3-Clause
 /*
- * Copyright 2023 NXP
+ * Copyright 2023 - 2024 NXP
  */
 
 #include <string.h>
@@ -16,8 +16,10 @@ she_err_t she_ext_verify_mac_test(she_hdl_t utils_handle)
 					 0x2e, 0x40, 0x9f, 0x96,
 					 0xe9, 0x3d, 0x7e, 0x11,
 					 0x73, 0x93, 0x17, 0x2a};
-	uint8_t input_mac[5] = {0x07, 0x0a, 0x16, 0xb4, 0x6b};
-	uint8_t input_mac1[4] = {0xbb, 0x1d, 0x69, 0x29};
+	uint8_t input_mac[SHE_MAC_SIZE] = {0x07, 0x0a, 0x16, 0xb4,
+					   0x6b, 0x4d, 0x41, 0x44,
+					   0xf7, 0x9b, 0xdd, 0x9d,
+					   0xd0, 0x4a, 0x28, 0x7c};
 	uint8_t message2[40] = {0x6b, 0xc1, 0xbe, 0xe2, 0x2e, 0x40, 0x9f, 0x96,
 				0xe9, 0x3d, 0x7e, 0x11, 0x73, 0x93, 0x17, 0x2a,
 				0xae, 0x2d, 0x8a, 0x57, 0x1e, 0x03, 0xac, 0x9c,
@@ -31,7 +33,7 @@ she_err_t she_ext_verify_mac_test(she_hdl_t utils_handle)
 	verify_mac_args.key_ext = 0x00;
 	verify_mac_args.key_id = SHE_RAM_KEY | verify_mac_args.key_ext;
 	verify_mac_args.mac = input_mac;
-	verify_mac_args.mac_length = 0x22;
+	verify_mac_args.mac_length = 72;
 	verify_mac_args.message = message;
 	verify_mac_args.message_length = sizeof(message);
 	verify_mac_args.mac_length_encoding = MAC_BITS_LENGTH;
@@ -50,10 +52,10 @@ she_err_t she_ext_verify_mac_test(she_hdl_t utils_handle)
 	memset(&verify_mac_args, 0, sizeof(verify_mac_args));
 	verify_mac_args.key_ext = 0x00;
 	verify_mac_args.key_id = SHE_RAM_KEY | verify_mac_args.key_ext;
-	verify_mac_args.mac = input_mac1;
-	verify_mac_args.mac_length = 0x1b;
-	verify_mac_args.message = NULL;
-	verify_mac_args.message_length = 0;
+	verify_mac_args.mac = input_mac2;
+	verify_mac_args.mac_length = 56;
+	verify_mac_args.message = message2;
+	verify_mac_args.message_length = sizeof(message2);
 	verify_mac_args.mac_length_encoding = MAC_BITS_LENGTH;
 
 	err = she_verify_mac(utils_handle, &verify_mac_args);
