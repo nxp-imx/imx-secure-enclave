@@ -1,6 +1,6 @@
 // SPDX-License-Identifier: BSD-3-Clause
 /*
- * Copyright 2023 NXP
+ * Copyright 2023-2024 NXP
  */
 
 #include <stdio.h>
@@ -20,7 +20,7 @@ hsm_err_t hsm_open_key_store_service(hsm_hdl_t session_hdl,
 	struct hsm_service_hdl_s *serv_ptr;
 	hsm_err_t err = HSM_GENERAL_ERROR;
 	uint32_t rsp_code = SAB_NO_MESSAGE_RATING;
-	uint32_t error;
+	uint32_t lib_err;
 
 	do {
 		if (!args || !key_store_hdl)
@@ -40,28 +40,31 @@ hsm_err_t hsm_open_key_store_service(hsm_hdl_t session_hdl,
 		serv_ptr = add_service(sess_ptr);
 		if (!serv_ptr)
 			break;
-
+#ifndef PSA_COMPLIANT
 		/* Send the signed message to platform if provided here. */
 		if (args->signed_message) {
-			error = plat_os_abs_send_signed_message(serv_ptr->session->phdl,
-								args->signed_message,
-								args->signed_msg_size);
-			if (error == PLAT_FAILURE)
+			lib_err = plat_os_abs_send_signed_message_v2
+					(serv_ptr->session->phdl,
+					 args->signed_message,
+					 args->signed_msg_size);
+
+			err = plat_err_to_hsm_err(SAB_KEY_STORE_OPEN_REQ,
+						  lib_err,
+						  HSM_PREPARE);
+
+			if (err != HSM_NO_ERROR)
 				break;
 		}
+#endif
+		lib_err = process_sab_msg(serv_ptr->session->phdl,
+					  serv_ptr->session->mu_type,
+					  SAB_KEY_STORE_OPEN_REQ,
+					  MT_SAB_KEY_STORE,
+					  session_hdl,
+					  args, &rsp_code);
 
-		error = process_sab_msg(serv_ptr->session->phdl,
-					serv_ptr->session->mu_type,
-					SAB_KEY_STORE_OPEN_REQ,
-					MT_SAB_KEY_STORE,
-					session_hdl,
-					args, &rsp_code);
-
-		err = sab_rating_to_hsm_err(error, serv_ptr->session->phdl);
-
+		err = lib_err_to_hsm_err(lib_err);
 		if (err != HSM_NO_ERROR) {
-			se_err("HSM Error: SAB_KEY_STORE_OPEN_REQ [0x%x].\n",
-			       err);
 			delete_service(serv_ptr);
 			break;
 		}
@@ -85,9 +88,9 @@ hsm_err_t hsm_open_key_store_service(hsm_hdl_t session_hdl,
 hsm_err_t hsm_close_key_store_service(hsm_hdl_t key_store_hdl)
 {
 	struct hsm_service_hdl_s *serv_ptr;
-	uint32_t error;
 	hsm_err_t err = HSM_UNKNOWN_HANDLE;
 	uint32_t rsp_code = SAB_NO_MESSAGE_RATING;
+	uint32_t lib_err;
 
 	do {
 		if (!key_store_hdl)
@@ -98,21 +101,17 @@ hsm_err_t hsm_close_key_store_service(hsm_hdl_t key_store_hdl)
 		if (!serv_ptr)
 			break;
 
-		error = process_sab_msg(serv_ptr->session->phdl,
-					serv_ptr->session->mu_type,
-					SAB_KEY_STORE_CLOSE_REQ,
-					MT_SAB_KEY_STORE,
-					(uint32_t)key_store_hdl,
-					NULL,
-					&rsp_code);
+		lib_err = process_sab_msg(serv_ptr->session->phdl,
+					  serv_ptr->session->mu_type,
+					  SAB_KEY_STORE_CLOSE_REQ,
+					  MT_SAB_KEY_STORE,
+					  (uint32_t)key_store_hdl,
+					  NULL,
+					  &rsp_code);
 
-		err = sab_rating_to_hsm_err(error, serv_ptr->session->phdl);
-
-		if (err != HSM_NO_ERROR) {
-			se_err("HSM Error: SAB_KEY_STORE_CLOSE_REQ [0x%x].\n",
-			       err);
+		err = lib_err_to_hsm_err(lib_err);
+		if (err != HSM_NO_ERROR)
 			break;
-		}
 
 		err = sab_rating_to_hsm_err(rsp_code, serv_ptr->session->phdl);
 
@@ -135,10 +134,10 @@ hsm_err_t hsm_close_key_store_service(hsm_hdl_t key_store_hdl)
 hsm_err_t hsm_key_store_reprov_en(hsm_hdl_t session_hdl,
 				  op_key_store_reprov_en_args_t *args)
 {
-	uint32_t error;
 	hsm_err_t err = HSM_GENERAL_ERROR;
 	struct hsm_session_hdl_s *sess_ptr;
 	uint32_t rsp_code = SAB_NO_MESSAGE_RATING;
+	uint32_t lib_err;
 
 	do {
 		if (!args)
@@ -155,21 +154,17 @@ hsm_err_t hsm_key_store_reprov_en(hsm_hdl_t session_hdl,
 			break;
 		}
 
-		error = process_sab_msg(sess_ptr->phdl,
-					sess_ptr->mu_type,
-					SAB_KEY_STORE_REPROV_EN_REQ,
-					MT_SAB_KEY_STORE_REPROV_EN,
-					(uint32_t)session_hdl,
-					args,
-					&rsp_code);
+		lib_err = process_sab_msg(sess_ptr->phdl,
+					  sess_ptr->mu_type,
+					  SAB_KEY_STORE_REPROV_EN_REQ,
+					  MT_SAB_KEY_STORE_REPROV_EN,
+					  (uint32_t)session_hdl,
+					  args,
+					  &rsp_code);
 
-		err = sab_rating_to_hsm_err(error, sess_ptr->phdl);
-
-		if (err != HSM_NO_ERROR) {
-			se_err("HSM Error: SAB_KEY_STORE_REPROV_EN_REQ [0x%x].\n",
-			       err);
+		err = lib_err_to_hsm_err(lib_err);
+		if (err != HSM_NO_ERROR)
 			break;
-		}
 
 		err = sab_rating_to_hsm_err(rsp_code, sess_ptr->phdl);
 

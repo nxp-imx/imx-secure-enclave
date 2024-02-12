@@ -1,6 +1,6 @@
 // SPDX-License-Identifier: BSD-3-Clause
 /*
- * Copyright 2023 NXP
+ * Copyright 2023-2024 NXP
  */
 
 #ifndef KEY_STORE_H
@@ -47,13 +47,13 @@ typedef struct {
 	//!< It must be different from 0.\n
 	//!< When in FIPS approved mode values < 32 bits are not allowed.\n
 	//!< Only used on devices implementing SECO FW.
-#endif
 	uint8_t *signed_message;
 	//!< pointer to signed_message to be sent only in case of
 	//!< key store re-provisioning.
 	uint16_t signed_msg_size;
 	//!< size of the signed_message to be sent only in case of
 	//!< key store re-provisioning.
+#endif
 } open_svc_key_store_args_t;
 
 /**

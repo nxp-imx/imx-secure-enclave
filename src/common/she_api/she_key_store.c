@@ -1,6 +1,6 @@
 // SPDX-License-Identifier: BSD-3-Clause
 /*
- * Copyright 2023 NXP
+ * Copyright 2023-2024 NXP
  */
 
 #include "she_api.h"
@@ -58,13 +58,13 @@ she_err_t she_open_key_store_service(she_hdl_t session_hdl,
 				  args, &rsp_code);
 
 	sess_ptr->last_rating = rsp_code;
-#ifdef V2
+
 	err = lib_err_to_she_err(lib_err);
 	if (err != SHE_NO_ERROR) {
 		delete_she_service(serv_ptr);
 		return err;
 	}
-#endif
+
 	err = sab_rating_to_she_err(rsp_code, sess_ptr->phdl);
 
 	if (err != SHE_NO_ERROR) {
@@ -105,11 +105,11 @@ she_err_t she_close_key_store_service(she_hdl_t key_store_handle)
 				  &rsp_code);
 
 	serv_ptr->session->last_rating = rsp_code;
-#ifdef V2
+
 	err = lib_err_to_she_err(lib_err);
 	if (err != SHE_NO_ERROR)
 		return err;
-#endif
+
 	err = sab_rating_to_she_err(rsp_code, serv_ptr->session->phdl);
 	if (err != SHE_NO_ERROR) {
 		se_err("SHE RSP Error: SAB_KEY_STORE_CLOSE_REQ [0x%x].\n", err);
