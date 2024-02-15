@@ -1,6 +1,6 @@
 // SPDX-License-Identifier: BSD-3-Clause
 /*
- * Copyright 2023 NXP
+ * Copyright 2023-2024 NXP
  */
 
 #ifndef SHE_FAST_MAC_H
@@ -39,7 +39,7 @@ typedef struct {
 	//!< flag to identify the operation(generate/verify)
 	uint32_t verification_status;
 	//!< result of the MAC comparison
-} op_fast_seco_mac_t;
+} op_fast_mac_mubuff_t;
 
 /**
  * Structure describing the fast mac generation operation arguments for V2X
@@ -79,6 +79,9 @@ typedef struct {
 #define SHE_MAC_SIZE			16u
 //!< size of the MAC generated is 128bits.
 
+#define SHE_MESSAGE_OFFSET		16u
+//!< message is always kept at offset 16 for FAST MAC V2 API.
+
 /**
  * Structure describing the fast mac generation operation arguments
  */
@@ -106,6 +109,18 @@ typedef struct {
  * \return error code
  */
 she_err_t she_generate_mac(she_hdl_t utils_handle, op_generate_mac_t *args);
+
+/**
+ * Generates a MAC of a given message (length greater than 16 bytes) with
+ * the help of a key identified by key_id.
+ *
+ * \param utils_handle handle identifying the utils service.
+ * \param args pointer to the structure containing the function arguments.
+ *
+ * \return error code
+ */
+she_err_t she_generate_fast_mac_mubuff_v2(she_hdl_t utils_handle,
+					  op_generate_mac_t *args);
 
 /** @} end of CMD_GENERATE_MAC group */
 
@@ -159,6 +174,17 @@ typedef struct {
  * \return error code
  */
 she_err_t she_verify_mac(she_hdl_t utils_handle, op_verify_mac_t *args);
+
+/**
+ * Verify the MAC of a given message (length greater than 16 bytes) with
+ * the help of a key identified by key_id.
+ *
+ * \param utils_handle handle identifying the utils service.
+ * \param args pointer to the structure containing the function arguments.
+ *
+ * \return error code
+ */
+she_err_t she_verify_fast_mac_mubuff_v2(she_hdl_t utils_handle, op_verify_mac_t *args);
 
 /** @} end of CMD_GENERATE_MAC group */
 

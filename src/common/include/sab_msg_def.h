@@ -144,6 +144,7 @@
 #define SAB_FAST_MAC_REQ                        0xF7u
 #define SAB_SHE_KEY_UPDATE_EXT                  0xF8u
 #define SAB_SHE_FAST_MAC_MUBUFF_REQ		0xF9u
+#define SAB_SHE_FAST_MAC_MUBUFF_V2_REQ		0xFAu
 
 #define SAB_MSG_MAX_ID				0xFFu
 

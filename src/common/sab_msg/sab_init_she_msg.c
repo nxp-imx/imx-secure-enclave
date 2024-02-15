@@ -1,6 +1,6 @@
 // SPDX-License-Identifier: BSD-3-Clause
 /*
- * Copyright 2023 NXP
+ * Copyright 2023-2024 NXP
  */
 
 #include "sab_msg_def.h"
@@ -236,6 +236,15 @@ static  int init_proc_sab_she_msg_engine(msg_type_t msg_type,
 			ret = add_sab_msg_handler(msg_id, MT_SAB_FAST_MAC,
 						  prepare_msg_v2x_fast_mac,
 						  proc_msg_rsp_v2x_fast_mac);
+		}
+		break;
+#endif
+#if MT_SAB_FAST_MAC_MUBUFF_V2
+	case SAB_SHE_FAST_MAC_MUBUFF_V2_REQ:
+		if (msg_type == MT_SAB_FAST_MAC_MUBUFF_V2) {
+			ret = add_sab_msg_handler(msg_id, MT_SAB_FAST_MAC_MUBUFF_V2,
+						  prepare_msg_fast_mac_mubuff_v2,
+						  proc_msg_rsp_fast_mac_mubuff_v2);
 		}
 		break;
 #endif
