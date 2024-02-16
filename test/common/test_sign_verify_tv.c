@@ -368,6 +368,15 @@ static int8_t prepare_and_run_sign_verify_test(hsm_hdl_t key_store_hdl, FILE
 
 	if (call_sign_verify_test == 1) {
 
+#ifdef PSA_COMPLIANT
+		if (se_get_soc_id() == SOC_IMX8ULP &&
+		    (scheme_id >= HSM_SIGNATURE_SCHEME_RSA_PKCS1_V15_SHA224 &&
+		     scheme_id <= HSM_SIGNATURE_SCHEME_RSA_PKCS1_PSS_MGF1_ANY_HASH)) {
+			test_status = TEST_STATUS_SKIPPED;
+			goto out;
+		}
+#endif
+
 		se_info("Key TV ID         : %u\n", key_tv_id);
 		se_info("Message Size      : %u\n", message_size);
 		se_info("\nMessage           :\n");
@@ -406,7 +415,7 @@ static int8_t prepare_and_run_sign_verify_test(hsm_hdl_t key_store_hdl, FILE
 
 		se_info("\nSkipping this Test Case\n");
 	}
-
+out:
 	if (message)
 		free(message);
 
@@ -417,14 +426,14 @@ static int8_t prepare_and_run_sign_verify_test(hsm_hdl_t key_store_hdl, FILE
 }
 
 void sign_verify_test_tv(hsm_hdl_t key_store_hdl, FILE *fp, char *line,
-			 uint8_t *tests_passed, uint8_t *tests_failed,
-			 uint8_t *tests_invalid, uint8_t *tests_total)
+			 uint16_t *tests_passed, uint16_t *tests_failed,
+			 uint16_t *tests_invalid, uint16_t *tests_total)
 {
 	int8_t test_status = TEST_STATUS_FAILED;
-	static uint8_t tsign_verify_passed;
-	static uint8_t tsign_verify_failed;
-	static uint8_t tsign_verify_invalids;
-	static uint8_t tsign_verify_total;
+	static uint16_t tsign_verify_passed;
+	static uint16_t tsign_verify_failed;
+	static uint16_t tsign_verify_invalids;
+	static uint16_t tsign_verify_total;
 
 #ifndef ELE_PERF
 	int len = strlen(line);
@@ -473,6 +482,12 @@ void sign_verify_test_tv(hsm_hdl_t key_store_hdl, FILE *fp, char *line,
 		++(*tests_invalid);
 #ifndef ELE_PERF
 		printf("%s: INVALID\n", test_id);
+#endif
+	} else if (test_status == TEST_STATUS_SKIPPED) {
+		--tsign_verify_total;
+		--(*tests_total);
+#ifndef ELE_PERF
+		printf("%s: SKIPPED\n", test_id);
 #endif
 	}
 

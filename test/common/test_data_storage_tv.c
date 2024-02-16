@@ -214,14 +214,14 @@ out:
 }
 
 void data_storage_test_tv(hsm_hdl_t key_store_hdl, FILE *fp, char *line,
-			  uint8_t *tests_passed, uint8_t *tests_failed,
-			  uint8_t *tests_invalid, uint8_t *tests_total)
+			  uint16_t *tests_passed, uint16_t *tests_failed,
+			  uint16_t *tests_invalid, uint16_t *tests_total)
 {
 	int8_t test_status = TEST_STATUS_FAILED;
-	static uint8_t tdata_storage_passed;
-	static uint8_t tdata_storage_failed;
-	static uint8_t tdata_storage_invalids;
-	static uint8_t tdata_storage_total;
+	static uint16_t tdata_storage_passed;
+	static uint16_t tdata_storage_failed;
+	static uint16_t tdata_storage_invalids;
+	static uint16_t tdata_storage_total;
 
 	int len = strlen(line);
 	char *test_id = (char *)malloc(len * sizeof(char));
@@ -263,7 +263,7 @@ void data_storage_test_tv(hsm_hdl_t key_store_hdl, FILE *fp, char *line,
 		printf("%s: INVALID\n", test_id);
 		++tdata_storage_invalids;
 		++(*tests_invalid);
-	} else if (test_status == 2) {
+	} else if (test_status == TEST_STATUS_SKIPPED) {
 		printf("%s: SKIPPED\n", test_id);
 		--tdata_storage_total;
 		--(*tests_total);
