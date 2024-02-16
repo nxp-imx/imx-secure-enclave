@@ -349,14 +349,14 @@ out:
 }
 
 void generate_key_test_tv(hsm_hdl_t key_store_hdl, FILE *fp, char *line,
-			  uint8_t *tests_passed, uint8_t *tests_failed,
-			  uint8_t *tests_invalid, uint8_t *tests_total)
+			  uint16_t *tests_passed, uint16_t *tests_failed,
+			  uint16_t *tests_invalid, uint16_t *tests_total)
 {
 	int8_t test_status = TEST_STATUS_FAILED;
-	static uint8_t tkgen_passed;
-	static uint8_t tkgen_failed;
-	static uint8_t tkgen_invalids;
-	static uint8_t tkgen_total;
+	static uint16_t tkgen_passed;
+	static uint16_t tkgen_failed;
+	static uint16_t tkgen_invalids;
+	static uint16_t tkgen_total;
 
 	int len = strlen(line);
 	char *test_id = (char *)malloc(len * sizeof(char));
