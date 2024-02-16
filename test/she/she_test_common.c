@@ -140,6 +140,14 @@ void execute_tests(int session_id, int key_session_id)
 		return;
 	}
 
+	if (she_v2x_mu) {
+		err = do_she_fast_mac_mubuff_v2_test(utils_args[i].utils_handle);
+		if (err) {
+			se_print("Error[0x%x]: MAC V2 test Failed.\n", err);
+			return;
+		}
+	}
+
 	if (!she_v2x_mu) {
 		err = do_she_ext_fast_mac_test
 			(utils_args[i].utils_handle);

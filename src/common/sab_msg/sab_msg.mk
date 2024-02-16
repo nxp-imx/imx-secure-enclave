@@ -358,6 +358,12 @@ SHE_SAB_MSG_SRC	+= \
 		$(PLAT_COMMON_PATH)/sab_msg/sab_fast_mac.o
 endif
 
+ifneq (${MT_SAB_FAST_MAC_MUBUFF_V2},0x0)
+DEFINES		+=	-DMT_SAB_FAST_MAC_MUBUFF_V2=${MT_SAB_FAST_MAC_MUBUFF_V2}
+SHE_SAB_MSG_SRC	+= \
+		$(PLAT_COMMON_PATH)/sab_msg/sab_fast_mac_mubuff_v2.o
+endif
+
 ifneq (${MT_SAB_GET_ID},0x0)
 DEFINES		+=	-DMT_SAB_GET_ID=${MT_SAB_GET_ID}
 SHE_SAB_MSG_SRC	+= \

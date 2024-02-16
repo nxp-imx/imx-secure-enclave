@@ -1,6 +1,6 @@
 // SPDX-License-Identifier: BSD-3-Clause
 /*
- * Copyright 2023 NXP
+ * Copyright 2023-2024 NXP
  */
 
 #include "she_api.h"
@@ -79,7 +79,7 @@ she_err_t she_verify_mac_seco(struct she_service_hdl_s *serv_ptr,
 {
 	she_err_t err = SHE_GENERAL_ERROR;
 	uint32_t rsp_code = SAB_NO_MESSAGE_RATING;
-	op_fast_seco_mac_t mac_args = {0};
+	op_fast_mac_mubuff_t mac_args = {0};
 	uint32_t ret, lib_err;
 	uint64_t temp;
 
@@ -258,7 +258,7 @@ she_err_t she_generate_mac_seco(struct she_service_hdl_s *serv_ptr,
 	uint32_t lib_err;
 	uint32_t rsp_code = SAB_NO_MESSAGE_RATING;
 	she_err_t err = SHE_GENERAL_ERROR;
-	op_fast_seco_mac_t mac_args = {0};
+	op_fast_mac_mubuff_t mac_args = {0};
 	uint32_t ret;
 	uint64_t temp;
 

@@ -1,6 +1,6 @@
 // SPDX-License-Identifier: BSD-3-Clause
 /*
- * Copyright 2022-2023 NXP
+ * Copyright 2022-2024 NXP
  */
 
 #include <stdlib.h>
@@ -115,6 +115,7 @@ static uint8_t err_handling_v2_support(uint8_t msg_id)
 	    msg_id == SAB_TLS_FINISH_REQ ||
 	    msg_id == SAB_IMPORT_PUB_KEY ||
 	    msg_id == SAB_SHE_GET_ID ||
+	    msg_id == SAB_SHE_FAST_MAC_MUBUFF_V2_REQ ||
 	    msg_id == SAB_FAST_MAC_REQ)
 		ret = 1;
 

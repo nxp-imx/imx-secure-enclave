@@ -1,6 +1,6 @@
 // SPDX-License-Identifier: BSD-3-Clause
 /*
- * Copyright 2023 NXP
+ * Copyright 2023-2024 NXP
  */
 
 #ifndef SAB_FAST_MAC_H
@@ -58,5 +58,14 @@ uint32_t prepare_msg_v2x_fast_mac(void *phdl,
 				  void *args);
 
 uint32_t proc_msg_rsp_v2x_fast_mac(void *rsp_buf, void *args);
+
+uint32_t prepare_msg_fast_mac_mubuff_v2(void *phdl,
+					void *cmd_buf, void *rsp_buf,
+					uint32_t *cmd_msg_sz,
+					uint32_t *rsp_msg_sz,
+					uint32_t msg_hdl,
+					void *args);
+
+uint32_t proc_msg_rsp_fast_mac_mubuff_v2(void *rsp_buf, void *args);
 
 #endif

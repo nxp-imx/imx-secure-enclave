@@ -1,6 +1,6 @@
 // SPDX-License-Identifier: BSD-3-Clause
 /*
- * Copyright 2023 NXP
+ * Copyright 2023-2024 NXP
  */
 
 #include "sab_messaging.h"
@@ -22,7 +22,7 @@ uint32_t prepare_msg_fast_mac(void *phdl,
 	struct sab_she_fast_mac_msg *cmd =
 		(struct sab_she_fast_mac_msg *)cmd_buf;
 
-	op_fast_seco_mac_t *op_args = (op_fast_seco_mac_t *)args;
+	op_fast_mac_mubuff_t *op_args = (op_fast_mac_mubuff_t *)args;
 
 	cmd->utils_handle = msg_hdl;
 	cmd->key_id = op_args->key_id;
@@ -73,7 +73,7 @@ uint32_t proc_msg_rsp_fast_mac(void *rsp_buf, void *args)
 	struct sab_she_fast_mac_rsp *rsp =
 		(struct sab_she_fast_mac_rsp *)rsp_buf;
 
-	op_fast_seco_mac_t *op_args = (op_fast_seco_mac_t *)args;
+	op_fast_mac_mubuff_t *op_args = (op_fast_mac_mubuff_t *)args;
 
 	if (GET_STATUS_CODE(rsp->rsp_code) == SAB_FAILURE_STATUS)
 		return err;

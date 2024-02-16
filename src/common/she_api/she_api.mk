@@ -73,6 +73,12 @@ SHE_API_SRC	+= \
 		$(PLAT_COMMON_PATH)/she_api/she_fast_mac.o
 endif
 
+ifneq (${MT_SAB_FAST_MAC_MUBUFF_V2},0x0)
+DEFINES		+=	-DSHE_FAST_MAC_MUBUFF_V2
+SHE_API_SRC	+= \
+		$(PLAT_COMMON_PATH)/she_api/she_fast_mac_mubuff_v2.o
+endif
+
 ifneq (${MT_SAB_GET_ID},0x0)
 DEFINES		+=	-DSHE_GET_ID
 SHE_API_SRC	+= \
