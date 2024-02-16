@@ -353,14 +353,15 @@ out:
 	return test_status;
 }
 
-void cipher_test_tv(hsm_hdl_t key_store_hdl, FILE *fp, char *line, uint8_t *tests_passed,
-		    uint8_t *tests_failed, uint8_t *tests_invalid, uint8_t *tests_total)
+void cipher_test_tv(hsm_hdl_t key_store_hdl, FILE *fp, char *line,
+		    uint16_t *tests_passed, uint16_t *tests_failed,
+		    uint16_t *tests_invalid, uint16_t *tests_total)
 {
 	int8_t test_status = TEST_STATUS_FAILED;
-	static uint8_t tcipher_passed;
-	static uint8_t tcipher_failed;
-	static uint8_t tcipher_invalids;
-	static uint8_t tcipher_total;
+	static uint16_t tcipher_passed;
+	static uint16_t tcipher_failed;
+	static uint16_t tcipher_invalids;
+	static uint16_t tcipher_total;
 
 #ifndef ELE_PERF
 	int len = strlen(line);

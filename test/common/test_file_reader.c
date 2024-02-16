@@ -1,6 +1,6 @@
 // SPDX-License-Identifier: BSD-3-Clause
 /*
- * Copyright 2022-2023 NXP
+ * Copyright 2022-2024 NXP
  */
 
 #include <errno.h>
@@ -17,30 +17,30 @@
 static void tv_tests(hsm_hdl_t key_store_hdl, uint8_t *tv_file_path)
 {
 	uint32_t key_mgmt_tv_id = 0;
-	uint8_t tkgen_passed = 0;
-	uint8_t tkgen_failed = 0;
-	uint8_t tkgen_invalid = 0;
-	uint8_t tkgen_total = 0;
-	uint8_t tcipher_passed = 0;
-	uint8_t tcipher_failed = 0;
-	uint8_t tcipher_invalid = 0;
-	uint8_t tcipher_total = 0;
-	uint8_t tmac_passed = 0;
-	uint8_t tmac_failed = 0;
-	uint8_t tmac_invalid = 0;
-	uint8_t tmac_total = 0;
-	uint8_t tsign_passed = 0;
-	uint8_t tsign_failed = 0;
-	uint8_t tsign_invalid = 0;
-	uint8_t tsign_total = 0;
-	uint8_t thash_passed = 0;
-	uint8_t thash_failed = 0;
-	uint8_t thash_invalid = 0;
-	uint8_t thash_total = 0;
-	uint8_t tdata_passed = 0;
-	uint8_t tdata_failed = 0;
-	uint8_t tdata_invalid = 0;
-	uint8_t tdata_total = 0;
+	uint16_t tkgen_passed = 0;
+	uint16_t tkgen_failed = 0;
+	uint16_t tkgen_invalid = 0;
+	uint16_t tkgen_total = 0;
+	uint16_t tcipher_passed = 0;
+	uint16_t tcipher_failed = 0;
+	uint16_t tcipher_invalid = 0;
+	uint16_t tcipher_total = 0;
+	uint16_t tmac_passed = 0;
+	uint16_t tmac_failed = 0;
+	uint16_t tmac_invalid = 0;
+	uint16_t tmac_total = 0;
+	uint16_t tsign_passed = 0;
+	uint16_t tsign_failed = 0;
+	uint16_t tsign_invalid = 0;
+	uint16_t tsign_total = 0;
+	uint16_t thash_passed = 0;
+	uint16_t thash_failed = 0;
+	uint16_t thash_invalid = 0;
+	uint16_t thash_total = 0;
+	uint16_t tdata_passed = 0;
+	uint16_t tdata_failed = 0;
+	uint16_t tdata_invalid = 0;
+	uint16_t tdata_total = 0;
 
 	char *line = NULL;
 	char *check_invalid = NULL;
