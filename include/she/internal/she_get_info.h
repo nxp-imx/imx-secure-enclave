@@ -1,6 +1,6 @@
 // SPDX-License-Identifier: BSD-3-Clause
 /*
- * Copyright 2023 NXP
+ * Copyright 2023-2024 NXP
  */
 
 #ifndef SHE_GET_INFO_H
@@ -10,17 +10,18 @@
 #include "common/get_info.h"
 
 /**
- * @defgroup group5 SHE get info
+ * @defgroup group25 SHE Get Info
+ * Get miscellaneous information.
+ *
+ * This function return, among others,
+ * all the information needed to build a valid signed message.
  * @{
  */
 
 /**
- * Perform device attestation operation
- * Get miscellaneous information. This function return, among others,
- * all the information needed to build a valid signed message.
- * User can call this function only after having opened the session.
+ * User can call this function only after having opened the SHE session.
  *
- * \param sess_hdl handle identifying the active session.
+ * \param session_hdl handle identifying the active session.
  * \param args pointer to the structure containing the function arguments.
  *
  * \return error code

@@ -1,6 +1,6 @@
 // SPDX-License-Identifier: BSD-3-Clause
 /*
- * Copyright 2023 NXP
+ * Copyright 2023-2024 NXP
  */
 
 #ifndef RNG_H
@@ -15,10 +15,14 @@
 
 #ifndef PSA_COMPLIANT
 typedef uint8_t svc_rng_flags_t;
+/**
+ * Structure detailing session open operation member arguments
+ */
 typedef struct {
 	svc_rng_flags_t flags;
 	//!< bitmap indicating the service flow properties
 	uint8_t reserved[3];
+	//!< reserved bits
 	uint32_t rng_hdl;
 	//!< rng handle
 } open_svc_rng_args_t;
@@ -36,6 +40,7 @@ typedef struct {
 	svc_rng_flags_t svc_flags;
 	//!< bitmap indicating the service flow properties
 	uint8_t reserved[3];
+	//!< reserved bits
 #endif
 } op_get_random_args_t;
 

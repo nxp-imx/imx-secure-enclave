@@ -1,6 +1,6 @@
 // SPDX-License-Identifier: BSD-3-Clause
 /*
- * Copyright 2023 NXP
+ * Copyright 2023-2024 NXP
  */
 
 #ifndef SHE_GET_STATUS_H
@@ -10,13 +10,15 @@
 #include "internal/she_utils.h"
 
 /**
- * @defgroup group100 SHE commands
+ * @defgroup group100 SHE Commands
  * @{
  */
 
 /**
  * @defgroup group101 CMD_GET_STATUS
  * \ingroup group100
+ *
+ * Return the content of status register
  * @{
  */
 
@@ -33,7 +35,7 @@ typedef struct {
 /**
  * Command to get the content of the status register
  *
- * \param session_hdl handle identifying the utils service
+ * \param utils_handle handle identifying the utils service
  * \param args pointer to the structure containing the function arguments.
  *
  * \return error code.

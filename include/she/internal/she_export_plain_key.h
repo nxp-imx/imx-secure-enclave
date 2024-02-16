@@ -1,6 +1,6 @@
 // SPDX-License-Identifier: BSD-3-Clause
 /*
- * Copyright 2023 NXP
+ * Copyright 2023-2024 NXP
  */
 
 #ifndef SHE_EXPORT_PLAIN_KEY_H
@@ -13,6 +13,9 @@
 /**
  * @defgroup group14 CMD_EXPORT_RAM_KEY
  * \ingroup group100
+ * The function exports the RAM_KEY into a format protected by SECRET_KEY.
+ * The key can be imported again by using CMD_LOAD_KEY.
+ * A RAM_KEY can only be exported if it was written into SHE in plaintext
  * @{
  */
 
@@ -20,7 +23,6 @@
  * Structure describing the export RAM key operation arguments
  */
 typedef struct {
-	//!< identifier of the key to be used for the operation
 	uint8_t *m1;
 	//!< pointer to the output address for M1 message
 	uint8_t m1_size;

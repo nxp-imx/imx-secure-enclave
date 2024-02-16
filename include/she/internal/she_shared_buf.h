@@ -1,14 +1,17 @@
 // SPDX-License-Identifier: BSD-3-Clause
 /*
- * Copyright 2023 NXP
+ * Copyright 2023-2024 NXP
  */
 
 #ifndef SHE_SHARED_BUF_H
 #define SHE_SHARED_BUF_H
 
 /**
- *  @defgroup group4 Shared Buffer
- *  @{
+ * @defgroup group10 Shared Buffer
+ * Shared Memory and shared buffer
+ *
+ * This is applicable for SECO only not valid for V2X (i.MX95)
+ * @{
  */
 
 /**
