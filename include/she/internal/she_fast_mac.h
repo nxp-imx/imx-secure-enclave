@@ -99,6 +99,8 @@ typedef struct {
  * Structure describing the FAST MAC generation operation arguments
  */
 typedef struct {
+	uint8_t flags;
+	//!< optional flag to identify the operation(generate/verify)
 	uint16_t key_ext;
 	//!< identifier of the key extension to be used for the operation
 	uint16_t key_id;
@@ -165,6 +167,8 @@ she_err_t she_generate_fast_mac_mubuff_v2(she_hdl_t utils_handle,
  * Structure describing the FAST MAC generation operation arguments
  */
 typedef struct {
+	uint8_t flags;
+	//!< optional flag to identify the operation(generate/verify)
 	uint16_t key_ext;
 	//!< identifier of the key extension to be used for the operation
 	uint16_t key_id;
