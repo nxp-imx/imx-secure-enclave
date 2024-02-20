@@ -409,7 +409,7 @@ void enc_data_storage_test(hsm_hdl_t key_mgmt_hdl, hsm_hdl_t key_store_hdl)
 
 	err = hsm_data_ops(key_store_hdl, &data_storage_args);
 
-	if (err == HSM_DATA_ALREADY_RETRIEVED) {
+	if (err == HSM_UNKNOWN_ID) {
 		printf("hsm_data_ops [RETRIEVE Again] err: 0x%x. SUCCESS\n", err);
 
 		if (!is_buff_empty(retrieved_enc_data,
@@ -484,7 +484,7 @@ void data_storage_delete_test(hsm_hdl_t key_store_hdl)
 
 	err = hsm_data_ops(key_store_hdl, &data_storage_args);
 	printf("hsm_data_ops [Retrieve Data#1] err:0x%x. (-ve)", err);
-	if (err != HSM_GENERAL_ERROR ||
+	if (err != HSM_UNKNOWN_ID ||
 	    is_buff_empty(recieved_data, sizeof(recieved_data)))
 		printf("--> FAILED\n");
 	else
