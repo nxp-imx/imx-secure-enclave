@@ -1,6 +1,6 @@
 // SPDX-License-Identifier: BSD-3-Clause
 /*
- * Copyright 2019-2023 NXP
+ * Copyright 2019-2024 NXP
  */
 
 #include <errno.h>
@@ -177,14 +177,11 @@ static uint32_t nvm_open_session(uint8_t flags, struct nvm_ctx_st *nvm_ctx)
 
 		plat_os_abs_memset((uint8_t *)args, 0u, (uint32_t)sizeof(op_storage_open_args_t));
 
-		/*
-		 * Flag: 0 -> HSM storage service,
-		 *       1 -> SHE storage service
+		/* Zeroth bit in the flags, denotes:-
+		 * 0: HSM_STORAGE
+		 * 1: SHE_STORAGE
 		 */
-		if (flags)
-			args->flags = 1;
-		else
-			args->flags = 0;
+		args->flags = flags & BIT(0);
 
 		err = process_sab_msg(nvm_ctx->phdl,
 					nvm_ctx->mu_type,
