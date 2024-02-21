@@ -17,6 +17,7 @@
 #include "plat_os_abs.h"
 #include "plat_utils.h"
 #include "seco_mu_ioctl.h"
+#include "internal/hsm_session.h"
 
 /*
  * MU1: SHE user + SHE storage
@@ -24,22 +25,34 @@
  * MU3: unused
  */
 
-static char SECO_MU_SHE_PATH[] = "/dev/seco_mu1_ch0";
-static char SECO_MU_SHE_NVM_PATH[] = "/dev/seco_mu1_ch1";
-static char SECO_MU_HSM_PATH_PRIMARY[] = "/dev/seco_mu2_ch0";
-static char SECO_MU_HSM_NVM_PATH[] = "/dev/seco_mu2_ch1";
-static char SECO_MU_HSM_PATH_SECONDARY[] = "/dev/seco_mu2_ch2";
+char SECO_MU_SHE_PATH[] = "/dev/she1_ch0";
+// This device is for SHE channel on SE, best effort high priority.
+char SECO_MU_SHE_NVM_PATH[] = "/dev/she1_ch1";
+// This device is for SHE NVM channel on SE.
+char SECO_MU_HSM_PATH_PRIMARY[] = "/dev/hsm1_ch0";
+// This device is for HSM1 channel 0 on SE, best effort high priority.
+char SECO_MU_HSM_NVM_PATH[] = "/dev/hsm1_ch1";
+// This device is for HSM NVM channel on SE.
+char SECO_MU_HSM_PATH_SECONDARY[] = "/dev/hsm1_ch2";
+// This device is for HSM1 channel 2 on SE, best effort high priority.
 
 /*
  * V2X MUs
  */
-static char V2X_MU_SV0_PATH[] = "/dev/seco_mu4_ch0";
-static char V2X_MU_SV1_PATH[] = "/dev/seco_mu5_ch0";
-static char V2X_MU_SHE_PATH[] = "/dev/seco_mu6_ch0";
-static char V2X_MU_SG0_PATH[] = "/dev/seco_mu7_ch0";
-static char V2X_MU_SG1_PATH[] = "/dev/seco_mu8_ch0";
-static char V2X_MU_SHE_NVM_PATH[] = "/dev/seco_mu6_ch1";
-static char V2X_MU_SG1_NVM_PATH[] = "/dev/seco_mu8_ch1";
+char V2X_MU_SV0_PATH[] = "/dev/v2x_sv0_ch0";
+// This device is for SV0 channel on V2X, low latency high priority.
+char V2X_MU_SV1_PATH[] = "/dev/v2x_sv1_ch0";
+// This device is for SV1 channel on V2X, low latency low priority.
+char V2X_MU_SHE_PATH[] = "/dev/v2x_she_ch0";
+// This device is for SHE channel on V2X, low latency  high priority.
+char V2X_MU_SG0_PATH[] = "/dev/v2x_sg0_ch0";
+// This device is for SG0 channel on V2X, low latency high priority.
+char V2X_MU_SG1_PATH[] = "/dev/v2x_sg1_ch0";
+// This device is for SG1 channel on V2X, low latency low priority.
+char V2X_MU_SHE_NVM_PATH[] = "/dev/v2x_she_ch1";
+// This device is for SHE NVM channel on V2X.
+char V2X_MU_SG1_NVM_PATH[] = "/dev/v2x_sg1_ch1";
+// This device is for V2X NVM channel on V2X.
 
 /* Open a SHE session and returns a pointer to the handle or NULL in case of error.
  * Here it consists in opening the decicated seco MU device file.
@@ -53,68 +66,65 @@ struct plat_os_abs_hdl *plat_os_abs_open_mu_channel(uint32_t type, struct plat_m
     int32_t error;
     uint8_t is_nvm = 0u;
 
-    switch (type) {
-    case MU_CHANNEL_PLAT_SHE:
-        device_path = SECO_MU_SHE_PATH;
-        break;
-    case MU_CHANNEL_PLAT_SHE_NVM:
-        device_path = SECO_MU_SHE_NVM_PATH;
-        is_nvm = 1u;
-        break;
-    case MU_CHANNEL_PLAT_HSM:
-        device_path = SECO_MU_HSM_PATH_PRIMARY;
-        break;
-    case MU_CHANNEL_PLAT_HSM_2ND:
-        device_path = SECO_MU_HSM_PATH_SECONDARY;
-        break;
-    case MU_CHANNEL_PLAT_HSM_NVM:
-        device_path = SECO_MU_HSM_NVM_PATH;
-        is_nvm = 1u;
-        break;
-    case MU_CHANNEL_V2X_SV0:
-        device_path = V2X_MU_SV0_PATH;
-        break;
-    case MU_CHANNEL_V2X_SV1:
-        device_path = V2X_MU_SV1_PATH;
-        break;
-    case MU_CHANNEL_V2X_SHE:
-        device_path = V2X_MU_SHE_PATH;
-        break;
-    case MU_CHANNEL_V2X_SG0:
-        device_path = V2X_MU_SG0_PATH;
-        break;
-    case MU_CHANNEL_V2X_SG1:
-        device_path = V2X_MU_SG1_PATH;
-        break;
-    case MU_CHANNEL_V2X_SHE_NVM:
-        device_path = V2X_MU_SHE_NVM_PATH;
-        is_nvm = 1u;
-        break;
-    case MU_CHANNEL_V2X_HSM_NVM:
-        device_path = V2X_MU_SG1_NVM_PATH;
-        is_nvm = 1u;
-        break;
-    default:
-        device_path = NULL;
-        break;
-    }
+	switch (type) {
+	case SHE1:
+		device_path = SECO_MU_SHE_PATH;
+		break;
+	case SHE_NVM:
+		device_path = SECO_MU_SHE_NVM_PATH;
+		is_nvm = 1u;
+		break;
+	case HSM1:
+		device_path = SECO_MU_HSM_PATH_PRIMARY;
+		break;
+	case HSM_NVM:
+		device_path = SECO_MU_HSM_NVM_PATH;
+		is_nvm = 1u;
+		break;
+	case V2X_SV0:
+		device_path = V2X_MU_SV0_PATH;
+		break;
+	case V2X_SV1:
+		device_path = V2X_MU_SV1_PATH;
+		break;
+	case V2X_SHE:
+		device_path = V2X_MU_SHE_PATH;
+		break;
+	case V2X_SG0:
+		device_path = V2X_MU_SG0_PATH;
+		break;
+	case V2X_SG1:
+		device_path = V2X_MU_SG1_PATH;
+		break;
+	case V2X_SHE_NVM:
+		device_path = V2X_MU_SHE_NVM_PATH;
+		is_nvm = 1u;
+		break;
+	case V2X_HSM_NVM:
+		device_path = V2X_MU_SG1_NVM_PATH;
+		is_nvm = 1u;
+		break;
+	default:
+		device_path = NULL;
+		break;
+	}
 
     if ((phdl != NULL) && (device_path != NULL) && (mu_params != NULL)) {
         phdl->fd = open(device_path, O_RDWR);
         /* If open failed return NULL handle. */
         if (phdl->fd < 0) {
-		if (type == MU_CHANNEL_PLAT_HSM) {
+		if (type == HSM1) {
 			device_path = SECO_MU_HSM_PATH_SECONDARY;
 			phdl->fd = open(device_path, O_RDWR);
 			if (phdl->fd < 0) {
 				plat_os_abs_free(phdl);
 				phdl = NULL;
 			}
-		} else if (type == MU_CHANNEL_PLAT_SHE) {
+		} else if (type == SHE1) {
 			/* on boards where SHE is on V2X, open() will fail on non-V2X
 			 * MU Type, so try opening V2X here e.g. i.MX95
 			 */
-			type = MU_CHANNEL_V2X_SHE;
+			type = V2X_SHE;
 			device_path = V2X_MU_SHE_PATH;
 			phdl->fd = open(device_path, O_RDWR);
 			if (phdl->fd < 0) {

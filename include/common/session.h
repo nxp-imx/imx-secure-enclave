@@ -21,10 +21,6 @@ typedef struct {
 	//!< Session handle.
 	uint8_t mu_type;
 	//!< MU with associated functionality on which session will be opened
-	uint8_t session_priority;
-	//!< Priority of the operations performed in this session.
-	uint8_t operating_mode;
-	//!< Options for the session to be opened (bitfield).
 	uint8_t interrupt_idx;
 	//!< Interrupt number of the MU used to indicate data availability.
 #ifndef PSA_COMPLIANT
