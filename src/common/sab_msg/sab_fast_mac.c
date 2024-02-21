@@ -10,6 +10,120 @@
 #include "plat_os_abs.h"
 #include "plat_utils.h"
 
+static uint32_t process_verify_args(void *phdl,
+				    struct sab_she_fast_mac_msg *cmd,
+				    void *args)
+{
+	uint32_t err = SAB_LIB_STATUS(SAB_LIB_CMD_MSG_PREP_FAIL);
+	uint32_t ret;
+	uint64_t temp;
+	op_verify_mac_t *op_args = (op_verify_mac_t *)args;
+
+	cmd->key_id = op_args->key_ext | op_args->key_id;
+	cmd->data_length = op_args->message_length;
+	cmd->mac_length = op_args->mac_length;
+	cmd->flags = op_args->flags;
+
+	/*
+	 * the MAC data is stored right after the input data
+	 */
+	if (op_args->message_length == 0u) {
+		ret = plat_os_abs_data_buf_v2((struct plat_os_abs_hdl *)phdl,
+					      &temp,
+					      op_args->mac,
+					      SHE_MAC_SIZE,
+					      DATA_BUF_IS_INPUT |
+					      DATA_BUF_USE_SEC_MEM |
+					      DATA_BUF_SHORT_ADDR);
+		cmd->data_offset = temp & SEC_MEM_SHORT_ADDR_MASK;
+	} else {
+		ret = plat_os_abs_data_buf_v2((struct plat_os_abs_hdl *)phdl,
+					      &temp,
+					      op_args->message,
+					      op_args->message_length,
+					      DATA_BUF_IS_INPUT |
+					      DATA_BUF_USE_SEC_MEM |
+					      DATA_BUF_SHORT_ADDR);
+		if (ret != PLAT_SUCCESS) {
+			err |= ret;
+			return err;
+		}
+
+		cmd->data_offset = temp & SEC_MEM_SHORT_ADDR_MASK;
+
+		ret = plat_os_abs_data_buf_v2((struct plat_os_abs_hdl *)phdl,
+					      &temp,
+					      op_args->mac,
+					      SHE_MAC_SIZE,
+					      DATA_BUF_IS_INPUT |
+					      DATA_BUF_USE_SEC_MEM |
+					      DATA_BUF_SHORT_ADDR);
+	}
+
+	if (ret != PLAT_SUCCESS) {
+		err |= ret;
+		return err;
+	}
+
+	return SAB_LIB_STATUS(SAB_LIB_SUCCESS);
+}
+
+static uint32_t process_generate_args(void *phdl,
+				      struct sab_she_fast_mac_msg *cmd,
+				      void *args)
+{
+	uint32_t err = SAB_LIB_STATUS(SAB_LIB_CMD_MSG_PREP_FAIL);
+	uint32_t ret;
+	uint64_t temp;
+	op_generate_mac_t *op_args = (op_generate_mac_t *)args;
+
+	cmd->key_id = op_args->key_ext | op_args->key_id;
+	cmd->data_length = op_args->message_length;
+	cmd->mac_length = 0u;
+	cmd->flags = op_args->flags;
+
+	/*
+	 * the MAC data is stored right after the input data
+	 */
+	if (op_args->message_length == 0u) {
+		ret = plat_os_abs_data_buf_v2((struct plat_os_abs_hdl *)phdl,
+					      &temp,
+					      op_args->mac,
+					      SHE_MAC_SIZE,
+					      DATA_BUF_USE_SEC_MEM |
+					      DATA_BUF_SHORT_ADDR);
+		cmd->data_offset = temp & SEC_MEM_SHORT_ADDR_MASK;
+	} else {
+		ret = plat_os_abs_data_buf_v2((struct plat_os_abs_hdl *)phdl,
+					      &temp,
+					      op_args->message,
+					      op_args->message_length,
+					      DATA_BUF_IS_INPUT |
+					      DATA_BUF_USE_SEC_MEM |
+					      DATA_BUF_SHORT_ADDR);
+		if (ret != PLAT_SUCCESS) {
+			err |= ret;
+			return err;
+		}
+
+		cmd->data_offset = temp & SEC_MEM_SHORT_ADDR_MASK;
+
+		ret = plat_os_abs_data_buf_v2((struct plat_os_abs_hdl *)phdl,
+					      &temp,
+					      op_args->mac,
+					      SHE_MAC_SIZE,
+					      DATA_BUF_USE_SEC_MEM |
+					      DATA_BUF_SHORT_ADDR);
+	}
+
+	if (ret != PLAT_SUCCESS) {
+		err |= ret;
+		return err;
+	}
+
+	return SAB_LIB_STATUS(SAB_LIB_SUCCESS);
+}
+
 uint32_t prepare_msg_fast_mac(void *phdl,
 			      void *cmd_buf,
 			      void *rsp_buf,
@@ -21,47 +135,19 @@ uint32_t prepare_msg_fast_mac(void *phdl,
 	uint32_t err = SAB_LIB_STATUS(SAB_LIB_SUCCESS);
 	struct sab_she_fast_mac_msg *cmd =
 		(struct sab_she_fast_mac_msg *)cmd_buf;
-
-	op_fast_mac_mubuff_t *op_args = (op_fast_mac_mubuff_t *)args;
+	op_generate_mac_t *op_args = (op_generate_mac_t *)args;
 
 	cmd->utils_handle = msg_hdl;
-	cmd->key_id = op_args->key_id;
-	cmd->data_length = op_args->data_length;
-	cmd->data_offset = op_args->data_offset;
-	cmd->mac_length = op_args->mac_length;
-	cmd->flags = op_args->flags;
+
+	/* Variable 'flags', is the first member in both the
+	 * structures: op_generate_mac_t & op_verify_mac_t
+	 */
+	if (op_args->flags == SHE_FAST_MAC_FLAGS_VERIFICATION)
+		err = process_verify_args(phdl, cmd, args);
+	else
+		err = process_generate_args(phdl, cmd, args);
 
 	*cmd_msg_sz = sizeof(struct sab_she_fast_mac_msg);
-	*rsp_msg_sz = sizeof(struct sab_she_fast_mac_rsp);
-
-	return err;
-}
-
-uint32_t prepare_msg_v2x_fast_mac(void *phdl,
-				  void *cmd_buf,
-				  void *rsp_buf,
-				  uint32_t *cmd_msg_sz,
-				  uint32_t *rsp_msg_sz,
-				  uint32_t msg_hdl,
-				  void *args)
-{
-	uint32_t err = SAB_LIB_STATUS(SAB_LIB_SUCCESS);
-	struct sab_she_v2x_fast_mac_msg *cmd =
-		(struct sab_she_v2x_fast_mac_msg *)cmd_buf;
-
-	op_fast_v2x_mac_t *op_args = (op_fast_v2x_mac_t *)args;
-
-	cmd->utils_handle = msg_hdl;
-	cmd->key_id = op_args->key_id;
-	cmd->data_length = op_args->data_length;
-	cmd->mac_length = op_args->mac_length;
-	cmd->flags = op_args->flags;
-	cmd->m1 = op_args->m1;
-	cmd->m2 = op_args->m2;
-	cmd->m3 = op_args->m3;
-	cmd->m4 = op_args->m4;
-
-	*cmd_msg_sz = sizeof(struct sab_she_v2x_fast_mac_msg);
 	*rsp_msg_sz = sizeof(struct sab_she_fast_mac_rsp);
 
 	return err;
@@ -73,24 +159,7 @@ uint32_t proc_msg_rsp_fast_mac(void *rsp_buf, void *args)
 	struct sab_she_fast_mac_rsp *rsp =
 		(struct sab_she_fast_mac_rsp *)rsp_buf;
 
-	op_fast_mac_mubuff_t *op_args = (op_fast_mac_mubuff_t *)args;
-
-	if (GET_STATUS_CODE(rsp->rsp_code) == SAB_FAILURE_STATUS)
-		return err;
-
-	if (op_args->flags & SHE_FAST_MAC_FLAGS_VERIFICATION)
-		op_args->verification_status = rsp->verification_status;
-
-	return err;
-}
-
-uint32_t proc_msg_rsp_v2x_fast_mac(void *rsp_buf, void *args)
-{
-	uint32_t err = SAB_LIB_STATUS(SAB_LIB_SUCCESS);
-	struct sab_she_fast_mac_rsp *rsp =
-		(struct sab_she_fast_mac_rsp *)rsp_buf;
-
-	op_fast_v2x_mac_t *op_args = (op_fast_v2x_mac_t *)args;
+	op_verify_mac_t *op_args = (op_verify_mac_t *)args;
 
 	if (GET_STATUS_CODE(rsp->rsp_code) == SAB_FAILURE_STATUS)
 		return err;

@@ -59,6 +59,15 @@ uint32_t prepare_msg_v2x_fast_mac(void *phdl,
 
 uint32_t proc_msg_rsp_v2x_fast_mac(void *rsp_buf, void *args);
 
+uint32_t prepare_msg_fast_mac_mubuff(void *phdl,
+				     void *cmd_buf, void *rsp_buf,
+				     uint32_t *cmd_msg_sz,
+				     uint32_t *rsp_msg_sz,
+				     uint32_t msg_hdl,
+				     void *args);
+
+uint32_t proc_msg_rsp_fast_mac_mubuff(void *rsp_buf, void *args);
+
 uint32_t prepare_msg_fast_mac_mubuff_v2(void *phdl,
 					void *cmd_buf, void *rsp_buf,
 					uint32_t *cmd_msg_sz,

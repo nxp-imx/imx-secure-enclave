@@ -1,5 +1,5 @@
 # SPDX-License-Identifier: BSD-3-Clause
-# Copyright 2022-2023 NXP
+# Copyright 2022-2024 NXP
 #
 
 include $(PLAT_PATH)/sab_msg.def
@@ -356,6 +356,12 @@ ifneq (${MT_SAB_FAST_MAC},0x0)
 DEFINES		+=	-DMT_SAB_FAST_MAC=${MT_SAB_FAST_MAC}
 SHE_SAB_MSG_SRC	+= \
 		$(PLAT_COMMON_PATH)/sab_msg/sab_fast_mac.o
+endif
+
+ifneq (${MT_SAB_FAST_MAC_MUBUFF},0x0)
+DEFINES		+=	-DMT_SAB_FAST_MAC_MUBUFF=${MT_SAB_FAST_MAC_MUBUFF}
+SHE_SAB_MSG_SRC	+= \
+		$(PLAT_COMMON_PATH)/sab_msg/sab_fast_mac_mubuff.o
 endif
 
 ifneq (${MT_SAB_FAST_MAC_MUBUFF_V2},0x0)
