@@ -142,7 +142,7 @@ uint32_t prepare_msg_fast_mac(void *phdl,
 	/* Variable 'flags', is the first member in both the
 	 * structures: op_generate_mac_t & op_verify_mac_t
 	 */
-	if (op_args->flags == SHE_FAST_MAC_FLAGS_VERIFICATION)
+	if (op_args->flags & SHE_FAST_MAC_FLAGS_VERIFICATION)
 		err = process_verify_args(phdl, cmd, args);
 	else
 		err = process_generate_args(phdl, cmd, args);
