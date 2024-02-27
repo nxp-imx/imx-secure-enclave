@@ -61,6 +61,15 @@ she_err_t she_generate_mac(she_hdl_t utils_handle, op_generate_mac_t *args);
  * Generates a MAC (V2) of a given message (supports length greater than 16 bytes)
  * with the help of a key identified by key_id.
  *
+ * The MAC and the message are transferred to or from V2X via the
+ * SHE Messaging Unit buffer at the following system address:
+ *   - For i.MX95:
+ *     SHE0: 256 bytes
+ *     SHE1: 64 bytes
+ * SHE MU buffer must be: MAC(16 bytes) || Message
+ *
+ * Verify: concatenation of expected MAC and message
+ *
  * \param utils_handle handle identifying the utils service.
  * \param args pointer to the structure containing the function arguments.
  *
