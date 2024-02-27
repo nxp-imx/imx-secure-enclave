@@ -78,9 +78,13 @@ all_libs:= $(SHE_LIB) $(NVM_LIB) $(HSM_LIB)
 
 
 # Make targets, must need NVM-Daemon to run successfully.
-tests: install_version $(all_tests) $(NVM_DAEMON) clean_ver_hfile
-libs: install_version $(all_libs) $(NVM_DAEMON) clean_ver_hfile
-all: install_version $(all_libs) $(all_tests) $(NVM_DAEMON) clean_ver_hfile
+tests: | install_version build_tests  clean_ver_hfile
+libs: | install_version build_libs clean_ver_hfile
+all: | install_version build_all clean_ver_hfile
+
+build_tests: $(all_tests) $(NVM_DAEMON)
+build_libs: $(all_libs) $(NVM_DAEMON)
+build_all: $(all_libs) $(all_tests) $(NVM_DAEMON)
 
 .PHONY: all clean
 
