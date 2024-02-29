@@ -140,6 +140,23 @@ she_err_t she_key_update_ext_test(she_hdl_t utils_handle)
 					       0x20, 0x40, 0xd0, 0xcb,
 					       0xe6, 0x62, 0x64, 0x71,
 					       0x78, 0x56, 0xfc, 0xba};
+	/*
+	 * ./memory_update_protocol.py 11 1 0x86543782965437bdceaf873465378ffe
+	 * 0x000102030405060708090a0b0c0d0e0f  -c 1 (EXT_1)
+	 */
+	uint8_t m2_8[2 * SHE_KEY_SIZE_IN_BYTES] = {0xA6, 0xC4, 0xD8, 0xF6,
+						   0x32, 0xFA, 0xED, 0x10,
+						   0x3D, 0x8E, 0x3E, 0xEF,
+						   0x2B, 0x76, 0x94, 0xA9,
+						   0xF8, 0x4B, 0x2E, 0x6F,
+						   0xAC, 0x29, 0x2A, 0x18,
+						   0x55, 0xF0, 0xF7, 0xC1,
+						   0xE1, 0xEF, 0x14, 0xF4};
+	uint8_t m3_8[SHE_KEY_SIZE_IN_BYTES] = {0xCE, 0x24, 0x8F, 0x1F,
+					       0x58, 0xC8, 0xA9, 0x78,
+					       0x6A, 0xCC, 0xF8, 0x83,
+					       0x1E, 0xE4, 0x01, 0xD9};
+
 	uint8_t m4[2 * SHE_KEY_SIZE_IN_BYTES] = {0};
 	uint8_t m5[SHE_KEY_SIZE_IN_BYTES] = {0};
 	she_err_t err;
@@ -187,6 +204,29 @@ she_err_t she_key_update_ext_test(she_hdl_t utils_handle)
 		return err;
 	}
 	se_print("SHE KEY UPDATE EXT TEST FOR KEY_7 --> PASSED\n");
+
+	m1[15] = 0xb1;
+	memset(&key_update_ext_args, 0, sizeof(key_update_ext_args));
+	key_update_ext_args.key_ext = SHE_KEY_N_EXT_1;
+	key_update_ext_args.key_id = SHE_KEY_8 | key_update_ext_args.key_ext;
+	key_update_ext_args.flags = SHE_LOAD_KEY_EXT_FLAGS_STRICT_OPERATION;
+	key_update_ext_args.m1 = m1;
+	key_update_ext_args.m2 = m2_8;
+	key_update_ext_args.m3 = m3_8;
+	key_update_ext_args.m4 = m4;
+	key_update_ext_args.m5 = m5;
+	key_update_ext_args.m1_size = sizeof(m1);
+	key_update_ext_args.m2_size = sizeof(m2_8);
+	key_update_ext_args.m3_size = sizeof(m3_8);
+	key_update_ext_args.m4_size = sizeof(m4);
+	key_update_ext_args.m5_size = sizeof(m5);
+
+	err = she_key_update_ext(utils_handle, &key_update_ext_args);
+	if (err) {
+		se_err("Error[0x%x]: she_key_update_ext failed (KEY 8).\n", err);
+		return err;
+	}
+	se_print("SHE KEY UPDATE EXT TEST FOR KEY_8 --> PASSED\n");
 
 	return err;
 }
