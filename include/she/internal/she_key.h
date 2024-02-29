@@ -14,6 +14,9 @@
  * @{
  */
 
+#define SHE_MASTER_ECU_KEY	(0x01)
+#define SHE_BOOT_MAC_KEY	(0x02)
+#define SHE_BOOT_MAC	(0x03)
 #define SHE_KEY_1	(0x04)
 #define SHE_KEY_2	(0x05)
 #define SHE_KEY_3	(0x06)
