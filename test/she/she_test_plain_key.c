@@ -1,6 +1,6 @@
 // SPDX-License-Identifier: BSD-3-Clause
 /*
- * Copyright 2023 NXP
+ * Copyright 2023 - 2024 NXP
  */
 
 #include <string.h>
@@ -62,14 +62,17 @@ she_err_t she_export_plain_key_test(she_hdl_t utils_handle)
 	export_plain_key_args.m5_size = sizeof(m5);
 
 	err = she_export_plain_key(utils_handle, &export_plain_key_args);
-	if (err) {
+	if (err != SHE_KEY_EMPTY_RATING) {
 		se_err("Error[0x%x]: she_export_plain_key failed.\n", err);
 		return err;
 	}
 
-	se_print("SHE EXPORT PLAIN KEY TEST --> PASSED\n");
+	if (err == SHE_KEY_EMPTY_RATING)
+		se_print("SHE EXPORT PLAIN KEY TEST --> NOT TESTED : NO SECRET_KEY\n");
+	else
+		se_print("SHE EXPORT PLAIN KEY TEST --> PASSED\n");
 
-	return err;
+	return SHE_NO_ERROR;
 }
 
 she_err_t do_she_plain_key_test(she_hdl_t utils_handle)
