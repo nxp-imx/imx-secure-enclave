@@ -185,6 +185,59 @@ she_err_t she_BMK_key_update_test(she_hdl_t utils_handle)
 	return err;
 }
 
+she_err_t she_BM_key_update_test(she_hdl_t utils_handle)
+{
+	op_key_update_args_t key_update_args = {0};
+	uint8_t i = 0;
+
+	/*
+	 * ./memory_update_protocol.py 3 1 0x000102030405060708090a0b0c0f0f0f
+	 *				0x000102030405060708090a0b0c0d0e0f -c 1
+	 */
+	uint8_t m1[SHE_KEY_SIZE_IN_BYTES] = {0x00, 0x00, 0x00, 0x00,
+					     0x00, 0x00, 0x00, 0x00,
+					     0x00, 0x00, 0x00, 0x00,
+					     0x00, 0x00, 0x00, 0x31};
+	uint8_t m2[2 * SHE_KEY_SIZE_IN_BYTES] = {0x2B, 0x11, 0x1E, 0x2D,
+						 0x93, 0xF4, 0x86, 0x56,
+						 0x6B, 0xCB, 0xBA, 0x1D,
+						 0x7F, 0x7A, 0x97, 0x97,
+						 0x1E, 0x0C, 0xF3, 0xF6,
+						 0x36, 0xDA, 0x07, 0xB0,
+						 0x8A, 0x38, 0x6E, 0x59,
+						 0xD3, 0xFA, 0xFB, 0x33};
+	uint8_t m3[SHE_KEY_SIZE_IN_BYTES] = {0x2A, 0x96, 0x3D, 0xB8,
+					     0xE4, 0x1B, 0x06, 0x86,
+					     0xB1, 0xB1, 0x9B, 0x35,
+					     0x95, 0x2A, 0x56, 0x0E};
+
+	uint8_t m4[2 * SHE_KEY_SIZE_IN_BYTES] = {0};
+	uint8_t m5[SHE_KEY_SIZE_IN_BYTES] = {0};
+	she_err_t err;
+
+	key_update_args.key_ext = 0;
+	key_update_args.key_id = SHE_BOOT_MAC | key_update_args.key_ext;
+	key_update_args.m1 = m1;
+	key_update_args.m2 = m2;
+	key_update_args.m3 = m3;
+	key_update_args.m4 = m4;
+	key_update_args.m5 = m5;
+	key_update_args.m1_size = sizeof(m1);
+	key_update_args.m2_size = sizeof(m2);
+	key_update_args.m3_size = sizeof(m3);
+	key_update_args.m4_size = sizeof(m4);
+	key_update_args.m5_size = sizeof(m5);
+
+	err = she_key_update(utils_handle, &key_update_args);
+	if (err) {
+		se_err("Error[0x%x]: she_key_update failed (BM).\n", err);
+		return err;
+	}
+	se_print("SHE KEY UPDATE TEST SHE_BOOT_MAC --> PASSED\n");
+
+	return err;
+}
+
 she_err_t she_key_update_ext_test(she_hdl_t utils_handle)
 {
 	op_key_update_ext_args_t key_update_ext_args = {0};
@@ -510,6 +563,12 @@ she_err_t do_she_key_update_test(she_hdl_t utils_handle)
 		se_print("BMK KEY UPDATE TEST ---> FAILED\n\n");
 	else
 		se_print("BMK KEY UPDATE TEST ---> PASSED\n\n");
+
+	err = she_BM_key_update_test(utils_handle);
+	if (err)
+		se_print("BM KEY UPDATE TEST ---> FAILED\n\n");
+	else
+		se_print("BM KEY UPDATE TEST ---> PASSED\n\n");
 
 	err = she_key_update_test(utils_handle);
 	if (err)
