@@ -81,9 +81,12 @@ she_err_t open_session(open_session_args_t *args,
 	args->tz = mu_params.tz;
 	args->did = mu_params.did;
 #endif
-	args->interrupt_idx = mu_params.interrupt_idx;
-	args->session_priority = SHE_OPEN_SESSION_PRIORITY_LOW;
-	args->operating_mode = 0U;
+	if (!args->interrupt_idx)
+		args->interrupt_idx = mu_params.interrupt_idx;
+	if (!args->session_priority)
+		args->session_priority = SHE_OPEN_SESSION_PRIORITY_LOW;
+	if (!args->operating_mode)
+		args->operating_mode = 0U;
 
 	/* Open the SHE session on Platform's side */
 	lib_err = process_sab_msg(thdl->phdl,
