@@ -41,6 +41,10 @@ static void tv_tests(hsm_hdl_t key_store_hdl, uint8_t *tv_file_path)
 	uint16_t tdata_failed = 0;
 	uint16_t tdata_invalid = 0;
 	uint16_t tdata_total = 0;
+	uint16_t trng_passed = 0;
+	uint16_t trng_failed = 0;
+	uint16_t trng_invalid = 0;
+	uint16_t trng_total = 0;
 
 	char *line = NULL;
 	char *check_invalid = NULL;
@@ -134,6 +138,12 @@ static void tv_tests(hsm_hdl_t key_store_hdl, uint8_t *tv_file_path)
 							     &tdata_failed,
 							     &tdata_invalid,
 							     &tdata_total);
+				/* RNG Test */
+				if (memcmp(line, "TEST_RNG", 8) == 0)
+					rng_test_tv(fp, line,
+						    &trng_passed, &trng_failed,
+						    &trng_invalid,
+						    &trng_total);
 #endif
 				/* Load Peristent Key Details */
 				if (memcmp(line, "LOAD_PERSIST_KEY_INFO", 21) == 0)
@@ -203,6 +213,12 @@ static void tv_tests(hsm_hdl_t key_store_hdl, uint8_t *tv_file_path)
 		printf("TESTS REPORT DATA STORAGE: TOTAL: %u, SUCCESS: %u, FAILED: %u, INVALID: %u",
 		       tdata_total, tdata_passed, tdata_failed, tdata_invalid);
 		printf("\n-----------------------------------------------------------------\n\n");
+	}
+
+	if (trng_total > 0) {
+		printf("TESTS REPORT RNG: TOTAL:%u, SUCCESS:%u, FAILED:%u, INVALID :%u",
+		       trng_total, trng_passed, trng_failed, trng_invalid);
+		printf("\n---------------------------------------------------------\n\n");
 	}
 
 	if (line)

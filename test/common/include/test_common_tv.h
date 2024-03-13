@@ -36,4 +36,7 @@ void hash_test_tv(FILE *fp, char *line,
 void data_storage_test_tv(hsm_hdl_t key_store_hdl, FILE *fp, char *line,
 			  uint16_t *tests_passed, uint16_t *tests_failed,
 			  uint16_t *tests_invalid, uint16_t *tests_total);
+void rng_test_tv(FILE *fp, char *line, uint16_t *tests_passed,
+		 uint16_t *tests_failed, uint16_t *tests_invalid,
+		 uint16_t *tests_total);
 #endif
