@@ -32,7 +32,7 @@ she_err_t she_verify_fast_mac_mubuff_v2(she_hdl_t utils_handle,
 	lib_err = process_sab_msg(serv_ptr->session->phdl,
 				  serv_ptr->session->mu_type,
 				  SAB_SHE_FAST_MAC_MUBUFF_V2_REQ,
-				  MT_SAB_FAST_MAC,
+				  MT_SAB_FAST_MAC_MUBUFF_V2,
 				  serv_ptr->service_hdl,
 				  args, &rsp_code);
 
@@ -86,7 +86,7 @@ she_err_t she_generate_fast_mac_mubuff_v2(she_hdl_t utils_handle,
 	lib_err = process_sab_msg(serv_ptr->session->phdl,
 				  serv_ptr->session->mu_type,
 				  SAB_SHE_FAST_MAC_MUBUFF_V2_REQ,
-				  MT_SAB_FAST_MAC,
+				  MT_SAB_FAST_MAC_MUBUFF_V2,
 				  serv_ptr->service_hdl,
 				  args, &rsp_code);
 

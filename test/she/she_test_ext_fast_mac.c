@@ -33,7 +33,7 @@ she_err_t she_ext_verify_mac_test(she_hdl_t utils_handle)
 	verify_mac_args.key_ext = 0x00;
 	verify_mac_args.key_id = SHE_RAM_KEY | verify_mac_args.key_ext;
 	verify_mac_args.mac = input_mac;
-	verify_mac_args.mac_length = 72;
+	verify_mac_args.mac_length = 9;
 	verify_mac_args.message = message;
 	verify_mac_args.message_length = sizeof(message);
 	verify_mac_args.mac_length_encoding = MAC_BITS_LENGTH;
@@ -53,7 +53,7 @@ she_err_t she_ext_verify_mac_test(she_hdl_t utils_handle)
 	verify_mac_args.key_ext = 0x00;
 	verify_mac_args.key_id = SHE_RAM_KEY | verify_mac_args.key_ext;
 	verify_mac_args.mac = input_mac2;
-	verify_mac_args.mac_length = 56;
+	verify_mac_args.mac_length = 7;
 	verify_mac_args.message = message2;
 	verify_mac_args.message_length = sizeof(message2);
 	verify_mac_args.mac_length_encoding = MAC_BITS_LENGTH;
