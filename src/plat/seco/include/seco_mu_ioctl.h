@@ -1,6 +1,6 @@
 // SPDX-License-Identifier: BSD-3-Clause
 /*
- * Copyright 2019-2021, 2023 NXP
+ * Copyright 2019-2021, 2023-2024 NXP
  */
 
 #ifndef SECO_MU_IOCTL_H
@@ -41,6 +41,11 @@ struct seco_mu_ioctl_get_soc_info {
 	uint16_t soc_rev;
 };
 
+struct seco_time_frame {
+	struct timespec t_start;
+	struct timespec t_end;
+};
+
 #define SECO_MU_IO_FLAGS_IS_INTPUT	(0x01u)
 #define SECO_MU_IO_FLAGS_USE_SEC_MEM	(0x02u)
 #define SECO_MU_IO_FLAGS_USE_SHORT_ADDR	(0x04u)
@@ -57,5 +62,7 @@ struct seco_mu_ioctl_get_soc_info {
 			struct seco_mu_ioctl_signed_message)
 #define SECO_MU_IOCTL_GET_SOC_INFO	_IOR(SECO_MU_IOCTL, 0x06, \
 			struct seco_mu_ioctl_get_soc_info)
+#define SECO_MU_IOCTL_GET_TIMER	_IOR(SECO_MU_IOCTL, 0x08, \
+			struct seco_time_frame)
 
 #endif

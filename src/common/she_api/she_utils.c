@@ -8,6 +8,7 @@
 #include "sab_msg_def.h"
 #include "internal/she_utils.h"
 #include "internal/she_get_info.h"
+#include "perf.h"
 #include "plat_utils.h"
 #include "sab_common_err.h"
 #include "plat_err_def.h"
@@ -280,4 +281,25 @@ void se_get_soc_info(uint32_t session_hdl,
 					       soc_rev);
 	if (!s_ptr || ret != PLAT_SUCCESS)
 		se_err("Global Info: failed to get SoC info.\n");
+}
+
+uint32_t get_perf_timer(uint32_t session_hdl, struct time_frame *perf_time)
+{
+	struct she_session_hdl_s *s_ptr;
+	uint32_t ret;
+
+	s_ptr = she_session_hdl_to_ptr(session_hdl);
+	if (!s_ptr || !perf_time)
+		return PERF_FAILURE;
+
+	ret = plat_get_perf_timer(s_ptr->phdl,
+				  &perf_time->t_start,
+				  &perf_time->t_end);
+
+	if (ret != PLAT_SUCCESS) {
+		se_err("Failed to get performance timers.\n");
+		return PERF_FAILURE;
+	}
+
+	return PERF_SUCCESS;
 }

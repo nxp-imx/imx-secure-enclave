@@ -1,6 +1,6 @@
 // SPDX-License-Identifier: BSD-3-Clause
 /*
- * Copyright 2019-2023 NXP
+ * Copyright 2019-2024 NXP
  */
 
 #include <stdio.h>
@@ -469,5 +469,29 @@ uint32_t plat_os_abs_get_soc_info(struct plat_os_abs_hdl *phdl,
 	*soc_id = soc_info.soc_id;
 	*soc_rev = soc_info.soc_rev;
 out:
+	return TO_UINT32_T(ret);
+}
+
+uint32_t plat_get_perf_timer(struct plat_os_abs_hdl *phdl,
+			     struct timespec *t_start,
+			     struct timespec *t_end)
+{
+	struct seco_time_frame perf_time;
+	int32_t ret = PLAT_SUCCESS;
+
+	if (!phdl || !t_start || !t_end)
+		return PLAT_FAILURE;
+
+	ret = ioctl(phdl->fd, SECO_MU_IOCTL_GET_TIMER, &perf_time);
+	if (ret < 0) {
+		se_err("\nPLAT ioctl error[%d]: %s\n",
+		       errno,
+		       strerror(errno));
+		return PLAT_FAILURE;
+	}
+
+	*t_start = perf_time.t_start;
+	*t_end = perf_time.t_end;
+
 	return TO_UINT32_T(ret);
 }

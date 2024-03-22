@@ -1,6 +1,6 @@
 // SPDX-License-Identifier: BSD-3-Clause
 /*
- * Copyright 2021, 2023 NXP
+ * Copyright 2021, 2023-2024 NXP
  */
 
 #ifndef ELE_MU_IOCTL_H
@@ -38,6 +38,11 @@ struct ele_mu_ioctl_signed_message {
 	uint32_t error_code;
 };
 
+struct ele_time_frame {
+	struct timespec t_start;
+	struct timespec t_end;
+};
+
 #define ELE_MU_IO_FLAGS_IS_INTPUT		(0x01u)
 #define ELE_MU_IO_FLAGS_USE_SEC_MEM		(0x02u)
 #define ELE_MU_IO_FLAGS_USE_SHORT_ADDR	(0x04u)
@@ -52,5 +57,7 @@ struct ele_mu_ioctl_signed_message {
 					struct ele_mu_ioctl_get_mu_info)
 #define ELE_MU_IOCTL_SIGNED_MESSAGE	_IOWR(ELE_MU_IOCTL, 0x05, \
 					struct ele_mu_ioctl_signed_message)
+#define ELE_MU_IOCTL_GET_TIMER	_IOR(ELE_MU_IOCTL, 0x08, \
+				struct ele_time_frame)
 
 #endif
