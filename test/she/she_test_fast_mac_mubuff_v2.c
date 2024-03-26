@@ -57,7 +57,6 @@ she_err_t she_verify_fast_mac_mubuff_v2_test(she_hdl_t utils_handle)
 	verify_mac_args.mac_length = SHE_MAC_SIZE;
 	verify_mac_args.message = message2;
 	verify_mac_args.message_length = sizeof(message2);
-	verify_mac_args.mac_length_encoding = MAC_BYTES_LENGTH;
 
 	err = she_verify_fast_mac_mubuff_v2(utils_handle, &verify_mac_args);
 	if (err) {

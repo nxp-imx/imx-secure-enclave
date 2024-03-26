@@ -6,7 +6,6 @@
 #include "sab_messaging.h"
 #include "sab_fast_mac.h"
 #include "internal/she_fast_mac.h"
-
 #include "plat_os_abs.h"
 #include "plat_utils.h"
 
@@ -21,7 +20,11 @@ static uint32_t process_verify_args(void *phdl,
 
 	cmd->key_id = op_args->key_ext | op_args->key_id;
 	cmd->data_length = op_args->message_length;
-	cmd->mac_length = op_args->mac_length;
+	if (op_args->flags & SHE_FAST_MAC_FLAGS_VERIF_BIT_LEN)
+		cmd->mac_length = op_args->mac_length * 8;
+	else
+		cmd->mac_length = op_args->mac_length;
+
 	cmd->flags = op_args->flags;
 
 	/*

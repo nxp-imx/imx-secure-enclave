@@ -17,6 +17,7 @@ uint32_t process_verify_args(void *phdl,
 	uint32_t err = SAB_LIB_STATUS(SAB_LIB_CMD_MSG_PREP_FAIL);
 	uint32_t ret;
 	uint64_t temp;
+	uint8_t mac[SHE_MAC_SIZE] = {0};
 	op_verify_mac_t *op_args = (op_verify_mac_t *)args;
 
 	cmd->key_id = op_args->key_ext | op_args->key_id;
@@ -24,25 +25,18 @@ uint32_t process_verify_args(void *phdl,
 	cmd->mac_length = op_args->mac_length * 8;
 	cmd->flags = op_args->flags;
 
-	/*
-	 * Input message is stored at offset 16 if MAC is of 0 length
-	 * else concatenate MAC and message
-	 */
-	if (op_args->mac_length == 0u) {
-		ret = plat_os_abs_data_buf_v2((struct plat_os_abs_hdl *)phdl,
-					      &temp,
-					      op_args->mac,
-					      SHE_MAC_SIZE,
-					      DATA_BUF_IS_INPUT |
-					      DATA_BUF_SHE_V2X);
-	} else {
-		ret = plat_os_abs_data_buf_v2((struct plat_os_abs_hdl *)phdl,
-					      &temp,
-					      op_args->mac,
-					      op_args->mac_length,
-					      DATA_BUF_IS_INPUT |
-					      DATA_BUF_SHE_V2X);
-	}
+	if (op_args->mac_length)
+		plat_os_abs_memcpy_v2(mac, op_args->mac, op_args->mac_length);
+	else
+		plat_os_abs_memcpy_v2(mac, op_args->mac, SHE_MAC_SIZE);
+
+	/* Input message is stored at offset 16 and MAC will come at offset 0*/
+	ret = plat_os_abs_data_buf_v2((struct plat_os_abs_hdl *)phdl,
+				      &temp,
+				      mac,
+				      SHE_MAC_SIZE,
+				      DATA_BUF_IS_INPUT |
+				      DATA_BUF_SHE_V2X);
 
 	if (ret != PLAT_SUCCESS) {
 		err |= ret;

@@ -72,7 +72,7 @@ void execute_tests(int session_id, int key_session_id)
 					    KEY_STORE_OPEN_FLAGS_STRICT_OPERATION |
 					    KEY_STORE_OPEN_FLAGS_SET_MAC_LEN;
 
-	key_store_args[i].min_mac_length        = 64;
+	key_store_args[i].min_mac_length        = 32;
 
 #ifndef PSA_COMPLIANT
 	key_store_args[i].max_updates_number   = 300;
