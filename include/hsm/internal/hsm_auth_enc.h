@@ -1,6 +1,6 @@
 // SPDX-License-Identifier: BSD-3-Clause
 /*
- * Copyright 2023 NXP
+ * Copyright 2023-2024 NXP
  */
 
 #ifndef HSM_AUTH_ENC_H
@@ -24,6 +24,8 @@ typedef enum {
 	//!< CCM (AES CCM)
 	HSM_AEAD_ALGO_GCM = ALGO_GCM,
 	//!< GCM (AES GCM)
+	HSM_AEAD_ALGO_CHACHA20_POLY1305 = ALGO_CHACHA20_POLY1305,
+	//!< CHACHA20_POLY1305
 	HSM_AEAD_ALGO_ALL_AEAD = ALGO_ALL_AEAD,
 	//!< ALL AEAD (ALL AEAD)
 } hsm_op_auth_enc_algo_t;
