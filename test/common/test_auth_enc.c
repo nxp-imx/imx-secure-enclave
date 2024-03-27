@@ -1,6 +1,6 @@
 // SPDX-License-Identifier: BSD-3-Clause
 /*
- * Copyright 2023 NXP
+ * Copyright 2023-2024 NXP
  */
 
 #include <stdio.h>
@@ -58,16 +58,98 @@ static hsm_err_t generate_key(hsm_hdl_t key_mgmt_hdl,
 	return hsm_generate_key(key_mgmt_hdl, &key_gen_args);
 }
 
-
-hsm_err_t auth_enc_test(hsm_hdl_t key_store_hdl, hsm_hdl_t key_mgmt_hdl)
+static hsm_err_t auth_enc_test_chacha20_poly1305(hsm_hdl_t key_store_hdl,
+						 hsm_hdl_t key_mgmt_hdl)
 {
+	op_generate_key_args_t key_gen_args = {0};
+	op_delete_key_args_t del_args = {0};
 	op_auth_enc_args_t auth_enc_args = {0};
 	hsm_err_t err = HSM_GENERAL_ERROR;
 	uint32_t key_id = 0;
 #ifdef PSA_COMPLIANT
-	printf("\n------------------------------------------------\n");
-	printf("AUTH ENC Test:");
-	printf("\n------------------------------------------------\n");
+	printf("\nCHACHA20_POLY1305:\n\n");
+
+	/* 1. Generate Key permitted for CHACHA20_POLY1305  */
+	memset(&key_gen_args, 0, sizeof(op_generate_key_args_t));
+
+	key_gen_args.key_identifier = &key_id;
+	key_gen_args.key_group = 50;
+	key_gen_args.key_lifetime = HSM_SE_KEY_STORAGE_VOLATILE;
+	key_gen_args.permitted_algo = PERMITTED_ALGO_CHACHA20_POLY1305;
+	key_gen_args.key_usage = HSM_KEY_USAGE_ENCRYPT | HSM_KEY_USAGE_DECRYPT;
+	key_gen_args.key_type = HSM_KEY_TYPE_AES;
+	key_gen_args.bit_key_sz = HSM_KEY_SIZE_AES_256;
+	key_gen_args.key_lifecycle = 0x0;
+	key_gen_args.out_size = 0;
+	key_gen_args.out_key = NULL;
+
+	err = hsm_generate_key(key_mgmt_hdl, &key_gen_args);
+	if (err != HSM_NO_ERROR)
+		printf("hsm_generate_key ret: 0x%x\n", err);
+
+	/* 2. Perform Authenticated Encryption operation (Encrypt) */
+	memset(&auth_enc_args, 0, sizeof(op_auth_enc_args_t));
+
+	auth_enc_args.key_identifier = key_id;
+	auth_enc_args.iv_size = sizeof(iv_data);
+	auth_enc_args.iv = iv_data;
+	auth_enc_args.ae_algo = HSM_AEAD_ALGO_CHACHA20_POLY1305;
+	auth_enc_args.flags = HSM_AUTH_ENC_FLAGS_ENCRYPT;
+	auth_enc_args.aad_size = sizeof(aad_data);
+	auth_enc_args.aad = aad_data;
+	auth_enc_args.input_size = sizeof(test_message);
+	auth_enc_args.input = test_message;
+	auth_enc_args.output_size = sizeof(ciphertext);
+	auth_enc_args.output = ciphertext;
+
+	err = hsm_do_auth_enc(key_store_hdl, &auth_enc_args);
+	printf("hsm_do_auth_enc (Encrypt) ret: 0x%x\n", err);
+
+	if (err == HSM_OUT_TOO_SMALL)
+		printf("Expected Output Size (Encrypt): %d\n",
+		       auth_enc_args.exp_output_size);
+
+	/* 3. Perform Authenticated Encryption operation (Decrypt) */
+	auth_enc_args.flags = HSM_AUTH_ENC_FLAGS_DECRYPT;
+	auth_enc_args.input_size = sizeof(ciphertext);
+	auth_enc_args.input = ciphertext;
+	auth_enc_args.output_size = sizeof(plaintext);
+	auth_enc_args.output = plaintext;
+
+	err = hsm_do_auth_enc(key_store_hdl, &auth_enc_args);
+	printf("hsm_do_auth_enc (Decrypt) ret: 0x%x\n", err);
+
+	if (err == HSM_OUT_TOO_SMALL)
+		printf("Expected Output Size (Decrypt): %d\n",
+		       auth_enc_args.exp_output_size);
+
+	if (memcmp(test_message, plaintext, sizeof(test_message)) == 0)
+		printf("\nAuth Enc: Decrypted data matches Test data [PASS]\n");
+	else
+		printf("\nAuth Enc: Decrypted data doesn't match Test data [FAIL]\n");
+
+	/* 4. Delete the Generated Test Key */
+	memset(&del_args, 0, sizeof(del_args));
+
+	del_args.key_identifier = key_id;
+	del_args.flags = 0;
+	err = hsm_delete_key(key_mgmt_hdl, &del_args);
+	if (err != HSM_NO_ERROR)
+		printf("hsm_delete_key ret: 0x%x\n", err);
+
+#endif
+	return err;
+}
+
+static hsm_err_t auth_enc_test_ccm(hsm_hdl_t key_store_hdl,
+				   hsm_hdl_t key_mgmt_hdl)
+{
+	op_auth_enc_args_t auth_enc_args = {0};
+	op_delete_key_args_t del_args = {0};
+	hsm_err_t err = HSM_GENERAL_ERROR;
+	uint32_t key_id = 0;
+#ifdef PSA_COMPLIANT
+	printf("\nCCM:\n\n");
 
 	generate_key(key_mgmt_hdl,
 #ifndef PSA_COMPLIANT
@@ -121,9 +203,30 @@ hsm_err_t auth_enc_test(hsm_hdl_t key_store_hdl, hsm_hdl_t key_mgmt_hdl)
 	else
 		printf("\nAuth Enc: Decrypted data doesn't match Test data [FAIL]\n");
 
+	/* Delete the Generated Test Key */
+	memset(&del_args, 0, sizeof(del_args));
+
+	del_args.key_identifier = key_id;
+	del_args.flags = 0;
+	err = hsm_delete_key(key_mgmt_hdl, &del_args);
+	if (err != HSM_NO_ERROR)
+		printf("hsm_delete_key ret: 0x%x\n", err);
+#endif
+	return err;
+}
+
+hsm_err_t auth_enc_test(hsm_hdl_t key_store_hdl, hsm_hdl_t key_mgmt_hdl)
+{
+#ifdef PSA_COMPLIANT
+	printf("\n------------------------------------------------\n");
+	printf("AUTH ENC Test:");
+	printf("\n------------------------------------------------\n");
+
+	auth_enc_test_ccm(key_store_hdl, key_mgmt_hdl);
+	auth_enc_test_chacha20_poly1305(key_store_hdl, key_mgmt_hdl);
+
 	printf("\n------------------------------------------------\n");
 	printf("AUTH ENC Test: Complete");
 	printf("\n------------------------------------------------\n");
 #endif
-	return err;
 }
