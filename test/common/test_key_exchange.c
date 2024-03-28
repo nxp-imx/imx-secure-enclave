@@ -1,6 +1,6 @@
 // SPDX-License-Identifier: BSD-3-Clause
 /*
- * Copyright 2023 NXP
+ * Copyright 2023-2024 NXP
  */
 
 #include <stdio.h>
@@ -138,10 +138,10 @@ hsm_err_t key_exchange_test(hsm_hdl_t hsm_session_hdl,
 		goto out;
 
 	//Use Key Exchange API to get Derived Key ID
-	key_exchange_args.signed_content = signed_content_buf;
-	key_exchange_args.signed_content_sz = sizeof(signed_content_buf);
-	key_exchange_args.peer_pubkey_sz = sizeof(peer_pubkey_buf);
-	key_exchange_args.peer_pubkey = peer_pubkey_buf;
+	key_exchange_args.in_content = signed_content_buf;
+	key_exchange_args.in_content_sz = sizeof(signed_content_buf);
+	key_exchange_args.in_pub_buffer_sz = sizeof(peer_pubkey_buf);
+	key_exchange_args.in_pub_buffer = peer_pubkey_buf;
 	key_exchange_args.user_fixed_info_sz = 0;
 	key_exchange_args.user_fixed_info = NULL;
 
