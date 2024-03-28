@@ -1,6 +1,6 @@
 // SPDX-License-Identifier: BSD-3-Clause
 /*
- * Copyright 2023 NXP
+ * Copyright 2023-2024 NXP
  */
 
 #include "internal/hsm_key.h"
@@ -133,11 +133,11 @@ uint32_t prepare_msg_key_exchange(void *phdl,
 	cmd->kdf_input_size = op_args->kdf_input_size;
 	cmd->kdf_output_size = op_args->kdf_output_size;
 #else
-	cmd->signed_content_sz = op_args->signed_content_sz;
+	cmd->in_content_sz = op_args->in_content_sz;
 	ret = plat_os_abs_data_buf_v2((struct plat_os_abs_hdl *)phdl,
 				      &phy_addr,
-				      op_args->signed_content,
-				      op_args->signed_content_sz,
+				      op_args->in_content,
+				      op_args->in_content_sz,
 				      DATA_BUF_IS_INPUT);
 
 	if (ret != PLAT_SUCCESS) {
@@ -145,15 +145,15 @@ uint32_t prepare_msg_key_exchange(void *phdl,
 		goto exit;
 	}
 
-	set_phy_addr_to_words(&cmd->signed_content_addr,
+	set_phy_addr_to_words(&cmd->in_content_addr,
 			      0u,
 			      phy_addr);
 
-	cmd->peer_pubkey_sz = op_args->peer_pubkey_sz;
+	cmd->in_pub_buffer_sz = op_args->in_pub_buffer_sz;
 	ret = plat_os_abs_data_buf_v2((struct plat_os_abs_hdl *)phdl,
 				      &phy_addr,
-				      op_args->peer_pubkey,
-				      op_args->peer_pubkey_sz,
+				      op_args->in_pub_buffer,
+				      op_args->in_pub_buffer_sz,
 				      DATA_BUF_IS_INPUT);
 
 	if (ret != PLAT_SUCCESS) {
@@ -161,7 +161,7 @@ uint32_t prepare_msg_key_exchange(void *phdl,
 		goto exit;
 	}
 
-	set_phy_addr_to_words(&cmd->peer_pubkey_addr,
+	set_phy_addr_to_words(&cmd->in_pub_buffer_addr,
 			      0u,
 			      phy_addr);
 
@@ -178,6 +178,22 @@ uint32_t prepare_msg_key_exchange(void *phdl,
 	}
 
 	set_phy_addr_to_words(&cmd->user_fixed_info_addr,
+			      0u,
+			      phy_addr);
+
+	cmd->output_sz = op_args->output_sz;
+	ret = plat_os_abs_data_buf_v2((struct plat_os_abs_hdl *)phdl,
+				      &phy_addr,
+				      op_args->output,
+				      op_args->output_sz,
+				      DATA_BUF_IS_OUTPUT);
+
+	if (ret != PLAT_SUCCESS) {
+		err |= ret;
+		goto exit;
+	}
+
+	set_phy_addr_to_words(&cmd->output_addr,
 			      0u,
 			      phy_addr);
 #endif
@@ -204,6 +220,7 @@ uint32_t proc_msg_rsp_key_exchange(void *rsp_buf, void *args)
 #ifdef PSA_COMPLIANT
 	op_args->out_derived_key_id = rsp->derived_key_id;
 	op_args->out_salt_sz = rsp->salt_sz;
+	op_args->exp_output_sz = rsp->output_sz;
 #endif
 	return err;
 }

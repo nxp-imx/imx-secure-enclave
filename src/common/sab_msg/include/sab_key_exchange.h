@@ -1,6 +1,6 @@
 // SPDX-License-Identifier: BSD-3-Clause
 /*
- * Copyright 2023 NXP
+ * Copyright 2023-2024 NXP
  */
 
 #ifndef SAB_KEY_EXCHANGE_H
@@ -14,12 +14,14 @@ struct sab_cmd_key_exchange_msg {
 #ifdef PSA_COMPLIANT
 	uint16_t flags;
 	uint16_t reserved;
-	uint32_t signed_content_addr;
-	uint32_t signed_content_sz;
-	uint32_t peer_pubkey_addr;
-	uint32_t peer_pubkey_sz;
+	uint32_t in_content_addr;
+	uint32_t in_content_sz;
+	uint32_t in_pub_buffer_addr;
+	uint32_t in_pub_buffer_sz;
 	uint32_t user_fixed_info_addr;
 	uint32_t user_fixed_info_sz;
+	uint32_t output_addr;
+	uint32_t output_sz;
 #else
 	uint32_t key_identifier;
 	uint32_t shared_key_identifier_array;
@@ -49,6 +51,8 @@ struct sab_cmd_key_exchange_rsp {
 #ifdef PSA_COMPLIANT
 	uint32_t derived_key_id;
 	uint32_t salt_sz;
+	uint32_t output_sz;
+	uint32_t crc;
 #endif
 };
 

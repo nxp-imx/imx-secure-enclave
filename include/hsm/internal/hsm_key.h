@@ -99,6 +99,7 @@ typedef enum {
 #ifdef PSA_COMPLIANT
 	/* PSA Compliant key types.
 	 */
+	HSM_KEY_TYPE_DERIVE                 = 0x1200,
 	HSM_KEY_TYPE_HMAC                   = 0x1100,
 	HSM_KEY_TYPE_AES                    = 0x2400,
 	HSM_KEY_TYPE_SM4                    = 0x2405,
@@ -141,6 +142,8 @@ typedef enum {
  * Enum Indicating the key security size in bits.
  */
 typedef enum {
+	HSM_KEY_SIZE_DERIVE_256		= 256,
+	HSM_KEY_SIZE_DERIVE_384		= 384,
 	HSM_KEY_SIZE_HMAC_224		= 224,
 	HSM_KEY_SIZE_HMAC_256		= 256,
 	HSM_KEY_SIZE_HMAC_384		= 384,
