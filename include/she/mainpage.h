@@ -14,6 +14,7 @@
  * Revision       | date           | description
  * :------------: | :-------------:| :------------
  * 0.1 | Jan 13 2024  | Initial Draft
+ * 0.1 | Apr 1 2024  | Remove key_ext variable from key_update structure
  */
 
 /*! \page page1 General concepts related to the API
