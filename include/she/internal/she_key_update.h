@@ -26,8 +26,6 @@
 typedef struct {
 	uint32_t utils_handle;
 	//!< Handle to utils service
-	uint32_t key_ext;
-	//!< identifier of the key extension to be used for the operation
 	uint32_t key_id;
 	//!< identifier of the key to be used for the operation
 	uint8_t *m1;

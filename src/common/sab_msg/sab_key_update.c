@@ -1,6 +1,6 @@
 // SPDX-License-Identifier: BSD-3-Clause
 /*
- * Copyright 2023 NXP
+ * Copyright 2023, 2024 NXP
  */
 
 #include "sab_messaging.h"
@@ -23,7 +23,7 @@ uint32_t prepare_msg_key_update(void *phdl,
 	op_key_update_args_t *op_args = (op_key_update_args_t *)args;
 
 	cmd->utils_handle = msg_hdl;
-	cmd->key_id = op_args->key_ext | op_args->key_id;
+	cmd->key_id = op_args->key_id;
 
 	plat_os_abs_memcpy((uint8_t *)cmd->m1, op_args->m1, op_args->m1_size);
 	plat_os_abs_memcpy((uint8_t *)cmd->m2, op_args->m2, op_args->m2_size);

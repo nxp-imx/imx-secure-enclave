@@ -70,8 +70,7 @@ she_err_t she_ECU_key_update_test(she_hdl_t utils_handle)
 					       0x4D, 0x3B, 0xB6, 0xA8,
 					       0xFA, 0xC3, 0x7E, 0x6F};
 
-	key_update_args.key_ext = 0x00;
-	key_update_args.key_id = SHE_MASTER_ECU_KEY | key_update_args.key_ext;
+	key_update_args.key_id = SHE_MASTER_ECU_KEY;
 	key_update_args.m1 = m1;
 	key_update_args.m2 = m2;
 	key_update_args.m3 = m3;
@@ -91,8 +90,7 @@ she_err_t she_ECU_key_update_test(she_hdl_t utils_handle)
 	se_print("SHE KEY UPDATE TEST SHE_MASTER_ECU_KEY --> PASSED\n");
 
 	memset(&key_update_args, 0, sizeof(key_update_args));
-	key_update_args.key_ext = 0x00;
-	key_update_args.key_id = SHE_MASTER_ECU_KEY | key_update_args.key_ext;
+	key_update_args.key_id = SHE_MASTER_ECU_KEY;
 	key_update_args.m1 = m1;
 	key_update_args.m2 = m2_1;
 	key_update_args.m3 = m3_1;
@@ -112,8 +110,7 @@ she_err_t she_ECU_key_update_test(she_hdl_t utils_handle)
 	se_print("SHE KEY UPDATE TEST SHE_MASTER_ECU_KEY (NULL) --> PASSED\n");
 
 	memset(&key_update_args, 0, sizeof(key_update_args));
-	key_update_args.key_ext = 0x00;
-	key_update_args.key_id = SHE_MASTER_ECU_KEY | key_update_args.key_ext;
+	key_update_args.key_id = SHE_MASTER_ECU_KEY;
 	key_update_args.m1 = m1;
 	key_update_args.m2 = m2_2;
 	key_update_args.m3 = m3_2;
@@ -162,8 +159,7 @@ she_err_t she_BMK_key_update_test(she_hdl_t utils_handle)
 	uint8_t m5[SHE_KEY_SIZE_IN_BYTES] = {0};
 	she_err_t err;
 
-	key_update_args.key_ext = 0;
-	key_update_args.key_id = SHE_BOOT_MAC_KEY | key_update_args.key_ext;
+	key_update_args.key_id = SHE_BOOT_MAC_KEY;
 	key_update_args.m1 = m1;
 	key_update_args.m2 = m2;
 	key_update_args.m3 = m3;
@@ -215,8 +211,7 @@ she_err_t she_BM_key_update_test(she_hdl_t utils_handle)
 	uint8_t m5[SHE_KEY_SIZE_IN_BYTES] = {0};
 	she_err_t err;
 
-	key_update_args.key_ext = 0;
-	key_update_args.key_id = SHE_BOOT_MAC | key_update_args.key_ext;
+	key_update_args.key_id = SHE_BOOT_MAC;
 	key_update_args.m1 = m1;
 	key_update_args.m2 = m2;
 	key_update_args.m3 = m3;
@@ -307,7 +302,7 @@ she_err_t she_key_update_ext_test(she_hdl_t utils_handle)
 	she_err_t err;
 
 	key_update_ext_args.key_ext = 0x00;
-	key_update_ext_args.key_id = SHE_KEY_6 | key_update_ext_args.key_ext;
+	key_update_ext_args.key_id = SHE_KEY_6;
 	key_update_ext_args.flags = SHE_LOAD_KEY_EXT_FLAGS_STRICT_OPERATION;
 	key_update_ext_args.m1 = m1;
 	key_update_ext_args.m2 = m2_6;
@@ -330,7 +325,7 @@ she_err_t she_key_update_ext_test(she_hdl_t utils_handle)
 	m1[15] = 0xaa;
 	memset(&key_update_ext_args, 0, sizeof(key_update_ext_args));
 	key_update_ext_args.key_ext = 0x00;
-	key_update_ext_args.key_id = SHE_KEY_7 | key_update_ext_args.key_ext;
+	key_update_ext_args.key_id = SHE_KEY_7;
 	key_update_ext_args.flags = SHE_LOAD_KEY_EXT_FLAGS_STRICT_OPERATION;
 	key_update_ext_args.m1 = m1;
 	key_update_ext_args.m2 = m2_7;
@@ -353,7 +348,7 @@ she_err_t she_key_update_ext_test(she_hdl_t utils_handle)
 	m1[15] = 0xb1;
 	memset(&key_update_ext_args, 0, sizeof(key_update_ext_args));
 	key_update_ext_args.key_ext = SHE_KEY_N_EXT_1;
-	key_update_ext_args.key_id = SHE_KEY_8 | key_update_ext_args.key_ext;
+	key_update_ext_args.key_id = SHE_KEY_8;
 	key_update_ext_args.flags = SHE_LOAD_KEY_EXT_FLAGS_STRICT_OPERATION;
 	key_update_ext_args.m1 = m1;
 	key_update_ext_args.m2 = m2_8;
@@ -376,7 +371,7 @@ she_err_t she_key_update_ext_test(she_hdl_t utils_handle)
 	m1[15] = 0xb1;
 	memset(&key_update_ext_args, 0, sizeof(key_update_ext_args));
 	key_update_ext_args.key_ext = SHE_KEY_N_EXT_1;
-	key_update_ext_args.key_id = SHE_KEY_8 | key_update_ext_args.key_ext;
+	key_update_ext_args.key_id = SHE_KEY_8;
 	key_update_ext_args.flags = SHE_LOAD_KEY_EXT_FLAGS_STRICT_OPERATION;
 	key_update_ext_args.m1 = m1;
 	key_update_ext_args.m2 = m2_8_1;
@@ -458,8 +453,7 @@ she_err_t she_key_update_test(she_hdl_t utils_handle)
 	uint8_t m5[SHE_KEY_SIZE_IN_BYTES] = {0};
 	she_err_t err;
 
-	key_update_args.key_ext = 0x00;
-	key_update_args.key_id = SHE_KEY_1 | key_update_args.key_ext;
+	key_update_args.key_id = SHE_KEY_1;
 	key_update_args.m1 = m1;
 	key_update_args.m2 = m2_1;
 	key_update_args.m3 = m3_1;
@@ -480,8 +474,7 @@ she_err_t she_key_update_test(she_hdl_t utils_handle)
 
 	m1[15] = 0x88;
 	memset(&key_update_args, 0, sizeof(key_update_args));
-	key_update_args.key_ext = 0x00;
-	key_update_args.key_id = SHE_KEY_5 | key_update_args.key_ext;
+	key_update_args.key_id = SHE_KEY_5;
 	key_update_args.m1 = m1;
 	key_update_args.m2 = m2_5;
 	key_update_args.m3 = m3_5;
@@ -502,8 +495,7 @@ she_err_t she_key_update_test(she_hdl_t utils_handle)
 
 	m1[15] = 0xdd;
 	memset(&key_update_args, 0, sizeof(key_update_args));
-	key_update_args.key_ext = 0x00;
-	key_update_args.key_id = SHE_KEY_10 | key_update_args.key_ext;
+	key_update_args.key_id = SHE_KEY_10;
 	key_update_args.m1 = m1;
 	key_update_args.m2 = m2_10;
 	key_update_args.m3 = m3_10;
@@ -524,8 +516,7 @@ she_err_t she_key_update_test(she_hdl_t utils_handle)
 
 	m1[15] = 0xed;
 	memset(&key_update_args, 0, sizeof(key_update_args));
-	key_update_args.key_ext = 0x00;
-	key_update_args.key_id = SHE_RAM_KEY | key_update_args.key_ext;
+	key_update_args.key_id = SHE_RAM_KEY;
 	key_update_args.m1 = m1;
 	key_update_args.m2 = m2_ram;
 	key_update_args.m3 = m3_ram;
