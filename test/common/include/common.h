@@ -8,6 +8,7 @@
 
 #include "hsm_api.h"
 #include "she_api.h"
+#include "test_key_exchange.h"
 
 #define DELETE	1
 #define IMPORT	2
@@ -46,9 +47,6 @@ void hsm_sign_verify_tests(hsm_hdl_t sess_hdl, hsm_hdl_t key_store_hdl,
 hsm_err_t auth_enc_test(hsm_hdl_t key_store_hdl, hsm_hdl_t key_mgmt_hdl);
 hsm_err_t gc_akey_gen_test(hsm_hdl_t session_hdl);
 hsm_err_t gc_acrypto_test(hsm_hdl_t session_hdl);
-hsm_err_t key_exchange_test(hsm_hdl_t hsm_session_hdl,
-			    hsm_hdl_t key_store_hdl,
-			    hsm_hdl_t key_mgmt_hdl);
 hsm_err_t test_key_store_reprov_en(hsm_hdl_t session_hdl);
 
 /**
