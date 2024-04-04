@@ -1,6 +1,6 @@
 // SPDX-License-Identifier: BSD-3-Clause
 /*
- * Copyright 2023 NXP
+ * Copyright 2023-2024 NXP
  */
 
 #include <string.h>
@@ -31,7 +31,7 @@ she_err_t she_verify_mac_test(she_hdl_t utils_handle)
 					    0x14, 0x97, 0xc8, 0x27};
 
 	verify_mac_args.key_ext = 0x00;
-	verify_mac_args.key_id = SHE_KEY_1 | verify_mac_args.key_ext;
+	verify_mac_args.key_id = SHE_KEY_1;
 	verify_mac_args.mac = input_mac;
 	verify_mac_args.mac_length = SHE_MAC_SIZE;
 	verify_mac_args.message = message;
@@ -54,7 +54,7 @@ she_err_t she_verify_mac_test(she_hdl_t utils_handle)
 	if (!she_v2x_mu) {
 		memset(&verify_mac_args, 0, sizeof(verify_mac_args));
 		verify_mac_args.key_ext = 0x00;
-		verify_mac_args.key_id = SHE_KEY_1 | verify_mac_args.key_ext;
+		verify_mac_args.key_id = SHE_KEY_1;
 		verify_mac_args.mac = input_mac2;
 		verify_mac_args.mac_length = SHE_MAC_SIZE;
 		verify_mac_args.message = message2;
@@ -102,7 +102,7 @@ she_err_t she_generate_mac_test(she_hdl_t utils_handle)
 					       0x14, 0x97, 0xc8, 0x27};
 
 	generate_mac_args.key_ext = 0x00;
-	generate_mac_args.key_id = SHE_KEY_5 | generate_mac_args.key_ext;
+	generate_mac_args.key_id = SHE_KEY_5;
 	generate_mac_args.mac = mac;
 	generate_mac_args.message = message;
 	generate_mac_args.message_length = sizeof(message);
@@ -130,7 +130,7 @@ she_err_t she_generate_mac_test(she_hdl_t utils_handle)
 	if (!she_v2x_mu) {
 		memset(&generate_mac_args, 0, sizeof(generate_mac_args));
 		generate_mac_args.key_ext = 0x00;
-		generate_mac_args.key_id = SHE_KEY_5 | generate_mac_args.key_ext;
+		generate_mac_args.key_id = SHE_KEY_5;
 		generate_mac_args.mac = mac;
 		generate_mac_args.message = message2;
 		generate_mac_args.message_length = sizeof(message2);

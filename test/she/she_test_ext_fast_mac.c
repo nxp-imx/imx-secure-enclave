@@ -26,7 +26,7 @@ she_err_t she_ext_verify_fast_mac_mubuff_v2_test(she_hdl_t utils_handle)
 				 0xde, 0x9a, 0xe6, 0x30};
 
 	verify_mac_args.key_ext = 0x00;
-	verify_mac_args.key_id = SHE_KEY_1 | verify_mac_args.key_ext;
+	verify_mac_args.key_id = SHE_KEY_1;
 	verify_mac_args.mac = input_mac;
 	verify_mac_args.mac_length = 4;
 	verify_mac_args.message = message;
@@ -47,7 +47,7 @@ she_err_t she_ext_verify_fast_mac_mubuff_v2_test(she_hdl_t utils_handle)
 
 	memset(&verify_mac_args, 0, sizeof(verify_mac_args));
 	verify_mac_args.key_ext = 0x00;
-	verify_mac_args.key_id = SHE_KEY_1 | verify_mac_args.key_ext;
+	verify_mac_args.key_id = SHE_KEY_1;
 	verify_mac_args.mac = input_mac2;
 	verify_mac_args.mac_length = 8;
 	verify_mac_args.message = message2;
@@ -93,7 +93,7 @@ she_err_t she_ext_verify_mac_test(she_hdl_t utils_handle)
 					    0x14, 0x97, 0xc8, 0x27};
 
 	verify_mac_args.key_ext = 0x00;
-	verify_mac_args.key_id = SHE_RAM_KEY | verify_mac_args.key_ext;
+	verify_mac_args.key_id = SHE_RAM_KEY;
 	verify_mac_args.mac = input_mac;
 	verify_mac_args.mac_length = 9;
 	verify_mac_args.message = message;
@@ -114,7 +114,7 @@ she_err_t she_ext_verify_mac_test(she_hdl_t utils_handle)
 	if (!she_v2x_mu) {
 		memset(&verify_mac_args, 0, sizeof(verify_mac_args));
 		verify_mac_args.key_ext = 0x00;
-		verify_mac_args.key_id = SHE_RAM_KEY | verify_mac_args.key_ext;
+		verify_mac_args.key_id = SHE_RAM_KEY;
 		verify_mac_args.mac = input_mac2;
 		verify_mac_args.mac_length = 7;
 		verify_mac_args.message = message2;
