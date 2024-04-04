@@ -1,6 +1,6 @@
 // SPDX-License-Identifier: BSD-3-Clause
 /*
- * Copyright 2022-2023 NXP
+ * Copyright 2022-2024 NXP
  */
 
 #include "internal/hsm_handle.h"
@@ -16,7 +16,7 @@ hsm_err_t hsm_mac_one_go(hsm_hdl_t mac_hdl,
 			 op_mac_one_go_args_t *args,
 			 hsm_mac_verification_status_t *status)
 {
-	uint32_t error;
+	uint32_t lib_err;
 	struct hsm_service_hdl_s *serv_ptr;
 	hsm_err_t err = HSM_GENERAL_ERROR;
 	uint32_t rsp_code = SAB_NO_MESSAGE_RATING;
@@ -36,24 +36,20 @@ hsm_err_t hsm_mac_one_go(hsm_hdl_t mac_hdl,
 			break;
 		}
 
-		error = process_sab_msg(serv_ptr->session->phdl,
-					serv_ptr->session->mu_type,
-					SAB_MAC_ONE_GO_REQ,
-					MT_SAB_MAC,
-					(uint32_t)mac_hdl,
-					args, &rsp_code);
+		lib_err = process_sab_msg(serv_ptr->session->phdl,
+					  serv_ptr->session->mu_type,
+					  SAB_MAC_ONE_GO_REQ,
+					  MT_SAB_MAC,
+					  (uint32_t)mac_hdl,
+					  args, &rsp_code);
 
-		err = sab_rating_to_hsm_err(error, serv_ptr->session->phdl);
-
-		if (err != HSM_NO_ERROR) {
-			se_err("HSM Error: SAB_MAC_ONE_GO_REQ [0x%x].\n", err);
+		err = lib_err_to_hsm_err(lib_err);
+		if (err != HSM_NO_ERROR)
 			break;
-		}
 
 		*status = args->verification_status;
 
 		err = sab_rating_to_hsm_err(rsp_code, serv_ptr->session->phdl);
-
 		if (err != HSM_NO_ERROR) {
 			se_err("HSM RSP Error: SAB_MAC_ONE_GO_REQ [0x%x].\n", err);
 			break;
@@ -76,7 +72,7 @@ hsm_err_t hsm_open_mac_service(hsm_hdl_t key_store_hdl,
 			       open_svc_mac_args_t *args,
 			       hsm_hdl_t *mac_hdl)
 {
-	uint32_t error;
+	uint32_t lib_err;
 	struct hsm_service_hdl_s *key_store_serv_ptr;
 	struct hsm_service_hdl_s *mac_serv_ptr;
 	hsm_err_t err = HSM_GENERAL_ERROR;
@@ -103,23 +99,20 @@ hsm_err_t hsm_open_mac_service(hsm_hdl_t key_store_hdl,
 			break;
 		}
 
-		error = process_sab_msg(key_store_serv_ptr->session->phdl,
-					key_store_serv_ptr->session->mu_type,
-					SAB_MAC_OPEN_REQ,
-					MT_SAB_MAC,
-					(uint32_t)key_store_hdl,
-					args, &rsp_code);
+		lib_err = process_sab_msg(key_store_serv_ptr->session->phdl,
+					  key_store_serv_ptr->session->mu_type,
+					  SAB_MAC_OPEN_REQ,
+					  MT_SAB_MAC,
+					  (uint32_t)key_store_hdl,
+					  args, &rsp_code);
 
-		err = sab_rating_to_hsm_err(error, key_store_serv_ptr->session->phdl);
-
+		err = lib_err_to_hsm_err(lib_err);
 		if (err != HSM_NO_ERROR) {
-			se_err("HSM Error: SAB_MAC_OPEN_REQ [0x%x].\n", err);
 			delete_service(mac_serv_ptr);
 			break;
 		}
 
 		err = sab_rating_to_hsm_err(rsp_code, key_store_serv_ptr->session->phdl);
-
 		if (err != HSM_NO_ERROR) {
 			se_err("HSM RSP Error: SAB_MAC_OPEN_REQ [0x%x].\n", err);
 			delete_service(mac_serv_ptr);
@@ -135,7 +128,7 @@ hsm_err_t hsm_open_mac_service(hsm_hdl_t key_store_hdl,
 hsm_err_t hsm_close_mac_service(hsm_hdl_t mac_hdl)
 {
 	struct hsm_service_hdl_s *serv_ptr;
-	uint32_t error;
+	uint32_t lib_err;
 	hsm_err_t err = HSM_UNKNOWN_HANDLE;
 	uint32_t rsp_code = SAB_NO_MESSAGE_RATING;
 
@@ -148,17 +141,15 @@ hsm_err_t hsm_close_mac_service(hsm_hdl_t mac_hdl)
 		if (!serv_ptr)
 			break;
 
-		error = process_sab_msg(serv_ptr->session->phdl,
-					serv_ptr->session->mu_type,
-					SAB_MAC_CLOSE_REQ,
-					MT_SAB_MAC,
-					mac_hdl,
-					NULL, &rsp_code);
+		lib_err = process_sab_msg(serv_ptr->session->phdl,
+					  serv_ptr->session->mu_type,
+					  SAB_MAC_CLOSE_REQ,
+					  MT_SAB_MAC,
+					  mac_hdl,
+					  NULL, &rsp_code);
 
-		err = sab_rating_to_hsm_err(error, serv_ptr->session->phdl);
-
+		err = lib_err_to_hsm_err(lib_err);
 		if (err != HSM_NO_ERROR) {
-			se_err("HSM Error: SAB_MAC_CLOSE_REQ [0x%x].\n", err);
 			delete_service(serv_ptr);
 			break;
 		}

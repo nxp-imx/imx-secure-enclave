@@ -1,6 +1,6 @@
 // SPDX-License-Identifier: BSD-3-Clause
 /*
- * Copyright 2022-2023 NXP
+ * Copyright 2022-2024 NXP
  */
 
 #include <string.h>
@@ -19,14 +19,16 @@ uint32_t prepare_msg_mac_one_go(void *phdl,
 				uint32_t msg_hdl,
 				void *args)
 {
-	uint32_t ret = SAB_ENGN_PASS;
+	uint32_t err = SAB_LIB_STATUS(SAB_LIB_CMD_MSG_PREP_FAIL);
 	uint32_t mac_size_bytes = 0;
 	struct sab_cmd_mac_one_go_msg *cmd =
 		(struct sab_cmd_mac_one_go_msg *) cmd_buf;
 	op_mac_one_go_args_t *op_args = (op_mac_one_go_args_t *) args;
+	uint64_t phy_addr = 0;
+	uint32_t ret;
 
 	if (!op_args)
-		return SAB_ENGN_FAIL;
+		goto exit;
 
 	cmd->mac_handle = msg_hdl;
 	cmd->key_id = op_args->key_identifier;
@@ -47,33 +49,48 @@ uint32_t prepare_msg_mac_one_go(void *phdl,
 	}
 
 	if (op_args->payload_size > UINT16_MAX)
-		return SAB_FAILURE_STATUS;
+		goto exit;
 
 #endif
+	ret = plat_os_abs_data_buf_v2((struct plat_os_abs_hdl *)phdl,
+				      &phy_addr,
+				      op_args->payload,
+				      op_args->payload_size,
+				      DATA_BUF_IS_INPUT);
+
+	if (ret != PLAT_SUCCESS) {
+		err |= ret;
+		goto exit;
+	}
 
 	set_phy_addr_to_words(&cmd->payload_address,
 			      0u,
-			      plat_os_abs_data_buf((struct plat_os_abs_hdl *)phdl,
-						   op_args->payload,
-						   op_args->payload_size,
-						   DATA_BUF_IS_INPUT));
+			      phy_addr);
 
 	if ((op_args->flags & HSM_OP_MAC_ONE_GO_FLAGS_MAC_GENERATION)
 			== HSM_OP_MAC_ONE_GO_FLAGS_MAC_GENERATION) {
-		set_phy_addr_to_words(&cmd->mac_address,
-				      0u,
-				      plat_os_abs_data_buf((struct plat_os_abs_hdl *)phdl,
-							   op_args->mac,
-							   mac_size_bytes,
-							   DATA_BUF_IS_OUTPUT));
+		ret = plat_os_abs_data_buf_v2((struct plat_os_abs_hdl *)phdl,
+					      &phy_addr,
+					      op_args->mac,
+					      mac_size_bytes,
+					      DATA_BUF_IS_OUTPUT);
 	} else {
-		set_phy_addr_to_words(&cmd->mac_address,
-				      0u,
-				      plat_os_abs_data_buf((struct plat_os_abs_hdl *)phdl,
-							   op_args->mac,
-							   mac_size_bytes,
-							   DATA_BUF_IS_INPUT));
+		ret = plat_os_abs_data_buf_v2((struct plat_os_abs_hdl *)phdl,
+					      &phy_addr,
+					      op_args->mac,
+					      mac_size_bytes,
+					      DATA_BUF_IS_INPUT);
 	}
+
+	if (ret != PLAT_SUCCESS) {
+		err |= ret;
+		goto exit;
+	}
+
+	set_phy_addr_to_words(&cmd->mac_address,
+			      0u,
+			      phy_addr);
+
 	cmd->payload_size = op_args->payload_size;
 	cmd->mac_size = op_args->mac_size;
 	/* No need to set the reserved structure member to zero,
@@ -85,25 +102,26 @@ uint32_t prepare_msg_mac_one_go(void *phdl,
 	*cmd_msg_sz = sizeof(struct sab_cmd_mac_one_go_msg);
 	*rsp_msg_sz = sizeof(struct sab_cmd_mac_one_go_rsp);
 
-	return ret;
+	err = SAB_LIB_STATUS(SAB_LIB_SUCCESS);
+exit:
+	return err;
 }
 
 uint32_t proc_msg_rsp_mac_one_go(void *rsp_buf, void *args)
 {
-	uint32_t err = SAB_LIB_STATUS(SAB_LIB_SUCCESS);
+	uint32_t err = SAB_LIB_STATUS(SAB_LIB_RSP_PROC_FAIL);
 	op_mac_one_go_args_t *op_args = (op_mac_one_go_args_t *) args;
 	struct sab_cmd_mac_one_go_rsp *rsp =
 		(struct sab_cmd_mac_one_go_rsp *) rsp_buf;
 
-	if (!op_args) {
-		err = SAB_LIB_STATUS(SAB_LIB_RSP_PROC_FAIL);
+	if (!op_args)
 		goto exit;
-	}
 
 	op_args->verification_status = rsp->verification_status;
 #ifdef PSA_COMPLIANT
 	op_args->exp_mac_size = rsp->output_mac_size;
 #endif
+	err = SAB_LIB_STATUS(SAB_LIB_SUCCESS);
 exit:
 	return err;
 }
@@ -115,14 +133,14 @@ uint32_t prepare_msg_mac_open_req(void *phdl,
 				     uint32_t msg_hdl,
 				     void *args)
 {
-	uint32_t ret = SAB_ENGN_PASS;
+	uint32_t err = SAB_LIB_STATUS(SAB_LIB_SUCCESS);
 	struct sab_cmd_mac_open_msg *cmd =
 		(struct sab_cmd_mac_open_msg *) cmd_buf;
 #ifndef PSA_COMPLIANT
 	open_svc_mac_args_t *op_args = (open_svc_mac_args_t *) args;
 
 	if (!op_args)
-		return SAB_ENGN_FAIL;
+		return SAB_LIB_STATUS(SAB_LIB_CMD_MSG_PREP_FAIL);
 
 	cmd->flags = op_args->flags;
 #endif
@@ -131,22 +149,22 @@ uint32_t prepare_msg_mac_open_req(void *phdl,
 	*cmd_msg_sz = sizeof(struct sab_cmd_mac_open_msg);
 	*rsp_msg_sz = sizeof(struct sab_cmd_mac_open_rsp);
 
-	return ret;
+	return err;
 }
 
 uint32_t proc_msg_rsp_mac_open_req(void *rsp_buf, void *args)
 {
-	uint32_t err = SAB_LIB_STATUS(SAB_LIB_SUCCESS);
+	uint32_t err = SAB_LIB_STATUS(SAB_LIB_RSP_PROC_FAIL);
 	struct sab_cmd_mac_open_rsp *rsp =
 		(struct sab_cmd_mac_open_rsp *) rsp_buf;
 	open_svc_mac_args_t *op_args = (open_svc_mac_args_t *) args;
 
-	if (!op_args) {
-		err = SAB_LIB_STATUS(SAB_LIB_RSP_PROC_FAIL);
+	if (!op_args)
 		goto exit;
-	}
 
 	op_args->mac_serv_hdl = rsp->mac_handle;
+
+	err = SAB_LIB_STATUS(SAB_LIB_SUCCESS);
 exit:
 	return err;
 }
@@ -158,7 +176,7 @@ uint32_t prepare_msg_mac_close_req(void *phdl,
 				      uint32_t msg_hdl,
 				      void *args)
 {
-	uint32_t ret = SAB_ENGN_PASS;
+	uint32_t err = SAB_LIB_STATUS(SAB_LIB_SUCCESS);
 	struct sab_cmd_mac_close_msg *cmd =
 		(struct sab_cmd_mac_close_msg *) cmd_buf;
 
@@ -167,7 +185,7 @@ uint32_t prepare_msg_mac_close_req(void *phdl,
 
 	cmd->mac_handle = msg_hdl;
 
-	return ret;
+	return err;
 }
 
 uint32_t proc_msg_rsp_mac_close_req(void *rsp_buf, void *args)
