@@ -1,6 +1,6 @@
 // SPDX-License-Identifier: BSD-3-Clause
 /*
- * Copyright 2023 NXP
+ * Copyright 2023-2024 NXP
  */
 #ifndef HSM_COMMON_DEF_H
 #define HSM_COMMON_DEF_H
@@ -54,8 +54,12 @@ typedef enum {
 } hsm_asymmetric_crypto_algo_t;
 
 typedef enum {
-		ALGO_CCM				= 0x05500100,
-		ALGO_GCM				= 0x05500200,
+	ALGO_CCM		= 0x05500100,
+	ALGO_GCM		= 0x05500200,
+	ALGO_CHACHA20_POLY1305	= 0x05100500,
+} hsm_aead_algo_t;
+
+typedef enum {
 		ALGO_HMAC_KDF_SHA256	= 0x08000109,
 		ALGO_ALL_CIPHER			= 0x84C0FF00,
 		ALGO_ALL_AEAD			= 0x8550FF00,
