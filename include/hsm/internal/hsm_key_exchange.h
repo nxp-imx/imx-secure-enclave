@@ -1,6 +1,6 @@
 // SPDX-License-Identifier: BSD-3-Clause
 /*
- * Copyright 2023 NXP
+ * Copyright 2023-2024 NXP
  */
 
 #ifndef HSM_KEY_EXCHANGE_H
@@ -36,11 +36,33 @@ typedef enum {
  * Enum describing Key Derivation algorithms supported
  */
 typedef enum {
-	//!< HKDF SHA256 (HMAC two-step)
 	HSM_KEY_DERIVATION_HKDF_SHA256 = 0x08000109,
-	//!< HKDF SHA384 (HMAC two-step)
+	//!< HKDF SHA256 (HMAC two-step)
 	HSM_KEY_DERIVATION_HKDF_SHA384 = 0x0800010A,
+	//!< HKDF SHA384 (HMAC two-step)
+	HSM_KEY_DERIVATION_HKDF_EXPAND_SHA256 = 0x08000509,
+	//!< HKDF Expand SHA256
+	HSM_KEY_DERIVATION_HKDF_EXPAND_SHA384 = 0x0800050A,
+	//!< HKDF Expand SHA384
 } hsm_op_key_derivation_algo_t;
+
+/**
+ * Enum describing TLS 1.3 Key Derivation algorithms supported
+ */
+typedef enum {
+	HSM_KEY_DERIVATION_TLS1_3_EARLY_SECRET_SHA256 = 0x8800D009,
+	//!< TLS 1.3 Early Secret SHA256
+	HSM_KEY_DERIVATION_TLS1_3_EARLY_SECRET_SHA384 = 0x8800D00A,
+	//!< TLS 1.3 Early Secret SHA384
+	HSM_KEY_DERIVATION_TLS1_3_HANDSHAKE_SECRET_SHA256 = 0x8800D109,
+	//!< TLS 1.3 Handshake Secret SHA256
+	HSM_KEY_DERIVATION_TLS1_3_HANDSHAKE_SECRET_SHA384 = 0x8800D10A,
+	//!< TLS 1.3 Handshake Secret SHA384
+	HSM_KEY_DERIVATION_TLS1_3_MASTER_SECRET_SHA256 = 0x8800D209,
+	//!< TLS 1.3 Master Secret SHA256
+	HSM_KEY_DERIVATION_TLS1_3_MASTER_SECRET_SHA384 = 0x8800D20A,
+	//!< TLS 1.3 Master Secret SHA384
+} hsm_op_key_derivation_tls1_3_algo_t;
 
 #else
 /**
@@ -64,23 +86,33 @@ typedef uint8_t hsm_op_key_exchange_flags_t;
  */
 typedef struct {
 #ifdef PSA_COMPLIANT
-	uint32_t signed_content_sz;
-	//!< Input signed content payload size in bytes
-	uint8_t *signed_content;
-	//!< Input signed content payload buffer
-	uint32_t peer_pubkey_sz;
-	//!< Input peer public key size in bytes
-	uint8_t *peer_pubkey;
-	//!< Input peer public key buffer
+	uint32_t in_content_sz;
+	//!< Input content buffer size in bytes
+	uint8_t *in_content;
+	//!< Input content buffer
+	uint32_t in_pub_buffer_sz;
+	//!< Input public buffer size in bytes
+	uint8_t *in_pub_buffer;
+	//!< Input public buffer
 	uint32_t user_fixed_info_sz;
 	//!< Input user fixed info size in bytes
 	uint8_t *user_fixed_info;
-	//!< Input user fixed info buffer (optional i.e. can be NULL)
+	//!< Input user fixed info buffer. Optional i.e. can be NULL, depending
+	//!< on the key derivation process
+	uint32_t output_sz;
+	//!< Output buffer size in bytes
+	uint8_t *output;
+	//!< Operation output returned as Output buffer
+	//!< Optional i.e. can be NULL, depending on Flags.
 	uint32_t out_derived_key_id;
 	//!< Identifier of the derived key, with FW Resp
 	uint32_t out_salt_sz;
 	//!< salt size in bytes, from FW Resp. It is equal to the hash
 	//!< (in bytes) of hash algorithm used in the key exchange algorithm.
+	uint32_t exp_output_sz;
+	//!< size in bytes of the exported derived key buffer, or
+	//!< Expected output derived key size (bytes), in case of
+	//!< HSM_OUT_TOO_SMALL error code.
 #else
 	uint32_t key_identifier;
 	//!< Identifier of the key used for derivation.
@@ -347,10 +379,18 @@ hsm_err_t hsm_key_exchange(hsm_hdl_t key_management_hdl,
 	((hsm_op_key_exchange_flags_t)(1u << 4))
 //!< Use extended master secret for TLS KDFs
 #else
-//!< Use zeros salt
+#define HSM_OP_KEY_EXCHANGE_FLAGS_INPUT_SIGNED_CONTENT \
+	((hsm_op_key_exchange_flags_t)(0u << 0))
+//!< Input signed content
+#define HSM_OP_KEY_EXCHANGE_FLAGS_INPUT_PLAINTEXT_CONTENT \
+	((hsm_op_key_exchange_flags_t)(1u << 0))
+//!< Input plaintext content
+#define HSM_OP_KEY_EXCHANGE_FLAGS_RETURN_OUTPUT \
+	((hsm_op_key_exchange_flags_t)(1u << 2))
+//!< Return the operation’s output as buffer (in plaintext)
 #define HSM_OP_KEY_EXCHANGE_FLAGS_SALT_ZERO \
 	((hsm_op_key_exchange_flags_t)(0u << 0))
-//!< Use peer public key hash salt
+//!< Use zeros salt
 #define HSM_OP_KEY_EXCHANGE_FLAGS_SALT_PEER_PUBKEY_HASH \
 	((hsm_op_key_exchange_flags_t)(1u << 0))
 //!< Use peer public key hash salt
