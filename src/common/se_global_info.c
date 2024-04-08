@@ -1,6 +1,6 @@
 // SPDX-License-Identifier: BSD-3-Clause
 /*
- * Copyright 2023 NXP
+ * Copyright 2023-2024 NXP
  */
 
 #include <stdio.h>
@@ -88,17 +88,54 @@ const char *get_soc_rev_str(uint16_t soc_rev)
 	}
 }
 
+#ifdef PSA_COMPLIANT
 const char *get_soc_lf_str(uint16_t lifecycle)
 {
 	switch (lifecycle) {
-	case SOC_LF_CLOSED:
-		return "Closed";
-#ifdef PSA_COMPLIANT
 	case SOC_LF_OPEN:
 		return "Open";
+	case SOC_LF_CLOSED:
+		return "Closed";
 	case SOC_LF_CLOSED_LOCKED:
 		return "Closed and Locked";
+	default:
+		return "Unknown";
+	}
+}
 #else
+static const char *get_soc_lf_str_new(uint16_t lifecycle)
+{
+	switch (lifecycle) {
+	case SOC_LF_BLANK:
+		return "Blank";
+	case SOC_LF_DEFAULT_FAB:
+		return "Fab Default";
+	case SOC_LF_FAB:
+		return "Fab";
+	case SOC_LF_NXP_PROVISIONED:
+		return "NXP Provision";
+	case SOC_LF_OEM_OPEN:
+		return "OEM Open";
+	case SOC_LF_OEM_SECURE_WORLD_CLOSED:
+		return "OEM Secure-World-Closed";
+	case SOC_LF_OEM_CLOSED:
+		return "OEM Closed";
+	case SOC_LF_OEM_LOCKED:
+		return "OEM Locked";
+	case SOC_LF_FIELD_RET_OEM:
+		return "Field Return OEM";
+	case SOC_LF_FIELD_RET_NXP:
+		return "Field Return NXP";
+	case SOC_LF_BRICKED:
+		return "Bricked";
+	default:
+		return "Unknown";
+	}
+}
+
+static const char *get_soc_lf_str_old(uint16_t lifecycle)
+{
+	switch (lifecycle) {
 	case SOC_LF_FAB_DEFAULT:
 		return "Default Fab Mode";
 	case SOC_LF_FAB_MODE:
@@ -111,6 +148,8 @@ const char *get_soc_lf_str(uint16_t lifecycle)
 		return "SCU FW Closed";
 	case SOC_LF_SECO_FW_CLOSED:
 		return "SECO FW Closed";
+	case SOC_LF_CLOSED:
+		return "Closed";
 	case SOC_LF_CLOSED_WITH_NXP_FW:
 		return "Closed with NXP FW";
 	case SOC_LF_PARTIAL_FIELD_RET:
@@ -119,11 +158,19 @@ const char *get_soc_lf_str(uint16_t lifecycle)
 		return "Field return";
 	case SOC_LF_NO_RET:
 		return "No Return";
-#endif
 	default:
 		return "Unknown";
 	}
 }
+
+const char *get_soc_lf_str(uint16_t lifecycle)
+{
+	if (se_get_soc_id() == SOC_IMX95)
+		return get_soc_lf_str_new(lifecycle);
+
+	return get_soc_lf_str_old(lifecycle);
+}
+#endif
 
 void populate_global_info(uint32_t session_hdl)
 {

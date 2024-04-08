@@ -15,6 +15,7 @@
  * :------------: | :-------------:| :------------
  * 0.1 | Jan 13 2024  | Initial Draft
  * 0.1 | Apr 1 2024  | Remove key_ext variable from key_update structure
+ * 0.2 | Apr 15 2024  | Update Global Info for i.MX95 Lifecycle values
  */
 
 /*! \page page1 General concepts related to the API
@@ -41,4 +42,6 @@
  * \section sec5 Implementation specificities
  * SHE API with common features are supported on i.MX8DXL and i.MX95.The details of supported
  * features per chip will be listed in the platform specifities.
+ * - for i.MX8DXL: \ref iMX8DXL
+ * - for i.MX95: \ref iMX95
  */
