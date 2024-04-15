@@ -1,6 +1,6 @@
 // SPDX-License-Identifier: BSD-3-Clause
 /*
- * Copyright 2023 NXP
+ * Copyright 2023-2024 NXP
  */
 
 #include "internal/hsm_gc_acrypto.h"
@@ -30,6 +30,7 @@ uint32_t prepare_msg_gc_acrypto(void *phdl,
 	cmd->buffers_addr_msb = 0u;
 	cmd->algorithm = op_args->algorithm;
 	cmd->op_mode = op_args->op_mode;
+	cmd->flags = op_args->flags;
 	cmd->key_size = op_args->bit_key_sz;
 
 	if (cmd->op_mode == HSM_GC_ACRYPTO_OP_MODE_DECRYPT)
