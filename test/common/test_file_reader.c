@@ -49,6 +49,10 @@ static void tv_tests(hsm_hdl_t key_store_hdl, uint8_t *tv_file_path)
 	uint16_t tauth_enc_failed = 0;
 	uint16_t tauth_enc_invalid = 0;
 	uint16_t tauth_enc_total = 0;
+	uint16_t tgc_acrypto_passed = 0;
+	uint16_t tgc_acrypto_failed = 0;
+	uint16_t tgc_acrypto_invalid = 0;
+	uint16_t tgc_acrypto_total = 0;
 
 	char *line = NULL;
 	char *check_invalid = NULL;
@@ -156,6 +160,16 @@ static void tv_tests(hsm_hdl_t key_store_hdl, uint8_t *tv_file_path)
 							 &tauth_enc_failed,
 							 &tauth_enc_invalid,
 							 &tauth_enc_total);
+
+#ifdef PSA_COMPLIANT
+				/* GC ACRYPTO Test*/
+				if (memcmp(line, "TEST_GC_ACRYPTO", 15) == 0)
+					gc_acrypto_test_tv(key_store_hdl, fp,
+							   line, &tgc_acrypto_passed,
+							   &tgc_acrypto_failed,
+							   &tgc_acrypto_invalid,
+							   &tgc_acrypto_total);
+#endif
 #endif
 				/* Load Peristent Key Details */
 				if (memcmp(line, "LOAD_PERSIST_KEY_INFO", 21) == 0)
@@ -239,6 +253,14 @@ static void tv_tests(hsm_hdl_t key_store_hdl, uint8_t *tv_file_path)
 		       tauth_enc_total, tauth_enc_passed, tauth_enc_failed,
 		       tauth_enc_invalid);
 		printf("\n---------------------------------------------------------\n\n");
+	}
+
+	if (tgc_acrypto_total > 0) {
+		printf("TESTS REPORT GC ACRYPTO: ");
+		printf(" TOTAL: %u, SUCCESS: %u, FAILED: %u, INVALID: %u",
+		       tgc_acrypto_total, tgc_acrypto_passed, tgc_acrypto_failed,
+		       tgc_acrypto_invalid);
+		printf("\n-------------------------------------------------------\n\n");
 	}
 
 	if (line)
