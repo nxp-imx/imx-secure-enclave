@@ -75,8 +75,10 @@ void tls13_hkdf_label_encode(uint16_t length,
 	uint16_t loc_hkdf_label_len;
 	unsigned char *hkdf_label_p;
 
-	if (!label || !context || !hkdf_label || !hkdf_label_len)
+	if (!label || !hkdf_label || !hkdf_label_len) {
 		printf("HKDF-Label-Encode Failed: Invalid arguments");
+		return;
+	}
 
 	if (length > TEST_TLS1_3_HKDF_LABEL_KEY_EXPANSION_MAX_LEN) {
 		printf("\nHKDF-Label-Encode Failed: Key Expansion len must be < %u\n",
@@ -96,8 +98,8 @@ void tls13_hkdf_label_encode(uint16_t length,
 	*hkdf_label_p = (uint8_t)length;
 	hkdf_label_p++;
 
-	/* Add label prefix length */
-	*hkdf_label_p = sizeof(test_tls13_label_prefix);
+	/* Add total label length */
+	*hkdf_label_p = total_label_len;
 	hkdf_label_p++;
 
 	/* Add label prefix */
@@ -113,7 +115,7 @@ void tls13_hkdf_label_encode(uint16_t length,
 	hkdf_label_p++;
 
 	/* Add context */
-	if (context_len)
+	if (context_len && context)
 		memcpy(hkdf_label_p, context, context_len);
 
 	*hkdf_label_len = loc_hkdf_label_len;
