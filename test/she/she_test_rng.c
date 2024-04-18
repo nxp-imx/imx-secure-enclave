@@ -1,6 +1,6 @@
 // SPDX-License-Identifier: BSD-3-Clause
 /*
- * Copyright 2023 NXP
+ * Copyright 2023-2024 NXP
  */
 
 #include <string.h>
@@ -57,7 +57,7 @@ she_err_t do_she_rng_test(she_hdl_t session_hdl)
 {
 	op_get_random_args_t rng_get_random_args = {0};
 	op_rng_extend_seed_t rng_extend_seed_args = {0};
-	uint8_t rng_out_buff[16];
+	uint8_t rng_out_buff[SHE_RND_SIZE];
 	int i = 0, j;
 	she_err_t err;
 
@@ -79,10 +79,10 @@ she_err_t do_she_rng_test(she_hdl_t session_hdl)
 
 		se_print("%d bytes random data received : ", SHE_RND_SIZE);
 		for (j = 0; j < rng_get_random_args.random_size; j++)
-			printf("%02x", rng_out_buff[j]);
+			printf("%02x", rng_get_random_args.output[j]);
 		printf("\n");
 
-		memset(rng_out_buff, 0, sizeof(rng_out_buff));
+		memset(rng_get_random_args.output, 0, SHE_RND_SIZE);
 		i = i + SHE_RND_SIZE;
 	} while (i <= 64);
 
