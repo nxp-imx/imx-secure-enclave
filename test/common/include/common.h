@@ -101,4 +101,6 @@ void she_tests(uint8_t session_id,
 	       uint8_t num_of_keystores,
 	       uint8_t shared_keystore);
 
+int shx_she_tests(int argc, char *argv[]);
+
 #endif

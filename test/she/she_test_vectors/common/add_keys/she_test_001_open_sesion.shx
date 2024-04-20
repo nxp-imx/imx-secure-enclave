@@ -1,0 +1,21 @@
+SHE_TEST_OPEN_SESSION
+0 # session handle index
+1 # MU ID
+1 # expect a pointer of any value other than 0
+
+SHE_TEST_KEY_STORE_OPEN
+0 # session handle index
+0 # key store number, maximum 5 supported for i.MX95
+0 # key storage identifier
+0xbec00001  # password
+0x8b # flags (SHE, CREATE, SET_MAC_LENGTH, PERSISTENT)
+300  # max number of updates
+32 # min mac length
+0 # signed message length
+NULL  # signed message
+0 # expected return value
+
+SHE_TEST_UTILS_OPEN
+0 # session handle index
+0 # key store number, maximum 5 supported for i.MX95
+0 # expected return value

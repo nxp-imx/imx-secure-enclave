@@ -14,6 +14,7 @@ SYSTEMD_DIR ?= /etc/systemd/system
 ETC_DIR ?= /etc
 DATA_DIR ?= /usr/share
 TEST_VECTOR_DEFAULT_DIR ?= $(DATA_DIR)/se/test_vectors
+SHE_TEST_VECTOR_DEFAULT_DIR ?= $(DATA_DIR)/se/she_test_vectors/
 TARGET_README_DIR ?= $(DATA_DIR)/se
 PLAT ?= seco
 MAJOR_VER := 1
@@ -71,6 +72,7 @@ include $(PLAT_COMMON_PATH)/she_api/she_api.mk
 include $(PLAT_PATH)/$(PLAT).mk
 
 TEST_COMMON_TV_PATH := test/common/test_vectors/$(PSA)
+SHE_TEST_COMMON_TV_PATH := test/she/she_test_vectors/common/
 
 LIB_NAMES := $(HSM_LIB_NAME) $(NVM_LIB_NAME) $(SHE_LIB_NAME)
 
@@ -162,16 +164,21 @@ $(HSM_TEST): $(HSM_TEST_OBJ) $(HSM_LIB)
 $(HSM_PERF_TEST): $(HSM_PERF_TEST_OBJ) $(HSM_LIB)
 	$(CC) $^  -o $@ ${TEST_INCLUDE_PATHS} ${COMMON_TEST_INC} $(TEST_CFLAGS) $(TEST_PERF_CFLAGS) $(TEST_LDFLAGS) $(GCOV_FLAGS)
 
+SHX_TEST_INC=-Itest/she/shx_src/include/
+SHX_INC=-Itest/shx/include/
+
 SHE_COMMON_TEST_OBJ=$(wildcard test/she/*.c)
-SHE_TEST_OBJ= test/she/seco/she_test.c $(SHE_COMMON_TEST_OBJ)
+SHX_SHE_COMMON_TEST_OBJ=$(wildcard test/she/shx_src/*.c)
+SHX_COMMON_TEST_OBJ=$(wildcard test/shx/*.c)
+SHE_TEST_OBJ= test/she/seco/she_test.c $(SHE_COMMON_TEST_OBJ) $(SHX_SHE_COMMON_TEST_OBJ) $(SHX_COMMON_TEST_OBJ)
 #SHE test app
 $(SHE_TEST): $(SHE_TEST_OBJ) $(SHE_LIB)
-	$(CC) $^  -o $@ ${TEST_INCLUDE_PATHS} ${COMMON_TEST_INC} $(TEST_CFLAGS) $(GCOV_FLAGS)
+	$(CC) $^  -o $@ ${TEST_INCLUDE_PATHS} ${COMMON_TEST_INC} $(SHX_TEST_INC) $(SHX_INC) $(TEST_CFLAGS) $(GCOV_FLAGS)
 
-V2X_SHE_TEST_OBJ= test/she/v2x/v2x_she_test.c $(SHE_COMMON_TEST_OBJ)
+V2X_SHE_TEST_OBJ= test/she/v2x/v2x_she_test.c $(SHE_COMMON_TEST_OBJ) $(SHX_SHE_COMMON_TEST_OBJ) $(SHX_COMMON_TEST_OBJ)
 #V2X-SHE test app
 $(V2X_SHE_TEST): $(V2X_SHE_TEST_OBJ) $(SHE_LIB)
-	$(CC) $^  -o $@ ${TEST_INCLUDE_PATHS} ${COMMON_TEST_INC} $(TEST_CFLAGS) $(GCOV_FLAGS)
+	$(CC) $^  -o $@ ${TEST_INCLUDE_PATHS} ${COMMON_TEST_INC} $(SHX_TEST_INC) $(SHX_INC) $(TEST_CFLAGS) $(GCOV_FLAGS)
 
 V2X_HSM_TEST_OBJ=$(wildcard test/v2x/*.c)
 $(V2X_HSM_TEST): $(V2X_HSM_TEST_OBJ) $(HSM_LIB)
@@ -238,6 +245,8 @@ install_tests: install tests
 	cp $(all_tests) $(DESTDIR)$(BINDIR)
 	mkdir -p $(DESTDIR)$(TEST_VECTOR_DEFAULT_DIR)
 	cp -r $(TEST_COMMON_TV_PATH) $(DESTDIR)$(TEST_VECTOR_DEFAULT_DIR)
+	$(MKDIR_SHE_TV)
+	$(EXPORT_SHE_SHX_TV)
 
 install_version: .git
 	echo "#ifndef SE_VERSION_H" > ${SE_VER_FILE}
