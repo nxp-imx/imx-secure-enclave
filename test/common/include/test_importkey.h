@@ -1,6 +1,6 @@
 // SPDX-License-Identifier: BSD-3-Clause
 /*
- * Copyright 2023 NXP
+ * Copyright 2023-2024 NXP
  */
 
 #ifndef TEST_IMPORT_KEY_H
@@ -93,5 +93,7 @@ struct test_import_key_data {
 	uint8_t wrap_key_buf[WRAP_KEY_BUF_SZ];
 };
 
-uint32_t test_key_import(hsm_hdl_t key_mgmt_hdl, hsm_hdl_t key_store_hdl);
+uint32_t test_key_import(hsm_hdl_t key_mgmt_hdl,
+			 hsm_hdl_t key_store_hdl,
+			 hsm_op_import_key_flags_t flag);
 #endif

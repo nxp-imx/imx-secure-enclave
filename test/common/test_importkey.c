@@ -1,6 +1,6 @@
 // SPDX-License-Identifier: BSD-3-Clause
 /*
- * Copyright 2023 NXP
+ * Copyright 2023-2024 NXP
  */
 
 #include <stdint.h>
@@ -554,7 +554,9 @@ struct import_key_data {
 	uint32_t key_id;
 };
 
-uint32_t test_key_import(hsm_hdl_t key_mgmt_hdl, hsm_hdl_t key_store_hdl)
+uint32_t test_key_import(hsm_hdl_t key_mgmt_hdl,
+			 hsm_hdl_t key_store_hdl,
+			 hsm_op_import_key_flags_t flag)
 {
 	uint8_t hash_data[32] = {
 		0x00, 0x01, 0x02, 0x03, 0x04, 0x05, 0x06, 0x07,
@@ -569,6 +571,10 @@ uint32_t test_key_import(hsm_hdl_t key_mgmt_hdl, hsm_hdl_t key_store_hdl)
 	uint8_t *import_key_buf;
 	struct import_key_data imkd[] = {
 		{
+			.fname = "/usr/share/se/test_vectors/psa/ele_aes_test.blob",
+			.key_id = 0x10000090,
+		},
+		{
 			.fname = "/usr/share/se/test_vectors/psa/el2go_aes_test.blob",
 			.key_id = 0x10000090,
 		},
@@ -581,7 +587,7 @@ uint32_t test_key_import(hsm_hdl_t key_mgmt_hdl, hsm_hdl_t key_store_hdl)
 	uint8_t deciphered_data[32] = {0};
 	hsm_err_t hsmret;
 
-	import_key_len = get_file_size(imkd[0].fname);
+	import_key_len = get_file_size(imkd[flag].fname);
 	if (!import_key_len)
 		return 0;
 
@@ -590,13 +596,13 @@ uint32_t test_key_import(hsm_hdl_t key_mgmt_hdl, hsm_hdl_t key_store_hdl)
 		printf("No import key blob to test.\n");
 		return 0;
 	}
-	if (read_fl_to_buf(imkd[0].fname, import_key_buf, import_key_len)) {
+	if (read_fl_to_buf(imkd[flag].fname, import_key_buf, import_key_len)) {
 		printf("file empty: no Import key blob to test.\n");
 		free(import_key_buf);
 		return 0;
 	}
 
-	args.flags = HSM_OP_IMPORT_KEY_INPUT_E2GO_TLV;
+	args.flags = flag;
 	args.input_lsb_addr = import_key_buf;
 	args.input_size = import_key_len;
 
@@ -604,7 +610,7 @@ uint32_t test_key_import(hsm_hdl_t key_mgmt_hdl, hsm_hdl_t key_store_hdl)
 	if (hsmret) {
 		if (hsmret == HSM_ID_CONFLICT) {
 			printf("Warn: key is already imported.\n");
-			args.key_identifier = imkd[0].key_id;
+			args.key_identifier = imkd[flag].key_id;
 		} else {
 			printf("Failure[0%x] in HSM Import Key API.\n", hsmret);
 		}
@@ -647,5 +653,6 @@ uint32_t test_key_import(hsm_hdl_t key_mgmt_hdl, hsm_hdl_t key_store_hdl)
 
 	return args.key_identifier;
 }
+
 #endif
 #endif //MT_SAB_IMPORT_KEY

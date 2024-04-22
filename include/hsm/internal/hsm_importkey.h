@@ -1,6 +1,6 @@
 // SPDX-License-Identifier: BSD-3-Clause
 /*
- * Copyright 2022-2023 NXP
+ * Copyright 2022-2024 NXP
  */
 
 #ifndef HSM_IMPORT_KEY_H
@@ -41,7 +41,12 @@ typedef uint8_t hsm_op_import_key_flags_t;
 #define HSM_OP_IMPORT_KEY_FLAGS_GROUP_FIELD \
 	((hsm_op_import_key_flags_t)(1u << 2))
 //!< Bit 2: set 1 means ELE store key in key group set by key group field.
-//
+
+#define HSM_OP_IMPORT_KEY_FLAGS_MONOTONIC_COUNTER_INCREMENT \
+	((hsm_op_import_key_flags_t)(1u << 5))
+//!< Bit 5: when used in conjunction with key group / key store and storage master,
+//!< the request is completed only when the monotonic counter has been updated.
+
 #define HSM_OP_IMPORT_KEY_FLAGS_STRICT_OPERATION \
 	((hsm_op_import_key_flags_t)(1u << 7))
 //!< Bit 7: Strict: Request completed - New key written to NVM with updated MC.
