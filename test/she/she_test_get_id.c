@@ -1,6 +1,6 @@
 // SPDX-License-Identifier: BSD-3-Clause
 /*
- * Copyright 2023 NXP
+ * Copyright 2023-2024 NXP
  */
 
 #include <string.h>
@@ -16,16 +16,12 @@ she_err_t she_get_id_test(she_hdl_t utils_handle)
 						 0x16, 0xde, 0x77, 0xb9,
 						 0x59, 0x99, 0x64, 0xb3,
 						 0xd2, 0xdd, 0x72, 0x61};
-	uint8_t mac[SHE_MAC_SIZE] = {0};
-	uint8_t id[SHE_ID_SIZE] = {0};
 	uint8_t challenge2[SHE_CHALLENGE_SIZE] = {0x6b, 0xc1, 0xbe, 0xe2,
 						  0x2e, 0x40, 0x9f, 0x96,
 						  0xe9, 0x3d, 0x7e, 0x11,
 						  0x73, 0x93, 0x17, 0x2a};
 
-	memcpy(get_id_args.mac, mac, SHE_MAC_SIZE);
 	memcpy(get_id_args.challenge, challenge, SHE_CHALLENGE_SIZE);
-	memcpy(get_id_args.id, id, SHE_ID_SIZE);
 
 	err = she_get_id(utils_handle, &get_id_args);
 	if (err) {
@@ -52,11 +48,7 @@ she_err_t she_get_id_test(she_hdl_t utils_handle)
 	se_print("status register: 0x%x\n", get_id_args.sreg);
 
 	memset(&get_id_args, 0, sizeof(get_id_args));
-	memset(mac, 0, sizeof(mac));
-	memset(id, 0, sizeof(id));
-	memcpy(get_id_args.mac, mac, SHE_MAC_SIZE);
 	memcpy(get_id_args.challenge, challenge2, SHE_CHALLENGE_SIZE);
-	memcpy(get_id_args.id, id, SHE_ID_SIZE);
 
 	err = she_get_id(utils_handle, &get_id_args);
 	if (err) {
