@@ -154,6 +154,32 @@ function openssl()
     eval "${cmd_script}"
 }
 
+function mbedtls()
+{
+    cmd_script="cmake ${opt_toolchain}"
+    printf "\033[0;32m\n"
+    printf "***************************************\n"
+    printf " Install MbedTLS to %s\n" "${opt_export}"
+    printf "***************************************\n"
+    printf "\033[0m\n"
+
+    cmd_script="export ARCH=arm64;\
+                export CROSS_COMPILE=aarch64-none-linux-gnu-;\
+                pip install jsonschema;
+                git submodule update --init;
+                make clean;
+                cmake -DUSE_SHARED_MBEDTLS_LIBRARY=ON -DUSE_STATIC_MBEDTLS_LIBRARY=OFF \
+                -DENABLE_TESTING=OFF -DENABLE_PROGRAMS=OFF \
+                -DCMAKE_C_COMPILER=aarch64-none-linux-gnu-gcc \
+                -DMBEDTLS_CONFIG_FILE='./include/mbedtls/mbedtls_config.h' \
+                -DCMAKE_C_FLAGS=' -mstrict-align' ; \
+                make"
+
+    cmd_script="cd ../mbedtls;${cmd_script};cd -;"
+    printf "Execute %s\n" "${cmd_script}"
+    eval "${cmd_script}"
+}
+
 function seco()
 {
     cmd_script="cmake ${opt_toolchain} ${opt_openssl} ${opt_compatible_mach}"
@@ -893,6 +919,10 @@ case ${opt_action} in
 
     openssl)
         openssl
+        ;;
+
+    mbedtls)
+        mbedtls
         ;;
 
     seco)
