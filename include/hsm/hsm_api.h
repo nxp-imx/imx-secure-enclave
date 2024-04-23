@@ -45,6 +45,8 @@ extern "C" {
 
 #include "internal/hsm_gc_acrypto.h"
 
+#include "internal/hsm_gc_cipher.h"
+
 #include "internal/hsm_importkey.h"
 
 #include "internal/hsm_delete_key.h"
