@@ -112,6 +112,7 @@
 #define SAB_GC_ACRYPTO_REQ                      0xCAu
 #define SAB_GC_AKEY_GEN_REQ                     0xCBu
 #define SAB_GC_CIPHER_REQ                       0xC8u
+#define SAB_GC_AEAD_REQ                         0xC9u
 
 #define ROM_DEV_FWD_LC_UPDATE                   0x95
 #define ROM_DEV_RET_LC_UPDATE                   0xA0

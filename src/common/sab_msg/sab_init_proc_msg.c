@@ -50,6 +50,10 @@
 #include "sab_gc_cipher.h"
 #endif
 
+#if MT_SAB_GC_AEAD
+#include "sab_gc_aead.h"
+#endif
+
 #if MT_SAB_KEY_GEN_EXT
 #include "sab_key_gen_ext.h"
 #endif
@@ -282,6 +286,15 @@ static  int init_proc_sab_hsm_msg_engine(msg_type_t msg_type,
 			ret = add_sab_msg_handler(msg_id, MT_SAB_GC_CIPHER,
 						  prepare_msg_gc_cipher,
 						  proc_msg_gc_cipher);
+		}
+		break;
+#endif
+#if MT_SAB_GC_AEAD
+	case SAB_GC_AEAD_REQ:
+		if (msg_type == MT_SAB_GC_AEAD) {
+			ret = add_sab_msg_handler(msg_id, MT_SAB_GC_AEAD,
+						  prepare_msg_gc_aead,
+						  proc_msg_gc_aead);
 		}
 		break;
 #endif

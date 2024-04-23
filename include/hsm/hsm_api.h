@@ -47,6 +47,8 @@ extern "C" {
 
 #include "internal/hsm_gc_cipher.h"
 
+#include "internal/hsm_gc_aead.h"
+
 #include "internal/hsm_importkey.h"
 
 #include "internal/hsm_delete_key.h"
