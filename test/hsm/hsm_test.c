@@ -15,6 +15,10 @@
 #include "hsm_api.h"
 #include "test_importkey.h"
 
+#ifdef PSA_COMPLIANT
+#include "mbedtls_test.h"
+#endif
+
 hsm_hdl_t hsm_session_hdl;
 hsm_hdl_t key_store_hdl;
 int cmdline_arg;
@@ -825,6 +829,11 @@ int main(int argc, char *argv[])
 		tv_tests_run(key_store_hdl, NULL);
 	}
 
+#ifdef PSA_COMPLIANT
+	/* MbedTLS tests */
+	mbedtls_hkdf_test();
+	mbedtls_tls1_3_tests();
+#endif
         err = hsm_close_key_store_service(key_store_hdl);
         printf("hsm_close_key_store_service ret:0x%x\n", err);
 
