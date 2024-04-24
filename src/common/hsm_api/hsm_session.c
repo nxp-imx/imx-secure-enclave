@@ -1,6 +1,6 @@
 // SPDX-License-Identifier: BSD-3-Clause
 /*
- * Copyright 2023 NXP
+ * Copyright 2023-2024 NXP
  */
 
 #include <stdbool.h>
@@ -11,25 +11,6 @@
 #include "internal/hsm_session.h"
 
 #include "sab_process_msg.h"
-
-static inline uint8_t mu_config(uint8_t prio, uint8_t op_mode)
-{
-	return ((((op_mode) & HSM_OPEN_SESSION_LOW_LATENCY_MASK) != 0U  ? 4U : 0U)
-		| ((prio) == HSM_OPEN_SESSION_PRIORITY_HIGH ? 2U : 0U)
-		| (((op_mode) & HSM_OPEN_SESSION_NO_KEY_STORE_MASK) != 0U ? 1U : 0U));
-}
-
-#define MU_CONFIG_NB		(8)
-static const uint32_t mu_table[MU_CONFIG_NB] = {
-	MU_CHANNEL_PLAT_HSM,      // best_effort, low prio, with key store
-	MU_CHANNEL_PLAT_HSM_2ND,  // best_effort, low prio, no key store
-	MU_CHANNEL_UNDEF,         // best_effort, high prio, with key store
-	MU_CHANNEL_UNDEF,         // best_effort, high prio, no key store
-	MU_CHANNEL_V2X_SG1,       // low latency, low prio,  with key store
-	MU_CHANNEL_V2X_SV1,       // low latency, low prio,  no key store
-	MU_CHANNEL_V2X_SG0,       // low latency, high prio, with key store
-	MU_CHANNEL_V2X_SV0,       // low latency, high prio, no key store
-};
 
 hsm_err_t hsm_close_session(hsm_hdl_t session_hdl)
 {
@@ -78,7 +59,7 @@ hsm_err_t hsm_open_session(open_session_args_t *args, hsm_hdl_t *session_hdl)
 	struct plat_mu_params mu_params;
 	hsm_err_t err = HSM_GENERAL_ERROR;
 	uint32_t lib_err;
-	uint8_t session_priority, operating_mode;
+	uint8_t mu_type;
 	uint32_t rsp_code = SAB_NO_MESSAGE_RATING;
 
 	plat_os_abs_memset((uint8_t *)&mu_params, 0, sizeof(mu_params));
@@ -88,25 +69,11 @@ hsm_err_t hsm_open_session(open_session_args_t *args, hsm_hdl_t *session_hdl)
 			break;
 		}
 
-		/* sanity check on the input parameters. */
-		session_priority = args->session_priority;
-		operating_mode = args->operating_mode;
-		if (session_priority != HSM_OPEN_SESSION_PRIORITY_LOW &&
-		    session_priority != HSM_OPEN_SESSION_PRIORITY_HIGH) {
-			break;
-		}
-		if ((operating_mode & HSM_OPEN_SESSION_RESERVED_MASK) != 0U)
-			break;
-
 		s_ptr = add_session();
 		if (!s_ptr)
 			break;
 
-		if (plat_os_abs_has_v2x_hw() == 0U) {
-			/* SECO only HW: low latency and high priority not supported. */
-			operating_mode &= (0xFF ^ HSM_OPEN_SESSION_LOW_LATENCY_MASK);
-			session_priority = HSM_OPEN_SESSION_PRIORITY_LOW;
-		}
+		mu_type = args->mu_type;
 
 		args = (open_session_args_t *)
 			plat_os_abs_malloc((uint32_t)sizeof(open_session_args_t));
@@ -114,7 +81,7 @@ hsm_err_t hsm_open_session(open_session_args_t *args, hsm_hdl_t *session_hdl)
 			break;
 		plat_os_abs_memset((uint8_t *)args, 0u, (uint32_t)sizeof(open_session_args_t));
 
-		s_ptr->mu_type = mu_table[mu_config(session_priority, operating_mode)];
+		s_ptr->mu_type = mu_type;
 		s_ptr->phdl = plat_os_abs_open_mu_channel(s_ptr->mu_type, &mu_params);
 		if (!s_ptr->phdl)
 			break;
@@ -125,8 +92,6 @@ hsm_err_t hsm_open_session(open_session_args_t *args, hsm_hdl_t *session_hdl)
 		args->did = mu_params.did;
 #endif
 		args->interrupt_idx = mu_params.interrupt_idx;
-		args->session_priority = session_priority;
-		args->operating_mode = operating_mode;
 
 		lib_err = process_sab_msg(s_ptr->phdl,
 					  s_ptr->mu_type,

@@ -1,6 +1,6 @@
 // SPDX-License-Identifier: BSD-3-Clause
 /*
- * Copyright 2021-2023 NXP
+ * Copyright 2021-2024 NXP
  */
 
 #include <stdio.h>
@@ -46,10 +46,10 @@ uint32_t plat_os_abs_storage_write(struct plat_os_abs_hdl *phdl,
 	int64_t l;
 	char nvm_storage_dname[256];
 
-	if (phdl->type == MU_CHANNEL_PLAT_SHE_NVM ||
-	    phdl->type == MU_CHANNEL_PLAT_HSM_NVM ||
-	    phdl->type == MU_CHANNEL_V2X_SHE_NVM ||
-	    phdl->type == MU_CHANNEL_V2X_HSM_NVM) {
+	if (phdl->type == SHE_NVM ||
+	    phdl->type == HSM_NVM ||
+	    phdl->type == V2X_SHE_NVM ||
+	    phdl->type == V2X_HSM_NVM) {
 		/* Open or create the file with access reserved
 		 * to the current user.
 		 */
@@ -92,10 +92,10 @@ uint32_t plat_os_abs_storage_read(struct plat_os_abs_hdl *phdl,
 	int32_t fd;
 	int64_t l = 0;
 
-	if (phdl->type == MU_CHANNEL_PLAT_SHE_NVM ||
-	    phdl->type == MU_CHANNEL_PLAT_HSM_NVM ||
-	    phdl->type == MU_CHANNEL_V2X_SHE_NVM ||
-	    phdl->type == MU_CHANNEL_V2X_HSM_NVM) {
+	if (phdl->type == SHE_NVM ||
+	    phdl->type == HSM_NVM ||
+	    phdl->type == V2X_SHE_NVM ||
+	    phdl->type == V2X_HSM_NVM) {
 		/* Open the file as read only. */
 		fd = open(nvm_fname, O_RDONLY);
 		if (fd >= 0) {
@@ -170,11 +170,11 @@ uint32_t plat_os_abs_storage_write_chunk(struct plat_os_abs_hdl *phdl,
 	uint32_t n = 0;
 	char *path = NULL;
 
-	if (phdl->type == MU_CHANNEL_PLAT_HSM_NVM) {
+	if (phdl->type == HSM_NVM) {
 		n = get_chunk_file_path(&path, nvm_storage_dname, blob_id);
-	} else if (phdl->type == MU_CHANNEL_V2X_HSM_NVM) {
+	} else if (phdl->type == V2X_HSM_NVM) {
 		n = get_chunk_file_path(&path, nvm_storage_dname, blob_id);
-	} else if (phdl->type == MU_CHANNEL_V2X_SHE_NVM) {
+	} else if (phdl->type == V2X_SHE_NVM) {
 		n = get_chunk_file_path(&path, nvm_storage_dname, blob_id);
 	} else {
 		path = NULL;
@@ -215,11 +215,11 @@ uint32_t plat_os_abs_storage_read_chunk(struct plat_os_abs_hdl *phdl,
 	uint32_t n = 0;
 	char *path = NULL;
 
-	if (phdl->type == MU_CHANNEL_PLAT_HSM_NVM) {
+	if (phdl->type == HSM_NVM) {
 		n = get_chunk_file_path(&path, nvm_storage_dname, blob_id);
-	} else if (phdl->type == MU_CHANNEL_V2X_HSM_NVM) {
+	} else if (phdl->type == V2X_HSM_NVM) {
 		n = get_chunk_file_path(&path, nvm_storage_dname, blob_id);
-	} else if (phdl->type == MU_CHANNEL_V2X_SHE_NVM) {
+	} else if (phdl->type == V2X_SHE_NVM) {
 		n = get_chunk_file_path(&path, nvm_storage_dname, blob_id);
 	} else {
 		path = NULL;

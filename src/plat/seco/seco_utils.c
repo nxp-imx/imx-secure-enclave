@@ -1,6 +1,6 @@
 // SPDX-License-Identifier: BSD-3-Clause
 /*
- * Copyright 2021-2023 NXP
+ * Copyright 2021-2024 NXP
  */
 
 #include "errno.h"
@@ -8,6 +8,7 @@
 
 #include "plat_os_abs.h"
 #include "plat_utils.h"
+#include "internal/hsm_session.h"
 
 uint32_t plat_sab_success_tag(void *phdl)
 {
@@ -22,21 +23,21 @@ void plat_build_cmd_msg_hdr(struct sab_mu_hdr *hdr, msg_type_t msg_type,
 			    struct plat_os_abs_hdl *phdl)
 {
 	switch (mu_type) {
-	case MU_CHANNEL_V2X_SV0:
+	case V2X_SV0:
 		hdr->ver = V2X_SV0_API_VER;
 		break;
-	case MU_CHANNEL_V2X_SV1:
+	case V2X_SV1:
 		hdr->ver = V2X_SV1_API_VER;
 		break;
-	case MU_CHANNEL_V2X_SHE:
-	case MU_CHANNEL_V2X_SHE_NVM:
+	case V2X_SHE:
+	case V2X_SHE_NVM:
 		hdr->ver = V2X_SHE_API_VER;
 		break;
-	case MU_CHANNEL_V2X_SG0:
+	case V2X_SG0:
 		hdr->ver = V2X_SG0_API_VER;
 		break;
-	case MU_CHANNEL_V2X_SG1:
-	case MU_CHANNEL_V2X_HSM_NVM:
+	case V2X_SG1:
+	case V2X_HSM_NVM:
 		hdr->ver = V2X_SG1_API_VER;
 		break;
 	default:
@@ -55,21 +56,21 @@ void plat_build_rsp_msg_hdr(struct sab_mu_hdr *hdr, msg_type_t msg_type,
 			    struct plat_os_abs_hdl *phdl)
 {
 	switch (mu_type) {
-	case MU_CHANNEL_V2X_SV0:
+	case V2X_SV0:
 		hdr->ver = V2X_SV0_API_VER;
 	break;
-	case MU_CHANNEL_V2X_SV1:
+	case V2X_SV1:
 		hdr->ver = V2X_SV1_API_VER;
 	break;
-	case MU_CHANNEL_V2X_SHE:
-	case MU_CHANNEL_V2X_SHE_NVM:
+	case V2X_SHE:
+	case V2X_SHE_NVM:
 		hdr->ver = V2X_SHE_API_VER;
 	break;
-	case MU_CHANNEL_V2X_SG0:
+	case V2X_SG0:
 		hdr->ver = V2X_SG0_API_VER;
 	break;
-	case MU_CHANNEL_V2X_SG1:
-	case MU_CHANNEL_V2X_HSM_NVM:
+	case V2X_SG1:
+	case V2X_HSM_NVM:
 		hdr->ver = V2X_SG1_API_VER;
 	break;
 	default:

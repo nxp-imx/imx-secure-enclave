@@ -119,22 +119,23 @@ static uint32_t nvm_open_session(uint8_t flags, struct nvm_ctx_st *nvm_ctx)
 		/* Open the Storage session on the MU */
 		switch (flags) {
 		case NVM_FLAGS_SHE:
-			nvm_ctx->mu_type = MU_CHANNEL_PLAT_SHE_NVM;
+			sess_args.mu_type = SHE_NVM;
 			break;
 		case NVM_FLAGS_V2X_SHE:
-			nvm_ctx->mu_type = MU_CHANNEL_V2X_SHE_NVM;
+			sess_args.mu_type = V2X_SHE_NVM;
 			break;
 		case NVM_FLAGS_HSM:
-			nvm_ctx->mu_type = MU_CHANNEL_PLAT_HSM_NVM;
+			sess_args.mu_type = HSM_NVM;
 			break;
 		case NVM_FLAGS_V2X_HSM:
-			nvm_ctx->mu_type = MU_CHANNEL_V2X_HSM_NVM;
+			sess_args.mu_type = V2X_HSM_NVM;
 			break;
 		default:
-			nvm_ctx->mu_type = MU_CHANNEL_PLAT_HSM_NVM;
+			sess_args.mu_type = HSM_NVM;
 			break;
 		}
 
+		nvm_ctx->mu_type = sess_args.mu_type;
 		nvm_ctx->phdl = plat_os_abs_open_mu_channel(nvm_ctx->mu_type,
 							    &mu_params);
 
@@ -149,9 +150,6 @@ static uint32_t nvm_open_session(uint8_t flags, struct nvm_ctx_st *nvm_ctx)
 		sess_args.did = mu_params.did;
 #endif
 		sess_args.interrupt_idx = mu_params.interrupt_idx;
-		sess_args.session_priority = HSM_OPEN_SESSION_PRIORITY_LOW;
-		sess_args.operating_mode = ((flags & NVM_FLAGS_V2X) != 0u)
-					   ? HSM_OPEN_SESSION_LOW_LATENCY_MASK : 0U;
 
 		err = process_sab_msg(nvm_ctx->phdl,
 				      nvm_ctx->mu_type,

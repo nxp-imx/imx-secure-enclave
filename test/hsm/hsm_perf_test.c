@@ -1,6 +1,6 @@
 // SPDX-License-Identifier: BSD-3-Clause
 /*
- * Copyright 2023 NXP
+ * Copyright 2023-2024 NXP
  */
 
 #include <stdio.h>
@@ -97,8 +97,7 @@ int main(int argc, char *argv[])
 	}
 
 	do {
-		open_session_args.session_priority = 0;
-		open_session_args.operating_mode = 0;
+		open_session_args.mu_type = HSM1;
 		err = hsm_open_session(&open_session_args,
 				       &hsm_session_hdl);
 

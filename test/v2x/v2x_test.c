@@ -1,6 +1,6 @@
 // SPDX-License-Identifier: BSD-3-Clause
 /*
- * Copyright 2021, 2022, 2023 NXP
+ * Copyright 2021-2024 NXP
  */
 
 #include "hsm_api.h"
@@ -824,26 +824,22 @@ int main(int argc, char *argv[])
     printf("\n---------------------------------------------------\n");
     printf("Opening sessions \n");
     printf("---------------------------------------------------\n");
-    args.session_priority = HSM_OPEN_SESSION_PRIORITY_HIGH;
-    args.operating_mode = HSM_OPEN_SESSION_LOW_LATENCY_MASK;
+	args.mu_type = V2X_SG0;
     err = hsm_open_session(&args, &sg0_sess);
     printf("err: 0x%x SG0 hsm_open_session session_hdl: 0x%08x\n", err, sg0_sess);
 
     // SV0
-    args.session_priority = HSM_OPEN_SESSION_PRIORITY_HIGH;
-    args.operating_mode = HSM_OPEN_SESSION_LOW_LATENCY_MASK | HSM_OPEN_SESSION_NO_KEY_STORE_MASK;
+	args.mu_type = V2X_SV0;
     err = hsm_open_session(&args, &sv0_sess);
     printf("err: 0x%x SV0 hsm_open_session session_hdl: 0x%08x\n", err, sv0_sess);
 
     // SG1
-    args.session_priority = HSM_OPEN_SESSION_PRIORITY_LOW;
-    args.operating_mode = HSM_OPEN_SESSION_LOW_LATENCY_MASK;
+	args.mu_type = V2X_SG1;
     err = hsm_open_session(&args, &sg1_sess);
     printf("err: 0x%x SG1 hsm_open_session session_hdl: 0x%08x\n", err, sg1_sess);
 
     // //SV1
-    args.session_priority = HSM_OPEN_SESSION_PRIORITY_LOW;
-    args.operating_mode = HSM_OPEN_SESSION_LOW_LATENCY_MASK | HSM_OPEN_SESSION_NO_KEY_STORE_MASK;
+	args.mu_type = V2X_SV1;
     err = hsm_open_session(&args, &sv1_sess);
     printf("err: 0x%x SV1 hsm_open_session session_hdl: 0x%08x\n", err, sv1_sess);
 

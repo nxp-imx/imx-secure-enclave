@@ -83,10 +83,6 @@ she_err_t open_session(open_session_args_t *args,
 #endif
 	if (!args->interrupt_idx)
 		args->interrupt_idx = mu_params.interrupt_idx;
-	if (!args->session_priority)
-		args->session_priority = SHE_OPEN_SESSION_PRIORITY_LOW;
-	if (!args->operating_mode)
-		args->operating_mode = 0U;
 
 	/* Open the SHE session on Platform's side */
 	lib_err = process_sab_msg(thdl->phdl,
@@ -140,7 +136,7 @@ she_err_t she_open_session(open_session_args_t *args, she_hdl_t *session_hdl)
 		if (info_args.fips_mode & 0x01) {
 			she_close_session(hdl->session_hdl);
 
-			err = open_session(args, &hdl, MU_CHANNEL_V2X_SHE);
+			err = open_session(args, &hdl, V2X_SHE);
 			if (err != SHE_NO_ERROR)
 				break;
 		}

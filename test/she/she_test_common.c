@@ -226,9 +226,9 @@ void she_tests(uint8_t session_id,
 
 	if (session_id)
 		/* Open SHE1 session */
-		open_session_args.mu_type = MU_CHANNEL_V2X_SV1;
+		open_session_args.mu_type = V2X_SV1;
 	else
-		open_session_args.mu_type = MU_CHANNEL_PLAT_SHE;
+		open_session_args.mu_type = SHE1;
 
 	err = she_open_session(&open_session_args, &session_hdl);
 	if (err != SHE_NO_ERROR) {
