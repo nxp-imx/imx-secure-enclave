@@ -367,8 +367,14 @@ static int8_t prepare_and_run_sign_verify_test(hsm_hdl_t key_store_hdl, FILE
 	}
 
 	if (call_sign_verify_test == 1) {
-
 #ifdef PSA_COMPLIANT
+		if (get_rsa_tcase_status() != RSA_TCASE_ENABLED &&
+		    (scheme_id >= HSM_SIGNATURE_SCHEME_RSA_PKCS1_V15_SHA224 &&
+		     scheme_id <= HSM_SIGNATURE_SCHEME_RSA_PKCS1_PSS_MGF1_ANY_HASH)) {
+			test_status = TEST_STATUS_SKIPPED;
+			goto out;
+		}
+
 		if (se_get_soc_id() == SOC_IMX8ULP &&
 		    (scheme_id >= HSM_SIGNATURE_SCHEME_RSA_PKCS1_V15_SHA224 &&
 		     scheme_id <= HSM_SIGNATURE_SCHEME_RSA_PKCS1_PSS_MGF1_ANY_HASH)) {

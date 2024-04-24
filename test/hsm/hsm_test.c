@@ -22,6 +22,7 @@
 hsm_hdl_t hsm_session_hdl;
 hsm_hdl_t key_store_hdl;
 int cmdline_arg;
+uint8_t rsa_tcase_status;
 
 /* input  Qx||lsb_Qy */
 static uint8_t ECC_P256_Qx[32+1] =
@@ -678,6 +679,11 @@ int get_cmdline_arg(void)
 	return cmdline_arg;
 }
 
+uint8_t get_rsa_tcase_status(void)
+{
+	return rsa_tcase_status;
+}
+
 void hsm_test_sig_handler(int ht_signo, siginfo_t *ht_siginfo, void *ht_sigctx)
 {
 	hsm_close_key_store_service(key_store_hdl);
@@ -691,6 +697,7 @@ void ele_hsm_test_usage(void)
 	printf("ele_hsm_test usage: ele_hsm_test [options]\n");
 	printf("Options:\n");
 	printf("-i or --info: show Global Info only\n");
+	printf("--rsa: enable RSA test vectors\n");
 	printf("<test_vector_path> <persistent key identifier>\n");
 	printf("\t<test_vector_path>:- Path of the test vector file ");
 	printf("to run tests of this single file\n");
@@ -717,6 +724,9 @@ int main(int argc, char *argv[])
 		ele_hsm_test_usage();
 		goto out;
 	}
+
+	if (argc == 2 && (strcmp("--rsa", argv[1]) == 0))
+		rsa_tcase_status = RSA_TCASE_ENABLED;
 
 	if (argc > 2)
 		cmdline_arg = atoi(argv[2]);
@@ -822,7 +832,7 @@ int main(int argc, char *argv[])
 	 */
 	data_storage_delete_test(key_store_hdl);
 #endif
-	if (argc > 1) {
+	if (argc > 1 && (strcmp("--rsa", argv[1]) != 0)) {
 		tv_tests_run(key_store_hdl, argv[1]);
 	} else {
 		printf("\n\nTest Vector Tests Usage: ele_hsm_test <tv_file_path>\n");

@@ -241,12 +241,19 @@ static int8_t prepare_and_run_genkey_test(FILE *fp)
 
 	if (call_gen_key == 1) {
 #ifdef PSA_COMPLIANT
+		if (get_rsa_tcase_status() != RSA_TCASE_ENABLED &&
+		    key_type == HSM_KEY_TYPE_RSA) {
+			test_status = TEST_STATUS_SKIPPED;
+			goto out;
+		}
+
 		if (se_get_soc_id() == SOC_IMX8ULP &&
 		    key_type == HSM_KEY_TYPE_RSA) {
 			test_status = TEST_STATUS_SKIPPED;
 			goto out;
 		}
 #endif
+
 		se_info("Key TV ID      : %u\n", key_tv_id);
 		se_info("Key ID         : 0x%x\n", key_identifier);
 

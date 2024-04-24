@@ -14,6 +14,7 @@
 
 #include "common.h"
 #include "ele_perf.h"
+uint8_t rsa_tcase_status;
 
 hsm_hdl_t hsm_session_hdl;
 hsm_hdl_t key_store_hdl;
@@ -29,6 +30,11 @@ static uint8_t *perf_tv_fpaths[PERF_SUPPORTED_OP_N] = {
 hsm_hdl_t get_hsm_session_hdl(void)
 {
 	return hsm_session_hdl;
+}
+
+uint8_t get_rsa_tcase_status(void)
+{
+	return rsa_tcase_status;
 }
 
 void hsm_test_sig_handler(int ht_signo, siginfo_t *ht_siginfo, void *ht_sigctx)

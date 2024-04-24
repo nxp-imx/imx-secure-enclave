@@ -20,6 +20,7 @@
 #define TEST_STATUS_FAILED  0
 #define TEST_STATUS_SUCCESS 1
 #define TEST_STATUS_SKIPPED 2
+#define RSA_TCASE_ENABLED 1
 
 hsm_err_t do_mac_test(hsm_hdl_t key_store_hdl, hsm_hdl_t key_mgmt_hdl);
 hsm_err_t do_cipher_test(hsm_hdl_t key_store_hdl, hsm_hdl_t key_mgmt_hdl);
@@ -74,6 +75,7 @@ void tv_tests_run(hsm_hdl_t key_store_hdl, uint8_t *tv_file_path);
  * opened as part of the test run
  */
 hsm_hdl_t get_hsm_session_hdl(void);
+uint8_t get_rsa_tcase_status(void);
 
 void hexdump(uint32_t buf[], uint32_t size);
 void hexdump_bb(uint8_t buf[], uint32_t size);
