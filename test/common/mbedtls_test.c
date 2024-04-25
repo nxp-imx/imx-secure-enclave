@@ -53,8 +53,8 @@ out:
 void mbedtls_tls1_3_tests(void)
 {
 	/* TLS 1.3 tests will be added */
-	mbedtls_ssl_context *ssl = NULL;
+	mbedtls_ssl_context ssl;
 
-	mbedtls_ssl_init(ssl);
+	mbedtls_ssl_init(&ssl);
 }
 #endif
