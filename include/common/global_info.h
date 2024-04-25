@@ -17,6 +17,7 @@
  */
 #define SOC_IMX8DXL 0xe
 #define SOC_IMX8ULP 0x84d
+#define SOC_IMX91   0x9100
 #define SOC_IMX93   0x9300
 #define SOC_IMX95   0x9500
 

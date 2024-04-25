@@ -62,6 +62,8 @@ const char *get_soc_id_str(uint16_t soc_id)
 #ifdef PSA_COMPLIANT
 	case SOC_IMX8ULP:
 		return "i.MX8ULP";
+	case SOC_IMX91:
+		return "i.MX91";
 	case SOC_IMX93:
 		return "i.MX93";
 #endif
