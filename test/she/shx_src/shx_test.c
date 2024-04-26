@@ -3,6 +3,8 @@
  * Copyright 2024 NXP
  */
 
+#include <errno.h>
+#include <dirent.h>
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
@@ -14,7 +16,36 @@
 #include "shx_test.h"
 #include "slt_log.h"
 
+#define DEFAULT_SHE_TV_DIR  "/usr/share/se/she_test_vectors"
+#define DEFAULT_SHE_TV_DIR_COMMON  "/usr/share/se/she_test_vectors/common/add_keys"
+#define DEFAULT_SHE_TV_FEXTN ".shx"
+
 she_test_struct_t testCtx[20] = { 0 };
+
+int isdir(const char *name)
+{
+	DIR *dir = opendir(name);
+
+	if (dir) {
+		closedir(dir);
+		return 1;
+	} else {
+		return 0;
+	}
+}
+
+// return 0 if file extension matches expected extension
+static uint32_t extn_match(char *fname, char *exp_extn)
+{
+	char *file_extn = strrchr(fname, '.');
+
+	if (file_extn == fname || !file_extn)
+		return 1;
+
+	// compare file extensions
+	if (strcmp(file_extn, exp_extn) == 0)
+		return 0;
+}
 
 void execute_test_vectors(FILE *fp)
 {
@@ -45,7 +76,7 @@ void execute_test_vectors(FILE *fp)
 			fails += these_fails;
 			if (these_fails != 0) {
 				slt_print(SLT_ERROR,
-					  "--- Test reported fails: %d", these_fails);
+					  "--- Test reported fails: %d\n", these_fails);
 			}
 		}
 	}
@@ -92,4 +123,69 @@ int shx_she_tests(int argc, char *argv[])
 	}
 
 	return 0;
+}
+
+void ProcessDirectory(char *dir_name)
+{
+	struct dirent *dir_data;
+	DIR *dir_p;
+	char *fpath;
+	uint32_t fpath_len;
+	FILE *fp;
+
+	struct dirent **namelist;
+	int n = 0, i = 0;
+
+	n = scandir(dir_name, &namelist, NULL, alphasort);
+	if (n < 0) {
+		printf("Failed to scan dir %s\n", dir_name);
+	} else {
+		for (i = 0; i < n; i++) {
+			if (!strcmp(namelist[i]->d_name, "..") ||
+			    !strcmp(namelist[i]->d_name, "."))
+				continue;
+
+			/* 2 is added for terminating NULL and file separator (/) */
+			fpath_len = strlen(dir_name) + strlen(namelist[i]->d_name) + 2;
+
+			fpath = (char *)malloc(fpath_len);
+
+			snprintf(fpath, fpath_len, "%s/%s",
+				 dir_name, namelist[i]->d_name);
+
+			if (isdir(fpath)) {
+				ProcessDirectory(fpath);
+			} else {
+				if (extn_match(namelist[i]->d_name,
+					       DEFAULT_SHE_TV_FEXTN) == 0) {
+					fp = fopen(fpath, "r");
+					if (fp) {
+						/* Indicate the start of a test */
+						slt_print(SLT_NOTICE, "\n<test>\n");
+						slt_print(SLT_NOTICE,
+							  "<file>%s</file>\n", fpath);
+
+						execute_test_vectors(fp);
+						fclose(fp);
+					} else {
+						slt_print(SLT_ERROR,
+							  "Can't open file:%s --> FAIL\n",
+							  fpath);
+					}
+				}
+			}
+
+			if (fpath)
+				free(fpath);
+
+			free(namelist[i]);
+		}
+		free(namelist);
+	}
+}
+
+/* Function to execute all TVs available in export/usr/share/se/she_test_vectors/ */
+void shx_tests_run(void)
+{
+	ProcessDirectory(DEFAULT_SHE_TV_DIR);
 }

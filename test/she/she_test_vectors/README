@@ -1,0 +1,52 @@
+Overview
+========
+
+"she_test_vectors" directory contains test vector(TV) files for SHE.
+
+- SHE Test Vector files have .shx extension.
+- Any file other than .shx extension will not be executed by SHE.
+- TV will be executed in alphabetical order.
+
+
+Current directory structure of she_test_vectors is:
+--------------------------------------------------
+she_test_vectors:
+	- common : contain test vectors for API common for both seco and v2x
+	- README
+	- v2x : contain test vectors for API specific to v2x
+	- seco : (will be added later for seco specific API test vectors)
+
+common:
+	- add_keys
+	- cipher
+	- create_keystore
+	- mac_generate
+	- mac_verify
+	- mac_verify_bit_ext
+	- plain_key
+	- rng
+	- rng_uninited
+	- status
+
+v2x:
+	- mac_generate
+	- mac_verify
+	- mac_verify_bit_ext
+
+We have created separate files in most of the directories for
+	- opening all required session and services and
+	- closing the session and services
+
+With this modular approach we dont need to complex our TV files with session
+open and close commands and can keep the TV files specific to the test case.
+
+We can keep session commands in same TV file also.
+
+Test Vector Execution:
+---------------------
+Two options are provided for executing the TVs:
+	- by giving TV file name e.g.
+		v2x_she_test file1.shx file2.shx
+
+	- Execute all TVs in one go e.g.
+		v2x_she_test

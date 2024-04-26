@@ -11,14 +11,21 @@
 
 static void she_test_usage(void)
 {
-	printf("she_test can be used to run functional tests and SHE test vectors:\n");
-	printf("\nFor running SHE test vectors:\n");
-	printf("she_test file1.shx file2.shx ....\n");
+	printf("------------------------------------------------------------------\n");
+	printf("she_test can be used to run:\n");
+	printf("- functional tests\n");
+	printf("- Specific SHE test vectors\n");
+	printf("- All SHE test vectors\n");
 	printf("\nFor running SHE functional tests:\n");
 	printf("she_test [options]\n");
 	printf("1: <Choose SHE session Identifier, (0)>\n");
 	printf("2: <Count of keystores to open, (<=1, Max)>\n");
 	printf("3: <Count of Key Stores to be opened as Shared, (0)\n");
+	printf("\nFor running SHE test vectors:\n");
+	printf("she_test file1.shx file2.shx ....\n");
+	printf("\nFor running All SHE test vectors:\n");
+	printf("she_test\n");
+	printf("------------------------------------------------------------------\n");
 }
 
 /* Test entry function. */
@@ -29,7 +36,7 @@ int main(int argc, char *argv[])
 	uint8_t shared_keystore;
 
 	if (argc == 1) {
-		she_test_usage();
+		shx_tests_run();
 		return 0;
 	}
 	if (argc == 2 &&
