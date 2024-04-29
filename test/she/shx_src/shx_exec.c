@@ -16,6 +16,7 @@
 #include "shx_test_keys.h"
 #include "shx_test_plain_keys.h"
 #include "shx_test_mac.h"
+#include "shx_test_mac_mubuff_v2.h"
 
 /*
  * As known limitation, a test name can't be included in another test name
@@ -38,6 +39,9 @@ struct she_test_entry_t tests[SHE_TEST_COUNT] = {
 	{"SHE_TEST_MAC_GEN", she_test_mac_gen},
 	{"SHE_TEST_MAC_VERIF", she_test_mac_verif},
 	{"EXT_SHE_TEST_MAC_VERIF_BIT", she_test_mac_verif_bit_ext},
+	{"SHE_TEST_MAC_MUBUFF_V2_GEN", she_test_mac_mubuff_v2_gen},
+	{"SHE_TEST_MAC_MUBUFF_V2_VERIF", she_test_mac_mubuff_v2_verif},
+	{"EXT_SHE_TEST_MAC_MUBUFF_V2_VERIF_BIT", she_test_mac_mubuff_v2_verif_bit_ext},
 };
 
 int she_exec_function(int i, FILE *fp, void *testCtx)

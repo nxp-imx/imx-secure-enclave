@@ -48,6 +48,8 @@ define prepare_seco_stage_files
 		$(STAGE_DIR)/$(NVMD_CONF_FILE)
 	sed -i "s/ELE/SECO/g" $(STAGE_DIR)/$(SYSTEMD_NVM_SERVICE)
 endef
+else
+EXPORT_SHE_V2X_SHX_TV = cp -r $(SHE_TEST_V2X_TV_PATH) $(DESTDIR)$(SHE_TEST_VECTOR_DEFAULT_DIR)
 endif
 
 # V2X specific target artifacts names

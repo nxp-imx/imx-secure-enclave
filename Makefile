@@ -73,6 +73,7 @@ include $(PLAT_PATH)/$(PLAT).mk
 
 TEST_COMMON_TV_PATH := test/common/test_vectors/$(PSA)
 SHE_TEST_COMMON_TV_PATH := test/she/she_test_vectors/common/
+SHE_TEST_V2X_TV_PATH := test/she/she_test_vectors/v2x/
 
 LIB_NAMES := $(HSM_LIB_NAME) $(NVM_LIB_NAME) $(SHE_LIB_NAME)
 
@@ -247,6 +248,7 @@ install_tests: install tests
 	cp -r $(TEST_COMMON_TV_PATH) $(DESTDIR)$(TEST_VECTOR_DEFAULT_DIR)
 	$(MKDIR_SHE_TV)
 	$(EXPORT_SHE_SHX_TV)
+	$(EXPORT_SHE_V2X_SHX_TV)
 
 install_version: .git
 	echo "#ifndef SE_VERSION_H" > ${SE_VER_FILE}
