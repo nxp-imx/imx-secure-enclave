@@ -442,20 +442,6 @@ void data_storage_delete_test(hsm_hdl_t key_store_hdl)
 	err = hsm_data_delete_ops(key_store_hdl, &args);
 	printf("\nhsm_data_delete_ops [Data#1] err: 0x%x.", err);
 
-	if (se_get_soc_id() != SOC_IMX93) {
-		/**
-		 * Check for HSM_SERVICES_DISABLED can be removed, after FW fix.
-		 * Currently, HSM APIs return HSM_SERVICES_DISABLED instead of
-		 * HSM_CMD_NOT_SUPPORTED, in case of Unsupported CMD.
-		 */
-		if (err == HSM_CMD_NOT_SUPPORTED || err == HSM_SERVICES_DISABLED)
-			printf("(-ve) --> SUCCESS");
-		else
-			printf("(-ve) --> FAILED");
-
-		goto out;
-	}
-
 	/**
 	 * Negative test case:
 	 * Delete Data#2 (Encrypted) from NVM storage with ENC_DATA_ID

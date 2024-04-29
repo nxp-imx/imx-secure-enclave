@@ -319,7 +319,7 @@ hsm_err_t do_hash_test(hsm_hdl_t hash_sess)
 			test_status(SHA3_512_HASH, hash_work_area,
 				    sizeof(SHA3_512_HASH), "HSM_HASH_ALGO_SHA3_512");
 
-		if (se_get_soc_id() != SOC_IMX93 &&
+		if (se_get_soc_id() != SOC_IMX93 && se_get_soc_id() != SOC_IMX91 &&
 		    hash_args.algo == HSM_HASH_ALGO_SHA_512)
 			break;
 #endif
@@ -470,7 +470,7 @@ hsm_err_t do_hash_stream_test(hsm_hdl_t hash_sess)
 			test_status(SHA3_512_HASH, hash_work_area,
 				    sizeof(SHA3_512_HASH), "HSM_HASH_ALGO_SHA3_512");
 
-		if (se_get_soc_id() != SOC_IMX93 &&
+		if (se_get_soc_id() != SOC_IMX93 && se_get_soc_id() != SOC_IMX91 &&
 		    hash_args.algo == HSM_HASH_ALGO_SHA_512)
 			break;
 #endif

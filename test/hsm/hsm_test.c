@@ -652,18 +652,17 @@ static void transient_key_tests(hsm_hdl_t sess_hdl, hsm_hdl_t key_store_hdl)
 	printf("----------------------------------------------------------\n");
 	printf("----------------------------------------------------------\n");
 
-	if ((se_get_soc_id() == SOC_IMX93 && se_get_soc_rev() == SOC_REV_A1) ||
-	    se_get_soc_id() == SOC_IMX95) {
-		//Key Exchange API test
-		if (se_get_soc_id() == SOC_IMX93) {
-			key_exchange_test(sess_hdl, key_store_hdl, key_mgmt_hdl);
-			key_exchange_test_tls1_3(key_mgmt_hdl);
-			key_exchange_test_hkdf_expand(key_mgmt_hdl);
-		}
-		//Public Key Attestation
-		pub_key_attest_test(key_store_hdl, key_mgmt_hdl);
+	//Key Exchange API tests
+	if (se_get_soc_id() != SOC_IMX95)
+		key_exchange_test(sess_hdl, key_store_hdl, key_mgmt_hdl);
+
+	if (se_get_soc_id() == SOC_IMX93 || se_get_soc_id() == SOC_IMX91) {
+		key_exchange_test_tls1_3(key_mgmt_hdl);
+		key_exchange_test_hkdf_expand(key_mgmt_hdl);
 	}
 
+	//Public Key Attestation
+	pub_key_attest_test(key_store_hdl, key_mgmt_hdl);
 #endif
 	hsmret = hsm_close_key_management_service(key_mgmt_hdl);
 	printf("hsm_close_key_management_service ret:0x%x\n", hsmret);
@@ -820,8 +819,7 @@ int main(int argc, char *argv[])
 	transient_key_tests(hsm_session_hdl, key_store_hdl);
 
 #ifdef PSA_COMPLIANT
-	if ((se_get_soc_id() == SOC_IMX93 && se_get_soc_rev() == SOC_REV_A1) ||
-	    se_get_soc_id() == SOC_IMX95) {
+	if (se_get_soc_id() != SOC_IMX8ULP) {
 		gc_akey_gen_test(hsm_session_hdl);
 		gc_acrypto_test(hsm_session_hdl);
 	}
