@@ -14,6 +14,7 @@
 #include "shx_test_utils.h"
 #include "shx_test_cipher.h"
 #include "shx_test_keys.h"
+#include "shx_test_plain_keys.h"
 
 /*
  * As known limitation, a test name can't be included in another test name
@@ -31,6 +32,8 @@ struct she_test_entry_t tests[SHE_TEST_COUNT] = {
 	{"SHE_TEST_CIPHER_CLOSE", she_test_cipher_close},
 	{"SHE_TEST_LOAD_KEY", she_test_load_key},
 	{"SHE_TEST_EXT_LOAD_KEY", she_test_load_key_ext},
+	{"SHE_TEST_LOAD_PLAIN_KEY", she_test_load_plain_key},
+	{"SHE_TEST_EXPORT_RAM_KEY", she_test_export_plain_key},
 };
 
 int she_exec_function(int i, FILE *fp, void *testCtx)
