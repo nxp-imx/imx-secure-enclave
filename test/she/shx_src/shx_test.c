@@ -46,7 +46,6 @@ void execute_test_vectors(FILE *fp)
 			if (these_fails != 0) {
 				slt_print(SLT_ERROR,
 					  "--- Test reported fails: %d", these_fails);
-				break;
 			}
 		}
 	}
