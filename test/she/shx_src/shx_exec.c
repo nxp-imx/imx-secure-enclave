@@ -20,6 +20,7 @@
 #include "shx_test_cbc.h"
 #include "shx_test_ecb.h"
 #include "shx_test_rng.h"
+#include "shx_test_status.h"
 
 /*
  * As known limitation, a test name can't be included in another test name
@@ -53,6 +54,10 @@ struct she_test_entry_t tests[SHE_TEST_COUNT] = {
 	{"SHE_TEST_EXTEND_SEED", she_test_extend_seed},
 	{"SHE_TEST_RND", she_test_rnd},
 	{"SHE_TEST_RNG_CLOSE", she_test_rng_close},
+	{"SHE_TEST_GET_STATUS", she_test_get_status},
+	{"SHE_TEST_GET_ID", she_test_get_id},
+	{"SHE_TEST_GET_LAST_RATING_CODE", she_test_get_last_rating_code},
+	{"SHE_TEST_GET_INFO", she_test_get_info}
 };
 
 int she_exec_function(int i, FILE *fp, void *testCtx)
