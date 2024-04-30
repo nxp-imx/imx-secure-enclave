@@ -1,6 +1,6 @@
 // SPDX-License-Identifier: BSD-3-Clause
 /*
- * Copyright 2023 NXP
+ * Copyright 2023-2024 NXP
  */
 
 #ifndef HSM_PUB_KEY_ATTEST_H
@@ -21,17 +21,17 @@
  * Enum containing the Signature Algorithms for Public Key Attestation
  */
 typedef enum {
-	HSM_PKEY_ATTEST_ALGO_CMAC = ALGO_CMAC,
-	//!< CMAC
-	HSM_PKEY_ATTEST_ALGO_ECDSA_SHA224 = ALGO_ECDSA_SHA224,
-	//!< ECDSA SHA224
-	HSM_PKEY_ATTEST_ALGO_ECDSA_SHA256 = ALGO_ECDSA_SHA256,
-	//!< ECDSA SHA256
-	HSM_PKEY_ATTEST_ALGO_ECDSA_SHA384 = ALGO_ECDSA_SHA384,
-	//!< ECDSA SHA384
-	HSM_PKEY_ATTEST_ALGO_ECDSA_SHA512 = ALGO_ECDSA_SHA512,
-	//!< ECDSA SHA512
-} hsm_pub_key_attest_sign_algo_t;
+	HSM_PKEY_ATTEST_ALGO_CMAC = ALGO_ATTEST_CMAC,
+	//!< CMAC Attestation
+	HSM_PKEY_ATTEST_ALGO_ECDSA_SHA224 = ALGO_ATTEST_ECDSA_SHA224,
+	//!< ECDSA SHA224 Attestation
+	HSM_PKEY_ATTEST_ALGO_ECDSA_SHA256 = ALGO_ATTEST_ECDSA_SHA256,
+	//!< ECDSA SHA256 Attestation
+	HSM_PKEY_ATTEST_ALGO_ECDSA_SHA384 = ALGO_ATTEST_ECDSA_SHA384,
+	//!< ECDSA SHA384 Attestation
+	HSM_PKEY_ATTEST_ALGO_ECDSA_SHA512 = ALGO_ATTEST_ECDSA_SHA512,
+	//!< ECDSA SHA512 Attestation
+} hsm_op_pub_key_attest_algo_t;
 
 /**
  * Structure to represent the generate sign operation arguments
@@ -41,8 +41,8 @@ typedef struct {
 	//!< identifier of the key to be attested
 	uint32_t key_attestation_id;
 	//!< identifier of the key to be used for the attestation
-	hsm_pub_key_attest_sign_algo_t sign_algo;
-	//!< signature algorithm to be used for the attestation
+	hsm_op_pub_key_attest_algo_t attest_algo;
+	//!< algorithm to be used for the attestation
 	uint8_t *auth_challenge;
 	//!< pointer to the authentication challenge
 	uint32_t auth_challenge_size;

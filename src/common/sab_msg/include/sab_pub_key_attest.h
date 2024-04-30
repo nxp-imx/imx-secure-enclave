@@ -1,6 +1,6 @@
 // SPDX-License-Identifier: BSD-3-Clause
 /*
- * Copyright 2023 NXP
+ * Copyright 2023-2024 NXP
  */
 
 #ifndef SAB_PUB_KEY_ATTEST_H
@@ -15,7 +15,7 @@ struct sab_cmd_pub_key_attest_msg {
 	uint32_t sig_gen_hdl;
 	uint32_t key_identifier;
 	uint32_t key_attestation_id;
-	uint32_t sign_algo;
+	uint32_t attest_algo;
 	uint32_t auth_challenge_addr;
 	uint32_t auth_challenge_size;
 	uint32_t certificate_addr;
