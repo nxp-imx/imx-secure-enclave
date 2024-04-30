@@ -19,6 +19,7 @@
 #include "shx_test_mac_mubuff_v2.h"
 #include "shx_test_cbc.h"
 #include "shx_test_ecb.h"
+#include "shx_test_rng.h"
 
 /*
  * As known limitation, a test name can't be included in another test name
@@ -47,7 +48,11 @@ struct she_test_entry_t tests[SHE_TEST_COUNT] = {
 	{"SHE_TEST_CBC_ENC", she_test_cbc_enc},
 	{"SHE_TEST_CBC_DEC", she_test_cbc_dec},
 	{"SHE_TEST_ECB_ENC", she_test_ecb_enc},
-	{"SHE_TEST_ECB_DEC", she_test_ecb_dec}
+	{"SHE_TEST_ECB_DEC", she_test_ecb_dec},
+	{"SHE_TEST_RNG_INIT", she_test_rng_init},
+	{"SHE_TEST_EXTEND_SEED", she_test_extend_seed},
+	{"SHE_TEST_RND", she_test_rnd},
+	{"SHE_TEST_RNG_CLOSE", she_test_rng_close},
 };
 
 int she_exec_function(int i, FILE *fp, void *testCtx)
