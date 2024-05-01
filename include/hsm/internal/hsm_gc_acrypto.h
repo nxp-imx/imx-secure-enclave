@@ -1,6 +1,6 @@
 // SPDX-License-Identifier: BSD-3-Clause
 /*
- * Copyright 2023 NXP
+ * Copyright 2023-2024 NXP
  */
 
 #ifndef HSM_GC_ACRYPTO_H
@@ -54,7 +54,15 @@ typedef enum {
  */
 typedef uint8_t hsm_op_gc_acrypto_flags_t;
 /**
- * Bit indicating the generic asymmetric crypto input message operation
+ * Bit indicating the generic asymmetric crypto input message digest operation.
+ * Only valid for signature modes.
+ */
+#define HSM_OP_GC_ACRYPTO_FLAGS_INPUT_DIGEST \
+	((hsm_op_gc_acrypto_flags_t)(0u << 0))
+
+/**
+ * Bit indicating the generic asymmetric crypto input message operation.
+ * Only valid for signature modes.
  */
 #define HSM_OP_GC_ACRYPTO_FLAGS_INPUT_MESSAGE \
 	((hsm_op_gc_acrypto_flags_t)(1u << 0))
