@@ -1,6 +1,6 @@
 // SPDX-License-Identifier: BSD-3-Clause
 /*
- * Copyright 2023 NXP
+ * Copyright 2023-2024 NXP
  */
 
 #include <stdio.h>
@@ -230,7 +230,7 @@ hsm_err_t gc_acrypto_test(hsm_hdl_t session_hdl)
 
 	gc_acrypto_args.algorithm = HSM_GC_ACRYPTO_ALGO_RSA_PKCS1_V15_SHA256;
 	gc_acrypto_args.op_mode = HSM_GC_ACRYPTO_OP_MODE_SIGN_GEN;
-	gc_acrypto_args.flags = HSM_OP_GC_ACRYPTO_FLAGS_INPUT_MESSAGE;
+	gc_acrypto_args.flags = HSM_OP_GC_ACRYPTO_FLAGS_INPUT_DIGEST;
 	gc_acrypto_args.bit_key_sz = HSM_KEY_SIZE_RSA_2048;
 	gc_acrypto_args.data_buff1 = plaintext;
 	gc_acrypto_args.data_buff2 = signature;
@@ -254,7 +254,7 @@ hsm_err_t gc_acrypto_test(hsm_hdl_t session_hdl)
 
 	gc_acrypto_args.algorithm = HSM_GC_ACRYPTO_ALGO_RSA_PKCS1_V15_SHA256;
 	gc_acrypto_args.op_mode = HSM_GC_ACRYPTO_OP_MODE_SIGN_VER;
-	gc_acrypto_args.flags = HSM_OP_GC_ACRYPTO_FLAGS_INPUT_MESSAGE;
+	gc_acrypto_args.flags = HSM_OP_GC_ACRYPTO_FLAGS_INPUT_DIGEST;
 	gc_acrypto_args.bit_key_sz = HSM_KEY_SIZE_RSA_2048;
 	gc_acrypto_args.data_buff1 = plaintext;
 	gc_acrypto_args.data_buff2 = known_signature;
