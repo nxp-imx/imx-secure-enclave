@@ -257,7 +257,14 @@ static int8_t prepare_and_run_hash_test(FILE *fp)
 	}
 
 	if (call_hash_test == 1) {
-
+#ifdef PSA_COMPLIANT
+		if (se_get_soc_id() == SOC_IMX8ULP &&
+		    hash_algo >= HSM_HASH_ALGO_SHA3_224 &&
+		    hash_algo <= HSM_HASH_ALGO_SHA3_512) {
+			test_status = TEST_STATUS_SKIPPED;
+			goto exit;
+		}
+#endif
 		se_info("HASH Algo          : 0x%x\n", hash_algo);
 #ifdef PSA_COMPLIANT
 		se_info("Flags              : 0x%x\n", flags);

@@ -263,6 +263,13 @@ static int8_t prepare_and_run_auth_enc_test(hsm_hdl_t key_store_hdl, FILE *fp)
 	}
 
 	if (call_auth_enc_test == 1) {
+#ifdef PSA_COMPLIANT
+		if (se_get_soc_id() == SOC_IMX8ULP &&
+		    ae_algo == HSM_AEAD_ALGO_GCM) {
+			test_status = TEST_STATUS_SKIPPED;
+			goto out;
+		}
+#endif
 		se_info("Key MGMT TV ID    : %u\n", key_mgmt_tv_id);
 		se_info("Key TV ID         : %u\n", key_tv_id);
 		se_info("IV Size           : %u\n", iv_size);
@@ -302,7 +309,7 @@ static int8_t prepare_and_run_auth_enc_test(hsm_hdl_t key_store_hdl, FILE *fp)
 		if (read == -1)
 			se_info("\nEOF reached. TEST_AUTH_ENC_END not detected.\n");
 	}
-
+out:
 	if (iv_data)
 		free(iv_data);
 
