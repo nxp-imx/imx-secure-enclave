@@ -13,7 +13,7 @@
 
 #include "sab_process_msg.h"
 
-hsm_err_t hsm_gc_acrypto(hsm_hdl_t session_hdl, op_gc_acrypto_args_t *args)
+hsm_err_t hsm_gc_aead(hsm_hdl_t session_hdl, op_gc_acrypto_args_t *args)
 {
 	uint32_t error;
 	struct hsm_session_hdl_s *sess_ptr;
