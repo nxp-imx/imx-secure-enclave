@@ -1,6 +1,6 @@
 // SPDX-License-Identifier: BSD-3-Clause
 /*
- * Copyright 2023 NXP
+ * Copyright 2023-2024 NXP
  */
 
 #include "internal/hsm_pub_key_attest.h"
@@ -28,7 +28,7 @@ uint32_t prepare_msg_pub_key_attest(void *phdl,
 	cmd->sig_gen_hdl = msg_hdl;
 	cmd->key_identifier = op_args->key_identifier;
 	cmd->key_attestation_id = op_args->key_attestation_id;
-	cmd->sign_algo = op_args->sign_algo;
+	cmd->attest_algo = op_args->attest_algo;
 	set_phy_addr_to_words(&cmd->auth_challenge_addr,
 			      0u,
 			      plat_os_abs_data_buf((struct plat_os_abs_hdl *)phdl,

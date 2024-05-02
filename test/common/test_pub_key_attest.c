@@ -1,6 +1,6 @@
 // SPDX-License-Identifier: BSD-3-Clause
 /*
- * Copyright 2023 NXP
+ * Copyright 2023-2024 NXP
  */
 
 #include "common.h"
@@ -58,7 +58,7 @@ void pub_key_attest_test(hsm_hdl_t key_store_hdl, hsm_hdl_t key_mgmt_hdl)
 	key_gen_args.key_lifetime = HSM_SE_KEY_STORAGE_VOLATILE;
 	key_gen_args.key_usage = HSM_KEY_USAGE_SIGN_MSG |
 				 HSM_KEY_USAGE_VERIFY_MSG;
-	key_gen_args.permitted_algo = PERMITTED_ALGO_CMAC;
+	key_gen_args.permitted_algo = PERMITTED_ALGO_ATTEST_CMAC;
 	key_gen_args.key_type = HSM_KEY_TYPE_AES;
 	key_gen_args.bit_key_sz = HSM_KEY_SIZE_AES_256;
 	key_gen_args.out_size = 0;
@@ -71,7 +71,7 @@ void pub_key_attest_test(hsm_hdl_t key_store_hdl, hsm_hdl_t key_mgmt_hdl)
 	//Public Key Attestation API test
 	pub_key_attest_args.key_identifier = key_id;
 	pub_key_attest_args.key_attestation_id = key_attestation_id;
-	pub_key_attest_args.sign_algo = HSM_PKEY_ATTEST_ALGO_CMAC;
+	pub_key_attest_args.attest_algo = HSM_PKEY_ATTEST_ALGO_CMAC;
 	pub_key_attest_args.auth_challenge = auth_challenge;
 	pub_key_attest_args.auth_challenge_size = AUTH_CHALLENGE_SIZE;
 	pub_key_attest_args.certificate = certificate;
