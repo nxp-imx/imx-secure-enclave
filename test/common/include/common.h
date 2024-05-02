@@ -49,6 +49,7 @@ hsm_err_t auth_enc_test(hsm_hdl_t key_store_hdl, hsm_hdl_t key_mgmt_hdl);
 hsm_err_t gc_akey_gen_test(hsm_hdl_t session_hdl);
 hsm_err_t gc_acrypto_test(hsm_hdl_t session_hdl);
 hsm_err_t gc_cipher_test(hsm_hdl_t hsm_session_hdl);
+hsm_err_t gc_aead_test(hsm_hdl_t hsm_session_hdl);
 hsm_err_t test_key_store_reprov_en(hsm_hdl_t session_hdl);
 
 /**

@@ -825,6 +825,7 @@ int main(int argc, char *argv[])
 	}
 
 	gc_cipher_test(hsm_session_hdl);
+	gc_aead_test(hsm_session_hdl);
 
 	/**
 	 * Test the Data DELETE operation on the data stored, with previous
