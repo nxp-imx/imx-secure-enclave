@@ -1,6 +1,6 @@
 // SPDX-License-Identifier: BSD-3-Clause
 /*
- * Copyright 2022-2023 NXP
+ * Copyright 2022-2024 NXP
  */
 
 #ifndef HSM_UTILS_H
@@ -85,8 +85,6 @@ typedef enum {
 	/**<Trying to delete a permanent key */
 	HSM_OUT_TOO_SMALL                   = 0x1D,
 	/**<Output buffer size is too small */
-	HSM_DATA_ALREADY_RETRIEVED          = 0x1F,
-	/**<Data is Read Once, and has already been retrieved */
 	HSM_CRC_CHECK_ERR = 0xB9,
 	/**<Command CRC check error */
 	HSM_OEM_CLOSED_LC_SIGNED_MSG_VERIFICATION_FAIL = 0xF0,
