@@ -56,8 +56,7 @@ void pub_key_attest_test(hsm_hdl_t key_store_hdl, hsm_hdl_t key_mgmt_hdl)
 	key_gen_args.key_lifecycle = 0;
 	key_gen_args.key_group = 33;
 	key_gen_args.key_lifetime = HSM_SE_KEY_STORAGE_VOLATILE;
-	key_gen_args.key_usage = HSM_KEY_USAGE_SIGN_MSG |
-				 HSM_KEY_USAGE_VERIFY_MSG;
+	key_gen_args.key_usage = HSM_KEY_USAGE_SIGN_MSG;
 	key_gen_args.permitted_algo = PERMITTED_ALGO_ATTEST_CMAC;
 	key_gen_args.key_type = HSM_KEY_TYPE_AES;
 	key_gen_args.bit_key_sz = HSM_KEY_SIZE_AES_256;
