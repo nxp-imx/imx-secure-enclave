@@ -19,8 +19,8 @@ struct sab_cmd_gc_cipher_msg {
 	uint32_t key_size;
 	uint32_t iv_addr;
 	uint32_t iv_size;
-	uint8_t algo;
 	uint8_t mode;
+	uint8_t algo;
 	uint16_t rsv;
 	uint32_t crc;
 };
