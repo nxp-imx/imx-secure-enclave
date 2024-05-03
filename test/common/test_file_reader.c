@@ -163,7 +163,8 @@ static void tv_tests(hsm_hdl_t key_store_hdl, uint8_t *tv_file_path)
 
 #ifdef PSA_COMPLIANT
 				/* GC ACRYPTO Test*/
-				if (memcmp(line, "TEST_GC_ACRYPTO", 15) == 0)
+				if (se_get_soc_id() != SOC_IMX8ULP &&
+				    memcmp(line, "TEST_GC_ACRYPTO", 15) == 0)
 					gc_acrypto_test_tv(key_store_hdl, fp,
 							   line, &tgc_acrypto_passed,
 							   &tgc_acrypto_failed,

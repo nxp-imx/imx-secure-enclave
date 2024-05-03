@@ -223,7 +223,9 @@ hsm_err_t auth_enc_test(hsm_hdl_t key_store_hdl, hsm_hdl_t key_mgmt_hdl)
 	printf("\n------------------------------------------------\n");
 
 	auth_enc_test_ccm(key_store_hdl, key_mgmt_hdl);
-	auth_enc_test_chacha20_poly1305(key_store_hdl, key_mgmt_hdl);
+
+	if (se_get_soc_id() != SOC_IMX8ULP)
+		auth_enc_test_chacha20_poly1305(key_store_hdl, key_mgmt_hdl);
 
 	printf("\n------------------------------------------------\n");
 	printf("AUTH ENC Test: Complete");

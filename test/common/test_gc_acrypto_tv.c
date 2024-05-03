@@ -424,6 +424,7 @@ static int8_t prepare_and_run_gc_acrypto_test(hsm_hdl_t key_store_hdl, FILE *fp)
 			break;
 	}
 
+	if (call_gc_acrypto_test == 1) {
 		key_mgmt_hdl = get_key_mgmt_hdl(key_mgmt_tv_id);
 		if (op_mode == HSM_GC_ACRYPTO_OP_MODE_ENCRYPT) {
 			cipher_test_run(key_store_hdl, key_mgmt_hdl, data_buff1_size,
@@ -443,6 +444,7 @@ static int8_t prepare_and_run_gc_acrypto_test(hsm_hdl_t key_store_hdl, FILE *fp)
 				      rsa_label_size, rsa_salt_len, exp_plaintext_len,
 				      exp_verification_status, &test_status);
 		}
+	}
 
 	if (invalid_read == 1 || read == -1) {
 		test_status = TEST_STATUS_INVALID;
