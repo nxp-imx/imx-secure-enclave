@@ -26,6 +26,43 @@ function nvmd_config_setup()
   sed -i ${nvmd_config_mu_session_flag} ${nvmd_conf_target}
 }
 
+function custom_path_function()
+{
+  local filename=
+  local dir_name=
+  local flag=
+  local conf_type=
+
+  for arg in "$@"
+  do
+    case ${arg} in
+     dir_name=*)
+             filename="${arg#*=}"
+             ;;
+
+     filename=*)
+             dir_name="${arg#*=}"
+             ;;
+
+     flag=*)
+             flag="${arg#*=}"
+             ;;
+     type=*)
+	     conf_type="${arg#*=}"
+	     ;;
+    esac
+  done
+
+
+  if [[ -z "${filename}" || -z $"${dir_name}" || -z "${conf_type}" ]]; then
+	  echo "Missing filename or dir_name, or conf_type argument"
+	  exit 1
+  fi
+
+  nvmd_config_setup "${dir_name}" "${filename}" "${flag}" "${conf_type}"
+}
+
+
 function imx8dxlevk_nvmd_config()
 {
     local loc_config_id=$1
@@ -87,13 +124,23 @@ function usage()
     printf "\tNVMD_MU_SESSION_FLAG=NVM_FLAGS_HSM | NVM_FLAGS_V2X (2)\n"
     printf "\tNVMD_MU_SESSION_FLAG=NVM_FLAGS_SHE | NVM_FLAGS_V2X (3)\n\n"
 
-    printf "Usage:\n\t./nvmd_conf_setup.sh plat=PLATFORM config_id=NVM_CONFIG_ID\n\n"
+    printf "Usage:\n"
+    printf "\t./nvmd_conf_setup.sh plat=PLATFORM config_id=NVM_CONFIG_ID\n"
+    printf "\t./nvmd_conf_setup.sh custom filename=FILE_PATH "
+    printf "dir_name=DIR_PATH flag=FLAG_VALUE type=TYPE\n\n"
+
     printf "\tPLATFORM: imx8dxlevk, imx95evk\n"
     printf "\tNVM_CONFIG_IDs:\n"
     printf "\t\t0 : Not Supported i.MX95\n"
     printf "\t\t1 : Not Supported i.MX95\n"
     printf "\t\t2 :\n"
     printf "\t\t3 :\n"
+    printf "\n"
+    printf "\tCUSTOM Mode Usage Example:\n"
+    printf "\t\tReplace FILE_PATH with the desired filename,\n"
+    printf "\t\tDIR_PATH with the desired directory path,\n"
+    printf "\t\tFLAG_VALUE with the desired flag value.\n"
+    printf "\t\tand TYPE with ELE, SECO, or V2X.\n"
 
     exit
 }
@@ -116,6 +163,11 @@ do
 	config_id=*)
 	     opt_config_id="${arg#*=}"
 	     ;;
+
+	custom)
+             custom_path_function "$@"
+	     exit 0
+             ;;
 
 	*)
 	    printf "Unknown argument \"${arg}\"\n"
