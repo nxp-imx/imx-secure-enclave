@@ -365,6 +365,18 @@ void se_get_soc_info(uint32_t session_hdl,
 
 	*soc_id = dev_getinfo_args.soc_id;
 	*soc_rev = dev_getinfo_args.soc_rev;
+
+	if (dev_getinfo_args.uid)
+		plat_os_abs_free(dev_getinfo_args.uid);
+
+	if (dev_getinfo_args.oem_srkh)
+		plat_os_abs_free(dev_getinfo_args.oem_srkh);
+
+	if (dev_getinfo_args.sha_rom_patch)
+		plat_os_abs_free(dev_getinfo_args.sha_rom_patch);
+
+	if (dev_getinfo_args.sha_fw)
+		plat_os_abs_free(dev_getinfo_args.sha_fw);
 #else
 	s_ptr = session_hdl_to_ptr(session_hdl);
 	if (s_ptr)

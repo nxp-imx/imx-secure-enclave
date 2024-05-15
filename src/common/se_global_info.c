@@ -191,6 +191,9 @@ void populate_global_info(uint32_t session_hdl)
 	plat_os_abs_memset((uint8_t *)&getinfo_args, 0, sizeof(getinfo_args));
 	se_get_info(session_hdl, &getinfo_args);
 
+	if (getinfo_args.chip_unique_id)
+		plat_os_abs_free(getinfo_args.chip_unique_id);
+
 	global_info.lifecycle =	getinfo_args.chip_life_cycle;
 	global_info.fips_mode =	getinfo_args.fips_mode;
 	global_info.lib_newness_ver = LIB_NEWNESS_VER;
