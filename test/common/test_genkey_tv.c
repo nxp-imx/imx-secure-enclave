@@ -252,6 +252,12 @@ static int8_t prepare_and_run_genkey_test(FILE *fp)
 			test_status = TEST_STATUS_SKIPPED;
 			goto out;
 		}
+
+		if (se_get_soc_id() == SOC_IMX95 &&
+		    key_usage == HSM_KEY_USAGE_DERIVE) {
+			test_status = TEST_STATUS_SKIPPED;
+			goto out;
+		}
 #endif
 
 		se_info("Key TV ID      : %u\n", key_tv_id);
