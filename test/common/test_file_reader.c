@@ -237,19 +237,21 @@ static void tv_tests(hsm_hdl_t key_store_hdl, uint8_t *tv_file_path)
 	}
 
 	if (tdata_total > 0) {
-		printf("TESTS REPORT DATA STORAGE: TOTAL: %u, SUCCESS: %u, FAILED: %u, INVALID: %u",
+		printf("TESTS REPORT DATA STORAGE:: ");
+		printf("TOTAL: %u, SUCCESS: %u, FAILED: %u, INVALID: %u",
 		       tdata_total, tdata_passed, tdata_failed, tdata_invalid);
 		printf("\n-----------------------------------------------------------------\n\n");
 	}
 
 	if (trng_total > 0) {
-		printf("TESTS REPORT RNG: TOTAL:%u, SUCCESS:%u, FAILED:%u, INVALID :%u",
+		printf("TESTS REPORT RNG:: ");
+		printf("TOTAL: %u, SUCCESS: %u, FAILED: %u, INVALID: %u",
 		       trng_total, trng_passed, trng_failed, trng_invalid);
 		printf("\n---------------------------------------------------------\n\n");
 	}
 
 	if (tauth_enc_total > 0) {
-		printf("TESTS REPORT AUTHENTICATED ENCRYPTION: ");
+		printf("TESTS REPORT AUTHENTICATED ENCRYPTION:: ");
 		printf("TOTAL: %u, SUCCESS: %u, FAILED: %u, INVALID: %u",
 		       tauth_enc_total, tauth_enc_passed, tauth_enc_failed,
 		       tauth_enc_invalid);
@@ -257,8 +259,8 @@ static void tv_tests(hsm_hdl_t key_store_hdl, uint8_t *tv_file_path)
 	}
 
 	if (tgc_acrypto_total > 0) {
-		printf("TESTS REPORT GC ACRYPTO: ");
-		printf(" TOTAL: %u, SUCCESS: %u, FAILED: %u, INVALID: %u",
+		printf("TESTS REPORT GC ACRYPTO:: ");
+		printf("TOTAL: %u, SUCCESS: %u, FAILED: %u, INVALID: %u",
 		       tgc_acrypto_total, tgc_acrypto_passed, tgc_acrypto_failed,
 		       tgc_acrypto_invalid);
 		printf("\n-------------------------------------------------------\n\n");
