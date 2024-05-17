@@ -1,6 +1,6 @@
 // SPDX-License-Identifier: BSD-3-Clause
 /*
- * Copyright 2022-2023 NXP
+ * Copyright 2022-2024 NXP
  */
 
 #include <stdio.h>
@@ -76,15 +76,9 @@ void perform_dev_attestation(hsm_hdl_t sess_hdl)
 		hexdump((uint32_t *)dev_attest_args.info_buf,
 			dev_attest_args.info_buf_sz / sizeof(uint32_t));
 
-		printf("Attest Result = 0x%x\n\n", dev_attest_args.attest_result);
 		printf("Signature:");
 		hexdump((uint32_t *)dev_attest_args.signature,
 			dev_attest_args.sign_sz/sizeof(uint32_t));
-
-		if (dev_attest_args.attest_result)
-			printf("hsm_dev_attest: Attestation Result = Fail\n");
-		else
-			printf("hsm_dev_attest: Attestation Result = Pass\n");
 	}
 	printf("---------------------------------------------------\n\n");
 #endif

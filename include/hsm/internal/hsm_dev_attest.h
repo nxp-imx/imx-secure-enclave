@@ -1,6 +1,6 @@
 // SPDX-License-Identifier: BSD-3-Clause
 /*
- * Copyright 2022-2023 NXP
+ * Copyright 2022-2024 NXP
  */
 
 #ifndef HSM_DEV_ATTEST_H
@@ -69,8 +69,6 @@ typedef struct {
 	//!< size in bytes for info buffer
 	uint8_t *info_buf;
 	//!< pointer to the info buffer, for verification of the signature
-	uint8_t attest_result;
-	//!< Attest Result. 0 means pass. 1 means fail.
 	uint16_t sign_sz;
 	//!< buffer size in bytes for signature
 	uint8_t  *signature;
