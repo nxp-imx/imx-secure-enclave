@@ -204,6 +204,7 @@ function seco()
 
     printf "Execute %s\n" "${cmd_script}"
     eval "${cmd_script}"
+    eval "make clean"
 }
 
 function ele()
@@ -230,6 +231,7 @@ function ele()
 
     printf "Execute %s\n" "${cmd_script}"
     eval "${cmd_script}"
+    eval "make clean"
 }
 
 
@@ -813,6 +815,13 @@ do
             opt_ele="-DELE_ROOT=${opt_ele}"
             ;;
 
+#	plat_all=*)
+#            opt_seco="${arg#*=}"
+#            opt_seco="-DSECO_ROOT=${opt_seco}"
+#  opt_ele="${arg#*=}"
+#           opt_ele="-DELE_ROOT=${opt_ele}"
+#           ;;
+
         teec=*)
             opt_teec="${arg#*=}"
             check_directory opt_teec
@@ -930,6 +939,11 @@ case ${opt_action} in
         ;;
 
     ele)
+        ele
+        ;;
+
+    plat_all)
+    	seco
         ele
         ;;
 
