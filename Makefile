@@ -142,6 +142,7 @@ endif
 
 CFLAGS += ${DEFINES}
 COMMON_TEST_OBJ=$(wildcard test/common/*.c)
+MBEDTLS_TEST_OBJ=$(wildcard test/mbedtls/*.c)
 HSM_TEST_PERF_OBJ := test/common/ele_perf.c \
 			test/common/test_file_reader.c \
 			test/common/test_utils.c \
@@ -152,13 +153,13 @@ HSM_TEST_PERF_OBJ := test/common/ele_perf.c \
 			test/common/test_sign_verify_tv.c
 COMMON_TEST_INC=-Itest/common/include/
 
-HSM_TEST_OBJ= test/hsm/hsm_test.c $(COMMON_TEST_OBJ)
+HSM_TEST_OBJ= test/hsm/hsm_test.c $(COMMON_TEST_OBJ) $(MBEDTLS_TEST_OBJ)
 HSM_PERF_TEST_OBJ= test/hsm/hsm_perf_test.c $(HSM_TEST_PERF_OBJ)
 TEST_CFLAGS = -Wno-deprecated-declarations $(CFLAGS)
 TEST_LDFLAGS = -L $(OPENSSL_PATH) -lcrypto $(LDFLAGS) -lcrypto -lpthread
 TEST_INCLUDE_PATHS = ${INCLUDE_PATHS} -I$(OPENSSL_PATH)/include
 TEST_LDFLAGS_MBEDTLS = -L ${MBEDTLS_PATH}/library -lmbedtls -lmbedx509 -lmbedcrypto
-TEST_INCLUDE_PATHS_MBEDTLS = -I${MBEDTLS_PATH}/include
+TEST_INCLUDE_PATHS_MBEDTLS = -Itest/mbedtls/include -I${MBEDTLS_PATH}/include -I${MBEDTLS_PATH}/library
 
 $(HSM_TEST): $(HSM_TEST_OBJ) $(HSM_LIB)
 	$(CC) $^  -o $@ ${TEST_INCLUDE_PATHS} ${TEST_INCLUDE_PATHS_MBEDTLS} ${COMMON_TEST_INC} $(TEST_CFLAGS) $(TEST_LDFLAGS) $(TEST_LDFLAGS_MBEDTLS) $(GCOV_FLAGS)

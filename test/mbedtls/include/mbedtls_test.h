@@ -10,9 +10,8 @@
 #include "test_common.h"
 
 #ifdef PSA_COMPLIANT
-#include "mbedtls/ssl.h"
-#include "mbedtls/hkdf.h"
-#include "mbedtls/md.h"
+#define TEST_TLS1_3_CTX_UNHASHED 0
+#define TEST_TLS1_3_CTX_HASHED   1
 
 /* HKDF (HMAC based two step) tests with MbedTLS */
 
@@ -43,5 +42,22 @@ static const uint8_t hkdf_sha256_okm[] = {
 
 void mbedtls_hkdf_test(void);
 void mbedtls_tls1_3_tests(void);
+
+int mbedtls_wapi_tls13_evolve_secret(uint32_t hash_algorithm,
+				     const unsigned char *in_secret,
+				     const unsigned char *input_buffer,
+				     size_t input_buffer_len,
+				     unsigned char *out_secret);
+
+int mbedtls_wapi_tls13_derive_secret(uint32_t hash_algorithm,
+				     const unsigned char *in_secret,
+				     size_t in_secret_len,
+				     const unsigned char *label,
+				     size_t label_length,
+				     const unsigned char *context_buffer,
+				     size_t context_buffer_size,
+				     int context_hashed_status,
+				     unsigned char *out_secret,
+				     size_t out_secret_len);
 #endif
 #endif

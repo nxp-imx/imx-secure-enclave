@@ -8,6 +8,47 @@
 #ifdef PSA_COMPLIANT
 #include "mbedtls_test.h"
 
+#include <mbedtls/ssl.h>
+#include <mbedtls/hkdf.h>
+#include <mbedtls/md.h>
+
+uint32_t mbedtls_early_secret_test(void)
+{
+	unsigned char early_secret[PSA_HASH_MAX_SIZE];
+	unsigned char binder_secret[PSA_HASH_MAX_SIZE];
+	uint32_t hash_length = PSA_HASH_LENGTH(PSA_ALG_SHA_256);
+	unsigned char *psk = NULL;
+	uint32_t psk_length = 0;
+	int ret;
+
+	printf("-----------------------------------------------\n");
+	printf("MbedTLS Early Secret test:\n");
+	printf("-----------------------------------------------\n");
+	memset(early_secret, 0, PSA_HASH_MAX_SIZE);
+	memset(binder_secret, 0, PSA_HASH_MAX_SIZE);
+
+	ret = mbedtls_wapi_tls13_evolve_secret(PSA_ALG_SHA_256,
+					       NULL,
+					       psk, psk_length,
+					       early_secret);
+	printf("\nmbedtls_wapi_tls13_evolve_secret ret:0x%x\n", ret);
+
+	ret = mbedtls_wapi_tls13_derive_secret(PSA_ALG_SHA_256,
+					       early_secret, hash_length,
+					       "ext binder", 10,
+					       context_buffer,
+					       sizeof(context_buffer),
+					       TEST_TLS1_3_CTX_HASHED,
+					       binder_secret, hash_length);
+
+	printf("\nmbedtls_wapi_tls13_derive_secret ret:0x%x\n", ret);
+	printf("\nBinder Secret:\n");
+	dump_hex(binder_secret, PSA_HASH_MAX_SIZE);
+	printf("-----------------------------------------------\n");
+
+	return 0;
+}
+
 void mbedtls_hkdf_test(void)
 {
 	int ret;
@@ -47,7 +88,7 @@ void mbedtls_hkdf_test(void)
 
 	printf("MbedTLS HKDF test: SUCCESS\n");
 out:
-	printf("-----------------------------------------------\r\n");
+	printf("-------------------------------------------------\n");
 }
 
 void mbedtls_tls1_3_tests(void)
@@ -56,5 +97,6 @@ void mbedtls_tls1_3_tests(void)
 	mbedtls_ssl_context ssl;
 
 	mbedtls_ssl_init(&ssl);
+	mbedtls_early_secret_test();
 }
 #endif
