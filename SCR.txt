@@ -6,7 +6,10 @@ NXP Security Enclave Library
 Package                 : imx-secure-enclave.git
 License File            : LICENSE
 Type of content         : Source code
-License                 : BSD 3-Clause
-Origin                  : NXP
+License                 : BSD-3-Clause
 Description and comments: This user library exposes HSM/NVM API(s) to invoke/use the
                           feature-set of EdgeLock Enclave HW IP, enabled NXP devices.
+Release Location        : https://github.com/nxp-imx/imx-secure-enclave
+Origin                  : NXP (BSD-3-Clause)
+                          OpenSSL (Apache-2.0) - https://github.com/openssl/openssl
+                          Mbed-TLS (Apache-2.0) - https://github.com/Mbed-TLS/mbedtls
