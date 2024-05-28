@@ -55,6 +55,8 @@ hsm_err_t hsm_close_hash_service(hsm_hdl_t hash_hdl);
 #ifdef PSA_COMPLIANT
 
 typedef enum {
+	HSM_HASH_ALGO_MD5     = 0x02000003,
+	HSM_HASH_ALGO_SHA_1   = 0x02000005,
 	HSM_HASH_ALGO_SHA_224 = 0x02000008,
 	HSM_HASH_ALGO_SHA_256 = 0x02000009,
 	HSM_HASH_ALGO_SHA_384 = 0x0200000A,
@@ -63,6 +65,7 @@ typedef enum {
 	HSM_HASH_ALGO_SHA3_256 = 0x02000011,
 	HSM_HASH_ALGO_SHA3_384 = 0x02000012,
 	HSM_HASH_ALGO_SHA3_512 = 0x02000013,
+	HSM_HASH_ALGO_SHAKE_256 = 0x02000015,
 } hsm_hash_algo_t;
 
 #else
