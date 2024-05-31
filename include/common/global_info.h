@@ -11,6 +11,9 @@
 
 #include "get_info.h"
 
+// Bit map for global info flag
+#define SHE_ON_V2X 0x1
+
 /**
  *  @defgroup group31 Global Info
  *  @{
@@ -213,6 +216,16 @@ void se_get_info(uint32_t session_hdl,
  * Get SoC Info for Global Info setup
  */
 void se_get_soc_info(uint32_t session_hdl, uint16_t *soc_id, uint16_t *soc_rev);
+
+/**
+ * Get Global Info flags
+ */
+uint32_t get_global_info_flags(void);
+
+/**
+ * Set Global Info flags
+ */
+void set_global_info_flags(uint32_t flags);
 #ifndef PSA_COMPLIANT
 /**
  *\addtogroup iMX8DXL

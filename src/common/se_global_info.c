@@ -46,6 +46,8 @@ struct global_info_s {
 	//!< NVM version string
 	char se_commit_id[GINFO_COMMIT_ID_SZ];
 	//!< Secure Enclave Build Commit ID
+	uint32_t flags;
+	//!< Global flags
 };
 
 /**
@@ -233,6 +235,16 @@ void populate_global_info(uint32_t session_hdl)
 bool is_global_info_populated(void)
 {
 	return global_info.is_populated;
+}
+
+void set_global_info_flags(uint32_t flags)
+{
+	global_info.flags |= flags;
+}
+
+uint32_t get_global_info_flags(void)
+{
+	return global_info.flags;
 }
 
 #ifdef PSA_COMPLIANT

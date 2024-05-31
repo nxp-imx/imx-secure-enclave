@@ -66,7 +66,6 @@ she_err_t open_session(open_session_args_t *args,
 
 	plat_os_abs_memset((uint8_t *)thdl, 0u,
 			   (uint32_t)sizeof(struct she_session_hdl_s));
-
 	/* Open the SHE session on the MU */
 	thdl->phdl = plat_os_abs_open_mu_channel(mu_type, &mu_params);
 	if (!thdl->phdl)
@@ -83,7 +82,6 @@ she_err_t open_session(open_session_args_t *args,
 #endif
 	if (!args->interrupt_idx)
 		args->interrupt_idx = mu_params.interrupt_idx;
-
 	/* Open the SHE session on Platform's side */
 	lib_err = process_sab_msg(thdl->phdl,
 				  thdl->mu_type,
@@ -115,6 +113,7 @@ she_err_t she_open_session(open_session_args_t *args, she_hdl_t *session_hdl)
 	struct she_session_hdl_s *hdl = NULL;
 	she_err_t err = SHE_GENERAL_ERROR;
 	uint32_t sab_err, ret;
+	bool is_she_on_v2x = false;
 	op_get_info_args_t info_args = {'\0'};
 	op_shared_buf_args_t buf_args = {'\0'};
 	uint32_t rsp_code = SAB_NO_MESSAGE_RATING;
@@ -126,7 +125,6 @@ she_err_t she_open_session(open_session_args_t *args, she_hdl_t *session_hdl)
 		err = open_session(args, &hdl, args->mu_type);
 		if (err != SHE_NO_ERROR)
 			break;
-
 		err = she_get_info(hdl->session_hdl, &info_args);
 		if (err != SHE_NO_ERROR) {
 			se_err("SHE Error: Failed to get SHE info 0x%x\n", err);
@@ -139,6 +137,10 @@ she_err_t she_open_session(open_session_args_t *args, she_hdl_t *session_hdl)
 			err = open_session(args, &hdl, V2X_SHE);
 			if (err != SHE_NO_ERROR)
 				break;
+		/* i.MX8DXL DL3 Board is SECO FIPS
+		 * SHE session on V2X
+		 */
+			is_she_on_v2x = true;
 		}
 
 		args->session_hdl = hdl->session_hdl;
@@ -148,12 +150,16 @@ she_err_t she_open_session(open_session_args_t *args, she_hdl_t *session_hdl)
 		if (err == SHE_NO_ERROR && !is_global_info_populated())
 			populate_global_info(args->session_hdl);
 
-		if ((se_get_soc_id() != SOC_IMX8DXL) ||
-		    (info_args.fips_mode & 0x01))
+
+		if (se_get_soc_id() != SOC_IMX8DXL)
+			is_she_on_v2x = true;
+
+		if (is_she_on_v2x) {
+			set_global_info_flags(SHE_ON_V2X);
 			she_v2x_mu = 1;
+		}
 
-
-		if (!she_v2x_mu) {
+		if (!(get_global_info_flags() & SHE_ON_V2X)) {
 			/* Get a SECURE RAM partition to be used as shared buffer */
 			sab_err = process_sab_msg(hdl->phdl,
 						  hdl->mu_type,
