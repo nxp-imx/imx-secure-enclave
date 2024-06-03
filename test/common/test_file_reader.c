@@ -9,10 +9,156 @@
 #include <stdlib.h>
 #include <string.h>
 #include <dirent.h>
+#include <unistd.h>
 
 #include "test_common.h"
 #include "test_common_tv.h"
 #include "plat_utils.h"
+
+#define TV_TEMP_KEY_STORE_ID 0xABCC
+#define TV_TEMP_KEY_STORE_NONCE 0x1233
+#define SLEEP_INTERVAL 1
+
+/**
+ * Stop the existing/older nvm_daemon and start the new
+ * nvm_dameon on new location for test vectors only.
+ */
+void new_nvm_daemon(void)
+{
+	const char *conf_setup = "nvmd_conf_setup.sh custom ";
+	const char *dir_name = "dir_name=/etc/ele_temp ";
+	const char *filename = "filename=/etc/ele_temp/ele_nvm_master ";
+	const char *flag = "flag=0 ";
+	const char *type = "type=ELE";
+
+	size_t total_length = strlen(conf_setup) + strlen(dir_name)
+			      + strlen(filename) + strlen(flag)
+			      + strlen(type) + 1u;
+	char *command = (char *)malloc(total_length * sizeof(char));
+
+	if (!command) {
+		se_err("\nError: Couldn't allocate memory for Command\n");
+		goto out;
+	}
+
+	snprintf(command, total_length, "%s%s%s%s%s",
+		 conf_setup, dir_name, filename, flag, type);
+
+	if (system("systemctl stop nvm_daemon"))
+		printf("Error: Failed to stop NVM Daemon\n");
+
+	if (system("rm -rf /var/lib/se/persistent/*"))
+		printf("Error: Failed to remove persistent files\n");
+
+	if (system(command))
+		printf("Error: Failed to execute nvmd_conf_setup.sh\n");
+
+	if (system("systemctl start nvm_daemon"))
+		printf("Error: Failed to start NVM Daemon\n");
+
+	sleep(SLEEP_INTERVAL);
+out:
+	if (command)
+		free(command);
+}
+
+/**
+ * Stop the new nvm_daemon and remove the files, directories
+ * created at respective location to reuse the location again.
+ * Restart the existing/older test nvm_daemon at the end again.
+ */
+void end_nvm_daemon(void)
+{
+	const char *conf_setup = "nvmd_conf_setup.sh custom ";
+	const char *dir_name = "dir_name=/etc/ele ";
+	const char *filename = "filename=/etc/ele/ele_nvm_master ";
+	const char *flag = "flag=0 ";
+	const char *type = "type=ELE";
+
+	size_t total_length = strlen(conf_setup) + strlen(dir_name)
+			      + strlen(filename) + strlen(flag)
+			      + strlen(type) + 1u;
+	char *command = (char *)malloc(total_length * sizeof(char));
+
+	if (!command) {
+		se_err("\nError: Couldn't allocate memory for Command\n");
+		goto out;
+	}
+
+	snprintf(command, total_length, "%s%s%s%s%s",
+		 conf_setup, dir_name, filename, flag, type);
+
+	if (system("systemctl stop nvm_daemon"))
+		printf("Error: Failed to execute nvmd_conf_setup.sh\n");
+
+	if (system("rm -rf /etc/ele_temp*"))
+		printf("Error: Failed to remove new directories\n");
+
+	if (system("rm -rf /var/lib/se/persistent/*"))
+		printf("Error: Failed to remove persistent files\n");
+
+	if (system(command))
+		printf("Error: Failed to execute nvmd_conf_setup.sh\n");
+
+	if (system("systemctl start nvm_daemon"))
+		printf("Error: Failed to start NVM Daemon\n");
+
+	sleep(SLEEP_INTERVAL);
+out:
+	if (command)
+		free(command);
+}
+
+/**
+ * After stopping the existing/older key store, open new Key Store for
+ * test vectors only.
+ */
+hsm_hdl_t open_new_key_store(hsm_hdl_t hsm_session_hdl)
+{
+	hsm_err_t err;
+	open_svc_key_store_args_t key_store_args = {0};
+	hsm_hdl_t key_store_hdl;
+
+	key_store_args.key_store_identifier = TV_TEMP_KEY_STORE_ID;
+	key_store_args.authentication_nonce = TV_TEMP_KEY_STORE_NONCE;
+#ifndef PSA_COMPLIANT
+	key_store_args.max_updates_number   = 100;
+#endif
+	key_store_args.flags                = HSM_SVC_KEY_STORE_FLAGS_CREATE;
+	err = hsm_open_key_store_service(hsm_session_hdl, &key_store_args,
+					 &key_store_hdl);
+	se_info("hsm_open_key_store_service (create) ret:0x%x\n", err);
+
+	return key_store_hdl;
+}
+
+/**
+ *  Load existing/older Key Store
+ */
+hsm_hdl_t open_old_key_store(hsm_hdl_t hsm_session_hdl, hsm_hdl_t key_store_hdl)
+{
+	hsm_err_t err;
+	open_svc_key_store_args_t key_store_args = {0};
+
+	key_store_args.key_store_identifier = 0xABCD;
+	key_store_args.authentication_nonce = 0x1234;
+#ifndef PSA_COMPLIANT
+	key_store_args.max_updates_number   = 100;
+#endif
+	key_store_args.flags                = HSM_SVC_KEY_STORE_FLAGS_CREATE;
+	err = hsm_open_key_store_service(hsm_session_hdl, &key_store_args,
+					 &key_store_hdl);
+	se_info("hsm_open_key_store_service (create) ret:0x%x\n", err);
+
+	if (err == HSM_KEY_STORE_CONFLICT) {
+		key_store_args.flags            = HSM_SVC_KEY_STORE_FLAGS_LOAD;
+		err = hsm_open_key_store_service(hsm_session_hdl, &key_store_args,
+						 &key_store_hdl);
+		se_info("\nhsm_open_key_store_service (load) ret:0x%x\n", err);
+	}
+
+	return key_store_hdl;
+}
 
 // Run tests of selected Test Vector file
 static void tv_tests(hsm_hdl_t key_store_hdl, uint8_t *tv_file_path)
@@ -61,6 +207,9 @@ static void tv_tests(hsm_hdl_t key_store_hdl, uint8_t *tv_file_path)
 	FILE *fp = NULL;
 	ssize_t read;
 
+	hsm_err_t err;
+	hsm_hdl_t hsm_session_hdl = get_hsm_session_hdl();
+
 	fp = fopen(tv_file_path, "r");
 
 	printf("\n\nTest Vector file: %s\n", tv_file_path);
@@ -86,6 +235,22 @@ static void tv_tests(hsm_hdl_t key_store_hdl, uint8_t *tv_file_path)
 					se_info("\n\nTESTS ENDED\n\n");
 					break;
 				}
+
+				/* Close existing/old Key Store */
+				if (memcmp(line, "OLD_KEY_STORE_CLOSE", 19) == 0) {
+					err = hsm_close_key_store_service(key_store_hdl);
+					se_info("hsm_close_key_store_service");
+					se_info("ret:0x%x\n", err);
+				}
+
+				/* Open new nvm_daemon */
+				if (memcmp(line, "NVM_START", 9) == 0)
+					new_nvm_daemon();
+
+				/* Open New Key Store Service*/
+				if (memcmp(line, "OPEN_KEY_STORE_SRV", 18) == 0)
+					key_store_hdl = open_new_key_store
+							(hsm_session_hdl);
 
 				/* Open Key Management service */
 				if (memcmp(line, "OPEN_KEY_MGMT_SRV", 17) == 0) {
@@ -198,8 +363,23 @@ static void tv_tests(hsm_hdl_t key_store_hdl, uint8_t *tv_file_path)
 						break;
 					}
 				}
-			}
+				/* Close New Key Store */
+				if (memcmp(line, "CLOSE_KEY_STORE_SRV", 19) == 0) {
+					err = hsm_close_key_store_service(key_store_hdl);
+					se_info("hsm_close_key_store_service");
+					se_info("ret:0x%x\n", err);
+				}
 
+				/* Stop new_daemon */
+				if (memcmp(line, "NVM_END", 7) == 0)
+					end_nvm_daemon();
+
+				/* Load the existing/old key store */
+				if (memcmp(line, "OPEN_OLD_KEY_STORE", 18) == 0)
+					key_store_hdl = open_old_key_store
+							(hsm_session_hdl,
+							 key_store_hdl);
+			}
 		}
 	}
 
@@ -229,7 +409,7 @@ static void tv_tests(hsm_hdl_t key_store_hdl, uint8_t *tv_file_path)
 		printf("TESTS REPORT SIGN VERIFY:: TOTAL: %u, SUCCESS: %u, FAILED: %u, INVALID: %u",
 		       tsign_total, tsign_passed, tsign_failed, tsign_invalid);
 		printf("\n-------------------------------------------------------------------\n\n");
-		}
+	}
 
 	if (thash_total > 0) {
 		printf("TESTS REPORT HASH:: TOTAL: %u, SUCCESS: %u, FAILED: %u, INVALID: %u",
