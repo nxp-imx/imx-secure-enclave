@@ -7,7 +7,7 @@
 #include <stdint.h>
 
 #include "hsm_api.h"
-#include "common.h"
+#include "test_common.h"
 
 uint8_t nounce_buf_v1[4] = {0xDE, 0xAD, 0xBE, 0xEF};
 

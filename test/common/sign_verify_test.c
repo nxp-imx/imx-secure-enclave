@@ -1,6 +1,6 @@
 // SPDX-License-Identifier: BSD-3-Clause
 /*
- * Copyright 2022-2023 NXP
+ * Copyright 2022-2024 NXP
  */
 
 #include <stdbool.h>
@@ -10,7 +10,7 @@
 #include <time.h>
 #include <unistd.h>
 
-#include "common.h"
+#include "test_common.h"
 #include "hsm_api.h"
 
 void hsm_sign_verify_tests(hsm_hdl_t sess_hdl, hsm_hdl_t key_store_hdl,

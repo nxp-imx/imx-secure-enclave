@@ -9,7 +9,7 @@
 #include "hsm_api.h"
 #include "test_utils_tv.h"
 #include "plat_utils.h"
-#include "common.h"
+#include "test_common.h"
 
 #ifdef ELE_PERF
 #include <ele_perf.h>

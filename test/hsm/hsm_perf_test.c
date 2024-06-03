@@ -12,7 +12,7 @@
 #include "hsm_api.h"
 #include "plat_utils.h"
 
-#include "common.h"
+#include "test_common.h"
 #include "ele_perf.h"
 uint8_t rsa_tcase_status;
 

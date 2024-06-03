@@ -1,6 +1,6 @@
 // SPDX-License-Identifier: BSD-3-Clause
 /*
- * Copyright 2023 NXP
+ * Copyright 2023-2024 NXP
  */
 
 #ifndef ELE_PERF_H
@@ -15,7 +15,7 @@
 #include <stdint.h>
 #include <hsm/internal/hsm_common_def.h>
 
-#include "common.h"
+#include "test_common.h"
 #include "test_common_tv.h"
 #include "plat_utils.h"
 

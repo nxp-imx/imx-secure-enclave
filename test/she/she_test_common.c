@@ -11,7 +11,7 @@
 #include <time.h>
 #include <unistd.h>
 
-#include "common.h"
+#include "test_common.h"
 #include "she_api.h"
 #include "plat_utils.h"
 

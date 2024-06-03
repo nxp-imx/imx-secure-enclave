@@ -3,7 +3,7 @@
  * Copyright 2023-2024 NXP
  */
 
-#include "common.h"
+#include "test_common.h"
 
 #define AUTH_CHALLENGE_SIZE 16u
 #define CERTIFICATE_SIZE 0xAFu

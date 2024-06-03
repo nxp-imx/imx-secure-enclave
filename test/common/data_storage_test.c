@@ -12,7 +12,7 @@
 #include <unistd.h>
 
 #include "hsm_api.h"
-#include "common.h"
+#include "test_common.h"
 #include "nvm.h"
 #ifdef PSA_COMPLIANT
 #define DATA_ID			0x12345678

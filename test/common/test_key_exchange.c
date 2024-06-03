@@ -5,7 +5,7 @@
 
 #include <stdio.h>
 
-#include "common.h"
+#include "test_common.h"
 #include "hsm_api.h"
 
 #define KEY_EXCHANGE_PRIV_KEY_ID    0x2FFFFF01u

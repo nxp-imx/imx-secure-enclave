@@ -1,6 +1,6 @@
 // SPDX-License-Identifier: BSD-3-Clause
 /*
- * Copyright 2022-2023 NXP
+ * Copyright 2022-2024 NXP
  */
 
 #include <stdint.h>
@@ -9,7 +9,7 @@
 #include "hsm_api.h"
 #include "plat_utils.h"
 
-#include "common.h"
+#include "test_common.h"
 
 void hexdump(uint32_t buf[], uint32_t size)
 {

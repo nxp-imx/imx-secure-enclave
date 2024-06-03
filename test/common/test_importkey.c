@@ -10,7 +10,7 @@
 #include "hsm_api.h"
 #include "test_importkey.h"
 
-#include "common.h"
+#include "test_common.h"
 #include "openssl_testapi.h"
 
 #if MT_SAB_IMPORT_KEY

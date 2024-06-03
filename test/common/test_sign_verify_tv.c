@@ -5,7 +5,7 @@
 
 #include <stdio.h>
 
-#include "common.h"
+#include "test_common.h"
 #include "hsm_api.h"
 #include "test_utils_tv.h"
 #include "plat_utils.h"

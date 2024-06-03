@@ -1,13 +1,13 @@
 // SPDX-License-Identifier: BSD-3-Clause
 /*
- * Copyright 2022-2023 NXP
+ * Copyright 2022-2024 NXP
  */
 
 #include <stdio.h>
 #include <stdint.h>
 
 #include "hsm_api.h"
-#include "common.h"
+#include "test_common.h"
 
 void get_info(hsm_hdl_t sess_hdl)
 {

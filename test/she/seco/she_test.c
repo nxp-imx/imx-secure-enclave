@@ -7,7 +7,7 @@
 #include <stdio.h>
 #include <string.h>
 
-#include "common.h"
+#include "test_common.h"
 
 static void she_test_usage(void)
 {

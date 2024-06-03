@@ -7,7 +7,7 @@
 
 #include <stdint.h>
 
-#include "common.h"
+#include "test_common.h"
 
 #ifdef PSA_COMPLIANT
 #include "mbedtls/ssl.h"

@@ -10,6 +10,7 @@
 #include <string.h>
 #include <dirent.h>
 
+#include "test_common.h"
 #include "test_common_tv.h"
 #include "plat_utils.h"
 

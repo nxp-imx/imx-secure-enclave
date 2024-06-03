@@ -11,7 +11,7 @@
 #include <time.h>
 #include <unistd.h>
 
-#include "common.h"
+#include "test_common.h"
 #include "hsm_api.h"
 #include "test_importkey.h"
 
@@ -832,6 +832,10 @@ int main(int argc, char *argv[])
 	 * tests of Data Storage and Encrypted Data Storage
 	 */
 	data_storage_delete_test(key_store_hdl);
+
+	/* MbedTLS tests */
+	mbedtls_hkdf_test();
+	mbedtls_tls1_3_tests();
 #endif
 	if (argc > 1 && (strcmp("--rsa", argv[1]) != 0)) {
 		tv_tests_run(key_store_hdl, argv[1]);
@@ -840,11 +844,6 @@ int main(int argc, char *argv[])
 		tv_tests_run(key_store_hdl, NULL);
 	}
 
-#ifdef PSA_COMPLIANT
-	/* MbedTLS tests */
-	mbedtls_hkdf_test();
-	mbedtls_tls1_3_tests();
-#endif
         err = hsm_close_key_store_service(key_store_hdl);
         printf("hsm_close_key_store_service ret:0x%x\n", err);
 
