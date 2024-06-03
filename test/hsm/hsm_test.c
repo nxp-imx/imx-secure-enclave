@@ -822,10 +822,10 @@ int main(int argc, char *argv[])
 	if (se_get_soc_id() != SOC_IMX8ULP) {
 		gc_akey_gen_test(hsm_session_hdl);
 		gc_acrypto_test(hsm_session_hdl);
+		gc_aead_test(hsm_session_hdl);
 	}
 
 	gc_cipher_test(hsm_session_hdl);
-	gc_aead_test(hsm_session_hdl);
 
 	/**
 	 * Test the Data DELETE operation on the data stored, with previous
