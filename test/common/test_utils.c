@@ -10,6 +10,18 @@
 #include "plat_utils.h"
 
 #include "test_common.h"
+#include "test_utils.h"
+
+void set_signed_tests_en_status(uint8_t *oem_srkh, uint16_t len)
+{
+	if (memcmp(test_oem_srkh, oem_srkh, sizeof(test_oem_srkh)) == 0)
+		signed_tests_en_status = SIGNED_TESTS_STATUS_ENABLED;
+}
+
+uint8_t get_signed_tests_en_status(void)
+{
+	return signed_tests_en_status;
+}
 
 void hexdump(uint32_t buf[], uint32_t size)
 {

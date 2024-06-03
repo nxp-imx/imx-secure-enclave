@@ -72,6 +72,9 @@ void dev_get_info(hsm_hdl_t sess_hdl)
 		hexdump((uint32_t *)dev_getinfo_args.oem_srkh,
 			dev_getinfo_args.oem_srkh_sz/sizeof(uint32_t));
 
+		set_signed_tests_en_status(dev_getinfo_args.oem_srkh,
+					   dev_getinfo_args.oem_srkh_sz);
+
 		printf("IMEM state = 0x%x.\n", dev_getinfo_args.imem_state);
 		printf("CSAL state = 0x%x.\n", dev_getinfo_args.csal_state);
 		printf("TRNG state = 0x%x.\n", dev_getinfo_args.trng_state);

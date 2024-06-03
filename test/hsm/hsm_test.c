@@ -624,36 +624,38 @@ static void transient_key_tests(hsm_hdl_t sess_hdl, hsm_hdl_t key_store_hdl)
 #endif
 
 #ifdef PSA_COMPLIANT
-	printf("----------------------------------------------------------\n");
-	printf("Import Key Test\n");
-	printf("----------------------------------------------------------\n");
-	printf("\n----------------------- EL2GO --------------------------\n");
-	import_key_id = test_key_import(key_mgmt_hdl,
-					key_store_hdl,
-					HSM_OP_IMPORT_KEY_INPUT_E2GO_TLV);
-	if (import_key_id)
-		key_management(KEYATTR,
-			       key_mgmt_hdl,
-			       &import_key_id,
-			       0,
-			       HSM_KEY_TYPE_AES);
-	printf("----------------------------------------------------------\n");
+	if (get_signed_tests_en_status() && se_get_soc_id() == SOC_IMX8ULP) {
+		printf("----------------------------------------------------------\n");
+		printf("Import Key Test\n");
+		printf("----------------------------------------------------------\n");
+		printf("\n----------------------- EL2GO --------------------------\n");
+		import_key_id = test_key_import(key_mgmt_hdl,
+						key_store_hdl,
+						HSM_OP_IMPORT_KEY_INPUT_E2GO_TLV);
+		if (import_key_id)
+			key_management(KEYATTR,
+				       key_mgmt_hdl,
+				       &import_key_id,
+				       0,
+				       HSM_KEY_TYPE_AES);
+		printf("----------------------------------------------------------\n");
 
-	printf("\n------------------------ ELE ---------------------------\n");
-	import_key_id = test_key_import(key_mgmt_hdl,
-					key_store_hdl,
-					HSM_OP_IMPORT_KEY_INPUT_ELE_TLV);
-	if (import_key_id)
-		key_management(KEYATTR,
-			       key_mgmt_hdl,
-			       &import_key_id,
-			       0,
-			       HSM_KEY_TYPE_AES);
-	printf("----------------------------------------------------------\n");
-	printf("----------------------------------------------------------\n");
+		printf("\n------------------------ ELE ---------------------------\n");
+		import_key_id = test_key_import(key_mgmt_hdl,
+						key_store_hdl,
+						HSM_OP_IMPORT_KEY_INPUT_ELE_TLV);
+		if (import_key_id)
+			key_management(KEYATTR,
+				       key_mgmt_hdl,
+				       &import_key_id,
+				       0,
+				       HSM_KEY_TYPE_AES);
+		printf("----------------------------------------------------------\n");
+		printf("----------------------------------------------------------\n");
+	}
 
 	//Key Exchange API tests
-	if (se_get_soc_id() != SOC_IMX95)
+	if (get_signed_tests_en_status() && se_get_soc_id() != SOC_IMX95)
 		key_exchange_test(sess_hdl, key_store_hdl, key_mgmt_hdl);
 
 	if (se_get_soc_id() == SOC_IMX93 || se_get_soc_id() == SOC_IMX91) {

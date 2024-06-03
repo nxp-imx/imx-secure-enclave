@@ -51,6 +51,8 @@ hsm_err_t gc_acrypto_test(hsm_hdl_t session_hdl);
 hsm_err_t gc_cipher_test(hsm_hdl_t hsm_session_hdl);
 hsm_err_t gc_aead_test(hsm_hdl_t hsm_session_hdl);
 hsm_err_t test_key_store_reprov_en(hsm_hdl_t session_hdl);
+void set_signed_tests_en_status(uint8_t *oem_srkh, uint16_t len);
+uint8_t get_signed_tests_en_status(void);
 
 /**
  * This function is used to test the Public Key Attestation API
