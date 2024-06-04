@@ -17,7 +17,7 @@
 
 #define TV_TEMP_KEY_STORE_ID 0xABCC
 #define TV_TEMP_KEY_STORE_NONCE 0x1233
-#define SLEEP_INTERVAL 1
+#define SLEEP_INTERVAL 3
 
 /**
  * Stop the existing/older nvm_daemon and start the new
@@ -26,7 +26,7 @@
 void new_nvm_daemon(void)
 {
 	const char *conf_setup = "nvmd_conf_setup.sh custom ";
-	const char *dir_name = "dir_name=/etc/ele_temp ";
+	const char *dir_name = "dir_name=/etc/ele_temp/ ";
 	const char *filename = "filename=/etc/ele_temp/ele_nvm_master ";
 	const char *flag = "flag=0 ";
 	const char *type = "type=ELE";
@@ -70,7 +70,7 @@ out:
 void end_nvm_daemon(void)
 {
 	const char *conf_setup = "nvmd_conf_setup.sh custom ";
-	const char *dir_name = "dir_name=/etc/ele ";
+	const char *dir_name = "dir_name=/etc/ele/ ";
 	const char *filename = "filename=/etc/ele/ele_nvm_master ";
 	const char *flag = "flag=0 ";
 	const char *type = "type=ELE";
