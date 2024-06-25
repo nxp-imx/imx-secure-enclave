@@ -1,0 +1,375 @@
+
+#########################################################################
+#
+# - Read test_add_instructions_tv.txt before for format description and the
+#   steps to be followed while adding new test vectors for supported tests
+#
+#########################################################################
+
+
+
+TESTS_START
+
+
+
+##########################################################################
+# RNG Tests
+##########################################################################
+
+
+#Positive Case:
+#Test RNG operation for 1 byte
+
+TEST_RNG_NON_PSA_AP001
+
+RANDOM_SIZE        1           # Random Size
+EXPECTED_HSM_RESP  0x00        # HSM_NO_ERROR
+
+TEST_RNG_END
+
+
+#Positive Case:
+#Test RNG operation for 2 byte
+
+TEST_RNG_NON_PSA_AP002
+
+RANDOM_SIZE        2           # Random Size
+EXPECTED_HSM_RESP  0x00        # HSM_NO_ERROR
+
+TEST_RNG_END
+
+
+#Positive Case:
+#Test RNG operation for 4 byte
+
+TEST_RNG_NON_PSA_AP003
+
+RANDOM_SIZE        4           # Random Size
+EXPECTED_HSM_RESP  0x00        # HSM_NO_ERROR
+
+TEST_RNG_END
+
+
+#Positive Case:
+#Test RNG operation for 8 byte
+
+TEST_RNG_NON_PSA_AP004
+
+RANDOM_SIZE        8           # Random Size
+EXPECTED_HSM_RESP  0x00        # HSM_NO_ERROR
+
+TEST_RNG_END
+
+
+#Positive Case:
+#Test RNG operation for 16 byte
+
+TEST_RNG_NON_PSA_AP005
+
+RANDOM_SIZE        16           # Random Size
+EXPECTED_HSM_RESP  0x00        # HSM_NO_ERROR
+
+TEST_RNG_END
+
+
+#Positive Case:
+#Test RNG operation for 32 byte
+
+TEST_RNG_NON_PSA_AP006
+
+RANDOM_SIZE        32           # Random Size
+EXPECTED_HSM_RESP  0x00        # HSM_NO_ERROR
+
+TEST_RNG_END
+
+
+#Positive Case:
+#Test RNG operation for 64 byte
+
+TEST_RNG_NON_PSA_AP007
+
+RANDOM_SIZE        64           # Random Size
+EXPECTED_HSM_RESP  0x00        # HSM_NO_ERROR
+
+TEST_RNG_END
+
+
+#Positive Case:
+#Test RNG operation for 128 byte
+
+TEST_RNG_NON_PSA_AP008
+
+RANDOM_SIZE        128           # Random Size
+EXPECTED_HSM_RESP  0x00        # HSM_NO_ERROR
+
+TEST_RNG_END
+
+
+#Positive Case:
+#Test RNG operation for 256 byte
+
+TEST_RNG_NON_PSA_AP009
+
+RANDOM_SIZE        256           # Random Size
+EXPECTED_HSM_RESP  0x00        # HSM_NO_ERROR
+
+TEST_RNG_END
+
+
+#Positive Case:
+#Test RNG operation for 512 byte
+
+TEST_RNG_NON_PSA_AP010
+
+RANDOM_SIZE        512           # Random Size
+EXPECTED_HSM_RESP  0x00        # HSM_NO_ERROR
+
+TEST_RNG_END
+
+
+#Positive Case:
+#Test RNG operation for 1024 byte
+
+TEST_RNG_NON_PSA_AP011
+
+RANDOM_SIZE        1024           # Random Size
+EXPECTED_HSM_RESP  0x00        # HSM_NO_ERROR
+
+TEST_RNG_END
+
+
+#Positive Case:
+#Test RNG operation for 2048 byte
+
+TEST_RNG_NON_PSA_AP012
+
+RANDOM_SIZE        2048           # Random Size
+EXPECTED_HSM_RESP  0x00        # HSM_NO_ERROR
+
+TEST_RNG_END
+
+
+#Positive Case:
+#Test RNG operation for 4096 byte
+
+TEST_RNG_NON_PSA_AP013
+
+RANDOM_SIZE        4096           # Random Size
+EXPECTED_HSM_RESP  0x00        # HSM_NO_ERROR
+
+TEST_RNG_END
+
+
+#Positive Case:
+#Test RNG operation for 8192 byte
+
+TEST_RNG_NON_PSA_AP014
+
+RANDOM_SIZE        8192           # Random Size
+EXPECTED_HSM_RESP  0x00        # HSM_NO_ERROR
+
+TEST_RNG_END
+
+
+#Positive Case:
+#Test RNG operation for 16384 byte
+
+TEST_RNG_NON_PSA_AP015
+
+RANDOM_SIZE        16384           # Random Size
+EXPECTED_HSM_RESP  0x00        # HSM_NO_ERROR
+
+TEST_RNG_END
+
+
+#Positive Case:
+#Test RNG operation for 3 byte
+
+TEST_RNG_NON_PSA_AP016
+
+RANDOM_SIZE        3           # Random Size
+EXPECTED_HSM_RESP  0x00        # HSM_NO_ERROR
+
+TEST_RNG_END
+
+
+#Positive Case:
+#Test RNG operation for 1003 byte
+
+TEST_RNG_NON_PSA_AP017
+
+RANDOM_SIZE        1003           # Random Size
+EXPECTED_HSM_RESP  0x00        # HSM_NO_ERROR
+
+TEST_RNG_END
+
+
+#Positive Case:
+#Test RNG operation for 2003 byte
+
+TEST_RNG_NON_PSA_AP018
+
+RANDOM_SIZE        2003           # Random Size
+EXPECTED_HSM_RESP  0x00        # HSM_NO_ERROR
+
+TEST_RNG_END
+
+
+#Positive Case:
+#Test RNG operation for 3003 byte
+
+TEST_RNG_NON_PSA_AP019
+
+RANDOM_SIZE        3003           # Random Size
+EXPECTED_HSM_RESP  0x00        # HSM_NO_ERROR
+
+TEST_RNG_END
+
+
+#Positive Case:
+#Test RNG operation for 4003 byte
+
+TEST_RNG_NON_PSA_AP020
+
+RANDOM_SIZE        4003           # Random Size
+EXPECTED_HSM_RESP  0x00        # HSM_NO_ERROR
+
+TEST_RNG_END
+
+
+#Positive Case:
+#Test RNG operation for 5003 byte
+
+TEST_RNG_NON_PSA_AP021
+
+RANDOM_SIZE        5003           # Random Size
+EXPECTED_HSM_RESP  0x00        # HSM_NO_ERROR
+
+TEST_RNG_END
+
+
+#Positive Case:
+#Test RNG operation for 6003 byte
+
+TEST_RNG_NON_PSA_AP022
+
+RANDOM_SIZE        6003           # Random Size
+EXPECTED_HSM_RESP  0x00        # HSM_NO_ERROR
+
+TEST_RNG_END
+
+
+#Positive Case:
+#Test RNG operation for 7003 byte
+
+TEST_RNG_NON_PSA_AP023
+
+RANDOM_SIZE        7003           # Random Size
+EXPECTED_HSM_RESP  0x00        # HSM_NO_ERROR
+
+TEST_RNG_END
+
+
+#Positive Case:
+#Test RNG operation for 8003 byte
+
+TEST_RNG_NON_PSA_AP024
+
+RANDOM_SIZE        8003           # Random Size
+EXPECTED_HSM_RESP  0x00        # HSM_NO_ERROR
+
+TEST_RNG_END
+
+
+#Positive Case:
+#Test RNG operation for 9003 byte
+
+TEST_RNG_NON_PSA_AP025
+
+RANDOM_SIZE        9003           # Random Size
+EXPECTED_HSM_RESP  0x00        # HSM_NO_ERROR
+
+TEST_RNG_END
+
+
+#Positive Case:
+#Test RNG operation for 10003 byte
+
+TEST_RNG_NON_PSA_AP026
+
+RANDOM_SIZE        10003           # Random Size
+EXPECTED_HSM_RESP  0x00        # HSM_NO_ERROR
+
+TEST_RNG_END
+
+
+#Positive Case:
+#Test RNG operation for 11003 byte
+
+TEST_RNG_NON_PSA_AP027
+
+RANDOM_SIZE        11003           # Random Size
+EXPECTED_HSM_RESP  0x00        # HSM_NO_ERROR
+
+TEST_RNG_END
+
+
+#Positive Case:
+#Test RNG operation for 12003 byte
+
+TEST_RNG_NON_PSA_AP028
+
+RANDOM_SIZE        12003           # Random Size
+EXPECTED_HSM_RESP  0x00        # HSM_NO_ERROR
+
+TEST_RNG_END
+
+
+#Positive Case:
+#Test RNG operation for 13003 byte
+
+TEST_RNG_NON_PSA_AP029
+
+RANDOM_SIZE        13003           # Random Size
+EXPECTED_HSM_RESP  0x00        # HSM_NO_ERROR
+
+TEST_RNG_END
+
+
+#Positive Case:
+#Test RNG operation for 14003 byte
+
+TEST_RNG_NON_PSA_AP030
+
+RANDOM_SIZE        14003           # Random Size
+EXPECTED_HSM_RESP  0x00        # HSM_NO_ERROR
+
+TEST_RNG_END
+
+
+#Positive Case:
+#Test RNG operation for 15003 byte
+
+TEST_RNG_NON_PSA_AP031
+
+RANDOM_SIZE        15003           # Random Size
+EXPECTED_HSM_RESP  0x00        # HSM_NO_ERROR
+
+TEST_RNG_END
+
+
+#Positive Case:
+#Test RNG operation for 16003 byte
+
+TEST_RNG_NON_PSA_AP032
+
+RANDOM_SIZE        16003           # Random Size
+EXPECTED_HSM_RESP  0x00        # HSM_NO_ERROR
+
+TEST_RNG_END
+
+
+##########################################################################
+
+
+TESTS_END
