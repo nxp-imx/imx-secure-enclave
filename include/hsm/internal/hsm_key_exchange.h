@@ -51,6 +51,24 @@ typedef enum {
 } hsm_op_key_derivation_algo_t;
 
 /**
+ * Enum describing TLS 1.2 Key Derivation algorithms supported
+ */
+typedef enum {
+	HSM_KEY_DERIVATION_TLS1_2_MASTER_SECRET_SHA256 = ALGO_TLS1_2_MASTER_SECRET_SHA256,
+	//!< TLS 1.2 Master Secret SHA256
+	HSM_KEY_DERIVATION_TLS1_2_MASTER_SECRET_SHA384 = ALGO_TLS1_2_MASTER_SECRET_SHA384,
+	//!< TLS 1.2 Master Secret SHA384
+	HSM_KEY_DERIVATION_TLS1_2_KEY_BLOCK_SHA256 = ALGO_TLS1_2_KEY_BLOCK_SHA256,
+	//!< TLS 1.2 Key Block SHA256
+	HSM_KEY_DERIVATION_TLS1_2_KEY_BLOCK_SHA384 = ALGO_TLS1_2_KEY_BLOCK_SHA384,
+	//!< TLS 1.2 Key Block SHA384
+	HSM_KEY_DERIVATION_TLS1_2_IV_SHA256 = ALGO_TLS1_2_IV_SHA256,
+	//!< TLS 1.2 IV SHA256
+	HSM_KEY_DERIVATION_TLS1_2_IV_SHA384 = ALGO_TLS1_2_IV_SHA384,
+	//!< TLS 1.2 IV SHA384
+} hsm_op_key_derivation_tls1_2_algo_t;
+
+/**
  * Enum describing TLS 1.3 Key Derivation algorithms supported
  */
 typedef enum {
@@ -174,6 +192,7 @@ typedef struct {
 	//!< bitmap specifying the operation properties
 } op_key_exchange_args_t;
 
+#ifndef PSA_COMPLIANT
 /**
  * This command is designed to compute secret keys through a key exchange
  * protocol and the use of a key derivation function. The resulting secret
@@ -299,6 +318,44 @@ typedef struct {
  *
  * \return error code
  */
+#else
+/**
+ * This command is designed to compute secrets through a key exchange protocol,
+ * and the use of key derivation function.
+ *
+ * This API support following use cases:
+ *      - Combined key agreement and key derivation operation
+ *          - This option is used to perform combined key agreement and key derivation op.
+ *          - Only symmetric keys can be created with this operation.
+ *
+ *      - TLS 1.2
+ *          - This option is used to derive TLS 1.2 secrets and IVs:
+ *            -- Master Secret
+ *            -- Client / Server write MAC keys
+ *            -- Client / Server write keys
+ *            -- Client / Server IVs
+ *
+ *      - TLS 1.3
+ *          - This option is used to derive:
+ *            -- Early Secrets
+ *            -- Handshake Secrets
+ *            -- Master Secrets
+ *
+ *      - HMAC-based Key Derivation Function
+ *          - This option is used to derive key using HKDF algorithm.
+ *          - It can be either the entire process, or either one specific step.
+ *            -- Step #1: Extract
+ *            -- Step #2: Expand
+ *
+ * User can call this function only after having opened a key management
+ * service flow.\n
+ *
+ * \param key_management_hdl handle identifying the key store management service flow
+ * \param args pointer to the structure containing the function arguments.
+ *
+ * \return error code
+ */
+#endif
 hsm_err_t hsm_key_exchange(hsm_hdl_t key_management_hdl,
 			   op_key_exchange_args_t *args);
 
@@ -386,18 +443,28 @@ hsm_err_t hsm_key_exchange(hsm_hdl_t key_management_hdl,
 #define HSM_OP_KEY_EXCHANGE_FLAGS_INPUT_SIGNED_CONTENT \
 	((hsm_op_key_exchange_flags_t)(0u << 0))
 //!< Input signed content
+
 #define HSM_OP_KEY_EXCHANGE_FLAGS_INPUT_PLAINTEXT_CONTENT \
 	((hsm_op_key_exchange_flags_t)(1u << 0))
 //!< Input plaintext content
+
+#define HSM_OP_KEY_EXCHANGE_FLAGS_RETURN_KEY_IDS \
+	((hsm_op_key_exchange_flags_t)(1u << 1))
+//!< Return the multiple derived key IDs as output buffer.
+//!< Flag only available for TLS 1.2 Key Block operation.
+
 #define HSM_OP_KEY_EXCHANGE_FLAGS_RETURN_OUTPUT \
 	((hsm_op_key_exchange_flags_t)(1u << 2))
 //!< Return the operation’s output as buffer (in plaintext)
+
 #define HSM_OP_KEY_EXCHANGE_FLAGS_SALT_ZERO \
 	((hsm_op_key_exchange_flags_t)(0u << 0))
 //!< Use zeros salt
+
 #define HSM_OP_KEY_EXCHANGE_FLAGS_SALT_PEER_PUBKEY_HASH \
 	((hsm_op_key_exchange_flags_t)(1u << 0))
 //!< Use peer public key hash salt
+
 #define HSM_OP_KEY_EXCHANGE_FLAGS_MONOTONIC \
 	((hsm_op_key_exchange_flags_t)(1u << 5))
 //!< When used in conjunction with STRICT flag, the request is completed only when
