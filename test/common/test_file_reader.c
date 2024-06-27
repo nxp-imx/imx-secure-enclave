@@ -200,6 +200,10 @@ static void tv_tests(hsm_hdl_t key_store_hdl, uint8_t *tv_file_path)
 	uint16_t tgc_acrypto_failed = 0;
 	uint16_t tgc_acrypto_invalid = 0;
 	uint16_t tgc_acrypto_total = 0;
+	uint16_t tenc_data_storage_passed = 0;
+	uint16_t tenc_data_storage_failed = 0;
+	uint16_t tenc_data_storage_invalid = 0;
+	uint16_t tenc_data_storage_total = 0;
 
 	char *line = NULL;
 	char *check_invalid = NULL;
@@ -337,6 +341,14 @@ static void tv_tests(hsm_hdl_t key_store_hdl, uint8_t *tv_file_path)
 							   &tgc_acrypto_invalid,
 							   &tgc_acrypto_total);
 #endif
+				/* ENC DATA STORAGE Test*/
+				if (memcmp(line, "TEST_ENC_DATA_STORAGE", 21) == 0)
+					enc_data_storage_test_tv
+						(key_store_hdl, fp, line,
+						 &tenc_data_storage_passed,
+						 &tenc_data_storage_failed,
+						 &tenc_data_storage_invalid,
+						 &tenc_data_storage_total);
 #endif
 				/* Load Peristent Key Details */
 				if (memcmp(line, "LOAD_PERSIST_KEY_INFO", 21) == 0)
@@ -444,6 +456,14 @@ static void tv_tests(hsm_hdl_t key_store_hdl, uint8_t *tv_file_path)
 		printf("TOTAL: %u, SUCCESS: %u, FAILED: %u, INVALID: %u",
 		       tgc_acrypto_total, tgc_acrypto_passed, tgc_acrypto_failed,
 		       tgc_acrypto_invalid);
+		printf("\n-------------------------------------------------------\n\n");
+	}
+
+	if (tenc_data_storage_total > 0) {
+		printf("TESTS REPORT ENC DATA STORAGE: ");
+		printf(" TOTAL: %u, SUCCESS: %u, FAILED: %u, INVALID: %u",
+		       tenc_data_storage_total, tenc_data_storage_passed,
+		       tenc_data_storage_failed, tenc_data_storage_invalid);
 		printf("\n-------------------------------------------------------\n\n");
 	}
 
