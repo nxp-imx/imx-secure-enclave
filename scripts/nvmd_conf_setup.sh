@@ -125,11 +125,10 @@ function usage()
     printf "\tNVMD_MU_SESSION_FLAG=NVM_FLAGS_SHE | NVM_FLAGS_V2X (3)\n\n"
 
     printf "Usage:\n"
-    printf "\t./nvmd_conf_setup.sh plat=PLATFORM config_id=NVM_CONFIG_ID\n"
+    printf "\t./nvmd_conf_setup.sh config_id=NVM_CONFIG_ID\n"
     printf "\t./nvmd_conf_setup.sh custom filename=FILE_PATH "
     printf "dir_name=DIR_PATH flag=FLAG_VALUE type=TYPE\n\n"
 
-    printf "\tPLATFORM: imx8dxlevk, imx95evk\n"
     printf "\tNVM_CONFIG_IDs:\n"
     printf "\t\t0 : Not Supported i.MX95\n"
     printf "\t\t1 : Not Supported i.MX95\n"
@@ -146,20 +145,16 @@ function usage()
 }
 
 
-if [[ $# -lt 2 ]]; then
+if [[ $# -lt 1 ]]; then
     usage
 fi
 
-opt_plat=
+opt_plat=$(cat /sys/devices/soc0/soc_id)
 opt_config_id=
 
 for arg in "$@"
 do
     case ${arg} in
-	plat=*)
-	    opt_plat="${arg#*=}"
-	    ;;
-
 	config_id=*)
 	     opt_config_id="${arg#*=}"
 	     ;;
@@ -181,11 +176,11 @@ done
 
 #based on platform (iMX8DXL/iMX95), choose function for NVM-D config update
 case ${opt_plat} in
-    imx8dxlevk)
+    i.MX8DXL)
         imx8dxlevk_nvmd_config ${opt_config_id}
         ;;
 
-    imx95evk)
+    i.MX95)
         imx95evk_nvmd_config ${opt_config_id}
         ;;
 
