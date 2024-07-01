@@ -158,8 +158,6 @@ HSM_PERF_TEST_OBJ= test/hsm/hsm_perf_test.c $(HSM_TEST_PERF_OBJ)
 TEST_CFLAGS = -Wno-deprecated-declarations $(CFLAGS)
 TEST_LDFLAGS = -L $(OPENSSL_PATH) -lcrypto $(LDFLAGS) -lcrypto -lpthread
 TEST_INCLUDE_PATHS = ${INCLUDE_PATHS} -I$(OPENSSL_PATH)/include
-TEST_LDFLAGS_MBEDTLS = -L ${MBEDTLS_PATH}/library -lmbedtls -lmbedx509 -lmbedcrypto
-TEST_INCLUDE_PATHS_MBEDTLS = -Itest/mbedtls/include -I${MBEDTLS_PATH}/include -I${MBEDTLS_PATH}/library
 
 $(HSM_TEST): $(HSM_TEST_OBJ) $(HSM_LIB)
 	$(CC) $^  -o $@ ${TEST_INCLUDE_PATHS} ${TEST_INCLUDE_PATHS_MBEDTLS} ${COMMON_TEST_INC} $(TEST_CFLAGS) $(TEST_LDFLAGS) $(TEST_LDFLAGS_MBEDTLS) $(GCOV_FLAGS)
