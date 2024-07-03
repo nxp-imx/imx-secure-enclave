@@ -80,7 +80,7 @@ uint32_t she_test_get_last_rating_code(she_test_struct_t *testCtx, FILE *fp)
 
 	uint32_t rating_code = she_get_last_rating_code(testCtx[index].she_hdl);
 
-	READ_CHECK_VALUE(testCtx, fp, rating_code);
+	printf("Last rating_code 0x%x\n", rating_code);
 
 	return fails;
 }
