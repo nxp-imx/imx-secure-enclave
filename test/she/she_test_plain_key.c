@@ -62,7 +62,7 @@ she_err_t she_export_plain_key_test(she_hdl_t utils_handle)
 	export_plain_key_args.m5_size = sizeof(m5);
 
 	err = she_export_plain_key(utils_handle, &export_plain_key_args);
-	if (err != SHE_KEY_EMPTY_RATING) {
+	if (err & err != SHE_KEY_EMPTY_RATING) {
 		se_err("Error[0x%x]: she_export_plain_key failed.\n", err);
 		return err;
 	}
