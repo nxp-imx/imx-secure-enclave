@@ -53,6 +53,16 @@ void hexdump_bb(uint8_t buf[], uint32_t size)
 #endif
 }
 
+void bytes_swap(uint8_t *ptr, uint32_t size)
+{
+	uint8_t tmp[size];
+
+	for (uint32_t i = 0; i < size; i++)
+		tmp[i] = ptr[size - 1 - i];
+
+	memcpy(ptr, tmp, size);
+}
+
 void word_byteswap(uint32_t *buf, uint32_t buf_len)
 {
 	int i = 0;

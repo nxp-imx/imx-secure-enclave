@@ -21,4 +21,6 @@ static uint8_t test_oem_srkh[32] = {
 	0xda, 0x4f, 0x80, 0x54,
 	0x61, 0x9f, 0xd0, 0xe8,
 };
+
+void bytes_swap(uint8_t *ptr, uint32_t size);
 #endif

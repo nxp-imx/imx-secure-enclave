@@ -8,6 +8,7 @@
 
 #include "hsm_api.h"
 #include "she_api.h"
+#include "test_utils.h"
 #include "test_key_exchange.h"
 
 #define DELETE	1
