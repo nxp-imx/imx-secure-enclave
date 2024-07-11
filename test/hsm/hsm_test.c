@@ -752,6 +752,8 @@ int main(int argc, char *argv[])
 	} else
 		printf("hsm_open_session PASS\n");
 
+	write_fuse(hsm_session_hdl);
+
 	print_global_info();
 	if (argc == 2 && (strcmp("--info", argv[1]) == 0 || strcmp("-i", argv[1]) == 0))
 		goto ginfo_out;

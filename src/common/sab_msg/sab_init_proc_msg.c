@@ -18,6 +18,10 @@
 #include "sab_dev_getinfo.h"
 #endif
 
+#if MT_SAB_DEV_WRITE_FUSE
+#include "sab_dev_write_fuse.h"
+#endif
+
 #if MT_SAB_DEV_ATTEST
 #include "sab_dev_attest.h"
 #endif
@@ -211,6 +215,15 @@ static int init_proc_sab_base_msg_engine(msg_type_t msg_type,
 				ret = add_sab_msg_handler(msg_id, MT_SAB_DEV_GETINFO,
 						prepare_msg_dev_getinfo,
 						proc_msg_rsp_dev_getinfo);
+			}
+			break;
+#endif
+#if MT_SAB_DEV_WRITE_FUSE
+		case ROM_DEV_WRITE_FUSE_REQ:
+			if (msg_type == MT_SAB_DEV_WRITE_FUSE) {
+				ret = add_sab_msg_handler(msg_id, MT_SAB_DEV_WRITE_FUSE,
+							  prepare_msg_dev_write_fuse,
+							  proc_msg_rsp_dev_write_fuse);
 			}
 			break;
 #endif
