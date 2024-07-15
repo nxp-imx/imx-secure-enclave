@@ -63,6 +63,8 @@ extern "C" {
 
 #include "internal/hsm_dev_getinfo.h"
 
+#include "internal/hsm_dev_write_fuse.h"
+
 #include "internal/hsm_lc_update.h"
 
 #include "internal/hsm_dev_attest.h"
