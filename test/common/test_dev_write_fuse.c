@@ -63,12 +63,11 @@ void write_fuse(hsm_hdl_t sess_hdl)
 	printf("Writing FUSES\n");
 	printf("---------------------------------------------------\n");
 
-#ifdef WRITE_SHE_KEYS
 	printf("Writing SHE_SECRET_KEY FUSE\n");
 	fuse_SHE_SECRET_key(sess_hdl);
 
 	printf("Writing PRNG_KEY\n");
 	fuse_PRNG_key(sess_hdl);
-#endif
+
 	printf("------------------------------------------------------\n");
 }
