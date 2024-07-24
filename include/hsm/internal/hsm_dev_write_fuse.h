@@ -19,22 +19,18 @@
  * Structure detailing the device write fuse operation member arguments
  */
 typedef struct {
-	uint16_t bit_pos;
-	//!< Fuse identifier expressed as its position in bit in the fuse map.
-	uint16_t bit_len;
-	//!< contains bit length and other fields.
-	uint32_t  payload1;
-	//!< payload1.
-	uint32_t  payload2;
-	//!< payload2.
-	uint32_t  payload3;
-	//!< payload3.
-	uint32_t  payload4;
-	//!< payload4.
 	uint16_t  processed_idx;
 	//!< Last processed fuse. Value is valid if != 0xffff
 	//!< In case of failure, it can indicate which fuse triggered the error.
 	//!< In case of success, it provide the last fused word index.
+	uint16_t word_pos;
+	//!< Fuse identifier expressed as its position in word in the fuse map.
+	uint16_t bit_pos;
+	//!< Fuse identifier expressed as its position in bit in the fuse map.
+	uint16_t bit_len;
+	//!< contains bit length.
+	uint32_t  payload[];
+	//!< payload.
 } op_dev_write_fuse_args_t;
 
 /**

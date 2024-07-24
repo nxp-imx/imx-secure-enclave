@@ -8,15 +8,13 @@
 
 #include "sab_msg_def.h"
 
+#define BITS_IN_WORD	32
+
 struct sab_cmd_dev_write_fuse_msg {
 	struct sab_mu_hdr hdr;
 	uint16_t bit_pos;
 	uint16_t bit_len;
-	uint32_t payload1;
-	uint32_t payload2;
-	uint32_t payload3;
-	uint32_t payload4;
-	uint32_t crc;
+	uint32_t payload[];
 };
 
 struct sab_cmd_dev_write_fuse_rsp {
