@@ -46,7 +46,7 @@ MT_SAB_ECIES		:=      ${FMW}
 MT_SAB_SM2_ECES		:=      ${FMW}
 MT_SAB_SM2_GET_Z	:=      ${FMW}
 MT_SAB_KEY_EXCHANGE	:=      ${FMW}
-MT_SAB_TLS_FINISH	:=      ${NOT_SUPPORTED}
+MT_SAB_TLS_FINISH	:=      ${FMW}
 MT_SAB_IMPORT_PUB_KEY	:=      ${NOT_SUPPORTED}
 
 # Below SHE APIs will be supported on i.mx8dxl only.

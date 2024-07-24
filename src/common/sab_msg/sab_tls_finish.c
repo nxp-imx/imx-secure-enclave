@@ -4,6 +4,7 @@
  */
 
 #include "internal/hsm_key_exchange.h"
+#include "internal/hsm_tls_finish.h"
 #include "sab_messaging.h"
 #include "plat_utils.h"
 
