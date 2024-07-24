@@ -8,7 +8,6 @@
 #include "test_common.h"
 #include "hsm_api.h"
 
-#ifdef PSA_COMPLIANT
 #define TEST_KEYSTORE_ID 0xABCD
 
 #define BITS_TO_BYTES(x) ((x) / 8u)
@@ -305,4 +304,3 @@ void key_exchange_test_hkdf_expand(hsm_hdl_t key_mgmt_hdl);
 
 /* Key Exchange - TLS 1.2 option tests */
 void key_exchange_test_tls1_2(hsm_hdl_t key_store_hdl, hsm_hdl_t key_mgmt_hdl);
-#endif

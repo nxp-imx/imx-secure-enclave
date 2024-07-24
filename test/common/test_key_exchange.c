@@ -95,28 +95,41 @@ static unsigned char signed_content_buf[736] = {
 	0x07, 0xe6, 0x44, 0x48
 };
 
+uint8_t ecc_p256_pubk[2 * 32] = {
+	0x1c, 0xcb, 0xe9, 0x1c, 0x07, 0x5f, 0xc7, 0xf4, 0xf0, 0x33, 0xbf, 0xa2, 0x48,
+	0xdb, 0x8f, 0xcc, 0xd3, 0x56, 0x5d, 0xe9, 0x4b, 0xbf, 0xb1, 0x2f, 0x3c, 0x59,
+	0xff, 0x46, 0xc2, 0x71, 0xbf, 0x83, 0xce, 0x40, 0x14, 0xc6, 0x88, 0x11, 0xf9,
+	0xa2, 0x1a, 0x1f, 0xdb, 0x2c, 0x0e, 0x61, 0x13, 0xe0, 0x6d, 0xb7, 0xca, 0x93,
+	0xb7, 0x40, 0x4e, 0x78, 0xdc, 0x7c, 0xcd, 0x5c, 0xa8, 0x9a, 0x4c, 0xa9
+};
+
 hsm_err_t key_exchange_test(hsm_hdl_t hsm_session_hdl,
 			    hsm_hdl_t key_store_hdl,
 			    hsm_hdl_t key_mgmt_hdl)
 {
-#ifdef PSA_COMPLIANT
 	hsm_err_t err = HSM_GENERAL_ERROR;
 	op_key_exchange_args_t key_exchange_args = {0};
+#ifdef PSA_COMPLIANT
 	op_generate_key_args_t key_gen_args = {0};
 	op_cipher_one_go_args_t cipher_args = {0};
 	uint8_t ciphertext[32] = {0};
 	uint8_t deciphered_data[32] = {0};
 	uint32_t key_id = KEY_EXCHANGE_PRIV_KEY_ID;
 	uint8_t pubkey1[64] = {0}; //Public Key for ECC 256
+#else
+	uint32_t key_id_drv = 0;
+	uint8_t work_area3[128] = {0};
+	int j;
+#endif
+	printf("\n------------------------------------------------\n");
+	printf("Key Exchange API Test:");
+	printf("\n------------------------------------------------\n");
 
+#ifdef PSA_COMPLIANT
 	memset(pubkey1, 0, sizeof(pubkey1));
 	memset(&key_gen_args, 0, sizeof(key_gen_args));
 	memset(&key_exchange_args, 0, sizeof(key_exchange_args));
 	memset(&cipher_args, 0, sizeof(cipher_args));
-
-	printf("\n------------------------------------------------\n");
-	printf("Key Exchange API Test:");
-	printf("\n------------------------------------------------\n");
 
 	//Generate Persistent Asymmetric Key Pair with Given Key ID
 	key_gen_args.key_identifier = &key_id;
@@ -187,11 +200,46 @@ hsm_err_t key_exchange_test(hsm_hdl_t hsm_session_hdl,
 		printf("\nDecrypted data matches Plaintext [PASS]\n");
 	else
 		printf("\nDecrypted data doesn't match Plaintext [FAIL]\n");
+#else
+	memset(&key_exchange_args, 0, sizeof(key_exchange_args));
 
+	key_exchange_args.key_identifier = 0;
+	key_exchange_args.shared_key_identifier_array = (uint8_t *)&key_id_drv;
+	key_exchange_args.ke_input = ecc_p256_pubk;
+	key_exchange_args.ke_output = work_area3;
+	key_exchange_args.kdf_input = 0;
+	key_exchange_args.kdf_output = 0;
+	key_exchange_args.shared_key_group = 32;
+	key_exchange_args.shared_key_info = HSM_KEY_INFO_KEK;
+	key_exchange_args.shared_key_type = HSM_KEY_TYPE_AES_256;
+	key_exchange_args.initiator_public_data_type = HSM_KEY_TYPE_ECDSA_NIST_P256;
+	key_exchange_args.key_exchange_scheme = HSM_KE_SCHEME_ECDH_NIST_P256;
+	key_exchange_args.kdf_algorithm = HSM_KDF_ONE_STEP_SHA_256;
+	key_exchange_args.ke_input_size = 64;
+	key_exchange_args.ke_output_size = 64;
+	key_exchange_args.shared_key_identifier_array_size = 4;
+	key_exchange_args.kdf_input_size = 0;
+	key_exchange_args.kdf_output_size = 0;
+	key_exchange_args.flags = HSM_OP_KEY_EXCHANGE_FLAGS_CREATE |
+				  HSM_OP_KEY_EXCHANGE_FLAGS_GENERATE_EPHEMERAL;
+	key_exchange_args.signed_message = NULL;
+	key_exchange_args.signed_msg_size = 0;
+
+	err = hsm_key_exchange(key_mgmt_hdl, &key_exchange_args);
+
+	printf("Receiver pubk:\n");
+	for (j = 0; j < 64; j++) {
+		printf("0x%02x ", work_area3[j]);
+		if (j % 16 == 15)
+			printf("\n");
+	}
+
+	printf("Derived key_id 0x%08x\n", key_id_drv);
+
+#endif
 	printf("\n------------------------------------------------\n");
 	printf("Test Complete");
 	printf("\n------------------------------------------------\n");
 out:
 	return err;
-#endif
 }
