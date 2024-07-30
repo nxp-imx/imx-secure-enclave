@@ -59,9 +59,12 @@ static struct global_info_s global_info;
 const char *get_soc_id_str(uint16_t soc_id)
 {
 	switch (soc_id) {
+#ifndef PSA_COMPLIANT
 	case SOC_IMX8DXL:
 		return "i.MX8DXL";
-#ifdef PSA_COMPLIANT
+	case SOC_IMX8QXP:
+		return "i.MX8QXP";
+#else
 	case SOC_IMX8ULP:
 		return "i.MX8ULP";
 	case SOC_IMX91:
@@ -85,8 +88,12 @@ const char *get_soc_rev_str(uint16_t soc_rev)
 		return "A1";
 	case SOC_REV_A2:
 		return "A2";
+#ifndef PSA_COMPLIANT
 	case SOC_REV_B0:
 		return "B0";
+	case SOC_REV_C0:
+		return "C0";
+#endif
 	default:
 		return "Unknown SoC Rev";
 	}

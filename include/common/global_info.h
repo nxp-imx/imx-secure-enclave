@@ -18,7 +18,10 @@
  *  @defgroup group31 Global Info
  *  @{
  */
+#ifndef PSA_COMPLIANT
+#define SOC_IMX8QXP 0x2
 #define SOC_IMX8DXL 0xe
+#endif
 #define SOC_IMX8ULP 0x84d
 #define SOC_IMX91   0x9100
 #define SOC_IMX93   0x9300
@@ -27,7 +30,10 @@
 #define SOC_REV_A0  0xa000
 #define SOC_REV_A1  0xa100
 #define SOC_REV_A2  0xa200
+#ifndef PSA_COMPLIANT
 #define SOC_REV_B0  0xb000
+#define SOC_REV_C0  0xc000
+#endif
 
 #define GINFO_LIB_VERSION_LEN        16
 #define GINFO_NVM_VERSION_LEN        16
