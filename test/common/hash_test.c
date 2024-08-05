@@ -126,6 +126,17 @@ static uint8_t SHA3_512_HASH[64] = {
 	0x3d, 0x4c, 0xa0, 0x38,
 };
 
+static uint8_t MD5_HASH[16] = {
+	0xea, 0xd8, 0x2d, 0x15, 0x6b, 0x37, 0x7c, 0xc9,
+	0x63, 0x48, 0x27, 0xdb, 0x90, 0xfc, 0x75, 0xc4,
+};
+
+static uint8_t SHA_1_HASH[20] = {
+	0x78, 0x0d, 0x63, 0x34, 0x36, 0xd2, 0x2b, 0x7a,
+	0xeb, 0x4a, 0x51, 0x6e, 0xd6, 0x06, 0x26, 0x1f,
+	0x1f, 0xe0, 0xc7, 0xe3,
+};
+
 static uint8_t SM3_HASH[32] = {
 	0x52, 0x1d, 0xa1, 0x93, 0x21, 0xcb, 0x3a, 0xfc, 0xb5, 0x13, 0x25, 0x45,
 	0x7f, 0x8f, 0x15, 0x89,	0xdc, 0x60, 0xfa, 0xf0, 0x87, 0xf2, 0xcf, 0x8f,
@@ -250,7 +261,7 @@ hsm_err_t do_hash_test(hsm_hdl_t hash_sess)
 
 	memset(hash_work_area, 0, sizeof(hash_work_area));
 #ifdef PSA_COMPLIANT
-	for (alg = HSM_HASH_ALGO_SHA_224; alg <= HSM_HASH_ALGO_SHA3_512; alg++) {
+	for (alg = HSM_HASH_ALGO_MD5; alg <= HSM_HASH_ALGO_SHA3_512; alg++) {
 #else
 	for (alg = HSM_HASH_ALGO_SHA_224; alg <= HSM_HASH_ALGO_SHA_512; alg++) {
 #endif
@@ -272,14 +283,26 @@ hsm_err_t do_hash_test(hsm_hdl_t hash_sess)
 			hash_size = 48;
 		else if (hash_args.algo == HSM_HASH_ALGO_SHA3_512)
 			hash_size = 64;
+		else if (hash_args.algo == HSM_HASH_ALGO_MD5)
+			hash_size = 16;
+		else if (hash_args.algo == HSM_HASH_ALGO_SHA_1)
+			hash_size = 20;
 
 		/**
-		 * When SHA-2 HASH algorithms tests finished, starting the next
-		 * sequence for SHA-3 HASH algos.
+		 * Starting the next sequences of HASH algos.
 		 * -1 is due to increment of algo value in each run of the loop
 		 */
 		if (hash_args.algo == HSM_HASH_ALGO_SHA_512)
 			alg = HSM_HASH_ALGO_SHA3_224 - 1;
+		else if (hash_args.algo == HSM_HASH_ALGO_MD5)
+			alg = HSM_HASH_ALGO_SHA_1 - 1;
+		else if (hash_args.algo == HSM_HASH_ALGO_SHA_1)
+			alg = HSM_HASH_ALGO_SHA_224 - 1;
+
+		if (se_get_soc_id() == SOC_IMX8ULP &&
+		    (hash_args.algo == HSM_HASH_ALGO_MD5 ||
+		     hash_args.algo == HSM_HASH_ALGO_SHA_1))
+			continue;
 #endif
 		hash_args.output_size = hash_size;
 		hash_args.output = hash_work_area;
@@ -318,6 +341,12 @@ hsm_err_t do_hash_test(hsm_hdl_t hash_sess)
 		else if (hash_args.algo == HSM_HASH_ALGO_SHA3_512)
 			test_status(SHA3_512_HASH, hash_work_area,
 				    sizeof(SHA3_512_HASH), "HSM_HASH_ALGO_SHA3_512");
+		else if (hash_args.algo == HSM_HASH_ALGO_MD5)
+			test_status(MD5_HASH, hash_work_area,
+				    sizeof(MD5_HASH), "HSM_HASH_ALGO_MD5");
+		else if (hash_args.algo == HSM_HASH_ALGO_SHA_1)
+			test_status(SHA_1_HASH, hash_work_area,
+				    sizeof(SHA_1_HASH), "HSM_HASH_ALGO_SHA_1");
 
 		if (se_get_soc_id() == SOC_IMX8ULP &&
 		    hash_args.algo == HSM_HASH_ALGO_SHA_512)
@@ -358,7 +387,7 @@ hsm_err_t do_hash_stream_test(hsm_hdl_t hash_sess)
 
 	memset(hash_work_area, 0, sizeof(hash_work_area));
 #ifdef PSA_COMPLIANT
-	for (alg = HSM_HASH_ALGO_SHA_224; alg <= HSM_HASH_ALGO_SHA3_512; alg++) {
+	for (alg = HSM_HASH_ALGO_MD5; alg <= HSM_HASH_ALGO_SHA3_512; alg++) {
 #else
 	for (alg = HSM_HASH_ALGO_SHA_224; alg <= HSM_HASH_ALGO_SHA_512; alg++) {
 #endif
@@ -380,14 +409,26 @@ hsm_err_t do_hash_stream_test(hsm_hdl_t hash_sess)
 			hash_size = 48;
 		else if (hash_args.algo == HSM_HASH_ALGO_SHA3_512)
 			hash_size = 64;
+		else if (hash_args.algo == HSM_HASH_ALGO_MD5)
+			hash_size = 16;
+		else if (hash_args.algo == HSM_HASH_ALGO_SHA_1)
+			hash_size = 20;
 
 		/**
-		 * When SHA-2 HASH algorithms tests finished, starting the next
-		 * sequence for SHA-3 HASH algos.
+		 * Starting the next sequences of HASH algos.
 		 * -1 is due to increment of algo value in each run of the loop
 		 */
 		if (hash_args.algo == HSM_HASH_ALGO_SHA_512)
 			alg = HSM_HASH_ALGO_SHA3_224 - 1;
+		else if (hash_args.algo == HSM_HASH_ALGO_MD5)
+			alg = HSM_HASH_ALGO_SHA_1 - 1;
+		else if (hash_args.algo == HSM_HASH_ALGO_SHA_1)
+			alg = HSM_HASH_ALGO_SHA_224 - 1;
+
+		if (se_get_soc_id() == SOC_IMX8ULP &&
+		    (hash_args.algo == HSM_HASH_ALGO_MD5 ||
+		     hash_args.algo == HSM_HASH_ALGO_SHA_1))
+			continue;
 #endif
 		hash_args.svc_flags = HSM_HASH_FLAG_GET_CONTEXT;
 		err = hsm_do_hash(hash_sess, &hash_args);
@@ -469,6 +510,12 @@ hsm_err_t do_hash_stream_test(hsm_hdl_t hash_sess)
 		else if (hash_args.algo == HSM_HASH_ALGO_SHA3_512)
 			test_status(SHA3_512_HASH, hash_work_area,
 				    sizeof(SHA3_512_HASH), "HSM_HASH_ALGO_SHA3_512");
+		else if (hash_args.algo == HSM_HASH_ALGO_MD5)
+			test_status(MD5_HASH, hash_work_area,
+				    sizeof(MD5_HASH), "HSM_HASH_ALGO_MD5");
+		else if (hash_args.algo == HSM_HASH_ALGO_SHA_1)
+			test_status(SHA_1_HASH, hash_work_area,
+				    sizeof(SHA_1_HASH), "HSM_HASH_ALGO_SHA_1");
 
 		if (se_get_soc_id() == SOC_IMX8ULP &&
 		    hash_args.algo == HSM_HASH_ALGO_SHA_512)
