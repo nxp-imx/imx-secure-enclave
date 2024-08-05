@@ -26,9 +26,9 @@
 
 char ELE_MU_HSM_PATH_PRIMARY[] = "/dev/hsm1_ch0";
 // This device is for HSM1 channel 0 on SE, best effort high priority.
-char ELE_MU_HSM_NVM_PATH[] = "/dev/hsm1_ch1";
+char ELE_MU_HSM_NVM_PATH[] = "/dev/hsm1_ch0";
 // This device is for HSM NVM channel on SE.
-char ELE_MU_HSM_PATH_SECONDARY[] = "/dev/hsm1_ch2";
+char ELE_MU_HSM_PATH_SECONDARY[] = "/dev/hsm1_ch0";
 // This device is for HSM1 channel 2 on SE, best effort high priority.
 
 /* Open a session and returns a pointer to the handle or NULL in case of error.
