@@ -51,7 +51,8 @@ she_err_t she_verify_mac_test(she_hdl_t utils_handle)
 		return SHE_GENERAL_ERROR;
 	}
 
-	if (!she_v2x_mu) {
+	if (se_get_soc_id() == SOC_IMX8QXP ||
+	    (se_get_soc_id() == SOC_IMX8DXL && se_get_board_type() == IMX8DXL_DL1)) {
 		memset(&verify_mac_args, 0, sizeof(verify_mac_args));
 		verify_mac_args.key_ext = 0x00;
 		verify_mac_args.key_id = SHE_KEY_1;
@@ -127,7 +128,8 @@ she_err_t she_generate_mac_test(she_hdl_t utils_handle)
 
 	se_print("SHE GENERATE FAST MAC (16 BYTES) --> PASSED\n");
 
-	if (!she_v2x_mu) {
+	if (se_get_soc_id() == SOC_IMX8QXP ||
+	    (se_get_soc_id() == SOC_IMX8DXL && se_get_board_type() == IMX8DXL_DL1)) {
 		memset(&generate_mac_args, 0, sizeof(generate_mac_args));
 		generate_mac_args.key_ext = 0x00;
 		generate_mac_args.key_id = SHE_KEY_5;

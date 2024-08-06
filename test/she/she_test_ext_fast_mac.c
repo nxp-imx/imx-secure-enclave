@@ -111,7 +111,8 @@ she_err_t she_ext_verify_mac_test(she_hdl_t utils_handle)
 	else
 		se_print("SHE EXT VERIFY FAST MAC TEST (9 BYTES) --> FAILED\n");
 
-	if (!she_v2x_mu) {
+	if (se_get_soc_id() == SOC_IMX8QXP ||
+	    (se_get_soc_id() == SOC_IMX8DXL && se_get_board_type() == IMX8DXL_DL1)) {
 		memset(&verify_mac_args, 0, sizeof(verify_mac_args));
 		verify_mac_args.key_ext = 0x00;
 		verify_mac_args.key_id = SHE_RAM_KEY;
@@ -132,6 +133,7 @@ she_err_t she_ext_verify_mac_test(she_hdl_t utils_handle)
 		else
 			se_print("SHE EXT VERIFY FAST MAC TEST (7 BYTES) --> FAILED\n");
 	}
+
 	return err;
 }
 
@@ -145,7 +147,7 @@ she_err_t do_she_ext_fast_mac_test(she_hdl_t utils_handle)
 	else
 		se_print("EXT VERIFY FAST MAC TEST ---> PASSED\n\n");
 
-	if (she_v2x_mu) {
+	if (se_get_soc_id() != SOC_IMX8DXL) {
 		err = she_ext_verify_fast_mac_mubuff_v2_test(utils_handle);
 		if (err)
 			se_print("EXT VERIFY FAST MAC TEST MUBUFF V2 ---> FAILED\n\n");

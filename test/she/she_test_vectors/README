@@ -13,7 +13,9 @@ Current directory structure of she_test_vectors is:
 she_test_vectors:
 	- common : contain test vectors for API common for both seco and v2x
 	- README
-	- v2x : contain test vectors for API specific to v2x
+	- v2x : contain test vectors for API specific to v2x.
+	  Currently it contains test vectors for FAST MAC MUBUFF V2 API
+	  which are not applicable for i.MX8DXL DL3 board.
 	- seco : (will be added later for seco specific API test vectors)
 
 common:
@@ -44,9 +46,45 @@ We can keep session commands in same TV file also.
 
 Test Vector Execution:
 ---------------------
+V2X:
 Two options are provided for executing the TVs:
 	- by giving TV file name e.g.
 		v2x_she_test file1.shx file2.shx
 
 	- Execute all TVs in one go e.g.
-		v2x_she_test
+		v2x_she_test -a
+
+SECO:
+Two options are provided for executing the TVs:
+	- by giving TV file name e.g.
+		seco_she_test file1.shx file2.shx
+
+	- Execute all TVs in one go e.g.
+		seco_she_test -a
+
+
+Replace MU TYPE in Test Vector files:
+----------------------------------
+
+We have following supported SHE MU TYPE:
+___________________________________________________________________________________________________________________________
+|MU TYPE| Description												           |
+|_______|__________________________________________________________________________________________________________________|
+|   5   | SHE MU on V2X												           |
+|   6   | SHE MU on SECO												   |
+|   8   | SHE1 MU on V2X (applicable for i.MX95 board.                                                                     |
+|       |    (NXP internal Users only.)                                                                                    |
+|       |	Please follow below page to enable SHE1 in linux:                                                          |
+|       |	https://confluence.sw.nxp.com/display/EPSTEC/i.MX95%3A+Steps+To+Enable+SHE1+AKA+SV1+and+SHE+NVM+on+DEBUG+MU|
+|_______|__________________________________________________________________________________________________________________|
+
+By default, test vectors for SHE (test/she/she_test_vectors/), runs for MU_TYPE = 5.
+If you want to run for other MU type, Ensure:
+	- to change MU_TYPE in all the test-vector to correct value
+		e.g. replace MU_TYPE 5 with MU_TYPE 6
+			find ./ -type f | xargs sed -i 's/5 # MU_TYPE/6 # MU_TYPE/g'
+	- board type should support intended MU_TYPE.
+
+User application can refer:
+get_supported_mu() in test/she/she_test_common.c file for reference implementation about MU_TYPE.
+

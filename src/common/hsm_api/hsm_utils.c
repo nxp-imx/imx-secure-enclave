@@ -343,7 +343,8 @@ void se_get_info(uint32_t session_hdl, op_get_info_args_t *args)
 
 void se_get_soc_info(uint32_t session_hdl,
 		     uint16_t *soc_id,
-		     uint16_t *soc_rev)
+		     uint16_t *soc_rev,
+		     uint8_t *board_type)
 {
 #ifdef PSA_COMPLIANT
 	hsm_err_t err;
@@ -382,7 +383,8 @@ void se_get_soc_info(uint32_t session_hdl,
 	if (s_ptr)
 		ret = plat_os_abs_get_soc_info(s_ptr->phdl,
 					       soc_id,
-					       soc_rev);
+					       soc_rev,
+					       board_type);
 	if (!s_ptr || ret != PLAT_SUCCESS)
 		se_err("Global Info: failed to get SoC info.\n");
 #endif

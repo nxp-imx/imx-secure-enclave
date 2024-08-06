@@ -141,7 +141,7 @@ void execute_tests(int session_id, int key_session_id)
 		return;
 	}
 
-	if (she_v2x_mu) {
+	if (se_get_soc_id() != SOC_IMX8DXL && se_get_soc_id() != SOC_IMX8QXP) {
 		err = do_she_fast_mac_mubuff_v2_test(utils_args[i].utils_handle);
 		if (err) {
 			se_print("Error[0x%x]: MAC V2 test Failed.\n", err);
@@ -188,12 +188,47 @@ void close_services(int key_session_id)
 		she_close_key_store_service(key_store_args[i].key_store_hdl);
 }
 
+/* return the supported MU type on board */
+int8_t get_supported_mu(void)
+{
+	struct she_session_hdl_s *hdl = NULL;
+	uint32_t err;
+	uint8_t board_type = 0;
+
+	open_session_args_t open_session_args = {0};
+
+	/* Open HSM session on V2X */
+	open_session_args.mu_type = V2X_SV0;
+	err = open_session(&open_session_args, &hdl);
+	if (err) {
+		printf("open_session failed for HSM (V2X), err:0x%x\n", err);
+		return -1;
+	}
+
+	populate_global_info(open_session_args.session_hdl);
+	if (se_get_soc_id() != SOC_IMX8DXL &&
+	    se_get_soc_id() != SOC_IMX8QXP)
+		return V2X_SHE;
+
+	she_close_session(open_session_args.session_hdl);
+
+	if (se_get_board_type() == IMX8DXL_DL1)
+		return SHE1;
+	if (se_get_board_type() == IMX8DXL_DL3)
+		return V2X_SHE;
+	else
+		return -1;
+
+	return SHE1;
+}
+
 /* Test entry function. */
 void she_tests(uint8_t session_id,
+	       uint8_t mu_type,
 	       uint8_t num_of_keystores,
 	       uint8_t shared_keystore)
 {
-	open_session_args_t open_session_args;
+	open_session_args_t open_session_args = {0};
 
 	if (session_id > 1) {
 		printf("supported SHE session id : 0, 1\n");
@@ -224,11 +259,7 @@ void she_tests(uint8_t session_id,
 		return;
 	}
 
-	if (session_id)
-		/* Open SHE1 session */
-		open_session_args.mu_type = V2X_SV1;
-	else
-		open_session_args.mu_type = SHE1;
+	open_session_args.mu_type = mu_type;
 
 	err = she_open_session(&open_session_args, &session_hdl);
 	if (err != SHE_NO_ERROR) {

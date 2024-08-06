@@ -120,17 +120,6 @@ struct plat_os_abs_hdl *plat_os_abs_open_mu_channel(uint32_t type, struct plat_m
 				plat_os_abs_free(phdl);
 				phdl = NULL;
 			}
-		} else if (type == SHE1) {
-			/* on boards where SHE is on V2X, open() will fail on non-V2X
-			 * MU Type, so try opening V2X here e.g. i.MX95
-			 */
-			type = V2X_SHE;
-			device_path = V2X_MU_SHE_PATH;
-			phdl->fd = open(device_path, O_RDWR);
-			if (phdl->fd < 0) {
-				plat_os_abs_free(phdl);
-				phdl = NULL;
-			}
 		} else {
 			plat_os_abs_free(phdl);
 			phdl = NULL;
@@ -458,12 +447,13 @@ out:
 
 uint32_t plat_os_abs_get_soc_info(struct plat_os_abs_hdl *phdl,
 				  uint16_t *soc_id,
-				  uint16_t *soc_rev)
+				  uint16_t *soc_rev,
+				  uint8_t *board_type)
 {
 	struct seco_mu_ioctl_get_soc_info soc_info;
 	int32_t ret = PLAT_SUCCESS;
 
-	if (!phdl || !soc_id || !soc_rev) {
+	if (!phdl || !soc_id || !soc_rev || !board_type) {
 		ret = PLAT_FAILURE;
 		goto out;
 	}
@@ -478,6 +468,7 @@ uint32_t plat_os_abs_get_soc_info(struct plat_os_abs_hdl *phdl,
 
 	*soc_id = soc_info.soc_id;
 	*soc_rev = soc_info.soc_rev;
+	*board_type = soc_info.board_type;
 out:
 	return TO_UINT32_T(ret);
 }

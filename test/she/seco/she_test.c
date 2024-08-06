@@ -12,46 +12,47 @@
 static void she_test_usage(void)
 {
 	printf("------------------------------------------------------------------\n");
-	printf("she_test can be used to run:\n");
+	printf("seco_she_test can be used to run:\n");
 	printf("- functional tests\n");
 	printf("- Specific SHE test vectors\n");
 	printf("- All SHE test vectors\n");
 	printf("\nFor running SHE functional tests:\n");
-	printf("she_test [options]\n");
-	printf("1: <Choose SHE session Identifier, (0)>\n");
-	printf("2: <Count of keystores to open, (<=1, Max)>\n");
-	printf("3: <Count of Key Stores to be opened as Shared, (0)\n");
+	printf("seco_she_test\n");
 	printf("\nFor running SHE test vectors:\n");
-	printf("she_test file1.shx file2.shx ....\n");
+	printf("seco_she_test file1.shx file2.shx ....\n");
 	printf("\nFor running All SHE test vectors:\n");
-	printf("she_test\n");
+	printf("seco_she_test -a\n");
 	printf("------------------------------------------------------------------\n");
 }
 
 /* Test entry function. */
 int main(int argc, char *argv[])
 {
-	uint8_t session_id;
-	uint8_t num_of_keystores;
-	uint8_t shared_keystore;
+	int8_t supported_mu;
 
-	if (argc == 1) {
-		shx_tests_run();
+	supported_mu = get_supported_mu();
+
+	if (supported_mu == V2X_SHE) {
+		printf("WARNING: SECO in FIPS mode, cannot open SHE session\n");
+		return 0;
+	} else if (supported_mu != SHE1) {
+		printf("WARNING: SECO, V2X in FIPS mode, cannot open SHE session\n");
 		return 0;
 	}
+
+	if (argc == 1) {
+		she_tests(0, SHE1, 1, 0);
+		return 0;
+	}
+
 	if (argc == 2 &&
 	    (strcmp("--help", argv[1]) == 0 || strcmp("-h", argv[1]) == 0)) {
 		she_test_usage();
 		return 0;
 	}
 
-	if (argc == 4 && isdigit(argv[1][0])) {
-		session_id = atoi(argv[1]);
-		num_of_keystores = atoi(argv[2]);
-		shared_keystore = atoi(argv[3]);
-
-		she_tests(session_id, num_of_keystores, shared_keystore);
-
+	if (argc == 2 && strcmp("-a", argv[1]) == 0) {
+		shx_tests_run();
 		return 0;
 	}
 

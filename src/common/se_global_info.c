@@ -24,6 +24,8 @@ struct global_info_s {
 	//!< SoC ID
 	uint16_t soc_rev;
 	//!< SoC Revision
+	uint8_t board_type;
+	//!< board type
 	uint16_t lifecycle;
 	//!< Device Lifecycle
 	uint8_t fips_mode;
@@ -189,7 +191,10 @@ void populate_global_info(uint32_t session_hdl)
 	op_get_info_args_t getinfo_args = {0};
 
 	plat_os_abs_memset((uint8_t *)&global_info, 0, sizeof(global_info));
-	se_get_soc_info(session_hdl, &global_info.soc_id, &global_info.soc_rev);
+	se_get_soc_info(session_hdl,
+			&global_info.soc_id,
+			&global_info.soc_rev,
+			&global_info.board_type);
 #ifdef PSA_COMPLIANT
 	if ((global_info.soc_id == SOC_IMX93 && global_info.soc_rev == SOC_REV_A1) ||
 	    global_info.soc_id == SOC_IMX91 || global_info.soc_id == SOC_IMX95)
@@ -260,6 +265,11 @@ uint8_t hsm_get_dev_attest_api_ver(void)
 	return global_info.ver;
 }
 #endif
+
+uint8_t se_get_board_type(void)
+{
+	return global_info.board_type;
+}
 
 uint16_t se_get_soc_id(void)
 {

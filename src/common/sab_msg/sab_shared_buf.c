@@ -1,6 +1,6 @@
 // SPDX-License-Identifier: BSD-3-Clause
 /*
- * Copyright 2023 NXP
+ * Copyright 2023-2024 NXP
  */
 
 #include "sab_messaging.h"
@@ -17,7 +17,7 @@ uint32_t prepare_msg_shared_buf(void *phdl,
 				uint32_t msg_hdl,
 				void *args)
 {
-	uint32_t ret = SAB_ENGN_PASS;
+	uint32_t ret = SAB_LIB_STATUS(SAB_LIB_CMD_MSG_PREP_FAIL);
 	struct sab_cmd_shared_buf_msg *cmd =
 		(struct sab_cmd_shared_buf_msg *)cmd_buf;
 
@@ -26,7 +26,7 @@ uint32_t prepare_msg_shared_buf(void *phdl,
 	*cmd_msg_sz = sizeof(struct sab_cmd_shared_buf_msg);
 	*rsp_msg_sz = sizeof(struct sab_cmd_shared_buf_rsp);
 
-	return ret;
+	return SAB_LIB_STATUS(SAB_LIB_SUCCESS);
 }
 
 uint32_t proc_msg_rsp_shared_buf(void *rsp_buf, void *args)

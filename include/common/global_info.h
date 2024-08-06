@@ -11,9 +11,6 @@
 
 #include "get_info.h"
 
-// Bit map for global info flag
-#define SHE_ON_V2X 0x1
-
 /**
  *  @defgroup group31 Global Info
  *  @{
@@ -21,6 +18,9 @@
 #ifndef PSA_COMPLIANT
 #define SOC_IMX8QXP 0x2
 #define SOC_IMX8DXL 0xe
+#define IMX8DXL_DL1    0x1
+#define IMX8DXL_DL2    0x2
+#define IMX8DXL_DL3    0x4
 #endif
 #define SOC_IMX8ULP 0x84d
 #define SOC_IMX91   0x9100
@@ -119,6 +119,11 @@ bool is_global_info_populated(void);
  */
 uint8_t hsm_get_dev_attest_api_ver(void);
 #endif
+
+/**
+ * Get board type.
+ */
+uint8_t se_get_board_type(void);
 
 /**
  * Get SoC ID.
@@ -221,7 +226,8 @@ void se_get_info(uint32_t session_hdl,
 /**
  * Get SoC Info for Global Info setup
  */
-void se_get_soc_info(uint32_t session_hdl, uint16_t *soc_id, uint16_t *soc_rev);
+void se_get_soc_info(uint32_t session_hdl, uint16_t *soc_id,
+		     uint16_t *soc_rev, uint8_t *board_type);
 
 /**
  * Get Global Info flags

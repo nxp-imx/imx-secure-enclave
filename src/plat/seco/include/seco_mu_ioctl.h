@@ -39,6 +39,7 @@ struct seco_mu_ioctl_signed_message {
 struct seco_mu_ioctl_get_soc_info {
 	uint16_t soc_id;
 	uint16_t soc_rev;
+	uint8_t  board_type;
 };
 
 struct seco_time_frame {

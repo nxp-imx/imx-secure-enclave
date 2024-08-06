@@ -9,8 +9,6 @@
 #include "she_api.h"
 #include "sab_process_msg.h"
 
-uint8_t she_v2x_mu;
-
 she_err_t she_close_session(she_hdl_t session_hdl)
 {
 	struct she_session_hdl_s *hdl;
@@ -50,9 +48,48 @@ she_err_t she_close_session(she_hdl_t session_hdl)
 	return err;
 }
 
+static she_err_t get_shared_buff(struct she_session_hdl_s *hdl)
+{
+	op_shared_buf_args_t buf_args = {'\0'};
+	she_err_t err = SHE_GENERAL_ERROR;
+	uint32_t lib_err;
+	uint32_t rsp_code = SAB_NO_MESSAGE_RATING;
+
+	lib_err = process_sab_msg(hdl->phdl,
+				  hdl->mu_type,
+				  SAB_SHARED_BUF_REQ,
+				  MT_SAB_SHARED_BUF,
+				  hdl->session_hdl,
+				  &buf_args, &rsp_code);
+
+	err = lib_err_to_she_err(lib_err);
+	if (err != SHE_NO_ERROR)
+		return err;
+
+	err = sab_rating_to_she_err(rsp_code, hdl->phdl);
+	if (err != SHE_NO_ERROR) {
+		se_err("SHE RSP Error: SAB_SHARED_BUF_REQ [0x%x].\n", err);
+		return err;
+	}
+
+	se_print("Get shared buffer 0x%x : 0x%x\n",
+		 buf_args.shared_buf_offset, buf_args.shared_buf_size);
+
+	/* Configure the shared buffer. */
+	lib_err = plat_os_abs_configure_shared_buf_v2(hdl->phdl,
+						      buf_args.shared_buf_offset,
+						      buf_args.shared_buf_size);
+
+	err = plat_err_to_she_err(SAB_SHARED_BUF_REQ,
+				  lib_err, SHE_RESPONSE);
+	if (err != SHE_NO_ERROR)
+		return err;
+
+	return err;
+}
+
 she_err_t open_session(open_session_args_t *args,
-		       struct she_session_hdl_s **hdl,
-		       uint32_t mu_type)
+		       struct she_session_hdl_s **hdl)
 {
 	struct plat_mu_params mu_params = {'\0'};
 	struct she_session_hdl_s *thdl = NULL;
@@ -67,14 +104,11 @@ she_err_t open_session(open_session_args_t *args,
 	plat_os_abs_memset((uint8_t *)thdl, 0u,
 			   (uint32_t)sizeof(struct she_session_hdl_s));
 	/* Open the SHE session on the MU */
-	thdl->phdl = plat_os_abs_open_mu_channel(mu_type, &mu_params);
+	thdl->phdl = plat_os_abs_open_mu_channel(args->mu_type, &mu_params);
 	if (!thdl->phdl)
 		return err;
 
-	/* On some platform, SHE can run on Secure-enclave FW,
-	 * rather than V2X FW
-	 */
-	thdl->mu_type = thdl->phdl->type;
+	thdl->mu_type = args->mu_type;
 #ifndef PSA_COMPLIANT
 	args->mu_id = mu_params.mu_id;
 	args->tz = mu_params.tz;
@@ -113,87 +147,49 @@ she_err_t she_open_session(open_session_args_t *args, she_hdl_t *session_hdl)
 	struct she_session_hdl_s *hdl = NULL;
 	she_err_t err = SHE_GENERAL_ERROR;
 	uint32_t sab_err, ret;
-	bool is_she_on_v2x = false;
-	op_get_info_args_t info_args = {'\0'};
-	op_shared_buf_args_t buf_args = {'\0'};
 	uint32_t rsp_code = SAB_NO_MESSAGE_RATING;
 
 	do {
 		if (!args || !session_hdl)
 			break;
 
-		err = open_session(args, &hdl, args->mu_type);
+		/*
+		 * global information will be populated after opening session
+		 * This is a precautionary check and will be executed if more than
+		 * open session will be opened.
+		 */
+		if (is_global_info_populated()) {
+			if (se_get_soc_id() == SOC_IMX8DXL) {
+				if (se_get_board_type() == IMX8DXL_DL3 &&
+				    args->mu_type != V2X_SHE) {
+					se_print("Incorrect MU Type %d\n", args->mu_type);
+					return err;
+				} else if (se_get_board_type() == IMX8DXL_DL1 &&
+					   args->mu_type != SHE1) {
+					se_print("Incorrect MU Type %d\n", args->mu_type);
+					return err;
+				} else if (se_get_board_type() == IMX8DXL_DL2) {
+					se_print("DL2 board:SHE session can not open\n");
+					return err;
+				}
+			}
+		}
+
+		err = open_session(args, &hdl);
 		if (err != SHE_NO_ERROR)
 			break;
-		err = she_get_info(hdl->session_hdl, &info_args);
-		if (err != SHE_NO_ERROR) {
-			se_err("SHE Error: Failed to get SHE info 0x%x\n", err);
-			break;
-		}
-
-		if (info_args.fips_mode & 0x01) {
-			she_close_session(hdl->session_hdl);
-
-			err = open_session(args, &hdl, V2X_SHE);
-			if (err != SHE_NO_ERROR)
-				break;
-		/* i.MX8DXL DL3 Board is SECO FIPS
-		 * SHE session on V2X
-		 */
-			is_she_on_v2x = true;
-		}
-
-		args->session_hdl = hdl->session_hdl;
-		*session_hdl = hdl->session_hdl;
 
 		//populate Global Info structure
 		if (err == SHE_NO_ERROR && !is_global_info_populated())
 			populate_global_info(args->session_hdl);
 
+		args->session_hdl = hdl->session_hdl;
+		*session_hdl = hdl->session_hdl;
 
-		if (se_get_soc_id() != SOC_IMX8DXL)
-			is_she_on_v2x = true;
-
-		if (is_she_on_v2x) {
-			set_global_info_flags(SHE_ON_V2X);
-			she_v2x_mu = 1;
-		}
-
-		if (!(get_global_info_flags() & SHE_ON_V2X)) {
+		if (se_get_soc_id() == SOC_IMX8DXL &&
+		    se_get_board_type() == IMX8DXL_DL1) {
 			/* Get a SECURE RAM partition to be used as shared buffer */
-			sab_err = process_sab_msg(hdl->phdl,
-						  hdl->mu_type,
-						  SAB_SHARED_BUF_REQ,
-						  MT_SAB_SHARED_BUF,
-						  hdl->session_hdl,
-						  &buf_args, &rsp_code);
-
-			err = sab_rating_to_she_err(sab_err, hdl->phdl);
-			if (err != SHE_NO_ERROR) {
-				se_err("SHE Error: SAB_SHARED_BUF_REQ [0x%x].\n", err);
-				break;
-			}
-
-			err = sab_rating_to_she_err(rsp_code, hdl->phdl);
-			if (err != SHE_NO_ERROR) {
-				se_err("SHE RSP Error: SAB_SHARED_BUF_REQ [0x%x].\n",
-				       err);
-				break;
-			}
-			se_print("Get shared buffer 0x%x : 0x%x\n",
-				 buf_args.shared_buf_offset, buf_args.shared_buf_size);
-			/* Configure the shared buffer. */
-			ret = plat_os_abs_configure_shared_buf_v2
-					(hdl->phdl,
-					 buf_args.shared_buf_offset,
-					 buf_args.shared_buf_size);
-
-			err = plat_err_to_she_err(SAB_SHARED_BUF_REQ,
-						  ret,
-						  SHE_RESPONSE);
-			if (err != SHE_NO_ERROR)
-				break;
-
+			err = get_shared_buff(hdl);
 		}
 	} while (false);
 

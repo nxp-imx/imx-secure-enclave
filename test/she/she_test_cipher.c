@@ -1,6 +1,6 @@
 // SPDX-License-Identifier: BSD-3-Clause
 /*
- * Copyright 2023 NXP
+ * Copyright 2023-2024 NXP
  */
 
 #include <string.h>
@@ -155,11 +155,14 @@ she_err_t do_she_cipher_test(she_hdl_t cipher_handle)
 	else
 		se_print("CBC CIPHER TEST ---> PASSED\n");
 
-	err = she_ecb_test(cipher_handle);
-	if (err)
-		se_print("ECB CIPHER TEST ---> FAILED\n");
-	else
-		se_print("ECB CIPHER TEST ---> PASSED\n");
+	/* LF-9913 : SHE: System hang when ECB cipher test failed */
+	if (se_get_board_type() != IMX8DXL_DL3) {
+		err = she_ecb_test(cipher_handle);
+		if (err)
+			se_print("ECB CIPHER TEST ---> FAILED\n");
+		else
+			se_print("ECB CIPHER TEST ---> PASSED\n");
+	}
 
 	return err;
 }

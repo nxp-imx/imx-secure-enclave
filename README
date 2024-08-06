@@ -408,7 +408,8 @@ V2X-SHE Test:
 	service nvm_daemon_v2x start;
 	service nvm_daemon_v2x status;
 	v2x_she_test $1 $2 $3;
-	v2x_she_test;                  // test vectors
+	v2x_she_test -a;                  //execute all test vectors
+	v2x_she_test shx_file;            //execute test vectors available in given shx
 	service nvm_daemon_v2x stop;
 
 	Example for v2x_she_test args:

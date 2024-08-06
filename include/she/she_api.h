@@ -24,8 +24,6 @@
 #include "internal/she_fast_mac.h"
 #include "internal/she_get_id.h"
 
-extern uint8_t she_v2x_mu;
-
 /**
  * @defgroup group1 Session
  * SHE session is the first session to be opened, all other
