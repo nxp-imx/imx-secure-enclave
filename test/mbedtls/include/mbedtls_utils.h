@@ -7,11 +7,33 @@
 
 #include "test_common.h"
 
+#define FAILURE  (1)
+#define SUCCESS  (0)
+
+#define HSM_HASH_ALGO_SHA_256_SIZE (32u)
+#define HSM_HASH_ALGO_SHA_384_SIZE (48u)
 /* Extract HASH algorithm from the provided HSM algorithm */
 #define HSM_HASH_ALGO_FROM_ALGO(algo) (((algo) & 0x000000FFu) | 0x02000000u)
 
-#define FAILURE  (1)
-#define SUCCESS  (0)
+uint32_t my_mbedtls_aes_cbc(uint32_t key_size_bits, uint8_t *key, uint8_t flag,
+			    uint8_t *in, uint32_t in_size,
+			    uint8_t *out, uint8_t *iv);
+
+uint32_t my_mbedtls_hkdf(uint32_t hash_algo,
+			 uint8_t *ikm, uint32_t ikm_size,
+			 uint8_t *salt, uint32_t salt_size,
+			 uint8_t *info, uint32_t info_size,
+			 uint8_t *okm, uint32_t okm_size);
+
+uint32_t my_mbedtls_hkdf_expand(uint32_t hash_algo,
+				uint8_t *prk, uint32_t prk_size,
+				uint8_t *fixed_info, uint32_t fixed_info_size,
+				uint8_t *okm, uint32_t okm_size);
+
+uint32_t my_mbedtls_hkdf_extract(uint32_t hash_algo,
+				 uint8_t *salt, uint32_t salt_size,
+				 uint8_t *ikm, uint32_t ikm_size,
+				 uint8_t *prk, uint32_t prk_size);
 
 uint32_t my_mbedtls_ecdh(uint16_t key_size_bits, uint16_t key_type,
 			 uint8_t *pub_key, uint32_t pub_key_size,
