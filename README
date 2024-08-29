@@ -6,8 +6,8 @@ Secure Enclave Userspace Library exposes the user application with API(s) for:
 - SHE
 
 These API(s) are consumed and responded by the NXP HW IP(s):
-- Secure Enclave like ELE400, ELE401, etc., for HSM API(s) and
-- V2X for SHE API(s).
+- Secure Enclave like SECO, ELE400, ELE401, etc., for HSM API(s) and
+- V2X for SHE, HSM API(s).
 
 Scope of the document:
 	1. Platforms supported by the library
@@ -28,6 +28,12 @@ security subsystem, to help in implementing robust and secure system. This
 built-in security subsystem provides scalable options to deploy the security
 for thousands of edge applications.
 
+SECO: Security Controller
+---------------------------
+SECO(Security Controller) is the security subsystem which primarily authenticate
+the firmware and user images, authorizing their execution. This controller is
+dedicated to specific security functions.
+
 SHE: Secure Hardware Extension
 ------------------------------
 SHE is designed by following the SHE functional specification. One typical example
@@ -36,7 +42,7 @@ of SHE use case is to generate and verify secure messages over a car CAN interfa
 V2X: Vehicle to Everything
 --------------------------
 V2X is a crypto accelerator providing similar cryptographic capabilities as
-ELE. It is mostly used for message signature generation and verification.
+ELE/SECO. It is mostly used for message signature generation and verification.
 
 NVM (Non-Volatile Memory) Manager
 ---------------------------------
@@ -52,27 +58,32 @@ Build Types
 -----------
 Secure Enclave library build types:
 	- ele     (ELE-HSM)
+	- seco    (SECO-SHE + SECO-HSM)
 	- v2x     (V2X-SHE + V2X-HSM)
 
 
 Table 1: Supported Secure Enclave Library Artifacts Type for each platform
 --------------------------------------------------------------------------
 
-+---------------+-----------------------------------------------------------+
-|               |               Supported Library Artifacts Type            |
-|               +-----------------------------------------------------------+
-|    Platform   |      ele    |                     v2x                     |
-|               +-------------+----------------------+----------------------+
-|               |   ELE-HSM   |        V2X-SHE       |        V2X-HSM       |
-+===============+=============+======================+======================+
-|    i.MX8ULP   |      yes    |    Not Supported     |     Not Supported    |
-+---------------+-------------+----------------------+----------------------+
-|    i.MX93     |      yes    |    Not Supported     |     Not Supported    |
-+---------------+-------------+----------------------+----------------------+
-|    i.MX95     |      yes    |          yes         |          yes         |
-+---------------+-------------+----------------------+----------------------+
-|    i.MX91     |      yes    |    Not Supported     |     Not Supported    |
-+---------------+-------------+----------------------+----------------------+
++----------+-----------------------------------------------------------+
+|          |                  Supported Library Artifacts Type         |
++----------+---------+-----------------------+-------------------------+
+| Platform |   ele   |          v2x          |          SECO           |
++----------+---------+-----------+-----------+------------+------------+
+|          | ELE-HSM |  V2X-SHE  |  V2X-HSM  |  SECO-HSM  |  SECO-SHE  |
++==========+=========+===========+===========+============+============+
+| i.MX8ULP |   YES   |    NA     |     NA    |     NA     |     NA     |
++----------+---------+-----------+-----------+------------+------------+
+| i.MX93   |   YES   |    NA     |     NA    |     NA     |     NA     |
++----------+---------+-----------+-----------+------------+------------+
+| i.MX95   |   YES   |    YES    |     YES   |     NA     |     NA     |
++----------+---------+-----------+-----------+------------+------------+
+| i.MX91   |   YES   |    NA     |     NA    |     NA     |     NA     |
++----------+---------+-----------+-----------+------------+------------+
+| i.MX8DXL |   NA    |    YES    |     YES   |     YES    |     YES    |
++----------+---------+-----------+-----------+------------+------------+
+| i.MX8QXP |   NA    |    NA     |     NA    |     YES    |     YES    |
++----------+---------+-----------+-----------+------------+------------+
 
 
 Table 2: Secure Enclave Storage (NVM) directories
@@ -84,7 +95,13 @@ Table 2: Secure Enclave Storage (NVM) directories
 |  ELE   |   i.MX8ULP/i.MX93/i.MX95/i.MX91  |    /etc/ele/      |     N/A         |
 |        |                                  |                   |                 |
 |--------+----------------------------------+-------------------+-----------------+
-|  V2X   |                i.MX95            |   /etc/v2x_hsm/   |  /etc/v2x_she/  |
+|  V2X   |            i.MX95                |   /etc/v2x_hsm/   |  /etc/v2x_she/  |
++--------+----------------------------------+-------------------+-----------------+
+|  V2X   |           i.MX8DXL               |   /etc/v2x_hsm/   |  /etc/v2x_she/  |
++--------+----------------------------------+-------------------+-----------------+
+|  SECO  |           i.MX8DXL               |   /etc/hsm/       |  /etc/she/      |
++--------+----------------------------------+-------------------+-----------------+
+|  SECO  |           i.MX8QXP               |   /etc/hsm/       |  /etc/she/      |
 +--------+----------------------------------+-------------------+-----------------+
 
 
@@ -143,7 +160,7 @@ Secure Enclave Environment Setup
 2.2 Secure Enclave Library build steps
 ======================================
 
-Build Types: ele (PLAT=ele) or v2x (No PLAT input)
+Build Types: ele (PLAT=ele) or (PLAT=seco) or v2x (No PLAT input)
 
 -To clean
 
@@ -151,15 +168,15 @@ Build Types: ele (PLAT=ele) or v2x (No PLAT input)
 
 -To compile libraries
 
-	make PLAT=$PLAT libs;
+	make PLAT=$PLAT COMPATIBLE_MACHINE=$MACHINE libs;
 
 -To compile libraries and install
 
-	make PLAT=$PLAT libs install;
+	make PLAT=$PLAT COMPATIBLE_MACHINE=$MACHINE libs install;
 
 -To compile libraries and install, with custom installation path
 
-	make PLAT=$PLAT DESTDIR=$DESTDIR_PATH libs install;
+	make PLAT=$PLAT COMPATIBLE_MACHINE=$MACHINE DESTDIR=$DESTDIR_PATH libs install;
 
 Note #1:
 v2x is the default build type/platform, and PLAT input is not required in the
@@ -172,6 +189,9 @@ by using DESTDIR variable with Make compilation and installation command.
 Installation involves copying of the compiled shared libraries, binaries, tests,
 and other required files to an installation folder. The folder contains the items
 which are needed to be exported/copied on the board.
+
+Note #3:
+Building library for i.MX8X platform require COMPATIBLE_MACHINE value.
 
 Examples:
 ---------
@@ -188,6 +208,11 @@ v2x:
 	make PLAT=ele clean; make clean;
 	make libs;
 
+seco:
+
+	make PLAT=seco COMPATIBLE_MACHINE=mx8dxl-nxp-bsp clean; make clean;
+	make libs;
+
 -To compile libraries and install
 
 ele:
@@ -198,6 +223,11 @@ ele:
 v2x:
 
 	make PLAT=ele clean; make clean;
+	make libs install;
+
+seco:
+
+	make PLAT=seco COMPATIBLE_MACHINE=mx8dxl-nxp-bsp clean; make clean;
 	make libs install;
 
 -To get v2x and ele library artifacts in the installation folder (Two-Step process)
@@ -217,21 +247,27 @@ follows:
 
 Shared Library versioning
 -------------------------
-1.0 versioning represents that the library is targeted for ELE (ELE-HSM), while
-0.1 represents that library is for V2X (V2X-SHE, V2X-HSM).
+1.0 versioning represents that the library is targeted for ELE (ELE-HSM), or
+while 0.1 represents that library is for SECO (SECO-HSM), V2X (V2X-SHE, V2X-HSM).
 
 
-ELE: ELE-HSM: Library Artifacts
--------------------------------
+ELE-HSM: SECO-HSM: Library Artifacts
+------------------------------------
 /usr/lib/libele_hsm.so -> libele_hsm.so.1      (ELE-HSM Shared library)
 /usr/lib/libele_hsm.so.1 -> libele_hsm.so.1.0  (ELE-HSM Shared library)
 /usr/lib/libele_hsm.so.1.0                     (ELE-HSM Shared library)
 /usr/lib/libele_nvm.so -> libele_nvm.so.1      (ELE-NVM Shared library)
 /usr/lib/libele_nvm.so.1 -> libele_nvm.so.1.0  (ELE-NVM Shared library)
 /usr/lib/libele_nvm.so.1.0                     (ELE-NVM Shared library)
-/usr/bin/nvm_daemon                            (NVM Daemon ELE)
-/etc/nvmd.conf                                 (NVM-Daemon ELE configuration file)
-/etc/systemd/system/nvm_daemon.service         (NVM-Daemon ELE service file)
+/usr/lib/lib_hsm.so -> lib_hsm.so.0            (SECO-HSM Shared library)
+/usr/lib/lib_hsm.so.0 -> lib_hsm.so.0.1        (SECO-HSM Shared library)
+/usr/lib/lib_hsm.so.0.1                        (SECO-HSM Shared library)
+/usr/lib/lib_nvm.so -> lib_nvm.so.0            (SECO-NVM Shared library)
+/usr/lib/lib_nvm.so.0 -> lib_nvm.so.0.1        (SECO-NVM Shared library)
+/usr/lib/lib_nvm.so.0.1                        (SECO-NVM Shared library)
+/usr/bin/nvm_daemon                            (NVM Daemon)
+/etc/nvmd.conf                                 (NVM-Daemon configuration file)
+/etc/systemd/system/nvm_daemon.service         (NVM-Daemon service file)
 /usr/bin/nvmd_conf_setup.sh                    (NVM-Daemon configuration helper script)
 
 V2X: V2X-SHE + V2X-HSM: Library Artifacts
@@ -263,16 +299,15 @@ Table 3: Secure Enclave Tests with their target Platform/IP
 |  ELE   |  i.MX8ULP/i.MX93/i.MX95/i.MX91  | ele_hsm_test      |       N/A       |
 |        |                                 | ele_hsm_perf_test |                 |
 |--------+---------------------------------+-------------------+-----------------+
-|  V2X   |              i.MX95             |   v2x_hsm_test    |   v2x_she_test  |
+|  V2X   |        i.MX95/i.MX8DXL          |   v2x_hsm_test    |   v2x_she_test  |
++--------+---------------------------------+-------------------+-----------------+
+|  SECO  |        i.MX8DXL/i.MX8QXP        |   seco_hsm_test   |   seco_she_test |
 +--------+---------------------------------+-------------------+-----------------+
 
 Note #3:
 - i.MX95 Platform is newly added. The FW and ROM APIs of ELE-HSM/V2X-SHE, are
   under testing using this library.
-- V2X-HSM support has not been tested yet.
-- i.MX8DXL Platform planned to added soon, the library APIs are under testing
-  for their desired functionality.
-
+- V2X-HSM support has not been tested yet on i.MX95.
 
 Pre-requisites for Secure Enclave Tests
 ---------------------------------------
@@ -345,7 +380,7 @@ Secure Enclave Tests Build Steps
 
 -To compile libraries, tests and install
 
-	make PLAT=$PLAT install_tests;
+	make PLAT=$PLAT COMPATIBLE_MACHINE=$MACHINE install_tests;
 
 -To compile libraries, tests and install, with custom OpenSSL path
 
@@ -363,6 +398,7 @@ Note #4:
 OPENSSL_PATH & MBEDTLS_PATH variables can be used with Make compilation command
 to change the default OpenSSL or Mbed-TLS path.
 
+Variable COMPATIBLE_MACHINE=$MACHINE to be added for building the library on i.MX8X.
 
 Examples:
 ---------
@@ -379,6 +415,12 @@ v2x:
 	rm -rf export;make PLAT=ele clean; make clean;
 	make install_tests;tree export;
 
+seco:
+
+	rm -rf export;make PLAT=seco COMPATIBLE_MACHINE=mx8dxl-nxp-bsp clean; make clean;
+	make install_tests;tree export;
+
+
 -To get v2x and ele artifacts (including tests) in the installation folder, (Two-step process)
 
 v2x + ele:
@@ -387,7 +429,6 @@ v2x + ele:
 	make install_tests;tree export;          // Compile and Install V2X artifacts
 	make clean;                              // Clean V2X specific compiled object files and temp data
 	make PLAT=ele install_tests;tree export; // Compile and Install ELE artifacts
-
 
 Test Steps on the Boards
 ------------------------
@@ -404,7 +445,7 @@ ELE-HSM Tests:
 V2X-SHE Test:
 -------------
 
-	nvmd_conf_setup.sh plat=imx95evk config_id=3;
+	nvmd_conf_setup.sh config_id=3;
 	service nvm_daemon_v2x start;
 	service nvm_daemon_v2x status;
 	v2x_she_test $1 $2 $3;
@@ -418,6 +459,32 @@ V2X-SHE Test:
 	v2x_she_test 1 3 2
 	# Refer v2x_she_test usage for more details
 
+V2X-HSM Test:
+-------------
+
+	nvmd_conf_setup.sh config_id=2;
+	service nvm_daemon_v2x start;
+	service nvm_daemon_v2x status;
+	v2x_hsm_test;
+	service nvm_daemon_v2x stop;
+
+SECO-HSM Test:
+-------------
+
+	nvmd_conf_setup.sh config_id=0;
+	service nvm_daemon start;
+	service nvm_daemon status;
+	seco_hsm_test;
+	service nvm_daemon stop;
+
+SECO-SHE Test:
+-------------
+
+	nvmd_conf_setup.sh config_id=1;
+	service nvm_daemon start;
+	service nvm_daemon status;
+	seco_she_test;
+	service nvm_daemon stop;
 
 Note #5:
 Before running the tests for the first time, it is required to perform the cleanup
@@ -431,6 +498,9 @@ nvmd_conf_setup.sh can help in setting up the configurations for NVM Daemon,
 before starting it. For e.g., config_id 3 represents configuration for V2X-SHE.
 Refer the usage of "nvmd_conf_setup.sh" for more details.
 
+Note #7:
+seco_she_test/v2x_she_test will return failure if functional test/test vector try
+to re-write the key with same value.
 
 Ensure that following Secure Enclave Tests Artifacts are installed on the
 Board's rootfs:
@@ -469,6 +539,12 @@ V2X: V2X-SHE + V2X-HSM: Tests Artifacts
 /usr/bin/v2x_hsm_test                          (V2X-HSM test app)
 /usr/share/se/she_test_vectors/*               (V2X-SHE test vectors)
 /usr/share/se/test_vectors/non_psa/readme.tv   (V2X test vectors readme)
+
+SECO: SECO-HSM + SECO-SHE: Tests Artifacts
+---------------------------------------
+/usr/bin/seco_she_test                          (SHE-HSM test app)
+/usr/bin/seco_hsm_test                          (SECO-HSM test app)
+/usr/share/se/she_test_vectors/*                (SHE test vectors)
 
 5. Documentation
 ================
@@ -526,3 +602,5 @@ New Features
  Added Test Vectors support
  All SHE API(s) are supported on i.MX95.
  Refer to the SHE API document through Documentation section.
+
+- Added support for i.MX8DXL/i.MX8QXP Platform.
