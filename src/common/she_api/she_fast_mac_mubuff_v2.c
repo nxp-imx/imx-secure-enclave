@@ -15,6 +15,9 @@ she_err_t she_verify_fast_mac_mubuff_v2(she_hdl_t utils_handle,
 	uint32_t rsp_code = SAB_NO_MESSAGE_RATING;
 	uint32_t lib_err;
 
+	if (se_get_soc_id() == SOC_IMX8DXL || se_get_soc_id() == SOC_IMX8QXP)
+		return SHE_FEATURE_NOT_SUPPORTED;
+
 	if (!args || !utils_handle) {
 		se_err("Invalid Input parameters\n");
 		return err;
@@ -69,6 +72,9 @@ she_err_t she_generate_fast_mac_mubuff_v2(she_hdl_t utils_handle,
 	uint32_t lib_err;
 	uint32_t rsp_code = SAB_NO_MESSAGE_RATING;
 	uint64_t temp;
+
+	if (se_get_soc_id() == SOC_IMX8DXL || se_get_soc_id() == SOC_IMX8QXP)
+		return SHE_FEATURE_NOT_SUPPORTED;
 
 	if (!args || !utils_handle) {
 		se_err("Invalid Input parameters\n");

@@ -39,7 +39,7 @@ she_err_t she_verify_fast_mac_mubuff_v2_test(she_hdl_t utils_handle)
 
 	err = she_verify_fast_mac_mubuff_v2(utils_handle, &verify_mac_args);
 	if (err) {
-		se_err("Error[0x%x]: she_verify_mac failed.\n", err);
+		se_err("Error[0x%x]: %s failed.\n", err, __func__);
 		return err;
 	}
 
@@ -60,7 +60,7 @@ she_err_t she_verify_fast_mac_mubuff_v2_test(she_hdl_t utils_handle)
 
 	err = she_verify_fast_mac_mubuff_v2(utils_handle, &verify_mac_args);
 	if (err) {
-		se_err("Error[0x%x]: she_verify_mac failed.\n", err);
+		se_err("Error[0x%x]: %s failed.\n", err, __func__);
 		return err;
 	}
 
@@ -106,7 +106,7 @@ she_err_t she_generate_fast_mac_mubuff_v2_test(she_hdl_t utils_handle)
 
 	err = she_generate_fast_mac_mubuff_v2(utils_handle, &generate_mac_args);
 	if (err) {
-		se_err("Error[0x%x]: she_generate_mac failed.\n", err);
+		se_err("Error[0x%x]: %s failed.\n", err, __func__);
 		return err;
 	}
 
@@ -133,7 +133,7 @@ she_err_t she_generate_fast_mac_mubuff_v2_test(she_hdl_t utils_handle)
 
 	err = she_generate_fast_mac_mubuff_v2(utils_handle, &generate_mac_args);
 	if (err) {
-		se_err("Error[0x%x]: she_generate_mac failed.\n", err);
+		se_err("Error[0x%x]: %s failed.\n", err, __func__);
 		return err;
 	}
 
@@ -162,13 +162,19 @@ she_err_t do_she_fast_mac_mubuff_v2_test(she_hdl_t utils_handle)
 	se_print("------ FAST MAC MUBUFF V2 TEST STARTING ------\n");
 	err = she_generate_fast_mac_mubuff_v2_test(utils_handle);
 	if (err)
-		se_print("GENERATE FAST MAC MUBUFF V2 TEST ---> FAILED\n\n");
+		if (err == SHE_FEATURE_NOT_SUPPORTED)
+			se_print("GENERATE FAST MAC MUBUFF V2 TEST -> NOT SUPPORTED\n");
+		else
+			se_print("GENERATE FAST MAC MUBUFF V2 TEST ---> FAILED\n\n");
 	else
 		se_print("GENERATE FAST MAC MUBUFF V2 TEST ---> PASSED\n\n");
 
 	err = she_verify_fast_mac_mubuff_v2_test(utils_handle);
 	if (err)
-		se_print("VERIFY FAST MAC MUBUFF V2 TEST ---> FAILED\n\n");
+		if (err == SHE_FEATURE_NOT_SUPPORTED)
+			se_print("VERIFY FAST MAC MUBUFF V2 TEST -> NOT SUPPORTED\n");
+		else
+			se_print("VERIFY FAST MAC MUBUFF V2 TEST ---> FAILED\n\n");
 	else
 		se_print("VERIFY FAST MAC MUBUFF V2 TEST ---> PASSED\n\n");
 

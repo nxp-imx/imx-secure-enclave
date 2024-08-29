@@ -34,7 +34,7 @@ she_err_t she_ext_verify_fast_mac_mubuff_v2_test(she_hdl_t utils_handle)
 
 	err = she_verify_fast_mac_mubuff_v2(utils_handle, &verify_mac_args);
 	if (err) {
-		se_err("Error[0x%x]: she_ext_verify_fast_mac_mubuff_v2 failed.\n", err);
+		se_err("Error[0x%x]: %s failed.\n", err, __func__);
 		return err;
 	}
 
@@ -55,7 +55,7 @@ she_err_t she_ext_verify_fast_mac_mubuff_v2_test(she_hdl_t utils_handle)
 
 	err = she_verify_fast_mac_mubuff_v2(utils_handle, &verify_mac_args);
 	if (err) {
-		se_err("Error[0x%x]: she_ext_verify_fast_mac_mubuff_v2 failed.\n", err);
+		se_err("Error[0x%x]: %s failed.\n", err, __func__);
 		return err;
 	}
 
@@ -147,13 +147,14 @@ she_err_t do_she_ext_fast_mac_test(she_hdl_t utils_handle)
 	else
 		se_print("EXT VERIFY FAST MAC TEST ---> PASSED\n\n");
 
-	if (se_get_soc_id() != SOC_IMX8DXL) {
-		err = she_ext_verify_fast_mac_mubuff_v2_test(utils_handle);
-		if (err)
-			se_print("EXT VERIFY FAST MAC TEST MUBUFF V2 ---> FAILED\n\n");
+	err = she_ext_verify_fast_mac_mubuff_v2_test(utils_handle);
+	if (err)
+		if (err == SHE_FEATURE_NOT_SUPPORTED)
+			se_print("EXT VERIFY FAST MAC TEST MUBUFF V2 -> NOT SUPPORTED\n");
 		else
-			se_print("EXT VERIFY FAST MAC TEST MUBUFF V2 ---> PASSED\n\n");
-	}
+			se_print("EXT VERIFY FAST MAC TEST MUBUFF V2 ---> FAILED\n\n");
+	else
+		se_print("EXT VERIFY FAST MAC TEST MUBUFF V2 ---> PASSED\n\n");
 
 	return err;
 }
