@@ -186,8 +186,9 @@ she_err_t she_open_session(open_session_args_t *args, she_hdl_t *session_hdl)
 		args->session_hdl = hdl->session_hdl;
 		*session_hdl = hdl->session_hdl;
 
-		if (se_get_soc_id() == SOC_IMX8DXL &&
-		    se_get_board_type() == IMX8DXL_DL1) {
+		if ((se_get_soc_id() == SOC_IMX8DXL &&
+		     se_get_board_type() == IMX8DXL_DL1) ||
+		    se_get_soc_id() == SOC_IMX8QXP) {
 			/* Get a SECURE RAM partition to be used as shared buffer */
 			err = get_shared_buff(hdl);
 		}
