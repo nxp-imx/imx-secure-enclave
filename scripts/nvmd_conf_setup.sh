@@ -90,6 +90,25 @@ function imx8dxlevk_nvmd_config()
     esac
 }
 
+function imx8qxpmek_nvmd_config()
+{
+    local loc_config_id=$1
+
+    case ${loc_config_id} in
+        0)
+            nvmd_config_setup "/etc/hsm/seco_hsm_master" "/etc/hsm/" "0" "SECO"
+            ;;
+
+        1)
+            nvmd_config_setup "/etc/she/seco_she_master" "/etc/she/" "1" "SECO"
+            ;;
+
+        *)
+            printf "Unsupported NVM-D config opted.\n"
+            ;;
+    esac
+}
+
 function imx95evk_nvmd_config()
 {
     local loc_config_id=$1
@@ -132,8 +151,8 @@ function usage()
     printf "\tNVM_CONFIG_IDs:\n"
     printf "\t\t0 : Not Supported i.MX95\n"
     printf "\t\t1 : Not Supported i.MX95\n"
-    printf "\t\t2 :\n"
-    printf "\t\t3 :\n"
+    printf "\t\t2 : Not Supported i.MX8QXP\n"
+    printf "\t\t3 : Not Supported i.MX8QXP\n"
     printf "\n"
     printf "\tCUSTOM Mode Usage Example:\n"
     printf "\t\tReplace FILE_PATH with the desired filename,\n"
@@ -174,10 +193,14 @@ do
     shift
 done
 
-#based on platform (iMX8DXL/iMX95), choose function for NVM-D config update
+#based on platform (iMX8DXL/i.MX8QXP/iMX95), choose function for NVM-D config update
 case ${opt_plat} in
     i.MX8DXL)
         imx8dxlevk_nvmd_config ${opt_config_id}
+        ;;
+
+    i.MX8QXP)
+        imx8qxpmek_nvmd_config ${opt_config_id}
         ;;
 
     i.MX95)
