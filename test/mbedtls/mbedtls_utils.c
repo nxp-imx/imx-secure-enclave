@@ -6,6 +6,8 @@
 #include "mbedtls_utils.h"
 
 #include <mbedtls/ecdh.h>
+#include <mbedtls/hkdf.h>
+#include <mbedtls/aes.h>
 #include <mbedtls/ssl.h>
 
 /* Needed for mbedtls_ecdh_compute_shared */
@@ -58,6 +60,180 @@ static uint32_t mbedtls_key_type_from_hsm_key_type(uint16_t key_size_bits,
 	}
 
 	return mbedtls_type;
+}
+
+static uint32_t mbedtls_hash_algo_from_hsm_hash_algo(uint32_t hsm_hash_algo)
+{
+	uint32_t mbedtls_hash_algo = MBEDTLS_MD_NONE;
+
+	switch (hsm_hash_algo) {
+	case HSM_HASH_ALGO_SHA_256:
+		mbedtls_hash_algo = MBEDTLS_MD_SHA256;
+		break;
+	case HSM_HASH_ALGO_SHA_384:
+		mbedtls_hash_algo = MBEDTLS_MD_SHA384;
+		break;
+	default:
+		break;
+	}
+
+	return mbedtls_hash_algo;
+}
+
+static uint32_t mbedtls_get_hash_len(uint32_t hsm_hash_algo)
+{
+	uint32_t hash_len = 0x0U;
+
+	switch (hsm_hash_algo) {
+	case HSM_HASH_ALGO_SHA_256:
+		hash_len = HSM_HASH_ALGO_SHA_256_SIZE;
+		break;
+	case HSM_HASH_ALGO_SHA_384:
+		hash_len = HSM_HASH_ALGO_SHA_384_SIZE;
+		break;
+	default:
+		break;
+	}
+
+	return hash_len;
+}
+
+uint32_t my_mbedtls_hkdf(uint32_t hash_algo,
+			 uint8_t *ikm, uint32_t ikm_size,
+			 uint8_t *salt, uint32_t salt_size,
+			 uint8_t *info, uint32_t info_size,
+			 uint8_t *okm, uint32_t okm_size)
+{
+	uint32_t ret = FAILURE;
+	int res = -1;
+	uint32_t mbedtls_hash_algo = 0x0U;
+	const mbedtls_md_info_t *md = NULL;
+
+	do {
+		mbedtls_hash_algo = mbedtls_hash_algo_from_hsm_hash_algo(hash_algo);
+		if (mbedtls_hash_algo == MBEDTLS_MD_NONE) {
+			printf("%s: unsupported hash algo 0x%x\n",
+			       __func__, hash_algo);
+			break;
+		}
+
+		/* Set md info */
+		md = mbedtls_md_info_from_type(mbedtls_hash_algo);
+		if (!md) {
+			printf("%s: mbedtls_md_info_from_type return NULL\n",
+			       __func__);
+			break;
+		}
+
+		/* Execute hkdf */
+		res = mbedtls_hkdf(md, salt, salt_size, ikm, ikm_size,
+				   info, info_size, okm, okm_size);
+		if (res != 0) {
+			printf("%s: mbedtls_hkdf failed with 0x%x\n",
+			       __func__, res);
+			break;
+		}
+
+		ret = SUCCESS;
+	} while (0);
+
+	if (ret)
+		printf("%s: FAILURE\n", __func__);
+
+	return ret;
+}
+
+uint32_t my_mbedtls_hkdf_expand(uint32_t hash_algo,
+				uint8_t *prk, uint32_t prk_size,
+				uint8_t *fixed_info, uint32_t fixed_info_size,
+				uint8_t *okm, uint32_t okm_size)
+{
+	uint32_t ret = FAILURE;
+	int res = -1;
+	uint32_t mbedtls_hash_algo = 0x0U;
+	const mbedtls_md_info_t *md = NULL;
+
+	do {
+		mbedtls_hash_algo = mbedtls_hash_algo_from_hsm_hash_algo(hash_algo);
+		if (mbedtls_hash_algo == MBEDTLS_MD_NONE) {
+			printf("%s: unsupported hash algo 0x%x\n",
+			       __func__, hash_algo);
+			break;
+		}
+
+		/* Set md info */
+		md = mbedtls_md_info_from_type(mbedtls_hash_algo);
+		if (!md) {
+			printf("%s: mbedtls_md_info_from_type return NULL\n",
+			       __func__);
+			break;
+		}
+
+		/* Execute hkdf */
+		res = mbedtls_hkdf_expand(md, prk, prk_size, fixed_info,
+					  fixed_info_size, okm, okm_size);
+		if (res != 0) {
+			printf("%s: mbedtls_hkdf_expand failed with 0x%x\n",
+			       __func__, res);
+			break;
+		}
+
+		ret = SUCCESS;
+	} while (0);
+
+	if (ret)
+		printf("%s: FAILURE\n", __func__);
+
+	return ret;
+}
+
+uint32_t my_mbedtls_hkdf_extract(uint32_t hash_algo,
+				 uint8_t *salt, uint32_t salt_size,
+				 uint8_t *ikm, uint32_t ikm_size,
+				 uint8_t *prk, uint32_t prk_size)
+{
+	uint32_t ret = FAILURE;
+	int res = -1;
+	uint32_t mbedtls_hash_algo = 0x0U;
+	const mbedtls_md_info_t *md = NULL;
+
+	do {
+		mbedtls_hash_algo = mbedtls_hash_algo_from_hsm_hash_algo(hash_algo);
+		if (mbedtls_hash_algo == MBEDTLS_MD_NONE) {
+			printf("%s: unsupported hash algo 0x%x\n",
+			       __func__, hash_algo);
+			break;
+		}
+
+		/* Set md info */
+		md = mbedtls_md_info_from_type(mbedtls_hash_algo);
+		if (!md) {
+			printf("%s: mbedtls_md_info_from_type return NULL\n",
+			       __func__);
+			break;
+		}
+
+		/* Check PRK size to avoid memory issue as not checked by MbedTLS */
+		if (prk_size != mbedtls_get_hash_len(hash_algo)) {
+			printf("%s: invalid prk size 0x%x\n", __func__, prk_size);
+			break;
+		}
+
+		/* Execute hkdf */
+		res = mbedtls_hkdf_extract(md, salt, salt_size, ikm, ikm_size, prk);
+		if (res != 0) {
+			printf("%s: mbedtls_hkdf_extract failed with 0x%x\n",
+			       __func__, res);
+			break;
+		}
+
+		ret = SUCCESS;
+	} while (0);
+
+	if (ret)
+		printf("%s: FAILURE\n", __func__);
+
+	return ret;
 }
 
 uint32_t my_mbedtls_ecdh(uint16_t key_size_bits, uint16_t key_type,
@@ -183,11 +359,13 @@ uint32_t my_mbedtls_ecdh(uint16_t key_size_bits, uint16_t key_type,
 		mbedtls_mpi_free(&z_shared_secret);
 
 		ret = SUCCESS;
-		printf("%s: SUCCESS\n", __func__);
 	} while (0);
 
 	/* Update correct ecdh size */
 	*ecdh_size = z_size;
+
+	if (ret)
+		printf("%s: FAILURE\n", __func__);
 
 	return ret;
 }
@@ -224,13 +402,66 @@ uint32_t my_mbedtls_tls12_prf(uint32_t hsm_tls12_algo, uint8_t *secret,
 	res = mbedtls_ssl_tls_prf(tls12_prf, secret, secret_size,
 				  (const char *)label, random, random_size,
 				  derived_secret, derived_secret_size);
-	if (res != 0) {
+	if (res != 0)
 		printf("%s: mbedtls_ssl_tls_prf failed with 0x%x\n",
 		       __func__, res);
-	} else {
+	else
 		ret = SUCCESS;
-		printf("%s: SUCCESS\n", __func__);
-	}
+
+	if (ret)
+		printf("%s: FAILURE\n", __func__);
+
+	return ret;
+}
+
+static uint8_t mbedtls_cipher_flag_from_hsm_cipher_flag(uint8_t hsm_cipher_flag)
+{
+	uint8_t mbedtls_cipher_flag = MBEDTLS_AES_DECRYPT;
+
+	if (hsm_cipher_flag == HSM_CIPHER_ONE_GO_FLAGS_ENCRYPT)
+		mbedtls_cipher_flag = MBEDTLS_AES_ENCRYPT;
+
+	return mbedtls_cipher_flag;
+}
+
+uint32_t my_mbedtls_aes_cbc(uint32_t key_size_bits, uint8_t *key, uint8_t flag,
+			    uint8_t *in, uint32_t in_size,
+			    uint8_t *out, uint8_t *iv)
+{
+	uint32_t ret = FAILURE;
+	int res = -1;
+	uint8_t mbedtls_cipher_flag = mbedtls_cipher_flag_from_hsm_cipher_flag(flag);
+	uint8_t local_iv[16]; /* Only 16 bytes IV are supported */
+	mbedtls_aes_context aes_ctx;
+
+	do {
+		/* MbedTLS AES context init and setup */
+		mbedtls_aes_init(&aes_ctx);
+
+		res = mbedtls_aes_setkey_enc(&aes_ctx, key, key_size_bits);
+		if (res != 0) {
+			printf("%s: mbedtls_aes_setkey_enc failed with 0x%x\n",
+			       __func__, res);
+			break;
+		}
+
+		/* MbedTLS updates the IV content, use local variable */
+		memcpy(local_iv, iv, 16);
+
+		res = mbedtls_aes_crypt_cbc(&aes_ctx, mbedtls_cipher_flag,
+					    in_size, local_iv, in, out);
+		if (res != 0) {
+			printf("%s: mbedtls_aes_crypt_cbc failed with 0x%x\n",
+			       __func__, res);
+			break;
+		}
+
+		mbedtls_aes_free(&aes_ctx);
+		ret = SUCCESS;
+	} while (0);
+
+	if (ret)
+		printf("%s: FAILURE\n", __func__);
 
 	return ret;
 }

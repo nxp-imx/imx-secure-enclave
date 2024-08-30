@@ -661,6 +661,7 @@ static void transient_key_tests(hsm_hdl_t sess_hdl, hsm_hdl_t key_store_hdl)
 	if (se_get_soc_id() == SOC_IMX93 || se_get_soc_id() == SOC_IMX91) {
 		key_exchange_test_tls1_3(key_mgmt_hdl);
 		key_exchange_test_hkdf_expand(key_mgmt_hdl);
+		key_exchange_test_hkdf_full(key_store_hdl, key_mgmt_hdl);
 		key_exchange_test_tls1_2(key_store_hdl, key_mgmt_hdl);
 	}
 
