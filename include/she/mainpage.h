@@ -16,6 +16,7 @@
  * 0.1 | Jan 13 2024  | Initial Draft
  * 0.1 | Apr 1 2024  | Remove key_ext variable from key_update structure
  * 0.2 | Apr 15 2024  | Update Global Info for i.MX95 Lifecycle values
+ * 0.3 | Aug 28 2024  | Update Global Info and get_soc_info ioctl for board_type
  */
 
 /*! \page page1 General concepts related to the API
