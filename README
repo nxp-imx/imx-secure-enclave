@@ -137,7 +137,7 @@ Secure Enclave library code repo
 
 	cd imx-secure-enclave/
 
-	git checkout lf-6.6.23_2.0.0
+	git checkout lf-6.6.36_2.1.0
 
 
 Secure Enclave Environment Setup
@@ -553,7 +553,7 @@ SECO: SECO-HSM + SECO-SHE: Tests Artifacts
 Secure Enclave (HSM/SHE) APIs Documents:
 ----------------------------------------
 
-	https://github.com/nxp-imx/imx-secure-enclave/tree/lf-6.6.23_2.0.0/doc
+	https://github.com/nxp-imx/imx-secure-enclave/tree/lf-6.6.36_2.1.0/doc
 
 
 6. Licenses
@@ -586,8 +586,8 @@ Known Limitations
   If such a case arises, it is required to ensure NVM clean-up, followed by
   board restart.
 
-New Features
-------------
+lf-6.6.23_2.0.0 : Added Features
+---------------------------------
 
 - ELE-HSM
 
@@ -604,4 +604,21 @@ New Features
  All SHE API(s) are supported on i.MX95.
  Refer to the SHE API document through Documentation section.
 
-- Added support for i.MX8DXL/i.MX8QXP Platform.
+lf-6.6.36_2.1.0 : New Features
+------------------------------
+
+- ELE-HSM
+
+ Added TLS 1.2 support and tests
+ Added MD5 and SHA-1 functional tests
+ Added HKDF functional tests
+ Added Encrypted Data Storage test vectors
+
+- V2X-SHE
+
+ Enhanced WRITE FUSE API to support dynamic word size
+ Increased Test Vectors
+
+- SECO-HSM + SECO-SHE
+
+ Added support for i.MX8DXL and i.MX8QXP Platform.
