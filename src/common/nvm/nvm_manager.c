@@ -22,6 +22,9 @@
 #include "sab_storage_key_db.h"
 #endif
 
+#define SOC_IMX8DXL	0xe
+uint16_t g_soc_id;
+
 /* Storage import processing. Return 0 on success.  */
 static uint32_t nvm_storage_import(struct nvm_ctx_st *nvm_ctx_param,
 				   uint8_t *data, uint32_t len)
@@ -108,6 +111,8 @@ static uint32_t nvm_open_session(uint8_t flags, struct nvm_ctx_st *nvm_ctx)
 	open_session_args_t sess_args = {0};
 	uint32_t rsp_code = SAB_FAILURE_STATUS;
 	uint32_t ret = SAB_FAILURE_STATUS;
+	uint16_t soc_rev;
+	uint8_t board_type;
 
 	do {
 		/* Check if structure is already in use */
@@ -194,6 +199,16 @@ static uint32_t nvm_open_session(uint8_t flags, struct nvm_ctx_st *nvm_ctx)
 		} else {
 			nvm_ctx->storage_handle = args->storage_handle;
 		}
+
+		/*
+		 * Fill SOC ID
+		 */
+		ret = plat_os_abs_get_soc_info(nvm_ctx->phdl,
+					       &g_soc_id,
+					       &soc_rev,
+					       &board_type);
+		if (ret != PLAT_SUCCESS)
+			break;
 	} while (false);
 
 	if (args) {
@@ -318,11 +333,14 @@ uint32_t nvm_manager(uint8_t flags,
 						       &nvm_ctx->next_cmd_id);
 			if (err == SAB_READ_FAILURE_RATING &&
 			    nvm_ctx->status == NVM_STATUS_RUNNING) {
-				retry = 1;
 				/* handle case when platform/V2X are reset */
-				nvm_close_session(nvm_ctx);
-				nvm_ctx->phdl = NULL;
-				break;
+				printf("Platform/V2X are reset\n");
+				if (g_soc_id == SOC_IMX8DXL) {
+					retry = 1;
+					nvm_close_session(nvm_ctx);
+					nvm_ctx->phdl = NULL;
+					break;
+				}
 			}
 		}
 	} while (retry);

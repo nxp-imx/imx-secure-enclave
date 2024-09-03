@@ -38,6 +38,12 @@ struct ele_mu_ioctl_signed_message {
 	uint32_t error_code;
 };
 
+struct ele_mu_ioctl_get_soc_info {
+	uint16_t soc_id;
+	uint16_t soc_rev;
+	uint8_t  board_type;
+};
+
 struct ele_time_frame {
 	struct timespec t_start;
 	struct timespec t_end;
@@ -57,6 +63,8 @@ struct ele_time_frame {
 					struct ele_mu_ioctl_get_mu_info)
 #define ELE_MU_IOCTL_SIGNED_MESSAGE	_IOWR(ELE_MU_IOCTL, 0x05, \
 					struct ele_mu_ioctl_signed_message)
+#define ELE_MU_IOCTL_GET_SOC_INFO	_IOR(ELE_MU_IOCTL, 0x06, \
+					struct ele_mu_ioctl_get_soc_info)
 #define ELE_MU_IOCTL_GET_TIMER	_IOR(ELE_MU_IOCTL, 0x08, \
 				struct ele_time_frame)
 
