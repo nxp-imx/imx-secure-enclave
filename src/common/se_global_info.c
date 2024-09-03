@@ -58,6 +58,22 @@ struct global_info_s {
  */
 static struct global_info_s global_info;
 
+const char *get_board_type_str(uint8_t board_type)
+{
+	switch (board_type) {
+#ifndef PSA_COMPLIANT
+	case IMX8DXL_DL1:
+		return "DL1";
+	case IMX8DXL_DL2:
+		return "DL2";
+	case IMX8DXL_DL3:
+		return "DL3";
+#endif
+	default:
+		return "Unknown board type";
+	}
+}
+
 const char *get_soc_id_str(uint16_t soc_id)
 {
 	switch (soc_id) {

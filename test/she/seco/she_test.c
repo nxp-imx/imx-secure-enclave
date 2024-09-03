@@ -30,7 +30,7 @@ int main(int argc, char *argv[])
 {
 	int8_t supported_mu;
 
-	supported_mu = get_supported_mu();
+	supported_mu = get_supported_mu(HSM1);
 
 	if (supported_mu == V2X_SHE) {
 		printf("WARNING: SECO in FIPS mode, cannot open SHE session\n");

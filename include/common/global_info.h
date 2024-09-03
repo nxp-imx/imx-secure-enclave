@@ -191,6 +191,15 @@ const char *se_get_lib_version(void);
 const char *se_get_nvm_version(void);
 
 /**
+ * Get the string representating board type
+ *
+ * \param board_type Board Type fetched from Global Info
+ *
+ * \return String represention of the board type
+ */
+const char *get_board_type_str(uint8_t board_type);
+
+/**
  * Get the string representating SoC ID
  *
  * \param soc_id SoC ID fetched from Global Info

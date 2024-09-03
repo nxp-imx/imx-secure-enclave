@@ -62,7 +62,7 @@ int main(int argc, char *argv[])
 
 		if (mu_type == V2X_SHE) {
 			/* check for 8DXL board type */
-			supported_mu = get_supported_mu();
+			supported_mu = get_supported_mu(V2X_SV0);
 			if (supported_mu == V2X_SHE)
 				she_tests(session_id,
 					  mu_type,

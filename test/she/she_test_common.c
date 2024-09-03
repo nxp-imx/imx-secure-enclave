@@ -37,8 +37,14 @@ void print_global_info(void)
 	printf("Global Info:\n");
 	printf("-----------------------------------------------------------\n");
 
-	printf("%s %s\n", get_soc_id_str(se_get_soc_id()),
-	       get_soc_rev_str(se_get_soc_rev()));
+	if (se_get_soc_id() == SOC_IMX8DXL)
+		printf("%s %s %s\n", get_soc_id_str(se_get_soc_id()),
+		       get_soc_rev_str(se_get_soc_rev()),
+		       get_board_type_str(se_get_board_type()));
+	else
+		printf("%s %s\n", get_soc_id_str(se_get_soc_id()),
+		       get_soc_rev_str(se_get_soc_rev()));
+
 	printf("%s Lifecycle\n", get_soc_lf_str(se_get_chip_lifecycle()));
 	printf("Fips mode 0x%x\n", se_get_fips_mode());
 	printf("LIB Version: %s\n", se_get_lib_version());
@@ -186,8 +192,13 @@ void close_services(int key_session_id)
 		she_close_key_store_service(key_store_args[i].key_store_hdl);
 }
 
-/* return the supported MU type on board */
-int8_t get_supported_mu(void)
+/*
+ * This functional:
+ * 1.	opens a session on HSM MU (Received as input args)
+ * 2.	Populate global info and on basis of soc id and board type,
+ * 3.	Return the support MU TYPE for SHE depending on the SoC ID and Board Type.
+ */
+int8_t get_supported_mu(uint8_t mu_type)
 {
 	struct she_session_hdl_s *hdl = NULL;
 	uint32_t err;
@@ -196,25 +207,26 @@ int8_t get_supported_mu(void)
 	open_session_args_t open_session_args = {0};
 
 	/* Open HSM session on V2X */
-	open_session_args.mu_type = V2X_SV0;
+	open_session_args.mu_type = mu_type;
 	err = open_session(&open_session_args, &hdl);
 	if (err) {
-		printf("open_session failed for HSM (V2X), err:0x%x\n", err);
+		printf("open_session failed for HSM, err:0x%x\n", err);
 		return -1;
 	}
 
 	populate_global_info(open_session_args.session_hdl);
+	she_close_session(open_session_args.session_hdl);
+
+	/* return V2X_SHE for i.MX95, as only V2X is supported on i.MX95 */
 	if (se_get_soc_id() != SOC_IMX8DXL &&
 	    se_get_soc_id() != SOC_IMX8QXP)
 		return V2X_SHE;
-
-	she_close_session(open_session_args.session_hdl);
 
 	if (se_get_board_type() == IMX8DXL_DL1)
 		return SHE1;
 	if (se_get_board_type() == IMX8DXL_DL3)
 		return V2X_SHE;
-	else
+	if (se_get_board_type() == IMX8DXL_DL2)
 		return -1;
 
 	return SHE1;
