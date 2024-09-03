@@ -1,6 +1,6 @@
 // SPDX-License-Identifier: BSD-3-Clause
 /*
- * Copyright 2023 NXP
+ * Copyright 2023-2024 NXP
  */
 
 #include "she_api.h"
@@ -111,6 +111,11 @@ she_err_t she_cipher_one_go(she_hdl_t cipher_handle, op_cipher_one_go_args_t *ar
 		se_err("Invalid input parameters\n");
 		return err;
 	}
+
+	/* LF-9913 : SHE: System hang when ECB cipher test failed */
+	if (se_get_board_type() == IMX8DXL_DL3 &&
+	    args->cipher_algo == SHE_CIPHER_ONE_GO_ALGO_AES_ECB)
+		return SHE_CMD_NOT_SUPPORTED;
 
 	serv_ptr = she_service_hdl_to_ptr(cipher_handle);
 	if (!serv_ptr) {
