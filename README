@@ -586,6 +586,16 @@ Known Limitations
   If such a case arises, it is required to ensure NVM clean-up, followed by
   board restart.
 
+- i.MX8DXL DL2/i.MX8QXP C0 FIPS
+  Following operations are disabled on FIPS part
+  - ECIES encryption/decryption.
+  - Butterfly key expansion.
+  - Public key reconstruction.
+  - Public key decompression.
+  - Key store open with SHE flag set.
+  - All Generic crypto services.
+  - All SM2/3/4 modes disabled.
+
 lf-6.6.23_2.0.0 : Added Features
 ---------------------------------
 
@@ -613,10 +623,10 @@ lf-6.6.36_2.1.0 : New Features
  Added MD5 and SHA-1 functional tests
  Added HKDF functional tests
  Added Encrypted Data Storage test vectors
+ Enhanced WRITE FUSE API to support dynamic word size
 
 - V2X-SHE
 
- Enhanced WRITE FUSE API to support dynamic word size
  Increased Test Vectors
 
 - SECO-HSM + SECO-SHE
