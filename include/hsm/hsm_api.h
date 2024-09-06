@@ -70,6 +70,8 @@ extern "C" {
 #include "internal/hsm_dev_attest.h"
 
 #include "internal/hsm_get_info.h"
+
+#include "internal/hsm_tls_finish.h"
 /**
  *  @defgroup group1 Session
  * The API must be initialized by a potential requestor by opening a session.\n
