@@ -18,9 +18,14 @@ static void v2x_she_test_usage(void)
 	printf("- All SHE test vectors\n");
 	printf("\nFor running SHE functional tests:\n");
 	printf("v2x_she_test [options]\n");
+	printf("---- Options for i.MX95 ----\n");
 	printf("1: <Choose SHE session Identifier, out of two SHE Sessions, (0, 1>\n");
 	printf("2: <Count of keystores to open, (<=5, Max)>\n");
-	printf("3: <Count of Key Stores to be opened as Shared, (<= <arg 2, Max>)\n");
+	printf("3: <Count of Key Stores to be opened as Shared, (<= <arg 2, Max>)>\n");
+	printf("\n---- Options for i.MX8DXL ----\n");
+	printf("1: <Choose SHE session Identifier, (0)>\n");
+	printf("2: <Count of keystores to open, (1)>\n");
+	printf("3: <Count of Key Stores to be opened as Shared, (0)>\n");
 	printf("\nFor running SHE test vectors:\n");
 	printf("v2x_she_test file1.shx file2.shx ....\n");
 	printf("\nFor running All SHE test vectors:\n");

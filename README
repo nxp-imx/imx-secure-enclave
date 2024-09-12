@@ -290,24 +290,37 @@ V2X: V2X-SHE + V2X-HSM: Library Artifacts
 4. Testing Steps: Compilation, Installation & Execution
 =======================================================
 
-Table 3: Secure Enclave Tests with their target Platform/IP
+Table 3: Secure Enclave HSM Tests with their target Platform/IP
 -----------------------------------------------------------
 
-+--------+---------------------------------+-------------------+-----------------+
-|   IP   |              Platform           |     HSM Test      |     SHE Test    |
-+========+=================================+===================+=================+
-|  ELE   |  i.MX8ULP/i.MX93/i.MX95/i.MX91  | ele_hsm_test      |       N/A       |
-|        |                                 | ele_hsm_perf_test |                 |
-|--------+---------------------------------+-------------------+-----------------+
-|  V2X   |        i.MX95/i.MX8DXL          |   v2x_hsm_test    |   v2x_she_test  |
-+--------+---------------------------------+-------------------+-----------------+
-|  SECO  |        i.MX8DXL/i.MX8QXP        |   seco_hsm_test   |   seco_she_test |
-+--------+---------------------------------+-------------------+-----------------+
++--------+---------------------------------+-------------------+
+|   IP   |              Platform           |     HSM Test      |
++========+=================================+===================+
+|  ELE   |  i.MX8ULP/i.MX93/i.MX95/i.MX91  | ele_hsm_test      |
+|        |                                 | ele_hsm_perf_test |
+|--------+---------------------------------+-------------------+
+|  V2X   |        i.MX95/i.MX8DXL          |   v2x_hsm_test    |
++--------+---------------------------------+-------------------+
+|  SECO  |        i.MX8DXL/i.MX8QXP        |   seco_hsm_test   |
++--------+---------------------------------+-------------------+
+
+Table 4: Secure Enclave SHE Tests with their target Platform/IP
+-----------------------------------------------------------
+
++--------+---------------------------------+-----------------+
+|   IP   |              Platform           |     SHE Test    |
++========+=================================+=================+
+|  V2X   |        i.MX95/i.MX8DXL-DL3      |   v2x_she_test  |
++--------+---------------------------------+-----------------+
+|  SECO  |        i.MX8QXP/i.MX8DXL-DL1    |   seco_she_test |
++--------+---------------------------------+-----------------+
+
 
 Note #3:
 - i.MX95 Platform is newly added. The FW and ROM APIs of ELE-HSM/V2X-SHE, are
   under testing using this library.
 - V2X-HSM support has not been tested yet on i.MX95.
+- i.MX8DXL-DL2 board dont support SHE
 
 Pre-requisites for Secure Enclave Tests
 ---------------------------------------
