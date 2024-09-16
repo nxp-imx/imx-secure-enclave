@@ -107,7 +107,7 @@ uint32_t prepare_msg_managekey_ext(void *phdl,
 	cmd->reserved[1] = op_args->reserved[1];
 	cmd->reserved[2] = op_args->reserved[2];
 
-	*cmd_msg_sz = sizeof(struct sab_cmd_manage_key_msg);
+	*cmd_msg_sz = sizeof(struct sab_cmd_manage_key_ext_msg);
 	*rsp_msg_sz = sizeof(struct sab_cmd_manage_key_rsp);
 
 	cmd->crc = 0u;
