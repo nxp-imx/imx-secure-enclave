@@ -30,25 +30,6 @@ static uint32_t get_key_id_from_buffer(uint8_t *key_ids_buffer,
 	return key_id;
 }
 
-static hsm_err_t delete_test_key(hsm_hdl_t key_mgmt_hdl,
-				 uint32_t key_id,
-				 hsm_op_delete_key_flags_t flags)
-{
-	hsm_err_t err;
-	op_delete_key_args_t args;
-
-	memset(&args, 0, sizeof(op_delete_key_args_t));
-
-	args.key_identifier = key_id;
-	args.flags = flags;
-
-	err = hsm_delete_key(key_mgmt_hdl, &args);
-	if (err != HSM_NO_ERROR)
-		printf("hsm_delete_key err: 0x%x\n", err);
-
-	return err;
-}
-
 static hsm_err_t test_tls1_2_kb_keys_hmac(hsm_hdl_t key_store_hdl,
 					  uint32_t key_id,
 					  hsm_permitted_algo_t algo)

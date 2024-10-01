@@ -444,10 +444,35 @@ static void transient_key_tests(hsm_hdl_t sess_hdl, hsm_hdl_t key_store_hdl)
 #endif
 
 #ifdef SECONDARY_API_SUPPORTED
-	hsm_sign_verify_tests(sess_hdl, key_store_hdl, master_key_id,
-			      signature_data, sizeof(signature_data),
-			      hash_data, sizeof(hash_data),
-			      pub_key, sizeof(pub_key));
+	printf("-----------------------------------------------------\n");
+	printf("Secondary API Test: HSM_DO_SIGN then HSM_VERIFY_SIGN.\n");
+	printf("-----------------------------------------------------\n");
+
+#ifdef PSA_COMPLIANT
+	printf("HSM_KEY_SIZE_ECC_NIST_256 & HSM_SIGNATURE_SCHEME_ECDSA_SHA256:");
+#endif
+	hsmret = hsm_sign_verify_tests(sess_hdl, key_store_hdl,
+				       master_key_id,
+#ifdef PSA_COMPLIANT
+				       HSM_SIGNATURE_SCHEME_ECDSA_SHA256,
+				       HSM_PUBKEY_TYPE_ECC_NIST,
+				       HSM_KEY_SIZE_ECC_NIST_256,
+#else
+				       HSM_SIGNATURE_SCHEME_ECDSA_NIST_P256_SHA_256,
+#endif
+				       signature_data, sizeof(signature_data),
+				       hash_data, sizeof(hash_data),
+				       pub_key, sizeof(pub_key),
+				       TEST_INPUT_DIGEST);
+	if (hsmret == HSM_NO_ERROR)
+		printf("\nResult ---> SUCCESS\n");
+	else
+		printf("\nResult ---> FAILURE\n");
+
+	if (se_get_soc_id() == SOC_IMX93 || se_get_soc_id() == SOC_IMX91)
+		hsm_sign_verify_eddsa_tests(sess_hdl, key_store_hdl, key_mgmt_hdl);
+
+	printf("-----------------------------------------------------\n");
 #else
 	memset(&open_sig_gen_args, 0, sizeof(open_sig_gen_args));
 	hsmret = hsm_open_signature_generation_service(key_store_hdl,

@@ -12,6 +12,72 @@
 #include "test_common.h"
 #include "test_utils.h"
 
+hsm_err_t generate_test_key(hsm_hdl_t key_mgmt_hdl,
+			    hsm_key_type_t key_type,
+#ifdef PSA_COMPLIANT
+			    hsm_bit_key_sz_t bit_key_sz,
+			    hsm_key_lifetime_t key_lifetime,
+			    hsm_key_usage_t key_usage,
+			    hsm_permitted_algo_t permitted_algo,
+			    hsm_key_lifecycle_t key_lifecycle,
+#else
+			    hsm_key_info_t key_info,
+#endif
+			    hsm_op_key_gen_flags_t flags,
+			    hsm_key_group_t key_group,
+			    uint16_t out_size,
+			    uint8_t *out_key,
+			    uint32_t *key_id)
+{
+	hsm_err_t ret;
+	op_generate_key_args_t key_gen_args;
+
+	memset(&key_gen_args, 0, sizeof(op_generate_key_args_t));
+
+	key_gen_args.key_identifier = key_id;
+	key_gen_args.key_type = key_type;
+	key_gen_args.key_group = key_group;
+	key_gen_args.flags = flags;
+#ifdef PSA_COMPLIANT
+	key_gen_args.key_lifetime = key_lifetime;
+	key_gen_args.key_usage = key_usage;
+	key_gen_args.permitted_algo = permitted_algo;
+	key_gen_args.bit_key_sz = bit_key_sz;
+	key_gen_args.key_lifecycle = key_lifecycle;
+#else
+	key_gen_args.key_info = key_info;
+#endif
+	key_gen_args.out_size = out_size;
+	key_gen_args.out_key = out_key;
+
+	ret = hsm_generate_key(key_mgmt_hdl, &key_gen_args);
+	if (ret != HSM_NO_ERROR)
+		printf("hsm_generate_key ret: 0x%x. [key_id 0x%x]\n", ret, *key_id);
+
+	return ret;
+}
+
+#ifdef PSA_COMPLIANT
+hsm_err_t delete_test_key(hsm_hdl_t key_mgmt_hdl,
+			  uint32_t key_id,
+			  hsm_op_delete_key_flags_t flags)
+{
+	hsm_err_t ret;
+	op_delete_key_args_t args;
+
+	memset(&args, 0, sizeof(op_delete_key_args_t));
+
+	args.key_identifier = key_id;
+	args.flags = flags;
+
+	ret = hsm_delete_key(key_mgmt_hdl, &args);
+	if (ret != HSM_NO_ERROR)
+		printf("hsm_delete_key ret: 0x%x\n", ret);
+
+	return ret;
+}
+#endif
+
 void set_signed_tests_en_status(uint8_t *oem_srkh, uint16_t len)
 {
 	if (memcmp(test_oem_srkh, oem_srkh, sizeof(test_oem_srkh)) == 0)

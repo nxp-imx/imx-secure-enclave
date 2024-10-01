@@ -1,6 +1,6 @@
 // SPDX-License-Identifier: BSD-3-Clause
 /*
- * Copyright 2022-2023 NXP
+ * Copyright 2022-2024 NXP
  */
 
 #ifndef TEST_UTILS_TV_H
@@ -28,7 +28,7 @@ void close_key_mgmt_srv(uint32_t key_mgmt_tv_id);
 hsm_hdl_t get_key_mgmt_hdl(uint32_t key_mgmt_tv_id);
 hsm_hdl_t open_key_mgmt_srv(hsm_hdl_t key_store_hdl, uint32_t key_mgmt_tv_id);
 
-void delete_test_key(uint32_t key_tv_id);
+void delete_test_key_tv(uint32_t key_tv_id);
 uint32_t get_test_key_identifier(uint32_t key_tv_id);
 void save_test_key(uint32_t key_tv_id, uint32_t key_identifier,
 				uint32_t key_mgmt_tv_id, hsm_key_group_t key_group,

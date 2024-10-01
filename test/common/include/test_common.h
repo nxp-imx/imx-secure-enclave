@@ -23,6 +23,31 @@
 #define TEST_STATUS_SKIPPED 2
 #define RSA_TCASE_ENABLED 1
 
+#define TEST_INPUT_DIGEST  0
+#define TEST_INPUT_MESSAGE 1
+
+hsm_err_t generate_test_key(hsm_hdl_t key_mgmt_hdl,
+			    hsm_key_type_t key_type,
+#ifdef PSA_COMPLIANT
+			    hsm_bit_key_sz_t bit_key_sz,
+			    hsm_key_lifetime_t key_lifetime,
+			    hsm_key_usage_t key_usage,
+			    hsm_permitted_algo_t permitted_algo,
+			    hsm_key_lifecycle_t key_lifecycle,
+#else
+			    hsm_key_info_t key_info,
+#endif
+			    hsm_op_key_gen_flags_t flags,
+			    hsm_key_group_t key_group,
+			    uint16_t out_size,
+			    uint8_t *out_key,
+			    uint32_t *key_id);
+
+#ifdef PSA_COMPLIANT
+hsm_err_t delete_test_key(hsm_hdl_t key_mgmt_hdl,
+			  uint32_t key_id,
+			  hsm_op_delete_key_flags_t flags);
+#endif
 hsm_err_t do_mac_test(hsm_hdl_t key_store_hdl, hsm_hdl_t key_mgmt_hdl);
 hsm_err_t do_cipher_test(hsm_hdl_t key_store_hdl, hsm_hdl_t key_mgmt_hdl);
 hsm_err_t hsm_mac_test(hsm_hdl_t key_store_hdl, hsm_hdl_t key_mgmt_hdl);
@@ -40,11 +65,20 @@ void hash_test(hsm_hdl_t hash_sess);
 hsm_err_t do_hash_test(hsm_hdl_t hash_session_hdl);
 hsm_err_t do_hash_stream_test(hsm_hdl_t hash_session_hdl);
 
-void hsm_sign_verify_tests(hsm_hdl_t sess_hdl, hsm_hdl_t key_store_hdl,
-			   uint32_t key_id,
-			   uint8_t *signature_data, uint32_t sign_data_sz,
-			   uint8_t *hash_data, uint32_t hash_data_sz,
-			   uint8_t *pub_key, uint32_t pub_key_sz);
+hsm_err_t hsm_sign_verify_tests(hsm_hdl_t sess_hdl, hsm_hdl_t key_store_hdl,
+				uint32_t key_id,
+				hsm_signature_scheme_id_t scheme_id,
+#ifdef PSA_COMPLIANT
+				hsm_pubkey_type_t pkey_type, hsm_bit_key_sz_t key_sz,
+#endif
+				uint8_t *signature_data, uint32_t sign_data_sz,
+				uint8_t *input_data, uint32_t input_data_sz,
+				uint8_t *pub_key, uint32_t pub_key_sz,
+				uint8_t input_data_type);
+
+void hsm_sign_verify_eddsa_tests(hsm_hdl_t sess_hdl,
+				 hsm_hdl_t key_store_hdl,
+				 hsm_hdl_t key_mgmt_hdl);
 
 hsm_err_t auth_enc_test(hsm_hdl_t key_store_hdl, hsm_hdl_t key_mgmt_hdl);
 hsm_err_t gc_akey_gen_test(hsm_hdl_t session_hdl);

@@ -1,6 +1,6 @@
 // SPDX-License-Identifier: BSD-3-Clause
 /*
- * Copyright 2022-2023 NXP
+ * Copyright 2022-2024 NXP
  */
 
 #include <stdint.h>
@@ -262,7 +262,7 @@ uint32_t get_test_key_size(uint32_t key_tv_id)
 }
 
 /* Delete the key after use */
-void delete_test_key(uint32_t key_tv_id)
+void delete_test_key_tv(uint32_t key_tv_id)
 {
 	uint8_t flag = 0;
 	uint8_t i = 0;
@@ -404,7 +404,7 @@ void close_key_mgmt_srv(uint32_t key_mgmt_tv_id)
 		for (uint8_t i = 0; i < MAX_TV_KEY_ID; i++) {
 			if (key_tv_id_map_arr[i].key_tv_id != 0 &&
 				key_tv_id_map_arr[i].key_mgmt_tv_id == key_mgmt_tv_id) {
-				delete_test_key(key_tv_id_map_arr[i].key_tv_id);
+				delete_test_key_tv(key_tv_id_map_arr[i].key_tv_id);
 			}
 		}
 
