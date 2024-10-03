@@ -164,9 +164,6 @@ static void test_tls1_3_early_secrets(hsm_hdl_t key_mgmt_hdl)
 	const unsigned char *context = context_buffer;
 	uint8_t context_len = sizeof(context_buffer);
 
-	printf("\nEarly Secrets:\n");
-	printf("--------------\n");
-
 	/* 1. Prepare Input Plaintext Context, without optional PSK */
 	memset(&in_content, 0, sizeof(in_content_tls13_args_t));
 
@@ -270,7 +267,9 @@ out:
  *            |
  *            v
  */
-static void test_tls1_3_handshake_secrets(hsm_hdl_t key_mgmt_hdl)
+static void test_tls1_3_handshake_secrets(hsm_hdl_t key_mgmt_hdl,
+					  hsm_key_type_t key_type,
+					  hsm_bit_key_sz_t bit_key_sz)
 {
 	hsm_err_t err;
 	in_content_tls13_args_t in_content = {0};
@@ -292,9 +291,6 @@ static void test_tls1_3_handshake_secrets(hsm_hdl_t key_mgmt_hdl)
 	const unsigned char *context = context_buffer;
 	uint8_t context_len = sizeof(context_buffer);
 
-	printf("\nHandshake Secrets:\n");
-	printf("------------------\n");
-
 	/* 1. Generate ELE Private Key for Key Agreement process */
 	key_gen_args.key_identifier = &key_id;
 	key_gen_args.key_group = 40;
@@ -302,8 +298,8 @@ static void test_tls1_3_handshake_secrets(hsm_hdl_t key_mgmt_hdl)
 	key_gen_args.key_usage = HSM_KEY_USAGE_DERIVE;
 	key_gen_args.permitted_algo = HSM_KEY_DERIVATION_TLS1_3_HANDSHAKE_SECRET_SHA256;
 	key_gen_args.flags = 0x0;
-	key_gen_args.key_type = HSM_KEY_TYPE_ECC_NIST;
-	key_gen_args.bit_key_sz = HSM_KEY_SIZE_ECC_NIST_256;
+	key_gen_args.key_type = key_type;
+	key_gen_args.bit_key_sz = bit_key_sz;
 	key_gen_args.key_lifecycle = 0x0; // Current Device Lifecycle
 	key_gen_args.out_key = NULL;
 	key_gen_args.out_size = 0x0;
@@ -425,7 +421,9 @@ out:
  *                                  ClientHello...client Finished)
  *                                  = resumption_master_secret
  */
-static void test_tls1_3_master_secrets(hsm_hdl_t key_mgmt_hdl)
+static void test_tls1_3_master_secrets(hsm_hdl_t key_mgmt_hdl,
+				       hsm_key_type_t key_type,
+				       hsm_bit_key_sz_t bit_key_sz)
 {
 	hsm_err_t err;
 	in_content_tls13_args_t in_content = {0};
@@ -447,9 +445,6 @@ static void test_tls1_3_master_secrets(hsm_hdl_t key_mgmt_hdl)
 	const unsigned char *context = context_buffer;
 	uint8_t context_len = sizeof(context_buffer);
 
-	printf("\nMaster Secrets:\n");
-	printf("------------------\n");
-
 	/* 1. Generate ELE Private Key for Key Agreement process */
 	key_gen_args.key_identifier = &key_id;
 	key_gen_args.key_group = 40;
@@ -457,8 +452,8 @@ static void test_tls1_3_master_secrets(hsm_hdl_t key_mgmt_hdl)
 	key_gen_args.key_usage = HSM_KEY_USAGE_DERIVE;
 	key_gen_args.permitted_algo = HSM_KEY_DERIVATION_TLS1_3_MASTER_SECRET_SHA256;
 	key_gen_args.flags = 0x0;
-	key_gen_args.key_type = HSM_KEY_TYPE_ECC_NIST;
-	key_gen_args.bit_key_sz = HSM_KEY_SIZE_ECC_NIST_256;
+	key_gen_args.key_type = key_type;
+	key_gen_args.bit_key_sz = bit_key_sz;
 	key_gen_args.key_lifecycle = 0x0; // Current Device Lifecycle
 	key_gen_args.out_key = NULL;
 	key_gen_args.out_size = 0x0;
@@ -569,9 +564,33 @@ void key_exchange_test_tls1_3(hsm_hdl_t key_mgmt_hdl)
 	printf("Key Exchange API tests - TLS 1.3");
 	printf("\n-----------------------------------------------------\n");
 
+	printf("\nECC_NIST & HSM_KEY_DERIVATION_TLS1_3_EARLY_SECRET_SHA256:\n");
+	printf("---------------------------------------------------------\n");
 	test_tls1_3_early_secrets(key_mgmt_hdl);
-	test_tls1_3_handshake_secrets(key_mgmt_hdl);
-	test_tls1_3_master_secrets(key_mgmt_hdl);
+
+	printf("\nECC_NIST & HSM_KEY_DERIVATION_TLS1_3_HANDSHAKE_SECRET_SHA256:\n");
+	printf("-------------------------------------------------------------\n");
+	test_tls1_3_handshake_secrets(key_mgmt_hdl,
+				      HSM_KEY_TYPE_ECC_NIST,
+				      HSM_KEY_SIZE_ECC_NIST_256);
+
+	printf("\nECC_MONTGOMERY & HSM_KEY_DERIVATION_TLS1_3_HANDSHAKE_SECRET_SHA256:\n");
+	printf("-------------------------------------------------------------------\n");
+	test_tls1_3_handshake_secrets(key_mgmt_hdl,
+				      HSM_KEY_TYPE_ECC_MONTGOMERY,
+				      HSM_KEY_SIZE_ECC_MONTGOMERY_255);
+
+	printf("\nECC_NIST & HSM_KEY_DERIVATION_TLS1_3_MASTER_SECRET_SHA256:\n");
+	printf("----------------------------------------------------------\n");
+	test_tls1_3_master_secrets(key_mgmt_hdl,
+				   HSM_KEY_TYPE_ECC_NIST,
+				   HSM_KEY_SIZE_ECC_NIST_256);
+
+	printf("\nECC_MONTGOMERY & HSM_KEY_DERIVATION_TLS1_3_MASTER_SECRET_SHA256:\n");
+	printf("----------------------------------------------------------------\n");
+	test_tls1_3_master_secrets(key_mgmt_hdl,
+				   HSM_KEY_TYPE_ECC_MONTGOMERY,
+				   HSM_KEY_SIZE_ECC_MONTGOMERY_255);
 
 	printf("\n-----------------------------------------------------\n");
 	printf("Test Complete");
