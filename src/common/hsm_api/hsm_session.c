@@ -75,12 +75,6 @@ hsm_err_t hsm_open_session(open_session_args_t *args, hsm_hdl_t *session_hdl)
 
 		mu_type = args->mu_type;
 
-		args = (open_session_args_t *)
-			plat_os_abs_malloc((uint32_t)sizeof(open_session_args_t));
-		if (!args)
-			break;
-		plat_os_abs_memset((uint8_t *)args, 0u, (uint32_t)sizeof(open_session_args_t));
-
 		s_ptr->mu_type = mu_type;
 		s_ptr->phdl = plat_os_abs_open_mu_channel(s_ptr->mu_type, &mu_params);
 		if (!s_ptr->phdl)
@@ -112,9 +106,6 @@ hsm_err_t hsm_open_session(open_session_args_t *args, hsm_hdl_t *session_hdl)
 		s_ptr->session_hdl = args->session_hdl;
 		*session_hdl = s_ptr->session_hdl;
 	} while (false);
-
-	if (args)
-		plat_os_abs_free(args);
 
 	if (err != HSM_NO_ERROR) {
 		if (s_ptr) {

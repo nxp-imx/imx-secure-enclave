@@ -1,6 +1,6 @@
 // SPDX-License-Identifier: BSD-3-Clause
 /*
- * Copyright 2023 NXP
+ * Copyright 2023-2024 NXP
  */
 
 #ifndef HSM_KEY_STORE_H
@@ -39,6 +39,9 @@ typedef uint8_t hsm_svc_key_store_flags_t;
 			((hsm_svc_key_store_flags_t)(1u << 0))
 //!< It must be specified to create a new key store. The key store will be
 //!< stored in the NVM only if the STRICT OPERATION flag is set.
+#define HSM_SVC_KEY_STORE_FLAGS_SHARED \
+			((hsm_svc_key_store_flags_t)(1u << 2))
+//!< It must be specified to create or load a shared key store.
 #define HSM_SVC_KEY_STORE_FLAGS_SET_MAC_LEN \
 			((hsm_svc_key_store_flags_t)(1u << 3))
 //!< If set, minimum mac length specified in min_mac_length field will be

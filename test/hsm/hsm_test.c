@@ -19,6 +19,10 @@
 #include "mbedtls_test.h"
 #endif
 
+#define HSM_TEST_SESSIONS	2
+
+open_session_args_t open_session_args[HSM_TEST_SESSIONS] = {0};
+open_svc_key_store_args_t key_store_args[HSM_TEST_SESSIONS] = {0};
 hsm_hdl_t hsm_session_hdl;
 hsm_hdl_t key_store_hdl;
 int cmdline_arg;
@@ -740,95 +744,28 @@ void ele_hsm_test_usage(void)
 	printf("key identifier.\n");
 }
 
-/* Test entry function. */
-int main(int argc, char *argv[])
+int execute_hsm_tests(void)
 {
-    struct sigaction hsm_test_sigact = {0};
-
-    open_session_args_t open_session_args = {0};
-    open_svc_key_store_args_t open_svc_key_store_args = {0};
-    op_get_random_args_t rng_get_random_args = {0};
-
-    hsm_err_t err;
-
-	if (argc == 2 && (strcmp("--help", argv[1]) == 0 || strcmp("-h", argv[1]) == 0)) {
-		ele_hsm_test_usage();
-		goto out;
-	}
-
-	if (argc == 2 && (strcmp("--rsa", argv[1]) == 0))
-		rsa_tcase_status = RSA_TCASE_ENABLED;
-
-	if (argc > 2)
-		cmdline_arg = atoi(argv[2]);
-
-	sigemptyset(&hsm_test_sigact.sa_mask);
-	hsm_test_sigact.sa_flags = SA_SIGINFO;
-	hsm_test_sigact.sa_sigaction = hsm_test_sig_handler;
-
-	/* Register hsm test signal handler for SIGINT (CTRL+C) signal. */
-	if (sigaction(SIGINT, &hsm_test_sigact, NULL)) {
-		perror("failed to register hsm_test_sig_handler\n");
-		goto out;
-	}
-
-    do {
-	open_session_args.mu_type = HSM1;
-        err = hsm_open_session(&open_session_args,
-                                    &hsm_session_hdl);
-        if (err != HSM_NO_ERROR) {
-            printf("hsm_open_session failed err:0x%x\n", err);
-            break;
-	} else
-		printf("hsm_open_session PASS\n");
-#ifdef WRITE_SHE_KEYS
-	write_fuse(hsm_session_hdl);
-#endif
-	print_global_info();
-	if (argc == 2 && (strcmp("--info", argv[1]) == 0 || strcmp("-i", argv[1]) == 0))
-		goto ginfo_out;
-
-	get_device_info(hsm_session_hdl);
-	perform_dev_attestation(hsm_session_hdl);
-	/* To test this api, customised firmware is used.
-	 * Hence commenting this test.
-	 */
-	//lc_update_info(hsm_session_hdl);
-
-        open_svc_key_store_args.key_store_identifier = 0xABCD;
-        open_svc_key_store_args.authentication_nonce = 0x1234;
-#ifndef PSA_COMPLIANT
-        open_svc_key_store_args.max_updates_number   = 100;
-#endif
-        open_svc_key_store_args.flags                = 1;
-        err = hsm_open_key_store_service(hsm_session_hdl, &open_svc_key_store_args, &key_store_hdl);
-		printf("hsm_open_key_store_service (create) ret:0x%x\n", err);
-
-	if (err == HSM_KEY_STORE_CONFLICT) {
-		open_svc_key_store_args.flags            = 0;
-		err = hsm_open_key_store_service(hsm_session_hdl,
-								&open_svc_key_store_args,
-								&key_store_hdl);
-		printf("\nhsm_open_key_store_service (load) ret:0x%x\n", err);
-	}
+	op_get_random_args_t rng_get_random_args = {0};
+	hsm_err_t err = 0;
 
 	/* If Data storage test is ran first, it will work
 	 * successfully even for 300 bytes.
 	 * Passing 0 means using the sizeof data array i.e., 300.
 	 */
-        data_storage_test(key_store_hdl, 0);
+	data_storage_test(key_store_hdl, 0);
 
 #ifndef SECONDARY_API_SUPPORTED
-        hsm_rng_test(hsm_session_hdl, &rng_get_random_args);
+	hsm_rng_test(hsm_session_hdl, &rng_get_random_args);
 #else
 	err = do_rng_test(hsm_session_hdl);
 	if (err)
 		printf("Error[0x%x]: RNG test Failed.\n", err);
 #endif
 #ifndef PSA_COMPLIANT
-        public_key_test(hsm_session_hdl);
+	public_key_test(hsm_session_hdl);
 
-        ecies_tests(hsm_session_hdl);
+	ecies_tests(hsm_session_hdl);
 #endif
 #ifdef SECONDARY_API_SUPPORTED
 #ifdef PSA_COMPLIANT
@@ -871,23 +808,166 @@ int main(int argc, char *argv[])
 	mbedtls_hkdf_test();
 	mbedtls_tls1_3_tests();
 #endif
-	if (argc > 1 && (strcmp("--rsa", argv[1]) != 0)) {
-		tv_tests_run(key_store_hdl, argv[1]);
-	} else {
-		printf("\n\nTest Vector Tests Usage: ele_hsm_test <tv_file_path>\n");
-		tv_tests_run(key_store_hdl, NULL);
+
+	return err;
+}
+
+/* Test entry function. */
+int main(int argc, char *argv[])
+{
+	struct sigaction hsm_test_sigact = {0};
+	open_svc_key_store_args_t hsm_key_store_args = {0};
+	int i = 0;
+
+	hsm_err_t err;
+
+	if (argc == 2 && (strcmp("--help", argv[1]) == 0 || strcmp("-h", argv[1]) == 0)) {
+		ele_hsm_test_usage();
+		return 0;
 	}
 
-        err = hsm_close_key_store_service(key_store_hdl);
-        printf("hsm_close_key_store_service ret:0x%x\n", err);
+	if (argc == 2 && (strcmp("--rsa", argv[1]) == 0))
+		rsa_tcase_status = RSA_TCASE_ENABLED;
+
+	if (argc > 2)
+		cmdline_arg = atoi(argv[2]);
+
+	sigemptyset(&hsm_test_sigact.sa_mask);
+	hsm_test_sigact.sa_flags = SA_SIGINFO;
+	hsm_test_sigact.sa_sigaction = hsm_test_sig_handler;
+
+	/* Register hsm test signal handler for SIGINT (CTRL+C) signal. */
+	if (sigaction(SIGINT, &hsm_test_sigact, NULL)) {
+		perror("failed to register hsm_test_sig_handler\n");
+		return 0;
+	}
+	open_session_args[i].mu_type = HSM1;
+	err = hsm_open_session(&open_session_args[i],
+			       &hsm_session_hdl);
+	if (err != HSM_NO_ERROR) {
+		printf("hsm_open_session failed err:0x%x\n", err);
+		return 0;
+	}
+	printf("hsm_open_session PASS 0x%x\n", hsm_session_hdl);
+
+#ifdef WRITE_SHE_KEYS
+	write_fuse(hsm_session_hdl);
+#endif
+	print_global_info();
+	if (argc == 2 && (strcmp("--info", argv[1]) == 0 ||
+			  strcmp("-i", argv[1]) == 0))
+		goto ginfo_out;
+
+	get_device_info(hsm_session_hdl);
+	perform_dev_attestation(hsm_session_hdl);
+	/* To test this api, customised firmware is used.
+	 * Hence commenting this test.
+	 */
+	//lc_update_info(hsm_session_hdl);
+
+	hsm_key_store_args.key_store_identifier = 0xABCD;
+	hsm_key_store_args.authentication_nonce = 0x1234;
+	hsm_key_store_args.flags            = HSM_SVC_KEY_STORE_FLAGS_CREATE;
+
+#ifndef PSA_COMPLIANT
+	hsm_key_store_args.max_updates_number   = 100;
+#endif
+	printf("hsm_open_key_store_service for key_id = 0x%x, flags = 0x%x\n",
+	       hsm_key_store_args.key_store_identifier,
+	       hsm_key_store_args.flags);
+	err = hsm_open_key_store_service(hsm_session_hdl,
+					 &hsm_key_store_args,
+					 &key_store_hdl);
+
+	if (err == HSM_KEY_STORE_CONFLICT) {
+		hsm_key_store_args.flags &= ~HSM_SVC_KEY_STORE_FLAGS_CREATE;
+		err = hsm_open_key_store_service(hsm_session_hdl,
+						 &hsm_key_store_args,
+						 &key_store_hdl);
+	}
+	if (err) {
+		printf("\nhsm_open_key_store_service ret:0x%x\n", err);
+		return err;
+	}
+
+	/* execute tests on non-shared key store */
+	err = execute_hsm_tests();
+	if (err)
+		goto ginfo_out;
+
+	/* Execute Test Vectors on non-shared key store */
+	if (argc > 1 && (strcmp("--rsa", argv[1]) != 0)) {
+		tv_tests_run(hsm_key_store_args.key_store_hdl, argv[1]);
+	} else {
+		printf("\n\nTest Vector Tests Usage: ele_hsm_test <tv_file_path>\n");
+		tv_tests_run(hsm_key_store_args.key_store_hdl, NULL);
+	}
+
+	/* Test shared keystores */
+	for (i = 0; i < HSM_TEST_SESSIONS; i++) {
+		if (i > 0) {
+			open_session_args[i].mu_type = HSM1;
+			err = hsm_open_session(&open_session_args[i],
+					       &hsm_session_hdl);
+			if (err != HSM_NO_ERROR) {
+				printf("hsm_open_session[%d] failed err:0x%x\n", i, err);
+				goto ginfo_out;
+			}
+			printf("hsm_open_session[%d] PASS 0x%x\n", i, hsm_session_hdl);
+		}
+
+		key_store_args[i].key_store_identifier = 0xCDEF;
+		key_store_args[i].authentication_nonce = 0x5678;
+		key_store_args[i].flags		       = HSM_SVC_KEY_STORE_FLAGS_CREATE |
+							 HSM_SVC_KEY_STORE_FLAGS_SHARED;
+
+#ifndef PSA_COMPLIANT
+		key_store_args[i].max_updates_number   = 100;
+#endif
+		printf("hsm_open_key_store_service for key_id = 0x%x, flags = 0x%x\n",
+		       key_store_args[i].key_store_identifier, key_store_args[i].flags);
+		err = hsm_open_key_store_service(hsm_session_hdl,
+						 &key_store_args[i],
+						 &key_store_hdl);
+
+		if (err == HSM_KEY_STORE_CONFLICT) {
+			key_store_args[i].flags &= ~HSM_SVC_KEY_STORE_FLAGS_CREATE;
+			err = hsm_open_key_store_service(hsm_session_hdl,
+							 &key_store_args[i],
+							 &key_store_hdl);
+		}
+		if (err) {
+			printf("\nhsm_open_key_store_service ret:0x%x\n", err);
+			goto ginfo_out;
+		}
+
+		/* execute tests on shared key store */
+		err = execute_hsm_tests();
+		if (err)
+			goto ginfo_out;
+	}
 
 ginfo_out:
-        err = hsm_close_session(hsm_session_hdl);
+	for (i = 0; i < HSM_TEST_SESSIONS; i++) {
+		/* close non-shared key stores */
+		if (i == 0 && hsm_key_store_args.key_store_hdl) {
+			err = hsm_close_key_store_service
+				(hsm_key_store_args.key_store_hdl);
+			printf("hsm_close_key_store_service[%d] ret:0x%x\n", i, err);
+		}
 
-        printf("hsm_close_session ret:0x%x\n", err);
+		/* close shared key stores */
+		if (key_store_args[i].key_store_hdl) {
+			err = hsm_close_key_store_service
+				(key_store_args[i].key_store_hdl);
+			printf("hsm_close_key_store_service[%d] ret:0x%x\n", i, err);
+		}
 
-    } while (0);
+		if (open_session_args[i].session_hdl) {
+			err = hsm_close_session(open_session_args[i].session_hdl);
+			printf("hsm_close_session[%d] ret:0x%x\n", i, err);
+		}
+	}
 
-out:
 	return 0;
 }
