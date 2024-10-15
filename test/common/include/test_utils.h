@@ -9,6 +9,8 @@
 #define SIGNED_TESTS_STATUS_DISABLED 0x0
 #define SIGNED_TESTS_STATUS_ENABLED  0x1
 
+#define BITS_TO_BYTES(x) ((x) / 8u)
+
 static uint8_t signed_tests_en_status;
 
 static uint8_t test_oem_srkh[32] = {

@@ -10,8 +10,6 @@
 
 #define TEST_KEYSTORE_ID 0xABCD
 
-#define BITS_TO_BYTES(x) ((x) / 8u)
-
 /* Derived Key Sizes: 256, 384 bits */
 #define TEST_TLS1_3_DERIVED_MAX_KEY_SIZE BITS_TO_BYTES(384u)
 #define TEST_HKDF_EXPAND_MAX_KEY_SIZE BITS_TO_BYTES(384u)

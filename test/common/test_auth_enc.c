@@ -6,6 +6,7 @@
 #include <stdio.h>
 
 #include "hsm_api.h"
+#include "test_common.h"
 
 static uint8_t test_message[32] = {
 	0xB2, 0xE1, 0x4C, 0x5C, 0x79, 0xC6, 0xDF, 0x5B, 0x85, 0xF4, 0xFE, 0x7E,
@@ -19,6 +20,11 @@ static uint8_t iv_data[12] = {
 static uint8_t aad_data[16] = {
 	0x85, 0xF4, 0xFE, 0x7E, 0xD8, 0xDB, 0x7A, 0x26, 0x2B, 0x9D, 0xA7, 0xE0,
 	0x7C, 0xCB, 0x0E, 0xA9,};
+
+static uint8_t testcase_ccm_aes128key[16] = {
+	0x5D, 0xED, 0x4C, 0xA2, 0x34, 0xBC, 0x56, 0xCC,
+	0xAD, 0x75, 0x57, 0xE0, 0x8F, 0xCB, 0x36, 0x4D,
+};
 
 static uint8_t ciphertext[48] = {0};
 static uint8_t plaintext[32] = {0};
@@ -215,11 +221,147 @@ static hsm_err_t auth_enc_test_ccm(hsm_hdl_t key_store_hdl,
 	return err;
 }
 
+#ifdef PSA_COMPLIANT
+static hsm_err_t auth_enc_new_ccm_test(hsm_hdl_t key_store_hdl,
+				       hsm_hdl_t key_mgmt_hdl)
+{
+	hsm_err_t err = HSM_GENERAL_ERROR;
+	op_auth_enc_new_args_t args = {0};
+	op_delete_key_args_t del_args = {0};
+	uint32_t key_id = 0;
+	uint8_t ciphertext[32] = {0};
+	uint8_t plaintext[32] = {0};
+	uint8_t tag[16] = {0};
+
+	printf("\nOpaque Key Test (CCM):\n");
+	printf("------------------------\n");
+
+	/* Generate key for the operation */
+	err = generate_key(key_mgmt_hdl,
+			   HSM_SE_KEY_STORAGE_VOLATILE,
+			   HSM_KEY_USAGE_ENCRYPT | HSM_KEY_USAGE_DECRYPT,
+			   PERMITTED_ALGO_CCM,
+			   HSM_KEY_SIZE_AES_256,
+			   0,
+			   HSM_KEY_TYPE_AES,
+			   50,
+			   &key_id);
+	if (err != HSM_NO_ERROR)
+		goto out;
+
+	/* AEAD Encrypt operation using opaque key */
+	memset(&args, 0, sizeof(op_auth_enc_new_args_t));
+
+	args.key_id = key_id;
+	args.flags = HSM_AUTH_ENC_FLAGS_ENCRYPT | HSM_AUTH_ENC_FLAGS_ONE_SHOT;
+	args.ae_algo = HSM_AEAD_ALGO_CCM;
+	args.input_size = sizeof(test_message);
+	args.input = test_message;
+	args.output_size = sizeof(ciphertext);
+	args.output = ciphertext;
+	args.iv_size = sizeof(iv_data);
+	args.iv_in = iv_data;
+	args.aad_size = sizeof(aad_data);
+	args.aad = aad_data;
+	args.tag_size = sizeof(tag);
+	args.tag = tag;
+
+	err = hsm_do_auth_enc_new(key_store_hdl, &args);
+	printf("hsm_do_auth_enc_new (Encrypt) ret: 0x%x\n", err);
+	if (err == HSM_OUT_TOO_SMALL)
+		printf("Expected Output Size (Encrypt): %d\n", args.exp_output_size);
+
+	/* AEAD Decrypt operation using Opaque key */
+	args.flags = HSM_AUTH_ENC_FLAGS_DECRYPT | HSM_AUTH_ENC_FLAGS_ONE_SHOT;
+	args.input_size = sizeof(ciphertext);
+	args.input = ciphertext;
+	args.output_size = sizeof(plaintext);
+	args.output = plaintext;
+
+	err = hsm_do_auth_enc_new(key_store_hdl, &args);
+	printf("hsm_do_auth_enc_new (Decrypt) ret: 0x%x\n", err);
+	if (err == HSM_OUT_TOO_SMALL)
+		printf("Expected Output Size (Decrypt): %d\n", args.exp_output_size);
+
+	if (memcmp(test_message, plaintext, sizeof(test_message)) == 0)
+		printf("\nDecrypted data matches Test data [PASS]\n");
+	else
+		printf("\nDecrypted data doesn't match Test data [FAIL]\n");
+
+	/* Delete the Generated Test Key */
+	memset(&del_args, 0, sizeof(del_args));
+
+	del_args.key_identifier = key_id;
+	del_args.flags = 0;
+	err = hsm_delete_key(key_mgmt_hdl, &del_args);
+	if (err != HSM_NO_ERROR)
+		printf("hsm_delete_key ret: 0x%x\n", err);
+out:
+	return err;
+}
+
+static hsm_err_t auth_enc_new_ccm_plainkey_test(hsm_hdl_t key_store_hdl,
+						hsm_hdl_t key_mgmt_hdl)
+{
+	hsm_err_t err = HSM_GENERAL_ERROR;
+	op_auth_enc_new_args_t args = {0};
+	uint8_t ciphertext[32] = {0};
+	uint8_t plaintext[32] = {0};
+	uint8_t tag[16] = {0};
+
+	printf("\nPlainkey Test (CCM):\n");
+	printf("----------------------\n");
+
+	/* AEAD Encrypt operation using Plaintext key */
+	args.ae_algo = HSM_AEAD_ALGO_CCM;
+	args.flags = HSM_AUTH_ENC_FLAGS_ENCRYPT | HSM_AUTH_ENC_FLAGS_ONE_SHOT |
+		     HSM_AUTH_ENC_FLAGS_PLAINTEXT_KEY;
+	args.key = testcase_ccm_aes128key;
+	args.key_size = BITS_TO_BYTES(HSM_KEY_SIZE_AES_128);
+	args.key_type = HSM_KEY_TYPE_AES;
+	args.input_size = sizeof(test_message);
+	args.input = test_message;
+	args.output_size = sizeof(ciphertext);
+	args.output = ciphertext;
+	args.iv_size = sizeof(iv_data);
+	args.iv_in = iv_data;
+	args.aad_size = sizeof(aad_data);
+	args.aad = aad_data;
+	args.tag_size = sizeof(tag);
+	args.tag = tag;
+
+	err = hsm_do_auth_enc_new(key_store_hdl, &args);
+	printf("hsm_do_auth_enc_new (Encrypt) ret: 0x%x\n", err);
+	if (err == HSM_OUT_TOO_SMALL)
+		printf("Expected Output Size (Encrypt): %d\n", args.exp_output_size);
+
+	/* AEAD Decrypt operation using Plaintext key */
+	args.flags = HSM_AUTH_ENC_FLAGS_DECRYPT | HSM_AUTH_ENC_FLAGS_ONE_SHOT |
+		     HSM_AUTH_ENC_FLAGS_PLAINTEXT_KEY;
+	args.input_size = sizeof(ciphertext);
+	args.input = ciphertext;
+	args.output_size = sizeof(plaintext);
+	args.output = plaintext;
+
+	err = hsm_do_auth_enc_new(key_store_hdl, &args);
+	printf("hsm_do_auth_enc_new (Decrypt) ret: 0x%x\n", err);
+	if (err == HSM_OUT_TOO_SMALL)
+		printf("Expected Output Size (Decrypt): %d\n", args.exp_output_size);
+
+	if (memcmp(test_message, plaintext, sizeof(plaintext)) == 0)
+		printf("\nDecrypted data matches Test data [PASS]\n");
+	else
+		printf("\nDecrypted data doesn't match Test data [FAIL]\n");
+
+	return err;
+}
+#endif
+
 hsm_err_t auth_enc_test(hsm_hdl_t key_store_hdl, hsm_hdl_t key_mgmt_hdl)
 {
 #ifdef PSA_COMPLIANT
 	printf("\n------------------------------------------------\n");
-	printf("AUTH ENC Test:");
+	printf("AUTH ENC (legacy) Test:");
 	printf("\n------------------------------------------------\n");
 
 	auth_enc_test_ccm(key_store_hdl, key_mgmt_hdl);
@@ -228,7 +370,18 @@ hsm_err_t auth_enc_test(hsm_hdl_t key_store_hdl, hsm_hdl_t key_mgmt_hdl)
 		auth_enc_test_chacha20_poly1305(key_store_hdl, key_mgmt_hdl);
 
 	printf("\n------------------------------------------------\n");
-	printf("AUTH ENC Test: Complete");
+	printf("Test Complete");
+	printf("\n------------------------------------------------\n");
+
+	printf("\n------------------------------------------------\n");
+	printf("AUTH ENC (New) Tests:");
+	printf("\n------------------------------------------------\n");
+
+	auth_enc_new_ccm_test(key_store_hdl, key_mgmt_hdl);
+	auth_enc_new_ccm_plainkey_test(key_store_hdl, key_mgmt_hdl);
+
+	printf("\n------------------------------------------------\n");
+	printf("Test Complete");
 	printf("\n------------------------------------------------\n");
 #endif
 }

@@ -12,7 +12,7 @@
 /* Dump HEX buffer byte-by-byte */
 void dump_hex(uint8_t buf[], uint32_t size)
 {
-	for (uint8_t i = 0; i < size; i++) {
+	for (uint32_t i = 0; i < size; i++) {
 		if (i != 0 && (i % 16 == 0))
 			printf("\n");
 		printf("%02x ", buf[i]);
