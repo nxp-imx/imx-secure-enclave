@@ -172,6 +172,12 @@ HSM_API_SRC	+= \
 		$(PLAT_COMMON_PATH)/hsm_api/hsm_auth_enc.o
 endif
 
+ifneq (${MT_SAB_AUTH_ENC_NEW},0x0)
+DEFINES		+=	-DHSM_AUTH_ENC_NEW
+HSM_API_SRC	+= \
+		$(PLAT_COMMON_PATH)/hsm_api/hsm_auth_enc.o
+endif
+
 ifneq (${MT_SAB_KEY_GENERIC_CRYPTO},0x0)
 DEFINES		+=	-DHSM_KEY_GENERIC_CRYPTO
 HSM_API_SRC	+= \

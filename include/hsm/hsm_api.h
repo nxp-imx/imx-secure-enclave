@@ -436,8 +436,31 @@ hsm_err_t hsm_enc_data_ops(hsm_hdl_t key_store_hdl,
  * \param auth_enc_args pointer to the structure containing the function arguments.
  *
  * \return error code
+ *
+ * Note: The API is deprecated now.
  */
 hsm_err_t hsm_do_auth_enc(hsm_hdl_t key_store_hdl, op_auth_enc_args_t *auth_enc_args);
+#ifdef PSA_COMPLIANT
+/**
+ * Secondary API to perform Authenticated Encryption (New)\n
+ *
+ * This API does the following:
+ * 1. Opens Cipher Service Flow\n
+ * 2. Perform Authenticated Encryption operation\n
+ *     - One-Shot AEAD operation using an opaque or plaintext key.
+ *     - Streaming AEAD operation using an opaque or plaintext key.
+ * 3. Terminates the previously opened Cipher service flow\n
+ *
+ * User can call this function only after having opened a key store service
+ * flow.\n
+ *
+ * \param key_store_hdl handle identifying the key store service flow.
+ * \param args pointer to the structure containing the function arguments.
+ *
+ * \return error code
+ */
+hsm_err_t hsm_do_auth_enc_new(hsm_hdl_t key_store_hdl, op_auth_enc_new_args_t *args);
+#endif
 /** @} end of authenticated encryption service flow */
 
 /**

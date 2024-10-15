@@ -118,6 +118,10 @@
 #include "sab_auth_enc.h"
 #endif
 
+#if MT_SAB_AUTH_ENC_NEW
+#include "sab_auth_enc.h"
+#endif
+
 #if MT_SAB_KEY_GENERIC_CRYPTO
 #include "sab_key_generic_crypto.h"
 #endif
@@ -645,6 +649,15 @@ static  int init_proc_sab_hsm_msg_engine(msg_type_t msg_type,
 			ret = add_sab_msg_handler(msg_id, MT_SAB_AUTH_ENC,
 						  prepare_msg_auth_enc,
 						  proc_msg_rsp_auth_enc);
+		}
+		break;
+#endif
+#if MT_SAB_AUTH_ENC_NEW
+	case SAB_AUTH_ENC_NEW_REQ:
+		if (msg_type == MT_SAB_AUTH_ENC_NEW) {
+			ret = add_sab_msg_handler(msg_id, MT_SAB_AUTH_ENC_NEW,
+						  prepare_msg_auth_enc_new,
+						  proc_msg_rsp_auth_enc_new);
 		}
 		break;
 #endif

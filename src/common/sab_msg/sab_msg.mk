@@ -275,6 +275,12 @@ SAB_MSG_SRC	+= \
 		$(PLAT_COMMON_PATH)/sab_msg/sab_auth_enc.o
 endif
 
+ifneq (${MT_SAB_AUTH_ENC_NEW},0x0)
+DEFINES		+=	-DMT_SAB_AUTH_ENC_NEW=${MT_SAB_AUTH_ENC_NEW}
+SAB_MSG_SRC	+= \
+		$(PLAT_COMMON_PATH)/sab_msg/sab_auth_enc.o
+endif
+
 ifneq (${MT_SAB_KEY_GENERIC_CRYPTO},0x0)
 DEFINES		+=	-DMT_SAB_KEY_GENERIC_CRYPTO=${MT_SAB_KEY_GENERIC_CRYPTO}
 SAB_MSG_SRC	+= \

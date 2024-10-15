@@ -76,6 +76,7 @@
 #define SAB_CIPHER_ONE_GO_REQ                   0x62u
 #define SAB_CIPHER_ECIES_DECRYPT_REQ            0x63u
 #define SAB_AUTH_ENC_REQ                        0x64u
+#define SAB_AUTH_ENC_NEW_REQ                    0x65u
 
 #define SAB_SIGNATURE_GENERATION_OPEN_REQ       0x70u
 #define SAB_SIGNATURE_GENERATION_CLOSE_REQ      0x71u
