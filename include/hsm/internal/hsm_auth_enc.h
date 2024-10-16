@@ -112,7 +112,7 @@ typedef uint16_t hsm_op_auth_enc_new_flags_t;
  * the one provided in Tag buffer. Valid only for decryption.
  */
 #define HSM_AUTH_ENC_FLAGS_FINALIZE_VERIFY \
-			((hsm_op_auth_enc_flags_t)(1u << 12))
+			((hsm_op_auth_enc_new_flags_t)(1u << 12))
 /**
  * Bit indicating ABORT operation. Abort a multipart operation and clean the
  * context.
