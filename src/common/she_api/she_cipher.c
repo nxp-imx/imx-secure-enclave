@@ -125,7 +125,7 @@ she_err_t she_cipher_one_go(she_hdl_t cipher_handle, op_cipher_one_go_args_t *ar
 
 	sab_err = process_sab_msg(serv_ptr->session->phdl,
 				  serv_ptr->session->mu_type,
-				  SAB_CIPHER_ONE_GO_REQ,
+				  SAB_CIPHER_REQ,
 				  MT_SAB_CIPHER,
 				  (uint32_t)cipher_handle,
 				  args,
@@ -136,14 +136,14 @@ she_err_t she_cipher_one_go(she_hdl_t cipher_handle, op_cipher_one_go_args_t *ar
 	err = sab_rating_to_she_err(sab_err, serv_ptr->session->phdl);
 
 	if (err != SHE_NO_ERROR) {
-		se_err("SHE Error: SAB_CIPHER_ONE_GO_REQ [0x%x].\n", err);
+		se_err("SHE Error: SAB_CIPHER_REQ [0x%x].\n", err);
 		return err;
 	}
 
 	err = sab_rating_to_she_err(rsp_code, serv_ptr->session->phdl);
 
 	if (err != SHE_NO_ERROR) {
-		se_err("SHE RSP Error: SAB_CIPHER_ONE_GO_REQ [0x%x].\n", err);
+		se_err("SHE RSP Error: SAB_CIPHER_REQ [0x%x].\n", err);
 		return err;
 	}
 

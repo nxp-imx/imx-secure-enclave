@@ -153,12 +153,11 @@ hsm_err_t hsm_close_session(hsm_hdl_t session_hdl);
  * User can call this function only after having opened a cipher service flow.\n
  *
  * \param cipher_hdl handle identifying the cipher service flow.
- * \param cipher_one_go pointer to the structure containing the function arguments.
+ * \param args pointer to the structure containing the function arguments.
  *
  * \return error code
  */
-hsm_err_t hsm_do_cipher(hsm_hdl_t cipher_hdl,
-			op_cipher_one_go_args_t *cipher_one_go);
+hsm_err_t hsm_do_cipher(hsm_hdl_t cipher_hdl, op_cipher_args_t *args);
 #ifdef PSA_COMPLIANT
 /**
  *\addtogroup iMX8ULP

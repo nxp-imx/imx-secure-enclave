@@ -73,7 +73,7 @@
 
 #define SAB_CIPHER_OPEN_REQ                     0x60u
 #define SAB_CIPHER_CLOSE_REQ                    0x61u
-#define SAB_CIPHER_ONE_GO_REQ                   0x62u
+#define SAB_CIPHER_REQ                          0x62u
 #define SAB_CIPHER_ECIES_DECRYPT_REQ            0x63u
 #define SAB_AUTH_ENC_REQ                        0x64u
 #define SAB_AUTH_ENC_NEW_REQ                    0x65u

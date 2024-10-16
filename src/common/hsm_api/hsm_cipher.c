@@ -1,6 +1,6 @@
 // SPDX-License-Identifier: BSD-3-Clause
 /*
- * Copyright 2019-2023 NXP
+ * Copyright 2019-2024 NXP
  */
 
 #include <stdbool.h>
@@ -110,7 +110,7 @@ hsm_err_t hsm_close_cipher_service(hsm_hdl_t cipher_hdl)
 	return err;
 }
 
-hsm_err_t hsm_cipher_one_go(hsm_hdl_t cipher_hdl, op_cipher_one_go_args_t *args)
+hsm_err_t hsm_cipher(hsm_hdl_t cipher_hdl, op_cipher_args_t *args)
 {
 	struct hsm_service_hdl_s *serv_ptr;
 	hsm_err_t err = HSM_GENERAL_ERROR;
@@ -134,7 +134,7 @@ hsm_err_t hsm_cipher_one_go(hsm_hdl_t cipher_hdl, op_cipher_one_go_args_t *args)
 
 		error = process_sab_msg(serv_ptr->session->phdl,
 					serv_ptr->session->mu_type,
-					SAB_CIPHER_ONE_GO_REQ,
+					SAB_CIPHER_REQ,
 					MT_SAB_CIPHER,
 					(uint32_t)cipher_hdl,
 					args, &rsp_code);
@@ -142,13 +142,12 @@ hsm_err_t hsm_cipher_one_go(hsm_hdl_t cipher_hdl, op_cipher_one_go_args_t *args)
 		err = sab_rating_to_hsm_err(error, serv_ptr->session->phdl);
 
 		if (err != HSM_NO_ERROR) {
-			se_err("HSM Error: SAB_CIPHER_ONE_GO_REQ [0x%x].\n", err);
+			se_err("HSM Error: SAB_CIPHER_REQ [0x%x].\n", err);
 			break;
 		}
 		err = sab_rating_to_hsm_err(rsp_code, serv_ptr->session->phdl);
 		if (err != HSM_NO_ERROR) {
-			se_err("HSM RSP Error: SAB_CIPHER_ONE_GO_REQ [0x%x].\n",
-				err);
+			se_err("HSM RSP Error: SAB_CIPHER_REQ [0x%x].\n", err);
 		}
 
 	} while (false);
@@ -156,7 +155,12 @@ hsm_err_t hsm_cipher_one_go(hsm_hdl_t cipher_hdl, op_cipher_one_go_args_t *args)
 	return err;
 }
 
-hsm_err_t hsm_do_cipher(hsm_hdl_t key_store_hdl, op_cipher_one_go_args_t *cipher_args)
+hsm_err_t hsm_cipher_one_go(hsm_hdl_t cipher_hdl, op_cipher_one_go_args_t *args)
+{
+	return hsm_cipher(cipher_hdl, args);
+}
+
+hsm_err_t hsm_do_cipher(hsm_hdl_t key_store_hdl, op_cipher_args_t *cipher_args)
 {
 	hsm_hdl_t cipher_hdl = 0;
 	hsm_err_t err;
@@ -173,9 +177,9 @@ hsm_err_t hsm_do_cipher(hsm_hdl_t key_store_hdl, op_cipher_one_go_args_t *cipher
 		goto exit;
 	}
 
-	op_err = hsm_cipher_one_go(cipher_hdl, cipher_args);
+	op_err = hsm_cipher(cipher_hdl, cipher_args);
 	if (op_err)
-		se_err("hsm_cipher_one_go ret:0x%x\n", op_err);
+		se_err("hsm_cipher ret:0x%x\n", op_err);
 
 	err = hsm_close_cipher_service(cipher_hdl);
 	if (err) {
