@@ -1,11 +1,16 @@
 // SPDX-License-Identifier: BSD-3-Clause
 /*
- * Copyright 2022-2023 NXP
+ * Copyright 2022-2024 NXP
  */
 
 #include <stdio.h>
 
 #include "hsm_api.h"
+#include "test_common.h"
+
+#ifdef PSA_COMPLIANT
+#include "mbedtls_utils.h"
+#endif
 
 uint8_t hash_data[32] = {
 	0x00, 0x01, 0x02, 0x03, 0x04, 0x05, 0x06, 0x07,
@@ -17,6 +22,11 @@ uint8_t hash_data[32] = {
 uint8_t iv_data[16] = {
 	0x00, 0x01, 0x02, 0x03, 0x04, 0x05, 0x06, 0x07,
 	0x08, 0x09, 0x0A, 0x0B, 0x0C, 0x0D, 0x0E, 0x0F };
+
+static uint8_t key[16] = {
+	0x5D, 0xED, 0x4C, 0xA2, 0x34, 0xBC, 0x56, 0xCC,
+	0xAD, 0x75, 0x57, 0xE0, 0x8F, 0xCB, 0x36, 0x4D,
+};
 
 #define KEY_GROUP	50
 
@@ -54,6 +64,68 @@ static hsm_err_t generate_key(hsm_hdl_t key_mgmt_hdl,
 	return hsm_generate_key(key_mgmt_hdl, &key_gen_args);
 }
 
+#ifdef PSA_COMPLIANT
+hsm_err_t do_cipher_plainkey_test(hsm_hdl_t key_store_hdl, hsm_hdl_t key_mgmt_hdl)
+{
+	op_cipher_one_go_args_t args = {0};
+	uint8_t ciphered_data[32] = {0};
+	uint8_t deciphered_data[32] = {0};
+	uint8_t mbedtls_ciphered_data[32] = {0};
+	hsm_err_t hsmret;
+
+	/* Plaintext Key Test */
+	printf("\nPlaintext Key Test:\n");
+	printf("---------------------\n");
+
+	memset(&args, 0, sizeof(op_cipher_one_go_args_t));
+
+	/* Cipher Encrypt */
+	args.flags = HSM_CIPHER_ONE_GO_FLAGS_ENCRYPT | HSM_CIPHER_FLAGS_PLAINTEXT_KEY;
+	args.cipher_algo = HSM_CIPHER_ONE_GO_ALGO_CBC;
+	args.key = key;
+	args.key_size = sizeof(key);
+	args.key_type = HSM_KEY_TYPE_AES;
+	args.iv = iv_data;
+	args.iv_size = sizeof(iv_data);
+	args.input = hash_data;
+	args.input_size = sizeof(hash_data);
+	args.output = ciphered_data;
+	args.output_size = sizeof(ciphered_data);
+
+	hsmret = hsm_do_cipher(key_store_hdl, &args);
+	printf("hsm_do_cipher (encrypt) ret:0x%x\n", hsmret);
+
+	/* Cipher Decrypt */
+	args.flags = HSM_CIPHER_ONE_GO_FLAGS_DECRYPT | HSM_CIPHER_FLAGS_PLAINTEXT_KEY;
+	args.input = ciphered_data;
+	args.input_size = sizeof(ciphered_data);
+	args.output = deciphered_data;
+	args.output_size = sizeof(deciphered_data);
+
+	hsmret = hsm_do_cipher(key_store_hdl, &args);
+	printf("hsm_do_cipher (decrypt) ret:0x%x\n", hsmret);
+
+	if (memcmp(hash_data, deciphered_data, sizeof(hash_data)) == 0)
+		printf("\nDecrypted data matches encrypted data [PASS]\n");
+	else
+		printf("\nDecrypted data doesn't match encrypted data [FAIL]\n");
+
+	/* Mbed-TLS cipher operation */
+	my_mbedtls_aes_cbc(HSM_KEY_SIZE_AES_128, key,
+			   HSM_CIPHER_ONE_GO_FLAGS_ENCRYPT,
+			   hash_data, sizeof(hash_data),
+			   mbedtls_ciphered_data,
+			   iv_data);
+
+	if (memcmp(ciphered_data, mbedtls_ciphered_data, sizeof(ciphered_data)) == 0)
+		printf("\nCiphertext validation with Mbed-TLS [PASS]\n");
+	else
+		printf("\nCiphertext validation with Mbed-TLS [FAIL]\n");
+
+	return hsmret;
+}
+#endif
+
 hsm_err_t do_cipher_test(hsm_hdl_t key_store_hdl, hsm_hdl_t key_mgmt_hdl)
 {
 	op_cipher_one_go_args_t cipher_args = {0};
@@ -66,6 +138,10 @@ hsm_err_t do_cipher_test(hsm_hdl_t key_store_hdl, hsm_hdl_t key_mgmt_hdl)
 	printf("---------------------------------------------------\n");
 	printf("SECONDARY API: DO CIPHER Test Start\n");
 	printf("---------------------------------------------------\n");
+
+	/* Opaque Key Test */
+	printf("\nOpaque Key Test\n");
+	printf("-----------------\n");
 
 	generate_key(key_mgmt_hdl,
 #ifndef PSA_COMPLIANT
@@ -114,6 +190,9 @@ hsm_err_t do_cipher_test(hsm_hdl_t key_store_hdl, hsm_hdl_t key_mgmt_hdl)
 	else
 		printf("\nDecrypted data doesn't match encrypted data [FAIL]\n");
 
+#ifdef PSA_COMPLIANT
+	hsmret = do_cipher_plainkey_test(key_store_hdl, key_mgmt_hdl);
+#endif
 	printf("\n---------------------------------------------------\n");
 	printf("SECONDARY API: DO CIPHER Test Complete\n");
 	printf("---------------------------------------------------\n");

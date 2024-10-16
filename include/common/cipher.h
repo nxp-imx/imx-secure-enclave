@@ -108,12 +108,12 @@ typedef struct {
 	//!< Expected output buffer size in bytes, valid in case of (0x1D) error code.
 	//!< Expected context buffer size in bytes, valid in case of (0x1E) error code.
 #endif
-} op_cipher_one_go_args_t;
+} op_cipher_args_t;
 
 /**
  * Structure describing the cipher operation arguments
  */
-typedef op_cipher_one_go_args_t op_cipher_args_t;
+typedef op_cipher_args_t op_cipher_one_go_args_t;
 
 /** @} end of cipher service flow */
 #endif
