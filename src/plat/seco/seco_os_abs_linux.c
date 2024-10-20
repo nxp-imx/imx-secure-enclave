@@ -49,6 +49,8 @@ char V2X_MU_SG0_PATH[] = "/dev/v2x_sg0_ch0";
 // This device is for SG0 channel on V2X, low latency high priority.
 char V2X_MU_SG1_PATH[] = "/dev/v2x_sg1_ch0";
 // This device is for SG1 channel on V2X, low latency low priority.
+char V2X_SHE_DBG_MU_NVM_PATH[] = "/dev/v2x_dbg_ch0";
+// This device is for SHE NVM channel on DEBUG MU.
 char V2X_MU_SHE_NVM_PATH[] = "/dev/v2x_she_ch1";
 // This device is for SHE NVM channel on V2X.
 char V2X_MU_SG1_NVM_PATH[] = "/dev/v2x_sg1_ch1";
@@ -98,6 +100,10 @@ struct plat_os_abs_hdl *plat_os_abs_open_mu_channel(uint32_t type, struct plat_m
 		break;
 	case V2X_SHE_NVM:
 		device_path = V2X_MU_SHE_NVM_PATH;
+		is_nvm = 1u;
+		break;
+	case V2X_SHE_DEBUG_MU_NVM:
+		device_path = V2X_SHE_DBG_MU_NVM_PATH;
 		is_nvm = 1u;
 		break;
 	case V2X_HSM_NVM:

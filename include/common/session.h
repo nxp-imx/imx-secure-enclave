@@ -39,8 +39,6 @@ typedef struct {
 //!< HSM1 channel on SE, best effort high priority.
 #define HSM2	(0x2u)
 //!< HSM2 channel on SE, best effort high priority.
-#define HSM_NVM	(0x12u)
-//!< HSM NVM channel on SE.
 #define V2X_SG0 (0x3u)
 //!< SG0 channel on V2X, low latency high priority.
 #define V2X_SG1 (0x4u)
@@ -49,15 +47,19 @@ typedef struct {
 //!< SHE channel on V2X, low latency  high priority.
 #define SHE1	(0x6u)
 //!< SHE channel on SE,  best effort high priority.
-#define SHE_NVM	(0x13u)
-//!< SHE NVM channel on SE.
-#define V2X_SHE_NVM (0x14u)
-//!< SHE NVM channel on V2X.
 #define V2X_SV0 (0x7u)
 //!< SV0 channel on V2X, low latency high priority.
 #define V2X_SV1 (0x8u)
 //!< SV1 channel on V2X, low latency low priority.
+#define HSM_NVM	(0x12u)
+//!< HSM NVM channel on SE.
+#define SHE_NVM	(0x13u)
+//!< SHE NVM channel on SE.
+#define V2X_SHE_NVM (0x14u)
+//!< SHE NVM channel on V2X.
 #define V2X_HSM_NVM (0x15u)
 //!< V2X NVM channel on V2X.
+#define V2X_SHE_DEBUG_MU_NVM (0xFFu)
+//!< V2X SHE NVM channel on DEBUG MU.
 
 #endif

@@ -129,6 +129,9 @@ static uint32_t nvm_open_session(uint8_t flags, struct nvm_ctx_st *nvm_ctx)
 		case NVM_FLAGS_V2X_SHE:
 			sess_args.mu_type = V2X_SHE_NVM;
 			break;
+		case NVM_FLAGS_DEBUG_MU_SHE:
+			sess_args.mu_type = V2X_SHE_DEBUG_MU_NVM;
+			break;
 		case NVM_FLAGS_HSM:
 			sess_args.mu_type = HSM_NVM;
 			break;

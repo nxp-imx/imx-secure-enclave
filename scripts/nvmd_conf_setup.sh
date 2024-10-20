@@ -123,6 +123,10 @@ function imx95evk_nvmd_config()
             nvmd_config_setup "/etc/v2x_she/v2x_she_master" "/etc/v2x_she/" "3" "V2X"
             ;;
 
+        7)
+            nvmd_config_setup "/etc/v2x_she/v2x_she_master" "/etc/v2x_she/" "7" "V2X"
+            ;;
+
         *)
             printf "Unsupported NVM-D config opted.\n"
             ;;
@@ -141,7 +145,9 @@ function usage()
     printf "\tNVMD_MU_SESSION_FLAG=NVM_FLAGS_HSM (0)\n"
     printf "\tNVMD_MU_SESSION_FLAG=NVM_FLAGS_SHE (1)\n"
     printf "\tNVMD_MU_SESSION_FLAG=NVM_FLAGS_HSM | NVM_FLAGS_V2X (2)\n"
-    printf "\tNVMD_MU_SESSION_FLAG=NVM_FLAGS_SHE | NVM_FLAGS_V2X (3)\n\n"
+    printf "\tNVMD_MU_SESSION_FLAG=NVM_FLAGS_SHE | NVM_FLAGS_V2X (3)\n"
+    printf "\tNVMD_MU_SESSION_FLAG=NVM_FLAGS_SHE | NVM_FLAGS_V2X |"
+    printf " NVM_FLAGS_DEBUG_MU (7)\n\n"
 
     printf "Usage:\n"
     printf "\t./nvmd_conf_setup.sh config_id=NVM_CONFIG_ID\n"

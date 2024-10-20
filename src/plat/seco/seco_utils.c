@@ -31,6 +31,7 @@ void plat_build_cmd_msg_hdr(struct sab_mu_hdr *hdr, msg_type_t msg_type,
 		break;
 	case V2X_SHE:
 	case V2X_SHE_NVM:
+	case V2X_SHE_DEBUG_MU_NVM:
 		hdr->ver = V2X_SHE_API_VER;
 		break;
 	case V2X_SG0:
@@ -64,6 +65,7 @@ void plat_build_rsp_msg_hdr(struct sab_mu_hdr *hdr, msg_type_t msg_type,
 	break;
 	case V2X_SHE:
 	case V2X_SHE_NVM:
+	case V2X_SHE_DEBUG_MU_NVM:
 		hdr->ver = V2X_SHE_API_VER;
 	break;
 	case V2X_SG0:

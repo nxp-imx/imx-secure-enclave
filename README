@@ -458,7 +458,12 @@ ELE-HSM Tests:
 V2X-SHE Test:
 -------------
 
+	# To start NVM on SHE MU (default configuration)
 	nvmd_conf_setup.sh config_id=3;
+
+	# To start NVM on DEBUG MU (applicable for i.MX95 only)
+	nvmd_conf_setup.sh config_id=7;
+
 	service nvm_daemon_v2x start;
 	service nvm_daemon_v2x status;
 	v2x_she_test $1 $2 $3;
