@@ -14,7 +14,8 @@
 
 /* HKDF Expand test helper function to generate key (PRK ID) for the operation. */
 static void key_exchange_test_hkdf_expand_helper(hsm_hdl_t key_mgmt_hdl,
-						 uint32_t *key_id)
+						 uint32_t *key_id,
+						 uint32_t key_store_id)
 {
 	hsm_err_t err;
 	in_content_tls13_args_t in_content = {0};
@@ -43,7 +44,7 @@ static void key_exchange_test_hkdf_expand_helper(hsm_hdl_t key_mgmt_hdl,
 
 	in_content.ver = 0x1;
 	in_content.rsv = 0x0;
-	in_content.keystore_id = TEST_KEYSTORE_ID;
+	in_content.keystore_id = key_store_id;
 	in_content.tls1_3_algo = HSM_KEY_DERIVATION_TLS1_3_EARLY_SECRET_SHA256;
 	in_content.priv_key_id = 0x0; // Ignored for Early Secrets.
 	in_content.derived_key_type = HSM_KEY_TYPE_DERIVE;
@@ -86,7 +87,7 @@ static void key_exchange_test_hkdf_expand_helper(hsm_hdl_t key_mgmt_hdl,
 	*key_id = key_ex_args.out_derived_key_id;
 }
 
-void key_exchange_test_hkdf_expand(hsm_hdl_t key_mgmt_hdl)
+void key_exchange_test_hkdf_expand(hsm_hdl_t key_mgmt_hdl, uint32_t key_store_id)
 {
 	hsm_err_t err;
 	in_content_hkdf_args_t in_content = {0};
@@ -100,7 +101,7 @@ void key_exchange_test_hkdf_expand(hsm_hdl_t key_mgmt_hdl)
 	printf("\n-----------------------------------------------------\n");
 
 	/* 1. Get PRK ID */
-	key_exchange_test_hkdf_expand_helper(key_mgmt_hdl, &prk_id);
+	key_exchange_test_hkdf_expand_helper(key_mgmt_hdl, &prk_id, key_store_id);
 
 	printf("\nHKDF Expand\n");
 	printf("-------------\n");
@@ -110,7 +111,7 @@ void key_exchange_test_hkdf_expand(hsm_hdl_t key_mgmt_hdl)
 
 	in_content.ver = 0x1;
 	in_content.rsv = 0x0;
-	in_content.keystore_id = TEST_KEYSTORE_ID;
+	in_content.keystore_id = key_store_id;
 	in_content.hkdf_algo = HSM_KEY_DERIVATION_HKDF_EXPAND_SHA256;
 	in_content.key_id = prk_id;
 	in_content.derived_key_type = HSM_KEY_TYPE_AES;
@@ -195,7 +196,8 @@ out:
 static void key_exchange_test_hkdf(hsm_hdl_t key_store_hdl,
 				   hsm_hdl_t key_mgmt_hdl,
 				   hsm_op_key_derivation_algo_t hkdf_algo,
-				   bool is_plaintext_ikm)
+				   bool is_plaintext_ikm,
+				   uint32_t key_store_id)
 {
 	hsm_err_t err;
 	op_generate_key_args_t key_gen_args = {0};
@@ -289,7 +291,7 @@ static void key_exchange_test_hkdf(hsm_hdl_t key_store_hdl,
 
 	in_content->ver = 0x1;
 	in_content->rsv = 0x0;
-	in_content->keystore_id = TEST_KEYSTORE_ID;
+	in_content->keystore_id = key_store_id;
 	in_content->hkdf_algo = hkdf_algo;
 	in_content->key_id = key_id;
 	in_content->derived_key_type = HSM_KEY_TYPE_AES;
@@ -431,7 +433,9 @@ out:
 		free(in_content);
 }
 
-void key_exchange_test_hkdf_full(hsm_hdl_t key_store_hdl, hsm_hdl_t key_mgmt_hdl)
+void key_exchange_test_hkdf_full(hsm_hdl_t key_store_hdl,
+				 hsm_hdl_t key_mgmt_hdl,
+				 uint32_t key_store_id)
 {
 	printf("\n-----------------------------------------------------\n");
 	printf("Key Exchange API test - HKDF");
@@ -441,25 +445,29 @@ void key_exchange_test_hkdf_full(hsm_hdl_t key_store_hdl, hsm_hdl_t key_mgmt_hdl
 	key_exchange_test_hkdf(key_store_hdl,
 			       key_mgmt_hdl,
 			       HSM_KEY_DERIVATION_HKDF_SHA256,
-			       true);
+			       true,
+			       key_store_id);
 
 	printf("\n\nHSM_KEY_DERIVATION_HKDF_SHA384 - Plaintext IKM:\n");
 	key_exchange_test_hkdf(key_store_hdl,
 			       key_mgmt_hdl,
 			       HSM_KEY_DERIVATION_HKDF_SHA384,
-			       true);
+			       true,
+			       key_store_id);
 
 	printf("\n\nHSM_KEY_DERIVATION_HKDF_SHA256 - Input Peer Public Key:\n");
 	key_exchange_test_hkdf(key_store_hdl,
 			       key_mgmt_hdl,
 			       HSM_KEY_DERIVATION_HKDF_SHA256,
-			       false);
+			       false,
+			       key_store_id);
 
 	printf("\n\nHSM_KEY_DERIVATION_HKDF_SHA384 - Input Peer Public Key:\n");
 	key_exchange_test_hkdf(key_store_hdl,
 			       key_mgmt_hdl,
 			       HSM_KEY_DERIVATION_HKDF_SHA384,
-			       false);
+			       false,
+			       key_store_id);
 
 	printf("\n-----------------------------------------------------\n");
 	printf("Test Complete");

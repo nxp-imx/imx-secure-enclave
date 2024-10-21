@@ -318,7 +318,9 @@ static void test_perm_key_kgen(hsm_hdl_t key_mgmt_hdl)
 }
 #endif
 
-static void transient_key_tests(hsm_hdl_t sess_hdl, hsm_hdl_t key_store_hdl)
+static void transient_key_tests(hsm_hdl_t sess_hdl,
+				hsm_hdl_t key_store_hdl,
+				uint32_t key_store_id)
 {
 	open_svc_key_management_args_t key_mgmt_args;
 	hsm_hdl_t key_mgmt_hdl;
@@ -688,10 +690,10 @@ static void transient_key_tests(hsm_hdl_t sess_hdl, hsm_hdl_t key_store_hdl)
 		key_exchange_test(sess_hdl, key_store_hdl, key_mgmt_hdl);
 
 	if (se_get_soc_id() == SOC_IMX93 || se_get_soc_id() == SOC_IMX91) {
-		key_exchange_test_tls1_3(key_mgmt_hdl);
-		key_exchange_test_hkdf_expand(key_mgmt_hdl);
-		key_exchange_test_hkdf_full(key_store_hdl, key_mgmt_hdl);
-		key_exchange_test_tls1_2(key_store_hdl, key_mgmt_hdl);
+		key_exchange_test_tls1_3(key_mgmt_hdl, key_store_id);
+		key_exchange_test_hkdf_expand(key_mgmt_hdl, key_store_id);
+		key_exchange_test_hkdf_full(key_store_hdl, key_mgmt_hdl, key_store_id);
+		key_exchange_test_tls1_2(key_store_hdl, key_mgmt_hdl, key_store_id);
 	}
 
 	//Public Key Attestation
@@ -744,7 +746,7 @@ void ele_hsm_test_usage(void)
 	printf("key identifier.\n");
 }
 
-int execute_hsm_tests(void)
+int execute_hsm_tests(uint32_t key_store_id)
 {
 	op_get_random_args_t rng_get_random_args = {0};
 	hsm_err_t err = 0;
@@ -787,7 +789,7 @@ int execute_hsm_tests(void)
 	hash_test(hsm_session_hdl);
 #endif
 #endif
-	transient_key_tests(hsm_session_hdl, key_store_hdl);
+	transient_key_tests(hsm_session_hdl, key_store_hdl, key_store_id);
 
 #ifdef PSA_COMPLIANT
 	if (se_get_soc_id() != SOC_IMX8ULP) {
@@ -891,7 +893,7 @@ int main(int argc, char *argv[])
 	}
 
 	/* execute tests on non-shared key store */
-	err = execute_hsm_tests();
+	err = execute_hsm_tests(hsm_key_store_args.key_store_identifier);
 	if (err)
 		goto ginfo_out;
 
@@ -942,7 +944,7 @@ int main(int argc, char *argv[])
 		}
 
 		/* execute tests on shared key store */
-		err = execute_hsm_tests();
+		err = execute_hsm_tests(key_store_args[i].key_store_identifier);
 		if (err)
 			goto ginfo_out;
 	}

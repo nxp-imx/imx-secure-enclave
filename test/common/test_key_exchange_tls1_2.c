@@ -122,7 +122,8 @@ out:
 static void test_tls1_2_master_secret(hsm_hdl_t key_mgmt_hdl,
 				      uint32_t *master_secret_key_id,
 				      uint8_t *master_secret,
-				      uint32_t master_secret_len)
+				      uint32_t master_secret_len,
+				      uint32_t key_store_id)
 {
 	hsm_err_t err;
 	in_content_tls1_2_master_secret_args_t in_content;
@@ -165,7 +166,7 @@ static void test_tls1_2_master_secret(hsm_hdl_t key_mgmt_hdl,
 
 	in_content.ver = 0x1;
 	in_content.rsv = 0x0;
-	in_content.keystore_id = TEST_KEYSTORE_ID;
+	in_content.keystore_id = key_store_id;
 	in_content.tls1_2_algo = HSM_KEY_DERIVATION_TLS1_2_MASTER_SECRET_SHA256;
 	in_content.priv_key_id = fw_key_id;
 	in_content.derived_key_type = HSM_KEY_TYPE_DERIVE; //Ignored
@@ -267,7 +268,8 @@ static void test_tls1_2_key_block(hsm_hdl_t key_store_hdl,
 				  hsm_hdl_t key_mgmt_hdl,
 				  uint32_t master_secret_key_id,
 				  uint8_t *master_secret,
-				  uint32_t master_secret_len)
+				  uint32_t master_secret_len,
+				  uint32_t key_store_id)
 {
 	hsm_err_t err;
 	in_content_tls1_2_key_block_args_t in_content;
@@ -308,7 +310,7 @@ static void test_tls1_2_key_block(hsm_hdl_t key_store_hdl,
 
 	in_content.ver = 0x1;
 	in_content.rsv = 0x0;
-	in_content.keystore_id = TEST_KEYSTORE_ID;
+	in_content.keystore_id = key_store_id;
 	in_content.tls1_2_algo = HSM_KEY_DERIVATION_TLS1_2_KEY_BLOCK_SHA256;
 	in_content.priv_key_id = master_secret_key_id;
 	in_content.derived_key_type = HSM_KEY_TYPE_DERIVE; //Ignored
@@ -417,7 +419,8 @@ out:
 static void test_tls1_2_iv(hsm_hdl_t key_mgmt_hdl,
 			   uint32_t master_secret_key_id,
 			   uint8_t *master_secret,
-			   uint32_t master_secret_len)
+			   uint32_t master_secret_len,
+			   uint32_t key_store_id)
 
 {
 	hsm_err_t err;
@@ -437,7 +440,7 @@ static void test_tls1_2_iv(hsm_hdl_t key_mgmt_hdl,
 
 	in_content.ver = 0x1;
 	in_content.rsv = 0x0;
-	in_content.keystore_id = TEST_KEYSTORE_ID;
+	in_content.keystore_id = key_store_id;
 	in_content.tls1_2_algo = HSM_KEY_DERIVATION_TLS1_2_IV_SHA256;
 	in_content.priv_key_id = master_secret_key_id;
 	in_content.derived_key_type = 0x0;      //Ignored
@@ -504,7 +507,9 @@ static void test_tls1_2_iv(hsm_hdl_t key_mgmt_hdl,
  *	- "IV"
  *        -- Client / Server IVs
  */
-void key_exchange_test_tls1_2(hsm_hdl_t key_store_hdl, hsm_hdl_t key_mgmt_hdl)
+void key_exchange_test_tls1_2(hsm_hdl_t key_store_hdl,
+			      hsm_hdl_t key_mgmt_hdl,
+			      uint32_t key_store_id)
 {
 	hsm_err_t err;
 	uint32_t master_secret_key_id = 0;
@@ -518,13 +523,13 @@ void key_exchange_test_tls1_2(hsm_hdl_t key_store_hdl, hsm_hdl_t key_mgmt_hdl)
 	memset(master_secret, 0, master_secret_len);
 
 	test_tls1_2_master_secret(key_mgmt_hdl, &master_secret_key_id,
-				  master_secret, master_secret_len);
+				  master_secret, master_secret_len, key_store_id);
 
 	test_tls1_2_key_block(key_store_hdl, key_mgmt_hdl, master_secret_key_id,
-			      master_secret, master_secret_len);
+			      master_secret, master_secret_len, key_store_id);
 
 	test_tls1_2_iv(key_mgmt_hdl, master_secret_key_id,
-		       master_secret, master_secret_len);
+		       master_secret, master_secret_len, key_store_id);
 
 	/* Delete the test keys */
 	delete_test_key(key_mgmt_hdl, master_secret_key_id, 0);

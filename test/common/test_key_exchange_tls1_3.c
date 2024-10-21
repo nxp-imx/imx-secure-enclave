@@ -143,7 +143,7 @@ void tls13_hkdf_label_encode(uint16_t length,
  *            |
  *            v
  */
-static void test_tls1_3_early_secrets(hsm_hdl_t key_mgmt_hdl)
+static void test_tls1_3_early_secrets(hsm_hdl_t key_mgmt_hdl, uint32_t key_store_id)
 {
 	hsm_err_t err;
 	in_content_tls13_args_t in_content = {0};
@@ -169,7 +169,7 @@ static void test_tls1_3_early_secrets(hsm_hdl_t key_mgmt_hdl)
 
 	in_content.ver = 0x1;
 	in_content.rsv = 0x0;
-	in_content.keystore_id = TEST_KEYSTORE_ID;
+	in_content.keystore_id = key_store_id;
 	in_content.tls1_3_algo = HSM_KEY_DERIVATION_TLS1_3_EARLY_SECRET_SHA256;
 	in_content.priv_key_id = key_id; // Ignored for Early Secrets.
 	in_content.derived_key_type = HSM_KEY_TYPE_DERIVE;
@@ -269,7 +269,8 @@ out:
  */
 static void test_tls1_3_handshake_secrets(hsm_hdl_t key_mgmt_hdl,
 					  hsm_key_type_t key_type,
-					  hsm_bit_key_sz_t bit_key_sz)
+					  hsm_bit_key_sz_t bit_key_sz,
+					  uint32_t key_store_id)
 {
 	hsm_err_t err;
 	in_content_tls13_args_t in_content = {0};
@@ -312,7 +313,7 @@ static void test_tls1_3_handshake_secrets(hsm_hdl_t key_mgmt_hdl,
 
 	in_content.ver = 0x1;
 	in_content.rsv = 0x0;
-	in_content.keystore_id = TEST_KEYSTORE_ID;
+	in_content.keystore_id = key_store_id;
 	in_content.tls1_3_algo = HSM_KEY_DERIVATION_TLS1_3_HANDSHAKE_SECRET_SHA256;
 	in_content.priv_key_id = key_id;
 	in_content.derived_key_type = HSM_KEY_TYPE_DERIVE;
@@ -423,7 +424,8 @@ out:
  */
 static void test_tls1_3_master_secrets(hsm_hdl_t key_mgmt_hdl,
 				       hsm_key_type_t key_type,
-				       hsm_bit_key_sz_t bit_key_sz)
+				       hsm_bit_key_sz_t bit_key_sz,
+				       uint32_t key_store_id)
 {
 	hsm_err_t err;
 	in_content_tls13_args_t in_content = {0};
@@ -466,7 +468,7 @@ static void test_tls1_3_master_secrets(hsm_hdl_t key_mgmt_hdl,
 
 	in_content.ver = 0x1;
 	in_content.rsv = 0x0;
-	in_content.keystore_id = TEST_KEYSTORE_ID;
+	in_content.keystore_id = key_store_id;
 	in_content.tls1_3_algo = HSM_KEY_DERIVATION_TLS1_3_MASTER_SECRET_SHA256;
 	in_content.priv_key_id = key_id;
 	in_content.derived_key_type = HSM_KEY_TYPE_DERIVE;
@@ -558,7 +560,7 @@ out:
  *	- "Handshake Secrets",
  *	- "Master Secrets"
  */
-void key_exchange_test_tls1_3(hsm_hdl_t key_mgmt_hdl)
+void key_exchange_test_tls1_3(hsm_hdl_t key_mgmt_hdl, uint32_t key_store_id)
 {
 	printf("\n-----------------------------------------------------\n");
 	printf("Key Exchange API tests - TLS 1.3");
@@ -566,31 +568,35 @@ void key_exchange_test_tls1_3(hsm_hdl_t key_mgmt_hdl)
 
 	printf("\nECC_NIST & HSM_KEY_DERIVATION_TLS1_3_EARLY_SECRET_SHA256:\n");
 	printf("---------------------------------------------------------\n");
-	test_tls1_3_early_secrets(key_mgmt_hdl);
+	test_tls1_3_early_secrets(key_mgmt_hdl, key_store_id);
 
 	printf("\nECC_NIST & HSM_KEY_DERIVATION_TLS1_3_HANDSHAKE_SECRET_SHA256:\n");
 	printf("-------------------------------------------------------------\n");
 	test_tls1_3_handshake_secrets(key_mgmt_hdl,
 				      HSM_KEY_TYPE_ECC_NIST,
-				      HSM_KEY_SIZE_ECC_NIST_256);
+				      HSM_KEY_SIZE_ECC_NIST_256,
+				      key_store_id);
 
 	printf("\nECC_MONTGOMERY & HSM_KEY_DERIVATION_TLS1_3_HANDSHAKE_SECRET_SHA256:\n");
 	printf("-------------------------------------------------------------------\n");
 	test_tls1_3_handshake_secrets(key_mgmt_hdl,
 				      HSM_KEY_TYPE_ECC_MONTGOMERY,
-				      HSM_KEY_SIZE_ECC_MONTGOMERY_255);
+				      HSM_KEY_SIZE_ECC_MONTGOMERY_255,
+				      key_store_id);
 
 	printf("\nECC_NIST & HSM_KEY_DERIVATION_TLS1_3_MASTER_SECRET_SHA256:\n");
 	printf("----------------------------------------------------------\n");
 	test_tls1_3_master_secrets(key_mgmt_hdl,
 				   HSM_KEY_TYPE_ECC_NIST,
-				   HSM_KEY_SIZE_ECC_NIST_256);
+				   HSM_KEY_SIZE_ECC_NIST_256,
+				   key_store_id);
 
 	printf("\nECC_MONTGOMERY & HSM_KEY_DERIVATION_TLS1_3_MASTER_SECRET_SHA256:\n");
 	printf("----------------------------------------------------------------\n");
 	test_tls1_3_master_secrets(key_mgmt_hdl,
 				   HSM_KEY_TYPE_ECC_MONTGOMERY,
-				   HSM_KEY_SIZE_ECC_MONTGOMERY_255);
+				   HSM_KEY_SIZE_ECC_MONTGOMERY_255,
+				   key_store_id);
 
 	printf("\n-----------------------------------------------------\n");
 	printf("Test Complete");

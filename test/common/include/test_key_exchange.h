@@ -8,8 +8,6 @@
 #include "test_common.h"
 #include "hsm_api.h"
 
-#define TEST_KEYSTORE_ID 0xABCD
-
 /* Derived Key Sizes: 256, 384 bits */
 #define TEST_TLS1_3_DERIVED_MAX_KEY_SIZE BITS_TO_BYTES(384u)
 #define TEST_HKDF_EXPAND_MAX_KEY_SIZE BITS_TO_BYTES(384u)
@@ -345,13 +343,17 @@ hsm_err_t key_exchange_test(hsm_hdl_t hsm_session_hdl,
  *      -"Handshake Secrets",
  *      -"Master Secrets"
  */
-void key_exchange_test_tls1_3(hsm_hdl_t key_mgmt_hdl);
+void key_exchange_test_tls1_3(hsm_hdl_t key_mgmt_hdl, uint32_t key_store_id);
 
 /* Key Exchange - HKDF Expand tests */
-void key_exchange_test_hkdf_expand(hsm_hdl_t key_mgmt_hdl);
+void key_exchange_test_hkdf_expand(hsm_hdl_t key_mgmt_hdl, uint32_t key_store_id);
 
 /* Key Exchange - HKDF (full i.e. Extract and Expand) tests */
-void key_exchange_test_hkdf_full(hsm_hdl_t key_store_hdl, hsm_hdl_t key_mgmt_hdl);
+void key_exchange_test_hkdf_full(hsm_hdl_t key_store_hdl,
+				 hsm_hdl_t key_mgmt_hdl,
+				 uint32_t key_store_id);
 
 /* Key Exchange - TLS 1.2 option tests */
-void key_exchange_test_tls1_2(hsm_hdl_t key_store_hdl, hsm_hdl_t key_mgmt_hdl);
+void key_exchange_test_tls1_2(hsm_hdl_t key_store_hdl,
+			      hsm_hdl_t key_mgmt_hdl,
+			      uint32_t key_store_id);
