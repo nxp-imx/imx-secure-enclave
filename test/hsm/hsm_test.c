@@ -583,6 +583,11 @@ static void transient_key_tests(hsm_hdl_t sess_hdl,
 	printf("hsm_generate_key ret:0x%x\n", hsmret);
 
 #ifdef SECONDARY_API_SUPPORTED
+	hsm_mac_plainkey_test(key_store_hdl, key_mgmt_hdl);
+
+	if (se_get_soc_id() == SOC_IMX95)
+		hsm_mac_stream_test(key_store_hdl, key_mgmt_hdl);
+
 	// functiopnal test hsm_mac_test() to verify MAC Secondary API
 	hsmret = hsm_mac_test(key_store_hdl, key_mgmt_hdl);
 #else

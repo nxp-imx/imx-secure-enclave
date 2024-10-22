@@ -25,4 +25,9 @@ static uint8_t test_oem_srkh[32] = {
 };
 
 void bytes_swap(uint8_t *ptr, uint32_t size);
+#ifdef PSA_COMPLIANT
+hsm_err_t delete_test_key(hsm_hdl_t key_mgmt_hdl,
+			  uint32_t key_id,
+			  hsm_op_delete_key_flags_t flags);
+#endif
 #endif

@@ -1,11 +1,12 @@
 // SPDX-License-Identifier: BSD-3-Clause
 /*
- * Copyright 2022-2023 NXP
+ * Copyright 2022-2024 NXP
  */
 
 #include <stdio.h>
 
 #include "hsm_api.h"
+#include "test_utils.h"
 
 #define MAC_KEY_GROUP	50
 
@@ -38,6 +39,27 @@ static uint8_t  test_msg[300] = {
 	0xF4, 0x74, 0x7B, 0x8C, 0xCD, 0xA8, 0xA4, 0xF3,	0x6D, 0x65, 0x73, 0x73,
 	0x61, 0x67, 0x65, 0x20, 0xB2, 0xE1, 0x4C, 0x5C, 0x79, 0xC6, 0xDF, 0x5B,
 	0x85, 0xF4, 0xFE, 0x7E, 0xD8, 0xDB, 0x7A, 0x26, 0x2B, 0x9D, 0xA7, 0xE0,
+};
+
+static uint8_t test_key_128[16] = {
+	0xcc, 0x7d, 0xad, 0xf9, 0xd9, 0xe8, 0x02, 0xe5,
+	0x4f, 0x4d, 0xf5, 0x2f, 0x84, 0x97, 0xb6, 0x47,
+};
+
+static uint8_t test_key_256[32] = {
+	0xc6, 0xcd, 0xfc, 0x78, 0x0d, 0xc5, 0x48, 0xc8,
+	0xf8, 0xdd, 0x96, 0x80, 0x4b, 0xa1, 0xbb, 0xae,
+	0x63, 0x62, 0xc4, 0x55, 0x28, 0x66, 0x07, 0xd8,
+	0x9b, 0xf9, 0x57, 0xb2, 0xa7, 0x89, 0x82, 0xb5,
+};
+
+static uint8_t test_key_384[48] = {
+	0x77, 0xc2, 0x0d, 0x0d, 0x1b, 0x96, 0x8c, 0xf8,
+	0xa8, 0xfa, 0x3c, 0x76, 0xf5, 0x2b, 0x9f, 0x73,
+	0x7d, 0x28, 0x21, 0x8f, 0xd8, 0xe5, 0x37, 0x6f,
+	0xf2, 0x09, 0xb8, 0x85, 0x22, 0xe8, 0xa2, 0x57,
+	0x20, 0x20, 0xe9, 0xe6, 0x55, 0xdf, 0x60, 0x45,
+	0x59, 0x65, 0xfa, 0xaf, 0x65, 0xe3, 0xd1, 0x97,
 };
 
 static hsm_err_t generate_key(hsm_hdl_t key_mgmt_hdl,
@@ -291,7 +313,7 @@ static void status(op_mac_one_go_args_t *mac_one_go)
 hsm_err_t hsm_mac_test(hsm_hdl_t key_store_hdl, hsm_hdl_t key_mgmt_hdl)
 {
 	hsm_err_t err;
-	op_mac_one_go_args_t mac_one_go;
+	op_mac_one_go_args_t mac_one_go = {0};
 	hsm_hdl_t sg0_mac_hdl;
 
 	uint8_t work_area[128] = {0};
@@ -524,3 +546,261 @@ out:
 
 	return err;
 }
+
+#ifdef PSA_COMPLIANT
+hsm_err_t hsm_mac_plainkey_test(hsm_hdl_t key_store_hdl, hsm_hdl_t key_mgmt_hdl)
+{
+	hsm_err_t err;
+	op_mac_args_t args = {0};
+	uint8_t work_area[128] = {0};
+
+	printf("\n---------------------------------------------------\n");
+	printf("SECONDARY API: DO MAC Test Start (Plaintext Key)\n");
+	printf("---------------------------------------------------\n");
+
+	printf("HSM_KEY_SIZE_AES_256 & PERMITTED_ALGO_CMAC:");
+
+	memset(&args, 0, sizeof(op_mac_args_t));
+	args.flags = HSM_OP_MAC_FLAGS_MAC_GENERATION | HSM_OP_MAC_FLAGS_PLAINTEXT_KEY;
+	args.key = test_key_256;
+	args.key_size = sizeof(test_key_256);
+	args.key_type = HSM_KEY_TYPE_AES;
+	args.algorithm = PERMITTED_ALGO_CMAC;
+	args.payload = test_msg;
+	args.mac = work_area;
+	args.payload_size = 32;
+	args.mac_size = 16;
+
+	err = hsm_do_mac(key_store_hdl, &args);
+	if (err != HSM_NO_ERROR)
+		printf("\nhsm_do_mac (gen) err: 0x%x\n", err);
+
+	args.flags = HSM_OP_MAC_FLAGS_MAC_VERIFICATION | HSM_OP_MAC_FLAGS_PLAINTEXT_KEY;
+	args.mac_size = 16;
+
+	err = hsm_do_mac(key_store_hdl, &args);
+	if (err != HSM_NO_ERROR)
+		printf("\nhsm_do_mac (verify) err: 0x%x\n", err);
+
+	status(&args);
+
+	printf("HSM_KEY_SIZE_AES_128 & PERMITTED_ALGO_CMAC:");
+
+	memset(work_area, 0, sizeof(work_area));
+	memset(&args, 0, sizeof(op_mac_args_t));
+	args.flags = HSM_OP_MAC_FLAGS_MAC_GENERATION | HSM_OP_MAC_FLAGS_PLAINTEXT_KEY;
+	args.key = test_key_128;
+	args.key_size = sizeof(test_key_128);
+	args.key_type = HSM_KEY_TYPE_AES;
+	args.algorithm = PERMITTED_ALGO_CMAC;
+	args.payload = test_msg;
+	args.mac = work_area;
+	args.payload_size = 16;
+	args.mac_size = 16;
+
+	err = hsm_do_mac(key_store_hdl, &args);
+	if (err != HSM_NO_ERROR)
+		printf("\nhsm_do_mac (gen) err: 0x%x\n", err);
+
+	args.flags = HSM_OP_MAC_FLAGS_MAC_VERIFICATION | HSM_OP_MAC_FLAGS_PLAINTEXT_KEY;
+	args.mac_size = 16;
+
+	err = hsm_do_mac(key_store_hdl, &args);
+	if (err != HSM_NO_ERROR)
+		printf("\nhsm_do_mac (verify) err: 0x%x\n", err);
+
+	status(&args);
+
+	if (se_get_soc_id() == SOC_IMX95)
+		goto out;
+
+	printf("HSM_KEY_SIZE_HMAC_256 & PERMITTED_ALGO_HMAC_SHA256:");
+
+	memset(work_area, 0, sizeof(work_area));
+	memset(&args, 0, sizeof(op_mac_args_t));
+	args.flags = HSM_OP_MAC_FLAGS_MAC_GENERATION | HSM_OP_MAC_FLAGS_PLAINTEXT_KEY;
+	args.key = test_key_256;
+	args.key_size = sizeof(test_key_256);
+	args.key_type = HSM_KEY_TYPE_HMAC;
+	args.algorithm = PERMITTED_ALGO_HMAC_SHA256;
+	args.payload = test_msg;
+	args.mac = work_area;
+	args.payload_size = 32;
+	args.mac_size = 32;
+
+	err = hsm_do_mac(key_store_hdl, &args);
+	if (err != HSM_NO_ERROR)
+		printf("\nhsm_do_mac (gen) err: 0x%x\n", err);
+
+	args.flags = HSM_OP_MAC_FLAGS_MAC_VERIFICATION | HSM_OP_MAC_FLAGS_PLAINTEXT_KEY;
+	args.mac_size = 32;
+
+	err = hsm_do_mac(key_store_hdl, &args);
+	if (err != HSM_NO_ERROR)
+		printf("\nhsm_do_mac (verify) err: 0x%x\n", err);
+
+	status(&args);
+
+	printf("HSM_KEY_SIZE_HMAC_384 & PERMITTED_ALGO_HMAC_SHA384:");
+
+	memset(work_area, 0, sizeof(work_area));
+	memset(&args, 0, sizeof(op_mac_args_t));
+	args.flags = HSM_OP_MAC_FLAGS_MAC_GENERATION | HSM_OP_MAC_FLAGS_PLAINTEXT_KEY;
+	args.key = test_key_384;
+	args.key_size = sizeof(test_key_384);
+	args.key_type = HSM_KEY_TYPE_HMAC;
+	args.algorithm = PERMITTED_ALGO_HMAC_SHA384;
+	args.payload = test_msg;
+	args.mac = work_area;
+	args.payload_size = 32;
+	args.mac_size = 48;
+
+	err = hsm_do_mac(key_store_hdl, &args);
+	if (err != HSM_NO_ERROR)
+		printf("\nhsm_do_mac (gen) err: 0x%x\n", err);
+
+	args.flags = HSM_OP_MAC_FLAGS_MAC_VERIFICATION | HSM_OP_MAC_FLAGS_PLAINTEXT_KEY;
+	args.mac_size = 48;
+
+	err = hsm_do_mac(key_store_hdl, &args);
+	if (err != HSM_NO_ERROR)
+		printf("\nhsm_do_mac (verify) err: 0x%x\n", err);
+
+	status(&args);
+out:
+	printf("\n---------------------------------------------------\n");
+	printf("SECONDARY API: DO MAC Test Complete\n");
+	printf("---------------------------------------------------\n");
+
+	return err;
+}
+
+hsm_err_t hsm_mac_stream_test(hsm_hdl_t key_store_hdl, hsm_hdl_t key_mgmt_hdl)
+{
+	hsm_err_t err;
+	hsm_hdl_t mac_hdl = 0;
+	op_mac_args_t args = {0};
+	open_svc_mac_args_t mac_srv_args = {0};
+	uint8_t work_area[128] = {0};
+	uint32_t key_id = 0;
+
+	printf("-------------------------------------------------------------\n");
+	printf("MAC Stream Test Start (Opaque Key)\n");
+	printf("---------------------------------------------------------------\n");
+
+	printf("HSM_KEY_SIZE_AES_256 & PERMITTED_ALGO_CMAC:");
+
+	generate_key(key_mgmt_hdl,
+		     HSM_SE_KEY_STORAGE_VOLATILE,
+		     HSM_KEY_USAGE_SIGN_MSG | HSM_KEY_USAGE_VERIFY_MSG,
+		     PERMITTED_ALGO_CMAC,
+		     HSM_KEY_SIZE_AES_256,
+		     0,
+		     HSM_KEY_TYPE_AES,
+		     &key_id);
+
+	err = hsm_open_mac_service(key_store_hdl, &mac_srv_args, &mac_hdl);
+	if (err != HSM_NO_ERROR) {
+		printf("\nhsm_open_mac_service err: 0x%x\n", err);
+		goto out;
+	}
+
+	/* MAC Generation */
+
+	/* INIT */
+	memset(&args, 0, sizeof(op_mac_args_t));
+	args.flags = HSM_OP_MAC_FLAGS_INIT;
+	args.algorithm = PERMITTED_ALGO_CMAC;
+	args.key_identifier = key_id;
+
+	err = hsm_mac(mac_hdl, &args, &args.verification_status);
+	if (err != HSM_NO_ERROR) {
+		printf("\nhsm_mac (gen) (INIT) err: 0x%x\n", err);
+		goto out;
+	}
+
+	/* UPDATE DATA  */
+	memset(&args, 0, sizeof(op_mac_args_t));
+	args.flags = HSM_OP_MAC_FLAGS_UPDATE_DATA;
+	args.algorithm = PERMITTED_ALGO_CMAC;
+	args.payload = test_msg;
+	args.payload_size = 32;
+
+	err = hsm_mac(mac_hdl, &args, &args.verification_status);
+	if (err != HSM_NO_ERROR) {
+		printf("\nhsm_mac (gen) (UPDATE DATA) err: 0x%x\n", err);
+		goto out;
+	}
+
+	/* FINALIZE */
+	memset(&args, 0, sizeof(op_mac_args_t));
+	args.flags = HSM_OP_MAC_FLAGS_FINALIZE;
+	args.algorithm = PERMITTED_ALGO_CMAC;
+	args.mac = work_area;
+	args.mac_size = 16;
+
+	err = hsm_mac(mac_hdl, &args, &args.verification_status);
+	if (err != HSM_NO_ERROR) {
+		printf("\nhsm_mac (gen) (FINALIZE) err: 0x%x\n", err);
+		goto out;
+	}
+
+	/* MAC Verification */
+
+	/* INIT */
+	memset(&args, 0, sizeof(op_mac_args_t));
+	args.flags = HSM_OP_MAC_FLAGS_INIT;
+	args.algorithm = PERMITTED_ALGO_CMAC;
+	args.key_identifier = key_id;
+
+	err = hsm_mac(mac_hdl, &args, &args.verification_status);
+	if (err != HSM_NO_ERROR) {
+		printf("\nhsm_mac (verify) (INIT) err: 0x%x\n", err);
+		goto out;
+	}
+
+	/* UPDATE DATA  */
+	memset(&args, 0, sizeof(op_mac_args_t));
+	args.flags = HSM_OP_MAC_FLAGS_UPDATE_DATA;
+	args.algorithm = PERMITTED_ALGO_CMAC;
+	args.payload = test_msg;
+	args.payload_size = 32;
+
+	err = hsm_mac(mac_hdl, &args, &args.verification_status);
+	if (err != HSM_NO_ERROR) {
+		printf("\nhsm_mac (verify) (UPDATE DATA) err: 0x%x\n", err);
+		goto out;
+	}
+
+	/* FINALIZE VERIFY */
+	memset(&args, 0, sizeof(op_mac_args_t));
+	args.flags = HSM_OP_MAC_FLAGS_FINALIZE_VERIFY;
+	args.algorithm = PERMITTED_ALGO_CMAC;
+	args.mac = work_area;
+	args.mac_size = 16;
+
+	err = hsm_mac(mac_hdl, &args, &args.verification_status);
+	if (err != HSM_NO_ERROR) {
+		printf("\nhsm_mac (verify) (FINALIZE VERIFY) err: 0x%x\n", err);
+		goto out;
+	}
+
+	err = hsm_close_mac_service(mac_hdl);
+	if (err != HSM_NO_ERROR) {
+		printf("hsm_close_mac_service err: 0x%x\n", err);
+		goto out;
+	}
+
+	status(&args);
+
+out:
+	if (key_id)
+		delete_test_key(key_mgmt_hdl, key_id, 0);
+
+	printf("\n---------------------------------------------------\n");
+	printf("MAC Stream Test Complete\n");
+	printf("---------------------------------------------------\n\n");
+
+	return err;
+}
+#endif

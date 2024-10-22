@@ -42,15 +42,13 @@ hsm_err_t generate_test_key(hsm_hdl_t key_mgmt_hdl,
 			    uint16_t out_size,
 			    uint8_t *out_key,
 			    uint32_t *key_id);
-
-#ifdef PSA_COMPLIANT
-hsm_err_t delete_test_key(hsm_hdl_t key_mgmt_hdl,
-			  uint32_t key_id,
-			  hsm_op_delete_key_flags_t flags);
-#endif
 hsm_err_t do_mac_test(hsm_hdl_t key_store_hdl, hsm_hdl_t key_mgmt_hdl);
 hsm_err_t do_cipher_test(hsm_hdl_t key_store_hdl, hsm_hdl_t key_mgmt_hdl);
 hsm_err_t hsm_mac_test(hsm_hdl_t key_store_hdl, hsm_hdl_t key_mgmt_hdl);
+#ifdef PSA_COMPLIANT
+hsm_err_t hsm_mac_plainkey_test(hsm_hdl_t key_store_hdl, hsm_hdl_t key_mgmt_hdl);
+hsm_err_t hsm_mac_stream_test(hsm_hdl_t key_store_hdl, hsm_hdl_t key_mgmt_hdl);
+#endif
 hsm_err_t do_rng_test(hsm_hdl_t hsm_session_hdl);
 hsm_err_t do_key_recovery_test(hsm_hdl_t key_store_hdl, hsm_hdl_t key_mgmt_hdl,
 							uint32_t key_id,
