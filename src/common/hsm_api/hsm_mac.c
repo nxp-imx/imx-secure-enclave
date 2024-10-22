@@ -12,9 +12,9 @@
 #include "plat_utils.h"
 #include "plat_os_abs.h"
 
-hsm_err_t hsm_mac_one_go(hsm_hdl_t mac_hdl,
-			 op_mac_one_go_args_t *args,
-			 hsm_mac_verification_status_t *status)
+hsm_err_t hsm_mac(hsm_hdl_t mac_hdl,
+		  op_mac_args_t *args,
+		  hsm_mac_verification_status_t *status)
 {
 	uint32_t lib_err;
 	struct hsm_service_hdl_s *serv_ptr;
@@ -38,7 +38,7 @@ hsm_err_t hsm_mac_one_go(hsm_hdl_t mac_hdl,
 
 		lib_err = process_sab_msg(serv_ptr->session->phdl,
 					  serv_ptr->session->mu_type,
-					  SAB_MAC_ONE_GO_REQ,
+					  SAB_MAC_REQ,
 					  MT_SAB_MAC,
 					  (uint32_t)mac_hdl,
 					  args, &rsp_code);
@@ -51,13 +51,13 @@ hsm_err_t hsm_mac_one_go(hsm_hdl_t mac_hdl,
 
 		err = sab_rating_to_hsm_err(rsp_code, serv_ptr->session->phdl);
 		if (err != HSM_NO_ERROR) {
-			se_err("HSM RSP Error: SAB_MAC_ONE_GO_REQ [0x%x].\n", err);
+			se_err("HSM RSP Error: SAB_MAC_REQ [0x%x].\n", err);
 			break;
 		}
 
 
-		if ((args->flags == HSM_OP_MAC_ONE_GO_FLAGS_MAC_VERIFICATION) &&
-			(args->verification_status != HSM_MAC_VERIFICATION_STATUS_SUCCESS)) {
+		if (args->flags == HSM_OP_MAC_FLAGS_MAC_VERIFICATION &&
+		    args->verification_status != HSM_MAC_VERIFICATION_STATUS_SUCCESS) {
 			err = HSM_SIGNATURE_INVALID;
 			se_err("\nHSM Error: HSM_SIGNATURE_INVALID (0x%x)\n",
 			       HSM_SIGNATURE_INVALID);
@@ -66,6 +66,13 @@ hsm_err_t hsm_mac_one_go(hsm_hdl_t mac_hdl,
 	} while (false);
 
 	return err;
+}
+
+hsm_err_t hsm_mac_one_go(hsm_hdl_t mac_hdl,
+			 op_mac_one_go_args_t *args,
+			 hsm_mac_verification_status_t *status)
+{
+	return hsm_mac(mac_hdl, args, status);
 }
 
 hsm_err_t hsm_open_mac_service(hsm_hdl_t key_store_hdl,
@@ -165,7 +172,7 @@ hsm_err_t hsm_close_mac_service(hsm_hdl_t mac_hdl)
 	return err;
 }
 
-hsm_err_t hsm_do_mac(hsm_hdl_t key_store_hdl, op_mac_one_go_args_t *mac_one_go)
+hsm_err_t hsm_do_mac(hsm_hdl_t key_store_hdl, op_mac_args_t *args)
 {
 	hsm_err_t err;
 	/* Stores the error status of the main operation.
@@ -174,7 +181,7 @@ hsm_err_t hsm_do_mac(hsm_hdl_t key_store_hdl, op_mac_one_go_args_t *mac_one_go)
 	hsm_hdl_t sg0_mac_hdl = 0;
 	open_svc_mac_args_t mac_srv_args = {0};
 #ifndef PSA_COMPLIANT
-	mac_srv_args.flags = mac_one_go->svc_flags;
+	mac_srv_args.flags = args->svc_flags;
 #endif
 
 	op_err = hsm_open_mac_service(key_store_hdl, &mac_srv_args, &sg0_mac_hdl);
@@ -184,10 +191,9 @@ hsm_err_t hsm_do_mac(hsm_hdl_t key_store_hdl, op_mac_one_go_args_t *mac_one_go)
 		goto exit;
 	}
 
-	op_err = hsm_mac_one_go(sg0_mac_hdl, mac_one_go, &mac_one_go->verification_status);
+	op_err = hsm_mac(sg0_mac_hdl, args, &args->verification_status);
 	if (op_err) {
-		se_err("\n\terr: 0x%x hsm_mac_one_go GEN hdl: 0x%08x\n",
-				op_err, sg0_mac_hdl);
+		se_err("\n\terr: 0x%x hsm_mac GEN hdl: 0x%08x\n", op_err, sg0_mac_hdl);
 	}
 
 	err = hsm_close_mac_service(sg0_mac_hdl);

@@ -12,18 +12,18 @@
 #include "plat_os_abs.h"
 #include "plat_utils.h"
 
-uint32_t prepare_msg_mac_one_go(void *phdl,
-				void *cmd_buf, void *rsp_buf,
-				uint32_t *cmd_msg_sz,
-				uint32_t *rsp_msg_sz,
-				uint32_t msg_hdl,
-				void *args)
+uint32_t prepare_msg_mac(void *phdl,
+			 void *cmd_buf, void *rsp_buf,
+			 uint32_t *cmd_msg_sz,
+			 uint32_t *rsp_msg_sz,
+			 uint32_t msg_hdl,
+			 void *args)
 {
 	uint32_t err = SAB_LIB_STATUS(SAB_LIB_CMD_MSG_PREP_FAIL);
 	uint32_t mac_size_bytes = 0;
-	struct sab_cmd_mac_one_go_msg *cmd =
-		(struct sab_cmd_mac_one_go_msg *) cmd_buf;
-	op_mac_one_go_args_t *op_args = (op_mac_one_go_args_t *) args;
+	struct sab_cmd_mac_msg *cmd =
+		(struct sab_cmd_mac_msg *)cmd_buf;
+	op_mac_args_t *op_args = (op_mac_args_t *)args;
 	uint64_t phy_addr = 0;
 	uint32_t ret;
 
@@ -31,14 +31,50 @@ uint32_t prepare_msg_mac_one_go(void *phdl,
 		goto exit;
 
 	cmd->mac_handle = msg_hdl;
-	cmd->key_id = op_args->key_identifier;
-
 	cmd->algorithm = op_args->algorithm;
 	cmd->flags = op_args->flags;
-
 #ifdef PSA_COMPLIANT
+	cmd->key_type = op_args->key_type;
+	cmd->key_size = op_args->key_size;
+	if (op_args->flags & HSM_OP_MAC_FLAGS_PLAINTEXT_KEY) {
+		ret = plat_os_abs_data_buf_v2((struct plat_os_abs_hdl *)phdl,
+					      &phy_addr,
+					      op_args->key,
+					      op_args->key_size,
+					      DATA_BUF_IS_INPUT);
+
+		if (ret != PLAT_SUCCESS) {
+			err |= ret;
+			goto exit;
+		}
+
+		set_phy_addr_to_words(&cmd->key,
+				      0u,
+				      phy_addr);
+	} else {
+		cmd->key = op_args->key_identifier;
+	}
+
+	cmd->context_size = op_args->context_size;
+	ret = plat_os_abs_data_buf_v2((struct plat_os_abs_hdl *)phdl,
+				      &phy_addr,
+				      op_args->context,
+				      op_args->context_size,
+				      DATA_BUF_IS_IN_OUT);
+
+	if (ret != PLAT_SUCCESS) {
+		err |= ret;
+		goto exit;
+	}
+
+	set_phy_addr_to_words(&cmd->context_address,
+			      0u,
+			      phy_addr);
+
 	mac_size_bytes = op_args->mac_size;
 #else
+	cmd->key = op_args->key_identifier;
+
 	if (op_args->flags & HSM_OP_MAC_ONE_GO_FLAGS_MAC_LENGTH_IN_BITS) {
 		mac_size_bytes = op_args->mac_size / 8;
 		if (op_args->mac_size % 8) {
@@ -67,20 +103,11 @@ uint32_t prepare_msg_mac_one_go(void *phdl,
 			      0u,
 			      phy_addr);
 
-	if ((op_args->flags & HSM_OP_MAC_ONE_GO_FLAGS_MAC_GENERATION)
-			== HSM_OP_MAC_ONE_GO_FLAGS_MAC_GENERATION) {
-		ret = plat_os_abs_data_buf_v2((struct plat_os_abs_hdl *)phdl,
-					      &phy_addr,
-					      op_args->mac,
-					      mac_size_bytes,
-					      DATA_BUF_IS_OUTPUT);
-	} else {
-		ret = plat_os_abs_data_buf_v2((struct plat_os_abs_hdl *)phdl,
-					      &phy_addr,
-					      op_args->mac,
-					      mac_size_bytes,
-					      DATA_BUF_IS_INPUT);
-	}
+	ret = plat_os_abs_data_buf_v2((struct plat_os_abs_hdl *)phdl,
+				      &phy_addr,
+				      op_args->mac,
+				      mac_size_bytes,
+				      DATA_BUF_IS_IN_OUT);
 
 	if (ret != PLAT_SUCCESS) {
 		err |= ret;
@@ -99,27 +126,28 @@ uint32_t prepare_msg_mac_one_go(void *phdl,
 	 */
 	cmd->crc = 0u;
 
-	*cmd_msg_sz = sizeof(struct sab_cmd_mac_one_go_msg);
-	*rsp_msg_sz = sizeof(struct sab_cmd_mac_one_go_rsp);
+	*cmd_msg_sz = sizeof(struct sab_cmd_mac_msg);
+	*rsp_msg_sz = sizeof(struct sab_cmd_mac_rsp);
 
 	err = SAB_LIB_STATUS(SAB_LIB_SUCCESS);
 exit:
 	return err;
 }
 
-uint32_t proc_msg_rsp_mac_one_go(void *rsp_buf, void *args)
+uint32_t proc_msg_rsp_mac(void *rsp_buf, void *args)
 {
 	uint32_t err = SAB_LIB_STATUS(SAB_LIB_RSP_PROC_FAIL);
-	op_mac_one_go_args_t *op_args = (op_mac_one_go_args_t *) args;
-	struct sab_cmd_mac_one_go_rsp *rsp =
-		(struct sab_cmd_mac_one_go_rsp *) rsp_buf;
+	op_mac_args_t *op_args = (op_mac_args_t *)args;
+	struct sab_cmd_mac_rsp *rsp =
+		(struct sab_cmd_mac_rsp *)rsp_buf;
 
 	if (!op_args)
 		goto exit;
 
 	op_args->verification_status = rsp->verification_status;
 #ifdef PSA_COMPLIANT
-	op_args->exp_mac_size = rsp->output_mac_size;
+	op_args->exp_mac_size = rsp->output_size;
+	op_args->exp_output_size = rsp->output_size;
 #endif
 	err = SAB_LIB_STATUS(SAB_LIB_SUCCESS);
 exit:

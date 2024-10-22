@@ -69,7 +69,7 @@
 
 #define SAB_MAC_OPEN_REQ                        0x50u
 #define SAB_MAC_CLOSE_REQ                       0x51u
-#define SAB_MAC_ONE_GO_REQ                      0x52u
+#define SAB_MAC_REQ                             0x52u
 
 #define SAB_CIPHER_OPEN_REQ                     0x60u
 #define SAB_CIPHER_CLOSE_REQ                    0x61u

@@ -407,11 +407,11 @@ static  int init_proc_sab_hsm_msg_engine(msg_type_t msg_type,
 						  proc_msg_rsp_mac_close_req);
 		}
 		break;
-	case SAB_MAC_ONE_GO_REQ:
+	case SAB_MAC_REQ:
 		if (msg_type == MT_SAB_MAC) {
 			ret = add_sab_msg_handler(msg_id, MT_SAB_MAC,
-						  prepare_msg_mac_one_go,
-						  proc_msg_rsp_mac_one_go);
+						  prepare_msg_mac,
+						  proc_msg_rsp_mac);
 		}
 		break;
 #endif

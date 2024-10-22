@@ -478,12 +478,11 @@ hsm_err_t hsm_do_auth_enc_new(hsm_hdl_t key_store_hdl, op_auth_enc_new_args_t *a
  * User can call this function only after having opened a key store service flow.\n
  *
  * \param key_store_hdl handle identifying the key store service flow.
- * \param mac_one_go pointer to the structure containing the function arguments.
+ * \param args pointer to the structure containing the function arguments.
  *
  * \return error code
  */
-hsm_err_t hsm_do_mac(hsm_hdl_t key_store_hdl,
-		     op_mac_one_go_args_t *mac_one_go);
+hsm_err_t hsm_do_mac(hsm_hdl_t key_store_hdl, op_mac_args_t *args);
 /** @} end of mac service flow */
 
 #ifdef __cplusplus

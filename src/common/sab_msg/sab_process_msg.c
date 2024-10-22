@@ -106,7 +106,7 @@ static uint8_t err_handling_v2_support(uint8_t msg_id)
 	if (msg_id == SAB_SESSION_OPEN_REQ ||
 	    msg_id == SAB_SESSION_CLOSE_REQ ||
 	    msg_id == SAB_MAC_OPEN_REQ ||
-	    msg_id == SAB_MAC_ONE_GO_REQ ||
+	    msg_id == SAB_MAC_REQ ||
 	    msg_id == SAB_MAC_CLOSE_REQ ||
 	    msg_id == SAB_KEY_EXCHANGE_REQ ||
 	    msg_id == ROM_DEV_GETINFO_REQ ||
