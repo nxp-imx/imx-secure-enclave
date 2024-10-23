@@ -31,6 +31,7 @@
 /* TLS 1.2 RFC 5246: Section 6.3 & Section 8.1 */
 static const char test_tls1_2_label_master_secret[] = "master secret";
 static const char test_tls1_2_label_key_expansion[] = "key expansion";
+static const char test_tls1_2_label_client_verify_data[] = "client finished";
 
 /* TLS 1.3 labels */
 static const char test_tls13_label_prefix[6] = "tls13 ";
@@ -70,6 +71,19 @@ static uint8_t test_tls1_2_kb_seed[] = {
 	0x47, 0x8c, 0x58, 0xcf, 0x72, 0x63, 0x7b, 0x89,
 	0x78, 0x4d, 0x95, 0x9d, 0xf7, 0xe9, 0x46, 0xd3,
 	0xf0, 0x7b, 0xd1, 0xb6, 0x16,
+};
+
+/**
+ *  TLS 1.2 RFC 5246 ::
+ *  label + seed: "client finished" + Hash(handshake_messages)
+ */
+static uint8_t test_tls1_2_client_verify_data_seed[] = {
+	0x63, 0x6c, 0x69, 0x65, 0x6e, 0x74, 0x20, 0x66,
+	0x69, 0x6e, 0x69, 0x73, 0x68, 0x65, 0x64, 0xae,
+	0x6c, 0x80, 0x6f, 0x8a, 0xd4, 0xd8, 0x07, 0x84,
+	0x54, 0x9d, 0xff, 0x28, 0xa4, 0xb5, 0x8f, 0xd8,
+	0x37, 0x68, 0x1a, 0x51, 0xd9, 0x28, 0xc3, 0xe3,
+	0x0e, 0xe5, 0xff, 0x14, 0xf3, 0x98, 0x68,
 };
 
 /* ECC 256 Peer Public Key */
@@ -246,6 +260,7 @@ typedef struct {
 } in_content_tls1_2_key_block_args_t;
 
 typedef in_content_tls1_2_key_block_args_t in_content_tls1_2_iv_args_t;
+typedef in_content_tls1_2_key_block_args_t in_content_tls1_2_verify_data_args_t;
 
 /**
  * Structure describing the Key Exchange - Input Content (TLS 1.3) member argument

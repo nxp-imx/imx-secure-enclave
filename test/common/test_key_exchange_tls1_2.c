@@ -499,6 +499,78 @@ static void test_tls1_2_iv(hsm_hdl_t key_mgmt_hdl,
 }
 
 /**
+ *       TLS 1.2 RFC 5246 : Section 7.4.9
+ *
+ *       verify_data = PRF(master_secret, finished_label, Hash(handshake_messages))
+ *                        [0..verify_data_length-1];
+ *
+ *       where, finished_label: "client finished" or "server finished"
+ */
+static void test_tls1_2_verify_data(hsm_hdl_t key_mgmt_hdl,
+				    uint32_t master_secret_key_id,
+				    uint8_t *master_secret,
+				    uint32_t master_secret_len,
+				    uint32_t key_store_id)
+
+{
+	hsm_err_t err;
+	in_content_tls1_2_verify_data_args_t in_content = {0};
+	op_key_exchange_args_t key_ex_args = {0};
+	uint8_t output_verify_data[12] = {0};
+	uint8_t mbedtls_verify_data[12] = {0};
+	uint32_t ret;
+
+	printf("\nTLS 1.2 Verify Data:\n");
+	printf("--------------------------\n");
+
+	/* 1. Prepare Input Content for TLS 1.2 Verify Data */
+	memset(&in_content, 0, sizeof(in_content_tls1_2_verify_data_args_t));
+
+	in_content.tls1_2_algo = HSM_KEY_DERIVATION_TLS1_2_VERIFY_DATA_SHA256;
+	in_content.priv_key_id = master_secret_key_id;
+	in_content.ver = 0x1;
+
+	/* 2. Export ELE FW computed TLS 1.2 Verify Data */
+	memset(&key_ex_args, 0, sizeof(op_key_exchange_args_t));
+
+	key_ex_args.flags = HSM_OP_KEY_EXCHANGE_FLAGS_INPUT_PLAINTEXT_CONTENT |
+			    HSM_OP_KEY_EXCHANGE_FLAGS_RETURN_OUTPUT;
+	key_ex_args.in_content_sz = sizeof(in_content);
+	key_ex_args.in_content = (uint8_t *)(&in_content);
+	key_ex_args.user_fixed_info_sz = sizeof(test_tls1_2_client_verify_data_seed);
+	key_ex_args.user_fixed_info = (uint8_t *)test_tls1_2_client_verify_data_seed;
+	key_ex_args.output_sz = sizeof(output_verify_data);
+	key_ex_args.output = output_verify_data;
+
+	err = hsm_key_exchange(key_mgmt_hdl, &key_ex_args);
+	printf("\nhsm_key_exchange [TLS 1.2 Verify Data] err: 0x%x\n\n", err);
+	if (err != HSM_NO_ERROR)
+		return;
+
+	/* 3. Compute Mbed-TLS TLS 1.2 Verify Data */
+	ret = my_mbedtls_tls12_prf(HSM_KEY_DERIVATION_TLS1_2_VERIFY_DATA_SHA256,
+				   master_secret,
+				   master_secret_len,
+				   test_tls1_2_label_client_verify_data,
+				   test_tls1_2_client_verify_data_seed +
+				   strlen(test_tls1_2_label_client_verify_data),
+				   sizeof(test_tls1_2_client_verify_data_seed) -
+				   strlen(test_tls1_2_label_client_verify_data),
+				   mbedtls_verify_data,
+				   sizeof(mbedtls_verify_data));
+	if (ret)
+		return;
+
+	/**
+	 *  4. Compare Mbed-TLS TLS 1.2 Verify Data with ELE computed TLS 1.2 Verify Data
+	 */
+	if (!memcmp(output_verify_data, mbedtls_verify_data, sizeof(output_verify_data)))
+		printf("TLS 1.2 Verify Data: Mbed-TLS validation. SUCCESS\n");
+	else
+		printf("TLS 1.2 Verify Data: Mbed-TLS validation. FAILED\n");
+}
+
+/**
  * TLS 1.2 tests for:
  *	- "Master Secret",
  *	- "Key Block",
@@ -506,6 +578,7 @@ static void test_tls1_2_iv(hsm_hdl_t key_mgmt_hdl,
  *        -- Client / Server write Keys
  *	- "IV"
  *        -- Client / Server IVs
+ *	- "Verify Data"
  */
 void key_exchange_test_tls1_2(hsm_hdl_t key_store_hdl,
 			      hsm_hdl_t key_mgmt_hdl,
@@ -530,6 +603,9 @@ void key_exchange_test_tls1_2(hsm_hdl_t key_store_hdl,
 
 	test_tls1_2_iv(key_mgmt_hdl, master_secret_key_id,
 		       master_secret, master_secret_len, key_store_id);
+
+	test_tls1_2_verify_data(key_mgmt_hdl, master_secret_key_id,
+				master_secret, master_secret_len, key_store_id);
 
 	/* Delete the test keys */
 	delete_test_key(key_mgmt_hdl, master_secret_key_id, 0);
