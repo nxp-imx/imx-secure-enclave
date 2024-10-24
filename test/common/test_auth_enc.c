@@ -355,6 +355,182 @@ static hsm_err_t auth_enc_new_ccm_plainkey_test(hsm_hdl_t key_store_hdl,
 
 	return err;
 }
+
+static hsm_err_t auth_enc_new_ccm_stream_test(hsm_hdl_t key_store_hdl,
+					      hsm_hdl_t key_mgmt_hdl)
+{
+	hsm_err_t err;
+	open_svc_cipher_args_t open_cipher_args = {0};
+	op_auth_enc_new_args_t args = {0};
+	hsm_hdl_t cipher_hdl = 0;
+	uint32_t key_id = 0;
+	uint8_t ciphertext[32] = {0};
+	uint8_t plaintext[32] = {0};
+	uint8_t tag[16] = {0};
+
+	printf("\nCCM Streaming Test - Opaque Key:\n");
+	printf("----------------------------------\n");
+
+	/* Generate key for the operation */
+	err = generate_key(key_mgmt_hdl,
+			   HSM_SE_KEY_STORAGE_VOLATILE,
+			   HSM_KEY_USAGE_ENCRYPT | HSM_KEY_USAGE_DECRYPT,
+			   PERMITTED_ALGO_CCM,
+			   HSM_KEY_SIZE_AES_256,
+			   0,
+			   HSM_KEY_TYPE_AES,
+			   50,
+			   &key_id);
+	if (err != HSM_NO_ERROR)
+		goto out;
+
+	/* Open Cipher Service.
+	 * Multipart opaque operation needs to one cipher handle per operation.
+	 */
+
+	err = hsm_open_cipher_service(key_store_hdl, &open_cipher_args, &cipher_hdl);
+	if (err != HSM_NO_ERROR) {
+		printf("\nhsm_open_cipher_service err: 0x%x\n", err);
+		goto out;
+	}
+
+	/* AEAD ENCRYPT (Streaming) */
+
+	/* INIT */
+	memset(&args, 0, sizeof(op_auth_enc_new_args_t));
+	args.flags = HSM_AUTH_ENC_FLAGS_ENCRYPT | HSM_AUTH_ENC_FLAGS_INIT;
+	args.key_id = key_id;
+	args.ae_algo = HSM_AEAD_ALGO_CCM;
+	args.iv_size = sizeof(iv_data);
+	args.iv_in = iv_data;
+	args.aad_size = sizeof(aad_data);
+	args.input_size = sizeof(test_message);
+
+	err = hsm_auth_enc_new(cipher_hdl, &args);
+	if (err != HSM_NO_ERROR) {
+		printf("\nhsm_auth_enc_new (encrypt) (INIT) err: 0x%x\n", err);
+		goto out;
+	}
+
+	/* UPDATE AAD */
+	memset(&args, 0, sizeof(op_auth_enc_new_args_t));
+	args.flags = HSM_AUTH_ENC_FLAGS_ENCRYPT | HSM_AUTH_ENC_FLAGS_UPDATE_AAD;
+	args.ae_algo = HSM_AEAD_ALGO_CCM;
+	args.aad_size = sizeof(aad_data);
+	args.aad = aad_data;
+
+	err = hsm_auth_enc_new(cipher_hdl, &args);
+	if (err != HSM_NO_ERROR) {
+		printf("\nhsm_auth_enc_new (encrypt) (UPDATE AAD) err: 0x%x\n", err);
+		goto out;
+	}
+
+	/* UPDATE DATA */
+	memset(&args, 0, sizeof(op_auth_enc_new_args_t));
+	args.flags = HSM_AUTH_ENC_FLAGS_ENCRYPT | HSM_AUTH_ENC_FLAGS_UPDATE_DATA;
+	args.ae_algo = HSM_AEAD_ALGO_CCM;
+	args.input_size = sizeof(test_message);
+	args.input = test_message;
+	args.output_size = sizeof(ciphertext);
+	args.output = ciphertext;
+
+	err = hsm_auth_enc_new(cipher_hdl, &args);
+	if (err != HSM_NO_ERROR) {
+		printf("\nhsm_auth_enc_new (encrypt) (UPDATE DATA) err: 0x%x\n", err);
+		goto out;
+	}
+
+	/* FINALIZE */
+	memset(&args, 0, sizeof(op_auth_enc_new_args_t));
+	args.flags = HSM_AUTH_ENC_FLAGS_ENCRYPT | HSM_AUTH_ENC_FLAGS_FINALIZE;
+	args.ae_algo = HSM_AEAD_ALGO_CCM;
+	args.tag_size = sizeof(tag);
+	args.tag = tag;
+
+	err = hsm_auth_enc_new(cipher_hdl, &args);
+	if (err != HSM_NO_ERROR) {
+		printf("\nhsm_auth_enc_new (encrypt) (FINALIZE) err: 0x%x\n", err);
+		goto out;
+	}
+
+	/* AEAD DECRYPT (Streaming) */
+
+	/* INIT */
+	memset(&args, 0, sizeof(op_auth_enc_new_args_t));
+	args.flags = HSM_AUTH_ENC_FLAGS_DECRYPT | HSM_AUTH_ENC_FLAGS_INIT;
+	args.key_id = key_id;
+	args.ae_algo = HSM_AEAD_ALGO_CCM;
+	args.iv_size = sizeof(iv_data);
+	args.iv_in = iv_data;
+	args.aad_size = sizeof(aad_data);
+	args.input_size = sizeof(ciphertext);
+
+	err = hsm_auth_enc_new(cipher_hdl, &args);
+	if (err != HSM_NO_ERROR) {
+		printf("\nhsm_auth_enc_new (decrypt) (INIT) err: 0x%x\n", err);
+		goto out;
+	}
+
+	/* UPDATE AAD */
+	memset(&args, 0, sizeof(op_auth_enc_new_args_t));
+	args.flags = HSM_AUTH_ENC_FLAGS_DECRYPT | HSM_AUTH_ENC_FLAGS_UPDATE_AAD;
+	args.ae_algo = HSM_AEAD_ALGO_CCM;
+	args.aad_size = sizeof(aad_data);
+	args.aad = aad_data;
+
+	err = hsm_auth_enc_new(cipher_hdl, &args);
+	if (err != HSM_NO_ERROR) {
+		printf("\nhsm_auth_enc_new (decrypt) (UPDATE AAD) err: 0x%x\n", err);
+		goto out;
+	}
+
+	/* UPDATE DATA */
+	memset(&args, 0, sizeof(op_auth_enc_new_args_t));
+	args.flags = HSM_AUTH_ENC_FLAGS_DECRYPT | HSM_AUTH_ENC_FLAGS_UPDATE_DATA;
+	args.ae_algo = HSM_AEAD_ALGO_CCM;
+	args.input_size = sizeof(ciphertext);
+	args.input = ciphertext;
+	args.output_size = sizeof(plaintext);
+	args.output = plaintext;
+
+	err = hsm_auth_enc_new(cipher_hdl, &args);
+	if (err != HSM_NO_ERROR) {
+		printf("\nhsm_auth_enc_new (decrypt) (UPDATE DATA) err: 0x%x\n", err);
+		goto out;
+	}
+
+	/* FINALIZE VERIFY */
+	memset(&args, 0, sizeof(op_auth_enc_new_args_t));
+	args.flags = HSM_AUTH_ENC_FLAGS_DECRYPT | HSM_AUTH_ENC_FLAGS_FINALIZE_VERIFY;
+	args.ae_algo = HSM_AEAD_ALGO_CCM;
+	args.tag_size = sizeof(tag);
+	args.tag = tag;
+
+	err = hsm_auth_enc_new(cipher_hdl, &args);
+	if (err != HSM_NO_ERROR) {
+		printf("\nhsm_auth_enc_new (decrypt) (FINALIZE VERIFY) err: 0x%x\n", err);
+		goto out;
+	}
+
+	/* Close the Cipher Service */
+	err = hsm_close_cipher_service(cipher_hdl);
+	if (err != HSM_NO_ERROR) {
+		printf("\nhsm_close_cipher_service err: 0x%x\n", err);
+		goto out;
+	}
+
+	if (args.verify_status == HSM_AEAD_VERIFICATION_STATUS_SUCCESS &&
+	    memcmp(test_message, plaintext, sizeof(plaintext)) == 0)
+		printf("\nDecrypted data matches Test data [PASS]\n");
+	else
+		printf("\nDecrypted data doesn't match Test data [FAIL]\n");
+
+out:
+	if (key_id)
+		delete_test_key(key_mgmt_hdl, key_id, 0);
+
+	return err;
+}
 #endif
 
 hsm_err_t auth_enc_test(hsm_hdl_t key_store_hdl, hsm_hdl_t key_mgmt_hdl)
@@ -379,6 +555,9 @@ hsm_err_t auth_enc_test(hsm_hdl_t key_store_hdl, hsm_hdl_t key_mgmt_hdl)
 
 	auth_enc_new_ccm_test(key_store_hdl, key_mgmt_hdl);
 	auth_enc_new_ccm_plainkey_test(key_store_hdl, key_mgmt_hdl);
+
+	if (se_get_soc_id() == SOC_IMX95)
+		auth_enc_new_ccm_stream_test(key_store_hdl, key_mgmt_hdl);
 
 	printf("\n------------------------------------------------\n");
 	printf("Test Complete");
