@@ -124,6 +124,141 @@ hsm_err_t do_cipher_plainkey_test(hsm_hdl_t key_store_hdl, hsm_hdl_t key_mgmt_hd
 
 	return hsmret;
 }
+
+static hsm_err_t do_cipher_stream_opaquekey_test(hsm_hdl_t key_store_hdl,
+						 hsm_hdl_t key_mgmt_hdl)
+{
+	hsm_err_t err;
+	hsm_hdl_t cipher_hdl = 0;
+	open_svc_cipher_args_t open_cipher_args = {0};
+	op_cipher_args_t args = {0};
+	uint8_t ciphered_data[16] = {0};
+	uint8_t deciphered_data[16] = {0};
+	uint32_t key_id = 0;
+
+	printf("\nStreaming Test (Opaque key):\n");
+	printf("-------------------------------------\n");
+
+	generate_key(key_mgmt_hdl,
+		     HSM_SE_KEY_STORAGE_VOLATILE,
+		     HSM_KEY_USAGE_ENCRYPT | HSM_KEY_USAGE_DECRYPT,
+		     PERMITTED_ALGO_CBC_NO_PADDING,
+		     HSM_KEY_SIZE_AES_128,
+		     0,
+		     HSM_KEY_TYPE_AES,
+		     &key_id);
+
+	/* Open Cipher Service.
+	 * Multipart opaque operation needs to one cipher handle per operation.
+	 */
+	err = hsm_open_cipher_service(key_store_hdl, &open_cipher_args, &cipher_hdl);
+	if (err != HSM_NO_ERROR) {
+		printf("hsm_open_cipher_service err: 0x%x\n", err);
+		goto out;
+	}
+
+	/* Cipher Encrypt */
+
+	/* INIT */
+	memset(&args, 0, sizeof(op_cipher_args_t));
+	args.flags = HSM_CIPHER_FLAGS_ENCRYPT | HSM_CIPHER_FLAGS_INIT;
+	args.cipher_algo = HSM_CIPHER_ALGO_CBC;
+	args.key_identifier = key_id;
+	args.iv = iv_data;
+	args.iv_size = sizeof(iv_data);
+
+	err = hsm_cipher(cipher_hdl, &args);
+	if (err != HSM_NO_ERROR) {
+		printf("\nhsm_cipher (encrypt) (INIT) err: 0x%x\n", err);
+		goto out;
+	}
+
+	/* UPDATE DATA */
+	memset(&args, 0, sizeof(op_cipher_args_t));
+	args.flags = HSM_CIPHER_FLAGS_ENCRYPT | HSM_CIPHER_FLAGS_UPDATE_DATA;
+	args.cipher_algo = HSM_CIPHER_ALGO_CBC;
+	args.input = hash_data; //plaintext
+	args.input_size = 16;
+	args.output = ciphered_data;
+	args.output_size = sizeof(ciphered_data);
+
+	err = hsm_cipher(cipher_hdl, &args);
+	if (err != HSM_NO_ERROR) {
+		printf("\nhsm_cipher (encrypt) UPDATE DATA) err: 0x%x\n", err);
+		goto out;
+	}
+
+	/* FINALIZE */
+	memset(&args, 0, sizeof(op_cipher_args_t));
+	args.flags = HSM_CIPHER_FLAGS_ENCRYPT | HSM_CIPHER_FLAGS_FINALIZE;
+	args.cipher_algo = HSM_CIPHER_ALGO_CBC;
+	args.output = ciphered_data;
+	args.output_size = sizeof(ciphered_data);
+
+	err = hsm_cipher(cipher_hdl, &args);
+	if (err != HSM_NO_ERROR) {
+		printf("\nhsm_cipher (encrypt) (FINALIZE) err: 0x%x\n", err);
+		goto out;
+	}
+
+	/* Cipher Decrypt */
+
+	/* INIT */
+	memset(&args, 0, sizeof(op_cipher_args_t));
+	args.flags = HSM_CIPHER_FLAGS_DECRYPT | HSM_CIPHER_FLAGS_INIT;
+	args.cipher_algo = HSM_CIPHER_ALGO_CBC;
+	args.key_identifier = key_id;
+	args.iv = iv_data;
+	args.iv_size = sizeof(iv_data);
+
+	err = hsm_cipher(cipher_hdl, &args);
+	if (err != HSM_NO_ERROR) {
+		printf("\nhsm_cipher (decrypt) (INIT) err: 0x%x\n", err);
+		goto out;
+	}
+
+	/* UPDATE DATA */
+	memset(&args, 0, sizeof(op_cipher_args_t));
+	args.flags = HSM_CIPHER_FLAGS_DECRYPT | HSM_CIPHER_FLAGS_UPDATE_DATA;
+	args.cipher_algo = HSM_CIPHER_ALGO_CBC;
+	args.input = ciphered_data;
+	args.input_size = sizeof(ciphered_data);
+	args.output = deciphered_data;
+	args.output_size = sizeof(deciphered_data);
+
+	err = hsm_cipher(cipher_hdl, &args);
+	if (err != HSM_NO_ERROR) {
+		printf("\nhsm_cipher (decrypt) (UPDATE DATA) err: 0x%x\n", err);
+		goto out;
+	}
+
+	/* FINALIZE */
+	memset(&args, 0, sizeof(op_cipher_args_t));
+	args.flags = HSM_CIPHER_FLAGS_DECRYPT | HSM_CIPHER_FLAGS_FINALIZE;
+	args.cipher_algo = HSM_CIPHER_ALGO_CBC;
+	args.output = deciphered_data;
+	args.output_size = sizeof(deciphered_data);
+
+	err = hsm_cipher(cipher_hdl, &args);
+	if (err != HSM_NO_ERROR) {
+		printf("\nhsm_cipher (decrypt) (FINALIZE) err: 0x%x\n", err);
+		goto out;
+	}
+
+	err = hsm_close_cipher_service(cipher_hdl);
+	if (err != HSM_NO_ERROR)
+		printf("\nhsm_close_cipher_service err: 0x%x\n", err);
+
+	if (memcmp(hash_data, deciphered_data, sizeof(deciphered_data)) == 0)
+		printf("\nDecrypted data matches encrypted data [PASS]\n");
+	else
+		printf("\nDecrypted data doesn't match encrypted data [FAIL]\n");
+out:
+	if (key_id)
+		delete_test_key(key_mgmt_hdl, key_id, 0);
+
+	return err;
+}
 #endif
 
 hsm_err_t do_cipher_test(hsm_hdl_t key_store_hdl, hsm_hdl_t key_mgmt_hdl)
@@ -191,6 +326,9 @@ hsm_err_t do_cipher_test(hsm_hdl_t key_store_hdl, hsm_hdl_t key_mgmt_hdl)
 		printf("\nDecrypted data doesn't match encrypted data [FAIL]\n");
 
 #ifdef PSA_COMPLIANT
+	if (se_get_soc_id() == SOC_IMX95)
+		do_cipher_stream_opaquekey_test(key_store_hdl, key_mgmt_hdl);
+
 	hsmret = do_cipher_plainkey_test(key_store_hdl, key_mgmt_hdl);
 #endif
 	printf("\n---------------------------------------------------\n");
