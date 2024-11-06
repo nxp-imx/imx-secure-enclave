@@ -1,6 +1,6 @@
 // SPDX-License-Identifier: BSD-3-Clause
 /*
- * Copyright 2022-2023 NXP
+ * Copyright 2022-2024 NXP
  */
 
 #ifndef HSM_KEY_GENERATE_H
@@ -56,7 +56,11 @@ typedef struct {
 	//!< indicates which type of key must be generated.
 	hsm_key_group_t key_group;
 	//!< Key group of the generated key.
+#ifdef PSA_COMPLIANT
+	//!< It must be a value in the range 0-99.
+#else
 	//!< It must be a value in the range 0-1023.
+#endif
 	//!< Keys belonging to the same group can be cached in the HSM local
 	//!< memory through the hsm_manage_key_group API.
 	uint8_t *out_key;

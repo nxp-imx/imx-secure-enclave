@@ -1,6 +1,6 @@
 // SPDX-License-Identifier: BSD-3-Clause
 /*
- * Copyright 2023 NXP
+ * Copyright 2023-2024 NXP
  */
 
 #ifndef HSM_MANAGE_KEY_GROUP_H
@@ -18,7 +18,11 @@
 typedef uint8_t hsm_op_manage_key_group_flags_t;
 typedef struct {
 	hsm_key_group_t key_group;
+#ifdef PSA_COMPLIANT
+	//!< It must be a value in the range 0-99.
+#else
 	//!< It must be a value in the range 0-1023.
+#endif
 	//!< Keys belonging to the same group can be cached in the HSM local memory
 	//!< through the hsm_manage_key_group API.
 	hsm_op_manage_key_group_flags_t flags;
