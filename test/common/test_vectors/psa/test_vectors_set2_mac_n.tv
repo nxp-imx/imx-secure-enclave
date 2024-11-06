@@ -34,7 +34,7 @@ OUT_SIZE          0          # Symmetric Key. So, Public Key Out Size 0
 KEY_TYPE          0x1100     # HSM_KEY_TYPE_HMAC
 BIT_KEY_SZ        256        # HSM_KEY_SIZE_HMAC_256
 FLAGS             0          #
-KEY_GROUP         3          # Key Group b/w 0-1023
+KEY_GROUP         3          # Key Group
 KEY_LIFETIME      0x00000100 # HSM_SE_KEY_STORAGE_VOLATILE
 KEY_LIFECYCLE     0x0        # 0 indicates set to current Device Lifecycle
 KEY_USAGE         0x00000C00 # HSM_KEY_USAGE_SIGN_MSG | HSM_KEY_USAGE_VERIFY_MSG

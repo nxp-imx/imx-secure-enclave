@@ -37,7 +37,7 @@ OUT_SIZE          0          # Symmetric Key. So, Public Key Out Size 0
 KEY_TYPE          0x2400     # HSM_KEY_TYPE_AES
 BIT_KEY_SZ        128        # HSM_KEY_SIZE_AES_128
 FLAGS             0          #
-KEY_GROUP         31         # Key Group b/w 0-1023
+KEY_GROUP         31         # Key Group
 KEY_LIFETIME      0x00000100 # HSM_SE_KEY_STORAGE_VOLATILE
 KEY_LIFECYCLE     0x0        # 0 indicates set to current Device Lifecycle
 KEY_USAGE         0x00000300 # HSM_KEY_USAGE_ENCRYPT | HSM_KEY_USAGE_DECRYPT
@@ -59,7 +59,7 @@ OUT_SIZE          0          # Symmetric Key. So, Public Key Out Size 0
 KEY_TYPE          0x2400     # HSM_KEY_TYPE_AES
 BIT_KEY_SZ        192        # HSM_KEY_SIZE_AES_192
 FLAGS             0          #
-KEY_GROUP         31         # Key Group b/w 0-1023
+KEY_GROUP         31         # Key Group
 KEY_LIFETIME      0x00000100 # HSM_SE_KEY_STORAGE_VOLATILE
 KEY_LIFECYCLE     0x0        # 0 indicates set to current Device Lifecycle
 KEY_USAGE         0x00000300 # HSM_KEY_USAGE_ENCRYPT | HSM_KEY_USAGE_DECRYPT
@@ -79,7 +79,7 @@ OUT_SIZE          0          # Symmetric Key. So, Public Key Out Size 0
 KEY_TYPE          0x2400     # HSM_KEY_TYPE_AES
 BIT_KEY_SZ        256        # HSM_KEY_SIZE_AES_256
 FLAGS             0          #
-KEY_GROUP         31         # Key Group b/w 0-1023
+KEY_GROUP         31         # Key Group
 KEY_LIFETIME      0x00000100 # HSM_SE_KEY_STORAGE_VOLATILE
 KEY_LIFECYCLE     0x0        # 0 indicates set to current Device Lifecycle
 KEY_USAGE         0x00000300 # HSM_KEY_USAGE_ENCRYPT | HSM_KEY_USAGE_DECRYPT
@@ -100,7 +100,7 @@ OUT_SIZE          0          # Symmetric Key. So, Public Key Out Size 0
 KEY_TYPE          0x2400     # HSM_KEY_TYPE_AES
 BIT_KEY_SZ        128        # HSM_KEY_SIZE_AES_128
 FLAGS             0          #
-KEY_GROUP         31         # Key Group b/w 0-1023
+KEY_GROUP         31         # Key Group
 KEY_LIFETIME      0x00000100 # HSM_SE_KEY_STORAGE_VOLATILE
 KEY_LIFECYCLE     0x0        # 0 indicates set to current Device Lifecycle
 KEY_USAGE         0x00000300 # HSM_KEY_USAGE_ENCRYPT | HSM_KEY_USAGE_DECRYPT
@@ -121,7 +121,7 @@ OUT_SIZE          0          # Symmetric Key. So, Public Key Out Size 0
 KEY_TYPE          0x2400     # HSM_KEY_TYPE_AES
 BIT_KEY_SZ        192        # HSM_KEY_SIZE_AES_192
 FLAGS             0          #
-KEY_GROUP         31         # Key Group b/w 0-1023
+KEY_GROUP         31         # Key Group
 KEY_LIFETIME      0x00000100 # HSM_SE_KEY_STORAGE_VOLATILE
 KEY_LIFECYCLE     0x0        # 0 indicates set to current Device Lifecycle
 KEY_USAGE         0x00000300 # HSM_KEY_USAGE_ENCRYPT | HSM_KEY_USAGE_DECRYPT
@@ -143,7 +143,7 @@ OUT_SIZE          0          # Symmetric Key. So, Public Key Out Size 0
 KEY_TYPE          0x2400     # HSM_KEY_TYPE_AES
 BIT_KEY_SZ        256        # HSM_KEY_SIZE_AES_256
 FLAGS             0          #
-KEY_GROUP         32         # Key Group b/w 0-1023
+KEY_GROUP         32         # Key Group
 KEY_LIFETIME      0x00000100 # HSM_SE_KEY_STORAGE_VOLATILE
 KEY_LIFECYCLE     0x0        # 0 indicates set to current Device Lifecycle
 KEY_USAGE         0x00000300 # HSM_KEY_USAGE_ENCRYPT | HSM_KEY_USAGE_DECRYPT
@@ -163,7 +163,7 @@ OUT_SIZE          0          # Symmetric Key. So, Public Key Out Size 0
 KEY_TYPE          0x2400     # HSM_KEY_TYPE_AES
 BIT_KEY_SZ        128        # HSM_KEY_SIZE_AES_128
 FLAGS             0          #
-KEY_GROUP         32         # Key Group b/w 0-1023
+KEY_GROUP         32         # Key Group
 KEY_LIFETIME      0x00000100 # HSM_SE_KEY_STORAGE_VOLATILE
 KEY_LIFECYCLE     0x0        # 0 indicates set to current Device Lifecycle
 KEY_USAGE         0x00000300 # HSM_KEY_USAGE_ENCRYPT | HSM_KEY_USAGE_DECRYPT
@@ -183,7 +183,7 @@ OUT_SIZE          0          # Symmetric Key. So, Public Key Out Size 0
 KEY_TYPE          0x2400     # HSM_KEY_TYPE_AES
 BIT_KEY_SZ        192        # HSM_KEY_SIZE_AES_192
 FLAGS             0          #
-KEY_GROUP         32         # Key Group b/w 0-1023
+KEY_GROUP         32         # Key Group
 KEY_LIFETIME      0x00000100 # HSM_SE_KEY_STORAGE_VOLATILE
 KEY_LIFECYCLE     0x0        # 0 indicates set to current Device Lifecycle
 KEY_USAGE         0x00000300 # HSM_KEY_USAGE_ENCRYPT | HSM_KEY_USAGE_DECRYPT
@@ -204,7 +204,7 @@ OUT_SIZE          0          # Symmetric Key. So, Public Key Out Size 0
 KEY_TYPE          0x2400     # HSM_KEY_TYPE_AES
 BIT_KEY_SZ        256        # HSM_KEY_SIZE_AES_256
 FLAGS             0          #
-KEY_GROUP         32         # Key Group b/w 0-1023
+KEY_GROUP         32         # Key Group
 KEY_LIFETIME      0x00000100 # HSM_SE_KEY_STORAGE_VOLATILE
 KEY_LIFECYCLE     0x0        # 0 indicates set to current Device Lifecycle
 KEY_USAGE         0x00000300 # HSM_KEY_USAGE_ENCRYPT | HSM_KEY_USAGE_DECRYPT
@@ -226,7 +226,7 @@ OUT_SIZE          0          # Symmetric Key. So, Public Key Out Size 0
 KEY_TYPE          0x2400     # HSM_KEY_TYPE_AES
 BIT_KEY_SZ        128        # HSM_KEY_SIZE_AES_128
 FLAGS             0          #
-KEY_GROUP         32         # Key Group b/w 0-1023
+KEY_GROUP         32         # Key Group
 KEY_LIFETIME      0x00000100 # HSM_SE_KEY_STORAGE_VOLATILE
 KEY_LIFECYCLE     0x0        # 0 indicates set to current Device Lifecycle
 KEY_USAGE         0x00000300 # HSM_KEY_USAGE_ENCRYPT | HSM_KEY_USAGE_DECRYPT
@@ -247,7 +247,7 @@ OUT_SIZE          0          # Symmetric Key. So, Public Key Out Size 0
 KEY_TYPE          0x2400     # HSM_KEY_TYPE_AES
 BIT_KEY_SZ        192        # HSM_KEY_SIZE_AES_192
 FLAGS             0          #
-KEY_GROUP         33         # Key Group b/w 0-1023
+KEY_GROUP         33         # Key Group
 KEY_LIFETIME      0x00000100 # HSM_SE_KEY_STORAGE_VOLATILE
 KEY_LIFECYCLE     0x0        # 0 indicates set to current Device Lifecycle
 KEY_USAGE         0x00000300 # HSM_KEY_USAGE_ENCRYPT | HSM_KEY_USAGE_DECRYPT
@@ -269,7 +269,7 @@ OUT_SIZE          0          # Symmetric Key. So, Public Key Out Size 0
 KEY_TYPE          0x2400     # HSM_KEY_TYPE_AES
 BIT_KEY_SZ        256        # HSM_KEY_SIZE_AES_256
 FLAGS             0          #
-KEY_GROUP         33         # Key Group b/w 0-1023
+KEY_GROUP         33         # Key Group
 KEY_LIFETIME      0x00000100 # HSM_SE_KEY_STORAGE_VOLATILE
 KEY_LIFECYCLE     0x0        # 0 indicates set to current Device Lifecycle
 KEY_USAGE         0x00000300 # HSM_KEY_USAGE_ENCRYPT | HSM_KEY_USAGE_DECRYPT
@@ -290,7 +290,7 @@ OUT_SIZE          0          # Symmetric Key. So, Public Key Out Size 0
 KEY_TYPE          0x2400     # HSM_KEY_TYPE_AES
 BIT_KEY_SZ        128        # HSM_KEY_SIZE_AES_128
 FLAGS             0          #
-KEY_GROUP         33         # Key Group b/w 0-1023
+KEY_GROUP         33         # Key Group
 KEY_LIFETIME      0x00000100 # HSM_SE_KEY_STORAGE_VOLATILE
 KEY_LIFECYCLE     0x0        # 0 indicates set to current Device Lifecycle
 KEY_USAGE         0x00000300 # HSM_KEY_USAGE_ENCRYPT | HSM_KEY_USAGE_DECRYPT
@@ -311,7 +311,7 @@ OUT_SIZE          0          # Symmetric Key. So, Public Key Out Size 0
 KEY_TYPE          0x2400     # HSM_KEY_TYPE_AES
 BIT_KEY_SZ        192        # HSM_KEY_SIZE_AES_192
 FLAGS             0          #
-KEY_GROUP         33         # Key Group b/w 0-1023
+KEY_GROUP         33         # Key Group
 KEY_LIFETIME      0x00000100 # HSM_SE_KEY_STORAGE_VOLATILE
 KEY_LIFECYCLE     0x0        # 0 indicates set to current Device Lifecycle
 KEY_USAGE         0x00000300 # HSM_KEY_USAGE_ENCRYPT | HSM_KEY_USAGE_DECRYPT
@@ -332,7 +332,7 @@ OUT_SIZE          0          # Symmetric Key. So, Public Key Out Size 0
 KEY_TYPE          0x2400     # HSM_KEY_TYPE_AES
 BIT_KEY_SZ        256        # HSM_KEY_SIZE_AES_256
 FLAGS             0          #
-KEY_GROUP         33         # Key Group b/w 0-1023
+KEY_GROUP         33         # Key Group
 KEY_LIFETIME      0x00000100 # HSM_SE_KEY_STORAGE_VOLATILE
 KEY_LIFECYCLE     0x0        # 0 indicates set to current Device Lifecycle
 KEY_USAGE         0x00000300 # HSM_KEY_USAGE_ENCRYPT | HSM_KEY_USAGE_DECRYPT
@@ -354,7 +354,7 @@ OUT_SIZE          0          # Symmetric Key. So, Public Key Out Size 0
 KEY_TYPE          0x2400     # HSM_KEY_TYPE_AES
 BIT_KEY_SZ        128        # HSM_KEY_SIZE_AES_128
 FLAGS             0          #
-KEY_GROUP         34         # Key Group b/w 0-1023
+KEY_GROUP         34         # Key Group
 KEY_LIFETIME      0x00000100 # HSM_SE_KEY_STORAGE_VOLATILE
 KEY_LIFECYCLE     0x0        # 0 indicates set to current Device Lifecycle
 KEY_USAGE         0x00000300 # HSM_KEY_USAGE_ENCRYPT | HSM_KEY_USAGE_DECRYPT
@@ -375,7 +375,7 @@ OUT_SIZE          0          # Symmetric Key. So, Public Key Out Size 0
 KEY_TYPE          0x2400     # HSM_KEY_TYPE_AES
 BIT_KEY_SZ        192        # HSM_KEY_SIZE_AES_192
 FLAGS             0          #
-KEY_GROUP         34         # Key Group b/w 0-1023
+KEY_GROUP         34         # Key Group
 KEY_LIFETIME      0x00000100 # HSM_SE_KEY_STORAGE_VOLATILE
 KEY_LIFECYCLE     0x0        # 0 indicates set to current Device Lifecycle
 KEY_USAGE         0x00000300 # HSM_KEY_USAGE_ENCRYPT | HSM_KEY_USAGE_DECRYPT
@@ -397,7 +397,7 @@ OUT_SIZE          0          # Symmetric Key. So, Public Key Out Size 0
 KEY_TYPE          0x2400     # HSM_KEY_TYPE_AES
 BIT_KEY_SZ        256        # HSM_KEY_SIZE_AES_256
 FLAGS             0          #
-KEY_GROUP         34         # Key Group b/w 0-1023
+KEY_GROUP         34         # Key Group
 KEY_LIFETIME      0x00000100 # HSM_SE_KEY_STORAGE_VOLATILE
 KEY_LIFECYCLE     0x0        # 0 indicates set to current Device Lifecycle
 KEY_USAGE         0x00000300 # HSM_KEY_USAGE_ENCRYPT | HSM_KEY_USAGE_DECRYPT

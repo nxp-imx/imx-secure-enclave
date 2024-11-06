@@ -31,7 +31,7 @@ OUT_SIZE            0        # Public Key Out Size
 KEY_TYPE            0x2400     # HSM_KEY_TYPE_AES_128
 BIT_KEY_SZ          128       # HSM_KEY_SIZE_AES_128
 FLAGS               0          #
-KEY_GROUP           81         # Key Group b/w 0-1023
+KEY_GROUP           81         # Key Group
 KEY_LIFETIME        0x00000100 # HSM_SE_KEY_STORAGE_VOLATILE
 KEY_LIFECYCLE       0x01       # 0x01 indicates set to Open Device Lifecycle
 KEY_USAGE           0x00000C00 # HSM_KEY_USAGE_SIGN_MSG | HSM_KEY_USAGE_VERIFY_MSG
@@ -71,7 +71,7 @@ OUT_SIZE            0        # Public Key Out Size
 KEY_TYPE            0x2400     # HSM_KEY_TYPE_AES_128
 BIT_KEY_SZ          128       # HSM_KEY_SIZE_AES_128
 FLAGS               0          #
-KEY_GROUP           81         # Key Group b/w 0-1023
+KEY_GROUP           81         # Key Group
 KEY_LIFETIME        0x00000100 # HSM_SE_KEY_STORAGE_VOLATILE
 KEY_LIFECYCLE       0x02       # 0x02 indicates set to Closed Device Lifecycle
 KEY_USAGE           0x00000C00 # HSM_KEY_USAGE_SIGN_MSG | HSM_KEY_USAGE_VERIFY_MSG
@@ -111,7 +111,7 @@ OUT_SIZE            0        # Public Key Out Size
 KEY_TYPE            0x2400     # HSM_KEY_TYPE_AES_128
 BIT_KEY_SZ          128       # HSM_KEY_SIZE_AES_128
 FLAGS               0          #
-KEY_GROUP           81         # Key Group b/w 0-1023
+KEY_GROUP           81         # Key Group
 KEY_LIFETIME        0x00000100 # HSM_SE_KEY_STORAGE_VOLATILE
 KEY_LIFECYCLE       0x04       # 0x04 indicates set to Closed and locked Device Lifecycle
 KEY_USAGE           0x00000C00 # HSM_KEY_USAGE_SIGN_MSG | HSM_KEY_USAGE_VERIFY_MSG
@@ -151,7 +151,7 @@ OUT_SIZE            0        # Public Key Out Size
 KEY_TYPE            0x2400     # HSM_KEY_TYPE_AES_128
 BIT_KEY_SZ          128       # HSM_KEY_SIZE_AES_128
 FLAGS               0          #
-KEY_GROUP           81         # Key Group b/w 0-1023
+KEY_GROUP           81         # Key Group
 KEY_LIFETIME        0x00000100 # HSM_SE_KEY_STORAGE_VOLATILE
 KEY_LIFECYCLE       0x0       # 0x0 indicates set to Current lifecycle (0x0) Device Lifecycle
 KEY_USAGE           0x00000C00 # HSM_KEY_USAGE_SIGN_MSG | HSM_KEY_USAGE_VERIFY_MSG
@@ -191,7 +191,7 @@ OUT_SIZE            0        # Public Key Out Size
 KEY_TYPE            0x2400     # HSM_KEY_TYPE_AES_128
 BIT_KEY_SZ          128       # HSM_KEY_SIZE_AES_128
 FLAGS               0          #
-KEY_GROUP           81         # Key Group b/w 0-1023
+KEY_GROUP           81         # Key Group
 KEY_LIFETIME        0x00000100 # HSM_SE_KEY_STORAGE_VOLATILE
 KEY_LIFECYCLE       0x01       # 0x01 indicates set to Open Device Lifecycle
 KEY_USAGE           0x00000300 # HSM_KEY_USAGE_ENCRYPT | HSM_KEY_USAGE_DECRYPT
@@ -231,7 +231,7 @@ OUT_SIZE            0        # Public Key Out Size
 KEY_TYPE            0x2400     # HSM_KEY_TYPE_AES_128
 BIT_KEY_SZ          128       # HSM_KEY_SIZE_AES_128
 FLAGS               0          #
-KEY_GROUP           81         # Key Group b/w 0-1023
+KEY_GROUP           81         # Key Group
 KEY_LIFETIME        0x00000100 # HSM_SE_KEY_STORAGE_VOLATILE
 KEY_LIFECYCLE       0x02       # 0x02 indicates set to Closed Device Lifecycle
 KEY_USAGE           0x00000300 # HSM_KEY_USAGE_ENCRYPT | HSM_KEY_USAGE_DECRYPT
@@ -271,7 +271,7 @@ OUT_SIZE            0        # Public Key Out Size
 KEY_TYPE            0x2400     # HSM_KEY_TYPE_AES_128
 BIT_KEY_SZ          128       # HSM_KEY_SIZE_AES_128
 FLAGS               0          #
-KEY_GROUP           81         # Key Group b/w 0-1023
+KEY_GROUP           81         # Key Group
 KEY_LIFETIME        0x00000100 # HSM_SE_KEY_STORAGE_VOLATILE
 KEY_LIFECYCLE       0x04       # 0x04 indicates set to Closed and locked Device Lifecycle
 KEY_USAGE           0x00000300 # HSM_KEY_USAGE_ENCRYPT | HSM_KEY_USAGE_DECRYPT
@@ -311,7 +311,7 @@ OUT_SIZE            0        # Public Key Out Size
 KEY_TYPE            0x2400     # HSM_KEY_TYPE_AES_128
 BIT_KEY_SZ          128       # HSM_KEY_SIZE_AES_128
 FLAGS               0          #
-KEY_GROUP           81         # Key Group b/w 0-1023
+KEY_GROUP           81         # Key Group
 KEY_LIFETIME        0x00000100 # HSM_SE_KEY_STORAGE_VOLATILE
 KEY_LIFECYCLE       0x0       # 0x0 indicates set to Current lifecycle (0x0) Device Lifecycle
 KEY_USAGE           0x00000300 # HSM_KEY_USAGE_ENCRYPT | HSM_KEY_USAGE_DECRYPT
@@ -351,7 +351,7 @@ OUT_SIZE            0        # Public Key Out Size
 KEY_TYPE            0x2400     # HSM_KEY_TYPE_AES_128
 BIT_KEY_SZ          128       # HSM_KEY_SIZE_AES_128
 FLAGS               0          #
-KEY_GROUP           81         # Key Group b/w 0-1023
+KEY_GROUP           81         # Key Group
 KEY_LIFETIME        0x00000100 # HSM_SE_KEY_STORAGE_VOLATILE
 KEY_LIFECYCLE       0x01       # 0x01 indicates set to Open Device Lifecycle
 KEY_USAGE           0x00000300 # HSM_KEY_USAGE_ENCRYPT | HSM_KEY_USAGE_DECRYPT
@@ -391,7 +391,7 @@ OUT_SIZE            0        # Public Key Out Size
 KEY_TYPE            0x2400     # HSM_KEY_TYPE_AES_128
 BIT_KEY_SZ          128       # HSM_KEY_SIZE_AES_128
 FLAGS               0          #
-KEY_GROUP           81         # Key Group b/w 0-1023
+KEY_GROUP           81         # Key Group
 KEY_LIFETIME        0x00000100 # HSM_SE_KEY_STORAGE_VOLATILE
 KEY_LIFECYCLE       0x02       # 0x02 indicates set to Closed Device Lifecycle
 KEY_USAGE           0x00000300 # HSM_KEY_USAGE_ENCRYPT | HSM_KEY_USAGE_DECRYPT
@@ -431,7 +431,7 @@ OUT_SIZE            0        # Public Key Out Size
 KEY_TYPE            0x2400     # HSM_KEY_TYPE_AES_128
 BIT_KEY_SZ          128       # HSM_KEY_SIZE_AES_128
 FLAGS               0          #
-KEY_GROUP           81         # Key Group b/w 0-1023
+KEY_GROUP           81         # Key Group
 KEY_LIFETIME        0x00000100 # HSM_SE_KEY_STORAGE_VOLATILE
 KEY_LIFECYCLE       0x04       # 0x04 indicates set to Closed and locked Device Lifecycle
 KEY_USAGE           0x00000300 # HSM_KEY_USAGE_ENCRYPT | HSM_KEY_USAGE_DECRYPT
@@ -471,7 +471,7 @@ OUT_SIZE            0        # Public Key Out Size
 KEY_TYPE            0x2400     # HSM_KEY_TYPE_AES_128
 BIT_KEY_SZ          128       # HSM_KEY_SIZE_AES_128
 FLAGS               0          #
-KEY_GROUP           81         # Key Group b/w 0-1023
+KEY_GROUP           81         # Key Group
 KEY_LIFETIME        0x00000100 # HSM_SE_KEY_STORAGE_VOLATILE
 KEY_LIFECYCLE       0x0       # 0x0 indicates set to Current lifecycle (0x0) Device Lifecycle
 KEY_USAGE           0x00000300 # HSM_KEY_USAGE_ENCRYPT | HSM_KEY_USAGE_DECRYPT
@@ -511,7 +511,7 @@ OUT_SIZE            0        # Public Key Out Size
 KEY_TYPE            0x2400     # HSM_KEY_TYPE_AES_128
 BIT_KEY_SZ          128       # HSM_KEY_SIZE_AES_128
 FLAGS               0          #
-KEY_GROUP           81         # Key Group b/w 0-1023
+KEY_GROUP           81         # Key Group
 KEY_LIFETIME        0x00000100 # HSM_SE_KEY_STORAGE_VOLATILE
 KEY_LIFECYCLE       0x01       # 0x01 indicates set to Open Device Lifecycle
 KEY_USAGE           0x00000300 # HSM_KEY_USAGE_ENCRYPT | HSM_KEY_USAGE_DECRYPT
@@ -551,7 +551,7 @@ OUT_SIZE            0        # Public Key Out Size
 KEY_TYPE            0x2400     # HSM_KEY_TYPE_AES_128
 BIT_KEY_SZ          128       # HSM_KEY_SIZE_AES_128
 FLAGS               0          #
-KEY_GROUP           81         # Key Group b/w 0-1023
+KEY_GROUP           81         # Key Group
 KEY_LIFETIME        0x00000100 # HSM_SE_KEY_STORAGE_VOLATILE
 KEY_LIFECYCLE       0x02       # 0x02 indicates set to Closed Device Lifecycle
 KEY_USAGE           0x00000300 # HSM_KEY_USAGE_ENCRYPT | HSM_KEY_USAGE_DECRYPT
@@ -591,7 +591,7 @@ OUT_SIZE            0        # Public Key Out Size
 KEY_TYPE            0x2400     # HSM_KEY_TYPE_AES_128
 BIT_KEY_SZ          128       # HSM_KEY_SIZE_AES_128
 FLAGS               0          #
-KEY_GROUP           81         # Key Group b/w 0-1023
+KEY_GROUP           81         # Key Group
 KEY_LIFETIME        0x00000100 # HSM_SE_KEY_STORAGE_VOLATILE
 KEY_LIFECYCLE       0x04       # 0x04 indicates set to Closed and locked Device Lifecycle
 KEY_USAGE           0x00000300 # HSM_KEY_USAGE_ENCRYPT | HSM_KEY_USAGE_DECRYPT
@@ -631,7 +631,7 @@ OUT_SIZE            0        # Public Key Out Size
 KEY_TYPE            0x2400     # HSM_KEY_TYPE_AES_128
 BIT_KEY_SZ          128       # HSM_KEY_SIZE_AES_128
 FLAGS               0          #
-KEY_GROUP           81         # Key Group b/w 0-1023
+KEY_GROUP           81         # Key Group
 KEY_LIFETIME        0x00000100 # HSM_SE_KEY_STORAGE_VOLATILE
 KEY_LIFECYCLE       0x0       # 0x0 indicates set to Current lifecycle (0x0) Device Lifecycle
 KEY_USAGE           0x00000300 # HSM_KEY_USAGE_ENCRYPT | HSM_KEY_USAGE_DECRYPT
@@ -671,7 +671,7 @@ OUT_SIZE            0        # Public Key Out Size
 KEY_TYPE            0x2400     # HSM_KEY_TYPE_AES_128
 BIT_KEY_SZ          128       # HSM_KEY_SIZE_AES_128
 FLAGS               0          #
-KEY_GROUP           81         # Key Group b/w 0-1023
+KEY_GROUP           81         # Key Group
 KEY_LIFETIME        0x00000100 # HSM_SE_KEY_STORAGE_VOLATILE
 KEY_LIFECYCLE       0x01       # 0x01 indicates set to Open Device Lifecycle
 KEY_USAGE           0x00000300 # HSM_KEY_USAGE_ENCRYPT | HSM_KEY_USAGE_DECRYPT
@@ -711,7 +711,7 @@ OUT_SIZE            0        # Public Key Out Size
 KEY_TYPE            0x2400     # HSM_KEY_TYPE_AES_128
 BIT_KEY_SZ          128       # HSM_KEY_SIZE_AES_128
 FLAGS               0          #
-KEY_GROUP           81         # Key Group b/w 0-1023
+KEY_GROUP           81         # Key Group
 KEY_LIFETIME        0x00000100 # HSM_SE_KEY_STORAGE_VOLATILE
 KEY_LIFECYCLE       0x02       # 0x02 indicates set to Closed Device Lifecycle
 KEY_USAGE           0x00000300 # HSM_KEY_USAGE_ENCRYPT | HSM_KEY_USAGE_DECRYPT
@@ -751,7 +751,7 @@ OUT_SIZE            0        # Public Key Out Size
 KEY_TYPE            0x2400     # HSM_KEY_TYPE_AES_128
 BIT_KEY_SZ          128       # HSM_KEY_SIZE_AES_128
 FLAGS               0          #
-KEY_GROUP           81         # Key Group b/w 0-1023
+KEY_GROUP           81         # Key Group
 KEY_LIFETIME        0x00000100 # HSM_SE_KEY_STORAGE_VOLATILE
 KEY_LIFECYCLE       0x04       # 0x04 indicates set to Closed and locked Device Lifecycle
 KEY_USAGE           0x00000300 # HSM_KEY_USAGE_ENCRYPT | HSM_KEY_USAGE_DECRYPT
@@ -791,7 +791,7 @@ OUT_SIZE            0        # Public Key Out Size
 KEY_TYPE            0x2400     # HSM_KEY_TYPE_AES_128
 BIT_KEY_SZ          128       # HSM_KEY_SIZE_AES_128
 FLAGS               0          #
-KEY_GROUP           81         # Key Group b/w 0-1023
+KEY_GROUP           81         # Key Group
 KEY_LIFETIME        0x00000100 # HSM_SE_KEY_STORAGE_VOLATILE
 KEY_LIFECYCLE       0x0       # 0x0 indicates set to Current lifecycle (0x0) Device Lifecycle
 KEY_USAGE           0x00000300 # HSM_KEY_USAGE_ENCRYPT | HSM_KEY_USAGE_DECRYPT
@@ -831,7 +831,7 @@ OUT_SIZE            0        # Public Key Out Size
 KEY_TYPE            0x2400     # HSM_KEY_TYPE_AES_128
 BIT_KEY_SZ          128       # HSM_KEY_SIZE_AES_128
 FLAGS               0          #
-KEY_GROUP           81         # Key Group b/w 0-1023
+KEY_GROUP           81         # Key Group
 KEY_LIFETIME        0x00000100 # HSM_SE_KEY_STORAGE_VOLATILE
 KEY_LIFECYCLE       0x01       # 0x01 indicates set to Open Device Lifecycle
 KEY_USAGE           0x00000300 # HSM_KEY_USAGE_ENCRYPT | HSM_KEY_USAGE_DECRYPT
@@ -871,7 +871,7 @@ OUT_SIZE            0        # Public Key Out Size
 KEY_TYPE            0x2400     # HSM_KEY_TYPE_AES_128
 BIT_KEY_SZ          128       # HSM_KEY_SIZE_AES_128
 FLAGS               0          #
-KEY_GROUP           81         # Key Group b/w 0-1023
+KEY_GROUP           81         # Key Group
 KEY_LIFETIME        0x00000100 # HSM_SE_KEY_STORAGE_VOLATILE
 KEY_LIFECYCLE       0x02       # 0x02 indicates set to Closed Device Lifecycle
 KEY_USAGE           0x00000300 # HSM_KEY_USAGE_ENCRYPT | HSM_KEY_USAGE_DECRYPT
@@ -911,7 +911,7 @@ OUT_SIZE            0        # Public Key Out Size
 KEY_TYPE            0x2400     # HSM_KEY_TYPE_AES_128
 BIT_KEY_SZ          128       # HSM_KEY_SIZE_AES_128
 FLAGS               0          #
-KEY_GROUP           81         # Key Group b/w 0-1023
+KEY_GROUP           81         # Key Group
 KEY_LIFETIME        0x00000100 # HSM_SE_KEY_STORAGE_VOLATILE
 KEY_LIFECYCLE       0x04       # 0x04 indicates set to Closed and locked Device Lifecycle
 KEY_USAGE           0x00000300 # HSM_KEY_USAGE_ENCRYPT | HSM_KEY_USAGE_DECRYPT
@@ -951,7 +951,7 @@ OUT_SIZE            0        # Public Key Out Size
 KEY_TYPE            0x2400     # HSM_KEY_TYPE_AES_128
 BIT_KEY_SZ          128       # HSM_KEY_SIZE_AES_128
 FLAGS               0          #
-KEY_GROUP           81         # Key Group b/w 0-1023
+KEY_GROUP           81         # Key Group
 KEY_LIFETIME        0x00000100 # HSM_SE_KEY_STORAGE_VOLATILE
 KEY_LIFECYCLE       0x0       # 0x0 indicates set to Current lifecycle (0x0) Device Lifecycle
 KEY_USAGE           0x00000300 # HSM_KEY_USAGE_ENCRYPT | HSM_KEY_USAGE_DECRYPT
@@ -991,7 +991,7 @@ OUT_SIZE            0        # Public Key Out Size
 KEY_TYPE            0x2400     # HSM_KEY_TYPE_AES_128
 BIT_KEY_SZ          128       # HSM_KEY_SIZE_AES_128
 FLAGS               0          #
-KEY_GROUP           81         # Key Group b/w 0-1023
+KEY_GROUP           81         # Key Group
 KEY_LIFETIME        0x00000100 # HSM_SE_KEY_STORAGE_VOLATILE
 KEY_LIFECYCLE       0x01       # 0x01 indicates set to Open Device Lifecycle
 KEY_USAGE           0x00000300 # HSM_KEY_USAGE_ENCRYPT | HSM_KEY_USAGE_DECRYPT
@@ -1031,7 +1031,7 @@ OUT_SIZE            0        # Public Key Out Size
 KEY_TYPE            0x2400     # HSM_KEY_TYPE_AES_128
 BIT_KEY_SZ          128       # HSM_KEY_SIZE_AES_128
 FLAGS               0          #
-KEY_GROUP           81         # Key Group b/w 0-1023
+KEY_GROUP           81         # Key Group
 KEY_LIFETIME        0x00000100 # HSM_SE_KEY_STORAGE_VOLATILE
 KEY_LIFECYCLE       0x02       # 0x02 indicates set to Closed Device Lifecycle
 KEY_USAGE           0x00000300 # HSM_KEY_USAGE_ENCRYPT | HSM_KEY_USAGE_DECRYPT
@@ -1071,7 +1071,7 @@ OUT_SIZE            0        # Public Key Out Size
 KEY_TYPE            0x2400     # HSM_KEY_TYPE_AES_128
 BIT_KEY_SZ          128       # HSM_KEY_SIZE_AES_128
 FLAGS               0          #
-KEY_GROUP           81         # Key Group b/w 0-1023
+KEY_GROUP           81         # Key Group
 KEY_LIFETIME        0x00000100 # HSM_SE_KEY_STORAGE_VOLATILE
 KEY_LIFECYCLE       0x04       # 0x04 indicates set to Closed and locked Device Lifecycle
 KEY_USAGE           0x00000300 # HSM_KEY_USAGE_ENCRYPT | HSM_KEY_USAGE_DECRYPT
@@ -1111,7 +1111,7 @@ OUT_SIZE            0        # Public Key Out Size
 KEY_TYPE            0x2400     # HSM_KEY_TYPE_AES_128
 BIT_KEY_SZ          128       # HSM_KEY_SIZE_AES_128
 FLAGS               0          #
-KEY_GROUP           81         # Key Group b/w 0-1023
+KEY_GROUP           81         # Key Group
 KEY_LIFETIME        0x00000100 # HSM_SE_KEY_STORAGE_VOLATILE
 KEY_LIFECYCLE       0x0       # 0x0 indicates set to Current lifecycle (0x0) Device Lifecycle
 KEY_USAGE           0x00000300 # HSM_KEY_USAGE_ENCRYPT | HSM_KEY_USAGE_DECRYPT
@@ -1151,7 +1151,7 @@ OUT_SIZE            0        # Public Key Out Size
 KEY_TYPE            0x2400     # HSM_KEY_TYPE_AES_128
 BIT_KEY_SZ          128       # HSM_KEY_SIZE_AES_128
 FLAGS               0          #
-KEY_GROUP           81         # Key Group b/w 0-1023
+KEY_GROUP           81         # Key Group
 KEY_LIFETIME        0x00000100 # HSM_SE_KEY_STORAGE_VOLATILE
 KEY_LIFECYCLE       0x01       # 0x01 indicates set to Open Device Lifecycle
 KEY_USAGE           0x00000300 # HSM_KEY_USAGE_ENCRYPT | HSM_KEY_USAGE_DECRYPT
@@ -1191,7 +1191,7 @@ OUT_SIZE            0        # Public Key Out Size
 KEY_TYPE            0x2400     # HSM_KEY_TYPE_AES_128
 BIT_KEY_SZ          128       # HSM_KEY_SIZE_AES_128
 FLAGS               0          #
-KEY_GROUP           81         # Key Group b/w 0-1023
+KEY_GROUP           81         # Key Group
 KEY_LIFETIME        0x00000100 # HSM_SE_KEY_STORAGE_VOLATILE
 KEY_LIFECYCLE       0x02       # 0x02 indicates set to Closed Device Lifecycle
 KEY_USAGE           0x00000300 # HSM_KEY_USAGE_ENCRYPT | HSM_KEY_USAGE_DECRYPT
@@ -1231,7 +1231,7 @@ OUT_SIZE            0        # Public Key Out Size
 KEY_TYPE            0x2400     # HSM_KEY_TYPE_AES_128
 BIT_KEY_SZ          128       # HSM_KEY_SIZE_AES_128
 FLAGS               0          #
-KEY_GROUP           81         # Key Group b/w 0-1023
+KEY_GROUP           81         # Key Group
 KEY_LIFETIME        0x00000100 # HSM_SE_KEY_STORAGE_VOLATILE
 KEY_LIFECYCLE       0x04       # 0x04 indicates set to Closed and locked Device Lifecycle
 KEY_USAGE           0x00000300 # HSM_KEY_USAGE_ENCRYPT | HSM_KEY_USAGE_DECRYPT
@@ -1271,7 +1271,7 @@ OUT_SIZE            0        # Public Key Out Size
 KEY_TYPE            0x2400     # HSM_KEY_TYPE_AES_128
 BIT_KEY_SZ          128       # HSM_KEY_SIZE_AES_128
 FLAGS               0          #
-KEY_GROUP           81         # Key Group b/w 0-1023
+KEY_GROUP           81         # Key Group
 KEY_LIFETIME        0x00000100 # HSM_SE_KEY_STORAGE_VOLATILE
 KEY_LIFECYCLE       0x0       # 0x0 indicates set to Current lifecycle (0x0) Device Lifecycle
 KEY_USAGE           0x00000300 # HSM_KEY_USAGE_ENCRYPT | HSM_KEY_USAGE_DECRYPT
@@ -1311,7 +1311,7 @@ OUT_SIZE            0        # Public Key Out Size
 KEY_TYPE            0x2400     # HSM_KEY_TYPE_AES_128
 BIT_KEY_SZ          128       # HSM_KEY_SIZE_AES_128
 FLAGS               0          #
-KEY_GROUP           81         # Key Group b/w 0-1023
+KEY_GROUP           81         # Key Group
 KEY_LIFETIME        0x00000100 # HSM_SE_KEY_STORAGE_VOLATILE
 KEY_LIFECYCLE       0x01       # 0x01 indicates set to Open Device Lifecycle
 KEY_USAGE           0x00000300 # HSM_KEY_USAGE_ENCRYPT | HSM_KEY_USAGE_DECRYPT
@@ -1351,7 +1351,7 @@ OUT_SIZE            0        # Public Key Out Size
 KEY_TYPE            0x2400     # HSM_KEY_TYPE_AES_128
 BIT_KEY_SZ          128       # HSM_KEY_SIZE_AES_128
 FLAGS               0          #
-KEY_GROUP           81         # Key Group b/w 0-1023
+KEY_GROUP           81         # Key Group
 KEY_LIFETIME        0x00000100 # HSM_SE_KEY_STORAGE_VOLATILE
 KEY_LIFECYCLE       0x02       # 0x02 indicates set to Closed Device Lifecycle
 KEY_USAGE           0x00000300 # HSM_KEY_USAGE_ENCRYPT | HSM_KEY_USAGE_DECRYPT
@@ -1391,7 +1391,7 @@ OUT_SIZE            0        # Public Key Out Size
 KEY_TYPE            0x2400     # HSM_KEY_TYPE_AES_128
 BIT_KEY_SZ          128       # HSM_KEY_SIZE_AES_128
 FLAGS               0          #
-KEY_GROUP           81         # Key Group b/w 0-1023
+KEY_GROUP           81         # Key Group
 KEY_LIFETIME        0x00000100 # HSM_SE_KEY_STORAGE_VOLATILE
 KEY_LIFECYCLE       0x04       # 0x04 indicates set to Closed and locked Device Lifecycle
 KEY_USAGE           0x00000300 # HSM_KEY_USAGE_ENCRYPT | HSM_KEY_USAGE_DECRYPT
@@ -1431,7 +1431,7 @@ OUT_SIZE            0        # Public Key Out Size
 KEY_TYPE            0x2400     # HSM_KEY_TYPE_AES_128
 BIT_KEY_SZ          128       # HSM_KEY_SIZE_AES_128
 FLAGS               0          #
-KEY_GROUP           81         # Key Group b/w 0-1023
+KEY_GROUP           81         # Key Group
 KEY_LIFETIME        0x00000100 # HSM_SE_KEY_STORAGE_VOLATILE
 KEY_LIFECYCLE       0x0       # 0x0 indicates set to Current lifecycle (0x0) Device Lifecycle
 KEY_USAGE           0x00000300 # HSM_KEY_USAGE_ENCRYPT | HSM_KEY_USAGE_DECRYPT
@@ -1471,7 +1471,7 @@ OUT_SIZE            0        # Public Key Out Size
 KEY_TYPE            0x2400     # HSM_KEY_TYPE_AES_128
 BIT_KEY_SZ          128       # HSM_KEY_SIZE_AES_128
 FLAGS               0          #
-KEY_GROUP           81         # Key Group b/w 0-1023
+KEY_GROUP           81         # Key Group
 KEY_LIFETIME        0x00000100 # HSM_SE_KEY_STORAGE_VOLATILE
 KEY_LIFECYCLE       0x01       # 0x01 indicates set to Open Device Lifecycle
 KEY_USAGE           0x00000300 # HSM_KEY_USAGE_ENCRYPT | HSM_KEY_USAGE_DECRYPT
@@ -1511,7 +1511,7 @@ OUT_SIZE            0        # Public Key Out Size
 KEY_TYPE            0x2400     # HSM_KEY_TYPE_AES_128
 BIT_KEY_SZ          128       # HSM_KEY_SIZE_AES_128
 FLAGS               0          #
-KEY_GROUP           81         # Key Group b/w 0-1023
+KEY_GROUP           81         # Key Group
 KEY_LIFETIME        0x00000100 # HSM_SE_KEY_STORAGE_VOLATILE
 KEY_LIFECYCLE       0x02       # 0x02 indicates set to Closed Device Lifecycle
 KEY_USAGE           0x00000300 # HSM_KEY_USAGE_ENCRYPT | HSM_KEY_USAGE_DECRYPT
@@ -1551,7 +1551,7 @@ OUT_SIZE            0        # Public Key Out Size
 KEY_TYPE            0x2400     # HSM_KEY_TYPE_AES_128
 BIT_KEY_SZ          128       # HSM_KEY_SIZE_AES_128
 FLAGS               0          #
-KEY_GROUP           81         # Key Group b/w 0-1023
+KEY_GROUP           81         # Key Group
 KEY_LIFETIME        0x00000100 # HSM_SE_KEY_STORAGE_VOLATILE
 KEY_LIFECYCLE       0x04       # 0x04 indicates set to Closed and locked Device Lifecycle
 KEY_USAGE           0x00000300 # HSM_KEY_USAGE_ENCRYPT | HSM_KEY_USAGE_DECRYPT
@@ -1591,7 +1591,7 @@ OUT_SIZE            0        # Public Key Out Size
 KEY_TYPE            0x2400     # HSM_KEY_TYPE_AES_128
 BIT_KEY_SZ          128       # HSM_KEY_SIZE_AES_128
 FLAGS               0          #
-KEY_GROUP           81         # Key Group b/w 0-1023
+KEY_GROUP           81         # Key Group
 KEY_LIFETIME        0x00000100 # HSM_SE_KEY_STORAGE_VOLATILE
 KEY_LIFECYCLE       0x0       # 0x0 indicates set to Current lifecycle (0x0) Device Lifecycle
 KEY_USAGE           0x00000300 # HSM_KEY_USAGE_ENCRYPT | HSM_KEY_USAGE_DECRYPT
@@ -1631,7 +1631,7 @@ OUT_SIZE            0        # Public Key Out Size
 KEY_TYPE            0x2400     # HSM_KEY_TYPE_AES_192
 BIT_KEY_SZ          192       # HSM_KEY_SIZE_AES_192
 FLAGS               0          #
-KEY_GROUP           81         # Key Group b/w 0-1023
+KEY_GROUP           81         # Key Group
 KEY_LIFETIME        0x00000100 # HSM_SE_KEY_STORAGE_VOLATILE
 KEY_LIFECYCLE       0x01       # 0x01 indicates set to Open Device Lifecycle
 KEY_USAGE           0x00000C00 # HSM_KEY_USAGE_SIGN_MSG | HSM_KEY_USAGE_VERIFY_MSG
@@ -1671,7 +1671,7 @@ OUT_SIZE            0        # Public Key Out Size
 KEY_TYPE            0x2400     # HSM_KEY_TYPE_AES_192
 BIT_KEY_SZ          192       # HSM_KEY_SIZE_AES_192
 FLAGS               0          #
-KEY_GROUP           81         # Key Group b/w 0-1023
+KEY_GROUP           81         # Key Group
 KEY_LIFETIME        0x00000100 # HSM_SE_KEY_STORAGE_VOLATILE
 KEY_LIFECYCLE       0x02       # 0x02 indicates set to Closed Device Lifecycle
 KEY_USAGE           0x00000C00 # HSM_KEY_USAGE_SIGN_MSG | HSM_KEY_USAGE_VERIFY_MSG
@@ -1711,7 +1711,7 @@ OUT_SIZE            0        # Public Key Out Size
 KEY_TYPE            0x2400     # HSM_KEY_TYPE_AES_192
 BIT_KEY_SZ          192       # HSM_KEY_SIZE_AES_192
 FLAGS               0          #
-KEY_GROUP           81         # Key Group b/w 0-1023
+KEY_GROUP           81         # Key Group
 KEY_LIFETIME        0x00000100 # HSM_SE_KEY_STORAGE_VOLATILE
 KEY_LIFECYCLE       0x04       # 0x04 indicates set to Closed and locked Device Lifecycle
 KEY_USAGE           0x00000C00 # HSM_KEY_USAGE_SIGN_MSG | HSM_KEY_USAGE_VERIFY_MSG
@@ -1751,7 +1751,7 @@ OUT_SIZE            0        # Public Key Out Size
 KEY_TYPE            0x2400     # HSM_KEY_TYPE_AES_192
 BIT_KEY_SZ          192       # HSM_KEY_SIZE_AES_192
 FLAGS               0          #
-KEY_GROUP           81         # Key Group b/w 0-1023
+KEY_GROUP           81         # Key Group
 KEY_LIFETIME        0x00000100 # HSM_SE_KEY_STORAGE_VOLATILE
 KEY_LIFECYCLE       0x0       # 0x0 indicates set to Current lifecycle (0x0) Device Lifecycle
 KEY_USAGE           0x00000C00 # HSM_KEY_USAGE_SIGN_MSG | HSM_KEY_USAGE_VERIFY_MSG
@@ -1791,7 +1791,7 @@ OUT_SIZE            0        # Public Key Out Size
 KEY_TYPE            0x2400     # HSM_KEY_TYPE_AES_192
 BIT_KEY_SZ          192       # HSM_KEY_SIZE_AES_192
 FLAGS               0          #
-KEY_GROUP           81         # Key Group b/w 0-1023
+KEY_GROUP           81         # Key Group
 KEY_LIFETIME        0x00000100 # HSM_SE_KEY_STORAGE_VOLATILE
 KEY_LIFECYCLE       0x01       # 0x01 indicates set to Open Device Lifecycle
 KEY_USAGE           0x00000300 # HSM_KEY_USAGE_ENCRYPT | HSM_KEY_USAGE_DECRYPT
@@ -1831,7 +1831,7 @@ OUT_SIZE            0        # Public Key Out Size
 KEY_TYPE            0x2400     # HSM_KEY_TYPE_AES_192
 BIT_KEY_SZ          192       # HSM_KEY_SIZE_AES_192
 FLAGS               0          #
-KEY_GROUP           81         # Key Group b/w 0-1023
+KEY_GROUP           81         # Key Group
 KEY_LIFETIME        0x00000100 # HSM_SE_KEY_STORAGE_VOLATILE
 KEY_LIFECYCLE       0x02       # 0x02 indicates set to Closed Device Lifecycle
 KEY_USAGE           0x00000300 # HSM_KEY_USAGE_ENCRYPT | HSM_KEY_USAGE_DECRYPT
@@ -1871,7 +1871,7 @@ OUT_SIZE            0        # Public Key Out Size
 KEY_TYPE            0x2400     # HSM_KEY_TYPE_AES_192
 BIT_KEY_SZ          192       # HSM_KEY_SIZE_AES_192
 FLAGS               0          #
-KEY_GROUP           81         # Key Group b/w 0-1023
+KEY_GROUP           81         # Key Group
 KEY_LIFETIME        0x00000100 # HSM_SE_KEY_STORAGE_VOLATILE
 KEY_LIFECYCLE       0x04       # 0x04 indicates set to Closed and locked Device Lifecycle
 KEY_USAGE           0x00000300 # HSM_KEY_USAGE_ENCRYPT | HSM_KEY_USAGE_DECRYPT
@@ -1911,7 +1911,7 @@ OUT_SIZE            0        # Public Key Out Size
 KEY_TYPE            0x2400     # HSM_KEY_TYPE_AES_192
 BIT_KEY_SZ          192       # HSM_KEY_SIZE_AES_192
 FLAGS               0          #
-KEY_GROUP           81         # Key Group b/w 0-1023
+KEY_GROUP           81         # Key Group
 KEY_LIFETIME        0x00000100 # HSM_SE_KEY_STORAGE_VOLATILE
 KEY_LIFECYCLE       0x0       # 0x0 indicates set to Current lifecycle (0x0) Device Lifecycle
 KEY_USAGE           0x00000300 # HSM_KEY_USAGE_ENCRYPT | HSM_KEY_USAGE_DECRYPT
@@ -1951,7 +1951,7 @@ OUT_SIZE            0        # Public Key Out Size
 KEY_TYPE            0x2400     # HSM_KEY_TYPE_AES_192
 BIT_KEY_SZ          192       # HSM_KEY_SIZE_AES_192
 FLAGS               0          #
-KEY_GROUP           81         # Key Group b/w 0-1023
+KEY_GROUP           81         # Key Group
 KEY_LIFETIME        0x00000100 # HSM_SE_KEY_STORAGE_VOLATILE
 KEY_LIFECYCLE       0x01       # 0x01 indicates set to Open Device Lifecycle
 KEY_USAGE           0x00000300 # HSM_KEY_USAGE_ENCRYPT | HSM_KEY_USAGE_DECRYPT
@@ -1991,7 +1991,7 @@ OUT_SIZE            0        # Public Key Out Size
 KEY_TYPE            0x2400     # HSM_KEY_TYPE_AES_192
 BIT_KEY_SZ          192       # HSM_KEY_SIZE_AES_192
 FLAGS               0          #
-KEY_GROUP           81         # Key Group b/w 0-1023
+KEY_GROUP           81         # Key Group
 KEY_LIFETIME        0x00000100 # HSM_SE_KEY_STORAGE_VOLATILE
 KEY_LIFECYCLE       0x02       # 0x02 indicates set to Closed Device Lifecycle
 KEY_USAGE           0x00000300 # HSM_KEY_USAGE_ENCRYPT | HSM_KEY_USAGE_DECRYPT
@@ -2031,7 +2031,7 @@ OUT_SIZE            0        # Public Key Out Size
 KEY_TYPE            0x2400     # HSM_KEY_TYPE_AES_192
 BIT_KEY_SZ          192       # HSM_KEY_SIZE_AES_192
 FLAGS               0          #
-KEY_GROUP           81         # Key Group b/w 0-1023
+KEY_GROUP           81         # Key Group
 KEY_LIFETIME        0x00000100 # HSM_SE_KEY_STORAGE_VOLATILE
 KEY_LIFECYCLE       0x04       # 0x04 indicates set to Closed and locked Device Lifecycle
 KEY_USAGE           0x00000300 # HSM_KEY_USAGE_ENCRYPT | HSM_KEY_USAGE_DECRYPT
@@ -2071,7 +2071,7 @@ OUT_SIZE            0        # Public Key Out Size
 KEY_TYPE            0x2400     # HSM_KEY_TYPE_AES_192
 BIT_KEY_SZ          192       # HSM_KEY_SIZE_AES_192
 FLAGS               0          #
-KEY_GROUP           81         # Key Group b/w 0-1023
+KEY_GROUP           81         # Key Group
 KEY_LIFETIME        0x00000100 # HSM_SE_KEY_STORAGE_VOLATILE
 KEY_LIFECYCLE       0x0       # 0x0 indicates set to Current lifecycle (0x0) Device Lifecycle
 KEY_USAGE           0x00000300 # HSM_KEY_USAGE_ENCRYPT | HSM_KEY_USAGE_DECRYPT
@@ -2111,7 +2111,7 @@ OUT_SIZE            0        # Public Key Out Size
 KEY_TYPE            0x2400     # HSM_KEY_TYPE_AES_192
 BIT_KEY_SZ          192       # HSM_KEY_SIZE_AES_192
 FLAGS               0          #
-KEY_GROUP           81         # Key Group b/w 0-1023
+KEY_GROUP           81         # Key Group
 KEY_LIFETIME        0x00000100 # HSM_SE_KEY_STORAGE_VOLATILE
 KEY_LIFECYCLE       0x01       # 0x01 indicates set to Open Device Lifecycle
 KEY_USAGE           0x00000300 # HSM_KEY_USAGE_ENCRYPT | HSM_KEY_USAGE_DECRYPT
@@ -2151,7 +2151,7 @@ OUT_SIZE            0        # Public Key Out Size
 KEY_TYPE            0x2400     # HSM_KEY_TYPE_AES_192
 BIT_KEY_SZ          192       # HSM_KEY_SIZE_AES_192
 FLAGS               0          #
-KEY_GROUP           81         # Key Group b/w 0-1023
+KEY_GROUP           81         # Key Group
 KEY_LIFETIME        0x00000100 # HSM_SE_KEY_STORAGE_VOLATILE
 KEY_LIFECYCLE       0x02       # 0x02 indicates set to Closed Device Lifecycle
 KEY_USAGE           0x00000300 # HSM_KEY_USAGE_ENCRYPT | HSM_KEY_USAGE_DECRYPT
@@ -2191,7 +2191,7 @@ OUT_SIZE            0        # Public Key Out Size
 KEY_TYPE            0x2400     # HSM_KEY_TYPE_AES_192
 BIT_KEY_SZ          192       # HSM_KEY_SIZE_AES_192
 FLAGS               0          #
-KEY_GROUP           81         # Key Group b/w 0-1023
+KEY_GROUP           81         # Key Group
 KEY_LIFETIME        0x00000100 # HSM_SE_KEY_STORAGE_VOLATILE
 KEY_LIFECYCLE       0x04       # 0x04 indicates set to Closed and locked Device Lifecycle
 KEY_USAGE           0x00000300 # HSM_KEY_USAGE_ENCRYPT | HSM_KEY_USAGE_DECRYPT
@@ -2231,7 +2231,7 @@ OUT_SIZE            0        # Public Key Out Size
 KEY_TYPE            0x2400     # HSM_KEY_TYPE_AES_192
 BIT_KEY_SZ          192       # HSM_KEY_SIZE_AES_192
 FLAGS               0          #
-KEY_GROUP           81         # Key Group b/w 0-1023
+KEY_GROUP           81         # Key Group
 KEY_LIFETIME        0x00000100 # HSM_SE_KEY_STORAGE_VOLATILE
 KEY_LIFECYCLE       0x0       # 0x0 indicates set to Current lifecycle (0x0) Device Lifecycle
 KEY_USAGE           0x00000300 # HSM_KEY_USAGE_ENCRYPT | HSM_KEY_USAGE_DECRYPT
@@ -2271,7 +2271,7 @@ OUT_SIZE            0        # Public Key Out Size
 KEY_TYPE            0x2400     # HSM_KEY_TYPE_AES_192
 BIT_KEY_SZ          192       # HSM_KEY_SIZE_AES_192
 FLAGS               0          #
-KEY_GROUP           81         # Key Group b/w 0-1023
+KEY_GROUP           81         # Key Group
 KEY_LIFETIME        0x00000100 # HSM_SE_KEY_STORAGE_VOLATILE
 KEY_LIFECYCLE       0x01       # 0x01 indicates set to Open Device Lifecycle
 KEY_USAGE           0x00000300 # HSM_KEY_USAGE_ENCRYPT | HSM_KEY_USAGE_DECRYPT
@@ -2311,7 +2311,7 @@ OUT_SIZE            0        # Public Key Out Size
 KEY_TYPE            0x2400     # HSM_KEY_TYPE_AES_192
 BIT_KEY_SZ          192       # HSM_KEY_SIZE_AES_192
 FLAGS               0          #
-KEY_GROUP           81         # Key Group b/w 0-1023
+KEY_GROUP           81         # Key Group
 KEY_LIFETIME        0x00000100 # HSM_SE_KEY_STORAGE_VOLATILE
 KEY_LIFECYCLE       0x02       # 0x02 indicates set to Closed Device Lifecycle
 KEY_USAGE           0x00000300 # HSM_KEY_USAGE_ENCRYPT | HSM_KEY_USAGE_DECRYPT
@@ -2351,7 +2351,7 @@ OUT_SIZE            0        # Public Key Out Size
 KEY_TYPE            0x2400     # HSM_KEY_TYPE_AES_192
 BIT_KEY_SZ          192       # HSM_KEY_SIZE_AES_192
 FLAGS               0          #
-KEY_GROUP           81         # Key Group b/w 0-1023
+KEY_GROUP           81         # Key Group
 KEY_LIFETIME        0x00000100 # HSM_SE_KEY_STORAGE_VOLATILE
 KEY_LIFECYCLE       0x04       # 0x04 indicates set to Closed and locked Device Lifecycle
 KEY_USAGE           0x00000300 # HSM_KEY_USAGE_ENCRYPT | HSM_KEY_USAGE_DECRYPT
@@ -2391,7 +2391,7 @@ OUT_SIZE            0        # Public Key Out Size
 KEY_TYPE            0x2400     # HSM_KEY_TYPE_AES_192
 BIT_KEY_SZ          192       # HSM_KEY_SIZE_AES_192
 FLAGS               0          #
-KEY_GROUP           81         # Key Group b/w 0-1023
+KEY_GROUP           81         # Key Group
 KEY_LIFETIME        0x00000100 # HSM_SE_KEY_STORAGE_VOLATILE
 KEY_LIFECYCLE       0x0       # 0x0 indicates set to Current lifecycle (0x0) Device Lifecycle
 KEY_USAGE           0x00000300 # HSM_KEY_USAGE_ENCRYPT | HSM_KEY_USAGE_DECRYPT
@@ -2431,7 +2431,7 @@ OUT_SIZE            0        # Public Key Out Size
 KEY_TYPE            0x2400     # HSM_KEY_TYPE_AES_192
 BIT_KEY_SZ          192       # HSM_KEY_SIZE_AES_192
 FLAGS               0          #
-KEY_GROUP           81         # Key Group b/w 0-1023
+KEY_GROUP           81         # Key Group
 KEY_LIFETIME        0x00000100 # HSM_SE_KEY_STORAGE_VOLATILE
 KEY_LIFECYCLE       0x01       # 0x01 indicates set to Open Device Lifecycle
 KEY_USAGE           0x00000300 # HSM_KEY_USAGE_ENCRYPT | HSM_KEY_USAGE_DECRYPT
@@ -2471,7 +2471,7 @@ OUT_SIZE            0        # Public Key Out Size
 KEY_TYPE            0x2400     # HSM_KEY_TYPE_AES_192
 BIT_KEY_SZ          192       # HSM_KEY_SIZE_AES_192
 FLAGS               0          #
-KEY_GROUP           81         # Key Group b/w 0-1023
+KEY_GROUP           81         # Key Group
 KEY_LIFETIME        0x00000100 # HSM_SE_KEY_STORAGE_VOLATILE
 KEY_LIFECYCLE       0x02       # 0x02 indicates set to Closed Device Lifecycle
 KEY_USAGE           0x00000300 # HSM_KEY_USAGE_ENCRYPT | HSM_KEY_USAGE_DECRYPT
@@ -2511,7 +2511,7 @@ OUT_SIZE            0        # Public Key Out Size
 KEY_TYPE            0x2400     # HSM_KEY_TYPE_AES_192
 BIT_KEY_SZ          192       # HSM_KEY_SIZE_AES_192
 FLAGS               0          #
-KEY_GROUP           81         # Key Group b/w 0-1023
+KEY_GROUP           81         # Key Group
 KEY_LIFETIME        0x00000100 # HSM_SE_KEY_STORAGE_VOLATILE
 KEY_LIFECYCLE       0x04       # 0x04 indicates set to Closed and locked Device Lifecycle
 KEY_USAGE           0x00000300 # HSM_KEY_USAGE_ENCRYPT | HSM_KEY_USAGE_DECRYPT
@@ -2551,7 +2551,7 @@ OUT_SIZE            0        # Public Key Out Size
 KEY_TYPE            0x2400     # HSM_KEY_TYPE_AES_192
 BIT_KEY_SZ          192       # HSM_KEY_SIZE_AES_192
 FLAGS               0          #
-KEY_GROUP           81         # Key Group b/w 0-1023
+KEY_GROUP           81         # Key Group
 KEY_LIFETIME        0x00000100 # HSM_SE_KEY_STORAGE_VOLATILE
 KEY_LIFECYCLE       0x0       # 0x0 indicates set to Current lifecycle (0x0) Device Lifecycle
 KEY_USAGE           0x00000300 # HSM_KEY_USAGE_ENCRYPT | HSM_KEY_USAGE_DECRYPT
@@ -2591,7 +2591,7 @@ OUT_SIZE            0        # Public Key Out Size
 KEY_TYPE            0x2400     # HSM_KEY_TYPE_AES_192
 BIT_KEY_SZ          192       # HSM_KEY_SIZE_AES_192
 FLAGS               0          #
-KEY_GROUP           81         # Key Group b/w 0-1023
+KEY_GROUP           81         # Key Group
 KEY_LIFETIME        0x00000100 # HSM_SE_KEY_STORAGE_VOLATILE
 KEY_LIFECYCLE       0x01       # 0x01 indicates set to Open Device Lifecycle
 KEY_USAGE           0x00000300 # HSM_KEY_USAGE_ENCRYPT | HSM_KEY_USAGE_DECRYPT
@@ -2631,7 +2631,7 @@ OUT_SIZE            0        # Public Key Out Size
 KEY_TYPE            0x2400     # HSM_KEY_TYPE_AES_192
 BIT_KEY_SZ          192       # HSM_KEY_SIZE_AES_192
 FLAGS               0          #
-KEY_GROUP           81         # Key Group b/w 0-1023
+KEY_GROUP           81         # Key Group
 KEY_LIFETIME        0x00000100 # HSM_SE_KEY_STORAGE_VOLATILE
 KEY_LIFECYCLE       0x02       # 0x02 indicates set to Closed Device Lifecycle
 KEY_USAGE           0x00000300 # HSM_KEY_USAGE_ENCRYPT | HSM_KEY_USAGE_DECRYPT
@@ -2671,7 +2671,7 @@ OUT_SIZE            0        # Public Key Out Size
 KEY_TYPE            0x2400     # HSM_KEY_TYPE_AES_192
 BIT_KEY_SZ          192       # HSM_KEY_SIZE_AES_192
 FLAGS               0          #
-KEY_GROUP           81         # Key Group b/w 0-1023
+KEY_GROUP           81         # Key Group
 KEY_LIFETIME        0x00000100 # HSM_SE_KEY_STORAGE_VOLATILE
 KEY_LIFECYCLE       0x04       # 0x04 indicates set to Closed and locked Device Lifecycle
 KEY_USAGE           0x00000300 # HSM_KEY_USAGE_ENCRYPT | HSM_KEY_USAGE_DECRYPT
@@ -2711,7 +2711,7 @@ OUT_SIZE            0        # Public Key Out Size
 KEY_TYPE            0x2400     # HSM_KEY_TYPE_AES_192
 BIT_KEY_SZ          192       # HSM_KEY_SIZE_AES_192
 FLAGS               0          #
-KEY_GROUP           81         # Key Group b/w 0-1023
+KEY_GROUP           81         # Key Group
 KEY_LIFETIME        0x00000100 # HSM_SE_KEY_STORAGE_VOLATILE
 KEY_LIFECYCLE       0x0       # 0x0 indicates set to Current lifecycle (0x0) Device Lifecycle
 KEY_USAGE           0x00000300 # HSM_KEY_USAGE_ENCRYPT | HSM_KEY_USAGE_DECRYPT
@@ -2751,7 +2751,7 @@ OUT_SIZE            0        # Public Key Out Size
 KEY_TYPE            0x2400     # HSM_KEY_TYPE_AES_192
 BIT_KEY_SZ          192       # HSM_KEY_SIZE_AES_192
 FLAGS               0          #
-KEY_GROUP           81         # Key Group b/w 0-1023
+KEY_GROUP           81         # Key Group
 KEY_LIFETIME        0x00000100 # HSM_SE_KEY_STORAGE_VOLATILE
 KEY_LIFECYCLE       0x01       # 0x01 indicates set to Open Device Lifecycle
 KEY_USAGE           0x00000300 # HSM_KEY_USAGE_ENCRYPT | HSM_KEY_USAGE_DECRYPT
@@ -2791,7 +2791,7 @@ OUT_SIZE            0        # Public Key Out Size
 KEY_TYPE            0x2400     # HSM_KEY_TYPE_AES_192
 BIT_KEY_SZ          192       # HSM_KEY_SIZE_AES_192
 FLAGS               0          #
-KEY_GROUP           81         # Key Group b/w 0-1023
+KEY_GROUP           81         # Key Group
 KEY_LIFETIME        0x00000100 # HSM_SE_KEY_STORAGE_VOLATILE
 KEY_LIFECYCLE       0x02       # 0x02 indicates set to Closed Device Lifecycle
 KEY_USAGE           0x00000300 # HSM_KEY_USAGE_ENCRYPT | HSM_KEY_USAGE_DECRYPT
@@ -2831,7 +2831,7 @@ OUT_SIZE            0        # Public Key Out Size
 KEY_TYPE            0x2400     # HSM_KEY_TYPE_AES_192
 BIT_KEY_SZ          192       # HSM_KEY_SIZE_AES_192
 FLAGS               0          #
-KEY_GROUP           81         # Key Group b/w 0-1023
+KEY_GROUP           81         # Key Group
 KEY_LIFETIME        0x00000100 # HSM_SE_KEY_STORAGE_VOLATILE
 KEY_LIFECYCLE       0x04       # 0x04 indicates set to Closed and locked Device Lifecycle
 KEY_USAGE           0x00000300 # HSM_KEY_USAGE_ENCRYPT | HSM_KEY_USAGE_DECRYPT
@@ -2871,7 +2871,7 @@ OUT_SIZE            0        # Public Key Out Size
 KEY_TYPE            0x2400     # HSM_KEY_TYPE_AES_192
 BIT_KEY_SZ          192       # HSM_KEY_SIZE_AES_192
 FLAGS               0          #
-KEY_GROUP           81         # Key Group b/w 0-1023
+KEY_GROUP           81         # Key Group
 KEY_LIFETIME        0x00000100 # HSM_SE_KEY_STORAGE_VOLATILE
 KEY_LIFECYCLE       0x0       # 0x0 indicates set to Current lifecycle (0x0) Device Lifecycle
 KEY_USAGE           0x00000300 # HSM_KEY_USAGE_ENCRYPT | HSM_KEY_USAGE_DECRYPT
@@ -2911,7 +2911,7 @@ OUT_SIZE            0        # Public Key Out Size
 KEY_TYPE            0x2400     # HSM_KEY_TYPE_AES_192
 BIT_KEY_SZ          192       # HSM_KEY_SIZE_AES_192
 FLAGS               0          #
-KEY_GROUP           81         # Key Group b/w 0-1023
+KEY_GROUP           81         # Key Group
 KEY_LIFETIME        0x00000100 # HSM_SE_KEY_STORAGE_VOLATILE
 KEY_LIFECYCLE       0x01       # 0x01 indicates set to Open Device Lifecycle
 KEY_USAGE           0x00000300 # HSM_KEY_USAGE_ENCRYPT | HSM_KEY_USAGE_DECRYPT
@@ -2951,7 +2951,7 @@ OUT_SIZE            0        # Public Key Out Size
 KEY_TYPE            0x2400     # HSM_KEY_TYPE_AES_192
 BIT_KEY_SZ          192       # HSM_KEY_SIZE_AES_192
 FLAGS               0          #
-KEY_GROUP           81         # Key Group b/w 0-1023
+KEY_GROUP           81         # Key Group
 KEY_LIFETIME        0x00000100 # HSM_SE_KEY_STORAGE_VOLATILE
 KEY_LIFECYCLE       0x02       # 0x02 indicates set to Closed Device Lifecycle
 KEY_USAGE           0x00000300 # HSM_KEY_USAGE_ENCRYPT | HSM_KEY_USAGE_DECRYPT
@@ -2991,7 +2991,7 @@ OUT_SIZE            0        # Public Key Out Size
 KEY_TYPE            0x2400     # HSM_KEY_TYPE_AES_192
 BIT_KEY_SZ          192       # HSM_KEY_SIZE_AES_192
 FLAGS               0          #
-KEY_GROUP           81         # Key Group b/w 0-1023
+KEY_GROUP           81         # Key Group
 KEY_LIFETIME        0x00000100 # HSM_SE_KEY_STORAGE_VOLATILE
 KEY_LIFECYCLE       0x04       # 0x04 indicates set to Closed and locked Device Lifecycle
 KEY_USAGE           0x00000300 # HSM_KEY_USAGE_ENCRYPT | HSM_KEY_USAGE_DECRYPT
@@ -3031,7 +3031,7 @@ OUT_SIZE            0        # Public Key Out Size
 KEY_TYPE            0x2400     # HSM_KEY_TYPE_AES_192
 BIT_KEY_SZ          192       # HSM_KEY_SIZE_AES_192
 FLAGS               0          #
-KEY_GROUP           81         # Key Group b/w 0-1023
+KEY_GROUP           81         # Key Group
 KEY_LIFETIME        0x00000100 # HSM_SE_KEY_STORAGE_VOLATILE
 KEY_LIFECYCLE       0x0       # 0x0 indicates set to Current lifecycle (0x0) Device Lifecycle
 KEY_USAGE           0x00000300 # HSM_KEY_USAGE_ENCRYPT | HSM_KEY_USAGE_DECRYPT
@@ -3071,7 +3071,7 @@ OUT_SIZE            0        # Public Key Out Size
 KEY_TYPE            0x2400     # HSM_KEY_TYPE_AES_192
 BIT_KEY_SZ          192       # HSM_KEY_SIZE_AES_192
 FLAGS               0          #
-KEY_GROUP           81         # Key Group b/w 0-1023
+KEY_GROUP           81         # Key Group
 KEY_LIFETIME        0x00000100 # HSM_SE_KEY_STORAGE_VOLATILE
 KEY_LIFECYCLE       0x01       # 0x01 indicates set to Open Device Lifecycle
 KEY_USAGE           0x00000300 # HSM_KEY_USAGE_ENCRYPT | HSM_KEY_USAGE_DECRYPT
@@ -3111,7 +3111,7 @@ OUT_SIZE            0        # Public Key Out Size
 KEY_TYPE            0x2400     # HSM_KEY_TYPE_AES_192
 BIT_KEY_SZ          192       # HSM_KEY_SIZE_AES_192
 FLAGS               0          #
-KEY_GROUP           81         # Key Group b/w 0-1023
+KEY_GROUP           81         # Key Group
 KEY_LIFETIME        0x00000100 # HSM_SE_KEY_STORAGE_VOLATILE
 KEY_LIFECYCLE       0x02       # 0x02 indicates set to Closed Device Lifecycle
 KEY_USAGE           0x00000300 # HSM_KEY_USAGE_ENCRYPT | HSM_KEY_USAGE_DECRYPT
@@ -3151,7 +3151,7 @@ OUT_SIZE            0        # Public Key Out Size
 KEY_TYPE            0x2400     # HSM_KEY_TYPE_AES_192
 BIT_KEY_SZ          192       # HSM_KEY_SIZE_AES_192
 FLAGS               0          #
-KEY_GROUP           81         # Key Group b/w 0-1023
+KEY_GROUP           81         # Key Group
 KEY_LIFETIME        0x00000100 # HSM_SE_KEY_STORAGE_VOLATILE
 KEY_LIFECYCLE       0x04       # 0x04 indicates set to Closed and locked Device Lifecycle
 KEY_USAGE           0x00000300 # HSM_KEY_USAGE_ENCRYPT | HSM_KEY_USAGE_DECRYPT
@@ -3191,7 +3191,7 @@ OUT_SIZE            0        # Public Key Out Size
 KEY_TYPE            0x2400     # HSM_KEY_TYPE_AES_192
 BIT_KEY_SZ          192       # HSM_KEY_SIZE_AES_192
 FLAGS               0          #
-KEY_GROUP           81         # Key Group b/w 0-1023
+KEY_GROUP           81         # Key Group
 KEY_LIFETIME        0x00000100 # HSM_SE_KEY_STORAGE_VOLATILE
 KEY_LIFECYCLE       0x0       # 0x0 indicates set to Current lifecycle (0x0) Device Lifecycle
 KEY_USAGE           0x00000300 # HSM_KEY_USAGE_ENCRYPT | HSM_KEY_USAGE_DECRYPT
@@ -3231,7 +3231,7 @@ OUT_SIZE            0        # Public Key Out Size
 KEY_TYPE            0x2400     # HSM_KEY_TYPE_AES_256
 BIT_KEY_SZ          256       # HSM_KEY_SIZE_AES_256
 FLAGS               0          #
-KEY_GROUP           81         # Key Group b/w 0-1023
+KEY_GROUP           81         # Key Group
 KEY_LIFETIME        0x00000100 # HSM_SE_KEY_STORAGE_VOLATILE
 KEY_LIFECYCLE       0x01       # 0x01 indicates set to Open Device Lifecycle
 KEY_USAGE           0x00000C00 # HSM_KEY_USAGE_SIGN_MSG | HSM_KEY_USAGE_VERIFY_MSG
@@ -3271,7 +3271,7 @@ OUT_SIZE            0        # Public Key Out Size
 KEY_TYPE            0x2400     # HSM_KEY_TYPE_AES_256
 BIT_KEY_SZ          256       # HSM_KEY_SIZE_AES_256
 FLAGS               0          #
-KEY_GROUP           81         # Key Group b/w 0-1023
+KEY_GROUP           81         # Key Group
 KEY_LIFETIME        0x00000100 # HSM_SE_KEY_STORAGE_VOLATILE
 KEY_LIFECYCLE       0x02       # 0x02 indicates set to Closed Device Lifecycle
 KEY_USAGE           0x00000C00 # HSM_KEY_USAGE_SIGN_MSG | HSM_KEY_USAGE_VERIFY_MSG
@@ -3311,7 +3311,7 @@ OUT_SIZE            0        # Public Key Out Size
 KEY_TYPE            0x2400     # HSM_KEY_TYPE_AES_256
 BIT_KEY_SZ          256       # HSM_KEY_SIZE_AES_256
 FLAGS               0          #
-KEY_GROUP           81         # Key Group b/w 0-1023
+KEY_GROUP           81         # Key Group
 KEY_LIFETIME        0x00000100 # HSM_SE_KEY_STORAGE_VOLATILE
 KEY_LIFECYCLE       0x04       # 0x04 indicates set to Closed and locked Device Lifecycle
 KEY_USAGE           0x00000C00 # HSM_KEY_USAGE_SIGN_MSG | HSM_KEY_USAGE_VERIFY_MSG
@@ -3351,7 +3351,7 @@ OUT_SIZE            0        # Public Key Out Size
 KEY_TYPE            0x2400     # HSM_KEY_TYPE_AES_256
 BIT_KEY_SZ          256       # HSM_KEY_SIZE_AES_256
 FLAGS               0          #
-KEY_GROUP           81         # Key Group b/w 0-1023
+KEY_GROUP           81         # Key Group
 KEY_LIFETIME        0x00000100 # HSM_SE_KEY_STORAGE_VOLATILE
 KEY_LIFECYCLE       0x0       # 0x0 indicates set to Current lifecycle (0x0) Device Lifecycle
 KEY_USAGE           0x00000C00 # HSM_KEY_USAGE_SIGN_MSG | HSM_KEY_USAGE_VERIFY_MSG
@@ -3391,7 +3391,7 @@ OUT_SIZE            0        # Public Key Out Size
 KEY_TYPE            0x2400     # HSM_KEY_TYPE_AES_256
 BIT_KEY_SZ          256       # HSM_KEY_SIZE_AES_256
 FLAGS               0          #
-KEY_GROUP           81         # Key Group b/w 0-1023
+KEY_GROUP           81         # Key Group
 KEY_LIFETIME        0x00000100 # HSM_SE_KEY_STORAGE_VOLATILE
 KEY_LIFECYCLE       0x01       # 0x01 indicates set to Open Device Lifecycle
 KEY_USAGE           0x00000300 # HSM_KEY_USAGE_ENCRYPT | HSM_KEY_USAGE_DECRYPT
@@ -3431,7 +3431,7 @@ OUT_SIZE            0        # Public Key Out Size
 KEY_TYPE            0x2400     # HSM_KEY_TYPE_AES_256
 BIT_KEY_SZ          256       # HSM_KEY_SIZE_AES_256
 FLAGS               0          #
-KEY_GROUP           81         # Key Group b/w 0-1023
+KEY_GROUP           81         # Key Group
 KEY_LIFETIME        0x00000100 # HSM_SE_KEY_STORAGE_VOLATILE
 KEY_LIFECYCLE       0x02       # 0x02 indicates set to Closed Device Lifecycle
 KEY_USAGE           0x00000300 # HSM_KEY_USAGE_ENCRYPT | HSM_KEY_USAGE_DECRYPT
@@ -3471,7 +3471,7 @@ OUT_SIZE            0        # Public Key Out Size
 KEY_TYPE            0x2400     # HSM_KEY_TYPE_AES_256
 BIT_KEY_SZ          256       # HSM_KEY_SIZE_AES_256
 FLAGS               0          #
-KEY_GROUP           81         # Key Group b/w 0-1023
+KEY_GROUP           81         # Key Group
 KEY_LIFETIME        0x00000100 # HSM_SE_KEY_STORAGE_VOLATILE
 KEY_LIFECYCLE       0x04       # 0x04 indicates set to Closed and locked Device Lifecycle
 KEY_USAGE           0x00000300 # HSM_KEY_USAGE_ENCRYPT | HSM_KEY_USAGE_DECRYPT
@@ -3511,7 +3511,7 @@ OUT_SIZE            0        # Public Key Out Size
 KEY_TYPE            0x2400     # HSM_KEY_TYPE_AES_256
 BIT_KEY_SZ          256       # HSM_KEY_SIZE_AES_256
 FLAGS               0          #
-KEY_GROUP           81         # Key Group b/w 0-1023
+KEY_GROUP           81         # Key Group
 KEY_LIFETIME        0x00000100 # HSM_SE_KEY_STORAGE_VOLATILE
 KEY_LIFECYCLE       0x0       # 0x0 indicates set to Current lifecycle (0x0) Device Lifecycle
 KEY_USAGE           0x00000300 # HSM_KEY_USAGE_ENCRYPT | HSM_KEY_USAGE_DECRYPT
@@ -3551,7 +3551,7 @@ OUT_SIZE            0        # Public Key Out Size
 KEY_TYPE            0x2400     # HSM_KEY_TYPE_AES_256
 BIT_KEY_SZ          256       # HSM_KEY_SIZE_AES_256
 FLAGS               0          #
-KEY_GROUP           81         # Key Group b/w 0-1023
+KEY_GROUP           81         # Key Group
 KEY_LIFETIME        0x00000100 # HSM_SE_KEY_STORAGE_VOLATILE
 KEY_LIFECYCLE       0x01       # 0x01 indicates set to Open Device Lifecycle
 KEY_USAGE           0x00000300 # HSM_KEY_USAGE_ENCRYPT | HSM_KEY_USAGE_DECRYPT
@@ -3591,7 +3591,7 @@ OUT_SIZE            0        # Public Key Out Size
 KEY_TYPE            0x2400     # HSM_KEY_TYPE_AES_256
 BIT_KEY_SZ          256       # HSM_KEY_SIZE_AES_256
 FLAGS               0          #
-KEY_GROUP           81         # Key Group b/w 0-1023
+KEY_GROUP           81         # Key Group
 KEY_LIFETIME        0x00000100 # HSM_SE_KEY_STORAGE_VOLATILE
 KEY_LIFECYCLE       0x02       # 0x02 indicates set to Closed Device Lifecycle
 KEY_USAGE           0x00000300 # HSM_KEY_USAGE_ENCRYPT | HSM_KEY_USAGE_DECRYPT
@@ -3631,7 +3631,7 @@ OUT_SIZE            0        # Public Key Out Size
 KEY_TYPE            0x2400     # HSM_KEY_TYPE_AES_256
 BIT_KEY_SZ          256       # HSM_KEY_SIZE_AES_256
 FLAGS               0          #
-KEY_GROUP           81         # Key Group b/w 0-1023
+KEY_GROUP           81         # Key Group
 KEY_LIFETIME        0x00000100 # HSM_SE_KEY_STORAGE_VOLATILE
 KEY_LIFECYCLE       0x04       # 0x04 indicates set to Closed and locked Device Lifecycle
 KEY_USAGE           0x00000300 # HSM_KEY_USAGE_ENCRYPT | HSM_KEY_USAGE_DECRYPT
@@ -3671,7 +3671,7 @@ OUT_SIZE            0        # Public Key Out Size
 KEY_TYPE            0x2400     # HSM_KEY_TYPE_AES_256
 BIT_KEY_SZ          256       # HSM_KEY_SIZE_AES_256
 FLAGS               0          #
-KEY_GROUP           81         # Key Group b/w 0-1023
+KEY_GROUP           81         # Key Group
 KEY_LIFETIME        0x00000100 # HSM_SE_KEY_STORAGE_VOLATILE
 KEY_LIFECYCLE       0x0       # 0x0 indicates set to Current lifecycle (0x0) Device Lifecycle
 KEY_USAGE           0x00000300 # HSM_KEY_USAGE_ENCRYPT | HSM_KEY_USAGE_DECRYPT
@@ -3711,7 +3711,7 @@ OUT_SIZE            0        # Public Key Out Size
 KEY_TYPE            0x2400     # HSM_KEY_TYPE_AES_256
 BIT_KEY_SZ          256       # HSM_KEY_SIZE_AES_256
 FLAGS               0          #
-KEY_GROUP           81         # Key Group b/w 0-1023
+KEY_GROUP           81         # Key Group
 KEY_LIFETIME        0x00000100 # HSM_SE_KEY_STORAGE_VOLATILE
 KEY_LIFECYCLE       0x01       # 0x01 indicates set to Open Device Lifecycle
 KEY_USAGE           0x00000300 # HSM_KEY_USAGE_ENCRYPT | HSM_KEY_USAGE_DECRYPT
@@ -3751,7 +3751,7 @@ OUT_SIZE            0        # Public Key Out Size
 KEY_TYPE            0x2400     # HSM_KEY_TYPE_AES_256
 BIT_KEY_SZ          256       # HSM_KEY_SIZE_AES_256
 FLAGS               0          #
-KEY_GROUP           81         # Key Group b/w 0-1023
+KEY_GROUP           81         # Key Group
 KEY_LIFETIME        0x00000100 # HSM_SE_KEY_STORAGE_VOLATILE
 KEY_LIFECYCLE       0x02       # 0x02 indicates set to Closed Device Lifecycle
 KEY_USAGE           0x00000300 # HSM_KEY_USAGE_ENCRYPT | HSM_KEY_USAGE_DECRYPT
@@ -3791,7 +3791,7 @@ OUT_SIZE            0        # Public Key Out Size
 KEY_TYPE            0x2400     # HSM_KEY_TYPE_AES_256
 BIT_KEY_SZ          256       # HSM_KEY_SIZE_AES_256
 FLAGS               0          #
-KEY_GROUP           81         # Key Group b/w 0-1023
+KEY_GROUP           81         # Key Group
 KEY_LIFETIME        0x00000100 # HSM_SE_KEY_STORAGE_VOLATILE
 KEY_LIFECYCLE       0x04       # 0x04 indicates set to Closed and locked Device Lifecycle
 KEY_USAGE           0x00000300 # HSM_KEY_USAGE_ENCRYPT | HSM_KEY_USAGE_DECRYPT
@@ -3831,7 +3831,7 @@ OUT_SIZE            0        # Public Key Out Size
 KEY_TYPE            0x2400     # HSM_KEY_TYPE_AES_256
 BIT_KEY_SZ          256       # HSM_KEY_SIZE_AES_256
 FLAGS               0          #
-KEY_GROUP           81         # Key Group b/w 0-1023
+KEY_GROUP           81         # Key Group
 KEY_LIFETIME        0x00000100 # HSM_SE_KEY_STORAGE_VOLATILE
 KEY_LIFECYCLE       0x0       # 0x0 indicates set to Current lifecycle (0x0) Device Lifecycle
 KEY_USAGE           0x00000300 # HSM_KEY_USAGE_ENCRYPT | HSM_KEY_USAGE_DECRYPT
@@ -3871,7 +3871,7 @@ OUT_SIZE            0        # Public Key Out Size
 KEY_TYPE            0x2400     # HSM_KEY_TYPE_AES_256
 BIT_KEY_SZ          256       # HSM_KEY_SIZE_AES_256
 FLAGS               0          #
-KEY_GROUP           81         # Key Group b/w 0-1023
+KEY_GROUP           81         # Key Group
 KEY_LIFETIME        0x00000100 # HSM_SE_KEY_STORAGE_VOLATILE
 KEY_LIFECYCLE       0x01       # 0x01 indicates set to Open Device Lifecycle
 KEY_USAGE           0x00000300 # HSM_KEY_USAGE_ENCRYPT | HSM_KEY_USAGE_DECRYPT
@@ -3911,7 +3911,7 @@ OUT_SIZE            0        # Public Key Out Size
 KEY_TYPE            0x2400     # HSM_KEY_TYPE_AES_256
 BIT_KEY_SZ          256       # HSM_KEY_SIZE_AES_256
 FLAGS               0          #
-KEY_GROUP           81         # Key Group b/w 0-1023
+KEY_GROUP           81         # Key Group
 KEY_LIFETIME        0x00000100 # HSM_SE_KEY_STORAGE_VOLATILE
 KEY_LIFECYCLE       0x02       # 0x02 indicates set to Closed Device Lifecycle
 KEY_USAGE           0x00000300 # HSM_KEY_USAGE_ENCRYPT | HSM_KEY_USAGE_DECRYPT
@@ -3951,7 +3951,7 @@ OUT_SIZE            0        # Public Key Out Size
 KEY_TYPE            0x2400     # HSM_KEY_TYPE_AES_256
 BIT_KEY_SZ          256       # HSM_KEY_SIZE_AES_256
 FLAGS               0          #
-KEY_GROUP           81         # Key Group b/w 0-1023
+KEY_GROUP           81         # Key Group
 KEY_LIFETIME        0x00000100 # HSM_SE_KEY_STORAGE_VOLATILE
 KEY_LIFECYCLE       0x04       # 0x04 indicates set to Closed and locked Device Lifecycle
 KEY_USAGE           0x00000300 # HSM_KEY_USAGE_ENCRYPT | HSM_KEY_USAGE_DECRYPT
@@ -3991,7 +3991,7 @@ OUT_SIZE            0        # Public Key Out Size
 KEY_TYPE            0x2400     # HSM_KEY_TYPE_AES_256
 BIT_KEY_SZ          256       # HSM_KEY_SIZE_AES_256
 FLAGS               0          #
-KEY_GROUP           81         # Key Group b/w 0-1023
+KEY_GROUP           81         # Key Group
 KEY_LIFETIME        0x00000100 # HSM_SE_KEY_STORAGE_VOLATILE
 KEY_LIFECYCLE       0x0       # 0x0 indicates set to Current lifecycle (0x0) Device Lifecycle
 KEY_USAGE           0x00000300 # HSM_KEY_USAGE_ENCRYPT | HSM_KEY_USAGE_DECRYPT
@@ -4031,7 +4031,7 @@ OUT_SIZE            0        # Public Key Out Size
 KEY_TYPE            0x2400     # HSM_KEY_TYPE_AES_256
 BIT_KEY_SZ          256       # HSM_KEY_SIZE_AES_256
 FLAGS               0          #
-KEY_GROUP           81         # Key Group b/w 0-1023
+KEY_GROUP           81         # Key Group
 KEY_LIFETIME        0x00000100 # HSM_SE_KEY_STORAGE_VOLATILE
 KEY_LIFECYCLE       0x01       # 0x01 indicates set to Open Device Lifecycle
 KEY_USAGE           0x00000300 # HSM_KEY_USAGE_ENCRYPT | HSM_KEY_USAGE_DECRYPT
@@ -4071,7 +4071,7 @@ OUT_SIZE            0        # Public Key Out Size
 KEY_TYPE            0x2400     # HSM_KEY_TYPE_AES_256
 BIT_KEY_SZ          256       # HSM_KEY_SIZE_AES_256
 FLAGS               0          #
-KEY_GROUP           81         # Key Group b/w 0-1023
+KEY_GROUP           81         # Key Group
 KEY_LIFETIME        0x00000100 # HSM_SE_KEY_STORAGE_VOLATILE
 KEY_LIFECYCLE       0x02       # 0x02 indicates set to Closed Device Lifecycle
 KEY_USAGE           0x00000300 # HSM_KEY_USAGE_ENCRYPT | HSM_KEY_USAGE_DECRYPT
@@ -4111,7 +4111,7 @@ OUT_SIZE            0        # Public Key Out Size
 KEY_TYPE            0x2400     # HSM_KEY_TYPE_AES_256
 BIT_KEY_SZ          256       # HSM_KEY_SIZE_AES_256
 FLAGS               0          #
-KEY_GROUP           81         # Key Group b/w 0-1023
+KEY_GROUP           81         # Key Group
 KEY_LIFETIME        0x00000100 # HSM_SE_KEY_STORAGE_VOLATILE
 KEY_LIFECYCLE       0x04       # 0x04 indicates set to Closed and locked Device Lifecycle
 KEY_USAGE           0x00000300 # HSM_KEY_USAGE_ENCRYPT | HSM_KEY_USAGE_DECRYPT
@@ -4151,7 +4151,7 @@ OUT_SIZE            0        # Public Key Out Size
 KEY_TYPE            0x2400     # HSM_KEY_TYPE_AES_256
 BIT_KEY_SZ          256       # HSM_KEY_SIZE_AES_256
 FLAGS               0          #
-KEY_GROUP           81         # Key Group b/w 0-1023
+KEY_GROUP           81         # Key Group
 KEY_LIFETIME        0x00000100 # HSM_SE_KEY_STORAGE_VOLATILE
 KEY_LIFECYCLE       0x0       # 0x0 indicates set to Current lifecycle (0x0) Device Lifecycle
 KEY_USAGE           0x00000300 # HSM_KEY_USAGE_ENCRYPT | HSM_KEY_USAGE_DECRYPT
@@ -4191,7 +4191,7 @@ OUT_SIZE            0        # Public Key Out Size
 KEY_TYPE            0x2400     # HSM_KEY_TYPE_AES_256
 BIT_KEY_SZ          256       # HSM_KEY_SIZE_AES_256
 FLAGS               0          #
-KEY_GROUP           81         # Key Group b/w 0-1023
+KEY_GROUP           81         # Key Group
 KEY_LIFETIME        0x00000100 # HSM_SE_KEY_STORAGE_VOLATILE
 KEY_LIFECYCLE       0x01       # 0x01 indicates set to Open Device Lifecycle
 KEY_USAGE           0x00000300 # HSM_KEY_USAGE_ENCRYPT | HSM_KEY_USAGE_DECRYPT
@@ -4231,7 +4231,7 @@ OUT_SIZE            0        # Public Key Out Size
 KEY_TYPE            0x2400     # HSM_KEY_TYPE_AES_256
 BIT_KEY_SZ          256       # HSM_KEY_SIZE_AES_256
 FLAGS               0          #
-KEY_GROUP           81         # Key Group b/w 0-1023
+KEY_GROUP           81         # Key Group
 KEY_LIFETIME        0x00000100 # HSM_SE_KEY_STORAGE_VOLATILE
 KEY_LIFECYCLE       0x02       # 0x02 indicates set to Closed Device Lifecycle
 KEY_USAGE           0x00000300 # HSM_KEY_USAGE_ENCRYPT | HSM_KEY_USAGE_DECRYPT
@@ -4271,7 +4271,7 @@ OUT_SIZE            0        # Public Key Out Size
 KEY_TYPE            0x2400     # HSM_KEY_TYPE_AES_256
 BIT_KEY_SZ          256       # HSM_KEY_SIZE_AES_256
 FLAGS               0          #
-KEY_GROUP           81         # Key Group b/w 0-1023
+KEY_GROUP           81         # Key Group
 KEY_LIFETIME        0x00000100 # HSM_SE_KEY_STORAGE_VOLATILE
 KEY_LIFECYCLE       0x04       # 0x04 indicates set to Closed and locked Device Lifecycle
 KEY_USAGE           0x00000300 # HSM_KEY_USAGE_ENCRYPT | HSM_KEY_USAGE_DECRYPT
@@ -4311,7 +4311,7 @@ OUT_SIZE            0        # Public Key Out Size
 KEY_TYPE            0x2400     # HSM_KEY_TYPE_AES_256
 BIT_KEY_SZ          256       # HSM_KEY_SIZE_AES_256
 FLAGS               0          #
-KEY_GROUP           81         # Key Group b/w 0-1023
+KEY_GROUP           81         # Key Group
 KEY_LIFETIME        0x00000100 # HSM_SE_KEY_STORAGE_VOLATILE
 KEY_LIFECYCLE       0x0       # 0x0 indicates set to Current lifecycle (0x0) Device Lifecycle
 KEY_USAGE           0x00000300 # HSM_KEY_USAGE_ENCRYPT | HSM_KEY_USAGE_DECRYPT
@@ -4351,7 +4351,7 @@ OUT_SIZE            0        # Public Key Out Size
 KEY_TYPE            0x2400     # HSM_KEY_TYPE_AES_256
 BIT_KEY_SZ          256       # HSM_KEY_SIZE_AES_256
 FLAGS               0          #
-KEY_GROUP           81         # Key Group b/w 0-1023
+KEY_GROUP           81         # Key Group
 KEY_LIFETIME        0x00000100 # HSM_SE_KEY_STORAGE_VOLATILE
 KEY_LIFECYCLE       0x01       # 0x01 indicates set to Open Device Lifecycle
 KEY_USAGE           0x00000300 # HSM_KEY_USAGE_ENCRYPT | HSM_KEY_USAGE_DECRYPT
@@ -4391,7 +4391,7 @@ OUT_SIZE            0        # Public Key Out Size
 KEY_TYPE            0x2400     # HSM_KEY_TYPE_AES_256
 BIT_KEY_SZ          256       # HSM_KEY_SIZE_AES_256
 FLAGS               0          #
-KEY_GROUP           81         # Key Group b/w 0-1023
+KEY_GROUP           81         # Key Group
 KEY_LIFETIME        0x00000100 # HSM_SE_KEY_STORAGE_VOLATILE
 KEY_LIFECYCLE       0x02       # 0x02 indicates set to Closed Device Lifecycle
 KEY_USAGE           0x00000300 # HSM_KEY_USAGE_ENCRYPT | HSM_KEY_USAGE_DECRYPT
@@ -4431,7 +4431,7 @@ OUT_SIZE            0        # Public Key Out Size
 KEY_TYPE            0x2400     # HSM_KEY_TYPE_AES_256
 BIT_KEY_SZ          256       # HSM_KEY_SIZE_AES_256
 FLAGS               0          #
-KEY_GROUP           81         # Key Group b/w 0-1023
+KEY_GROUP           81         # Key Group
 KEY_LIFETIME        0x00000100 # HSM_SE_KEY_STORAGE_VOLATILE
 KEY_LIFECYCLE       0x04       # 0x04 indicates set to Closed and locked Device Lifecycle
 KEY_USAGE           0x00000300 # HSM_KEY_USAGE_ENCRYPT | HSM_KEY_USAGE_DECRYPT
@@ -4471,7 +4471,7 @@ OUT_SIZE            0        # Public Key Out Size
 KEY_TYPE            0x2400     # HSM_KEY_TYPE_AES_256
 BIT_KEY_SZ          256       # HSM_KEY_SIZE_AES_256
 FLAGS               0          #
-KEY_GROUP           81         # Key Group b/w 0-1023
+KEY_GROUP           81         # Key Group
 KEY_LIFETIME        0x00000100 # HSM_SE_KEY_STORAGE_VOLATILE
 KEY_LIFECYCLE       0x0       # 0x0 indicates set to Current lifecycle (0x0) Device Lifecycle
 KEY_USAGE           0x00000300 # HSM_KEY_USAGE_ENCRYPT | HSM_KEY_USAGE_DECRYPT
@@ -4511,7 +4511,7 @@ OUT_SIZE            0        # Public Key Out Size
 KEY_TYPE            0x2400     # HSM_KEY_TYPE_AES_256
 BIT_KEY_SZ          256       # HSM_KEY_SIZE_AES_256
 FLAGS               0          #
-KEY_GROUP           81         # Key Group b/w 0-1023
+KEY_GROUP           81         # Key Group
 KEY_LIFETIME        0x00000100 # HSM_SE_KEY_STORAGE_VOLATILE
 KEY_LIFECYCLE       0x01       # 0x01 indicates set to Open Device Lifecycle
 KEY_USAGE           0x00000300 # HSM_KEY_USAGE_ENCRYPT | HSM_KEY_USAGE_DECRYPT
@@ -4551,7 +4551,7 @@ OUT_SIZE            0        # Public Key Out Size
 KEY_TYPE            0x2400     # HSM_KEY_TYPE_AES_256
 BIT_KEY_SZ          256       # HSM_KEY_SIZE_AES_256
 FLAGS               0          #
-KEY_GROUP           81         # Key Group b/w 0-1023
+KEY_GROUP           81         # Key Group
 KEY_LIFETIME        0x00000100 # HSM_SE_KEY_STORAGE_VOLATILE
 KEY_LIFECYCLE       0x02       # 0x02 indicates set to Closed Device Lifecycle
 KEY_USAGE           0x00000300 # HSM_KEY_USAGE_ENCRYPT | HSM_KEY_USAGE_DECRYPT
@@ -4591,7 +4591,7 @@ OUT_SIZE            0        # Public Key Out Size
 KEY_TYPE            0x2400     # HSM_KEY_TYPE_AES_256
 BIT_KEY_SZ          256       # HSM_KEY_SIZE_AES_256
 FLAGS               0          #
-KEY_GROUP           81         # Key Group b/w 0-1023
+KEY_GROUP           81         # Key Group
 KEY_LIFETIME        0x00000100 # HSM_SE_KEY_STORAGE_VOLATILE
 KEY_LIFECYCLE       0x04       # 0x04 indicates set to Closed and locked Device Lifecycle
 KEY_USAGE           0x00000300 # HSM_KEY_USAGE_ENCRYPT | HSM_KEY_USAGE_DECRYPT
@@ -4631,7 +4631,7 @@ OUT_SIZE            0        # Public Key Out Size
 KEY_TYPE            0x2400     # HSM_KEY_TYPE_AES_256
 BIT_KEY_SZ          256       # HSM_KEY_SIZE_AES_256
 FLAGS               0          #
-KEY_GROUP           81         # Key Group b/w 0-1023
+KEY_GROUP           81         # Key Group
 KEY_LIFETIME        0x00000100 # HSM_SE_KEY_STORAGE_VOLATILE
 KEY_LIFECYCLE       0x0       # 0x0 indicates set to Current lifecycle (0x0) Device Lifecycle
 KEY_USAGE           0x00000300 # HSM_KEY_USAGE_ENCRYPT | HSM_KEY_USAGE_DECRYPT
@@ -4671,7 +4671,7 @@ OUT_SIZE            0        # Public Key Out Size
 KEY_TYPE            0x2400     # HSM_KEY_TYPE_AES_256
 BIT_KEY_SZ          256       # HSM_KEY_SIZE_AES_256
 FLAGS               0          #
-KEY_GROUP           81         # Key Group b/w 0-1023
+KEY_GROUP           81         # Key Group
 KEY_LIFETIME        0x00000100 # HSM_SE_KEY_STORAGE_VOLATILE
 KEY_LIFECYCLE       0x01       # 0x01 indicates set to Open Device Lifecycle
 KEY_USAGE           0x00000300 # HSM_KEY_USAGE_ENCRYPT | HSM_KEY_USAGE_DECRYPT
@@ -4711,7 +4711,7 @@ OUT_SIZE            0        # Public Key Out Size
 KEY_TYPE            0x2400     # HSM_KEY_TYPE_AES_256
 BIT_KEY_SZ          256       # HSM_KEY_SIZE_AES_256
 FLAGS               0          #
-KEY_GROUP           81         # Key Group b/w 0-1023
+KEY_GROUP           81         # Key Group
 KEY_LIFETIME        0x00000100 # HSM_SE_KEY_STORAGE_VOLATILE
 KEY_LIFECYCLE       0x02       # 0x02 indicates set to Closed Device Lifecycle
 KEY_USAGE           0x00000300 # HSM_KEY_USAGE_ENCRYPT | HSM_KEY_USAGE_DECRYPT
@@ -4751,7 +4751,7 @@ OUT_SIZE            0        # Public Key Out Size
 KEY_TYPE            0x2400     # HSM_KEY_TYPE_AES_256
 BIT_KEY_SZ          256       # HSM_KEY_SIZE_AES_256
 FLAGS               0          #
-KEY_GROUP           81         # Key Group b/w 0-1023
+KEY_GROUP           81         # Key Group
 KEY_LIFETIME        0x00000100 # HSM_SE_KEY_STORAGE_VOLATILE
 KEY_LIFECYCLE       0x04       # 0x04 indicates set to Closed and locked Device Lifecycle
 KEY_USAGE           0x00000300 # HSM_KEY_USAGE_ENCRYPT | HSM_KEY_USAGE_DECRYPT
@@ -4791,7 +4791,7 @@ OUT_SIZE            0        # Public Key Out Size
 KEY_TYPE            0x2400     # HSM_KEY_TYPE_AES_256
 BIT_KEY_SZ          256       # HSM_KEY_SIZE_AES_256
 FLAGS               0          #
-KEY_GROUP           81         # Key Group b/w 0-1023
+KEY_GROUP           81         # Key Group
 KEY_LIFETIME        0x00000100 # HSM_SE_KEY_STORAGE_VOLATILE
 KEY_LIFECYCLE       0x0       # 0x0 indicates set to Current lifecycle (0x0) Device Lifecycle
 KEY_USAGE           0x00000300 # HSM_KEY_USAGE_ENCRYPT | HSM_KEY_USAGE_DECRYPT
@@ -4831,7 +4831,7 @@ OUT_SIZE            0        # Public Key Out Size
 KEY_TYPE            0x1100     # HSM_KEY_TYPE_HMAC_224
 BIT_KEY_SZ          224       # HSM_KEY_SIZE_HMAC_224
 FLAGS               0          #
-KEY_GROUP           81         # Key Group b/w 0-1023
+KEY_GROUP           81         # Key Group
 KEY_LIFETIME        0x00000100 # HSM_SE_KEY_STORAGE_VOLATILE
 KEY_LIFECYCLE       0x01       # 0x01 indicates set to Open Device Lifecycle
 KEY_USAGE           0x00000C00 # HSM_KEY_USAGE_SIGN_MSG | HSM_KEY_USAGE_VERIFY_MSG
@@ -4871,7 +4871,7 @@ OUT_SIZE            0        # Public Key Out Size
 KEY_TYPE            0x1100     # HSM_KEY_TYPE_HMAC_224
 BIT_KEY_SZ          224       # HSM_KEY_SIZE_HMAC_224
 FLAGS               0          #
-KEY_GROUP           81         # Key Group b/w 0-1023
+KEY_GROUP           81         # Key Group
 KEY_LIFETIME        0x00000100 # HSM_SE_KEY_STORAGE_VOLATILE
 KEY_LIFECYCLE       0x02       # 0x02 indicates set to Closed Device Lifecycle
 KEY_USAGE           0x00000C00 # HSM_KEY_USAGE_SIGN_MSG | HSM_KEY_USAGE_VERIFY_MSG
@@ -4911,7 +4911,7 @@ OUT_SIZE            0        # Public Key Out Size
 KEY_TYPE            0x1100     # HSM_KEY_TYPE_HMAC_224
 BIT_KEY_SZ          224       # HSM_KEY_SIZE_HMAC_224
 FLAGS               0          #
-KEY_GROUP           81         # Key Group b/w 0-1023
+KEY_GROUP           81         # Key Group
 KEY_LIFETIME        0x00000100 # HSM_SE_KEY_STORAGE_VOLATILE
 KEY_LIFECYCLE       0x04       # 0x04 indicates set to Closed and locked Device Lifecycle
 KEY_USAGE           0x00000C00 # HSM_KEY_USAGE_SIGN_MSG | HSM_KEY_USAGE_VERIFY_MSG
@@ -4951,7 +4951,7 @@ OUT_SIZE            0        # Public Key Out Size
 KEY_TYPE            0x1100     # HSM_KEY_TYPE_HMAC_224
 BIT_KEY_SZ          224       # HSM_KEY_SIZE_HMAC_224
 FLAGS               0          #
-KEY_GROUP           81         # Key Group b/w 0-1023
+KEY_GROUP           81         # Key Group
 KEY_LIFETIME        0x00000100 # HSM_SE_KEY_STORAGE_VOLATILE
 KEY_LIFECYCLE       0x0       # 0x0 indicates set to Current lifecycle (0x0) Device Lifecycle
 KEY_USAGE           0x00000C00 # HSM_KEY_USAGE_SIGN_MSG | HSM_KEY_USAGE_VERIFY_MSG
@@ -4991,7 +4991,7 @@ OUT_SIZE            0        # Public Key Out Size
 KEY_TYPE            0x1100     # HSM_KEY_TYPE_HMAC_224
 BIT_KEY_SZ          224       # HSM_KEY_SIZE_HMAC_224
 FLAGS               0          #
-KEY_GROUP           81         # Key Group b/w 0-1023
+KEY_GROUP           81         # Key Group
 KEY_LIFETIME        0x00000100 # HSM_SE_KEY_STORAGE_VOLATILE
 KEY_LIFECYCLE       0x01       # 0x01 indicates set to Open Device Lifecycle
 KEY_USAGE           0x00000C00 # HSM_KEY_USAGE_SIGN_MSG | HSM_KEY_USAGE_VERIFY_MSG
@@ -5031,7 +5031,7 @@ OUT_SIZE            0        # Public Key Out Size
 KEY_TYPE            0x1100     # HSM_KEY_TYPE_HMAC_224
 BIT_KEY_SZ          224       # HSM_KEY_SIZE_HMAC_224
 FLAGS               0          #
-KEY_GROUP           81         # Key Group b/w 0-1023
+KEY_GROUP           81         # Key Group
 KEY_LIFETIME        0x00000100 # HSM_SE_KEY_STORAGE_VOLATILE
 KEY_LIFECYCLE       0x02       # 0x02 indicates set to Closed Device Lifecycle
 KEY_USAGE           0x00000C00 # HSM_KEY_USAGE_SIGN_MSG | HSM_KEY_USAGE_VERIFY_MSG
@@ -5071,7 +5071,7 @@ OUT_SIZE            0        # Public Key Out Size
 KEY_TYPE            0x1100     # HSM_KEY_TYPE_HMAC_224
 BIT_KEY_SZ          224       # HSM_KEY_SIZE_HMAC_224
 FLAGS               0          #
-KEY_GROUP           81         # Key Group b/w 0-1023
+KEY_GROUP           81         # Key Group
 KEY_LIFETIME        0x00000100 # HSM_SE_KEY_STORAGE_VOLATILE
 KEY_LIFECYCLE       0x04       # 0x04 indicates set to Closed and locked Device Lifecycle
 KEY_USAGE           0x00000C00 # HSM_KEY_USAGE_SIGN_MSG | HSM_KEY_USAGE_VERIFY_MSG
@@ -5111,7 +5111,7 @@ OUT_SIZE            0        # Public Key Out Size
 KEY_TYPE            0x1100     # HSM_KEY_TYPE_HMAC_224
 BIT_KEY_SZ          224       # HSM_KEY_SIZE_HMAC_224
 FLAGS               0          #
-KEY_GROUP           81         # Key Group b/w 0-1023
+KEY_GROUP           81         # Key Group
 KEY_LIFETIME        0x00000100 # HSM_SE_KEY_STORAGE_VOLATILE
 KEY_LIFECYCLE       0x0       # 0x0 indicates set to Current lifecycle (0x0) Device Lifecycle
 KEY_USAGE           0x00000C00 # HSM_KEY_USAGE_SIGN_MSG | HSM_KEY_USAGE_VERIFY_MSG
@@ -5151,7 +5151,7 @@ OUT_SIZE            0        # Public Key Out Size
 KEY_TYPE            0x1100     # HSM_KEY_TYPE_HMAC_256
 BIT_KEY_SZ          256       # HSM_KEY_SIZE_HMAC_256
 FLAGS               0          #
-KEY_GROUP           81         # Key Group b/w 0-1023
+KEY_GROUP           81         # Key Group
 KEY_LIFETIME        0x00000100 # HSM_SE_KEY_STORAGE_VOLATILE
 KEY_LIFECYCLE       0x01       # 0x01 indicates set to Open Device Lifecycle
 KEY_USAGE           0x00000C00 # HSM_KEY_USAGE_SIGN_MSG | HSM_KEY_USAGE_VERIFY_MSG
@@ -5191,7 +5191,7 @@ OUT_SIZE            0        # Public Key Out Size
 KEY_TYPE            0x1100     # HSM_KEY_TYPE_HMAC_256
 BIT_KEY_SZ          256       # HSM_KEY_SIZE_HMAC_256
 FLAGS               0          #
-KEY_GROUP           81         # Key Group b/w 0-1023
+KEY_GROUP           81         # Key Group
 KEY_LIFETIME        0x00000100 # HSM_SE_KEY_STORAGE_VOLATILE
 KEY_LIFECYCLE       0x02       # 0x02 indicates set to Closed Device Lifecycle
 KEY_USAGE           0x00000C00 # HSM_KEY_USAGE_SIGN_MSG | HSM_KEY_USAGE_VERIFY_MSG
@@ -5231,7 +5231,7 @@ OUT_SIZE            0        # Public Key Out Size
 KEY_TYPE            0x1100     # HSM_KEY_TYPE_HMAC_256
 BIT_KEY_SZ          256       # HSM_KEY_SIZE_HMAC_256
 FLAGS               0          #
-KEY_GROUP           81         # Key Group b/w 0-1023
+KEY_GROUP           81         # Key Group
 KEY_LIFETIME        0x00000100 # HSM_SE_KEY_STORAGE_VOLATILE
 KEY_LIFECYCLE       0x04       # 0x04 indicates set to Closed and locked Device Lifecycle
 KEY_USAGE           0x00000C00 # HSM_KEY_USAGE_SIGN_MSG | HSM_KEY_USAGE_VERIFY_MSG
@@ -5271,7 +5271,7 @@ OUT_SIZE            0        # Public Key Out Size
 KEY_TYPE            0x1100     # HSM_KEY_TYPE_HMAC_256
 BIT_KEY_SZ          256       # HSM_KEY_SIZE_HMAC_256
 FLAGS               0          #
-KEY_GROUP           81         # Key Group b/w 0-1023
+KEY_GROUP           81         # Key Group
 KEY_LIFETIME        0x00000100 # HSM_SE_KEY_STORAGE_VOLATILE
 KEY_LIFECYCLE       0x0       # 0x0 indicates set to Current lifecycle (0x0) Device Lifecycle
 KEY_USAGE           0x00000C00 # HSM_KEY_USAGE_SIGN_MSG | HSM_KEY_USAGE_VERIFY_MSG
@@ -5311,7 +5311,7 @@ OUT_SIZE            0        # Public Key Out Size
 KEY_TYPE            0x1100     # HSM_KEY_TYPE_HMAC_256
 BIT_KEY_SZ          256       # HSM_KEY_SIZE_HMAC_256
 FLAGS               0          #
-KEY_GROUP           81         # Key Group b/w 0-1023
+KEY_GROUP           81         # Key Group
 KEY_LIFETIME        0x00000100 # HSM_SE_KEY_STORAGE_VOLATILE
 KEY_LIFECYCLE       0x01       # 0x01 indicates set to Open Device Lifecycle
 KEY_USAGE           0x00000C00 # HSM_KEY_USAGE_SIGN_MSG | HSM_KEY_USAGE_VERIFY_MSG
@@ -5351,7 +5351,7 @@ OUT_SIZE            0        # Public Key Out Size
 KEY_TYPE            0x1100     # HSM_KEY_TYPE_HMAC_256
 BIT_KEY_SZ          256       # HSM_KEY_SIZE_HMAC_256
 FLAGS               0          #
-KEY_GROUP           81         # Key Group b/w 0-1023
+KEY_GROUP           81         # Key Group
 KEY_LIFETIME        0x00000100 # HSM_SE_KEY_STORAGE_VOLATILE
 KEY_LIFECYCLE       0x02       # 0x02 indicates set to Closed Device Lifecycle
 KEY_USAGE           0x00000C00 # HSM_KEY_USAGE_SIGN_MSG | HSM_KEY_USAGE_VERIFY_MSG
@@ -5391,7 +5391,7 @@ OUT_SIZE            0        # Public Key Out Size
 KEY_TYPE            0x1100     # HSM_KEY_TYPE_HMAC_256
 BIT_KEY_SZ          256       # HSM_KEY_SIZE_HMAC_256
 FLAGS               0          #
-KEY_GROUP           81         # Key Group b/w 0-1023
+KEY_GROUP           81         # Key Group
 KEY_LIFETIME        0x00000100 # HSM_SE_KEY_STORAGE_VOLATILE
 KEY_LIFECYCLE       0x04       # 0x04 indicates set to Closed and locked Device Lifecycle
 KEY_USAGE           0x00000C00 # HSM_KEY_USAGE_SIGN_MSG | HSM_KEY_USAGE_VERIFY_MSG
@@ -5431,7 +5431,7 @@ OUT_SIZE            0        # Public Key Out Size
 KEY_TYPE            0x1100     # HSM_KEY_TYPE_HMAC_256
 BIT_KEY_SZ          256       # HSM_KEY_SIZE_HMAC_256
 FLAGS               0          #
-KEY_GROUP           81         # Key Group b/w 0-1023
+KEY_GROUP           81         # Key Group
 KEY_LIFETIME        0x00000100 # HSM_SE_KEY_STORAGE_VOLATILE
 KEY_LIFECYCLE       0x0       # 0x0 indicates set to Current lifecycle (0x0) Device Lifecycle
 KEY_USAGE           0x00000C00 # HSM_KEY_USAGE_SIGN_MSG | HSM_KEY_USAGE_VERIFY_MSG
@@ -5471,7 +5471,7 @@ OUT_SIZE            0        # Public Key Out Size
 KEY_TYPE            0x1100     # HSM_KEY_TYPE_HMAC_384
 BIT_KEY_SZ          384       # HSM_KEY_SIZE_HMAC_384
 FLAGS               0          #
-KEY_GROUP           81         # Key Group b/w 0-1023
+KEY_GROUP           81         # Key Group
 KEY_LIFETIME        0x00000100 # HSM_SE_KEY_STORAGE_VOLATILE
 KEY_LIFECYCLE       0x01       # 0x01 indicates set to Open Device Lifecycle
 KEY_USAGE           0x00000C00 # HSM_KEY_USAGE_SIGN_MSG | HSM_KEY_USAGE_VERIFY_MSG
@@ -5511,7 +5511,7 @@ OUT_SIZE            0        # Public Key Out Size
 KEY_TYPE            0x1100     # HSM_KEY_TYPE_HMAC_384
 BIT_KEY_SZ          384       # HSM_KEY_SIZE_HMAC_384
 FLAGS               0          #
-KEY_GROUP           81         # Key Group b/w 0-1023
+KEY_GROUP           81         # Key Group
 KEY_LIFETIME        0x00000100 # HSM_SE_KEY_STORAGE_VOLATILE
 KEY_LIFECYCLE       0x02       # 0x02 indicates set to Closed Device Lifecycle
 KEY_USAGE           0x00000C00 # HSM_KEY_USAGE_SIGN_MSG | HSM_KEY_USAGE_VERIFY_MSG
@@ -5551,7 +5551,7 @@ OUT_SIZE            0        # Public Key Out Size
 KEY_TYPE            0x1100     # HSM_KEY_TYPE_HMAC_384
 BIT_KEY_SZ          384       # HSM_KEY_SIZE_HMAC_384
 FLAGS               0          #
-KEY_GROUP           81         # Key Group b/w 0-1023
+KEY_GROUP           81         # Key Group
 KEY_LIFETIME        0x00000100 # HSM_SE_KEY_STORAGE_VOLATILE
 KEY_LIFECYCLE       0x04       # 0x04 indicates set to Closed and locked Device Lifecycle
 KEY_USAGE           0x00000C00 # HSM_KEY_USAGE_SIGN_MSG | HSM_KEY_USAGE_VERIFY_MSG
@@ -5591,7 +5591,7 @@ OUT_SIZE            0        # Public Key Out Size
 KEY_TYPE            0x1100     # HSM_KEY_TYPE_HMAC_384
 BIT_KEY_SZ          384       # HSM_KEY_SIZE_HMAC_384
 FLAGS               0          #
-KEY_GROUP           81         # Key Group b/w 0-1023
+KEY_GROUP           81         # Key Group
 KEY_LIFETIME        0x00000100 # HSM_SE_KEY_STORAGE_VOLATILE
 KEY_LIFECYCLE       0x0       # 0x0 indicates set to Current lifecycle (0x0) Device Lifecycle
 KEY_USAGE           0x00000C00 # HSM_KEY_USAGE_SIGN_MSG | HSM_KEY_USAGE_VERIFY_MSG
@@ -5631,7 +5631,7 @@ OUT_SIZE            0        # Public Key Out Size
 KEY_TYPE            0x1100     # HSM_KEY_TYPE_HMAC_384
 BIT_KEY_SZ          384       # HSM_KEY_SIZE_HMAC_384
 FLAGS               0          #
-KEY_GROUP           81         # Key Group b/w 0-1023
+KEY_GROUP           81         # Key Group
 KEY_LIFETIME        0x00000100 # HSM_SE_KEY_STORAGE_VOLATILE
 KEY_LIFECYCLE       0x01       # 0x01 indicates set to Open Device Lifecycle
 KEY_USAGE           0x00000C00 # HSM_KEY_USAGE_SIGN_MSG | HSM_KEY_USAGE_VERIFY_MSG
@@ -5671,7 +5671,7 @@ OUT_SIZE            0        # Public Key Out Size
 KEY_TYPE            0x1100     # HSM_KEY_TYPE_HMAC_384
 BIT_KEY_SZ          384       # HSM_KEY_SIZE_HMAC_384
 FLAGS               0          #
-KEY_GROUP           81         # Key Group b/w 0-1023
+KEY_GROUP           81         # Key Group
 KEY_LIFETIME        0x00000100 # HSM_SE_KEY_STORAGE_VOLATILE
 KEY_LIFECYCLE       0x02       # 0x02 indicates set to Closed Device Lifecycle
 KEY_USAGE           0x00000C00 # HSM_KEY_USAGE_SIGN_MSG | HSM_KEY_USAGE_VERIFY_MSG
@@ -5711,7 +5711,7 @@ OUT_SIZE            0        # Public Key Out Size
 KEY_TYPE            0x1100     # HSM_KEY_TYPE_HMAC_384
 BIT_KEY_SZ          384       # HSM_KEY_SIZE_HMAC_384
 FLAGS               0          #
-KEY_GROUP           81         # Key Group b/w 0-1023
+KEY_GROUP           81         # Key Group
 KEY_LIFETIME        0x00000100 # HSM_SE_KEY_STORAGE_VOLATILE
 KEY_LIFECYCLE       0x04       # 0x04 indicates set to Closed and locked Device Lifecycle
 KEY_USAGE           0x00000C00 # HSM_KEY_USAGE_SIGN_MSG | HSM_KEY_USAGE_VERIFY_MSG
@@ -5751,7 +5751,7 @@ OUT_SIZE            0        # Public Key Out Size
 KEY_TYPE            0x1100     # HSM_KEY_TYPE_HMAC_384
 BIT_KEY_SZ          384       # HSM_KEY_SIZE_HMAC_384
 FLAGS               0          #
-KEY_GROUP           81         # Key Group b/w 0-1023
+KEY_GROUP           81         # Key Group
 KEY_LIFETIME        0x00000100 # HSM_SE_KEY_STORAGE_VOLATILE
 KEY_LIFECYCLE       0x0       # 0x0 indicates set to Current lifecycle (0x0) Device Lifecycle
 KEY_USAGE           0x00000C00 # HSM_KEY_USAGE_SIGN_MSG | HSM_KEY_USAGE_VERIFY_MSG
@@ -5791,7 +5791,7 @@ OUT_SIZE            0        # Public Key Out Size
 KEY_TYPE            0x1100     # HSM_KEY_TYPE_HMAC_512
 BIT_KEY_SZ          512       # HSM_KEY_SIZE_HMAC_512
 FLAGS               0          #
-KEY_GROUP           81         # Key Group b/w 0-1023
+KEY_GROUP           81         # Key Group
 KEY_LIFETIME        0x00000100 # HSM_SE_KEY_STORAGE_VOLATILE
 KEY_LIFECYCLE       0x01       # 0x01 indicates set to Open Device Lifecycle
 KEY_USAGE           0x00000C00 # HSM_KEY_USAGE_SIGN_MSG | HSM_KEY_USAGE_VERIFY_MSG
@@ -5831,7 +5831,7 @@ OUT_SIZE            0        # Public Key Out Size
 KEY_TYPE            0x1100     # HSM_KEY_TYPE_HMAC_512
 BIT_KEY_SZ          512       # HSM_KEY_SIZE_HMAC_512
 FLAGS               0          #
-KEY_GROUP           81         # Key Group b/w 0-1023
+KEY_GROUP           81         # Key Group
 KEY_LIFETIME        0x00000100 # HSM_SE_KEY_STORAGE_VOLATILE
 KEY_LIFECYCLE       0x02       # 0x02 indicates set to Closed Device Lifecycle
 KEY_USAGE           0x00000C00 # HSM_KEY_USAGE_SIGN_MSG | HSM_KEY_USAGE_VERIFY_MSG
@@ -5871,7 +5871,7 @@ OUT_SIZE            0        # Public Key Out Size
 KEY_TYPE            0x1100     # HSM_KEY_TYPE_HMAC_512
 BIT_KEY_SZ          512       # HSM_KEY_SIZE_HMAC_512
 FLAGS               0          #
-KEY_GROUP           81         # Key Group b/w 0-1023
+KEY_GROUP           81         # Key Group
 KEY_LIFETIME        0x00000100 # HSM_SE_KEY_STORAGE_VOLATILE
 KEY_LIFECYCLE       0x04       # 0x04 indicates set to Closed and locked Device Lifecycle
 KEY_USAGE           0x00000C00 # HSM_KEY_USAGE_SIGN_MSG | HSM_KEY_USAGE_VERIFY_MSG
@@ -5911,7 +5911,7 @@ OUT_SIZE            0        # Public Key Out Size
 KEY_TYPE            0x1100     # HSM_KEY_TYPE_HMAC_512
 BIT_KEY_SZ          512       # HSM_KEY_SIZE_HMAC_512
 FLAGS               0          #
-KEY_GROUP           81         # Key Group b/w 0-1023
+KEY_GROUP           81         # Key Group
 KEY_LIFETIME        0x00000100 # HSM_SE_KEY_STORAGE_VOLATILE
 KEY_LIFECYCLE       0x0       # 0x0 indicates set to Current lifecycle (0x0) Device Lifecycle
 KEY_USAGE           0x00000C00 # HSM_KEY_USAGE_SIGN_MSG | HSM_KEY_USAGE_VERIFY_MSG
@@ -5951,7 +5951,7 @@ OUT_SIZE            0        # Public Key Out Size
 KEY_TYPE            0x1100     # HSM_KEY_TYPE_HMAC_512
 BIT_KEY_SZ          512       # HSM_KEY_SIZE_HMAC_512
 FLAGS               0          #
-KEY_GROUP           81         # Key Group b/w 0-1023
+KEY_GROUP           81         # Key Group
 KEY_LIFETIME        0x00000100 # HSM_SE_KEY_STORAGE_VOLATILE
 KEY_LIFECYCLE       0x01       # 0x01 indicates set to Open Device Lifecycle
 KEY_USAGE           0x00000C00 # HSM_KEY_USAGE_SIGN_MSG | HSM_KEY_USAGE_VERIFY_MSG
@@ -5991,7 +5991,7 @@ OUT_SIZE            0        # Public Key Out Size
 KEY_TYPE            0x1100     # HSM_KEY_TYPE_HMAC_512
 BIT_KEY_SZ          512       # HSM_KEY_SIZE_HMAC_512
 FLAGS               0          #
-KEY_GROUP           81         # Key Group b/w 0-1023
+KEY_GROUP           81         # Key Group
 KEY_LIFETIME        0x00000100 # HSM_SE_KEY_STORAGE_VOLATILE
 KEY_LIFECYCLE       0x02       # 0x02 indicates set to Closed Device Lifecycle
 KEY_USAGE           0x00000C00 # HSM_KEY_USAGE_SIGN_MSG | HSM_KEY_USAGE_VERIFY_MSG
@@ -6031,7 +6031,7 @@ OUT_SIZE            0        # Public Key Out Size
 KEY_TYPE            0x1100     # HSM_KEY_TYPE_HMAC_512
 BIT_KEY_SZ          512       # HSM_KEY_SIZE_HMAC_512
 FLAGS               0          #
-KEY_GROUP           81         # Key Group b/w 0-1023
+KEY_GROUP           81         # Key Group
 KEY_LIFETIME        0x00000100 # HSM_SE_KEY_STORAGE_VOLATILE
 KEY_LIFECYCLE       0x04       # 0x04 indicates set to Closed and locked Device Lifecycle
 KEY_USAGE           0x00000C00 # HSM_KEY_USAGE_SIGN_MSG | HSM_KEY_USAGE_VERIFY_MSG
@@ -6071,7 +6071,7 @@ OUT_SIZE            0        # Public Key Out Size
 KEY_TYPE            0x1100     # HSM_KEY_TYPE_HMAC_512
 BIT_KEY_SZ          512       # HSM_KEY_SIZE_HMAC_512
 FLAGS               0          #
-KEY_GROUP           81         # Key Group b/w 0-1023
+KEY_GROUP           81         # Key Group
 KEY_LIFETIME        0x00000100 # HSM_SE_KEY_STORAGE_VOLATILE
 KEY_LIFECYCLE       0x0       # 0x0 indicates set to Current lifecycle (0x0) Device Lifecycle
 KEY_USAGE           0x00000C00 # HSM_KEY_USAGE_SIGN_MSG | HSM_KEY_USAGE_VERIFY_MSG
@@ -6111,7 +6111,7 @@ OUT_SIZE            0        # Public Key Out Size
 KEY_TYPE            0x7130     # HSM_KEY_TYPE_ECC_KEY_PAIR_BRAINPOOL_R1_224
 BIT_KEY_SZ          224       # HSM_KEY_SIZE_ECC_KEY_PAIR_BRAINPOOL_R1_224
 FLAGS               0          #
-KEY_GROUP           81         # Key Group b/w 0-1023
+KEY_GROUP           81         # Key Group
 KEY_LIFETIME        0x00000100 # HSM_SE_KEY_STORAGE_VOLATILE
 KEY_LIFECYCLE       0x01       # 0x01 indicates set to Open Device Lifecycle
 KEY_USAGE           0x00003000 # HSM_KEY_USAGE_SIGN_HASH | HSM_KEY_USAGE_VERIFY_HASH
@@ -6151,7 +6151,7 @@ OUT_SIZE            0        # Public Key Out Size
 KEY_TYPE            0x7130     # HSM_KEY_TYPE_ECC_KEY_PAIR_BRAINPOOL_R1_224
 BIT_KEY_SZ          224       # HSM_KEY_SIZE_ECC_KEY_PAIR_BRAINPOOL_R1_224
 FLAGS               0          #
-KEY_GROUP           81         # Key Group b/w 0-1023
+KEY_GROUP           81         # Key Group
 KEY_LIFETIME        0x00000100 # HSM_SE_KEY_STORAGE_VOLATILE
 KEY_LIFECYCLE       0x02       # 0x02 indicates set to Closed Device Lifecycle
 KEY_USAGE           0x00003000 # HSM_KEY_USAGE_SIGN_HASH | HSM_KEY_USAGE_VERIFY_HASH
@@ -6191,7 +6191,7 @@ OUT_SIZE            0        # Public Key Out Size
 KEY_TYPE            0x7130     # HSM_KEY_TYPE_ECC_KEY_PAIR_BRAINPOOL_R1_224
 BIT_KEY_SZ          224       # HSM_KEY_SIZE_ECC_KEY_PAIR_BRAINPOOL_R1_224
 FLAGS               0          #
-KEY_GROUP           81         # Key Group b/w 0-1023
+KEY_GROUP           81         # Key Group
 KEY_LIFETIME        0x00000100 # HSM_SE_KEY_STORAGE_VOLATILE
 KEY_LIFECYCLE       0x04       # 0x04 indicates set to Closed and locked Device Lifecycle
 KEY_USAGE           0x00003000 # HSM_KEY_USAGE_SIGN_HASH | HSM_KEY_USAGE_VERIFY_HASH
@@ -6231,7 +6231,7 @@ OUT_SIZE            0        # Public Key Out Size
 KEY_TYPE            0x7130     # HSM_KEY_TYPE_ECC_KEY_PAIR_BRAINPOOL_R1_224
 BIT_KEY_SZ          224       # HSM_KEY_SIZE_ECC_KEY_PAIR_BRAINPOOL_R1_224
 FLAGS               0          #
-KEY_GROUP           81         # Key Group b/w 0-1023
+KEY_GROUP           81         # Key Group
 KEY_LIFETIME        0x00000100 # HSM_SE_KEY_STORAGE_VOLATILE
 KEY_LIFECYCLE       0x0       # 0x0 indicates set to Current lifecycle (0x0) Device Lifecycle
 KEY_USAGE           0x00003000 # HSM_KEY_USAGE_SIGN_HASH | HSM_KEY_USAGE_VERIFY_HASH
@@ -6271,7 +6271,7 @@ OUT_SIZE            0        # Public Key Out Size
 KEY_TYPE            0x7130     # HSM_KEY_TYPE_ECC_KEY_PAIR_BRAINPOOL_R1_256
 BIT_KEY_SZ          256       # HSM_KEY_SIZE_ECC_KEY_PAIR_BRAINPOOL_R1_256
 FLAGS               0          #
-KEY_GROUP           81         # Key Group b/w 0-1023
+KEY_GROUP           81         # Key Group
 KEY_LIFETIME        0x00000100 # HSM_SE_KEY_STORAGE_VOLATILE
 KEY_LIFECYCLE       0x01       # 0x01 indicates set to Open Device Lifecycle
 KEY_USAGE           0x00003000 # HSM_KEY_USAGE_SIGN_HASH | HSM_KEY_USAGE_VERIFY_HASH
@@ -6311,7 +6311,7 @@ OUT_SIZE            0        # Public Key Out Size
 KEY_TYPE            0x7130     # HSM_KEY_TYPE_ECC_KEY_PAIR_BRAINPOOL_R1_256
 BIT_KEY_SZ          256       # HSM_KEY_SIZE_ECC_KEY_PAIR_BRAINPOOL_R1_256
 FLAGS               0          #
-KEY_GROUP           81         # Key Group b/w 0-1023
+KEY_GROUP           81         # Key Group
 KEY_LIFETIME        0x00000100 # HSM_SE_KEY_STORAGE_VOLATILE
 KEY_LIFECYCLE       0x02       # 0x02 indicates set to Closed Device Lifecycle
 KEY_USAGE           0x00003000 # HSM_KEY_USAGE_SIGN_HASH | HSM_KEY_USAGE_VERIFY_HASH
@@ -6351,7 +6351,7 @@ OUT_SIZE            0        # Public Key Out Size
 KEY_TYPE            0x7130     # HSM_KEY_TYPE_ECC_KEY_PAIR_BRAINPOOL_R1_256
 BIT_KEY_SZ          256       # HSM_KEY_SIZE_ECC_KEY_PAIR_BRAINPOOL_R1_256
 FLAGS               0          #
-KEY_GROUP           81         # Key Group b/w 0-1023
+KEY_GROUP           81         # Key Group
 KEY_LIFETIME        0x00000100 # HSM_SE_KEY_STORAGE_VOLATILE
 KEY_LIFECYCLE       0x04       # 0x04 indicates set to Closed and locked Device Lifecycle
 KEY_USAGE           0x00003000 # HSM_KEY_USAGE_SIGN_HASH | HSM_KEY_USAGE_VERIFY_HASH
@@ -6391,7 +6391,7 @@ OUT_SIZE            0        # Public Key Out Size
 KEY_TYPE            0x7130     # HSM_KEY_TYPE_ECC_KEY_PAIR_BRAINPOOL_R1_256
 BIT_KEY_SZ          256       # HSM_KEY_SIZE_ECC_KEY_PAIR_BRAINPOOL_R1_256
 FLAGS               0          #
-KEY_GROUP           81         # Key Group b/w 0-1023
+KEY_GROUP           81         # Key Group
 KEY_LIFETIME        0x00000100 # HSM_SE_KEY_STORAGE_VOLATILE
 KEY_LIFECYCLE       0x0       # 0x0 indicates set to Current lifecycle (0x0) Device Lifecycle
 KEY_USAGE           0x00003000 # HSM_KEY_USAGE_SIGN_HASH | HSM_KEY_USAGE_VERIFY_HASH
@@ -6431,7 +6431,7 @@ OUT_SIZE            0        # Public Key Out Size
 KEY_TYPE            0x7130     # HSM_KEY_TYPE_ECC_KEY_PAIR_BRAINPOOL_R1_256
 BIT_KEY_SZ          256       # HSM_KEY_SIZE_ECC_KEY_PAIR_BRAINPOOL_R1_256
 FLAGS               0          #
-KEY_GROUP           81         # Key Group b/w 0-1023
+KEY_GROUP           81         # Key Group
 KEY_LIFETIME        0x00000100 # HSM_SE_KEY_STORAGE_VOLATILE
 KEY_LIFECYCLE       0x01       # 0x01 indicates set to Open Device Lifecycle
 KEY_USAGE           0x00004000 # HSM_KEY_USAGE_DERIVE
@@ -6471,7 +6471,7 @@ OUT_SIZE            0        # Public Key Out Size
 KEY_TYPE            0x7130     # HSM_KEY_TYPE_ECC_KEY_PAIR_BRAINPOOL_R1_256
 BIT_KEY_SZ          256       # HSM_KEY_SIZE_ECC_KEY_PAIR_BRAINPOOL_R1_256
 FLAGS               0          #
-KEY_GROUP           81         # Key Group b/w 0-1023
+KEY_GROUP           81         # Key Group
 KEY_LIFETIME        0x00000100 # HSM_SE_KEY_STORAGE_VOLATILE
 KEY_LIFECYCLE       0x02       # 0x02 indicates set to Closed Device Lifecycle
 KEY_USAGE           0x00004000 # HSM_KEY_USAGE_DERIVE
@@ -6511,7 +6511,7 @@ OUT_SIZE            0        # Public Key Out Size
 KEY_TYPE            0x7130     # HSM_KEY_TYPE_ECC_KEY_PAIR_BRAINPOOL_R1_256
 BIT_KEY_SZ          256       # HSM_KEY_SIZE_ECC_KEY_PAIR_BRAINPOOL_R1_256
 FLAGS               0          #
-KEY_GROUP           81         # Key Group b/w 0-1023
+KEY_GROUP           81         # Key Group
 KEY_LIFETIME        0x00000100 # HSM_SE_KEY_STORAGE_VOLATILE
 KEY_LIFECYCLE       0x04       # 0x04 indicates set to Closed and locked Device Lifecycle
 KEY_USAGE           0x00004000 # HSM_KEY_USAGE_DERIVE
@@ -6551,7 +6551,7 @@ OUT_SIZE            0        # Public Key Out Size
 KEY_TYPE            0x7130     # HSM_KEY_TYPE_ECC_KEY_PAIR_BRAINPOOL_R1_256
 BIT_KEY_SZ          256       # HSM_KEY_SIZE_ECC_KEY_PAIR_BRAINPOOL_R1_256
 FLAGS               0          #
-KEY_GROUP           81         # Key Group b/w 0-1023
+KEY_GROUP           81         # Key Group
 KEY_LIFETIME        0x00000100 # HSM_SE_KEY_STORAGE_VOLATILE
 KEY_LIFECYCLE       0x0       # 0x0 indicates set to Current lifecycle (0x0) Device Lifecycle
 KEY_USAGE           0x00004000 # HSM_KEY_USAGE_DERIVE
@@ -6591,7 +6591,7 @@ OUT_SIZE            0        # Public Key Out Size
 KEY_TYPE            0x7130     # HSM_KEY_TYPE_ECC_KEY_PAIR_BRAINPOOL_R1_256
 BIT_KEY_SZ          256       # HSM_KEY_SIZE_ECC_KEY_PAIR_BRAINPOOL_R1_256
 FLAGS               0          #
-KEY_GROUP           81         # Key Group b/w 0-1023
+KEY_GROUP           81         # Key Group
 KEY_LIFETIME        0x00000100 # HSM_SE_KEY_STORAGE_VOLATILE
 KEY_LIFECYCLE       0x01       # 0x01 indicates set to Open Device Lifecycle
 KEY_USAGE           0x00004000 # HSM_KEY_USAGE_DERIVE
@@ -6631,7 +6631,7 @@ OUT_SIZE            0        # Public Key Out Size
 KEY_TYPE            0x7130     # HSM_KEY_TYPE_ECC_KEY_PAIR_BRAINPOOL_R1_256
 BIT_KEY_SZ          256       # HSM_KEY_SIZE_ECC_KEY_PAIR_BRAINPOOL_R1_256
 FLAGS               0          #
-KEY_GROUP           81         # Key Group b/w 0-1023
+KEY_GROUP           81         # Key Group
 KEY_LIFETIME        0x00000100 # HSM_SE_KEY_STORAGE_VOLATILE
 KEY_LIFECYCLE       0x02       # 0x02 indicates set to Closed Device Lifecycle
 KEY_USAGE           0x00004000 # HSM_KEY_USAGE_DERIVE
@@ -6671,7 +6671,7 @@ OUT_SIZE            0        # Public Key Out Size
 KEY_TYPE            0x7130     # HSM_KEY_TYPE_ECC_KEY_PAIR_BRAINPOOL_R1_256
 BIT_KEY_SZ          256       # HSM_KEY_SIZE_ECC_KEY_PAIR_BRAINPOOL_R1_256
 FLAGS               0          #
-KEY_GROUP           81         # Key Group b/w 0-1023
+KEY_GROUP           81         # Key Group
 KEY_LIFETIME        0x00000100 # HSM_SE_KEY_STORAGE_VOLATILE
 KEY_LIFECYCLE       0x04       # 0x04 indicates set to Closed and locked Device Lifecycle
 KEY_USAGE           0x00004000 # HSM_KEY_USAGE_DERIVE
@@ -6711,7 +6711,7 @@ OUT_SIZE            0        # Public Key Out Size
 KEY_TYPE            0x7130     # HSM_KEY_TYPE_ECC_KEY_PAIR_BRAINPOOL_R1_256
 BIT_KEY_SZ          256       # HSM_KEY_SIZE_ECC_KEY_PAIR_BRAINPOOL_R1_256
 FLAGS               0          #
-KEY_GROUP           81         # Key Group b/w 0-1023
+KEY_GROUP           81         # Key Group
 KEY_LIFETIME        0x00000100 # HSM_SE_KEY_STORAGE_VOLATILE
 KEY_LIFECYCLE       0x0       # 0x0 indicates set to Current lifecycle (0x0) Device Lifecycle
 KEY_USAGE           0x00004000 # HSM_KEY_USAGE_DERIVE
@@ -6751,7 +6751,7 @@ OUT_SIZE            0        # Public Key Out Size
 KEY_TYPE            0x7130     # HSM_KEY_TYPE_ECC_KEY_PAIR_BRAINPOOL_R1_384
 BIT_KEY_SZ          384       # HSM_KEY_SIZE_ECC_KEY_PAIR_BRAINPOOL_R1_384
 FLAGS               0          #
-KEY_GROUP           81         # Key Group b/w 0-1023
+KEY_GROUP           81         # Key Group
 KEY_LIFETIME        0x00000100 # HSM_SE_KEY_STORAGE_VOLATILE
 KEY_LIFECYCLE       0x01       # 0x01 indicates set to Open Device Lifecycle
 KEY_USAGE           0x00003000 # HSM_KEY_USAGE_SIGN_HASH | HSM_KEY_USAGE_VERIFY_HASH
@@ -6791,7 +6791,7 @@ OUT_SIZE            0        # Public Key Out Size
 KEY_TYPE            0x7130     # HSM_KEY_TYPE_ECC_KEY_PAIR_BRAINPOOL_R1_384
 BIT_KEY_SZ          384       # HSM_KEY_SIZE_ECC_KEY_PAIR_BRAINPOOL_R1_384
 FLAGS               0          #
-KEY_GROUP           81         # Key Group b/w 0-1023
+KEY_GROUP           81         # Key Group
 KEY_LIFETIME        0x00000100 # HSM_SE_KEY_STORAGE_VOLATILE
 KEY_LIFECYCLE       0x02       # 0x02 indicates set to Closed Device Lifecycle
 KEY_USAGE           0x00003000 # HSM_KEY_USAGE_SIGN_HASH | HSM_KEY_USAGE_VERIFY_HASH
@@ -6831,7 +6831,7 @@ OUT_SIZE            0        # Public Key Out Size
 KEY_TYPE            0x7130     # HSM_KEY_TYPE_ECC_KEY_PAIR_BRAINPOOL_R1_384
 BIT_KEY_SZ          384       # HSM_KEY_SIZE_ECC_KEY_PAIR_BRAINPOOL_R1_384
 FLAGS               0          #
-KEY_GROUP           81         # Key Group b/w 0-1023
+KEY_GROUP           81         # Key Group
 KEY_LIFETIME        0x00000100 # HSM_SE_KEY_STORAGE_VOLATILE
 KEY_LIFECYCLE       0x04       # 0x04 indicates set to Closed and locked Device Lifecycle
 KEY_USAGE           0x00003000 # HSM_KEY_USAGE_SIGN_HASH | HSM_KEY_USAGE_VERIFY_HASH
@@ -6871,7 +6871,7 @@ OUT_SIZE            0        # Public Key Out Size
 KEY_TYPE            0x7130     # HSM_KEY_TYPE_ECC_KEY_PAIR_BRAINPOOL_R1_384
 BIT_KEY_SZ          384       # HSM_KEY_SIZE_ECC_KEY_PAIR_BRAINPOOL_R1_384
 FLAGS               0          #
-KEY_GROUP           81         # Key Group b/w 0-1023
+KEY_GROUP           81         # Key Group
 KEY_LIFETIME        0x00000100 # HSM_SE_KEY_STORAGE_VOLATILE
 KEY_LIFECYCLE       0x0       # 0x0 indicates set to Current lifecycle (0x0) Device Lifecycle
 KEY_USAGE           0x00003000 # HSM_KEY_USAGE_SIGN_HASH | HSM_KEY_USAGE_VERIFY_HASH
@@ -6911,7 +6911,7 @@ OUT_SIZE            0        # Public Key Out Size
 KEY_TYPE            0x7130     # HSM_KEY_TYPE_ECC_KEY_PAIR_BRAINPOOL_R1_384
 BIT_KEY_SZ          384       # HSM_KEY_SIZE_ECC_KEY_PAIR_BRAINPOOL_R1_384
 FLAGS               0          #
-KEY_GROUP           81         # Key Group b/w 0-1023
+KEY_GROUP           81         # Key Group
 KEY_LIFETIME        0x00000100 # HSM_SE_KEY_STORAGE_VOLATILE
 KEY_LIFECYCLE       0x01       # 0x01 indicates set to Open Device Lifecycle
 KEY_USAGE           0x00004000 # HSM_KEY_USAGE_DERIVE
@@ -6951,7 +6951,7 @@ OUT_SIZE            0        # Public Key Out Size
 KEY_TYPE            0x7130     # HSM_KEY_TYPE_ECC_KEY_PAIR_BRAINPOOL_R1_384
 BIT_KEY_SZ          384       # HSM_KEY_SIZE_ECC_KEY_PAIR_BRAINPOOL_R1_384
 FLAGS               0          #
-KEY_GROUP           81         # Key Group b/w 0-1023
+KEY_GROUP           81         # Key Group
 KEY_LIFETIME        0x00000100 # HSM_SE_KEY_STORAGE_VOLATILE
 KEY_LIFECYCLE       0x02       # 0x02 indicates set to Closed Device Lifecycle
 KEY_USAGE           0x00004000 # HSM_KEY_USAGE_DERIVE
@@ -6991,7 +6991,7 @@ OUT_SIZE            0        # Public Key Out Size
 KEY_TYPE            0x7130     # HSM_KEY_TYPE_ECC_KEY_PAIR_BRAINPOOL_R1_384
 BIT_KEY_SZ          384       # HSM_KEY_SIZE_ECC_KEY_PAIR_BRAINPOOL_R1_384
 FLAGS               0          #
-KEY_GROUP           81         # Key Group b/w 0-1023
+KEY_GROUP           81         # Key Group
 KEY_LIFETIME        0x00000100 # HSM_SE_KEY_STORAGE_VOLATILE
 KEY_LIFECYCLE       0x04       # 0x04 indicates set to Closed and locked Device Lifecycle
 KEY_USAGE           0x00004000 # HSM_KEY_USAGE_DERIVE
@@ -7031,7 +7031,7 @@ OUT_SIZE            0        # Public Key Out Size
 KEY_TYPE            0x7130     # HSM_KEY_TYPE_ECC_KEY_PAIR_BRAINPOOL_R1_384
 BIT_KEY_SZ          384       # HSM_KEY_SIZE_ECC_KEY_PAIR_BRAINPOOL_R1_384
 FLAGS               0          #
-KEY_GROUP           81         # Key Group b/w 0-1023
+KEY_GROUP           81         # Key Group
 KEY_LIFETIME        0x00000100 # HSM_SE_KEY_STORAGE_VOLATILE
 KEY_LIFECYCLE       0x0       # 0x0 indicates set to Current lifecycle (0x0) Device Lifecycle
 KEY_USAGE           0x00004000 # HSM_KEY_USAGE_DERIVE
@@ -7071,7 +7071,7 @@ OUT_SIZE            0        # Public Key Out Size
 KEY_TYPE            0x7130     # HSM_KEY_TYPE_ECC_KEY_PAIR_BRAINPOOL_R1_384
 BIT_KEY_SZ          384       # HSM_KEY_SIZE_ECC_KEY_PAIR_BRAINPOOL_R1_384
 FLAGS               0          #
-KEY_GROUP           81         # Key Group b/w 0-1023
+KEY_GROUP           81         # Key Group
 KEY_LIFETIME        0x00000100 # HSM_SE_KEY_STORAGE_VOLATILE
 KEY_LIFECYCLE       0x01       # 0x01 indicates set to Open Device Lifecycle
 KEY_USAGE           0x00004000 # HSM_KEY_USAGE_DERIVE
@@ -7111,7 +7111,7 @@ OUT_SIZE            0        # Public Key Out Size
 KEY_TYPE            0x7130     # HSM_KEY_TYPE_ECC_KEY_PAIR_BRAINPOOL_R1_384
 BIT_KEY_SZ          384       # HSM_KEY_SIZE_ECC_KEY_PAIR_BRAINPOOL_R1_384
 FLAGS               0          #
-KEY_GROUP           81         # Key Group b/w 0-1023
+KEY_GROUP           81         # Key Group
 KEY_LIFETIME        0x00000100 # HSM_SE_KEY_STORAGE_VOLATILE
 KEY_LIFECYCLE       0x02       # 0x02 indicates set to Closed Device Lifecycle
 KEY_USAGE           0x00004000 # HSM_KEY_USAGE_DERIVE
@@ -7151,7 +7151,7 @@ OUT_SIZE            0        # Public Key Out Size
 KEY_TYPE            0x7130     # HSM_KEY_TYPE_ECC_KEY_PAIR_BRAINPOOL_R1_384
 BIT_KEY_SZ          384       # HSM_KEY_SIZE_ECC_KEY_PAIR_BRAINPOOL_R1_384
 FLAGS               0          #
-KEY_GROUP           81         # Key Group b/w 0-1023
+KEY_GROUP           81         # Key Group
 KEY_LIFETIME        0x00000100 # HSM_SE_KEY_STORAGE_VOLATILE
 KEY_LIFECYCLE       0x04       # 0x04 indicates set to Closed and locked Device Lifecycle
 KEY_USAGE           0x00004000 # HSM_KEY_USAGE_DERIVE
@@ -7191,7 +7191,7 @@ OUT_SIZE            0        # Public Key Out Size
 KEY_TYPE            0x7130     # HSM_KEY_TYPE_ECC_KEY_PAIR_BRAINPOOL_R1_384
 BIT_KEY_SZ          384       # HSM_KEY_SIZE_ECC_KEY_PAIR_BRAINPOOL_R1_384
 FLAGS               0          #
-KEY_GROUP           81         # Key Group b/w 0-1023
+KEY_GROUP           81         # Key Group
 KEY_LIFETIME        0x00000100 # HSM_SE_KEY_STORAGE_VOLATILE
 KEY_LIFECYCLE       0x0       # 0x0 indicates set to Current lifecycle (0x0) Device Lifecycle
 KEY_USAGE           0x00004000 # HSM_KEY_USAGE_DERIVE
@@ -7231,7 +7231,7 @@ OUT_SIZE            56        # Public Key Out Size
 KEY_TYPE            0x7112     # HSM_KEY_TYPE_ECC_KEY_PAIR_SECP_R1_NIST_224
 BIT_KEY_SZ          224       # HSM_KEY_SIZE_ECC_KEY_PAIR_SECP_R1_NIST_224
 FLAGS               0          #
-KEY_GROUP           81         # Key Group b/w 0-1023
+KEY_GROUP           81         # Key Group
 KEY_LIFETIME        0x00000100 # HSM_SE_KEY_STORAGE_VOLATILE
 KEY_LIFECYCLE       0x01       # 0x01 indicates set to Open Device Lifecycle
 KEY_USAGE           0x00003000 # HSM_KEY_USAGE_SIGN_HASH | HSM_KEY_USAGE_VERIFY_HASH
@@ -7271,7 +7271,7 @@ OUT_SIZE            56        # Public Key Out Size
 KEY_TYPE            0x7112     # HSM_KEY_TYPE_ECC_KEY_PAIR_SECP_R1_NIST_224
 BIT_KEY_SZ          224       # HSM_KEY_SIZE_ECC_KEY_PAIR_SECP_R1_NIST_224
 FLAGS               0          #
-KEY_GROUP           81         # Key Group b/w 0-1023
+KEY_GROUP           81         # Key Group
 KEY_LIFETIME        0x00000100 # HSM_SE_KEY_STORAGE_VOLATILE
 KEY_LIFECYCLE       0x02       # 0x02 indicates set to Closed Device Lifecycle
 KEY_USAGE           0x00003000 # HSM_KEY_USAGE_SIGN_HASH | HSM_KEY_USAGE_VERIFY_HASH
@@ -7311,7 +7311,7 @@ OUT_SIZE            56        # Public Key Out Size
 KEY_TYPE            0x7112     # HSM_KEY_TYPE_ECC_KEY_PAIR_SECP_R1_NIST_224
 BIT_KEY_SZ          224       # HSM_KEY_SIZE_ECC_KEY_PAIR_SECP_R1_NIST_224
 FLAGS               0          #
-KEY_GROUP           81         # Key Group b/w 0-1023
+KEY_GROUP           81         # Key Group
 KEY_LIFETIME        0x00000100 # HSM_SE_KEY_STORAGE_VOLATILE
 KEY_LIFECYCLE       0x04       # 0x04 indicates set to Closed and locked Device Lifecycle
 KEY_USAGE           0x00003000 # HSM_KEY_USAGE_SIGN_HASH | HSM_KEY_USAGE_VERIFY_HASH
@@ -7351,7 +7351,7 @@ OUT_SIZE            56        # Public Key Out Size
 KEY_TYPE            0x7112     # HSM_KEY_TYPE_ECC_KEY_PAIR_SECP_R1_NIST_224
 BIT_KEY_SZ          224       # HSM_KEY_SIZE_ECC_KEY_PAIR_SECP_R1_NIST_224
 FLAGS               0          #
-KEY_GROUP           81         # Key Group b/w 0-1023
+KEY_GROUP           81         # Key Group
 KEY_LIFETIME        0x00000100 # HSM_SE_KEY_STORAGE_VOLATILE
 KEY_LIFECYCLE       0x0       # 0x0 indicates set to Current lifecycle (0x0) Device Lifecycle
 KEY_USAGE           0x00003000 # HSM_KEY_USAGE_SIGN_HASH | HSM_KEY_USAGE_VERIFY_HASH
@@ -7391,7 +7391,7 @@ OUT_SIZE            64        # Public Key Out Size
 KEY_TYPE            0x7112     # HSM_KEY_TYPE_ECC_KEY_PAIR_SECP_R1_NIST_256
 BIT_KEY_SZ          256       # HSM_KEY_SIZE_ECC_KEY_PAIR_SECP_R1_NIST_256
 FLAGS               0          #
-KEY_GROUP           81         # Key Group b/w 0-1023
+KEY_GROUP           81         # Key Group
 KEY_LIFETIME        0x00000100 # HSM_SE_KEY_STORAGE_VOLATILE
 KEY_LIFECYCLE       0x01       # 0x01 indicates set to Open Device Lifecycle
 KEY_USAGE           0x00003000 # HSM_KEY_USAGE_SIGN_HASH | HSM_KEY_USAGE_VERIFY_HASH
@@ -7431,7 +7431,7 @@ OUT_SIZE            64        # Public Key Out Size
 KEY_TYPE            0x7112     # HSM_KEY_TYPE_ECC_KEY_PAIR_SECP_R1_NIST_256
 BIT_KEY_SZ          256       # HSM_KEY_SIZE_ECC_KEY_PAIR_SECP_R1_NIST_256
 FLAGS               0          #
-KEY_GROUP           81         # Key Group b/w 0-1023
+KEY_GROUP           81         # Key Group
 KEY_LIFETIME        0x00000100 # HSM_SE_KEY_STORAGE_VOLATILE
 KEY_LIFECYCLE       0x02       # 0x02 indicates set to Closed Device Lifecycle
 KEY_USAGE           0x00003000 # HSM_KEY_USAGE_SIGN_HASH | HSM_KEY_USAGE_VERIFY_HASH
@@ -7471,7 +7471,7 @@ OUT_SIZE            64        # Public Key Out Size
 KEY_TYPE            0x7112     # HSM_KEY_TYPE_ECC_KEY_PAIR_SECP_R1_NIST_256
 BIT_KEY_SZ          256       # HSM_KEY_SIZE_ECC_KEY_PAIR_SECP_R1_NIST_256
 FLAGS               0          #
-KEY_GROUP           81         # Key Group b/w 0-1023
+KEY_GROUP           81         # Key Group
 KEY_LIFETIME        0x00000100 # HSM_SE_KEY_STORAGE_VOLATILE
 KEY_LIFECYCLE       0x04       # 0x04 indicates set to Closed and locked Device Lifecycle
 KEY_USAGE           0x00003000 # HSM_KEY_USAGE_SIGN_HASH | HSM_KEY_USAGE_VERIFY_HASH
@@ -7511,7 +7511,7 @@ OUT_SIZE            64        # Public Key Out Size
 KEY_TYPE            0x7112     # HSM_KEY_TYPE_ECC_KEY_PAIR_SECP_R1_NIST_256
 BIT_KEY_SZ          256       # HSM_KEY_SIZE_ECC_KEY_PAIR_SECP_R1_NIST_256
 FLAGS               0          #
-KEY_GROUP           81         # Key Group b/w 0-1023
+KEY_GROUP           81         # Key Group
 KEY_LIFETIME        0x00000100 # HSM_SE_KEY_STORAGE_VOLATILE
 KEY_LIFECYCLE       0x0       # 0x0 indicates set to Current lifecycle (0x0) Device Lifecycle
 KEY_USAGE           0x00003000 # HSM_KEY_USAGE_SIGN_HASH | HSM_KEY_USAGE_VERIFY_HASH
@@ -7551,7 +7551,7 @@ OUT_SIZE            64        # Public Key Out Size
 KEY_TYPE            0x7112     # HSM_KEY_TYPE_ECC_KEY_PAIR_SECP_R1_NIST_256
 BIT_KEY_SZ          256       # HSM_KEY_SIZE_ECC_KEY_PAIR_SECP_R1_NIST_256
 FLAGS               0          #
-KEY_GROUP           81         # Key Group b/w 0-1023
+KEY_GROUP           81         # Key Group
 KEY_LIFETIME        0x00000100 # HSM_SE_KEY_STORAGE_VOLATILE
 KEY_LIFECYCLE       0x01       # 0x01 indicates set to Open Device Lifecycle
 KEY_USAGE           0x00004000 # HSM_KEY_USAGE_DERIVE
@@ -7591,7 +7591,7 @@ OUT_SIZE            64        # Public Key Out Size
 KEY_TYPE            0x7112     # HSM_KEY_TYPE_ECC_KEY_PAIR_SECP_R1_NIST_256
 BIT_KEY_SZ          256       # HSM_KEY_SIZE_ECC_KEY_PAIR_SECP_R1_NIST_256
 FLAGS               0          #
-KEY_GROUP           81         # Key Group b/w 0-1023
+KEY_GROUP           81         # Key Group
 KEY_LIFETIME        0x00000100 # HSM_SE_KEY_STORAGE_VOLATILE
 KEY_LIFECYCLE       0x02       # 0x02 indicates set to Closed Device Lifecycle
 KEY_USAGE           0x00004000 # HSM_KEY_USAGE_DERIVE
@@ -7631,7 +7631,7 @@ OUT_SIZE            64        # Public Key Out Size
 KEY_TYPE            0x7112     # HSM_KEY_TYPE_ECC_KEY_PAIR_SECP_R1_NIST_256
 BIT_KEY_SZ          256       # HSM_KEY_SIZE_ECC_KEY_PAIR_SECP_R1_NIST_256
 FLAGS               0          #
-KEY_GROUP           81         # Key Group b/w 0-1023
+KEY_GROUP           81         # Key Group
 KEY_LIFETIME        0x00000100 # HSM_SE_KEY_STORAGE_VOLATILE
 KEY_LIFECYCLE       0x04       # 0x04 indicates set to Closed and locked Device Lifecycle
 KEY_USAGE           0x00004000 # HSM_KEY_USAGE_DERIVE
@@ -7671,7 +7671,7 @@ OUT_SIZE            64        # Public Key Out Size
 KEY_TYPE            0x7112     # HSM_KEY_TYPE_ECC_KEY_PAIR_SECP_R1_NIST_256
 BIT_KEY_SZ          256       # HSM_KEY_SIZE_ECC_KEY_PAIR_SECP_R1_NIST_256
 FLAGS               0          #
-KEY_GROUP           81         # Key Group b/w 0-1023
+KEY_GROUP           81         # Key Group
 KEY_LIFETIME        0x00000100 # HSM_SE_KEY_STORAGE_VOLATILE
 KEY_LIFECYCLE       0x0       # 0x0 indicates set to Current lifecycle (0x0) Device Lifecycle
 KEY_USAGE           0x00004000 # HSM_KEY_USAGE_DERIVE
@@ -7711,7 +7711,7 @@ OUT_SIZE            64        # Public Key Out Size
 KEY_TYPE            0x7112     # HSM_KEY_TYPE_ECC_KEY_PAIR_SECP_R1_NIST_256
 BIT_KEY_SZ          256       # HSM_KEY_SIZE_ECC_KEY_PAIR_SECP_R1_NIST_256
 FLAGS               0          #
-KEY_GROUP           81         # Key Group b/w 0-1023
+KEY_GROUP           81         # Key Group
 KEY_LIFETIME        0x00000100 # HSM_SE_KEY_STORAGE_VOLATILE
 KEY_LIFECYCLE       0x01       # 0x01 indicates set to Open Device Lifecycle
 KEY_USAGE           0x00004000 # HSM_KEY_USAGE_DERIVE
@@ -7751,7 +7751,7 @@ OUT_SIZE            64        # Public Key Out Size
 KEY_TYPE            0x7112     # HSM_KEY_TYPE_ECC_KEY_PAIR_SECP_R1_NIST_256
 BIT_KEY_SZ          256       # HSM_KEY_SIZE_ECC_KEY_PAIR_SECP_R1_NIST_256
 FLAGS               0          #
-KEY_GROUP           81         # Key Group b/w 0-1023
+KEY_GROUP           81         # Key Group
 KEY_LIFETIME        0x00000100 # HSM_SE_KEY_STORAGE_VOLATILE
 KEY_LIFECYCLE       0x02       # 0x02 indicates set to Closed Device Lifecycle
 KEY_USAGE           0x00004000 # HSM_KEY_USAGE_DERIVE
@@ -7791,7 +7791,7 @@ OUT_SIZE            64        # Public Key Out Size
 KEY_TYPE            0x7112     # HSM_KEY_TYPE_ECC_KEY_PAIR_SECP_R1_NIST_256
 BIT_KEY_SZ          256       # HSM_KEY_SIZE_ECC_KEY_PAIR_SECP_R1_NIST_256
 FLAGS               0          #
-KEY_GROUP           81         # Key Group b/w 0-1023
+KEY_GROUP           81         # Key Group
 KEY_LIFETIME        0x00000100 # HSM_SE_KEY_STORAGE_VOLATILE
 KEY_LIFECYCLE       0x04       # 0x04 indicates set to Closed and locked Device Lifecycle
 KEY_USAGE           0x00004000 # HSM_KEY_USAGE_DERIVE
@@ -7831,7 +7831,7 @@ OUT_SIZE            64        # Public Key Out Size
 KEY_TYPE            0x7112     # HSM_KEY_TYPE_ECC_KEY_PAIR_SECP_R1_NIST_256
 BIT_KEY_SZ          256       # HSM_KEY_SIZE_ECC_KEY_PAIR_SECP_R1_NIST_256
 FLAGS               0          #
-KEY_GROUP           81         # Key Group b/w 0-1023
+KEY_GROUP           81         # Key Group
 KEY_LIFETIME        0x00000100 # HSM_SE_KEY_STORAGE_VOLATILE
 KEY_LIFECYCLE       0x0       # 0x0 indicates set to Current lifecycle (0x0) Device Lifecycle
 KEY_USAGE           0x00004000 # HSM_KEY_USAGE_DERIVE
@@ -7871,7 +7871,7 @@ OUT_SIZE            96        # Public Key Out Size
 KEY_TYPE            0x7112     # HSM_KEY_TYPE_ECC_KEY_PAIR_SECP_R1_NIST_384
 BIT_KEY_SZ          384       # HSM_KEY_SIZE_ECC_KEY_PAIR_SECP_R1_NIST_384
 FLAGS               0          #
-KEY_GROUP           81         # Key Group b/w 0-1023
+KEY_GROUP           81         # Key Group
 KEY_LIFETIME        0x00000100 # HSM_SE_KEY_STORAGE_VOLATILE
 KEY_LIFECYCLE       0x01       # 0x01 indicates set to Open Device Lifecycle
 KEY_USAGE           0x00003000 # HSM_KEY_USAGE_SIGN_HASH | HSM_KEY_USAGE_VERIFY_HASH
@@ -7911,7 +7911,7 @@ OUT_SIZE            96        # Public Key Out Size
 KEY_TYPE            0x7112     # HSM_KEY_TYPE_ECC_KEY_PAIR_SECP_R1_NIST_384
 BIT_KEY_SZ          384       # HSM_KEY_SIZE_ECC_KEY_PAIR_SECP_R1_NIST_384
 FLAGS               0          #
-KEY_GROUP           81         # Key Group b/w 0-1023
+KEY_GROUP           81         # Key Group
 KEY_LIFETIME        0x00000100 # HSM_SE_KEY_STORAGE_VOLATILE
 KEY_LIFECYCLE       0x02       # 0x02 indicates set to Closed Device Lifecycle
 KEY_USAGE           0x00003000 # HSM_KEY_USAGE_SIGN_HASH | HSM_KEY_USAGE_VERIFY_HASH
@@ -7951,7 +7951,7 @@ OUT_SIZE            96        # Public Key Out Size
 KEY_TYPE            0x7112     # HSM_KEY_TYPE_ECC_KEY_PAIR_SECP_R1_NIST_384
 BIT_KEY_SZ          384       # HSM_KEY_SIZE_ECC_KEY_PAIR_SECP_R1_NIST_384
 FLAGS               0          #
-KEY_GROUP           81         # Key Group b/w 0-1023
+KEY_GROUP           81         # Key Group
 KEY_LIFETIME        0x00000100 # HSM_SE_KEY_STORAGE_VOLATILE
 KEY_LIFECYCLE       0x04       # 0x04 indicates set to Closed and locked Device Lifecycle
 KEY_USAGE           0x00003000 # HSM_KEY_USAGE_SIGN_HASH | HSM_KEY_USAGE_VERIFY_HASH
@@ -7991,7 +7991,7 @@ OUT_SIZE            96        # Public Key Out Size
 KEY_TYPE            0x7112     # HSM_KEY_TYPE_ECC_KEY_PAIR_SECP_R1_NIST_384
 BIT_KEY_SZ          384       # HSM_KEY_SIZE_ECC_KEY_PAIR_SECP_R1_NIST_384
 FLAGS               0          #
-KEY_GROUP           81         # Key Group b/w 0-1023
+KEY_GROUP           81         # Key Group
 KEY_LIFETIME        0x00000100 # HSM_SE_KEY_STORAGE_VOLATILE
 KEY_LIFECYCLE       0x0       # 0x0 indicates set to Current lifecycle (0x0) Device Lifecycle
 KEY_USAGE           0x00003000 # HSM_KEY_USAGE_SIGN_HASH | HSM_KEY_USAGE_VERIFY_HASH
@@ -8031,7 +8031,7 @@ OUT_SIZE            96        # Public Key Out Size
 KEY_TYPE            0x7112     # HSM_KEY_TYPE_ECC_KEY_PAIR_SECP_R1_NIST_384
 BIT_KEY_SZ          384       # HSM_KEY_SIZE_ECC_KEY_PAIR_SECP_R1_NIST_384
 FLAGS               0          #
-KEY_GROUP           81         # Key Group b/w 0-1023
+KEY_GROUP           81         # Key Group
 KEY_LIFETIME        0x00000100 # HSM_SE_KEY_STORAGE_VOLATILE
 KEY_LIFECYCLE       0x01       # 0x01 indicates set to Open Device Lifecycle
 KEY_USAGE           0x00004000 # HSM_KEY_USAGE_DERIVE
@@ -8071,7 +8071,7 @@ OUT_SIZE            96        # Public Key Out Size
 KEY_TYPE            0x7112     # HSM_KEY_TYPE_ECC_KEY_PAIR_SECP_R1_NIST_384
 BIT_KEY_SZ          384       # HSM_KEY_SIZE_ECC_KEY_PAIR_SECP_R1_NIST_384
 FLAGS               0          #
-KEY_GROUP           81         # Key Group b/w 0-1023
+KEY_GROUP           81         # Key Group
 KEY_LIFETIME        0x00000100 # HSM_SE_KEY_STORAGE_VOLATILE
 KEY_LIFECYCLE       0x02       # 0x02 indicates set to Closed Device Lifecycle
 KEY_USAGE           0x00004000 # HSM_KEY_USAGE_DERIVE
@@ -8111,7 +8111,7 @@ OUT_SIZE            96        # Public Key Out Size
 KEY_TYPE            0x7112     # HSM_KEY_TYPE_ECC_KEY_PAIR_SECP_R1_NIST_384
 BIT_KEY_SZ          384       # HSM_KEY_SIZE_ECC_KEY_PAIR_SECP_R1_NIST_384
 FLAGS               0          #
-KEY_GROUP           81         # Key Group b/w 0-1023
+KEY_GROUP           81         # Key Group
 KEY_LIFETIME        0x00000100 # HSM_SE_KEY_STORAGE_VOLATILE
 KEY_LIFECYCLE       0x04       # 0x04 indicates set to Closed and locked Device Lifecycle
 KEY_USAGE           0x00004000 # HSM_KEY_USAGE_DERIVE
@@ -8151,7 +8151,7 @@ OUT_SIZE            96        # Public Key Out Size
 KEY_TYPE            0x7112     # HSM_KEY_TYPE_ECC_KEY_PAIR_SECP_R1_NIST_384
 BIT_KEY_SZ          384       # HSM_KEY_SIZE_ECC_KEY_PAIR_SECP_R1_NIST_384
 FLAGS               0          #
-KEY_GROUP           81         # Key Group b/w 0-1023
+KEY_GROUP           81         # Key Group
 KEY_LIFETIME        0x00000100 # HSM_SE_KEY_STORAGE_VOLATILE
 KEY_LIFECYCLE       0x0       # 0x0 indicates set to Current lifecycle (0x0) Device Lifecycle
 KEY_USAGE           0x00004000 # HSM_KEY_USAGE_DERIVE
@@ -8191,7 +8191,7 @@ OUT_SIZE            96        # Public Key Out Size
 KEY_TYPE            0x7112     # HSM_KEY_TYPE_ECC_KEY_PAIR_SECP_R1_NIST_384
 BIT_KEY_SZ          384       # HSM_KEY_SIZE_ECC_KEY_PAIR_SECP_R1_NIST_384
 FLAGS               0          #
-KEY_GROUP           81         # Key Group b/w 0-1023
+KEY_GROUP           81         # Key Group
 KEY_LIFETIME        0x00000100 # HSM_SE_KEY_STORAGE_VOLATILE
 KEY_LIFECYCLE       0x01       # 0x01 indicates set to Open Device Lifecycle
 KEY_USAGE           0x00004000 # HSM_KEY_USAGE_DERIVE
@@ -8231,7 +8231,7 @@ OUT_SIZE            96        # Public Key Out Size
 KEY_TYPE            0x7112     # HSM_KEY_TYPE_ECC_KEY_PAIR_SECP_R1_NIST_384
 BIT_KEY_SZ          384       # HSM_KEY_SIZE_ECC_KEY_PAIR_SECP_R1_NIST_384
 FLAGS               0          #
-KEY_GROUP           81         # Key Group b/w 0-1023
+KEY_GROUP           81         # Key Group
 KEY_LIFETIME        0x00000100 # HSM_SE_KEY_STORAGE_VOLATILE
 KEY_LIFECYCLE       0x02       # 0x02 indicates set to Closed Device Lifecycle
 KEY_USAGE           0x00004000 # HSM_KEY_USAGE_DERIVE
@@ -8271,7 +8271,7 @@ OUT_SIZE            96        # Public Key Out Size
 KEY_TYPE            0x7112     # HSM_KEY_TYPE_ECC_KEY_PAIR_SECP_R1_NIST_384
 BIT_KEY_SZ          384       # HSM_KEY_SIZE_ECC_KEY_PAIR_SECP_R1_NIST_384
 FLAGS               0          #
-KEY_GROUP           81         # Key Group b/w 0-1023
+KEY_GROUP           81         # Key Group
 KEY_LIFETIME        0x00000100 # HSM_SE_KEY_STORAGE_VOLATILE
 KEY_LIFECYCLE       0x04       # 0x04 indicates set to Closed and locked Device Lifecycle
 KEY_USAGE           0x00004000 # HSM_KEY_USAGE_DERIVE
@@ -8311,7 +8311,7 @@ OUT_SIZE            96        # Public Key Out Size
 KEY_TYPE            0x7112     # HSM_KEY_TYPE_ECC_KEY_PAIR_SECP_R1_NIST_384
 BIT_KEY_SZ          384       # HSM_KEY_SIZE_ECC_KEY_PAIR_SECP_R1_NIST_384
 FLAGS               0          #
-KEY_GROUP           81         # Key Group b/w 0-1023
+KEY_GROUP           81         # Key Group
 KEY_LIFETIME        0x00000100 # HSM_SE_KEY_STORAGE_VOLATILE
 KEY_LIFECYCLE       0x0       # 0x0 indicates set to Current lifecycle (0x0) Device Lifecycle
 KEY_USAGE           0x00004000 # HSM_KEY_USAGE_DERIVE
@@ -8351,7 +8351,7 @@ OUT_SIZE            132        # Public Key Out Size
 KEY_TYPE            0x7112     # HSM_KEY_TYPE_ECC_KEY_PAIR_SECP_R1_NIST_521
 BIT_KEY_SZ          521       # HSM_KEY_SIZE_ECC_KEY_PAIR_SECP_R1_NIST_521
 FLAGS               0          #
-KEY_GROUP           81         # Key Group b/w 0-1023
+KEY_GROUP           81         # Key Group
 KEY_LIFETIME        0x00000100 # HSM_SE_KEY_STORAGE_VOLATILE
 KEY_LIFECYCLE       0x01       # 0x01 indicates set to Open Device Lifecycle
 KEY_USAGE           0x00003000 # HSM_KEY_USAGE_SIGN_HASH | HSM_KEY_USAGE_VERIFY_HASH
@@ -8391,7 +8391,7 @@ OUT_SIZE            132        # Public Key Out Size
 KEY_TYPE            0x7112     # HSM_KEY_TYPE_ECC_KEY_PAIR_SECP_R1_NIST_521
 BIT_KEY_SZ          521       # HSM_KEY_SIZE_ECC_KEY_PAIR_SECP_R1_NIST_521
 FLAGS               0          #
-KEY_GROUP           81         # Key Group b/w 0-1023
+KEY_GROUP           81         # Key Group
 KEY_LIFETIME        0x00000100 # HSM_SE_KEY_STORAGE_VOLATILE
 KEY_LIFECYCLE       0x02       # 0x02 indicates set to Closed Device Lifecycle
 KEY_USAGE           0x00003000 # HSM_KEY_USAGE_SIGN_HASH | HSM_KEY_USAGE_VERIFY_HASH
@@ -8431,7 +8431,7 @@ OUT_SIZE            132        # Public Key Out Size
 KEY_TYPE            0x7112     # HSM_KEY_TYPE_ECC_KEY_PAIR_SECP_R1_NIST_521
 BIT_KEY_SZ          521       # HSM_KEY_SIZE_ECC_KEY_PAIR_SECP_R1_NIST_521
 FLAGS               0          #
-KEY_GROUP           81         # Key Group b/w 0-1023
+KEY_GROUP           81         # Key Group
 KEY_LIFETIME        0x00000100 # HSM_SE_KEY_STORAGE_VOLATILE
 KEY_LIFECYCLE       0x04       # 0x04 indicates set to Closed and locked Device Lifecycle
 KEY_USAGE           0x00003000 # HSM_KEY_USAGE_SIGN_HASH | HSM_KEY_USAGE_VERIFY_HASH
@@ -8471,7 +8471,7 @@ OUT_SIZE            132        # Public Key Out Size
 KEY_TYPE            0x7112     # HSM_KEY_TYPE_ECC_KEY_PAIR_SECP_R1_NIST_521
 BIT_KEY_SZ          521       # HSM_KEY_SIZE_ECC_KEY_PAIR_SECP_R1_NIST_521
 FLAGS               0          #
-KEY_GROUP           81         # Key Group b/w 0-1023
+KEY_GROUP           81         # Key Group
 KEY_LIFETIME        0x00000100 # HSM_SE_KEY_STORAGE_VOLATILE
 KEY_LIFECYCLE       0x0       # 0x0 indicates set to Current lifecycle (0x0) Device Lifecycle
 KEY_USAGE           0x00003000 # HSM_KEY_USAGE_SIGN_HASH | HSM_KEY_USAGE_VERIFY_HASH
@@ -8511,7 +8511,7 @@ OUT_SIZE            256        # Public Key Out Size
 KEY_TYPE            0x7001     # HSM_KEY_TYPE_RSA_2048
 BIT_KEY_SZ          2048       # HSM_KEY_SIZE_RSA_2048
 FLAGS               0          #
-KEY_GROUP           81         # Key Group b/w 0-1023
+KEY_GROUP           81         # Key Group
 KEY_LIFETIME        0x00000100 # HSM_SE_KEY_STORAGE_VOLATILE
 KEY_LIFECYCLE       0x01       # 0x01 indicates set to Open Device Lifecycle
 KEY_USAGE           0x00003000 # HSM_KEY_USAGE_SIGN_HASH | HSM_KEY_USAGE_VERIFY_HASH
@@ -8551,7 +8551,7 @@ OUT_SIZE            256        # Public Key Out Size
 KEY_TYPE            0x7001     # HSM_KEY_TYPE_RSA_2048
 BIT_KEY_SZ          2048       # HSM_KEY_SIZE_RSA_2048
 FLAGS               0          #
-KEY_GROUP           81         # Key Group b/w 0-1023
+KEY_GROUP           81         # Key Group
 KEY_LIFETIME        0x00000100 # HSM_SE_KEY_STORAGE_VOLATILE
 KEY_LIFECYCLE       0x02       # 0x02 indicates set to Closed Device Lifecycle
 KEY_USAGE           0x00003000 # HSM_KEY_USAGE_SIGN_HASH | HSM_KEY_USAGE_VERIFY_HASH
@@ -8591,7 +8591,7 @@ OUT_SIZE            256        # Public Key Out Size
 KEY_TYPE            0x7001     # HSM_KEY_TYPE_RSA_2048
 BIT_KEY_SZ          2048       # HSM_KEY_SIZE_RSA_2048
 FLAGS               0          #
-KEY_GROUP           81         # Key Group b/w 0-1023
+KEY_GROUP           81         # Key Group
 KEY_LIFETIME        0x00000100 # HSM_SE_KEY_STORAGE_VOLATILE
 KEY_LIFECYCLE       0x04       # 0x04 indicates set to Closed and locked Device Lifecycle
 KEY_USAGE           0x00003000 # HSM_KEY_USAGE_SIGN_HASH | HSM_KEY_USAGE_VERIFY_HASH
@@ -8631,7 +8631,7 @@ OUT_SIZE            256        # Public Key Out Size
 KEY_TYPE            0x7001     # HSM_KEY_TYPE_RSA_2048
 BIT_KEY_SZ          2048       # HSM_KEY_SIZE_RSA_2048
 FLAGS               0          #
-KEY_GROUP           81         # Key Group b/w 0-1023
+KEY_GROUP           81         # Key Group
 KEY_LIFETIME        0x00000100 # HSM_SE_KEY_STORAGE_VOLATILE
 KEY_LIFECYCLE       0x0       # 0x0 indicates set to Current lifecycle (0x0) Device Lifecycle
 KEY_USAGE           0x00003000 # HSM_KEY_USAGE_SIGN_HASH | HSM_KEY_USAGE_VERIFY_HASH
@@ -8671,7 +8671,7 @@ OUT_SIZE            256        # Public Key Out Size
 KEY_TYPE            0x7001     # HSM_KEY_TYPE_RSA_2048
 BIT_KEY_SZ          2048       # HSM_KEY_SIZE_RSA_2048
 FLAGS               0          #
-KEY_GROUP           81         # Key Group b/w 0-1023
+KEY_GROUP           81         # Key Group
 KEY_LIFETIME        0x00000100 # HSM_SE_KEY_STORAGE_VOLATILE
 KEY_LIFECYCLE       0x01       # 0x01 indicates set to Open Device Lifecycle
 KEY_USAGE           0x00003000 # HSM_KEY_USAGE_SIGN_HASH | HSM_KEY_USAGE_VERIFY_HASH
@@ -8711,7 +8711,7 @@ OUT_SIZE            256        # Public Key Out Size
 KEY_TYPE            0x7001     # HSM_KEY_TYPE_RSA_2048
 BIT_KEY_SZ          2048       # HSM_KEY_SIZE_RSA_2048
 FLAGS               0          #
-KEY_GROUP           81         # Key Group b/w 0-1023
+KEY_GROUP           81         # Key Group
 KEY_LIFETIME        0x00000100 # HSM_SE_KEY_STORAGE_VOLATILE
 KEY_LIFECYCLE       0x02       # 0x02 indicates set to Closed Device Lifecycle
 KEY_USAGE           0x00003000 # HSM_KEY_USAGE_SIGN_HASH | HSM_KEY_USAGE_VERIFY_HASH
@@ -8751,7 +8751,7 @@ OUT_SIZE            256        # Public Key Out Size
 KEY_TYPE            0x7001     # HSM_KEY_TYPE_RSA_2048
 BIT_KEY_SZ          2048       # HSM_KEY_SIZE_RSA_2048
 FLAGS               0          #
-KEY_GROUP           81         # Key Group b/w 0-1023
+KEY_GROUP           81         # Key Group
 KEY_LIFETIME        0x00000100 # HSM_SE_KEY_STORAGE_VOLATILE
 KEY_LIFECYCLE       0x04       # 0x04 indicates set to Closed and locked Device Lifecycle
 KEY_USAGE           0x00003000 # HSM_KEY_USAGE_SIGN_HASH | HSM_KEY_USAGE_VERIFY_HASH
@@ -8791,7 +8791,7 @@ OUT_SIZE            256        # Public Key Out Size
 KEY_TYPE            0x7001     # HSM_KEY_TYPE_RSA_2048
 BIT_KEY_SZ          2048       # HSM_KEY_SIZE_RSA_2048
 FLAGS               0          #
-KEY_GROUP           81         # Key Group b/w 0-1023
+KEY_GROUP           81         # Key Group
 KEY_LIFETIME        0x00000100 # HSM_SE_KEY_STORAGE_VOLATILE
 KEY_LIFECYCLE       0x0       # 0x0 indicates set to Current lifecycle (0x0) Device Lifecycle
 KEY_USAGE           0x00003000 # HSM_KEY_USAGE_SIGN_HASH | HSM_KEY_USAGE_VERIFY_HASH
@@ -8831,7 +8831,7 @@ OUT_SIZE            256        # Public Key Out Size
 KEY_TYPE            0x7001     # HSM_KEY_TYPE_RSA_2048
 BIT_KEY_SZ          2048       # HSM_KEY_SIZE_RSA_2048
 FLAGS               0          #
-KEY_GROUP           81         # Key Group b/w 0-1023
+KEY_GROUP           81         # Key Group
 KEY_LIFETIME        0x00000100 # HSM_SE_KEY_STORAGE_VOLATILE
 KEY_LIFECYCLE       0x01       # 0x01 indicates set to Open Device Lifecycle
 KEY_USAGE           0x00003000 # HSM_KEY_USAGE_SIGN_HASH | HSM_KEY_USAGE_VERIFY_HASH
@@ -8871,7 +8871,7 @@ OUT_SIZE            256        # Public Key Out Size
 KEY_TYPE            0x7001     # HSM_KEY_TYPE_RSA_2048
 BIT_KEY_SZ          2048       # HSM_KEY_SIZE_RSA_2048
 FLAGS               0          #
-KEY_GROUP           81         # Key Group b/w 0-1023
+KEY_GROUP           81         # Key Group
 KEY_LIFETIME        0x00000100 # HSM_SE_KEY_STORAGE_VOLATILE
 KEY_LIFECYCLE       0x02       # 0x02 indicates set to Closed Device Lifecycle
 KEY_USAGE           0x00003000 # HSM_KEY_USAGE_SIGN_HASH | HSM_KEY_USAGE_VERIFY_HASH
@@ -8911,7 +8911,7 @@ OUT_SIZE            256        # Public Key Out Size
 KEY_TYPE            0x7001     # HSM_KEY_TYPE_RSA_2048
 BIT_KEY_SZ          2048       # HSM_KEY_SIZE_RSA_2048
 FLAGS               0          #
-KEY_GROUP           81         # Key Group b/w 0-1023
+KEY_GROUP           81         # Key Group
 KEY_LIFETIME        0x00000100 # HSM_SE_KEY_STORAGE_VOLATILE
 KEY_LIFECYCLE       0x04       # 0x04 indicates set to Closed and locked Device Lifecycle
 KEY_USAGE           0x00003000 # HSM_KEY_USAGE_SIGN_HASH | HSM_KEY_USAGE_VERIFY_HASH
@@ -8951,7 +8951,7 @@ OUT_SIZE            256        # Public Key Out Size
 KEY_TYPE            0x7001     # HSM_KEY_TYPE_RSA_2048
 BIT_KEY_SZ          2048       # HSM_KEY_SIZE_RSA_2048
 FLAGS               0          #
-KEY_GROUP           81         # Key Group b/w 0-1023
+KEY_GROUP           81         # Key Group
 KEY_LIFETIME        0x00000100 # HSM_SE_KEY_STORAGE_VOLATILE
 KEY_LIFECYCLE       0x0       # 0x0 indicates set to Current lifecycle (0x0) Device Lifecycle
 KEY_USAGE           0x00003000 # HSM_KEY_USAGE_SIGN_HASH | HSM_KEY_USAGE_VERIFY_HASH
@@ -8991,7 +8991,7 @@ OUT_SIZE            256        # Public Key Out Size
 KEY_TYPE            0x7001     # HSM_KEY_TYPE_RSA_2048
 BIT_KEY_SZ          2048       # HSM_KEY_SIZE_RSA_2048
 FLAGS               0          #
-KEY_GROUP           81         # Key Group b/w 0-1023
+KEY_GROUP           81         # Key Group
 KEY_LIFETIME        0x00000100 # HSM_SE_KEY_STORAGE_VOLATILE
 KEY_LIFECYCLE       0x01       # 0x01 indicates set to Open Device Lifecycle
 KEY_USAGE           0x00003000 # HSM_KEY_USAGE_SIGN_HASH | HSM_KEY_USAGE_VERIFY_HASH
@@ -9031,7 +9031,7 @@ OUT_SIZE            256        # Public Key Out Size
 KEY_TYPE            0x7001     # HSM_KEY_TYPE_RSA_2048
 BIT_KEY_SZ          2048       # HSM_KEY_SIZE_RSA_2048
 FLAGS               0          #
-KEY_GROUP           81         # Key Group b/w 0-1023
+KEY_GROUP           81         # Key Group
 KEY_LIFETIME        0x00000100 # HSM_SE_KEY_STORAGE_VOLATILE
 KEY_LIFECYCLE       0x02       # 0x02 indicates set to Closed Device Lifecycle
 KEY_USAGE           0x00003000 # HSM_KEY_USAGE_SIGN_HASH | HSM_KEY_USAGE_VERIFY_HASH
@@ -9071,7 +9071,7 @@ OUT_SIZE            256        # Public Key Out Size
 KEY_TYPE            0x7001     # HSM_KEY_TYPE_RSA_2048
 BIT_KEY_SZ          2048       # HSM_KEY_SIZE_RSA_2048
 FLAGS               0          #
-KEY_GROUP           81         # Key Group b/w 0-1023
+KEY_GROUP           81         # Key Group
 KEY_LIFETIME        0x00000100 # HSM_SE_KEY_STORAGE_VOLATILE
 KEY_LIFECYCLE       0x04       # 0x04 indicates set to Closed and locked Device Lifecycle
 KEY_USAGE           0x00003000 # HSM_KEY_USAGE_SIGN_HASH | HSM_KEY_USAGE_VERIFY_HASH
@@ -9111,7 +9111,7 @@ OUT_SIZE            256        # Public Key Out Size
 KEY_TYPE            0x7001     # HSM_KEY_TYPE_RSA_2048
 BIT_KEY_SZ          2048       # HSM_KEY_SIZE_RSA_2048
 FLAGS               0          #
-KEY_GROUP           81         # Key Group b/w 0-1023
+KEY_GROUP           81         # Key Group
 KEY_LIFETIME        0x00000100 # HSM_SE_KEY_STORAGE_VOLATILE
 KEY_LIFECYCLE       0x0       # 0x0 indicates set to Current lifecycle (0x0) Device Lifecycle
 KEY_USAGE           0x00003000 # HSM_KEY_USAGE_SIGN_HASH | HSM_KEY_USAGE_VERIFY_HASH
@@ -9151,7 +9151,7 @@ OUT_SIZE            256        # Public Key Out Size
 KEY_TYPE            0x7001     # HSM_KEY_TYPE_RSA_2048
 BIT_KEY_SZ          2048       # HSM_KEY_SIZE_RSA_2048
 FLAGS               0          #
-KEY_GROUP           81         # Key Group b/w 0-1023
+KEY_GROUP           81         # Key Group
 KEY_LIFETIME        0x00000100 # HSM_SE_KEY_STORAGE_VOLATILE
 KEY_LIFECYCLE       0x01       # 0x01 indicates set to Open Device Lifecycle
 KEY_USAGE           0x00003000 # HSM_KEY_USAGE_SIGN_HASH | HSM_KEY_USAGE_VERIFY_HASH
@@ -9191,7 +9191,7 @@ OUT_SIZE            256        # Public Key Out Size
 KEY_TYPE            0x7001     # HSM_KEY_TYPE_RSA_2048
 BIT_KEY_SZ          2048       # HSM_KEY_SIZE_RSA_2048
 FLAGS               0          #
-KEY_GROUP           81         # Key Group b/w 0-1023
+KEY_GROUP           81         # Key Group
 KEY_LIFETIME        0x00000100 # HSM_SE_KEY_STORAGE_VOLATILE
 KEY_LIFECYCLE       0x02       # 0x02 indicates set to Closed Device Lifecycle
 KEY_USAGE           0x00003000 # HSM_KEY_USAGE_SIGN_HASH | HSM_KEY_USAGE_VERIFY_HASH
@@ -9231,7 +9231,7 @@ OUT_SIZE            256        # Public Key Out Size
 KEY_TYPE            0x7001     # HSM_KEY_TYPE_RSA_2048
 BIT_KEY_SZ          2048       # HSM_KEY_SIZE_RSA_2048
 FLAGS               0          #
-KEY_GROUP           81         # Key Group b/w 0-1023
+KEY_GROUP           81         # Key Group
 KEY_LIFETIME        0x00000100 # HSM_SE_KEY_STORAGE_VOLATILE
 KEY_LIFECYCLE       0x04       # 0x04 indicates set to Closed and locked Device Lifecycle
 KEY_USAGE           0x00003000 # HSM_KEY_USAGE_SIGN_HASH | HSM_KEY_USAGE_VERIFY_HASH
@@ -9271,7 +9271,7 @@ OUT_SIZE            256        # Public Key Out Size
 KEY_TYPE            0x7001     # HSM_KEY_TYPE_RSA_2048
 BIT_KEY_SZ          2048       # HSM_KEY_SIZE_RSA_2048
 FLAGS               0          #
-KEY_GROUP           81         # Key Group b/w 0-1023
+KEY_GROUP           81         # Key Group
 KEY_LIFETIME        0x00000100 # HSM_SE_KEY_STORAGE_VOLATILE
 KEY_LIFECYCLE       0x0       # 0x0 indicates set to Current lifecycle (0x0) Device Lifecycle
 KEY_USAGE           0x00003000 # HSM_KEY_USAGE_SIGN_HASH | HSM_KEY_USAGE_VERIFY_HASH
@@ -9311,7 +9311,7 @@ OUT_SIZE            256        # Public Key Out Size
 KEY_TYPE            0x7001     # HSM_KEY_TYPE_RSA_2048
 BIT_KEY_SZ          2048       # HSM_KEY_SIZE_RSA_2048
 FLAGS               0          #
-KEY_GROUP           81         # Key Group b/w 0-1023
+KEY_GROUP           81         # Key Group
 KEY_LIFETIME        0x00000100 # HSM_SE_KEY_STORAGE_VOLATILE
 KEY_LIFECYCLE       0x01       # 0x01 indicates set to Open Device Lifecycle
 KEY_USAGE           0x00003000 # HSM_KEY_USAGE_SIGN_HASH | HSM_KEY_USAGE_VERIFY_HASH
@@ -9351,7 +9351,7 @@ OUT_SIZE            256        # Public Key Out Size
 KEY_TYPE            0x7001     # HSM_KEY_TYPE_RSA_2048
 BIT_KEY_SZ          2048       # HSM_KEY_SIZE_RSA_2048
 FLAGS               0          #
-KEY_GROUP           81         # Key Group b/w 0-1023
+KEY_GROUP           81         # Key Group
 KEY_LIFETIME        0x00000100 # HSM_SE_KEY_STORAGE_VOLATILE
 KEY_LIFECYCLE       0x02       # 0x02 indicates set to Closed Device Lifecycle
 KEY_USAGE           0x00003000 # HSM_KEY_USAGE_SIGN_HASH | HSM_KEY_USAGE_VERIFY_HASH
@@ -9391,7 +9391,7 @@ OUT_SIZE            256        # Public Key Out Size
 KEY_TYPE            0x7001     # HSM_KEY_TYPE_RSA_2048
 BIT_KEY_SZ          2048       # HSM_KEY_SIZE_RSA_2048
 FLAGS               0          #
-KEY_GROUP           81         # Key Group b/w 0-1023
+KEY_GROUP           81         # Key Group
 KEY_LIFETIME        0x00000100 # HSM_SE_KEY_STORAGE_VOLATILE
 KEY_LIFECYCLE       0x04       # 0x04 indicates set to Closed and locked Device Lifecycle
 KEY_USAGE           0x00003000 # HSM_KEY_USAGE_SIGN_HASH | HSM_KEY_USAGE_VERIFY_HASH
@@ -9431,7 +9431,7 @@ OUT_SIZE            256        # Public Key Out Size
 KEY_TYPE            0x7001     # HSM_KEY_TYPE_RSA_2048
 BIT_KEY_SZ          2048       # HSM_KEY_SIZE_RSA_2048
 FLAGS               0          #
-KEY_GROUP           81         # Key Group b/w 0-1023
+KEY_GROUP           81         # Key Group
 KEY_LIFETIME        0x00000100 # HSM_SE_KEY_STORAGE_VOLATILE
 KEY_LIFECYCLE       0x0       # 0x0 indicates set to Current lifecycle (0x0) Device Lifecycle
 KEY_USAGE           0x00003000 # HSM_KEY_USAGE_SIGN_HASH | HSM_KEY_USAGE_VERIFY_HASH
@@ -9471,7 +9471,7 @@ OUT_SIZE            256        # Public Key Out Size
 KEY_TYPE            0x7001     # HSM_KEY_TYPE_RSA_2048
 BIT_KEY_SZ          2048       # HSM_KEY_SIZE_RSA_2048
 FLAGS               0          #
-KEY_GROUP           81         # Key Group b/w 0-1023
+KEY_GROUP           81         # Key Group
 KEY_LIFETIME        0x00000100 # HSM_SE_KEY_STORAGE_VOLATILE
 KEY_LIFECYCLE       0x01       # 0x01 indicates set to Open Device Lifecycle
 KEY_USAGE           0x00003000 # HSM_KEY_USAGE_SIGN_HASH | HSM_KEY_USAGE_VERIFY_HASH
@@ -9511,7 +9511,7 @@ OUT_SIZE            256        # Public Key Out Size
 KEY_TYPE            0x7001     # HSM_KEY_TYPE_RSA_2048
 BIT_KEY_SZ          2048       # HSM_KEY_SIZE_RSA_2048
 FLAGS               0          #
-KEY_GROUP           81         # Key Group b/w 0-1023
+KEY_GROUP           81         # Key Group
 KEY_LIFETIME        0x00000100 # HSM_SE_KEY_STORAGE_VOLATILE
 KEY_LIFECYCLE       0x02       # 0x02 indicates set to Closed Device Lifecycle
 KEY_USAGE           0x00003000 # HSM_KEY_USAGE_SIGN_HASH | HSM_KEY_USAGE_VERIFY_HASH
@@ -9551,7 +9551,7 @@ OUT_SIZE            256        # Public Key Out Size
 KEY_TYPE            0x7001     # HSM_KEY_TYPE_RSA_2048
 BIT_KEY_SZ          2048       # HSM_KEY_SIZE_RSA_2048
 FLAGS               0          #
-KEY_GROUP           81         # Key Group b/w 0-1023
+KEY_GROUP           81         # Key Group
 KEY_LIFETIME        0x00000100 # HSM_SE_KEY_STORAGE_VOLATILE
 KEY_LIFECYCLE       0x04       # 0x04 indicates set to Closed and locked Device Lifecycle
 KEY_USAGE           0x00003000 # HSM_KEY_USAGE_SIGN_HASH | HSM_KEY_USAGE_VERIFY_HASH
@@ -9591,7 +9591,7 @@ OUT_SIZE            256        # Public Key Out Size
 KEY_TYPE            0x7001     # HSM_KEY_TYPE_RSA_2048
 BIT_KEY_SZ          2048       # HSM_KEY_SIZE_RSA_2048
 FLAGS               0          #
-KEY_GROUP           81         # Key Group b/w 0-1023
+KEY_GROUP           81         # Key Group
 KEY_LIFETIME        0x00000100 # HSM_SE_KEY_STORAGE_VOLATILE
 KEY_LIFECYCLE       0x0       # 0x0 indicates set to Current lifecycle (0x0) Device Lifecycle
 KEY_USAGE           0x00003000 # HSM_KEY_USAGE_SIGN_HASH | HSM_KEY_USAGE_VERIFY_HASH
@@ -9631,7 +9631,7 @@ OUT_SIZE            256        # Public Key Out Size
 KEY_TYPE            0x7001     # HSM_KEY_TYPE_RSA_2048
 BIT_KEY_SZ          2048       # HSM_KEY_SIZE_RSA_2048
 FLAGS               0          #
-KEY_GROUP           81         # Key Group b/w 0-1023
+KEY_GROUP           81         # Key Group
 KEY_LIFETIME        0x00000100 # HSM_SE_KEY_STORAGE_VOLATILE
 KEY_LIFECYCLE       0x01       # 0x01 indicates set to Open Device Lifecycle
 KEY_USAGE           0x00003000 # HSM_KEY_USAGE_SIGN_HASH | HSM_KEY_USAGE_VERIFY_HASH
@@ -9671,7 +9671,7 @@ OUT_SIZE            256        # Public Key Out Size
 KEY_TYPE            0x7001     # HSM_KEY_TYPE_RSA_2048
 BIT_KEY_SZ          2048       # HSM_KEY_SIZE_RSA_2048
 FLAGS               0          #
-KEY_GROUP           81         # Key Group b/w 0-1023
+KEY_GROUP           81         # Key Group
 KEY_LIFETIME        0x00000100 # HSM_SE_KEY_STORAGE_VOLATILE
 KEY_LIFECYCLE       0x02       # 0x02 indicates set to Closed Device Lifecycle
 KEY_USAGE           0x00003000 # HSM_KEY_USAGE_SIGN_HASH | HSM_KEY_USAGE_VERIFY_HASH
@@ -9711,7 +9711,7 @@ OUT_SIZE            256        # Public Key Out Size
 KEY_TYPE            0x7001     # HSM_KEY_TYPE_RSA_2048
 BIT_KEY_SZ          2048       # HSM_KEY_SIZE_RSA_2048
 FLAGS               0          #
-KEY_GROUP           81         # Key Group b/w 0-1023
+KEY_GROUP           81         # Key Group
 KEY_LIFETIME        0x00000100 # HSM_SE_KEY_STORAGE_VOLATILE
 KEY_LIFECYCLE       0x04       # 0x04 indicates set to Closed and locked Device Lifecycle
 KEY_USAGE           0x00003000 # HSM_KEY_USAGE_SIGN_HASH | HSM_KEY_USAGE_VERIFY_HASH
@@ -9751,7 +9751,7 @@ OUT_SIZE            256        # Public Key Out Size
 KEY_TYPE            0x7001     # HSM_KEY_TYPE_RSA_2048
 BIT_KEY_SZ          2048       # HSM_KEY_SIZE_RSA_2048
 FLAGS               0          #
-KEY_GROUP           81         # Key Group b/w 0-1023
+KEY_GROUP           81         # Key Group
 KEY_LIFETIME        0x00000100 # HSM_SE_KEY_STORAGE_VOLATILE
 KEY_LIFECYCLE       0x0       # 0x0 indicates set to Current lifecycle (0x0) Device Lifecycle
 KEY_USAGE           0x00003000 # HSM_KEY_USAGE_SIGN_HASH | HSM_KEY_USAGE_VERIFY_HASH
@@ -9791,7 +9791,7 @@ OUT_SIZE            384        # Public Key Out Size
 KEY_TYPE            0x7001     # HSM_KEY_TYPE_RSA_3072
 BIT_KEY_SZ          3072       # HSM_KEY_SIZE_RSA_3072
 FLAGS               0          #
-KEY_GROUP           81         # Key Group b/w 0-1023
+KEY_GROUP           81         # Key Group
 KEY_LIFETIME        0x00000100 # HSM_SE_KEY_STORAGE_VOLATILE
 KEY_LIFECYCLE       0x01       # 0x01 indicates set to Open Device Lifecycle
 KEY_USAGE           0x00003000 # HSM_KEY_USAGE_SIGN_HASH | HSM_KEY_USAGE_VERIFY_HASH
@@ -9831,7 +9831,7 @@ OUT_SIZE            384        # Public Key Out Size
 KEY_TYPE            0x7001     # HSM_KEY_TYPE_RSA_3072
 BIT_KEY_SZ          3072       # HSM_KEY_SIZE_RSA_3072
 FLAGS               0          #
-KEY_GROUP           81         # Key Group b/w 0-1023
+KEY_GROUP           81         # Key Group
 KEY_LIFETIME        0x00000100 # HSM_SE_KEY_STORAGE_VOLATILE
 KEY_LIFECYCLE       0x02       # 0x02 indicates set to Closed Device Lifecycle
 KEY_USAGE           0x00003000 # HSM_KEY_USAGE_SIGN_HASH | HSM_KEY_USAGE_VERIFY_HASH
@@ -9871,7 +9871,7 @@ OUT_SIZE            384        # Public Key Out Size
 KEY_TYPE            0x7001     # HSM_KEY_TYPE_RSA_3072
 BIT_KEY_SZ          3072       # HSM_KEY_SIZE_RSA_3072
 FLAGS               0          #
-KEY_GROUP           81         # Key Group b/w 0-1023
+KEY_GROUP           81         # Key Group
 KEY_LIFETIME        0x00000100 # HSM_SE_KEY_STORAGE_VOLATILE
 KEY_LIFECYCLE       0x04       # 0x04 indicates set to Closed and locked Device Lifecycle
 KEY_USAGE           0x00003000 # HSM_KEY_USAGE_SIGN_HASH | HSM_KEY_USAGE_VERIFY_HASH
@@ -9911,7 +9911,7 @@ OUT_SIZE            384        # Public Key Out Size
 KEY_TYPE            0x7001     # HSM_KEY_TYPE_RSA_3072
 BIT_KEY_SZ          3072       # HSM_KEY_SIZE_RSA_3072
 FLAGS               0          #
-KEY_GROUP           81         # Key Group b/w 0-1023
+KEY_GROUP           81         # Key Group
 KEY_LIFETIME        0x00000100 # HSM_SE_KEY_STORAGE_VOLATILE
 KEY_LIFECYCLE       0x0       # 0x0 indicates set to Current lifecycle (0x0) Device Lifecycle
 KEY_USAGE           0x00003000 # HSM_KEY_USAGE_SIGN_HASH | HSM_KEY_USAGE_VERIFY_HASH
@@ -9951,7 +9951,7 @@ OUT_SIZE            384        # Public Key Out Size
 KEY_TYPE            0x7001     # HSM_KEY_TYPE_RSA_3072
 BIT_KEY_SZ          3072       # HSM_KEY_SIZE_RSA_3072
 FLAGS               0          #
-KEY_GROUP           81         # Key Group b/w 0-1023
+KEY_GROUP           81         # Key Group
 KEY_LIFETIME        0x00000100 # HSM_SE_KEY_STORAGE_VOLATILE
 KEY_LIFECYCLE       0x01       # 0x01 indicates set to Open Device Lifecycle
 KEY_USAGE           0x00003000 # HSM_KEY_USAGE_SIGN_HASH | HSM_KEY_USAGE_VERIFY_HASH
@@ -9991,7 +9991,7 @@ OUT_SIZE            384        # Public Key Out Size
 KEY_TYPE            0x7001     # HSM_KEY_TYPE_RSA_3072
 BIT_KEY_SZ          3072       # HSM_KEY_SIZE_RSA_3072
 FLAGS               0          #
-KEY_GROUP           81         # Key Group b/w 0-1023
+KEY_GROUP           81         # Key Group
 KEY_LIFETIME        0x00000100 # HSM_SE_KEY_STORAGE_VOLATILE
 KEY_LIFECYCLE       0x02       # 0x02 indicates set to Closed Device Lifecycle
 KEY_USAGE           0x00003000 # HSM_KEY_USAGE_SIGN_HASH | HSM_KEY_USAGE_VERIFY_HASH
@@ -10031,7 +10031,7 @@ OUT_SIZE            384        # Public Key Out Size
 KEY_TYPE            0x7001     # HSM_KEY_TYPE_RSA_3072
 BIT_KEY_SZ          3072       # HSM_KEY_SIZE_RSA_3072
 FLAGS               0          #
-KEY_GROUP           81         # Key Group b/w 0-1023
+KEY_GROUP           81         # Key Group
 KEY_LIFETIME        0x00000100 # HSM_SE_KEY_STORAGE_VOLATILE
 KEY_LIFECYCLE       0x04       # 0x04 indicates set to Closed and locked Device Lifecycle
 KEY_USAGE           0x00003000 # HSM_KEY_USAGE_SIGN_HASH | HSM_KEY_USAGE_VERIFY_HASH
@@ -10071,7 +10071,7 @@ OUT_SIZE            384        # Public Key Out Size
 KEY_TYPE            0x7001     # HSM_KEY_TYPE_RSA_3072
 BIT_KEY_SZ          3072       # HSM_KEY_SIZE_RSA_3072
 FLAGS               0          #
-KEY_GROUP           81         # Key Group b/w 0-1023
+KEY_GROUP           81         # Key Group
 KEY_LIFETIME        0x00000100 # HSM_SE_KEY_STORAGE_VOLATILE
 KEY_LIFECYCLE       0x0       # 0x0 indicates set to Current lifecycle (0x0) Device Lifecycle
 KEY_USAGE           0x00003000 # HSM_KEY_USAGE_SIGN_HASH | HSM_KEY_USAGE_VERIFY_HASH
@@ -10111,7 +10111,7 @@ OUT_SIZE            384        # Public Key Out Size
 KEY_TYPE            0x7001     # HSM_KEY_TYPE_RSA_3072
 BIT_KEY_SZ          3072       # HSM_KEY_SIZE_RSA_3072
 FLAGS               0          #
-KEY_GROUP           81         # Key Group b/w 0-1023
+KEY_GROUP           81         # Key Group
 KEY_LIFETIME        0x00000100 # HSM_SE_KEY_STORAGE_VOLATILE
 KEY_LIFECYCLE       0x01       # 0x01 indicates set to Open Device Lifecycle
 KEY_USAGE           0x00003000 # HSM_KEY_USAGE_SIGN_HASH | HSM_KEY_USAGE_VERIFY_HASH
@@ -10151,7 +10151,7 @@ OUT_SIZE            384        # Public Key Out Size
 KEY_TYPE            0x7001     # HSM_KEY_TYPE_RSA_3072
 BIT_KEY_SZ          3072       # HSM_KEY_SIZE_RSA_3072
 FLAGS               0          #
-KEY_GROUP           81         # Key Group b/w 0-1023
+KEY_GROUP           81         # Key Group
 KEY_LIFETIME        0x00000100 # HSM_SE_KEY_STORAGE_VOLATILE
 KEY_LIFECYCLE       0x02       # 0x02 indicates set to Closed Device Lifecycle
 KEY_USAGE           0x00003000 # HSM_KEY_USAGE_SIGN_HASH | HSM_KEY_USAGE_VERIFY_HASH
@@ -10191,7 +10191,7 @@ OUT_SIZE            384        # Public Key Out Size
 KEY_TYPE            0x7001     # HSM_KEY_TYPE_RSA_3072
 BIT_KEY_SZ          3072       # HSM_KEY_SIZE_RSA_3072
 FLAGS               0          #
-KEY_GROUP           81         # Key Group b/w 0-1023
+KEY_GROUP           81         # Key Group
 KEY_LIFETIME        0x00000100 # HSM_SE_KEY_STORAGE_VOLATILE
 KEY_LIFECYCLE       0x04       # 0x04 indicates set to Closed and locked Device Lifecycle
 KEY_USAGE           0x00003000 # HSM_KEY_USAGE_SIGN_HASH | HSM_KEY_USAGE_VERIFY_HASH
@@ -10231,7 +10231,7 @@ OUT_SIZE            384        # Public Key Out Size
 KEY_TYPE            0x7001     # HSM_KEY_TYPE_RSA_3072
 BIT_KEY_SZ          3072       # HSM_KEY_SIZE_RSA_3072
 FLAGS               0          #
-KEY_GROUP           81         # Key Group b/w 0-1023
+KEY_GROUP           81         # Key Group
 KEY_LIFETIME        0x00000100 # HSM_SE_KEY_STORAGE_VOLATILE
 KEY_LIFECYCLE       0x0       # 0x0 indicates set to Current lifecycle (0x0) Device Lifecycle
 KEY_USAGE           0x00003000 # HSM_KEY_USAGE_SIGN_HASH | HSM_KEY_USAGE_VERIFY_HASH
@@ -10271,7 +10271,7 @@ OUT_SIZE            384        # Public Key Out Size
 KEY_TYPE            0x7001     # HSM_KEY_TYPE_RSA_3072
 BIT_KEY_SZ          3072       # HSM_KEY_SIZE_RSA_3072
 FLAGS               0          #
-KEY_GROUP           81         # Key Group b/w 0-1023
+KEY_GROUP           81         # Key Group
 KEY_LIFETIME        0x00000100 # HSM_SE_KEY_STORAGE_VOLATILE
 KEY_LIFECYCLE       0x01       # 0x01 indicates set to Open Device Lifecycle
 KEY_USAGE           0x00003000 # HSM_KEY_USAGE_SIGN_HASH | HSM_KEY_USAGE_VERIFY_HASH
@@ -10311,7 +10311,7 @@ OUT_SIZE            384        # Public Key Out Size
 KEY_TYPE            0x7001     # HSM_KEY_TYPE_RSA_3072
 BIT_KEY_SZ          3072       # HSM_KEY_SIZE_RSA_3072
 FLAGS               0          #
-KEY_GROUP           81         # Key Group b/w 0-1023
+KEY_GROUP           81         # Key Group
 KEY_LIFETIME        0x00000100 # HSM_SE_KEY_STORAGE_VOLATILE
 KEY_LIFECYCLE       0x02       # 0x02 indicates set to Closed Device Lifecycle
 KEY_USAGE           0x00003000 # HSM_KEY_USAGE_SIGN_HASH | HSM_KEY_USAGE_VERIFY_HASH
@@ -10351,7 +10351,7 @@ OUT_SIZE            384        # Public Key Out Size
 KEY_TYPE            0x7001     # HSM_KEY_TYPE_RSA_3072
 BIT_KEY_SZ          3072       # HSM_KEY_SIZE_RSA_3072
 FLAGS               0          #
-KEY_GROUP           81         # Key Group b/w 0-1023
+KEY_GROUP           81         # Key Group
 KEY_LIFETIME        0x00000100 # HSM_SE_KEY_STORAGE_VOLATILE
 KEY_LIFECYCLE       0x04       # 0x04 indicates set to Closed and locked Device Lifecycle
 KEY_USAGE           0x00003000 # HSM_KEY_USAGE_SIGN_HASH | HSM_KEY_USAGE_VERIFY_HASH
@@ -10391,7 +10391,7 @@ OUT_SIZE            384        # Public Key Out Size
 KEY_TYPE            0x7001     # HSM_KEY_TYPE_RSA_3072
 BIT_KEY_SZ          3072       # HSM_KEY_SIZE_RSA_3072
 FLAGS               0          #
-KEY_GROUP           81         # Key Group b/w 0-1023
+KEY_GROUP           81         # Key Group
 KEY_LIFETIME        0x00000100 # HSM_SE_KEY_STORAGE_VOLATILE
 KEY_LIFECYCLE       0x0       # 0x0 indicates set to Current lifecycle (0x0) Device Lifecycle
 KEY_USAGE           0x00003000 # HSM_KEY_USAGE_SIGN_HASH | HSM_KEY_USAGE_VERIFY_HASH
@@ -10431,7 +10431,7 @@ OUT_SIZE            384        # Public Key Out Size
 KEY_TYPE            0x7001     # HSM_KEY_TYPE_RSA_3072
 BIT_KEY_SZ          3072       # HSM_KEY_SIZE_RSA_3072
 FLAGS               0          #
-KEY_GROUP           81         # Key Group b/w 0-1023
+KEY_GROUP           81         # Key Group
 KEY_LIFETIME        0x00000100 # HSM_SE_KEY_STORAGE_VOLATILE
 KEY_LIFECYCLE       0x01       # 0x01 indicates set to Open Device Lifecycle
 KEY_USAGE           0x00003000 # HSM_KEY_USAGE_SIGN_HASH | HSM_KEY_USAGE_VERIFY_HASH
@@ -10471,7 +10471,7 @@ OUT_SIZE            384        # Public Key Out Size
 KEY_TYPE            0x7001     # HSM_KEY_TYPE_RSA_3072
 BIT_KEY_SZ          3072       # HSM_KEY_SIZE_RSA_3072
 FLAGS               0          #
-KEY_GROUP           81         # Key Group b/w 0-1023
+KEY_GROUP           81         # Key Group
 KEY_LIFETIME        0x00000100 # HSM_SE_KEY_STORAGE_VOLATILE
 KEY_LIFECYCLE       0x02       # 0x02 indicates set to Closed Device Lifecycle
 KEY_USAGE           0x00003000 # HSM_KEY_USAGE_SIGN_HASH | HSM_KEY_USAGE_VERIFY_HASH
@@ -10511,7 +10511,7 @@ OUT_SIZE            384        # Public Key Out Size
 KEY_TYPE            0x7001     # HSM_KEY_TYPE_RSA_3072
 BIT_KEY_SZ          3072       # HSM_KEY_SIZE_RSA_3072
 FLAGS               0          #
-KEY_GROUP           81         # Key Group b/w 0-1023
+KEY_GROUP           81         # Key Group
 KEY_LIFETIME        0x00000100 # HSM_SE_KEY_STORAGE_VOLATILE
 KEY_LIFECYCLE       0x04       # 0x04 indicates set to Closed and locked Device Lifecycle
 KEY_USAGE           0x00003000 # HSM_KEY_USAGE_SIGN_HASH | HSM_KEY_USAGE_VERIFY_HASH
@@ -10551,7 +10551,7 @@ OUT_SIZE            384        # Public Key Out Size
 KEY_TYPE            0x7001     # HSM_KEY_TYPE_RSA_3072
 BIT_KEY_SZ          3072       # HSM_KEY_SIZE_RSA_3072
 FLAGS               0          #
-KEY_GROUP           81         # Key Group b/w 0-1023
+KEY_GROUP           81         # Key Group
 KEY_LIFETIME        0x00000100 # HSM_SE_KEY_STORAGE_VOLATILE
 KEY_LIFECYCLE       0x0       # 0x0 indicates set to Current lifecycle (0x0) Device Lifecycle
 KEY_USAGE           0x00003000 # HSM_KEY_USAGE_SIGN_HASH | HSM_KEY_USAGE_VERIFY_HASH
@@ -10591,7 +10591,7 @@ OUT_SIZE            384        # Public Key Out Size
 KEY_TYPE            0x7001     # HSM_KEY_TYPE_RSA_3072
 BIT_KEY_SZ          3072       # HSM_KEY_SIZE_RSA_3072
 FLAGS               0          #
-KEY_GROUP           81         # Key Group b/w 0-1023
+KEY_GROUP           81         # Key Group
 KEY_LIFETIME        0x00000100 # HSM_SE_KEY_STORAGE_VOLATILE
 KEY_LIFECYCLE       0x01       # 0x01 indicates set to Open Device Lifecycle
 KEY_USAGE           0x00003000 # HSM_KEY_USAGE_SIGN_HASH | HSM_KEY_USAGE_VERIFY_HASH
@@ -10631,7 +10631,7 @@ OUT_SIZE            384        # Public Key Out Size
 KEY_TYPE            0x7001     # HSM_KEY_TYPE_RSA_3072
 BIT_KEY_SZ          3072       # HSM_KEY_SIZE_RSA_3072
 FLAGS               0          #
-KEY_GROUP           81         # Key Group b/w 0-1023
+KEY_GROUP           81         # Key Group
 KEY_LIFETIME        0x00000100 # HSM_SE_KEY_STORAGE_VOLATILE
 KEY_LIFECYCLE       0x02       # 0x02 indicates set to Closed Device Lifecycle
 KEY_USAGE           0x00003000 # HSM_KEY_USAGE_SIGN_HASH | HSM_KEY_USAGE_VERIFY_HASH
@@ -10671,7 +10671,7 @@ OUT_SIZE            384        # Public Key Out Size
 KEY_TYPE            0x7001     # HSM_KEY_TYPE_RSA_3072
 BIT_KEY_SZ          3072       # HSM_KEY_SIZE_RSA_3072
 FLAGS               0          #
-KEY_GROUP           81         # Key Group b/w 0-1023
+KEY_GROUP           81         # Key Group
 KEY_LIFETIME        0x00000100 # HSM_SE_KEY_STORAGE_VOLATILE
 KEY_LIFECYCLE       0x04       # 0x04 indicates set to Closed and locked Device Lifecycle
 KEY_USAGE           0x00003000 # HSM_KEY_USAGE_SIGN_HASH | HSM_KEY_USAGE_VERIFY_HASH
@@ -10711,7 +10711,7 @@ OUT_SIZE            384        # Public Key Out Size
 KEY_TYPE            0x7001     # HSM_KEY_TYPE_RSA_3072
 BIT_KEY_SZ          3072       # HSM_KEY_SIZE_RSA_3072
 FLAGS               0          #
-KEY_GROUP           81         # Key Group b/w 0-1023
+KEY_GROUP           81         # Key Group
 KEY_LIFETIME        0x00000100 # HSM_SE_KEY_STORAGE_VOLATILE
 KEY_LIFECYCLE       0x0       # 0x0 indicates set to Current lifecycle (0x0) Device Lifecycle
 KEY_USAGE           0x00003000 # HSM_KEY_USAGE_SIGN_HASH | HSM_KEY_USAGE_VERIFY_HASH
@@ -10751,7 +10751,7 @@ OUT_SIZE            384        # Public Key Out Size
 KEY_TYPE            0x7001     # HSM_KEY_TYPE_RSA_3072
 BIT_KEY_SZ          3072       # HSM_KEY_SIZE_RSA_3072
 FLAGS               0          #
-KEY_GROUP           81         # Key Group b/w 0-1023
+KEY_GROUP           81         # Key Group
 KEY_LIFETIME        0x00000100 # HSM_SE_KEY_STORAGE_VOLATILE
 KEY_LIFECYCLE       0x01       # 0x01 indicates set to Open Device Lifecycle
 KEY_USAGE           0x00003000 # HSM_KEY_USAGE_SIGN_HASH | HSM_KEY_USAGE_VERIFY_HASH
@@ -10791,7 +10791,7 @@ OUT_SIZE            384        # Public Key Out Size
 KEY_TYPE            0x7001     # HSM_KEY_TYPE_RSA_3072
 BIT_KEY_SZ          3072       # HSM_KEY_SIZE_RSA_3072
 FLAGS               0          #
-KEY_GROUP           81         # Key Group b/w 0-1023
+KEY_GROUP           81         # Key Group
 KEY_LIFETIME        0x00000100 # HSM_SE_KEY_STORAGE_VOLATILE
 KEY_LIFECYCLE       0x02       # 0x02 indicates set to Closed Device Lifecycle
 KEY_USAGE           0x00003000 # HSM_KEY_USAGE_SIGN_HASH | HSM_KEY_USAGE_VERIFY_HASH
@@ -10831,7 +10831,7 @@ OUT_SIZE            384        # Public Key Out Size
 KEY_TYPE            0x7001     # HSM_KEY_TYPE_RSA_3072
 BIT_KEY_SZ          3072       # HSM_KEY_SIZE_RSA_3072
 FLAGS               0          #
-KEY_GROUP           81         # Key Group b/w 0-1023
+KEY_GROUP           81         # Key Group
 KEY_LIFETIME        0x00000100 # HSM_SE_KEY_STORAGE_VOLATILE
 KEY_LIFECYCLE       0x04       # 0x04 indicates set to Closed and locked Device Lifecycle
 KEY_USAGE           0x00003000 # HSM_KEY_USAGE_SIGN_HASH | HSM_KEY_USAGE_VERIFY_HASH
@@ -10871,7 +10871,7 @@ OUT_SIZE            384        # Public Key Out Size
 KEY_TYPE            0x7001     # HSM_KEY_TYPE_RSA_3072
 BIT_KEY_SZ          3072       # HSM_KEY_SIZE_RSA_3072
 FLAGS               0          #
-KEY_GROUP           81         # Key Group b/w 0-1023
+KEY_GROUP           81         # Key Group
 KEY_LIFETIME        0x00000100 # HSM_SE_KEY_STORAGE_VOLATILE
 KEY_LIFECYCLE       0x0       # 0x0 indicates set to Current lifecycle (0x0) Device Lifecycle
 KEY_USAGE           0x00003000 # HSM_KEY_USAGE_SIGN_HASH | HSM_KEY_USAGE_VERIFY_HASH
@@ -10911,7 +10911,7 @@ OUT_SIZE            384        # Public Key Out Size
 KEY_TYPE            0x7001     # HSM_KEY_TYPE_RSA_3072
 BIT_KEY_SZ          3072       # HSM_KEY_SIZE_RSA_3072
 FLAGS               0          #
-KEY_GROUP           81         # Key Group b/w 0-1023
+KEY_GROUP           81         # Key Group
 KEY_LIFETIME        0x00000100 # HSM_SE_KEY_STORAGE_VOLATILE
 KEY_LIFECYCLE       0x01       # 0x01 indicates set to Open Device Lifecycle
 KEY_USAGE           0x00003000 # HSM_KEY_USAGE_SIGN_HASH | HSM_KEY_USAGE_VERIFY_HASH
@@ -10951,7 +10951,7 @@ OUT_SIZE            384        # Public Key Out Size
 KEY_TYPE            0x7001     # HSM_KEY_TYPE_RSA_3072
 BIT_KEY_SZ          3072       # HSM_KEY_SIZE_RSA_3072
 FLAGS               0          #
-KEY_GROUP           81         # Key Group b/w 0-1023
+KEY_GROUP           81         # Key Group
 KEY_LIFETIME        0x00000100 # HSM_SE_KEY_STORAGE_VOLATILE
 KEY_LIFECYCLE       0x02       # 0x02 indicates set to Closed Device Lifecycle
 KEY_USAGE           0x00003000 # HSM_KEY_USAGE_SIGN_HASH | HSM_KEY_USAGE_VERIFY_HASH
@@ -10991,7 +10991,7 @@ OUT_SIZE            384        # Public Key Out Size
 KEY_TYPE            0x7001     # HSM_KEY_TYPE_RSA_3072
 BIT_KEY_SZ          3072       # HSM_KEY_SIZE_RSA_3072
 FLAGS               0          #
-KEY_GROUP           81         # Key Group b/w 0-1023
+KEY_GROUP           81         # Key Group
 KEY_LIFETIME        0x00000100 # HSM_SE_KEY_STORAGE_VOLATILE
 KEY_LIFECYCLE       0x04       # 0x04 indicates set to Closed and locked Device Lifecycle
 KEY_USAGE           0x00003000 # HSM_KEY_USAGE_SIGN_HASH | HSM_KEY_USAGE_VERIFY_HASH
@@ -11031,7 +11031,7 @@ OUT_SIZE            384        # Public Key Out Size
 KEY_TYPE            0x7001     # HSM_KEY_TYPE_RSA_3072
 BIT_KEY_SZ          3072       # HSM_KEY_SIZE_RSA_3072
 FLAGS               0          #
-KEY_GROUP           81         # Key Group b/w 0-1023
+KEY_GROUP           81         # Key Group
 KEY_LIFETIME        0x00000100 # HSM_SE_KEY_STORAGE_VOLATILE
 KEY_LIFECYCLE       0x0       # 0x0 indicates set to Current lifecycle (0x0) Device Lifecycle
 KEY_USAGE           0x00003000 # HSM_KEY_USAGE_SIGN_HASH | HSM_KEY_USAGE_VERIFY_HASH
@@ -11071,7 +11071,7 @@ OUT_SIZE            512        # Public Key Out Size
 KEY_TYPE            0x7001     # HSM_KEY_TYPE_RSA_4096
 BIT_KEY_SZ          4096       # HSM_KEY_SIZE_RSA_4096
 FLAGS               0          #
-KEY_GROUP           81         # Key Group b/w 0-1023
+KEY_GROUP           81         # Key Group
 KEY_LIFETIME        0x00000100 # HSM_SE_KEY_STORAGE_VOLATILE
 KEY_LIFECYCLE       0x01       # 0x01 indicates set to Open Device Lifecycle
 KEY_USAGE           0x00003000 # HSM_KEY_USAGE_SIGN_HASH | HSM_KEY_USAGE_VERIFY_HASH
@@ -11111,7 +11111,7 @@ OUT_SIZE            512        # Public Key Out Size
 KEY_TYPE            0x7001     # HSM_KEY_TYPE_RSA_4096
 BIT_KEY_SZ          4096       # HSM_KEY_SIZE_RSA_4096
 FLAGS               0          #
-KEY_GROUP           81         # Key Group b/w 0-1023
+KEY_GROUP           81         # Key Group
 KEY_LIFETIME        0x00000100 # HSM_SE_KEY_STORAGE_VOLATILE
 KEY_LIFECYCLE       0x02       # 0x02 indicates set to Closed Device Lifecycle
 KEY_USAGE           0x00003000 # HSM_KEY_USAGE_SIGN_HASH | HSM_KEY_USAGE_VERIFY_HASH
@@ -11151,7 +11151,7 @@ OUT_SIZE            512        # Public Key Out Size
 KEY_TYPE            0x7001     # HSM_KEY_TYPE_RSA_4096
 BIT_KEY_SZ          4096       # HSM_KEY_SIZE_RSA_4096
 FLAGS               0          #
-KEY_GROUP           81         # Key Group b/w 0-1023
+KEY_GROUP           81         # Key Group
 KEY_LIFETIME        0x00000100 # HSM_SE_KEY_STORAGE_VOLATILE
 KEY_LIFECYCLE       0x04       # 0x04 indicates set to Closed and locked Device Lifecycle
 KEY_USAGE           0x00003000 # HSM_KEY_USAGE_SIGN_HASH | HSM_KEY_USAGE_VERIFY_HASH
@@ -11191,7 +11191,7 @@ OUT_SIZE            512        # Public Key Out Size
 KEY_TYPE            0x7001     # HSM_KEY_TYPE_RSA_4096
 BIT_KEY_SZ          4096       # HSM_KEY_SIZE_RSA_4096
 FLAGS               0          #
-KEY_GROUP           81         # Key Group b/w 0-1023
+KEY_GROUP           81         # Key Group
 KEY_LIFETIME        0x00000100 # HSM_SE_KEY_STORAGE_VOLATILE
 KEY_LIFECYCLE       0x0       # 0x0 indicates set to Current lifecycle (0x0) Device Lifecycle
 KEY_USAGE           0x00003000 # HSM_KEY_USAGE_SIGN_HASH | HSM_KEY_USAGE_VERIFY_HASH
@@ -11231,7 +11231,7 @@ OUT_SIZE            512        # Public Key Out Size
 KEY_TYPE            0x7001     # HSM_KEY_TYPE_RSA_4096
 BIT_KEY_SZ          4096       # HSM_KEY_SIZE_RSA_4096
 FLAGS               0          #
-KEY_GROUP           81         # Key Group b/w 0-1023
+KEY_GROUP           81         # Key Group
 KEY_LIFETIME        0x00000100 # HSM_SE_KEY_STORAGE_VOLATILE
 KEY_LIFECYCLE       0x01       # 0x01 indicates set to Open Device Lifecycle
 KEY_USAGE           0x00003000 # HSM_KEY_USAGE_SIGN_HASH | HSM_KEY_USAGE_VERIFY_HASH
@@ -11271,7 +11271,7 @@ OUT_SIZE            512        # Public Key Out Size
 KEY_TYPE            0x7001     # HSM_KEY_TYPE_RSA_4096
 BIT_KEY_SZ          4096       # HSM_KEY_SIZE_RSA_4096
 FLAGS               0          #
-KEY_GROUP           81         # Key Group b/w 0-1023
+KEY_GROUP           81         # Key Group
 KEY_LIFETIME        0x00000100 # HSM_SE_KEY_STORAGE_VOLATILE
 KEY_LIFECYCLE       0x02       # 0x02 indicates set to Closed Device Lifecycle
 KEY_USAGE           0x00003000 # HSM_KEY_USAGE_SIGN_HASH | HSM_KEY_USAGE_VERIFY_HASH
@@ -11311,7 +11311,7 @@ OUT_SIZE            512        # Public Key Out Size
 KEY_TYPE            0x7001     # HSM_KEY_TYPE_RSA_4096
 BIT_KEY_SZ          4096       # HSM_KEY_SIZE_RSA_4096
 FLAGS               0          #
-KEY_GROUP           81         # Key Group b/w 0-1023
+KEY_GROUP           81         # Key Group
 KEY_LIFETIME        0x00000100 # HSM_SE_KEY_STORAGE_VOLATILE
 KEY_LIFECYCLE       0x04       # 0x04 indicates set to Closed and locked Device Lifecycle
 KEY_USAGE           0x00003000 # HSM_KEY_USAGE_SIGN_HASH | HSM_KEY_USAGE_VERIFY_HASH
@@ -11351,7 +11351,7 @@ OUT_SIZE            512        # Public Key Out Size
 KEY_TYPE            0x7001     # HSM_KEY_TYPE_RSA_4096
 BIT_KEY_SZ          4096       # HSM_KEY_SIZE_RSA_4096
 FLAGS               0          #
-KEY_GROUP           81         # Key Group b/w 0-1023
+KEY_GROUP           81         # Key Group
 KEY_LIFETIME        0x00000100 # HSM_SE_KEY_STORAGE_VOLATILE
 KEY_LIFECYCLE       0x0       # 0x0 indicates set to Current lifecycle (0x0) Device Lifecycle
 KEY_USAGE           0x00003000 # HSM_KEY_USAGE_SIGN_HASH | HSM_KEY_USAGE_VERIFY_HASH
@@ -11391,7 +11391,7 @@ OUT_SIZE            512        # Public Key Out Size
 KEY_TYPE            0x7001     # HSM_KEY_TYPE_RSA_4096
 BIT_KEY_SZ          4096       # HSM_KEY_SIZE_RSA_4096
 FLAGS               0          #
-KEY_GROUP           81         # Key Group b/w 0-1023
+KEY_GROUP           81         # Key Group
 KEY_LIFETIME        0x00000100 # HSM_SE_KEY_STORAGE_VOLATILE
 KEY_LIFECYCLE       0x01       # 0x01 indicates set to Open Device Lifecycle
 KEY_USAGE           0x00003000 # HSM_KEY_USAGE_SIGN_HASH | HSM_KEY_USAGE_VERIFY_HASH
@@ -11431,7 +11431,7 @@ OUT_SIZE            512        # Public Key Out Size
 KEY_TYPE            0x7001     # HSM_KEY_TYPE_RSA_4096
 BIT_KEY_SZ          4096       # HSM_KEY_SIZE_RSA_4096
 FLAGS               0          #
-KEY_GROUP           81         # Key Group b/w 0-1023
+KEY_GROUP           81         # Key Group
 KEY_LIFETIME        0x00000100 # HSM_SE_KEY_STORAGE_VOLATILE
 KEY_LIFECYCLE       0x02       # 0x02 indicates set to Closed Device Lifecycle
 KEY_USAGE           0x00003000 # HSM_KEY_USAGE_SIGN_HASH | HSM_KEY_USAGE_VERIFY_HASH
@@ -11471,7 +11471,7 @@ OUT_SIZE            512        # Public Key Out Size
 KEY_TYPE            0x7001     # HSM_KEY_TYPE_RSA_4096
 BIT_KEY_SZ          4096       # HSM_KEY_SIZE_RSA_4096
 FLAGS               0          #
-KEY_GROUP           81         # Key Group b/w 0-1023
+KEY_GROUP           81         # Key Group
 KEY_LIFETIME        0x00000100 # HSM_SE_KEY_STORAGE_VOLATILE
 KEY_LIFECYCLE       0x04       # 0x04 indicates set to Closed and locked Device Lifecycle
 KEY_USAGE           0x00003000 # HSM_KEY_USAGE_SIGN_HASH | HSM_KEY_USAGE_VERIFY_HASH
@@ -11511,7 +11511,7 @@ OUT_SIZE            512        # Public Key Out Size
 KEY_TYPE            0x7001     # HSM_KEY_TYPE_RSA_4096
 BIT_KEY_SZ          4096       # HSM_KEY_SIZE_RSA_4096
 FLAGS               0          #
-KEY_GROUP           81         # Key Group b/w 0-1023
+KEY_GROUP           81         # Key Group
 KEY_LIFETIME        0x00000100 # HSM_SE_KEY_STORAGE_VOLATILE
 KEY_LIFECYCLE       0x0       # 0x0 indicates set to Current lifecycle (0x0) Device Lifecycle
 KEY_USAGE           0x00003000 # HSM_KEY_USAGE_SIGN_HASH | HSM_KEY_USAGE_VERIFY_HASH
@@ -11551,7 +11551,7 @@ OUT_SIZE            512        # Public Key Out Size
 KEY_TYPE            0x7001     # HSM_KEY_TYPE_RSA_4096
 BIT_KEY_SZ          4096       # HSM_KEY_SIZE_RSA_4096
 FLAGS               0          #
-KEY_GROUP           81         # Key Group b/w 0-1023
+KEY_GROUP           81         # Key Group
 KEY_LIFETIME        0x00000100 # HSM_SE_KEY_STORAGE_VOLATILE
 KEY_LIFECYCLE       0x01       # 0x01 indicates set to Open Device Lifecycle
 KEY_USAGE           0x00003000 # HSM_KEY_USAGE_SIGN_HASH | HSM_KEY_USAGE_VERIFY_HASH
@@ -11591,7 +11591,7 @@ OUT_SIZE            512        # Public Key Out Size
 KEY_TYPE            0x7001     # HSM_KEY_TYPE_RSA_4096
 BIT_KEY_SZ          4096       # HSM_KEY_SIZE_RSA_4096
 FLAGS               0          #
-KEY_GROUP           81         # Key Group b/w 0-1023
+KEY_GROUP           81         # Key Group
 KEY_LIFETIME        0x00000100 # HSM_SE_KEY_STORAGE_VOLATILE
 KEY_LIFECYCLE       0x02       # 0x02 indicates set to Closed Device Lifecycle
 KEY_USAGE           0x00003000 # HSM_KEY_USAGE_SIGN_HASH | HSM_KEY_USAGE_VERIFY_HASH
@@ -11631,7 +11631,7 @@ OUT_SIZE            512        # Public Key Out Size
 KEY_TYPE            0x7001     # HSM_KEY_TYPE_RSA_4096
 BIT_KEY_SZ          4096       # HSM_KEY_SIZE_RSA_4096
 FLAGS               0          #
-KEY_GROUP           81         # Key Group b/w 0-1023
+KEY_GROUP           81         # Key Group
 KEY_LIFETIME        0x00000100 # HSM_SE_KEY_STORAGE_VOLATILE
 KEY_LIFECYCLE       0x04       # 0x04 indicates set to Closed and locked Device Lifecycle
 KEY_USAGE           0x00003000 # HSM_KEY_USAGE_SIGN_HASH | HSM_KEY_USAGE_VERIFY_HASH
@@ -11671,7 +11671,7 @@ OUT_SIZE            512        # Public Key Out Size
 KEY_TYPE            0x7001     # HSM_KEY_TYPE_RSA_4096
 BIT_KEY_SZ          4096       # HSM_KEY_SIZE_RSA_4096
 FLAGS               0          #
-KEY_GROUP           81         # Key Group b/w 0-1023
+KEY_GROUP           81         # Key Group
 KEY_LIFETIME        0x00000100 # HSM_SE_KEY_STORAGE_VOLATILE
 KEY_LIFECYCLE       0x0       # 0x0 indicates set to Current lifecycle (0x0) Device Lifecycle
 KEY_USAGE           0x00003000 # HSM_KEY_USAGE_SIGN_HASH | HSM_KEY_USAGE_VERIFY_HASH
@@ -11711,7 +11711,7 @@ OUT_SIZE            512        # Public Key Out Size
 KEY_TYPE            0x7001     # HSM_KEY_TYPE_RSA_4096
 BIT_KEY_SZ          4096       # HSM_KEY_SIZE_RSA_4096
 FLAGS               0          #
-KEY_GROUP           81         # Key Group b/w 0-1023
+KEY_GROUP           81         # Key Group
 KEY_LIFETIME        0x00000100 # HSM_SE_KEY_STORAGE_VOLATILE
 KEY_LIFECYCLE       0x01       # 0x01 indicates set to Open Device Lifecycle
 KEY_USAGE           0x00003000 # HSM_KEY_USAGE_SIGN_HASH | HSM_KEY_USAGE_VERIFY_HASH
@@ -11751,7 +11751,7 @@ OUT_SIZE            512        # Public Key Out Size
 KEY_TYPE            0x7001     # HSM_KEY_TYPE_RSA_4096
 BIT_KEY_SZ          4096       # HSM_KEY_SIZE_RSA_4096
 FLAGS               0          #
-KEY_GROUP           81         # Key Group b/w 0-1023
+KEY_GROUP           81         # Key Group
 KEY_LIFETIME        0x00000100 # HSM_SE_KEY_STORAGE_VOLATILE
 KEY_LIFECYCLE       0x02       # 0x02 indicates set to Closed Device Lifecycle
 KEY_USAGE           0x00003000 # HSM_KEY_USAGE_SIGN_HASH | HSM_KEY_USAGE_VERIFY_HASH
@@ -11791,7 +11791,7 @@ OUT_SIZE            512        # Public Key Out Size
 KEY_TYPE            0x7001     # HSM_KEY_TYPE_RSA_4096
 BIT_KEY_SZ          4096       # HSM_KEY_SIZE_RSA_4096
 FLAGS               0          #
-KEY_GROUP           81         # Key Group b/w 0-1023
+KEY_GROUP           81         # Key Group
 KEY_LIFETIME        0x00000100 # HSM_SE_KEY_STORAGE_VOLATILE
 KEY_LIFECYCLE       0x04       # 0x04 indicates set to Closed and locked Device Lifecycle
 KEY_USAGE           0x00003000 # HSM_KEY_USAGE_SIGN_HASH | HSM_KEY_USAGE_VERIFY_HASH
@@ -11831,7 +11831,7 @@ OUT_SIZE            512        # Public Key Out Size
 KEY_TYPE            0x7001     # HSM_KEY_TYPE_RSA_4096
 BIT_KEY_SZ          4096       # HSM_KEY_SIZE_RSA_4096
 FLAGS               0          #
-KEY_GROUP           81         # Key Group b/w 0-1023
+KEY_GROUP           81         # Key Group
 KEY_LIFETIME        0x00000100 # HSM_SE_KEY_STORAGE_VOLATILE
 KEY_LIFECYCLE       0x0       # 0x0 indicates set to Current lifecycle (0x0) Device Lifecycle
 KEY_USAGE           0x00003000 # HSM_KEY_USAGE_SIGN_HASH | HSM_KEY_USAGE_VERIFY_HASH
@@ -11871,7 +11871,7 @@ OUT_SIZE            512        # Public Key Out Size
 KEY_TYPE            0x7001     # HSM_KEY_TYPE_RSA_4096
 BIT_KEY_SZ          4096       # HSM_KEY_SIZE_RSA_4096
 FLAGS               0          #
-KEY_GROUP           81         # Key Group b/w 0-1023
+KEY_GROUP           81         # Key Group
 KEY_LIFETIME        0x00000100 # HSM_SE_KEY_STORAGE_VOLATILE
 KEY_LIFECYCLE       0x01       # 0x01 indicates set to Open Device Lifecycle
 KEY_USAGE           0x00003000 # HSM_KEY_USAGE_SIGN_HASH | HSM_KEY_USAGE_VERIFY_HASH
@@ -11911,7 +11911,7 @@ OUT_SIZE            512        # Public Key Out Size
 KEY_TYPE            0x7001     # HSM_KEY_TYPE_RSA_4096
 BIT_KEY_SZ          4096       # HSM_KEY_SIZE_RSA_4096
 FLAGS               0          #
-KEY_GROUP           81         # Key Group b/w 0-1023
+KEY_GROUP           81         # Key Group
 KEY_LIFETIME        0x00000100 # HSM_SE_KEY_STORAGE_VOLATILE
 KEY_LIFECYCLE       0x02       # 0x02 indicates set to Closed Device Lifecycle
 KEY_USAGE           0x00003000 # HSM_KEY_USAGE_SIGN_HASH | HSM_KEY_USAGE_VERIFY_HASH
@@ -11951,7 +11951,7 @@ OUT_SIZE            512        # Public Key Out Size
 KEY_TYPE            0x7001     # HSM_KEY_TYPE_RSA_4096
 BIT_KEY_SZ          4096       # HSM_KEY_SIZE_RSA_4096
 FLAGS               0          #
-KEY_GROUP           81         # Key Group b/w 0-1023
+KEY_GROUP           81         # Key Group
 KEY_LIFETIME        0x00000100 # HSM_SE_KEY_STORAGE_VOLATILE
 KEY_LIFECYCLE       0x04       # 0x04 indicates set to Closed and locked Device Lifecycle
 KEY_USAGE           0x00003000 # HSM_KEY_USAGE_SIGN_HASH | HSM_KEY_USAGE_VERIFY_HASH
@@ -11991,7 +11991,7 @@ OUT_SIZE            512        # Public Key Out Size
 KEY_TYPE            0x7001     # HSM_KEY_TYPE_RSA_4096
 BIT_KEY_SZ          4096       # HSM_KEY_SIZE_RSA_4096
 FLAGS               0          #
-KEY_GROUP           81         # Key Group b/w 0-1023
+KEY_GROUP           81         # Key Group
 KEY_LIFETIME        0x00000100 # HSM_SE_KEY_STORAGE_VOLATILE
 KEY_LIFECYCLE       0x0       # 0x0 indicates set to Current lifecycle (0x0) Device Lifecycle
 KEY_USAGE           0x00003000 # HSM_KEY_USAGE_SIGN_HASH | HSM_KEY_USAGE_VERIFY_HASH
@@ -12031,7 +12031,7 @@ OUT_SIZE            512        # Public Key Out Size
 KEY_TYPE            0x7001     # HSM_KEY_TYPE_RSA_4096
 BIT_KEY_SZ          4096       # HSM_KEY_SIZE_RSA_4096
 FLAGS               0          #
-KEY_GROUP           81         # Key Group b/w 0-1023
+KEY_GROUP           81         # Key Group
 KEY_LIFETIME        0x00000100 # HSM_SE_KEY_STORAGE_VOLATILE
 KEY_LIFECYCLE       0x01       # 0x01 indicates set to Open Device Lifecycle
 KEY_USAGE           0x00003000 # HSM_KEY_USAGE_SIGN_HASH | HSM_KEY_USAGE_VERIFY_HASH
@@ -12071,7 +12071,7 @@ OUT_SIZE            512        # Public Key Out Size
 KEY_TYPE            0x7001     # HSM_KEY_TYPE_RSA_4096
 BIT_KEY_SZ          4096       # HSM_KEY_SIZE_RSA_4096
 FLAGS               0          #
-KEY_GROUP           81         # Key Group b/w 0-1023
+KEY_GROUP           81         # Key Group
 KEY_LIFETIME        0x00000100 # HSM_SE_KEY_STORAGE_VOLATILE
 KEY_LIFECYCLE       0x02       # 0x02 indicates set to Closed Device Lifecycle
 KEY_USAGE           0x00003000 # HSM_KEY_USAGE_SIGN_HASH | HSM_KEY_USAGE_VERIFY_HASH
@@ -12111,7 +12111,7 @@ OUT_SIZE            512        # Public Key Out Size
 KEY_TYPE            0x7001     # HSM_KEY_TYPE_RSA_4096
 BIT_KEY_SZ          4096       # HSM_KEY_SIZE_RSA_4096
 FLAGS               0          #
-KEY_GROUP           81         # Key Group b/w 0-1023
+KEY_GROUP           81         # Key Group
 KEY_LIFETIME        0x00000100 # HSM_SE_KEY_STORAGE_VOLATILE
 KEY_LIFECYCLE       0x04       # 0x04 indicates set to Closed and locked Device Lifecycle
 KEY_USAGE           0x00003000 # HSM_KEY_USAGE_SIGN_HASH | HSM_KEY_USAGE_VERIFY_HASH
@@ -12151,7 +12151,7 @@ OUT_SIZE            512        # Public Key Out Size
 KEY_TYPE            0x7001     # HSM_KEY_TYPE_RSA_4096
 BIT_KEY_SZ          4096       # HSM_KEY_SIZE_RSA_4096
 FLAGS               0          #
-KEY_GROUP           81         # Key Group b/w 0-1023
+KEY_GROUP           81         # Key Group
 KEY_LIFETIME        0x00000100 # HSM_SE_KEY_STORAGE_VOLATILE
 KEY_LIFECYCLE       0x0       # 0x0 indicates set to Current lifecycle (0x0) Device Lifecycle
 KEY_USAGE           0x00003000 # HSM_KEY_USAGE_SIGN_HASH | HSM_KEY_USAGE_VERIFY_HASH
@@ -12191,7 +12191,7 @@ OUT_SIZE            512        # Public Key Out Size
 KEY_TYPE            0x7001     # HSM_KEY_TYPE_RSA_4096
 BIT_KEY_SZ          4096       # HSM_KEY_SIZE_RSA_4096
 FLAGS               0          #
-KEY_GROUP           81         # Key Group b/w 0-1023
+KEY_GROUP           81         # Key Group
 KEY_LIFETIME        0x00000100 # HSM_SE_KEY_STORAGE_VOLATILE
 KEY_LIFECYCLE       0x01       # 0x01 indicates set to Open Device Lifecycle
 KEY_USAGE           0x00003000 # HSM_KEY_USAGE_SIGN_HASH | HSM_KEY_USAGE_VERIFY_HASH
@@ -12231,7 +12231,7 @@ OUT_SIZE            512        # Public Key Out Size
 KEY_TYPE            0x7001     # HSM_KEY_TYPE_RSA_4096
 BIT_KEY_SZ          4096       # HSM_KEY_SIZE_RSA_4096
 FLAGS               0          #
-KEY_GROUP           81         # Key Group b/w 0-1023
+KEY_GROUP           81         # Key Group
 KEY_LIFETIME        0x00000100 # HSM_SE_KEY_STORAGE_VOLATILE
 KEY_LIFECYCLE       0x02       # 0x02 indicates set to Closed Device Lifecycle
 KEY_USAGE           0x00003000 # HSM_KEY_USAGE_SIGN_HASH | HSM_KEY_USAGE_VERIFY_HASH
@@ -12271,7 +12271,7 @@ OUT_SIZE            512        # Public Key Out Size
 KEY_TYPE            0x7001     # HSM_KEY_TYPE_RSA_4096
 BIT_KEY_SZ          4096       # HSM_KEY_SIZE_RSA_4096
 FLAGS               0          #
-KEY_GROUP           81         # Key Group b/w 0-1023
+KEY_GROUP           81         # Key Group
 KEY_LIFETIME        0x00000100 # HSM_SE_KEY_STORAGE_VOLATILE
 KEY_LIFECYCLE       0x04       # 0x04 indicates set to Closed and locked Device Lifecycle
 KEY_USAGE           0x00003000 # HSM_KEY_USAGE_SIGN_HASH | HSM_KEY_USAGE_VERIFY_HASH
@@ -12311,7 +12311,7 @@ OUT_SIZE            512        # Public Key Out Size
 KEY_TYPE            0x7001     # HSM_KEY_TYPE_RSA_4096
 BIT_KEY_SZ          4096       # HSM_KEY_SIZE_RSA_4096
 FLAGS               0          #
-KEY_GROUP           81         # Key Group b/w 0-1023
+KEY_GROUP           81         # Key Group
 KEY_LIFETIME        0x00000100 # HSM_SE_KEY_STORAGE_VOLATILE
 KEY_LIFECYCLE       0x0       # 0x0 indicates set to Current lifecycle (0x0) Device Lifecycle
 KEY_USAGE           0x00003000 # HSM_KEY_USAGE_SIGN_HASH | HSM_KEY_USAGE_VERIFY_HASH
