@@ -44,6 +44,13 @@ struct ele_mu_ioctl_get_soc_info {
 	uint8_t  board_type;
 };
 
+struct ele_ioctl_cmd_snd_rcv_rsp_info {
+	uint32_t *tx_buf;
+	int tx_buf_sz;
+	uint32_t *rx_buf;
+	int rx_buf_sz;
+};
+
 struct ele_time_frame {
 	struct timespec t_start;
 	struct timespec t_end;
@@ -65,6 +72,8 @@ struct ele_time_frame {
 					struct ele_mu_ioctl_signed_message)
 #define ELE_MU_IOCTL_GET_SOC_INFO	_IOR(ELE_MU_IOCTL, 0x06, \
 					struct ele_mu_ioctl_get_soc_info)
+#define ELE_IOCTL_CMD_SEND_RCV_RSP	_IOWR(ELE_MU_IOCTL, 0x07, \
+					struct ele_ioctl_cmd_snd_rcv_rsp_info)
 #define ELE_MU_IOCTL_GET_TIMER	_IOR(ELE_MU_IOCTL, 0x08, \
 				struct ele_time_frame)
 

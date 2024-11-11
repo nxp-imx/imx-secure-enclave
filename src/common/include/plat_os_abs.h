@@ -514,5 +514,16 @@ uint32_t plat_os_abs_storage_file_truncate(int fd, off_t length);
 uint32_t plat_get_perf_timer(struct plat_os_abs_hdl *phdl,
 			     struct timespec *t_start,
 			     struct timespec *t_end);
+
+/**
+ * Get start and end timestamps in kernel for a crypto operation.
+ * \param phdl pointer to the session handle for which this data buffer is used.
+ * \param t_start pointer to the timespec structure to be populated by start
+ *  timer.
+ * \param t_end pointer to the timespec structure to be populated by end timer.
+ */
+uint32_t plat_os_abs_cmd_snd_rcv_rsp(struct plat_os_abs_hdl *phdl,
+				     uint32_t *tx_buf, uint32_t *tx_buf_sz,
+				     uint32_t *rx_buf, uint32_t *rx_buf_sz);
 /** @} end of porting guide */
 #endif

@@ -401,3 +401,38 @@ uint32_t plat_get_perf_timer(struct plat_os_abs_hdl *phdl,
 
 	return TO_UINT32_T(ret);
 }
+
+uint32_t plat_os_abs_cmd_snd_rcv_rsp(struct plat_os_abs_hdl *phdl,
+				     uint32_t *tx_buf, uint32_t *tx_buf_sz,
+				     uint32_t *rx_buf, uint32_t *rx_buf_sz)
+{
+    struct ele_ioctl_cmd_snd_rcv_rsp_info cmd_snd_rcv_rsp_info;
+    int32_t err;
+
+    cmd_snd_rcv_rsp_info.tx_buf = tx_buf;
+    cmd_snd_rcv_rsp_info.tx_buf_sz = *tx_buf_sz;
+    cmd_snd_rcv_rsp_info.rx_buf = rx_buf;
+    cmd_snd_rcv_rsp_info.rx_buf_sz = *rx_buf_sz;
+
+    err = ioctl(phdl->fd, ELE_IOCTL_CMD_SEND_RCV_RSP, &cmd_snd_rcv_rsp_info);
+
+    if (err < 0) {
+        err = PLAT_FAILURE;
+	if (cmd_snd_rcv_rsp_info.tx_buf_sz < 0)
+		se_err("\nPLAT send error[%d]: %s\n",
+		       errno,
+		       strerror(errno));
+
+	if (cmd_snd_rcv_rsp_info.rx_buf_sz < 0)
+		se_err("\nPLAT read error[%d]: %s\n",
+		       errno,
+		       strerror(errno));
+    }
+    else {
+        err = PLAT_SUCCESS;
+        *tx_buf_sz = cmd_snd_rcv_rsp_info.tx_buf_sz;
+        *rx_buf_sz = cmd_snd_rcv_rsp_info.rx_buf_sz;
+    }
+
+    return err;
+}
