@@ -157,6 +157,6 @@ she_err_t she_verify_mac(she_hdl_t utils_handle, op_verify_mac_t *args);
  */
 she_err_t she_verify_fast_mac_mubuff_v2(she_hdl_t utils_handle, op_verify_mac_t *args);
 
-/** @} end of CMD_GENERATE_MAC group */
+/** @} end of CMD_VERIFY_MAC group */
 
 #endif

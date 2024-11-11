@@ -142,6 +142,8 @@ ifneq (${MT_SAB_MAC},0x0)
 DEFINES		+=	-DMT_SAB_MAC=${MT_SAB_MAC}
 SAB_MSG_SRC	+= \
 		$(PLAT_COMMON_PATH)/sab_msg/sab_mac.o
+SHE_SAB_MSG_SRC	+= \
+		$(PLAT_COMMON_PATH)/sab_msg/sab_mac.o
 endif
 
 ifneq (${MT_SAB_SESSION},0x0)

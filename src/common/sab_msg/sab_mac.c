@@ -5,7 +5,7 @@
 
 #include <string.h>
 
-#include "internal/hsm_mac.h"
+#include "common/mac.h"
 #include "sab_mac.h"
 #include "sab_messaging.h"
 
@@ -36,7 +36,7 @@ uint32_t prepare_msg_mac(void *phdl,
 #ifdef PSA_COMPLIANT
 	cmd->key_type = op_args->key_type;
 	cmd->key_size = op_args->key_size;
-	if (op_args->flags & HSM_OP_MAC_FLAGS_PLAINTEXT_KEY) {
+	if (op_args->flags & MAC_OP_FLAGS_PLAINTEXT_KEY) {
 		ret = plat_os_abs_data_buf_v2((struct plat_os_abs_hdl *)phdl,
 					      &phy_addr,
 					      op_args->key,
@@ -75,7 +75,7 @@ uint32_t prepare_msg_mac(void *phdl,
 #else
 	cmd->key = op_args->key_identifier;
 
-	if (op_args->flags & HSM_OP_MAC_ONE_GO_FLAGS_MAC_LENGTH_IN_BITS) {
+	if (op_args->flags & MAC_OP_FLAGS_MAC_LENGTH_IN_BITS) {
 		mac_size_bytes = op_args->mac_size / 8;
 		if (op_args->mac_size % 8) {
 			mac_size_bytes++;

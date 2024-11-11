@@ -23,6 +23,7 @@
 #include "internal/she_export_plain_key.h"
 #include "internal/she_fast_mac.h"
 #include "internal/she_get_id.h"
+#include "internal/she_mac.h"
 
 /**
  * @defgroup group1 Session

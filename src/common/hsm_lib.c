@@ -1,6 +1,6 @@
 // SPDX-License-Identifier: BSD-3-Clause
 /*
- * Copyright 2019-2023 NXP
+ * Copyright 2019-2024 NXP
  */
 
 #include <string.h>
@@ -10,7 +10,6 @@
 #include "internal/hsm_handle.h"
 #include "internal/hsm_utils.h"
 
-#include "sab_common_err.h"
 #include "sab_msg_def.h"
 #include "sab_messaging.h"
 #include "sab_process_msg.h"

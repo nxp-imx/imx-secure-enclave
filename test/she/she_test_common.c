@@ -22,7 +22,7 @@ she_hdl_t session_hdl;
 open_svc_key_store_args_t key_store_args[MAX_KEY_STORE_SESSIONS];
 op_open_utils_args_t utils_args[MAX_KEY_STORE_SESSIONS];
 open_svc_cipher_args_t cipher_args[MAX_KEY_STORE_SESSIONS];
-
+open_svc_mac_args_t mac_args[MAX_KEY_STORE_SESSIONS];
 void she_test_sig_handler(int ht_signo, siginfo_t *ht_siginfo, void *ht_sigctx)
 {
 	if (session_hdl)
@@ -117,6 +117,16 @@ void execute_tests(int session_id, int key_session_id)
 
 	se_print("Cipher handle : 0x%x\n", cipher_args[i].cipher_hdl);
 
+	err = she_open_mac_service(key_store_args[i].key_store_hdl, &mac_args[i]);
+	if (err) {
+		if (err != SHE_FEATURE_NOT_SUPPORTED) {
+			se_err("Failed to open mac service 0x%x\n", err);
+			return;
+		}
+	} else {
+		se_print("mac handle : 0x%x\n", mac_args[i].mac_serv_hdl);
+	}
+
 	err = she_get_status(utils_args[i].utils_handle,
 			     &op_get_status_args);
 	if (!err)
@@ -143,19 +153,19 @@ void execute_tests(int session_id, int key_session_id)
 
 	err = do_she_fast_mac_test(utils_args[i].utils_handle);
 	if (err) {
-		se_print("Error[0x%x]: MAC test Failed.\n", err);
+		se_print("Error[0x%x]: FAST MAC test Failed.\n", err);
 		return;
 	}
 
 	err = do_she_fast_mac_mubuff_v2_test(utils_args[i].utils_handle);
 	if (err && err != SHE_FEATURE_NOT_SUPPORTED) {
-		se_print("Error[0x%x]: MAC V2 test Failed.\n", err);
+		se_print("Error[0x%x]: FAST MAC V2 test Failed.\n", err);
 		return;
 	}
 
 	err = do_she_ext_fast_mac_test(utils_args[i].utils_handle);
 	if (err && err != SHE_FEATURE_NOT_SUPPORTED) {
-		se_print("Error[0x%x]: EXT MAC test Failed.\n", err);
+		se_print("Error[0x%x]: EXT FAST MAC test Failed.\n", err);
 		return;
 	}
 
@@ -167,6 +177,14 @@ void execute_tests(int session_id, int key_session_id)
 	if (err) {
 		se_print("Error[0x%x]: Plain Key test Failed.\n", err);
 		return;
+	}
+
+	err = do_she_mac_test(mac_args[i].mac_serv_hdl);
+	if (err) {
+		if (err != SHE_FEATURE_NOT_SUPPORTED) {
+			se_print("Error[0x%x]: MAC test Failed.\n", err);
+			return;
+		}
 	}
 
 	err = do_she_cipher_test(cipher_args[i].cipher_hdl);
@@ -184,6 +202,9 @@ void close_services(int key_session_id)
 
 	if (cipher_args[i].cipher_hdl)
 		she_close_cipher_service(cipher_args[i].cipher_hdl);
+
+	if (mac_args[i].mac_serv_hdl)
+		she_close_mac_service(mac_args[i].mac_serv_hdl);
 
 	if (utils_args[i].utils_handle)
 		she_close_utils(utils_args[i].utils_handle);

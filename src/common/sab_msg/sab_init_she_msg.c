@@ -55,6 +55,10 @@
 #include "sab_get_id.h"
 #endif
 
+#if MT_SAB_MAC
+#include "sab_mac.h"
+#endif
+
 static  int init_proc_sab_she_msg_engine(msg_type_t msg_type,
 					 uint32_t msg_id)
 {
@@ -159,6 +163,31 @@ static  int init_proc_sab_she_msg_engine(msg_type_t msg_type,
 		}
 		break;
 #endif
+
+#if MT_SAB_MAC
+	case SAB_MAC_OPEN_REQ:
+		if (msg_type == MT_SAB_MAC) {
+			ret = add_sab_msg_handler(msg_id, MT_SAB_MAC,
+						  prepare_msg_mac_open_req,
+						  proc_msg_rsp_mac_open_req);
+		}
+		break;
+	case SAB_MAC_CLOSE_REQ:
+		if (msg_type == MT_SAB_MAC) {
+			ret = add_sab_msg_handler(msg_id, MT_SAB_MAC,
+						  prepare_msg_mac_close_req,
+						  proc_msg_rsp_mac_close_req);
+		}
+		break;
+	case SAB_MAC_REQ:
+		if (msg_type == MT_SAB_MAC) {
+			ret = add_sab_msg_handler(msg_id, MT_SAB_MAC,
+						  prepare_msg_mac,
+						  proc_msg_rsp_mac);
+		}
+		break;
+#endif
+
 #if MT_SAB_RNG
 #ifndef PSA_COMPLIANT
 	case SAB_RNG_OPEN_REQ:

@@ -61,6 +61,7 @@ MT_SAB_FAST_MAC		:=	${FMW}
 MT_SAB_FAST_MAC_MUBUFF  :=	${FMW}
 MT_SAB_FAST_MAC_MUBUFF_V2:=	${FMW}
 MT_SAB_GET_ID           :=      ${FMW}
+MT_SAB_MAC		:=      ${FMW}
 
 # ROM API(s)
 MT_SAB_DEBUG_DUMP	:=	${ROM}

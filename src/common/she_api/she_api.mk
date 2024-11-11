@@ -85,6 +85,12 @@ SHE_API_SRC	+= \
 		$(PLAT_COMMON_PATH)/she_api/she_get_id.o
 endif
 
+ifneq (${MT_SAB_MAC},0x0)
+DEFINES		+=	-DSHE_MAC
+SHE_API_SRC	+= \
+		$(PLAT_COMMON_PATH)/she_api/she_mac.o
+endif
+
 OBJECTS		+= $(SHE_API_SRC)
 
 INCLUDE_PATHS	+= \

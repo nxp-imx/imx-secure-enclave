@@ -8,7 +8,6 @@
 #include "internal/hsm_mac.h"
 
 #include "sab_process_msg.h"
-
 #include "plat_utils.h"
 #include "plat_os_abs.h"
 
