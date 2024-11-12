@@ -42,6 +42,13 @@ struct seco_mu_ioctl_get_soc_info {
 	uint8_t  board_type;
 };
 
+struct seco_ioctl_cmd_snd_rcv_rsp_info {
+	uint32_t *tx_buf;
+	int tx_buf_sz;
+	uint32_t *rx_buf;
+	int rx_buf_sz;
+};
+
 struct seco_time_frame {
 	struct timespec t_start;
 	struct timespec t_end;
@@ -63,6 +70,8 @@ struct seco_time_frame {
 			struct seco_mu_ioctl_signed_message)
 #define SECO_MU_IOCTL_GET_SOC_INFO	_IOR(SECO_MU_IOCTL, 0x06, \
 			struct seco_mu_ioctl_get_soc_info)
+#define SECO_IOCTL_CMD_SEND_RCV_RSP	_IOWR(SECO_MU_IOCTL, 0x07, \
+					struct seco_ioctl_cmd_snd_rcv_rsp_info)
 #define SECO_MU_IOCTL_GET_TIMER	_IOR(SECO_MU_IOCTL, 0x08, \
 			struct seco_time_frame)
 

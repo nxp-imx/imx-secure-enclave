@@ -193,7 +193,7 @@ uint32_t plat_send_msg_and_rcv_resp(struct plat_os_abs_hdl *phdl,
 				    uint32_t *rsp_len)
 {
 	uint32_t err = PLAT_FAILURE;
-	uint32_t len;
+	uint32_t len = *rsp_len;
 
 	do {
 		/* Command and response need to be at least 1 word for the header. */
@@ -201,93 +201,41 @@ uint32_t plat_send_msg_and_rcv_resp(struct plat_os_abs_hdl *phdl,
 			(*rsp_len < (uint32_t)sizeof(uint32_t)))
 			break;
 
-		/* Send the command. */
-		len = plat_os_abs_send_mu_message(phdl, cmd, cmd_len);
-		if (!len || len != cmd_len) {
-			printf("\nSAB CMD[0x%x]: Write MU MSG failed\n",
-			       ((struct sab_mu_hdr *)cmd)->command);
-			break;
-		}
 #if DEBUG
-	printf("\n---------- MSG Command with msg id[0x%x] = %d -------------\n",
-			((struct sab_mu_hdr *)cmd)->command,
-			((struct sab_mu_hdr *)cmd)->command);
-	hexdump(cmd, cmd_len >> 2);
-	printf("\n-------------------MSG END-----------------------------------\n");
+		if (((struct sab_mu_hdr *)cmd)->command) {
+			printf("\n---------- MSG Command with msg id[0x%x] = %d -------------\n",
+				((struct sab_mu_hdr *)cmd)->command,
+				((struct sab_mu_hdr *)cmd)->command);
+			hexdump(cmd, cmd_len >> 2);
+			printf("\n-------------------MSG END-----------------------------------\n");
+		}
 #endif
-		/* Read the response. */
-		len = plat_os_abs_read_mu_message(phdl, rsp, *rsp_len);
+		/* Send Command & receive response. */
+		err = plat_os_abs_cmd_snd_rcv_rsp(phdl, cmd, &cmd_len, rsp, &len);
+		if (err == PLAT_FAILURE)
+			break;
+
 		if (!len || (len != (*rsp_len))) {
 			if ((val_rcv_rsp_len(len, rsp) == false) ||
 			    (len > (*rsp_len))) {
 				printf("\nSAB CMD[0x%x]: Read MU MSG failed\n",
 				       ((struct sab_mu_hdr *)cmd)->command);
+				err = PLAT_FAILURE;
 				break;
 			}
 		}
-
 		*rsp_len = len;
 #if DEBUG
-	printf("\n---------- MSG Command RSP with msg id[0x%x] = %d -------------\n",
-			((struct sab_mu_hdr *)rsp)->command,
-			((struct sab_mu_hdr *)rsp)->command);
-	hexdump(rsp, *rsp_len/sizeof(uint32_t));
-	printf("\n-------------------MSG RSP END-----------------------------------\n");
+		if (((struct sab_mu_hdr *)rsp)->command) {
+			printf("\n----- MSG Command RSP with msg id[0x%x] = %d -----\n",
+			       ((struct sab_mu_hdr *)rsp)->command,
+			       ((struct sab_mu_hdr *)rsp)->command);
+			hexdump(rsp, *rsp_len >> 2);
+			printf("\n------------------MSG RSP END--------------------\n");
+		}
 #endif
 
-	err = PLAT_SUCCESS;
-	} while (false);
-
-	return err;
-}
-
-/* Helper function to send a message and wait for the response. Return 0 on success.*/
-int32_t plat_send_msg_and_get_resp(struct plat_os_abs_hdl *phdl,
-				   uint32_t *cmd,
-				   uint32_t cmd_len,
-				   uint32_t *rsp,
-				   uint32_t rsp_len)
-{
-	int32_t err = -1;
-	uint32_t len;
-
-	do {
-		/* Command and response need to be at least 1 word for the header. */
-		if (cmd_len < (uint32_t)sizeof(uint32_t) ||
-		    rsp_len < (uint32_t)sizeof(uint32_t)) {
-			break;
-		}
-
-		/* Send the command. */
-		len = plat_os_abs_send_mu_message(phdl, cmd, cmd_len);
-		if (!len || len != cmd_len) {
-			printf("\nSAB CMD[0x%x]: Write MU MSG failed\n",
-			       ((struct sab_mu_hdr *)cmd)->command);
-			break;
-		}
-#if DEBUG
-	printf("\n---------- MSG Command with msg id[0x%x] = %d -------------\n",
-			((struct sab_mu_hdr *)cmd)->command,
-			((struct sab_mu_hdr *)cmd)->command);
-	hexdump(cmd, cmd_len >> 2);
-	printf("\n-------------------MSG END-----------------------------------\n");
-#endif
-		/* Read the response. */
-		len = plat_os_abs_read_mu_message(phdl, rsp, rsp_len);
-		if (!len || len != rsp_len || (val_rcv_rsp_len(len, rsp) == false)) {
-			printf("\nSAB CMD[0x%x]: Read MU MSG failed\n",
-			       ((struct sab_mu_hdr *)cmd)->command);
-			break;
-		}
-#if DEBUG
-	printf("\n---------- MSG Command RSP with msg id[0x%x] = %d -------------\n",
-			((struct sab_mu_hdr *)rsp)->command,
-			((struct sab_mu_hdr *)rsp)->command);
-	hexdump(rsp, rsp_len >> 2);
-	printf("\n-------------------MSG RSP END-----------------------------------\n");
-#endif
-
-		err = 0;
+		err = PLAT_SUCCESS;
 	} while (false);
 
 	return err;
