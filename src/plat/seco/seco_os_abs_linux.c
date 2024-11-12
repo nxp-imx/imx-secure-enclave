@@ -25,15 +25,15 @@
  * MU3: unused
  */
 
-char SECO_MU_SHE_PATH[] = "/dev/she1_ch0";
+char SECO_MU_SHE_PATH[] = "/dev/she0_ch0";
 // This device is for SHE channel on SE, best effort high priority.
-char SECO_MU_SHE_NVM_PATH[] = "/dev/she1_ch1";
+char SECO_MU_SHE_NVM_PATH[] = "/dev/she0_ch0";
 // This device is for SHE NVM channel on SE.
-char SECO_MU_HSM_PATH_PRIMARY[] = "/dev/hsm1_ch0";
+char SECO_MU_HSM_PATH_PRIMARY[] = "/dev/hsm0_ch0";
 // This device is for HSM1 channel 0 on SE, best effort high priority.
-char SECO_MU_HSM_NVM_PATH[] = "/dev/hsm1_ch1";
+char SECO_MU_HSM_NVM_PATH[] = "/dev/hsm0_ch0";
 // This device is for HSM NVM channel on SE.
-char SECO_MU_HSM_PATH_SECONDARY[] = "/dev/hsm1_ch2";
+char SECO_MU_HSM_PATH_SECONDARY[] = "/dev/hsm1_ch0";
 // This device is for HSM1 channel 2 on SE, best effort high priority.
 
 /*
@@ -43,17 +43,17 @@ char V2X_MU_SV0_PATH[] = "/dev/v2x_sv0_ch0";
 // This device is for SV0 channel on V2X, low latency high priority.
 char V2X_MU_SV1_PATH[] = "/dev/v2x_sv1_ch0";
 // This device is for SV1 channel on V2X, low latency low priority.
-char V2X_MU_SHE_PATH[] = "/dev/v2x_she_ch0";
+char V2X_MU_SHE_PATH[] = "/dev/v2x_she0_ch0";
 // This device is for SHE channel on V2X, low latency  high priority.
 char V2X_MU_SG0_PATH[] = "/dev/v2x_sg0_ch0";
 // This device is for SG0 channel on V2X, low latency high priority.
 char V2X_MU_SG1_PATH[] = "/dev/v2x_sg1_ch0";
 // This device is for SG1 channel on V2X, low latency low priority.
-char V2X_SHE_DBG_MU_NVM_PATH[] = "/dev/v2x_dbg_ch0";
+char V2X_SHE_DBG_MU_NVM_PATH[] = "/dev/v2x_dbg0_ch0";
 // This device is for SHE NVM channel on DEBUG MU.
-char V2X_MU_SHE_NVM_PATH[] = "/dev/v2x_she_ch1";
+char V2X_MU_SHE_NVM_PATH[] = "/dev/v2x_she0_ch0";
 // This device is for SHE NVM channel on V2X.
-char V2X_MU_SG1_NVM_PATH[] = "/dev/v2x_sg1_ch1";
+char V2X_MU_SG1_NVM_PATH[] = "/dev/v2x_sg0_ch0";
 // This device is for V2X NVM channel on V2X.
 
 /* Open a SHE session and returns a pointer to the handle or NULL in case of error.
