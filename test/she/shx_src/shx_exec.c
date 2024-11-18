@@ -21,6 +21,7 @@
 #include "shx_test_ecb.h"
 #include "shx_test_rng.h"
 #include "shx_test_status.h"
+#include "shx_test_cmac.h"
 
 /*
  * As known limitation, a test name can't be included in another test name
@@ -57,7 +58,11 @@ struct she_test_entry_t tests[SHE_TEST_COUNT] = {
 	{"SHE_TEST_GET_STATUS", she_test_get_status},
 	{"SHE_TEST_GET_ID", she_test_get_id},
 	{"SHE_TEST_GET_LAST_RATING_CODE", she_test_get_last_rating_code},
-	{"SHE_TEST_GET_INFO", she_test_get_info}
+	{"SHE_TEST_GET_INFO", she_test_get_info},
+	{"SHE_TEST_CMAC_GEN", she_test_cmac_gen},
+	{"SHE_TEST_CMAC_VERIF", she_test_cmac_verif},
+	{"SHE_TEST_OPEN_CMAC_SESSION", she_test_open_cmac_session},
+	{"SHE_TEST_CLOSE_CMAC_SESSION", she_test_close_cmac_session}
 };
 
 int she_exec_function(int i, FILE *fp, void *testCtx)

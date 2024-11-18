@@ -12,7 +12,7 @@
 
 #include "shx_test.h"
 
-#define SHE_TEST_COUNT 30
+#define SHE_TEST_COUNT 34
 extern struct she_test_entry_t tests[SHE_TEST_COUNT];
 
 int she_exec_function(int i, FILE *fp, void *testCtx);

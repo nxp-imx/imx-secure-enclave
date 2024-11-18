@@ -14,13 +14,14 @@
 typedef enum {
 	KEY_STORE = 0,
 	UTILS,
-	CIPHER
+	CIPHER,
+	CMAC
 } service_type;
 
 typedef struct {
 	she_hdl_t she_hdl;
 	she_hdl_t rng_hdl;
-	she_hdl_t service_hdl[5][3];
+	she_hdl_t service_hdl[5][4];
 	int cmd_prio;
 	int inst;
 	char cmd_name[32];
