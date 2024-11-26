@@ -7,7 +7,7 @@
 #define MAC_H
 
 #include <stdint.h>
-#include "plat_utils.h"
+#include "utils.h"
 
 /**
  *  @defgroup group20 Mac
