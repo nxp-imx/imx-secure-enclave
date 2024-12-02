@@ -437,18 +437,6 @@ she_err_t she_key_update_test(she_hdl_t utils_handle)
 						0xbe, 0xe1, 0x00, 0x3c,
 						0xab, 0xde, 0x05, 0x52,
 						0x86, 0x2e, 0xa7, 0x62};
-	uint8_t m2_ram[2 * SHE_KEY_SIZE_IN_BYTES] = {0x15, 0x28, 0x76, 0xf2,
-						     0x9d, 0xc7, 0xca, 0x8d,
-						     0x18, 0xe3, 0x8d, 0x70,
-						     0x37, 0x44, 0x92, 0xb0,
-						     0x36, 0xf2, 0x0b, 0x10,
-						     0x90, 0x65, 0x52, 0x33,
-						     0x65, 0xeb, 0xd8, 0xab,
-						     0x0e, 0x0a, 0x87, 0x31};
-	uint8_t m3_ram[SHE_KEY_SIZE_IN_BYTES] = {0xf1, 0x72, 0xe0, 0xd9,
-						 0x72, 0xd3, 0xf4, 0xc4,
-						 0x4c, 0x9a, 0x2b, 0x12,
-						 0x1b, 0x15, 0xa7, 0x2f};
 	uint8_t m4[2 * SHE_KEY_SIZE_IN_BYTES] = {0};
 	uint8_t m5[SHE_KEY_SIZE_IN_BYTES] = {0};
 	she_err_t err;
@@ -514,17 +502,41 @@ she_err_t she_key_update_test(she_hdl_t utils_handle)
 	}
 	se_print("SHE KEY UPDATE TEST FOR KEY_10 --> PASSED\n");
 
-	m1[15] = 0xed;
-	memset(&key_update_args, 0, sizeof(key_update_args));
+	return err;
+}
+
+she_err_t she_ram_key_update_test(she_hdl_t utils_handle)
+{
+	op_key_update_args_t key_update_args = {0};
+	uint8_t m1[SHE_KEY_SIZE_IN_BYTES] = {0x00, 0x00, 0x00, 0x00,
+					     0x00, 0x00, 0x00, 0x00,
+					     0x00, 0x00, 0x00, 0x00,
+					     0x00, 0x00, 0x00, 0xed};
+	uint8_t m2[2 * SHE_KEY_SIZE_IN_BYTES] = {0x15, 0x28, 0x76, 0xf2,
+						 0x9d, 0xc7, 0xca, 0x8d,
+						 0x18, 0xe3, 0x8d, 0x70,
+						 0x37, 0x44, 0x92, 0xb0,
+						 0x36, 0xf2, 0x0b, 0x10,
+						 0x90, 0x65, 0x52, 0x33,
+						 0x65, 0xeb, 0xd8, 0xab,
+						 0x0e, 0x0a, 0x87, 0x31};
+	uint8_t m3[SHE_KEY_SIZE_IN_BYTES] = {0xf1, 0x72, 0xe0, 0xd9,
+					     0x72, 0xd3, 0xf4, 0xc4,
+					     0x4c, 0x9a, 0x2b, 0x12,
+					     0x1b, 0x15, 0xa7, 0x2f};
+	uint8_t m4[2 * SHE_KEY_SIZE_IN_BYTES] = {0};
+	uint8_t m5[SHE_KEY_SIZE_IN_BYTES] = {0};
+	she_err_t err;
+
 	key_update_args.key_id = SHE_RAM_KEY;
 	key_update_args.m1 = m1;
-	key_update_args.m2 = m2_ram;
-	key_update_args.m3 = m3_ram;
+	key_update_args.m2 = m2;
+	key_update_args.m3 = m3;
 	key_update_args.m4 = m4;
 	key_update_args.m5 = m5;
 	key_update_args.m1_size = sizeof(m1);
-	key_update_args.m2_size = sizeof(m2_ram);
-	key_update_args.m3_size = sizeof(m3_ram);
+	key_update_args.m2_size = sizeof(m2);
+	key_update_args.m3_size = sizeof(m3);
 	key_update_args.m4_size = sizeof(m4);
 	key_update_args.m5_size = sizeof(m5);
 
@@ -573,6 +585,21 @@ she_err_t do_she_key_update_test(she_hdl_t utils_handle)
 		se_print("KEY UPDATE EXT TEST ---> FAILED\n\n");
 	else
 		se_print("KEY UPDATE EXT TEST ---> PASSED\n\n");
+
+	return err;
+}
+
+she_err_t do_she_ram_key_update_test(she_hdl_t utils_handle)
+{
+	she_err_t err;
+
+	se_print("------ RAM KEY UPDATE TEST STARTING ------\n");
+
+	err = she_ram_key_update_test(utils_handle);
+	if (err)
+		se_print("RAM KEY UPDATE TEST ---> FAILED\n\n");
+	else
+		se_print("RAM KEY UPDATE TEST ---> PASSED\n\n");
 
 	return err;
 }
