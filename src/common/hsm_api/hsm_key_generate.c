@@ -1,6 +1,6 @@
 // SPDX-License-Identifier: BSD-3-Clause
 /*
- * Copyright 2022-2023 NXP
+ * Copyright 2022-2024 NXP
  */
 
 #include <stdint.h>
@@ -26,9 +26,12 @@ hsm_err_t hsm_generate_key(hsm_hdl_t key_management_hdl,
 	uint32_t rsp_code = SAB_NO_MESSAGE_RATING;
 
 	do {
-		if ((args == NULL) || (args->key_identifier == NULL)) {
+#ifndef PSA_COMPLIANT
+		if (!args || !args->key_identifier)
+#else
+		if (!args)
+#endif
 			break;
-		}
 
 		if (!key_management_hdl) {
 			err = HSM_UNKNOWN_HANDLE;

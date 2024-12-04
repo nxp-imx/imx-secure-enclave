@@ -1,6 +1,6 @@
 // SPDX-License-Identifier: BSD-3-Clause
 /*
- * Copyright 2022-2023 NXP
+ * Copyright 2022-2024 NXP
  */
 
 #include "internal/hsm_key.h"
@@ -27,23 +27,39 @@ uint32_t prepare_msg_generatekey(void *phdl,
 	if (!op_args)
 		return SAB_ENGN_FAIL;
 
-	cmd->key_management_handle = msg_hdl;
-
-	cmd->out_pub_key_sz = op_args->out_size;
+	cmd->pub_key_sz = op_args->out_size;
 	cmd->flags = op_args->flags;
 	cmd->key_type = op_args->key_type;
 	cmd->key_group = op_args->key_group;
-	cmd->key_identifier = *(op_args->key_identifier);
 #ifndef PSA_COMPLIANT
+	cmd->key_management_handle = msg_hdl;
+	cmd->key = *op_args->key_identifier;
 	cmd->key_info = op_args->key_info;
 #else
+	cmd->priv_key_sz = op_args->priv_out_key_sz;
+
+	if ((op_args->flags & HSM_OP_KEY_GENERATION_FLAGS_PLAINTEXT_KEY) ==
+	    HSM_OP_KEY_GENERATION_FLAGS_PLAINTEXT_KEY) {
+		set_phy_addr_to_words(&cmd->key,
+				      0u,
+				      plat_os_abs_data_buf((struct plat_os_abs_hdl *)phdl,
+							   op_args->priv_out_key,
+							   op_args->priv_out_key_sz,
+							   DATA_BUF_IS_OUTPUT));
+	} else {
+		cmd->key_management_handle = msg_hdl;
+
+		if (op_args->key_identifier)
+			cmd->key = *op_args->key_identifier;
+	}
+
 	cmd->key_lifetime = op_args->key_lifetime;
 	cmd->key_usage = op_args->key_usage;
 	cmd->key_sz = op_args->bit_key_sz;
 	cmd->permitted_algo = op_args->permitted_algo;
 	cmd->key_lifecycle = op_args->key_lifecycle;
 #endif
-	set_phy_addr_to_words(&cmd->out_key_addr,
+	set_phy_addr_to_words(&cmd->pub_key_addr,
 			      0u,
 			      plat_os_abs_data_buf((struct plat_os_abs_hdl *)phdl,
 						   op_args->out_key,
@@ -73,10 +89,13 @@ uint32_t proc_msg_rsp_generatekey(void *rsp_buf, void *args)
 #ifndef PSA_COMPLIANT
 	if ((op_args->flags & HSM_OP_KEY_GENERATION_FLAGS_CREATE)
 			== HSM_OP_KEY_GENERATION_FLAGS_CREATE)
-#endif
 		*(op_args->key_identifier) = rsp->key_identifier;
-#ifdef PSA_COMPLIANT
-		op_args->exp_out_size = rsp->out_key_sz;
+#else
+	if (op_args->key_identifier)
+		*op_args->key_identifier = rsp->key_identifier;
+
+	op_args->exp_out_size = rsp->exp_pub_key_sz;
+	op_args->exp_priv_out_key_sz = rsp->exp_priv_key_sz;
 #endif
 exit:
 	return err;

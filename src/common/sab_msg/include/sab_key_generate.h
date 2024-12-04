@@ -1,6 +1,6 @@
 // SPDX-License-Identifier: BSD-3-Clause
 /*
- * Copyright 2022-2023 NXP
+ * Copyright 2022-2024 NXP
  */
 
 #ifndef SAB_KEY_GENERATE_H
@@ -13,15 +13,19 @@
 struct sab_cmd_generate_key_msg {
 	struct sab_mu_hdr hdr;
 	uint32_t key_management_handle;
-	uint32_t key_identifier;
+	/**
+	 * key field represents:
+	 *  - Identifier of the key
+	 *  - Address of the key (Valid for PSA_COMPLIANT only)
+	 */
+	uint32_t key;
+	uint16_t pub_key_sz;
 #ifndef PSA_COMPLIANT
-	uint16_t out_pub_key_sz;
 	uint8_t flags;
 	uint8_t key_type;
 	uint16_t key_group;
 	uint16_t key_info;
 #else
-	uint16_t out_pub_key_sz;
 	uint16_t key_group;
 	uint16_t key_type;
 	uint16_t key_sz;
@@ -30,9 +34,10 @@ struct sab_cmd_generate_key_msg {
 	uint32_t permitted_algo;
 	uint32_t key_lifecycle;
 	uint8_t flags;
-	uint8_t rsv[3];
+	uint8_t rsv;
+	uint16_t priv_key_sz;
 #endif
-	uint32_t out_key_addr;
+	uint32_t pub_key_addr;
 	uint32_t crc;
 };
 
@@ -41,8 +46,8 @@ struct sab_cmd_generate_key_rsp {
 	uint32_t rsp_code;
 	uint32_t key_identifier;
 #ifdef PSA_COMPLIANT
-	uint16_t out_key_sz;
-	uint16_t reserved;
+	uint16_t exp_pub_key_sz;
+	uint16_t exp_priv_key_sz;
 #endif
 };
 

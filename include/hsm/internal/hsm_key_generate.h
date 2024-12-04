@@ -21,7 +21,14 @@
 typedef uint8_t hsm_op_key_gen_flags_t;
 
 #ifdef PSA_COMPLIANT
-//!< Reserverd Bits 0 - 6
+#define HSM_OP_KEY_GENERATION_FLAGS_PLAINTEXT_KEY \
+			((hsm_op_key_gen_flags_t)(1u << 3))
+//!< Plaintext key. Key is generated and exported to user’s memory.
+
+#define HSM_OP_KEY_GENERATION_FLAGS_MONOTONIC_COUNTER \
+			((hsm_op_key_gen_flags_t)(1u << 5))
+//!< Monotonic counter increment when used in conjunction with SYNC,
+//!< the request is completed only when the monotonic counter has been updated.
 #else
 /* Flags for NON-PSA COMPLIANT platforms such as SECO.
  */
@@ -48,8 +55,13 @@ typedef struct {
 	//!< pointer to the identifier of the key to be used for the operation.
 	//!< In case of create operation the new key identifier will be stored
 	//!< in this location.
+#ifdef PSA_COMPLIANT
+	//!< In case of using key identifier (i.e. opaque key),
+	//!< it must be ensured that the flag for PLAINTEXT key is not set.
+#endif
 	uint16_t out_size;
-	//!< length in bytes of the generated key.It must be 0 in case of symmetric keys.
+	//!< length in bytes of the generated public key.
+	//!< It must be 0 in case of symmetric keys.
 	hsm_op_key_gen_flags_t flags;
 	//!< bitmap specifying the operation properties.
 	hsm_key_type_t key_type;
@@ -58,6 +70,7 @@ typedef struct {
 	//!< Key group of the generated key.
 #ifdef PSA_COMPLIANT
 	//!< It must be a value in the range 0-99.
+	//!< Reserved in case of PLAINTEXT flag usage.
 #else
 	//!< It must be a value in the range 0-1023.
 #endif
@@ -68,20 +81,35 @@ typedef struct {
 	//!< must be written.
 #ifdef PSA_COMPLIANT
 	uint16_t exp_out_size;
-	//!< expected output key buffer size, valid in case of HSM_OUT_TOO_SMALL
-	//!<   (0x1D) error code
+	//!< expected public key output buffer size, valid in case of HSM_OUT_TOO_SMALL
+	//!< (0x1D) error code
 	hsm_bit_key_sz_t bit_key_sz;
 	//!< indicates key security size in bits.
 	hsm_key_lifecycle_t key_lifecycle;
 	//!< defines the key lifecycle in which the key is usable.
 	//!< If it is set to 0, current key lifecycle is used.
+	//!< Reserved in case of PLAINTEXT flag usage.
 	hsm_key_lifetime_t key_lifetime;
 	//!< this attribute comprises of two indicaters-key persistence level
 	//!< and location where the key is stored.
+	//!< Reserved in case of PLAINTEXT flag usage.
 	hsm_key_usage_t key_usage;
 	//!< indicates the cryptographic operations that key can execute.
+	//!< Reserved in case of PLAINTEXT flag usage.
 	hsm_permitted_algo_t permitted_algo;
 	//!< indicates the key permitted algorithm.
+	//!< Reserved in case of PLAINTEXT flag usage.
+	uint16_t priv_out_key_sz;
+	//!< length in bytes of the generated private key.
+	//!< Only valid with PLAINTEXT flag.
+	uint8_t *priv_out_key;
+	//!< pointer to the output area where the generated private key,
+	//!< must be written.
+	//!< Only valid with PLAINTEXT flag.
+	uint16_t exp_priv_out_key_sz;
+	//!< expected private key output buffer size, valid in case of HSM_OUT_TOO_SMALL
+	//!< (0x1D) error code.
+	//!< Only valid with PLAINTEXT flag.
 #else
 	hsm_key_info_t key_info;
 	//!< bitmap specifying the properties of the key.
