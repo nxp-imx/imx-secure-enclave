@@ -42,6 +42,8 @@ hsm_err_t generate_test_key(hsm_hdl_t key_mgmt_hdl,
 			    uint16_t out_size,
 			    uint8_t *out_key,
 			    uint32_t *key_id);
+
+hsm_err_t test_generate_key(hsm_hdl_t key_mgmt_hdl);
 hsm_err_t do_mac_test(hsm_hdl_t key_store_hdl, hsm_hdl_t key_mgmt_hdl);
 hsm_err_t do_cipher_test(hsm_hdl_t key_store_hdl, hsm_hdl_t key_mgmt_hdl);
 hsm_err_t hsm_mac_test(hsm_hdl_t key_store_hdl, hsm_hdl_t key_mgmt_hdl);

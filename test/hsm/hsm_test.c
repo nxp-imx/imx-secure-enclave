@@ -377,6 +377,9 @@ static void transient_key_tests(hsm_hdl_t sess_hdl,
 	printf("hsm_open_key_management_service ret:0x%x\n", hsmret);
 
 #ifdef PSA_COMPLIANT
+	// Generate Key (plaintext) test
+	test_generate_key(key_mgmt_hdl);
+
 	//Data Storage (Encrypted and Signed)
 	enc_data_storage_test(key_mgmt_hdl, key_store_hdl);
 
