@@ -67,13 +67,22 @@ hsm_err_t hsm_sign_verify_tests(hsm_hdl_t sess_hdl, hsm_hdl_t key_store_hdl,
 				uint32_t key_id,
 				hsm_signature_scheme_id_t scheme_id,
 #ifdef PSA_COMPLIANT
+				uint16_t key_type,
 				hsm_pubkey_type_t pkey_type, hsm_bit_key_sz_t key_sz,
 #endif
 				uint8_t *signature_data, uint32_t sign_data_sz,
 				uint8_t *input_data, uint32_t input_data_sz,
+#ifdef PSA_COMPLIANT
+				uint8_t *priv_key, uint16_t priv_key_size,
+#endif
 				uint8_t *pub_key, uint32_t pub_key_sz,
 				uint8_t input_data_type);
 
+#ifdef PSA_COMPLIANT
+hsm_err_t hsm_sign_verify_plaintext_tests(hsm_hdl_t sess_hdl,
+					  hsm_hdl_t key_store_hdl,
+					  hsm_hdl_t key_mgmt_hdl);
+#endif
 void hsm_sign_verify_eddsa_tests(hsm_hdl_t sess_hdl,
 				 hsm_hdl_t key_store_hdl,
 				 hsm_hdl_t key_mgmt_hdl);
