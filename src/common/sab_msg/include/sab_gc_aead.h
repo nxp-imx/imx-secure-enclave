@@ -23,8 +23,8 @@ struct sab_cmd_gc_aead_msg {
 	uint32_t aad_size;
 	uint32_t tag_addr;
 	uint32_t tag_size;
-	uint8_t mode;
 	uint8_t algo;
+	uint8_t mode;
 	uint16_t rsv;
 	uint32_t crc;
 };

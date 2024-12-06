@@ -40,8 +40,8 @@ hsm_err_t gc_cipher_test(hsm_hdl_t session_hdl)
 	gc_cipher_args.plain_key_buff_sz = sizeof(symm_key_id);
 	gc_cipher_args.iv_buff = iv_buff_data;
 	gc_cipher_args.iv_buff_sz = sizeof(iv_buff_data);
-	gc_cipher_args.algorithm = HSM_GC_CIPHER_OP_MODE_ENCRYPT;
-	gc_cipher_args.op_mode = HSM_GC_CIPHER_ALGO_AES_CBC_NOPAD;
+	gc_cipher_args.op_mode = HSM_GC_CIPHER_OP_MODE_ENCRYPT;
+	gc_cipher_args.algorithm = HSM_GC_CIPHER_ALGO_AES_CBC_NOPAD;
 	gc_cipher_args.in_data_buff = input_data;
 	gc_cipher_args.out_data_buff = ciphered_data;
 	gc_cipher_args.in_data_buff_sz = sizeof(input_data);
@@ -50,7 +50,7 @@ hsm_err_t gc_cipher_test(hsm_hdl_t session_hdl)
 	if (hsmret)
 		printf("hsm_gc_cipher ret:0x%x\n", hsmret);
 
-	gc_cipher_args.algorithm = HSM_GC_CIPHER_OP_MODE_DECRYPT;
+	gc_cipher_args.op_mode = HSM_GC_CIPHER_OP_MODE_DECRYPT;
 	gc_cipher_args.in_data_buff = ciphered_data;
 	gc_cipher_args.out_data_buff = deciphered_data;
 	gc_cipher_args.in_data_buff_sz = sizeof(ciphered_data);

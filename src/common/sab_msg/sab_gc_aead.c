@@ -70,12 +70,23 @@ uint32_t prepare_msg_gc_aead(void *phdl,
 						   op_args->aad_sz,
 						   DATA_BUF_IS_INPUT));
 
-	set_phy_addr_to_words(&cmd->tag_addr,
-			      0u,
-			      plat_os_abs_data_buf((struct plat_os_abs_hdl *)phdl,
-						   op_args->tag_buff,
-						   op_args->tag_sz,
-						   DATA_BUF_IS_INPUT));
+	if (cmd->mode == HSM_GC_AEAD_OP_MODE_ENCRYPT) {
+		set_phy_addr_to_words(&cmd->tag_addr,
+				      0u,
+				      plat_os_abs_data_buf
+					((struct plat_os_abs_hdl *)phdl,
+					op_args->tag_buff,
+					op_args->tag_sz,
+					DATA_BUF_IS_OUTPUT));
+	} else {
+		set_phy_addr_to_words(&cmd->tag_addr,
+				      0u,
+				      plat_os_abs_data_buf
+					((struct plat_os_abs_hdl *)phdl,
+					op_args->tag_buff,
+					op_args->tag_sz,
+					DATA_BUF_IS_INPUT));
+	}
 
 	*cmd_msg_sz = sizeof(struct sab_cmd_gc_aead_msg);
 	*rsp_msg_sz = sizeof(struct sab_cmd_gc_aead_rsp);

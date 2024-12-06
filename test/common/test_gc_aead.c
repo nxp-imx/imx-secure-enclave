@@ -46,8 +46,8 @@ hsm_err_t gc_aead_test(hsm_hdl_t session_hdl)
 	gc_aead_args.plain_key_buff_sz = sizeof(key_id);
 	gc_aead_args.nonce_buff = nonce_data;
 	gc_aead_args.nonce_sz = sizeof(nonce_data);
-	gc_aead_args.algorithm = HSM_GC_AEAD_OP_MODE_ENCRYPT;
-	gc_aead_args.op_mode = HSM_GC_AEAD_ALGO_AES_GCM;
+	gc_aead_args.op_mode = HSM_GC_AEAD_OP_MODE_ENCRYPT;
+	gc_aead_args.algorithm = HSM_GC_AEAD_ALGO_AES_GCM;
 	gc_aead_args.in_data_buff = in_data;
 	gc_aead_args.out_data_buff = ciphered;
 	gc_aead_args.in_data_buff_sz = sizeof(in_data);
@@ -60,7 +60,7 @@ hsm_err_t gc_aead_test(hsm_hdl_t session_hdl)
 	if (hsmret)
 		printf("hsm_gc_aead ret:0x%x\n", hsmret);
 
-	gc_aead_args.algorithm = HSM_GC_AEAD_OP_MODE_DECRYPT;
+	gc_aead_args.op_mode = HSM_GC_AEAD_OP_MODE_DECRYPT;
 	gc_aead_args.in_data_buff = ciphered;
 	gc_aead_args.out_data_buff = deciphered;
 	gc_aead_args.in_data_buff_sz = sizeof(ciphered);
