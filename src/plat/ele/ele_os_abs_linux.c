@@ -94,15 +94,15 @@ struct plat_os_abs_hdl *plat_os_abs_open_mu_channel(uint32_t type, struct plat_m
 			phdl = NULL;
 		}
 
-            if (is_nvm != 0u) {
-                /* for NVM: configure the device to accept incoming commands. */
-                if (ioctl(phdl->fd, ELE_MU_IOCTL_ENABLE_CMD_RCV)) {
-			/* Close the device. */
-			(void)close(phdl->fd);
-			plat_os_abs_free(phdl);
-			phdl = NULL;
-                }
-            }
+		if (is_nvm && phdl) {
+			/* for NVM: configure the device to accept incoming commands. */
+			if (ioctl(phdl->fd, ELE_MU_IOCTL_ENABLE_CMD_RCV)) {
+				/* Close the device. */
+				(void)close(phdl->fd);
+				plat_os_abs_free(phdl);
+				phdl = NULL;
+			}
+		}
         }
     }
     return phdl;
