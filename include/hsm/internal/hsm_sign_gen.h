@@ -84,8 +84,13 @@ typedef uint8_t hsm_op_generate_sign_flags_t;
 #endif
 
 #ifdef PSA_COMPLIANT
+/**
+ * Bit field indicating the private key input from user
+ */
+#define HSM_OP_GENERATE_SIGN_FLAGS_PLAINTEXT_KEY \
+				((hsm_op_generate_sign_flags_t)(1u << 3))
+
 //! Bit field indicating the PSA compliant requested operations:
-//! Bit 2 to 7: Reserved.
 
 typedef enum {
 	HSM_SIGNATURE_SCHEME_RSA_PKCS1_V15_SHA224       = 0x06000208,
@@ -152,6 +157,10 @@ typedef uint8_t hsm_signature_scheme_id_t;
 typedef struct {
 	uint32_t key_identifier;
 	//!< identifier of the key to be used for the operation
+#ifdef PSA_COMPLIANT
+	//!< In case of using key identifier (i.e. opaque key),
+	//!< it must be ensured that the flag for PLAINTEXT key is not set.
+#endif
 	uint8_t *message;
 	//!< pointer to the input (message or message digest) to be signed
 	uint8_t *signature;
@@ -172,6 +181,18 @@ typedef struct {
 #ifdef PSA_COMPLIANT
 	uint16_t salt_len;
 	//!< Salt length in bytes
+	uint16_t key_type;
+	//!< Key Type.
+	//!< Only valid with PLAINTEXT flag.
+	uint16_t priv_key_size;
+	//!< Size in bytes of the private key input buffer.
+	//!< Only valid with PLAINTEXT flag.
+	uint8_t *priv_key;
+	//!< Pointer to the private key input buffer, to be used to generate signature.
+	//!< Only valid with PLAINTEXT flag.
+	uint16_t key_security_size;
+	//!< Keypair security size in bits.
+	//!< Only valid with PLAINTEXT flag.
 	uint16_t exp_signature_size;
 	//!< expected signature buffer size for output, returned by FW in case
 	//!<	 the input signature size provided is less than the required size.
