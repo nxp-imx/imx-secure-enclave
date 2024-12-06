@@ -464,6 +464,7 @@ static void transient_key_tests(hsm_hdl_t sess_hdl,
 				       master_key_id,
 #ifdef PSA_COMPLIANT
 				       HSM_SIGNATURE_SCHEME_ECDSA_SHA256,
+				       0,
 				       HSM_PUBKEY_TYPE_ECC_NIST,
 				       HSM_KEY_SIZE_ECC_NIST_256,
 #else
@@ -471,6 +472,9 @@ static void transient_key_tests(hsm_hdl_t sess_hdl,
 #endif
 				       signature_data, sizeof(signature_data),
 				       hash_data, sizeof(hash_data),
+#ifdef PSA_COMPLIANT
+				       0, 0,
+#endif
 				       pub_key, sizeof(pub_key),
 				       TEST_INPUT_DIGEST);
 	if (hsmret == HSM_NO_ERROR)
@@ -482,6 +486,10 @@ static void transient_key_tests(hsm_hdl_t sess_hdl,
 		hsm_sign_verify_eddsa_tests(sess_hdl, key_store_hdl, key_mgmt_hdl);
 
 	printf("-----------------------------------------------------\n");
+
+#ifdef PSA_COMPLIANT
+	hsm_sign_verify_plaintext_tests(sess_hdl, key_store_hdl, key_mgmt_hdl);
+#endif
 #else
 	memset(&open_sig_gen_args, 0, sizeof(open_sig_gen_args));
 	hsmret = hsm_open_signature_generation_service(key_store_hdl,

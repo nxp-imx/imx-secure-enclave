@@ -1,6 +1,6 @@
 // SPDX-License-Identifier: BSD-3-Clause
 /*
- * Copyright 2022-2023 NXP
+ * Copyright 2022-2024 NXP
  */
 
 #include "internal/hsm_sign_gen.h"
@@ -98,7 +98,7 @@ uint32_t prepare_msg_sign_generate(void *phdl,
 	*rsp_msg_sz = sizeof(struct sab_signature_generate_rsp);
 
 	cmd->sig_gen_hdl = msg_hdl;
-	cmd->key_identifier = op_args->key_identifier;
+	cmd->key = op_args->key_identifier;
 	set_phy_addr_to_words(&cmd->message_addr,
 			      0u,
 			      plat_os_abs_data_buf((struct plat_os_abs_hdl *)phdl,
@@ -117,6 +117,20 @@ uint32_t prepare_msg_sign_generate(void *phdl,
 	cmd->flags = op_args->flags;
 #ifdef PSA_COMPLIANT
 	cmd->salt_len = op_args->salt_len;
+	cmd->key_type = op_args->key_type;
+	cmd->key_security_size = op_args->key_security_size;
+	cmd->priv_key_size = op_args->priv_key_size;
+
+	if ((op_args->flags & HSM_OP_GENERATE_SIGN_FLAGS_PLAINTEXT_KEY) ==
+	    HSM_OP_GENERATE_SIGN_FLAGS_PLAINTEXT_KEY) {
+		set_phy_addr_to_words(&cmd->key,
+				      0u,
+				      plat_os_abs_data_buf((struct plat_os_abs_hdl *)phdl,
+							   op_args->priv_key,
+							   op_args->priv_key_size,
+							   DATA_BUF_IS_INPUT));
+		cmd->sig_gen_hdl = 0;
+	}
 #endif
 	cmd->crc = 0u;
 

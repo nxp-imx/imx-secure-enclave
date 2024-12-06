@@ -1,6 +1,6 @@
 // SPDX-License-Identifier: BSD-3-Clause
 /*
- * Copyright 2022-2023 NXP
+ * Copyright 2022-2024 NXP
  */
 
 #ifndef SAB_SIGN_GEN_H
@@ -37,17 +37,24 @@ struct sab_signature_gen_close_rsp {
 struct sab_signature_generate_msg {
 	struct sab_mu_hdr hdr;
 	uint32_t sig_gen_hdl;
-	uint32_t key_identifier;
+	/**
+	 * key field represents:
+	 *  - Identifier of the key
+	 *  - Address of the key (Valid for PSA_COMPLIANT only)
+	 */
+	uint32_t key;
 	uint32_t message_addr;
 	uint32_t signature_addr;
 	uint32_t message_size;
 	uint16_t signature_size;
 #ifdef PSA_COMPLIANT
 	uint8_t flags;
-	uint8_t rsv1;
+	uint8_t rsv;
 	uint32_t scheme_id;
 	uint16_t salt_len;
-	uint16_t rsv2;
+	uint16_t key_type;
+	uint16_t priv_key_size;
+	uint16_t key_security_size;
 #else
 	uint8_t scheme_id;
 	uint8_t flags;
