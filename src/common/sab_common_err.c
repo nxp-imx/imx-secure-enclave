@@ -1,6 +1,6 @@
 // SPDX-License-Identifier: BSD-3-Clause
 /*
- * Copyright 2022-2023 NXP
+ * Copyright 2022-2024 NXP
  */
 
 #include "sab_common_err.h"
@@ -13,6 +13,7 @@ void sab_err_map(uint32_t sab_success_tag,
 	struct sab_err_map_s *sab_err_map_ptr = NULL;
 	uint8_t sab_err_str[256];
 	uint8_t i = 0;
+	int ret;
 
 	if (GET_STATUS_CODE(rsp_code) == sab_success_tag) {
 		/* print for warnings. */
@@ -41,7 +42,9 @@ void sab_err_map(uint32_t sab_success_tag,
 			se_warn("unable to write string array for unknown error\n");
 	}
 
-	printf("\n%s\n", sab_err_str);
+	ret = fprintf(stderr, "\n%s\n", sab_err_str);
+	if (ret < 0)
+		se_err("\nError: failed to write error msg on stderr.\n");
 }
 
 void sab_lib_err_map(uint8_t msg_id, uint32_t sab_lib_err)
