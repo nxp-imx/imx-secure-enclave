@@ -68,20 +68,20 @@ function imx8dxlevk_nvmd_config()
     local loc_config_id=$1
 
     case ${loc_config_id} in
-        0)
-            nvmd_config_setup "/etc/hsm/seco_hsm_master" "/etc/hsm/" "0" "SECO"
+        0x80)
+            nvmd_config_setup "/etc/hsm/seco_hsm_master" "/etc/hsm/" "0x80" "SECO"
             ;;
 
-        1)
-            nvmd_config_setup "/etc/she/seco_she_master" "/etc/she/" "1" "SECO"
+        0x88)
+            nvmd_config_setup "/etc/she/seco_she_master" "/etc/she/" "0x88" "SECO"
             ;;
 
-        2)
-            nvmd_config_setup "/etc/v2x_hsm/v2x_hsm_master" "/etc/v2x_hsm/" "2" "V2X"
+        0xD0 | 0xd0)
+            nvmd_config_setup "/etc/v2x_hsm/v2x_hsm_master" "/etc/v2x_hsm/" "0xD0" "V2X"
             ;;
 
-        3)
-            nvmd_config_setup "/etc/v2x_she/v2x_she_master" "/etc/v2x_she/" "3" "V2X"
+        0xC8 | 0xc8)
+            nvmd_config_setup "/etc/v2x_she/v2x_she_master" "/etc/v2x_she/" "0xC8" "V2X"
             ;;
 
         *)
@@ -95,12 +95,12 @@ function imx8qxpmek_nvmd_config()
     local loc_config_id=$1
 
     case ${loc_config_id} in
-        0)
-            nvmd_config_setup "/etc/hsm/seco_hsm_master" "/etc/hsm/" "0" "SECO"
+        0x80)
+            nvmd_config_setup "/etc/hsm/seco_hsm_master" "/etc/hsm/" "0x80" "SECO"
             ;;
 
-        1)
-            nvmd_config_setup "/etc/she/seco_she_master" "/etc/she/" "1" "SECO"
+        0x88)
+            nvmd_config_setup "/etc/she/seco_she_master" "/etc/she/" "0x88" "SECO"
             ;;
 
         *)
@@ -115,16 +115,16 @@ function imx95evk_nvmd_config()
 
     case ${loc_config_id} in
 
-        2)
-            nvmd_config_setup "/etc/v2x_hsm/v2x_hsm_master" "/etc/v2x_hsm/" "2" "V2X"
+        0xD0 | 0xd0)
+            nvmd_config_setup "/etc/v2x_hsm/v2x_hsm_master" "/etc/v2x_hsm/" "0xD0" "V2X"
             ;;
 
-        3)
-            nvmd_config_setup "/etc/v2x_she/v2x_she_master" "/etc/v2x_she/" "3" "V2X"
+        0xC8 | 0xc8)
+            nvmd_config_setup "/etc/v2x_she/v2x_she_master" "/etc/v2x_she/" "0xC8" "V2X"
             ;;
 
-        7)
-            nvmd_config_setup "/etc/v2x_she/v2x_she_master" "/etc/v2x_she/" "7" "V2X"
+        0xE0 | 0xe0)
+            nvmd_config_setup "/etc/v2x_she/v2x_she_master" "/etc/v2x_she/" "0xE0" "V2X"
             ;;
 
         *)
@@ -142,24 +142,17 @@ function usage()
 
     printf "\nNVM_CONFIG_IDs/NVM Flags (config_id):\n"
 
-    printf "\tNVMD_MU_SESSION_FLAG=NVM_FLAGS_HSM (0)\n"
-    printf "\tNVMD_MU_SESSION_FLAG=NVM_FLAGS_SHE (1)\n"
-    printf "\tNVMD_MU_SESSION_FLAG=NVM_FLAGS_HSM | NVM_FLAGS_V2X (2)\n"
-    printf "\tNVMD_MU_SESSION_FLAG=NVM_FLAGS_SHE | NVM_FLAGS_V2X (3)\n"
-    printf "\tNVMD_MU_SESSION_FLAG=NVM_FLAGS_SHE | NVM_FLAGS_V2X |"
-    printf " NVM_FLAGS_DEBUG_MU (7)\n\n"
+    printf "\tNVMD_MU_SESSION_FLAG=0x80 (HSM_NVM)\n"
+    printf "\tNVMD_MU_SESSION_FLAG=0xc8 (V2X_SHE_NVM)\n"
+    printf "\tNVMD_MU_SESSION_FLAG=0xe0 (V2X_SHE_DEBUG_MU_NVM)\n"
+    printf "\tNVMD_MU_SESSION_FLAG=0xd0 (V2X_HSM_NVM)\n"
+    printf "\tNVMD_MU_SESSION_FLAG=0x88 (SHE_NVM)\n\n"
 
     printf "Usage:\n"
     printf "\t./nvmd_conf_setup.sh config_id=NVM_CONFIG_ID\n"
     printf "\t./nvmd_conf_setup.sh custom filename=FILE_PATH "
     printf "dir_name=DIR_PATH flag=FLAG_VALUE type=TYPE\n\n"
 
-    printf "\tNVM_CONFIG_IDs:\n"
-    printf "\t\t0 : Not Supported i.MX95\n"
-    printf "\t\t1 : Not Supported i.MX95\n"
-    printf "\t\t2 : Not Supported i.MX8QXP\n"
-    printf "\t\t3 : Not Supported i.MX8QXP\n"
-    printf "\n"
     printf "\tCUSTOM Mode Usage Example:\n"
     printf "\t\tReplace FILE_PATH with the desired filename,\n"
     printf "\t\tDIR_PATH with the desired directory path,\n"

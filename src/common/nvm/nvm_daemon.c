@@ -1,5 +1,5 @@
 /*
- * Copyright 2022-2023 NXP
+ * Copyright 2022-2024 NXP
  */
 
 /*
@@ -92,7 +92,7 @@ void kill_daemon(int ip)
 int main(int argc, char *argv[])
 {
 	struct sigaction action = {0};
-	int flags = 0;
+	uint32_t flags = 0;
 	uint32_t err = 0;
 
 	if (argc < 4) {
@@ -111,14 +111,9 @@ int main(int argc, char *argv[])
 	if (sigaction(SIGINT, &action, NULL))
 		se_warn("failed to register ctrl-c signal handler\n");
 
-	flags = atoi(argv[3]);
+	flags = TO_UINT32_T(strtol(argv[3], NULL, 0));
 
-	if (flags < 0) {
-		se_err("Invalid flag value %d\n", flags);
-		return 0;
-	}
-
-	err = nvm_manager((uint8_t)(flags), &nvm_ctx, argv[1], argv[2]);
+	err = nvm_manager(TO_UINT8_T(flags), &nvm_ctx, argv[1], argv[2]);
 	if (err)
 		printf("Error: NVM Daemon exited with error(0x%x).\n", err);
 

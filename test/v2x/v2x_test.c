@@ -163,7 +163,7 @@ uint8_t *nvm_fname_dname[] = {
 
 static void *v2x_hsm_storage_thread(void *arg)
 {
-	nvm_manager(NVM_FLAGS_V2X | NVM_FLAGS_HSM,
+	nvm_manager(V2X_HSM_NVM,
 		    &v2x_nvm_ctx,
 		    nvm_fname_dname[0],
 		    nvm_fname_dname[1]);

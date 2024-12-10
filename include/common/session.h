@@ -35,31 +35,70 @@ typedef struct {
 
 /** @} end of session group */
 
-#define HSM1	(0x1u)
+#define HSM1	(0x0u)
 //!< HSM1 channel on SE, best effort high priority.
-#define HSM2	(0x2u)
+#define HSM2	(0x1u)
 //!< HSM2 channel on SE, best effort high priority.
-#define V2X_SG0 (0x3u)
+#define V2X_SG0 (0x50u)
 //!< SG0 channel on V2X, low latency high priority.
-#define V2X_SG1 (0x4u)
+#define V2X_SG1 (0x51u)
 //!< SG1 channel on V2X, low latency low priority.
-#define V2X_SHE (0x5u)
+#define V2X_SHE (0x48u)
 //!< SHE channel on V2X, low latency  high priority.
-#define SHE1	(0x6u)
+#define SHE1	(0x08u)
 //!< SHE channel on SE,  best effort high priority.
-#define V2X_SV0 (0x7u)
+#define V2X_SV0 (0x58u)
 //!< SV0 channel on V2X, low latency high priority.
-#define V2X_SV1 (0x8u)
+#define V2X_SV1 (0x59u)
 //!< SV1 channel on V2X, low latency low priority.
-#define HSM_NVM	(0x12u)
+#define HSM_NVM	(0x80u)
 //!< HSM NVM channel on SE.
-#define SHE_NVM	(0x13u)
+#define SHE_NVM	(0x88u)
 //!< SHE NVM channel on SE.
-#define V2X_SHE_NVM (0x14u)
+#define V2X_SHE_NVM (0xC8u)
 //!< SHE NVM channel on V2X.
-#define V2X_HSM_NVM (0x15u)
-//!< V2X NVM channel on V2X.
-#define V2X_SHE_DEBUG_MU_NVM (0xFFu)
+#define V2X_HSM_NVM (0xD0u)
+//!< V2X HSM NVM channel run on SG0.
+#define V2X_SHE_DEBUG_MU_NVM (0xE0u)
 //!< V2X SHE NVM channel on DEBUG MU.
+
+/*
+ * bit < 0 - 2 > gives the INSTANCE ID
+ */
+#define INSTANCE_ID_MASK	0x07
+#define INSTANCE_0	0x0
+#define INSTANCE_1	0x1
+#define INSTANCE_2	0x2
+#define INSTANCE_3	0x3
+#define INSTANCE_4	0x4
+#define INSTANCE_5	0x5
+#define INSTANCE_6	0x6
+#define INSTANCE_7	0x7
+
+/*
+ * bit < 3 - 5 > gives the MU TYPE
+ */
+#define MU_TYPE_MASK	0x38
+#define MU_HSM		0x00
+#define MU_SHE		0x01
+#define MU_SG		0x02
+#define MU_SV		0x03
+#define MU_DEBUG	0x04
+
+#define MU_STR_HSM	"hsm"
+#define MU_STR_SHE	"she"
+#define MU_STR_SG	"sg"
+#define MU_STR_SV	"sv"
+#define MU_STR_DEBUG	"dbg"
+
+/*
+ * bit < 6 > gives the V2X information
+ */
+#define V2X_MASK	0x40
+
+/*
+ * bit < 7 > gives the NVM Mask
+ */
+#define NVM_MASK	0x80
 
 #endif

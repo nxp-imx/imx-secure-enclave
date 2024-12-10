@@ -121,29 +121,7 @@ static uint32_t nvm_open_session(uint8_t flags, struct nvm_ctx_st *nvm_ctx)
 			break;
 		}
 
-		/* Open the Storage session on the MU */
-		switch (flags) {
-		case NVM_FLAGS_SHE:
-			sess_args.mu_type = SHE_NVM;
-			break;
-		case NVM_FLAGS_V2X_SHE:
-			sess_args.mu_type = V2X_SHE_NVM;
-			break;
-		case NVM_FLAGS_DEBUG_MU_SHE:
-			sess_args.mu_type = V2X_SHE_DEBUG_MU_NVM;
-			break;
-		case NVM_FLAGS_HSM:
-			sess_args.mu_type = HSM_NVM;
-			break;
-		case NVM_FLAGS_V2X_HSM:
-			sess_args.mu_type = V2X_HSM_NVM;
-			break;
-		default:
-			sess_args.mu_type = HSM_NVM;
-			break;
-		}
-
-		nvm_ctx->mu_type = sess_args.mu_type;
+		nvm_ctx->mu_type = flags;
 		nvm_ctx->phdl = plat_os_abs_open_mu_channel(nvm_ctx->mu_type,
 							    &mu_params);
 
@@ -152,6 +130,7 @@ static uint32_t nvm_open_session(uint8_t flags, struct nvm_ctx_st *nvm_ctx)
 		}
 
 		/* Open the SAB session on the selected security enclave */
+		sess_args.mu_type = nvm_ctx->mu_type;
 #ifndef PSA_COMPLIANT
 		sess_args.mu_id = mu_params.mu_id;
 		sess_args.tz = mu_params.tz;
@@ -185,9 +164,11 @@ static uint32_t nvm_open_session(uint8_t flags, struct nvm_ctx_st *nvm_ctx)
 
 		/* Zeroth bit in the flags, denotes:-
 		 * 0: HSM_STORAGE
-		 * 1: SHE_STORAGE
+		 * 1: SHE_STORAGE; MU_DEBUG is added to support SHE NVM on DEBUG MU
 		 */
-		args->flags = flags & BIT(0);
+		if (((flags & MU_TYPE_MASK) >> 3) == MU_SHE ||
+		    ((flags & MU_TYPE_MASK) >> 3) == MU_DEBUG)
+			args->flags = 1;
 
 		err = process_sab_msg(nvm_ctx->phdl,
 					nvm_ctx->mu_type,
@@ -229,6 +210,18 @@ static uint32_t nvm_open_session(uint8_t flags, struct nvm_ctx_st *nvm_ctx)
 	return ret;
 }
 
+bool is_flag_supported(uint8_t flags)
+{
+	if (flags == HSM_NVM ||
+	    flags == SHE_NVM ||
+	    flags == V2X_SHE_NVM ||
+	    flags == V2X_HSM_NVM ||
+	    flags == V2X_SHE_DEBUG_MU_NVM)
+		return true;
+	else
+		return false;
+}
+
 uint32_t nvm_manager(uint8_t flags,
 		     void **ctx,
 		     uint8_t *fname,
@@ -241,6 +234,9 @@ uint32_t nvm_manager(uint8_t flags,
 	uint8_t *data = NULL;
 	uint8_t retry = 0;
 	struct nvm_ctx_st *nvm_ctx = NULL;
+
+	if (!is_flag_supported(flags))
+		return -EINVAL;
 
 	if ((strlen(fname) > MAX_FNAME_DNAME_SZ)
 		|| (strlen(dname) > MAX_FNAME_DNAME_SZ)) {

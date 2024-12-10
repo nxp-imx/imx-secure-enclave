@@ -28,7 +28,7 @@ void new_nvm_daemon(void)
 	const char *conf_setup = "nvmd_conf_setup.sh custom ";
 	const char *dir_name = "dir_name=/etc/ele_temp/ ";
 	const char *filename = "filename=/etc/ele_temp/ele_nvm_master ";
-	const char *flag = "flag=0 ";
+	const char *flag = "flag=0x80 ";
 	const char *type = "type=ELE";
 
 	size_t total_length = strlen(conf_setup) + strlen(dir_name)
@@ -72,7 +72,7 @@ void end_nvm_daemon(void)
 	const char *conf_setup = "nvmd_conf_setup.sh custom ";
 	const char *dir_name = "dir_name=/etc/ele/ ";
 	const char *filename = "filename=/etc/ele/ele_nvm_master ";
-	const char *flag = "flag=0 ";
+	const char *flag = "flag=0x80 ";
 	const char *type = "type=ELE";
 
 	size_t total_length = strlen(conf_setup) + strlen(dir_name)

@@ -18,60 +18,55 @@
 #include "plat_utils.h"
 #include "ele_mu_ioctl.h"
 
-/*
- * MU1: SHE user + SHE storage
- * MU2: HSM user + HSM storage
- * MU3: unused
- */
+char *get_if_name(uint8_t if_id)
+{
+	switch ((if_id & MU_TYPE_MASK) >> 3) {
+	case MU_HSM: return MU_STR_HSM;
+	case MU_SHE: return MU_STR_SHE;
+	case MU_SG: return MU_STR_SG;
+	case MU_SV: return MU_STR_SV;
+	case MU_DEBUG: return MU_STR_DEBUG;
+	}
 
-char ELE_MU_HSM_PATH_PRIMARY[] = "/dev/hsm1_ch0";
-// This device is for HSM1 channel 0 on SE, best effort high priority.
-char ELE_MU_HSM_NVM_PATH[] = "/dev/hsm1_ch0";
-// This device is for HSM NVM channel on SE.
-char ELE_MU_HSM_PATH_SECONDARY[] = "/dev/hsm1_ch0";
-// This device is for HSM1 channel 2 on SE, best effort high priority.
+	return NULL;
+}
 
 /* Open a session and returns a pointer to the handle or NULL in case of error.
  * Here it consists in opening the decicated seco MU device file.
  */
 struct plat_os_abs_hdl *plat_os_abs_open_mu_channel(uint32_t type, struct plat_mu_params *mu_params)
 {
-    char *device_path;
+	char device_path[30];
 	struct plat_os_abs_hdl *phdl = (struct plat_os_abs_hdl *)
-				       plat_os_abs_malloc(sizeof(struct plat_os_abs_hdl));
-    struct ele_mu_ioctl_get_mu_info info_ioctl;
-    int32_t error;
-    uint8_t is_nvm = 0u;
+		plat_os_abs_malloc(sizeof(struct plat_os_abs_hdl));
+	struct ele_mu_ioctl_get_mu_info info_ioctl;
+	int32_t error;
+	uint8_t is_nvm = 0u;
 
-	switch (type) {
-	case HSM1:
-		device_path = ELE_MU_HSM_PATH_PRIMARY;
-		break;
-	case HSM_NVM:
-		device_path = ELE_MU_HSM_NVM_PATH;
+	if (type & NVM_MASK)
 		is_nvm = 1u;
-		break;
-	default:
-		device_path = NULL;
-		break;
+
+	if (type & V2X_MASK) {
+		if (sprintf(device_path, "/dev/v2x_%s%d_ch0",
+			    get_if_name(type), type & INSTANCE_ID_MASK) < 0) {
+			se_err("unable to prepare device path\n");
+			return NULL;
+		}
+	} else {
+		if (sprintf(device_path, "/dev/%s%d_ch0",
+			    get_if_name(type), type & INSTANCE_ID_MASK) < 0) {
+			se_err("unable to prepare device path\n");
+			return NULL;
+		}
 	}
 
-    if ((phdl != NULL) && (device_path != NULL) && (mu_params != NULL)) {
-        phdl->fd = open(device_path, O_RDWR);
-        /* If open failed return NULL handle. */
-        if (phdl->fd < 0) {
-		if (type == HSM1) {
-			device_path = ELE_MU_HSM_PATH_SECONDARY;
-			phdl->fd = open(device_path, O_RDWR);
-				if (phdl->fd < 0) {
-					plat_os_abs_free(phdl);
-					phdl = NULL;
-				}
-		} else {
+	if (phdl && mu_params) {
+		phdl->fd = open(device_path, O_RDWR);
+		/* If open failed return NULL handle. */
+		if (phdl->fd < 0) {
 			plat_os_abs_free(phdl);
 			phdl = NULL;
 		}
-        }
 
 	if (phdl) {
 		phdl->type = type;
