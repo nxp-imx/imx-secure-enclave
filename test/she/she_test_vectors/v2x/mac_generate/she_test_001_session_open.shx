@@ -1,6 +1,6 @@
 SHE_TEST_OPEN_SESSION
 0 # session handle index
-5 # MU_TYPE
+0x48 # MU_TYPE
 1 # expect a pointer of any value other than 0
 
 SHE_TEST_KEY_STORE_OPEN
