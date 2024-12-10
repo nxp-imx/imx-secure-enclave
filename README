@@ -459,10 +459,10 @@ V2X-SHE Test:
 -------------
 
 	# To start NVM on SHE MU (default configuration)
-	nvmd_conf_setup.sh config_id=3;
+	nvmd_conf_setup.sh config_id=0xc8;
 
 	# To start NVM on DEBUG MU (applicable for i.MX95 only)
-	nvmd_conf_setup.sh config_id=7;
+	nvmd_conf_setup.sh config_id=0xe0;
 
 	service nvm_daemon_v2x start;
 	service nvm_daemon_v2x status;
@@ -481,7 +481,7 @@ V2X-SHE Test:
 V2X-HSM Test:
 -------------
 
-	nvmd_conf_setup.sh config_id=2;
+	nvmd_conf_setup.sh config_id=0xd0;
 	service nvm_daemon_v2x start;
 	service nvm_daemon_v2x status;
 	v2x_hsm_test;
@@ -490,7 +490,7 @@ V2X-HSM Test:
 SECO-HSM Test:
 -------------
 
-	nvmd_conf_setup.sh config_id=0;
+	nvmd_conf_setup.sh config_id=0x80;
 	service nvm_daemon start;
 	service nvm_daemon status;
 	seco_hsm_test;
@@ -499,7 +499,7 @@ SECO-HSM Test:
 SECO-SHE Test:
 -------------
 
-	nvmd_conf_setup.sh config_id=1;
+	nvmd_conf_setup.sh config_id=0x88;
 	service nvm_daemon start;
 	service nvm_daemon status;
 	seco_she_test;
@@ -514,7 +514,7 @@ test applications or previous runs of itself, the secure enclave tests may fail.
 
 Note #6:
 nvmd_conf_setup.sh can help in setting up the configurations for NVM Daemon,
-before starting it. For e.g., config_id 3 represents configuration for V2X-SHE.
+before starting it. For e.g., config_id 0xc8 represents configuration for V2X-SHE.
 Refer the usage of "nvmd_conf_setup.sh" for more details.
 
 Note #7:
