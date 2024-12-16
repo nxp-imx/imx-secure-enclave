@@ -36,11 +36,11 @@ static void v2x_she_test_usage(void)
 /* Test entry function. */
 int main(int argc, char *argv[])
 {
-	uint8_t session_id;
+	uint8_t SHE_id;
 	uint8_t num_of_keystores;
 	uint8_t shared_keystore;
 	uint8_t mu_type;
-	uint8_t supported_mu;
+	int8_t supported_mu;
 	int8_t  sess_type;
 
 	if (argc == 2 && strcmp("-a", argv[1]) == 0) {
@@ -55,11 +55,11 @@ int main(int argc, char *argv[])
 	}
 
 	if (argc == 4 && isdigit(argv[1][0])) {
-		session_id = atoi(argv[1]);
+		SHE_id = atoi(argv[1]);
 		num_of_keystores = atoi(argv[2]);
 		shared_keystore = atoi(argv[3]);
 
-		if (session_id)
+		if (SHE_id)
 			/* Open SHE1 session */
 			mu_type = V2X_SV1;
 		else
@@ -68,8 +68,14 @@ int main(int argc, char *argv[])
 		if (mu_type == V2X_SHE) {
 			/* check for 8DXL board type */
 			supported_mu = get_supported_mu(V2X_SV0);
+
+			if (supported_mu < 0) {
+				printf("Failed to fetch board details\n");
+				return 0;
+			}
+
 			if (supported_mu == V2X_SHE)
-				she_tests(session_id,
+				she_tests(SHE_id,
 					  mu_type,
 					  num_of_keystores,
 					  shared_keystore);
@@ -78,7 +84,7 @@ int main(int argc, char *argv[])
 			else
 				printf("WARNING: SECO, V2X in FIPS mode\n");
 		} else {
-			she_tests(session_id,
+			she_tests(SHE_id,
 				  mu_type,
 				  num_of_keystores,
 				  shared_keystore);

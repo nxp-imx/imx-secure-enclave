@@ -138,6 +138,7 @@ time_t get_ele_perf_time(void);
 
 she_err_t do_she_rng_test(she_hdl_t session_hdl);
 she_err_t do_she_key_update_test(she_hdl_t utils_handle);
+she_err_t do_she_ram_key_update_test(she_hdl_t utils_handle);
 she_err_t do_she_plain_key_test(she_hdl_t utils_handle);
 she_err_t do_she_cipher_test(she_hdl_t cipher_handle);
 she_err_t do_she_fast_mac_test(she_hdl_t utils_handle);
@@ -147,7 +148,7 @@ she_err_t do_she_mac_test(she_hdl_t mac_handle);
 she_err_t do_she_create_storage_test(she_hdl_t session_handle,
 				     open_svc_key_store_args_t *args);
 she_err_t do_she_get_id_test(she_hdl_t utils_handle);
-void she_tests(uint8_t session_id,
+void she_tests(uint8_t SHE_id,
 	       uint8_t mu_type,
 	       uint8_t num_of_keystores,
 	       uint8_t shared_keystore);

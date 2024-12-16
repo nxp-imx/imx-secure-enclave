@@ -32,6 +32,11 @@ int main(int argc, char *argv[])
 
 	supported_mu = get_supported_mu(HSM1);
 
+	if (supported_mu < 0) {
+		printf("Failed to fetch board details\n");
+		return 0;
+	}
+
 	if (supported_mu == V2X_SHE) {
 		printf("WARNING: SECO in FIPS mode, cannot open SHE session\n");
 		return 0;
