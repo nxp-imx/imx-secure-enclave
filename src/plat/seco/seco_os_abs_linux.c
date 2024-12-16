@@ -43,10 +43,6 @@ struct plat_os_abs_hdl *plat_os_abs_open_mu_channel(uint32_t type, struct plat_m
 					(sizeof(struct plat_os_abs_hdl));
 	struct seco_mu_ioctl_get_mu_info info_ioctl;
 	int32_t error;
-	uint8_t is_nvm = 0u;
-
-	if (type & NVM_MASK)
-		is_nvm = 1u;
 
 	if (type & V2X_MASK) {
 		if (sprintf(device_path, "/dev/v2x_%s%d_ch0",
@@ -89,19 +85,23 @@ struct plat_os_abs_hdl *plat_os_abs_open_mu_channel(uint32_t type, struct plat_m
 			plat_os_abs_free(phdl);
 			phdl = NULL;
 		}
-
-		if (is_nvm && phdl) {
-			/* for NVM: configure the device to accept incoming commands. */
-			if (ioctl(phdl->fd, SECO_MU_IOCTL_ENABLE_CMD_RCV)) {
-				/* Close the device. */
-				(void)close(phdl->fd);
-				plat_os_abs_free(phdl);
-				phdl = NULL;
-			}
-		}
         }
     }
     return phdl;
+}
+
+uint32_t plat_os_abs_set_mu_chnl_as_nvm(uint32_t type, struct plat_os_abs_hdl *phdl)
+{
+	uint32_t ret = PLAT_SUCCESS;
+
+	if (type & NVM_MASK) {
+		/* for NVM: configure the device to accept incoming commands. */
+		if (ioctl(phdl->fd, SECO_MU_IOCTL_ENABLE_CMD_RCV))
+			ret = PLAT_FAILURE;
+	} else
+		ret = PLAT_FAILURE;
+
+	return ret;
 }
 
 /* Check if the V2X accelerator is present on this HW. */

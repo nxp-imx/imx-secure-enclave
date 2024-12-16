@@ -525,5 +525,15 @@ uint32_t plat_get_perf_timer(struct plat_os_abs_hdl *phdl,
 uint32_t plat_os_abs_cmd_snd_rcv_rsp(struct plat_os_abs_hdl *phdl,
 				     uint32_t *tx_buf, uint32_t *tx_buf_sz,
 				     uint32_t *rx_buf, uint32_t *rx_buf_sz);
+
+/**
+ * Set the MU channel for NVM usage
+ *
+ *\param type constant indicating type of the NVM
+ *\param phdl pointer to the session handle
+ *
+ * \return PLAT_SUCCESS/PLAT_FAILURE
+ */
+uint32_t plat_os_abs_set_mu_chnl_as_nvm(uint32_t type, struct plat_os_abs_hdl *phdl);
 /** @} end of porting guide */
 #endif

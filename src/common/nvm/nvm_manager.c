@@ -315,6 +315,12 @@ uint32_t nvm_manager(uint8_t flags,
 				len = 0;
 			}
 		}
+
+		err = plat_os_abs_set_mu_chnl_as_nvm(nvm_ctx->mu_type,
+						     nvm_ctx->phdl);
+		if (err)
+			break;
+
 		nvm_ctx->status = NVM_STATUS_RUNNING;
 		nvm_ctx->prev_cmd_id = NEXT_EXPECTED_CMD_NONE;
 		nvm_ctx->next_cmd_id = NEXT_EXPECTED_CMD_NONE;
