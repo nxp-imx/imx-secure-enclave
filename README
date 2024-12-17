@@ -459,10 +459,12 @@ V2X-SHE Test:
 -------------
 
 	# To start NVM on SHE MU (default configuration)
-	nvmd_conf_setup.sh config_id=0xc8;
+	nvmd_conf_setup.sh config_id=0xc8; or
+	nvmd_conf_setup.sh config_id=v2x_she_nvm;
 
 	# To start NVM on DEBUG MU (applicable for i.MX95 only)
-	nvmd_conf_setup.sh config_id=0xe0;
+	nvmd_conf_setup.sh config_id=0xe0; or
+	nvmd_conf_setup.sh config_id=V2X_SHE_DEBUG_MU_NVM;
 
 	service nvm_daemon_v2x start;
 	service nvm_daemon_v2x status;
@@ -481,7 +483,8 @@ V2X-SHE Test:
 V2X-HSM Test:
 -------------
 
-	nvmd_conf_setup.sh config_id=0xd0;
+	nvmd_conf_setup.sh config_id=0xd0; or
+	nvmd_conf_setup.sh config_id=v2x_hsm_nvm;
 	service nvm_daemon_v2x start;
 	service nvm_daemon_v2x status;
 	v2x_hsm_test;
@@ -490,7 +493,8 @@ V2X-HSM Test:
 SECO-HSM Test:
 -------------
 
-	nvmd_conf_setup.sh config_id=0x80;
+	nvmd_conf_setup.sh config_id=0x80; or
+	nvmd_conf_setup.sh config_id=hsm_nvm;
 	service nvm_daemon start;
 	service nvm_daemon status;
 	seco_hsm_test;
@@ -499,7 +503,8 @@ SECO-HSM Test:
 SECO-SHE Test:
 -------------
 
-	nvmd_conf_setup.sh config_id=0x88;
+	nvmd_conf_setup.sh config_id=0x88; or
+	nvmd_conf_setup.sh config_id=she_nvm;
 	service nvm_daemon start;
 	service nvm_daemon status;
 	seco_she_test;

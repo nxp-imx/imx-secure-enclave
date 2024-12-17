@@ -68,19 +68,19 @@ function imx8dxlevk_nvmd_config()
     local loc_config_id=$1
 
     case ${loc_config_id} in
-        0x80)
+        0x80 | "HSM_NVM" | "hsm_nvm")
             nvmd_config_setup "/etc/hsm/seco_hsm_master" "/etc/hsm/" "0x80" "SECO"
             ;;
 
-        0x88)
+        0x88 | "SHE_NVM" | "she_nvm")
             nvmd_config_setup "/etc/she/seco_she_master" "/etc/she/" "0x88" "SECO"
             ;;
 
-        0xD0 | 0xd0)
+        0xD0 | 0xd0 | "V2X_HSM_NVM" | "v2x_hsm_nvm")
             nvmd_config_setup "/etc/v2x_hsm/v2x_hsm_master" "/etc/v2x_hsm/" "0xD0" "V2X"
             ;;
 
-        0xC8 | 0xc8)
+        0xC8 | 0xc8 | "V2X_SHE_NVM" | "v2x_she_nvm")
             nvmd_config_setup "/etc/v2x_she/v2x_she_master" "/etc/v2x_she/" "0xC8" "V2X"
             ;;
 
@@ -95,11 +95,11 @@ function imx8qxpmek_nvmd_config()
     local loc_config_id=$1
 
     case ${loc_config_id} in
-        0x80)
+        0x80 | "HSM_NVM" | "hsm_nvm")
             nvmd_config_setup "/etc/hsm/seco_hsm_master" "/etc/hsm/" "0x80" "SECO"
             ;;
 
-        0x88)
+        0x88 | "SHE_NVM" | "she_nvm")
             nvmd_config_setup "/etc/she/seco_she_master" "/etc/she/" "0x88" "SECO"
             ;;
 
@@ -115,15 +115,15 @@ function imx95evk_nvmd_config()
 
     case ${loc_config_id} in
 
-        0xD0 | 0xd0)
+        0xD0 | 0xd0 | "V2X_HSM_NVM" | "v2x_hsm_nvm")
             nvmd_config_setup "/etc/v2x_hsm/v2x_hsm_master" "/etc/v2x_hsm/" "0xD0" "V2X"
             ;;
 
-        0xC8 | 0xc8)
+        0xC8 | 0xc8 | "V2X_SHE_NVM" | "v2x_she_nvm")
             nvmd_config_setup "/etc/v2x_she/v2x_she_master" "/etc/v2x_she/" "0xC8" "V2X"
             ;;
 
-        0xE0 | 0xe0)
+        0xE0 | 0xe0 | "V2X_SHE_DEBUG_MU_NVM" | "v2x_she_debug_mu_nvm")
             nvmd_config_setup "/etc/v2x_she/v2x_she_master" "/etc/v2x_she/" "0xE0" "V2X"
             ;;
 
@@ -142,11 +142,11 @@ function usage()
 
     printf "\nNVM_CONFIG_IDs/NVM Flags (config_id):\n"
 
-    printf "\tNVMD_MU_SESSION_FLAG=0x80 (HSM_NVM)\n"
-    printf "\tNVMD_MU_SESSION_FLAG=0xc8 (V2X_SHE_NVM)\n"
-    printf "\tNVMD_MU_SESSION_FLAG=0xe0 (V2X_SHE_DEBUG_MU_NVM)\n"
-    printf "\tNVMD_MU_SESSION_FLAG=0xd0 (V2X_HSM_NVM)\n"
-    printf "\tNVMD_MU_SESSION_FLAG=0x88 (SHE_NVM)\n\n"
+    printf "\tNVMD_MU_SESSION_FLAG=0x80 / HSM_NVM\n"
+    printf "\tNVMD_MU_SESSION_FLAG=0xc8 / V2X_SHE_NVM\n"
+    printf "\tNVMD_MU_SESSION_FLAG=0xe0 / V2X_SHE_DEBUG_MU_NVM\n"
+    printf "\tNVMD_MU_SESSION_FLAG=0xd0 / V2X_HSM_NVM\n"
+    printf "\tNVMD_MU_SESSION_FLAG=0x88 / SHE_NVM\n\n"
 
     printf "Usage:\n"
     printf "\t./nvmd_conf_setup.sh config_id=NVM_CONFIG_ID\n"
