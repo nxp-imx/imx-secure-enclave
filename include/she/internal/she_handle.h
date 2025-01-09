@@ -1,6 +1,6 @@
 // SPDX-License-Identifier: BSD-3-Clause
 /*
- * Copyright 2023-2024 NXP
+ * Copyright 2023-2025 NXP
  */
 
 #ifndef SHE_HANDLE_H
@@ -19,7 +19,7 @@
 #define SHE_MAX_SESSIONS	(8u)
 //!< Maximum sessions supported.
 
-#define SHE_MAX_SERVICES	(32u)
+#define SHE_MAX_SERVICES	(60u)
 //!< Maximum services supported.
 
 #define MAX_KEY_STORE_SESSIONS	(5u)
