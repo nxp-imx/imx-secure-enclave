@@ -1,6 +1,6 @@
 // SPDX-License-Identifier: BSD-3-Clause
 /*
- * Copyright 2023-2024 NXP
+ * Copyright 2023-2025 NXP
  */
 
 #include "she_api.h"
@@ -109,7 +109,7 @@ she_err_t she_verify_mac(she_hdl_t utils_handle,
 		return err;
 	}
 
-	if (se_get_soc_id() == SOC_IMX95 ||
+	if (se_get_soc_id() == SOC_IMX95 || se_get_soc_id() == SOC_IMX943 ||
 	    (se_get_soc_id() == SOC_IMX8DXL && se_get_board_type() == IMX8DXL_DL3))
 		err = she_verify_mac_v2x(serv_ptr, args);
 	else
@@ -205,7 +205,7 @@ she_err_t she_generate_mac(she_hdl_t utils_handle,
 		return err;
 	}
 
-	if (se_get_soc_id() == SOC_IMX95 ||
+	if (se_get_soc_id() == SOC_IMX95 || se_get_soc_id() == SOC_IMX943 ||
 	    (se_get_soc_id() == SOC_IMX8DXL && se_get_board_type() == IMX8DXL_DL3))
 		err = she_generate_mac_v2x(serv_ptr, args);
 	else
