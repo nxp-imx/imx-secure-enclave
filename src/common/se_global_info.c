@@ -1,6 +1,6 @@
 // SPDX-License-Identifier: BSD-3-Clause
 /*
- * Copyright 2023-2024 NXP
+ * Copyright 2023-2025 NXP
  */
 
 #include <stdio.h>
@@ -92,6 +92,8 @@ const char *get_soc_id_str(uint16_t soc_id)
 #endif
 	case SOC_IMX95:
 		return "i.MX95";
+	case SOC_IMX943:
+		return "i.MX943";
 	default:
 		return "Unknown SoC ID";
 	}
@@ -194,7 +196,8 @@ static const char *get_soc_lf_str_old(uint16_t lifecycle)
 
 const char *get_soc_lf_str(uint16_t lifecycle)
 {
-	if (se_get_soc_id() == SOC_IMX95)
+	if (se_get_soc_id() == SOC_IMX95 ||
+	    se_get_soc_id() == SOC_IMX943)
 		return get_soc_lf_str_new(lifecycle);
 
 	return get_soc_lf_str_old(lifecycle);
@@ -213,7 +216,8 @@ void populate_global_info(uint32_t session_hdl)
 			&global_info.board_type);
 #ifdef PSA_COMPLIANT
 	if ((global_info.soc_id == SOC_IMX93 && global_info.soc_rev == SOC_REV_A1) ||
-	    global_info.soc_id == SOC_IMX91 || global_info.soc_id == SOC_IMX95)
+	    global_info.soc_id == SOC_IMX91 || global_info.soc_id == SOC_IMX95 ||
+	    global_info.soc_id == SOC_IMX943)
 		global_info.ver = HSM_API_VERSION_2;
 	else
 		global_info.ver = HSM_API_VERSION_1;

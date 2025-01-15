@@ -1,6 +1,6 @@
 // SPDX-License-Identifier: BSD-3-Clause
 /*
- * Copyright 2022-2023 NXP
+ * Copyright 2022-2023, 2025 NXP
  */
 
 #ifndef HSM_DEV_GET_INFO_H
@@ -52,6 +52,10 @@ typedef struct {
 	//!< crypto Lib random context initialization state.
 	uint8_t  trng_state;
 	//!< indicates TRNG state.
+	uint16_t oem_pqc_srkh_sz;
+	//!< indicates the size of FW OEM PQC SRKH.
+	uint8_t  *oem_pqc_srkh;
+	//!< pointer to the FW OEM PQC SRKH.
 } op_dev_getinfo_args_t;
 
 /**

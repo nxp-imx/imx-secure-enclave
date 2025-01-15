@@ -1,6 +1,6 @@
 // SPDX-License-Identifier: BSD-3-Clause
 /*
- * Copyright 2023-2024 NXP
+ * Copyright 2023-2025 NXP
  */
 
 #ifndef GLOBAL_INFO_H
@@ -26,6 +26,7 @@
 #define SOC_IMX91   0x9100
 #define SOC_IMX93   0x9300
 #define SOC_IMX95   0x9500
+#define SOC_IMX943  0x9430
 
 #define SOC_REV_A0  0xa000
 #define SOC_REV_A1  0xa100

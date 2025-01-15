@@ -1,6 +1,6 @@
 // SPDX-License-Identifier: BSD-3-Clause
 /*
- * Copyright 2022-2023 NXP
+ * Copyright 2022-2023, 2025 NXP
  */
 
 #include <string.h>
@@ -159,6 +159,25 @@ uint32_t proc_msg_rsp_dev_getinfo(void *rsp_buf, void *args)
 	op_args->csal_state = rsp_w_data->d_addn_info.csal_state;
 	op_args->trng_state = rsp_w_data->d_addn_info.trng_state;
 
+	op_args->oem_pqc_srkh_sz = DEV_GETINFO_OEM_SRKH_SZ;
+
+	ret = plat_os_abs_malloc_v2(&op_args->oem_pqc_srkh, DEV_GETINFO_OEM_SRKH_SZ);
+	if (ret != PLAT_SUCCESS) {
+		err |= ret;
+		plat_os_abs_free(op_args->uid);
+		plat_os_abs_free(op_args->sha_rom_patch);
+		plat_os_abs_free(op_args->sha_fw);
+		plat_os_abs_free(op_args->oem_srkh);
+		goto exit;
+	}
+	ret = plat_os_abs_memcpy_v2(op_args->oem_pqc_srkh,
+				    rsp_w_data->d_addn_info.oem_pqc_srkh,
+				    DEV_GETINFO_OEM_SRKH_SZ);
+
+	if (ret != PLAT_SUCCESS) {
+		err |= ret;
+		goto exit;
+	}
 	err = SAB_LIB_STATUS(SAB_LIB_SUCCESS);
 exit:
 	return err;
