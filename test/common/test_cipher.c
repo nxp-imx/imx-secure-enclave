@@ -1,6 +1,6 @@
 // SPDX-License-Identifier: BSD-3-Clause
 /*
- * Copyright 2022-2024 NXP
+ * Copyright 2022-2025 NXP
  */
 
 #include <stdio.h>
@@ -326,7 +326,8 @@ hsm_err_t do_cipher_test(hsm_hdl_t key_store_hdl, hsm_hdl_t key_mgmt_hdl)
 		printf("\nDecrypted data doesn't match encrypted data [FAIL]\n");
 
 #ifdef PSA_COMPLIANT
-	if (se_get_soc_id() == SOC_IMX95)
+	if (se_get_soc_id() == SOC_IMX95 ||
+	    se_get_soc_id() == SOC_IMX943)
 		do_cipher_stream_opaquekey_test(key_store_hdl, key_mgmt_hdl);
 
 	hsmret = do_cipher_plainkey_test(key_store_hdl, key_mgmt_hdl);

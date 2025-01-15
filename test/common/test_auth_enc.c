@@ -1,6 +1,6 @@
 // SPDX-License-Identifier: BSD-3-Clause
 /*
- * Copyright 2023-2024 NXP
+ * Copyright 2023-2025 NXP
  */
 
 #include <stdio.h>
@@ -542,7 +542,9 @@ hsm_err_t auth_enc_test(hsm_hdl_t key_store_hdl, hsm_hdl_t key_mgmt_hdl)
 
 	auth_enc_test_ccm(key_store_hdl, key_mgmt_hdl);
 
-	if (se_get_soc_id() != SOC_IMX8ULP && se_get_soc_id() != SOC_IMX95)
+	if (se_get_soc_id() != SOC_IMX8ULP &&
+	    se_get_soc_id() != SOC_IMX95 &&
+	    se_get_soc_id() != SOC_IMX943)
 		auth_enc_test_chacha20_poly1305(key_store_hdl, key_mgmt_hdl);
 
 	printf("\n------------------------------------------------\n");
@@ -556,7 +558,8 @@ hsm_err_t auth_enc_test(hsm_hdl_t key_store_hdl, hsm_hdl_t key_mgmt_hdl)
 	auth_enc_new_ccm_test(key_store_hdl, key_mgmt_hdl);
 	auth_enc_new_ccm_plainkey_test(key_store_hdl, key_mgmt_hdl);
 
-	if (se_get_soc_id() == SOC_IMX95)
+	if (se_get_soc_id() == SOC_IMX95 ||
+	    se_get_soc_id() == SOC_IMX943)
 		auth_enc_new_ccm_stream_test(key_store_hdl, key_mgmt_hdl);
 
 	printf("\n------------------------------------------------\n");

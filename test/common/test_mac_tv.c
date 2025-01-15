@@ -1,6 +1,6 @@
 // SPDX-License-Identifier: BSD-3-Clause
 /*
- * Copyright 2023-2024 NXP
+ * Copyright 2023-2025 NXP
  */
 
 #include <stdio.h>
@@ -279,7 +279,7 @@ static int8_t prepare_and_run_mac_test(hsm_hdl_t key_store_hdl, FILE *fp)
 
 	if (call_mac_test == 1) {
 
-		if (se_get_soc_id() == SOC_IMX95 &&
+		if ((se_get_soc_id() == SOC_IMX95 || se_get_soc_id() == SOC_IMX943) &&
 		    (mac_algo == PERMITTED_ALGO_HMAC_SHA256 ||
 		     mac_algo == PERMITTED_ALGO_HMAC_SHA384)) {
 			test_status = TEST_STATUS_SKIPPED;

@@ -1,6 +1,6 @@
 // SPDX-License-Identifier: BSD-3-Clause
 /*
- * Copyright 2019-2024 NXP
+ * Copyright 2019-2025 NXP
  */
 
 #include <signal.h>
@@ -596,7 +596,8 @@ static void transient_key_tests(hsm_hdl_t sess_hdl,
 #ifdef SECONDARY_API_SUPPORTED
 	hsm_mac_plainkey_test(key_store_hdl, key_mgmt_hdl);
 
-	if (se_get_soc_id() == SOC_IMX95)
+	if (se_get_soc_id() == SOC_IMX95 ||
+	    se_get_soc_id() == SOC_IMX943)
 		hsm_mac_stream_test(key_store_hdl, key_mgmt_hdl);
 
 	// functiopnal test hsm_mac_test() to verify MAC Secondary API

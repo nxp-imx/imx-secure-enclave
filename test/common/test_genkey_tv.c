@@ -1,6 +1,6 @@
 // SPDX-License-Identifier: BSD-3-Clause
 /*
- * Copyright 2022-2024 NXP
+ * Copyright 2022-2025 NXP
  */
 
 #include <stdio.h>
@@ -253,7 +253,7 @@ static int8_t prepare_and_run_genkey_test(FILE *fp)
 			goto out;
 		}
 
-		if (se_get_soc_id() == SOC_IMX95 &&
+		if ((se_get_soc_id() == SOC_IMX95 || se_get_soc_id() == SOC_IMX943) &&
 		    key_usage == HSM_KEY_USAGE_DERIVE) {
 			test_status = TEST_STATUS_SKIPPED;
 			goto out;
