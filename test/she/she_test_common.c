@@ -1,6 +1,6 @@
 // SPDX-License-Identifier: BSD-3-Clause
 /*
- * Copyright 2023-2024 NXP
+ * Copyright 2023-2025 NXP
  */
 
 #include <signal.h>
@@ -276,6 +276,7 @@ void she_tests(uint8_t SHE_id,
 	       uint8_t shared_keystore)
 {
 	uint8_t session_id = 0;
+	uint8_t she_sess_count = 1;
 
 	if (SHE_id > 1) {
 		printf("supported SHE id : 0, 1\n");
@@ -306,12 +307,12 @@ void she_tests(uint8_t SHE_id,
 		return;
 	}
 
-	for (j = 0; j < SHE_TEST_SESSIONS; j++) {
-		session_args[j].mu_type = mu_type;
+	if (se_get_soc_id() == SOC_IMX95 ||
+	    se_get_soc_id() == SOC_IMX943)
+		she_sess_count = SHE_TEST_SESSIONS;
 
-		/* Multiple SHE sessions are supported on iMX95 only*/
-		if (j > 0 && (se_get_soc_id() != SOC_IMX95))
-			break;
+	for (j = 0; j < she_sess_count; j++) {
+		session_args[j].mu_type = mu_type;
 
 		err = she_open_session(&session_args[j], &session_hdl);
 		if (err != SHE_NO_ERROR) {
@@ -345,13 +346,13 @@ void she_tests(uint8_t SHE_id,
 		}
 	}
 
-	for (j = 0; j < SHE_TEST_SESSIONS; j++) {
+	for (j = 0; j < she_sess_count; j++) {
 		/* close all opened services */
 		for (i = 0; i < num_of_keystores; i++)
 			close_services(j, i);
 	}
 
-	for (j = 0; j < SHE_TEST_SESSIONS; j++) {
+	for (j = 0; j < she_sess_count; j++) {
 		/* close SHE session*/
 		if (session_args[j].session_hdl) {
 			err = she_close_session(session_args[j].session_hdl);
