@@ -2,7 +2,7 @@
 
 # SPDX-License-Identifier: BSD-3-Clause
 #
-# Copyright 2023-2024 NXP
+# Copyright 2023-2025 NXP
 
 set -eu
 
@@ -133,6 +133,30 @@ function imx95evk_nvmd_config()
     esac
 }
 
+function imx943evk_nvmd_config()
+{
+    local loc_config_id=$1
+
+    case ${loc_config_id} in
+
+        0xD0 | 0xd0 | "V2X_HSM_NVM" | "v2x_hsm_nvm")
+            nvmd_config_setup "/etc/v2x_hsm/v2x_hsm_master" "/etc/v2x_hsm/" "0xD0" "V2X"
+            ;;
+
+        0xC8 | 0xc8 | "V2X_SHE_NVM" | "v2x_she_nvm")
+            nvmd_config_setup "/etc/v2x_she/v2x_she_master" "/etc/v2x_she/" "0xC8" "V2X"
+            ;;
+
+        0xE0 | 0xe0 | "V2X_SHE_DEBUG_MU_NVM" | "v2x_she_debug_mu_nvm")
+            printf "Unsupported NVM-D config opted for iMX943.\n"
+            ;;
+
+        *)
+            printf "Unsupported NVM-D config opted.\n"
+            ;;
+    esac
+}
+
 function usage()
 {
     printf "\n"
@@ -204,6 +228,10 @@ case ${opt_plat} in
 
     i.MX95)
         imx95evk_nvmd_config ${opt_config_id}
+        ;;
+
+    i.MX943)
+        imx943evk_nvmd_config ${opt_config_id}
         ;;
 
     *)
