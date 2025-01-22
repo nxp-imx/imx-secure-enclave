@@ -1,6 +1,6 @@
 // SPDX-License-Identifier: BSD-3-Clause
 /*
- * Copyright 2022-2024 NXP
+ * Copyright 2022-2025 NXP
  */
 
 #ifndef HSM_DEV_ATTEST_H
@@ -64,6 +64,10 @@ typedef struct {
 	uint8_t  csal_state;
 	//!< CSAL state (version 2)
 	uint8_t  trng_state;
+	uint16_t oem_pqc_srkh_sz;
+	//!< buffer size in bytes for OEM PQC SRKH (version 3)
+	uint8_t  *oem_pqc_srkh;
+	//!< pointer to the buffer of OEM PQC SRKH (version 3)
 	//!< TRNG state (version 2)
 	uint16_t info_buf_sz;
 	//!< size in bytes for info buffer

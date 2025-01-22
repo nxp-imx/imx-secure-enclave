@@ -31,10 +31,8 @@
 #define SOC_REV_A0  0xa000
 #define SOC_REV_A1  0xa100
 #define SOC_REV_A2  0xa200
-#ifndef PSA_COMPLIANT
 #define SOC_REV_B0  0xb000
 #define SOC_REV_C0  0xc000
-#endif
 
 #define GINFO_LIB_VERSION_LEN        16
 #define GINFO_NVM_VERSION_LEN        16
@@ -42,6 +40,7 @@
 
 #define HSM_API_VERSION_1    0x1
 #define HSM_API_VERSION_2    0x2
+#define HSM_API_VERSION_3    0x3
 
 #ifdef PSA_COMPLIANT
 #define SOC_LF_OPEN                  0x1

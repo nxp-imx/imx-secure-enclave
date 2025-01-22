@@ -41,6 +41,9 @@ struct dev_addn_info {
 	uint8_t  csal_state;
 	uint8_t  imem_state;
 	uint8_t  reserved2;
+};
+
+struct data_addn_ver3_info {
 	uint8_t  oem_pqc_srkh[DEV_GETINFO_OEM_SRKH_SZ];
 	uint8_t  reserved3[32];
 };
@@ -57,6 +60,7 @@ struct sab_cmd_dev_getinfo_rsp_w_data {
 	struct sab_cmd_dev_getinfo_rsp rsp;
 	struct dev_info d_info;
 	struct dev_addn_info d_addn_info;
+	struct data_addn_ver3_info d_ver3_addn_data;
 };
 
 uint32_t prepare_msg_dev_getinfo(void *phdl, void *cmd_buf, void *rsp_buf,

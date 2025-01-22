@@ -215,9 +215,13 @@ void populate_global_info(uint32_t session_hdl)
 			&global_info.soc_rev,
 			&global_info.board_type);
 #ifdef PSA_COMPLIANT
-	if ((global_info.soc_id == SOC_IMX93 && global_info.soc_rev == SOC_REV_A1) ||
-	    global_info.soc_id == SOC_IMX91 || global_info.soc_id == SOC_IMX95 ||
-	    global_info.soc_id == SOC_IMX943)
+	if (global_info.soc_id == SOC_IMX943 ||
+	    (global_info.soc_id == SOC_IMX95 && global_info.soc_rev == SOC_REV_B0))
+		global_info.ver = HSM_API_VERSION_3;
+	else if ((global_info.soc_id == SOC_IMX93 && global_info.soc_rev == SOC_REV_A1) ||
+		 global_info.soc_id == SOC_IMX91 ||
+		 (global_info.soc_id == SOC_IMX95 && (global_info.soc_rev == SOC_REV_A1 ||
+						      global_info.soc_rev == SOC_REV_A0)))
 		global_info.ver = HSM_API_VERSION_2;
 	else
 		global_info.ver = HSM_API_VERSION_1;

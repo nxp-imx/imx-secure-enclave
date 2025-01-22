@@ -1,6 +1,6 @@
 // SPDX-License-Identifier: BSD-3-Clause
 /*
- * Copyright 2022-2023 NXP
+ * Copyright 2022-2023, 2025 NXP
  */
 
 #ifndef SAB_DEV_ATTEST_H
@@ -49,6 +49,15 @@ struct sab_cmd_dev_attest_rsp_w_data_v2 {
 	struct sab_cmd_dev_attest_rsp rsp;
 	struct dev_info d_info;
 	struct dev_addn_info d_addn_info;
+	uint8_t nounce[DEV_ATTEST_NOUNCE_SIZE_V2];
+	uint8_t  signature[DEV_ATTEST_SIGN_SIZE];
+};
+
+struct sab_cmd_dev_attest_rsp_w_data_v3 {
+	struct sab_cmd_dev_attest_rsp rsp;
+	struct dev_info d_info;
+	struct dev_addn_info d_addn_info;
+	struct data_addn_ver3_info d_ver3_addn_data;
 	uint8_t nounce[DEV_ATTEST_NOUNCE_SIZE_V2];
 	uint8_t  signature[DEV_ATTEST_SIGN_SIZE];
 };

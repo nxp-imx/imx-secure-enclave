@@ -1,6 +1,6 @@
 // SPDX-License-Identifier: BSD-3-Clause
 /*
- * Copyright 2022-2023 NXP
+ * Copyright 2022-2023, 2025 NXP
  */
 
 #include <string.h>
@@ -127,6 +127,8 @@ uint32_t proc_msg_rsp_dev_attest(void *rsp_buf, void *args)
 		(struct sab_cmd_dev_attest_rsp_w_data_v1 *)rsp_buf;
 	struct sab_cmd_dev_attest_rsp_w_data_v2 *rsp_w_data_v2 =
 		(struct sab_cmd_dev_attest_rsp_w_data_v2 *)rsp_buf;
+	struct sab_cmd_dev_attest_rsp_w_data_v3 *rsp_w_data_v3 =
+		(struct sab_cmd_dev_attest_rsp_w_data_v3 *)rsp_buf;
 	/**
 	 * Variables for handling assignments of buffer pointers and
 	 * buffer sizes on the basis of Version 1 or Version 2 support.
@@ -193,7 +195,7 @@ uint32_t proc_msg_rsp_dev_attest(void *rsp_buf, void *args)
 		info_data_buf_sz = sizeof(struct dev_info) +
 				   DEV_ATTEST_NOUNCE_SIZE_V1;
 		info_data_buf = (uint8_t *)(&rsp_w_data_v1->d_info);
-	} else {
+	} else if (hsm_get_dev_attest_api_ver() == HSM_API_VERSION_2) {
 		rsp_nounce_data_buf_sz = DEV_ATTEST_NOUNCE_SIZE_V2;
 		rsp_nounce_data_buf = rsp_w_data_v2->nounce;
 		signature_data_buf = rsp_w_data_v2->signature;
@@ -201,6 +203,15 @@ uint32_t proc_msg_rsp_dev_attest(void *rsp_buf, void *args)
 				   sizeof(struct dev_addn_info) +
 				   DEV_ATTEST_NOUNCE_SIZE_V2;
 		info_data_buf = (uint8_t *)(&rsp_w_data_v2->d_info);
+	} else {
+		rsp_nounce_data_buf_sz = DEV_ATTEST_NOUNCE_SIZE_V2;
+		rsp_nounce_data_buf = rsp_w_data_v3->nounce;
+		signature_data_buf = rsp_w_data_v3->signature;
+		info_data_buf_sz = sizeof(struct dev_info) +
+				   sizeof(struct dev_addn_info) +
+				   sizeof(struct data_addn_ver3_info) +
+				   DEV_ATTEST_NOUNCE_SIZE_V2;
+		info_data_buf = (uint8_t *)(&rsp_w_data_v3->d_info);
 	}
 
 	op_args->rsp_nounce = plat_os_abs_malloc(rsp_nounce_data_buf_sz);
@@ -255,7 +266,7 @@ uint32_t proc_msg_rsp_dev_attest(void *rsp_buf, void *args)
 			   info_data_buf,
 			   info_data_buf_sz);
 
-	if (hsm_get_dev_attest_api_ver() == HSM_API_VERSION_2) {
+	if (hsm_get_dev_attest_api_ver() >= HSM_API_VERSION_2) {
 		op_args->oem_srkh = plat_os_abs_malloc(DEV_GETINFO_OEM_SRKH_SZ);
 		if (!op_args->oem_srkh) {
 			plat_os_abs_free(op_args->uid);
@@ -274,6 +285,24 @@ uint32_t proc_msg_rsp_dev_attest(void *rsp_buf, void *args)
 		op_args->imem_state = rsp_w_data_v2->d_addn_info.imem_state;
 		op_args->csal_state = rsp_w_data_v2->d_addn_info.csal_state;
 		op_args->trng_state = rsp_w_data_v2->d_addn_info.trng_state;
+	}
+
+	if (hsm_get_dev_attest_api_ver() >= HSM_API_VERSION_3) {
+		op_args->oem_pqc_srkh = plat_os_abs_malloc(DEV_GETINFO_OEM_SRKH_SZ);
+		if (!op_args->oem_srkh) {
+			plat_os_abs_free(op_args->oem_srkh);
+			plat_os_abs_free(op_args->uid);
+			plat_os_abs_free(op_args->sha_rom_patch);
+			plat_os_abs_free(op_args->sha_fw);
+			plat_os_abs_free(op_args->rsp_nounce);
+			plat_os_abs_free(op_args->signature);
+			plat_os_abs_free(op_args->info_buf);
+			goto exit;
+		}
+		op_args->oem_pqc_srkh_sz = DEV_GETINFO_OEM_SRKH_SZ;
+		plat_os_abs_memcpy(op_args->oem_pqc_srkh,
+				   rsp_w_data_v3->d_ver3_addn_data.oem_pqc_srkh,
+				   DEV_GETINFO_OEM_SRKH_SZ);
 	}
 	err = SAB_LIB_STATUS(SAB_LIB_SUCCESS);
 exit:
