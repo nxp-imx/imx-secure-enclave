@@ -1,6 +1,6 @@
 // SPDX-License-Identifier: BSD-3-Clause
 /*
- * Copyright 2022-2024 NXP
+ * Copyright 2022-2025 NXP
  */
 
 #include <stdio.h>
@@ -28,7 +28,8 @@ void perform_dev_attestation(hsm_hdl_t sess_hdl)
 	if (hsm_get_dev_attest_api_ver() == HSM_API_VERSION_1) {
 		dev_attest_args.nounce_sz = sizeof(nounce_buf_v1);
 		dev_attest_args.nounce = nounce_buf_v1;
-	} else if (hsm_get_dev_attest_api_ver() == HSM_API_VERSION_2) {
+	} else if (hsm_get_dev_attest_api_ver() == HSM_API_VERSION_2 ||
+		   hsm_get_dev_attest_api_ver() == HSM_API_VERSION_3) {
 		dev_attest_args.nounce_sz = sizeof(nounce_buf_v2);
 		dev_attest_args.nounce = nounce_buf_v2;
 	}
@@ -62,7 +63,8 @@ void perform_dev_attestation(hsm_hdl_t sess_hdl)
 		hexdump((uint32_t *)dev_attest_args.rsp_nounce,
 			dev_attest_args.rsp_nounce_sz / sizeof(uint32_t));
 
-		if (hsm_get_dev_attest_api_ver() == HSM_API_VERSION_2) {
+		if (hsm_get_dev_attest_api_ver() == HSM_API_VERSION_2 ||
+		    hsm_get_dev_attest_api_ver() == HSM_API_VERSION_3) {
 			printf("FW OEM SRKH:");
 			hexdump((uint32_t *)dev_attest_args.oem_srkh,
 				dev_attest_args.oem_srkh_sz / sizeof(uint32_t));

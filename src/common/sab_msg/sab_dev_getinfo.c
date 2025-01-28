@@ -30,9 +30,11 @@ uint32_t prepare_msg_dev_getinfo(void *phdl, void *cmd_buf, void *rsp_buf,
 	/* size of the buffer would be.
 	 * size of device info structure "dev_info" and
 	 * size of device info structure "dev_addn_info".
+	 * size of device info structure "data_addn_ver3_info".
 	 */
-	cmd->buf_sz = sizeof(struct dev_info)
-			+ sizeof(struct dev_addn_info);
+	cmd->buf_sz = sizeof(struct dev_info) +
+		      sizeof(struct dev_addn_info) +
+		      sizeof(struct data_addn_ver3_info);
 
 	/* Copy the get_info_response to the word,
 	 * next to response.

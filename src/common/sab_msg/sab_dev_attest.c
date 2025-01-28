@@ -101,6 +101,49 @@ static uint32_t prepare_msg_dev_attest_v2(void *phdl, void *cmd_buf, void *rsp_b
 	return ret;
 }
 
+static uint32_t prepare_msg_dev_attest_v3(void *phdl, void *cmd_buf, void *rsp_buf,
+					  uint32_t *cmd_msg_sz, uint32_t *rsp_msg_sz,
+					  uint32_t msg_hdl, void *args)
+{
+	uint32_t ret = SAB_ENGN_PASS;
+	struct sab_cmd_dev_attest_msg_v2 *cmd =
+		(struct sab_cmd_dev_attest_msg_v2 *)cmd_buf;
+	struct sab_cmd_dev_attest_rsp_w_data_v3 *rsp_w_data =
+		(struct sab_cmd_dev_attest_rsp_w_data_v3 *)rsp_buf;
+	op_dev_attest_args_t *op_args = (op_dev_attest_args_t *)args;
+
+	if (!op_args || !op_args->nounce)
+		return SAB_ENGN_FAIL;
+
+	*cmd_msg_sz = sizeof(struct sab_cmd_dev_attest_msg_v2);
+	*rsp_msg_sz = sizeof(struct sab_cmd_dev_attest_rsp);
+
+	plat_os_abs_memcpy(cmd->nounce,
+			   op_args->nounce,
+			   op_args->nounce_sz);
+
+	cmd->buf_sz = sizeof(struct dev_info) +
+		      sizeof(struct dev_addn_info) +
+		      sizeof(struct data_addn_ver3_info) +
+		      DEV_ATTEST_NOUNCE_SIZE_V2 +
+		      DEV_ATTEST_SIGN_SIZE;
+
+	/**
+	 * Copy the get_info_response to the word,
+	 * next to response.
+	 */
+	set_phy_addr_to_words(&cmd->rsp_data_addr_lo,
+			      &cmd->rsp_data_addr_hi,
+			      plat_os_abs_data_buf((struct plat_os_abs_hdl *)phdl,
+						   (uint8_t *)&rsp_w_data->d_info,
+						   cmd->buf_sz,
+						   DATA_BUF_IS_OUTPUT));
+
+	cmd->crc = 0u;
+
+	return ret;
+}
+
 uint32_t prepare_msg_dev_attest(void *phdl, void *cmd_buf, void *rsp_buf,
 				uint32_t *cmd_msg_sz, uint32_t *rsp_msg_sz,
 				uint32_t msg_hdl, void *args)
@@ -113,6 +156,10 @@ uint32_t prepare_msg_dev_attest(void *phdl, void *cmd_buf, void *rsp_buf,
 	else if (hsm_get_dev_attest_api_ver() == HSM_API_VERSION_2)
 		ret = prepare_msg_dev_attest_v2(phdl, cmd_buf, rsp_buf, cmd_msg_sz,
 						rsp_msg_sz, msg_hdl, args);
+	else if (hsm_get_dev_attest_api_ver() == HSM_API_VERSION_3)
+		ret = prepare_msg_dev_attest_v3(phdl, cmd_buf, rsp_buf, cmd_msg_sz,
+						rsp_msg_sz, msg_hdl, args);
+
 
 	return ret;
 }
