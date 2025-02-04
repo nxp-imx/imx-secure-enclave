@@ -1,6 +1,6 @@
 // SPDX-License-Identifier: BSD-3-Clause
 /*
- * Copyright 2019-2024 NXP
+ * Copyright 2019-2025 NXP
  */
 
 #include <signal.h>
@@ -704,6 +704,10 @@ static void transient_key_tests(hsm_hdl_t sess_hdl,
 	//Key Exchange API tests
 	if (get_signed_tests_en_status() && se_get_soc_id() != SOC_IMX95)
 		key_exchange_test(sess_hdl, key_store_hdl, key_mgmt_hdl);
+
+	if (get_signed_tests_en_status() &&
+	    (se_get_soc_id() == SOC_IMX91 || se_get_soc_id() == SOC_IMX93))
+		key_exchange_nxp_prod_key_test(key_mgmt_hdl, key_store_id);
 
 	if (se_get_soc_id() == SOC_IMX93 || se_get_soc_id() == SOC_IMX91) {
 		key_exchange_test_tls1_3(key_mgmt_hdl, key_store_id);
