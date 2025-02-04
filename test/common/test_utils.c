@@ -1,6 +1,6 @@
 // SPDX-License-Identifier: BSD-3-Clause
 /*
- * Copyright 2022-2024 NXP
+ * Copyright 2022-2025 NXP
  */
 
 #include <stdint.h>
@@ -80,13 +80,25 @@ hsm_err_t delete_test_key(hsm_hdl_t key_mgmt_hdl,
 
 void set_signed_tests_en_status(uint8_t *oem_srkh, uint16_t len)
 {
-	if (memcmp(test_oem_srkh, oem_srkh, sizeof(test_oem_srkh)) == 0)
+	if (memcmp(test_oem_srkh_secp384, oem_srkh,
+		   sizeof(test_oem_srkh_secp384)) == 0) {
 		signed_tests_en_status = SIGNED_TESTS_STATUS_ENABLED;
+		signed_tests_key_type = SIGNED_TESTS_KEYS_TYPE_SECP384;
+	} else if (memcmp(test_oem_srkh_secp521, oem_srkh,
+			  sizeof(test_oem_srkh_secp521)) == 0) {
+		signed_tests_en_status = SIGNED_TESTS_STATUS_ENABLED;
+		signed_tests_key_type = SIGNED_TESTS_KEYS_TYPE_SECP521;
+	}
 }
 
 uint8_t get_signed_tests_en_status(void)
 {
 	return signed_tests_en_status;
+}
+
+uint8_t get_signed_tests_key_type(void)
+{
+	return signed_tests_key_type;
 }
 
 void hexdump(uint32_t buf[], uint32_t size)

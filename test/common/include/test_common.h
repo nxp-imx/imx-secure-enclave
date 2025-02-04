@@ -1,6 +1,6 @@
 // SPDX-License-Identifier: BSD-3-Clause
 /*
- * Copyright 2022-2024 NXP
+ * Copyright 2022-2025 NXP
  */
 
 #ifndef COMMON_H
@@ -10,6 +10,7 @@
 #include "she_api.h"
 #include "test_utils.h"
 #include "test_key_exchange.h"
+#include "test_key_exchange_signed.h"
 
 #define DELETE	1
 #define IMPORT	2
@@ -97,6 +98,7 @@ hsm_err_t gc_aead_test(hsm_hdl_t hsm_session_hdl);
 hsm_err_t test_key_store_reprov_en(hsm_hdl_t session_hdl);
 void set_signed_tests_en_status(uint8_t *oem_srkh, uint16_t len);
 uint8_t get_signed_tests_en_status(void);
+uint8_t get_signed_tests_key_type(void);
 
 /**
  * This function is used to test the Public Key Attestation API
