@@ -1,6 +1,6 @@
 // SPDX-License-Identifier: BSD-3-Clause
 /*
- * Copyright 2022-2024 NXP
+ * Copyright 2022-2025 NXP
  */
 
 #include <stdio.h>
@@ -378,6 +378,9 @@ void se_get_soc_info(uint32_t session_hdl,
 
 	if (dev_getinfo_args.sha_fw)
 		plat_os_abs_free(dev_getinfo_args.sha_fw);
+
+	if (dev_getinfo_args.oem_pqc_srkh)
+		plat_os_abs_free(dev_getinfo_args.oem_pqc_srkh);
 #else
 	s_ptr = session_hdl_to_ptr(session_hdl);
 	if (s_ptr)
