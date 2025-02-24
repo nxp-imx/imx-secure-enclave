@@ -1,6 +1,6 @@
 // SPDX-License-Identifier: BSD-3-Clause
 /*
- * Copyright 2024 NXP
+ * Copyright 2024-2025 NXP
  */
 
 #include <stdio.h>
@@ -297,7 +297,7 @@ static void test_tls1_3_handshake_secrets(hsm_hdl_t key_mgmt_hdl,
 	key_gen_args.key_group = 40;
 	key_gen_args.key_lifetime = HSM_SE_KEY_STORAGE_VOLATILE;
 	key_gen_args.key_usage = HSM_KEY_USAGE_DERIVE;
-	key_gen_args.permitted_algo = HSM_KEY_DERIVATION_TLS1_3_HANDSHAKE_SECRET_SHA256;
+	key_gen_args.permitted_algo = PERMITTED_ALGO_TLS1_3_MASTER_SECRET_SHA256;
 	key_gen_args.flags = 0x0;
 	key_gen_args.key_type = key_type;
 	key_gen_args.bit_key_sz = bit_key_sz;
@@ -452,7 +452,7 @@ static void test_tls1_3_master_secrets(hsm_hdl_t key_mgmt_hdl,
 	key_gen_args.key_group = 40;
 	key_gen_args.key_lifetime = HSM_SE_KEY_STORAGE_VOLATILE;
 	key_gen_args.key_usage = HSM_KEY_USAGE_DERIVE;
-	key_gen_args.permitted_algo = HSM_KEY_DERIVATION_TLS1_3_MASTER_SECRET_SHA256;
+	key_gen_args.permitted_algo = PERMITTED_ALGO_TLS1_3_MASTER_SECRET_SHA256;
 	key_gen_args.flags = 0x0;
 	key_gen_args.key_type = key_type;
 	key_gen_args.bit_key_sz = bit_key_sz;
