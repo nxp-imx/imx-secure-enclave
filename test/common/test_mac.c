@@ -204,8 +204,7 @@ hsm_err_t do_mac_test(hsm_hdl_t key_store_hdl, hsm_hdl_t key_mgmt_hdl)
 			HSM_OP_MAC_ONE_GO_ALGO_AES_CMAC, 16, 16, 8);
 #endif
 
-	if (se_get_soc_id() == SOC_IMX95 ||
-	    se_get_soc_id() == SOC_IMX943)
+	if (se_get_soc_id() == SOC_IMX95)
 		goto out;
 
 #if PLAT_ELE_FEAT_NOT_SUPPORTED
@@ -399,8 +398,7 @@ hsm_err_t hsm_mac_test(hsm_hdl_t key_store_hdl, hsm_hdl_t key_mgmt_hdl)
 	err = hsm_do_mac(key_store_hdl, &mac_one_go);
 	status(&mac_one_go);
 
-	if (se_get_soc_id() == SOC_IMX95 ||
-	    se_get_soc_id() == SOC_IMX943)
+	if (se_get_soc_id() == SOC_IMX95)
 		goto out;
 
 #if PLAT_ELE_FEAT_NOT_SUPPORTED
@@ -613,8 +611,7 @@ hsm_err_t hsm_mac_plainkey_test(hsm_hdl_t key_store_hdl, hsm_hdl_t key_mgmt_hdl)
 
 	status(&args);
 
-	if (se_get_soc_id() == SOC_IMX95 ||
-	    se_get_soc_id() == SOC_IMX943)
+	if (se_get_soc_id() == SOC_IMX95)
 		goto out;
 
 	printf("HSM_KEY_SIZE_HMAC_256 & PERMITTED_ALGO_HMAC_SHA256:");
