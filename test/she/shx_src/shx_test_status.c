@@ -1,6 +1,6 @@
 // SPDX-License-Identifier: BSD-3-Clause
 /*
- * Copyright 2024 NXP
+ * Copyright 2024-2025 NXP
  */
 
 #include <stdbool.h>
@@ -31,7 +31,6 @@ uint32_t she_test_get_status(she_test_struct_t *testCtx, FILE *fp)
 	READ_CHECK_VALUE(testCtx, fp, err);
 	READ_CHECK_VALUE(testCtx, fp, status);
 	printf("Status Regs 0x%x\n", args.sreg & 0xFF);
-	printf("Status Regs 0x%x\n", args.sreg);
 
 	return fails;
 }
