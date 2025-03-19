@@ -1,6 +1,6 @@
 // SPDX-License-Identifier: BSD-3-Clause
 /*
- * Copyright 2024 NXP
+ * Copyright 2024-2025 NXP
  */
 #ifndef MBEDTLS_UTILS_H
 #define MBEDTLS_UTILS_H
@@ -12,6 +12,9 @@
 
 #define HSM_HASH_ALGO_SHA_256_SIZE (32u)
 #define HSM_HASH_ALGO_SHA_384_SIZE (48u)
+#define HSM_HASH_ALGO_SHA_512_SIZE (64u)
+#define HSM_HASH_MAX_SIZE (64u)
+
 /* Extract HASH algorithm from the provided HSM algorithm */
 #define HSM_HASH_ALGO_FROM_ALGO(algo) (((algo) & 0x000000FFu) | 0x02000000u)
 

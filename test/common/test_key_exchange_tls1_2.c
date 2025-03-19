@@ -1,6 +1,6 @@
 // SPDX-License-Identifier: BSD-3-Clause
 /*
- * Copyright 2024 NXP
+ * Copyright 2024-2025 NXP
  */
 
 #include <stdio.h>
@@ -236,7 +236,7 @@ static void test_tls1_2_master_secret(hsm_hdl_t key_mgmt_hdl,
 		goto out;
 
 	/* 5. Compare Mbedt-TLS master secret with ELE FW master secret generated  */
-	if (!memcmp(master_secret, mbedtls_master_secret, sizeof(master_secret_len)))
+	if (!memcmp(master_secret, mbedtls_master_secret, master_secret_len))
 		printf("TLS 1.2 MS: Mbed-TLS validation. SUCCESS\n");
 	else
 		printf("TLS 1.2 MS: Mbed-TLS validation. FAILED\n");
