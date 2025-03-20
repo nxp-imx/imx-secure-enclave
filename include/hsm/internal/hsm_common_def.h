@@ -1,6 +1,6 @@
 // SPDX-License-Identifier: BSD-3-Clause
 /*
- * Copyright 2023-2024 NXP
+ * Copyright 2023-2025 NXP
  */
 #ifndef HSM_COMMON_DEF_H
 #define HSM_COMMON_DEF_H
@@ -47,6 +47,7 @@ typedef enum {
 	ALGO_RSA_PKCS1_PSS_MGF1_SHA384 = 0x0600030A,
 	ALGO_RSA_PKCS1_PSS_MGF1_SHA512 = 0x0600030B,
 	ALGO_RSA_PKCS1_PSS_MGF1_SHA_ANY = 0x060003FF,
+	ALGO_RSA_SIGNATURE_ALL = 0x8600FF00,
 } hsm_signature_algo_t;
 
 typedef enum {
