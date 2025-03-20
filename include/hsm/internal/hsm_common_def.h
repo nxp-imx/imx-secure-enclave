@@ -1,6 +1,6 @@
 // SPDX-License-Identifier: BSD-3-Clause
 /*
- * Copyright 2023-2024 NXP
+ * Copyright 2023-2025 NXP
  */
 #ifndef HSM_COMMON_DEF_H
 #define HSM_COMMON_DEF_H
@@ -105,6 +105,10 @@ typedef enum {
 	ALGO_TLS1_3_HS_SHA384 = 0x8800D10A,
 	ALGO_TLS1_3_MS_SHA256 = 0x8800D209,
 	ALGO_TLS1_3_MS_SHA384 = 0x8800D20A,
+	ALGO_TLS1_3_KM_SHA256 = 0x8800D309,
+	ALGO_TLS1_3_KM_SHA384 = 0x8800D30A,
+	ALGO_TLS1_3_IV_SHA256 = 0x8800D409,
+	ALGO_TLS1_3_IV_SHA384 = 0x8800D40A,
 } hsm_key_derivation_tls1_3_algo_t;
 
 typedef enum {
