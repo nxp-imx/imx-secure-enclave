@@ -160,4 +160,5 @@ void shx_tests_run(void);
 int8_t get_supported_mu(uint8_t mu_type);
 she_err_t open_session(open_session_args_t *args, struct she_session_hdl_s **hdl);
 
+int shx_v2x_hsm_tests(int argc, char *argv[]);
 #endif

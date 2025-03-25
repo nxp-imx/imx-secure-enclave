@@ -1,10 +1,11 @@
 // SPDX-License-Identifier: BSD-3-Clause
 /*
- * Copyright 2021-2024 NXP
+ * Copyright 2021-2025 NXP
  */
 
 #include "hsm_api.h"
 #include "nvm.h"
+#include "test_common.h"
 #include <pthread.h>
 #include <stdio.h>
 #include <stdbool.h>
@@ -82,7 +83,7 @@ uint8_t ecies_p1[32] = {
     0x4E, 0xE0, 0x86, 0xCE, 0x59, 0x06, 0xA7, 0xCA, 0xC2, 0xF8, 0xA3, 0x98, 0x30, 0x6D, 0x3B, 0xE9
 };
 
-uint8_t ecc_p256_pubk[2*32] = {
+uint8_t ecc_p256_pubkey[2 * 32] = {
     0x1c, 0xcb, 0xe9, 0x1c, 0x07, 0x5f, 0xc7, 0xf4, 0xf0, 0x33, 0xbf, 0xa2, 0x48, 0xdb, 0x8f, 0xcc,
     0xd3, 0x56, 0x5d, 0xe9, 0x4b, 0xbf, 0xb1, 0x2f, 0x3c, 0x59, 0xff, 0x46, 0xc2, 0x71, 0xbf, 0x83,
     0xce, 0x40, 0x14, 0xc6, 0x88, 0x11, 0xf9, 0xa2, 0x1a, 0x1f, 0xdb, 0x2c, 0x0e, 0x61, 0x13, 0xe0,
@@ -737,7 +738,23 @@ static void v2x_root_kek_export_test(hsm_hdl_t sg0_sess)
 #endif
 }
 
-int main(int argc, char *argv[])
+static void v2x_hsm_test_usage(void)
+{
+	printf("------------------------------------------------------------------\n");
+	printf("v2x_hsm_test can be used to run:\n");
+	printf("- functional tests\n");
+	printf("- Specific HSM test vectors\n");
+	printf("- All HSM test vectors\n");
+	printf("\nFor running HSM functional tests:\n");
+	printf("v2x_hsm_test\n");
+	printf("\nFor running HSM test vectors:\n");
+	printf("v2x_hsm_test file1.shx file2.shx ....\n");
+	printf("\nFor running All HSM test vectors:\n");
+	printf("v2x_hsm_test -a\n");
+	printf("------------------------------------------------------------------\n");
+}
+
+int v2x_hsm_tests(void)
 {
     open_session_args_t args;
 
@@ -1278,7 +1295,7 @@ int main(int argc, char *argv[])
     printf("---------------------------------------------------\n");
     key_exch.key_identifier =0;
     key_exch.shared_key_identifier_array = work_area2;
-    key_exch.ke_input = ecc_p256_pubk;
+	key_exch.ke_input = ecc_p256_pubkey;
     key_exch.ke_output = work_area3;
     key_exch.kdf_input = 0;
     key_exch.kdf_output = 0;
@@ -1945,3 +1962,24 @@ int main(int argc, char *argv[])
     return 0;
 }
 
+/* Test entry function. */
+int main(int argc, char *argv[])
+{
+	if ((argc == 2 &&
+	     (strcmp("--help", argv[1]) == 0 || strcmp("-h", argv[1]) == 0))) {
+		v2x_hsm_test_usage();
+		return 0;
+	}
+
+	if (argc == 2) {
+		if (strcmp("-a", argv[1]) == 0)
+			shx_tests_run();
+		else
+			shx_v2x_hsm_tests(argc, argv);
+
+		return 0;
+	}
+	v2x_hsm_tests();
+
+	return 0;
+}

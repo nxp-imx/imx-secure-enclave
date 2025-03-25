@@ -1,6 +1,6 @@
 // SPDX-License-Identifier: BSD-3-Clause
 /*
- * Copyright 2024 NXP
+ * Copyright 2024-2025 NXP
  */
 
 #ifndef __SHX_TEST_MACROS_H__
@@ -181,10 +181,12 @@ static inline void dump_buffer(uint8_t *BUF, uint32_t SIZE)
 
 #define NOCHECK_BUFFER(CTX, BUF, EXP, SIZE) \
 { \
-	slt_print(SLT_INFO, "%lu %d (%d) %s [%d]: Received buffer (%s):\n", \
-		  TS, getpid(), (CTX)->cmd_prio, (CTX)->cmd_name, (CTX)->inst, #BUF); \
-	if (SLT_LOGLEVEL >= SLT_DEBUG) \
+	if (SLT_LOGLEVEL >= SLT_DEBUG) { \
+		slt_print(SLT_INFO, "%lu %d (%d) %s [%d]: Received buffer (%s):\n", \
+			  TS, getpid(), (CTX)->cmd_prio, (CTX)->cmd_name, \
+			  (CTX)->inst, #BUF); \
 		dump_buffer(BUF, SIZE); \
+	}
 }
 
 #else // !EXTENTED_TRACE
@@ -224,9 +226,10 @@ static inline void dump_buffer(uint8_t *BUF, uint32_t SIZE)
 }
 
 #define NOCHECK_BUFFER(CTX, BUF, EXP, SIZE) \
-	(slt_print(SLT_INFO, "    Received buffer (%s):\n", #BUF); \
-	if (SLT_LOGLEVEL >= SLT_DEBUG) \
-		dump_buffer(BUF, SIZE);)
+	if (SLT_LOGLEVEL >= SLT_DEBUG) {\
+		slt_print(SLT_INFO, "    Received buffer (%s):\n", #BUF); \
+		dump_buffer(BUF, SIZE); \
+	}
 
 #endif // EXTENTED_TRACE
 
@@ -263,11 +266,13 @@ static inline void dump_buffer(uint8_t *BUF, uint32_t SIZE)
 }
 
 #define READ_CHECK_BUFFER(CTX, FP, NAME, SIZE) \
+{ \
 	uint8_t *COMBINE(EXP_, __LINE__) = READ_INPUT_BUFFER(FP, SIZE); \
 	if (COMBINE(EXP_, __LINE__)) { \
 		CHECK_BUFFER(CTX, NAME, COMBINE(EXP_, __LINE__), SIZE); \
 		FREE_BUFFER(COMBINE(EXP_, __LINE__)); \
-	}
+	} \
+}
 
 #define WRITE_NOCHECK_BUFFER(CTX, NAME, SIZE) \
 { \
