@@ -109,11 +109,11 @@ she_err_t she_verify_mac(she_hdl_t utils_handle,
 		return err;
 	}
 
-	if (se_get_soc_id() == SOC_IMX95 || se_get_soc_id() == SOC_IMX943 ||
-	    (se_get_soc_id() == SOC_IMX8DXL && se_get_board_type() == IMX8DXL_DL3))
-		err = she_verify_mac_v2x(serv_ptr, args);
-	else
+	if ((se_get_soc_id() == SOC_IMX8DXL && se_get_board_type() == IMX8DXL_DL1) ||
+	    se_get_soc_id() == SOC_IMX8QXP)
 		err = she_verify_mac_seco(serv_ptr, args);
+	else
+		err = she_verify_mac_v2x(serv_ptr, args);
 
 	return err;
 }
@@ -205,11 +205,11 @@ she_err_t she_generate_mac(she_hdl_t utils_handle,
 		return err;
 	}
 
-	if (se_get_soc_id() == SOC_IMX95 || se_get_soc_id() == SOC_IMX943 ||
-	    (se_get_soc_id() == SOC_IMX8DXL && se_get_board_type() == IMX8DXL_DL3))
-		err = she_generate_mac_v2x(serv_ptr, args);
-	else
+	if ((se_get_soc_id() == SOC_IMX8DXL && se_get_board_type() == IMX8DXL_DL1) ||
+	    se_get_soc_id() == SOC_IMX8QXP)
 		err = she_generate_mac_seco(serv_ptr, args);
+	else
+		err = she_generate_mac_v2x(serv_ptr, args);
 
 	return err;
 }
