@@ -38,6 +38,9 @@ static const char test_tls13_label_prefix[6] = "tls13 ";
 static const char test_tls13_label_ext_binder[10] = "ext binder";
 static const char test_tls13_label_client_handshake_traffic[12] = "c hs traffic";
 static const char test_tls13_label_client_application_traffic[12] = "c ap traffic";
+static const char test_tls13_label_derived[7] = "derived";
+static const char test_tls13_label_key[3] = "key";
+static const char test_tls13_label_iv[2] = "iv";
 
 /**
  *  TLS 1.2 RFC 5246 ::
@@ -144,12 +147,21 @@ static uint8_t iv[16] = {
 	0x08, 0x09, 0x0A, 0x0B, 0x0C, 0x0D, 0x0E, 0x0F,
 };
 
-/* Context/Transcript Random Hash Buffer */
+/* Context/Transcript Random Hash Buffer(s) */
 static const unsigned char context_buffer[32] = {
 	0x1b, 0x6a, 0x99, 0xe1, 0x5a, 0x4a, 0x57, 0x86,
 	0x7d, 0x8a, 0x8f, 0xb1, 0x43, 0xf7, 0xfc, 0x7d,
 	0xdd, 0x0a, 0x5a, 0xf2, 0x45, 0x5f, 0xfc, 0xba,
 	0x0b, 0x77, 0xf7, 0x92, 0xa0, 0xf1, 0xbf, 0x20,
+};
+
+static const unsigned char context_384_buffer[48] = {
+	0x1b, 0x6a, 0x99, 0xe1, 0x5a, 0x4a, 0x57, 0x86,
+	0x7d, 0x8a, 0x8f, 0xb1, 0x43, 0xf7, 0xfc, 0x7d,
+	0xdd, 0x0a, 0x5a, 0xf2, 0x45, 0x5f, 0xfc, 0xba,
+	0x0b, 0x77, 0xf7, 0x92, 0xa0, 0xf1, 0xbf, 0x20,
+	0x00, 0x01, 0x02, 0x03, 0x04, 0x05, 0x06, 0x07,
+	0x08, 0x09, 0x0A, 0x0B, 0x0C, 0x0D, 0x0E, 0x0F,
 };
 
 /* ECC 256 Public Key */
@@ -275,24 +287,51 @@ typedef struct {
 	uint32_t tls1_3_algo;
 	// TLS 1.3 algo to be used for Key Exchange process.
 	uint32_t priv_key_id;
-	// Private Key ID for ELE FW private key to be used for Key Agreement
-	// with peer public key.
+	// Private Key ID for ELE FW private key to be used for:
+	// ES, HS, MS - Key Agreement with peer public key
+	// KM - HKDF Expand operation,
+	// IV - HKDF Expand operation
 	uint16_t derived_key_type;
-	// Derived Key's type, DERIVE. Not used if key exported
+	// Derived Key's type.
+	// ES, HS, MS - Ignored and set to DERIVE.
+	// KM - Derived Key's type.
+	// IV - Ignored
 	uint16_t derived_key_bits_size;
-	// Derived Key size in bits
+	// Derived Key size in bits.
+	// ES, HS, MS - Ignored and set to TLS 1.3 algorithm hash length (in bits).
+	// KM - Derived Key size in bits.
+	// IV - Ignored
 	uint32_t derived_key_lifetime;
-	// Derived Key Lifetime. VOLATILE hardcoded, if stored.
+	// Derived Key Lifetime.
+	// ES, HS, MS - Ignored and set to VOLATILE.
+	// KM - Ignored and set to VOLATILE.
+	// IV - Ignored
 	uint32_t derived_key_usage;
-	// Derived Key Usage. must be DERIVE. Ignored if key exported.
+	// Derived Key Usage.
+	// ES, HS, MS - Ignored and set to DERIVE.
+	// KM - Derived Key Usage.
+	// IV - Ignored
 	uint32_t derived_key_permitted_algo;
-	// Derived Key Permitted Algo. Ignored if key exported.
+	// Derived Key Permitted Algo.
+	// ES, HS, MS - Ignored and set to TLS 1.3 Secret Internal with same hash
+	//              algo as TLS 1.3 algorithm.
+	// KM - Derived Key Permitted Algo.
+	// IV - Ignored
 	uint32_t derived_key_lifecycle;
-	// Derived Key Lifeycle. Hardcoded Current.
+	// Derived Key Lifeycle.
+	// ES, HS, MS - Ignored and set to Current Lifecycle.
+	// KM - Ignored and set to Current Lifecycle.
+	// IV - Ignored
 	uint32_t derived_key_id;
-	// Derived Key ID. VOLATILE, ID chosen by FW, if stored.
-	uint32_t psk_len;
-	// Optional PSK buffer length.
+	// Derived Key ID.
+	// ES, HS, MS - Ignored and set by ELE. Returned in the API response.
+	// KM - Ignored and set by ELE. Returned in the API response.
+	// IV - Ignored
+	uint32_t psk_id;
+	// Optional PSK ID
+	// ES, HS, MS - Optional PSK ID.
+	// KM - Reserved
+	// IV - Reserved
 } in_content_tls13_args_t;
 
 /**

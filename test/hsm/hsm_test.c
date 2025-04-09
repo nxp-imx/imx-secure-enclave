@@ -732,6 +732,11 @@ hsm_hdl_t get_hsm_session_hdl(void)
 	return hsm_session_hdl;
 }
 
+hsm_hdl_t get_key_store_hdl(void)
+{
+	return key_store_hdl;
+}
+
 int get_cmdline_arg(void)
 {
 	return cmdline_arg;

@@ -1,6 +1,6 @@
 // SPDX-License-Identifier: BSD-3-Clause
 /*
- * Copyright 2024 NXP
+ * Copyright 2024-2025 NXP
  */
 
 #include <stdio.h>
@@ -54,7 +54,7 @@ static void key_exchange_test_hkdf_expand_helper(hsm_hdl_t key_mgmt_hdl,
 	in_content.derived_key_permitted_algo = HSM_KEY_DERIVATION_HKDF_EXPAND_SHA256;
 	in_content.derived_key_lifecycle = 0x0; // Current
 	in_content.derived_key_id = 0x0; // Volatile Key, so ID chosen by FW
-	in_content.psk_len = 0x0; // Optional PSK not used.
+	in_content.psk_id = 0x0; // Optional PSK not used.
 
 	/* 2. Prepare User Fixed Info or HKDF label */
 	memset(hkdf_label, 0, sizeof(hkdf_label));
