@@ -9,6 +9,9 @@
 #include "hsm_api.h"
 
 #ifdef PSA_COMPLIANT
+#include "mbedtls_utils.h"
+#include "mbedtls_test.h"
+
 /* Dump HEX buffer byte-by-byte */
 void dump_hex(uint8_t buf[], uint32_t size)
 {
@@ -273,12 +276,23 @@ static void test_tls1_3_handshake_secrets(hsm_hdl_t key_mgmt_hdl,
 					  uint32_t key_store_id)
 {
 	hsm_err_t err;
+	int ret;
 	in_content_tls13_args_t in_content = {0};
 	op_key_exchange_args_t key_ex_args = {0};
 	op_generate_key_args_t key_gen_args = {0};
 	op_delete_key_args_t del_args = {0};
 	uint32_t key_id = 0; //Private Key ID, ELE FW
 	uint32_t output_key_buffer[TEST_TLS1_3_DERIVED_MAX_KEY_SIZE];
+	uint8_t fw_pub_key[64] = {0};
+	static char mbedtls_shared_secret[32] = {0};
+	static char mbedtls_ikm[32] = {0};
+	static char mbedtls_handshake[32] = {0};
+	static char mbedtls_early_secret[32] = {0};
+	static char mbedtls_derived_early_secret[32] = {0};
+	static char mbedtls_handshake_secret[32] = {0};
+	static char mbedtls_c_hs_traffic_secret[32] = {0};
+	uint32_t mbedtls_shared_secret_len = sizeof(mbedtls_shared_secret);
+
 
 	/**************Handshake Secrets - Client HS traffic ***************/
 
@@ -302,8 +316,8 @@ static void test_tls1_3_handshake_secrets(hsm_hdl_t key_mgmt_hdl,
 	key_gen_args.key_type = key_type;
 	key_gen_args.bit_key_sz = bit_key_sz;
 	key_gen_args.key_lifecycle = 0x0; // Current Device Lifecycle
-	key_gen_args.out_key = NULL;
-	key_gen_args.out_size = 0x0;
+	key_gen_args.out_key = fw_pub_key;
+	key_gen_args.out_size = sizeof(fw_pub_key);
 
 	err = hsm_generate_key(key_mgmt_hdl, &key_gen_args);
 	printf("\nhsm_generate_key (KeyPair) err: 0x%x\n", err);
@@ -338,8 +352,8 @@ static void test_tls1_3_handshake_secrets(hsm_hdl_t key_mgmt_hdl,
 	key_ex_args.flags = HSM_OP_KEY_EXCHANGE_FLAGS_INPUT_PLAINTEXT_CONTENT;
 	key_ex_args.in_content_sz = sizeof(in_content_tls13_args_t);
 	key_ex_args.in_content = (uint8_t *)(&in_content);
-	key_ex_args.in_pub_buffer_sz = sizeof(public_buffer);
-	key_ex_args.in_pub_buffer = public_buffer;
+	key_ex_args.in_pub_buffer_sz = sizeof(ecc_256_pub_key);
+	key_ex_args.in_pub_buffer = ecc_256_pub_key;
 	key_ex_args.user_fixed_info_sz = hkdf_label_len;
 	key_ex_args.user_fixed_info = (uint8_t *)hkdf_label;
 	key_ex_args.output_sz = 0;
@@ -369,8 +383,8 @@ static void test_tls1_3_handshake_secrets(hsm_hdl_t key_mgmt_hdl,
 			    HSM_OP_KEY_EXCHANGE_FLAGS_RETURN_OUTPUT;
 	key_ex_args.in_content_sz = sizeof(in_content_tls13_args_t);
 	key_ex_args.in_content = (uint8_t *)(&in_content);
-	key_ex_args.in_pub_buffer_sz = sizeof(public_buffer);
-	key_ex_args.in_pub_buffer = public_buffer;
+	key_ex_args.in_pub_buffer_sz = sizeof(ecc_256_pub_key);
+	key_ex_args.in_pub_buffer = ecc_256_pub_key;
 	key_ex_args.user_fixed_info_sz = hkdf_label_len;
 	key_ex_args.user_fixed_info = (uint8_t *)hkdf_label;
 	key_ex_args.output_sz = BITS_TO_BYTES(HSM_KEY_SIZE_DERIVE_256);
@@ -386,15 +400,80 @@ static void test_tls1_3_handshake_secrets(hsm_hdl_t key_mgmt_hdl,
 	if (err != HSM_NO_ERROR)
 		goto out;
 
-	/* 7. Delete the Generated test Key */
-	memset(&del_args, 0, sizeof(del_args));
+	/**
+	 * 7. Mbed-TLS validation for the generated Handshake secret.
+	 *    Currently done for only ECC NIST key type.
+	 */
+	if (key_type != HSM_KEY_TYPE_ECC_NIST)
+		goto out;
 
-	del_args.key_identifier = key_id;
-	del_args.flags = 0;
-	err = hsm_delete_key(key_mgmt_hdl, &del_args);
-	if (err != HSM_NO_ERROR)
-		printf("hsm_delete_key (Generated) ret: 0x%x\n", err);
+	ret = my_mbedtls_ecdh(bit_key_sz, key_type,
+			      fw_pub_key, sizeof(fw_pub_key),
+			      ecc_256_priv_key, sizeof(ecc_256_priv_key),
+			      mbedtls_shared_secret,
+			      &mbedtls_shared_secret_len);
+	if (ret)
+		goto out;
+
+	ret = my_mbedtls_hkdf_extract(HSM_HASH_ALGO_SHA_256,
+				      NULL, 0,
+				      mbedtls_ikm,
+				      sizeof(mbedtls_ikm),
+				      mbedtls_early_secret,
+				      HSM_HASH_ALGO_SHA_256_SIZE);
+	if (ret)
+		goto out;
+
+	ret = mbedtls_wapi_tls13_derive_secret(HSM_HASH_ALGO_SHA_256,
+					       mbedtls_early_secret,
+					       HSM_HASH_ALGO_SHA_256_SIZE,
+					       "derived", 7,
+					       NULL, 0,
+					       TEST_TLS1_3_CTX_UNHASHED,
+					       mbedtls_derived_early_secret,
+					       HSM_HASH_ALGO_SHA_256_SIZE);
+	if (ret)
+		goto out;
+
+	ret = my_mbedtls_hkdf_extract(HSM_HASH_ALGO_SHA_256,
+				      mbedtls_derived_early_secret,
+				      sizeof(mbedtls_derived_early_secret),
+				      mbedtls_shared_secret,
+				      mbedtls_shared_secret_len,
+				      mbedtls_handshake,
+				      HSM_HASH_ALGO_SHA_256_SIZE);
+	if (ret)
+		goto out;
+
+	ret = mbedtls_wapi_tls13_derive_secret(HSM_HASH_ALGO_SHA_256,
+					       mbedtls_handshake,
+					       HSM_HASH_ALGO_SHA_256_SIZE,
+					       "c hs traffic", 12,
+					       context_buffer, sizeof(context_buffer),
+					       TEST_TLS1_3_CTX_HASHED,
+					       mbedtls_c_hs_traffic_secret,
+					       HSM_HASH_ALGO_SHA_256_SIZE);
+	if (ret)
+		goto out;
+
+	if (!memcmp(key_ex_args.output,
+		    mbedtls_c_hs_traffic_secret,
+		    key_ex_args.output_sz))
+		printf("\nTLS 1.3: HS: Mbed-TLS validation. SUCCESS\n");
+	else
+		printf("\nTLS 1.3: HS: Mbed-TLS validation. FAILED\n");
 out:
+	/* 8. Delete the Generated test Key */
+	if (key_id) {
+		memset(&del_args, 0, sizeof(del_args));
+
+		del_args.key_identifier = key_id;
+		del_args.flags = 0;
+		err = hsm_delete_key(key_mgmt_hdl, &del_args);
+		if (err != HSM_NO_ERROR)
+			printf("hsm_delete_key (Generated) ret: 0x%x\n", err);
+	}
+
 	return;
 }
 
