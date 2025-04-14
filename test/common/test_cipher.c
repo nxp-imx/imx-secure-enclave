@@ -12,6 +12,31 @@
 #include "mbedtls_utils.h"
 #endif
 
+static uint8_t test_data[256] = {
+	0xB2, 0xE1, 0x4C, 0x5C, 0x79, 0xC6, 0xDF, 0x5B, 0x85, 0xF4, 0xFE, 0x7E,
+	0xD8, 0xDB, 0x7A, 0x26,	0x2B, 0x9D, 0xA7, 0xE0, 0x7C, 0xCB, 0x0E, 0xA9,
+	0xF4, 0x74, 0x7B, 0x8C, 0xCD, 0xA8, 0xA4, 0xF3, 0x6D, 0x65, 0x73, 0x73,
+	0x61, 0x67, 0x65, 0x20, 0xB2, 0xE1, 0x4C, 0x5C, 0x79, 0xC6, 0xDF, 0x5B,
+	0x85, 0xF4, 0xFE, 0x7E, 0xD8, 0xDB, 0x7A, 0x26, 0x2B, 0x9D, 0xA7, 0xE0,
+	0x7C, 0xCB, 0x0E, 0xA9,	0xF4, 0x74, 0x7B, 0x8C, 0xCD, 0xA8, 0xA4, 0xF3,
+	0x6D, 0x65, 0x73, 0x73, 0x61, 0x67, 0x65, 0x20,	0xB2, 0xE1, 0x4C, 0x5C,
+	0x79, 0xC6, 0xDF, 0x5B, 0x85, 0xF4, 0xFE, 0x7E, 0xD8, 0xDB, 0x7A, 0x26,
+	0x2B, 0x9D, 0xA7, 0xE0, 0x7C, 0xCB, 0x0E, 0xA9, 0xF4, 0x74, 0x7B, 0x8C,
+	0xCD, 0xA8, 0xA4, 0xF3,	0x6D, 0x65, 0x73, 0x73, 0x61, 0x67, 0x65, 0x20,
+	0xB2, 0xE1, 0x4C, 0x5C, 0x79, 0xC6, 0xDF, 0x5B, 0x85, 0xF4, 0xFE, 0x7E,
+	0xD8, 0xDB, 0x7A, 0x26, 0x2B, 0x9D, 0xA7, 0xE0, 0x7C, 0xCB, 0x0E, 0xA9,
+	0xF4, 0x74, 0x7B, 0x8C, 0xCD, 0xA8, 0xA4, 0xF3, 0x6D, 0x65, 0x73, 0x73,
+	0x61, 0x67, 0x65, 0x20,	0xB2, 0xE1, 0x4C, 0x5C, 0x79, 0xC6, 0xDF, 0x5B,
+	0x85, 0xF4, 0xFE, 0x7E, 0xD8, 0xDB, 0x7A, 0x26,	0x2B, 0x9D, 0xA7, 0xE0,
+	0x7C, 0xCB, 0x0E, 0xA9, 0xF4, 0x74, 0x7B, 0x8C, 0xCD, 0xA8, 0xA4, 0xF3,
+	0x6D, 0x65, 0x73, 0x73, 0x61, 0x67, 0x65, 0x20, 0xB2, 0xE1, 0x4C, 0x5C,
+	0x79, 0xC6, 0xDF, 0x5B,	0x85, 0xF4, 0xFE, 0x7E, 0xD8, 0xDB, 0x7A, 0x26,
+	0x2B, 0x9D, 0xA7, 0xE0, 0x7C, 0xCB, 0x0E, 0xA9,	0xF4, 0x74, 0x7B, 0x8C,
+	0xCD, 0xA8, 0xA4, 0xF3, 0x6D, 0x65, 0x73, 0x73, 0x61, 0x67, 0x65, 0x20,
+	0x85, 0xF4, 0xFE, 0x7E, 0xD8, 0xDB, 0x7A, 0x26, 0x2B, 0x9D, 0xA7, 0xE0,
+	0xB2, 0xE1, 0x4C, 0x5C,
+};
+
 uint8_t hash_data[32] = {
 	0x00, 0x01, 0x02, 0x03, 0x04, 0x05, 0x06, 0x07,
 	0x08, 0x09, 0x0A, 0x0B, 0x0C, 0x0D, 0x0E, 0x0F,
@@ -132,8 +157,11 @@ static hsm_err_t do_cipher_stream_opaquekey_test(hsm_hdl_t key_store_hdl,
 	hsm_hdl_t cipher_hdl = 0;
 	open_svc_cipher_args_t open_cipher_args = {0};
 	op_cipher_args_t args = {0};
-	uint8_t ciphered_data[16] = {0};
-	uint8_t deciphered_data[16] = {0};
+	uint8_t ciphered_data[256] = {0};
+	uint8_t deciphered_data[256] = {0};
+	uint8_t input_pkt_size = 16;
+	uint16_t input_offset = 0;
+	uint16_t output_offset = 0;
 	uint32_t key_id = 0;
 
 	printf("\nStreaming Test (Opaque key):\n");
@@ -174,26 +202,34 @@ static hsm_err_t do_cipher_stream_opaquekey_test(hsm_hdl_t key_store_hdl,
 	}
 
 	/* UPDATE DATA */
-	memset(&args, 0, sizeof(op_cipher_args_t));
-	args.flags = HSM_CIPHER_FLAGS_ENCRYPT | HSM_CIPHER_FLAGS_UPDATE_DATA;
-	args.cipher_algo = HSM_CIPHER_ALGO_CBC;
-	args.input = hash_data; //plaintext
-	args.input_size = 16;
-	args.output = ciphered_data;
-	args.output_size = sizeof(ciphered_data);
+	for (uint8_t i = 0; i < sizeof(ciphered_data) / input_pkt_size; ++i) {
+		memset(&args, 0, sizeof(op_cipher_args_t));
+		args.flags = HSM_CIPHER_FLAGS_ENCRYPT | HSM_CIPHER_FLAGS_UPDATE_DATA;
+		args.cipher_algo = HSM_CIPHER_ALGO_CBC;
+		args.input = test_data + input_offset; //plaintext
+		args.input_size = input_pkt_size;
+		args.output = ciphered_data + output_offset;
+		args.output_size = sizeof(ciphered_data) - output_offset;
 
-	err = hsm_cipher(cipher_hdl, &args);
-	if (err != HSM_NO_ERROR) {
-		printf("\nhsm_cipher (encrypt) UPDATE DATA) err: 0x%x\n", err);
-		goto out;
+		err = hsm_cipher(cipher_hdl, &args);
+		if (err != HSM_NO_ERROR) {
+			printf("\nhsm_cipher (encrypt) (UPDATE DATA) err: 0x%x\n", err);
+			break;
+		}
+
+		input_offset += input_pkt_size;
+		output_offset += args.exp_output_size;
 	}
+
+	if (err != HSM_NO_ERROR)
+		goto out;
 
 	/* FINALIZE */
 	memset(&args, 0, sizeof(op_cipher_args_t));
 	args.flags = HSM_CIPHER_FLAGS_ENCRYPT | HSM_CIPHER_FLAGS_FINALIZE;
 	args.cipher_algo = HSM_CIPHER_ALGO_CBC;
-	args.output = ciphered_data;
-	args.output_size = sizeof(ciphered_data);
+	args.output = ciphered_data + output_offset;
+	args.output_size = sizeof(ciphered_data) - output_offset;
 
 	err = hsm_cipher(cipher_hdl, &args);
 	if (err != HSM_NO_ERROR) {
@@ -202,6 +238,10 @@ static hsm_err_t do_cipher_stream_opaquekey_test(hsm_hdl_t key_store_hdl,
 	}
 
 	/* Cipher Decrypt */
+
+	// reset offsets trackers
+	input_offset = 0;
+	output_offset = 0;
 
 	/* INIT */
 	memset(&args, 0, sizeof(op_cipher_args_t));
@@ -218,26 +258,34 @@ static hsm_err_t do_cipher_stream_opaquekey_test(hsm_hdl_t key_store_hdl,
 	}
 
 	/* UPDATE DATA */
-	memset(&args, 0, sizeof(op_cipher_args_t));
-	args.flags = HSM_CIPHER_FLAGS_DECRYPT | HSM_CIPHER_FLAGS_UPDATE_DATA;
-	args.cipher_algo = HSM_CIPHER_ALGO_CBC;
-	args.input = ciphered_data;
-	args.input_size = sizeof(ciphered_data);
-	args.output = deciphered_data;
-	args.output_size = sizeof(deciphered_data);
+	for (uint8_t i = 0; i < sizeof(ciphered_data) / input_pkt_size; ++i) {
+		memset(&args, 0, sizeof(op_cipher_args_t));
+		args.flags = HSM_CIPHER_FLAGS_DECRYPT | HSM_CIPHER_FLAGS_UPDATE_DATA;
+		args.cipher_algo = HSM_CIPHER_ALGO_CBC;
+		args.input = ciphered_data + input_offset; //ciphertext
+		args.input_size = input_pkt_size;
+		args.output = deciphered_data + output_offset;
+		args.output_size = sizeof(deciphered_data) - output_offset;
 
-	err = hsm_cipher(cipher_hdl, &args);
-	if (err != HSM_NO_ERROR) {
-		printf("\nhsm_cipher (decrypt) (UPDATE DATA) err: 0x%x\n", err);
-		goto out;
+		err = hsm_cipher(cipher_hdl, &args);
+		if (err != HSM_NO_ERROR) {
+			printf("\nhsm_cipher (decrypt) (UPDATE DATA) err: 0x%x\n", err);
+			break;
+		}
+
+		input_offset += input_pkt_size;
+		output_offset += args.exp_output_size;
 	}
+
+	if (err != HSM_NO_ERROR)
+		goto out;
 
 	/* FINALIZE */
 	memset(&args, 0, sizeof(op_cipher_args_t));
 	args.flags = HSM_CIPHER_FLAGS_DECRYPT | HSM_CIPHER_FLAGS_FINALIZE;
 	args.cipher_algo = HSM_CIPHER_ALGO_CBC;
-	args.output = deciphered_data;
-	args.output_size = sizeof(deciphered_data);
+	args.output = deciphered_data + output_offset;
+	args.output_size = sizeof(deciphered_data) - output_offset;
 
 	err = hsm_cipher(cipher_hdl, &args);
 	if (err != HSM_NO_ERROR) {
@@ -249,7 +297,7 @@ static hsm_err_t do_cipher_stream_opaquekey_test(hsm_hdl_t key_store_hdl,
 	if (err != HSM_NO_ERROR)
 		printf("\nhsm_close_cipher_service err: 0x%x\n", err);
 
-	if (memcmp(hash_data, deciphered_data, sizeof(deciphered_data)) == 0)
+	if (memcmp(test_data, deciphered_data, sizeof(deciphered_data)) == 0)
 		printf("\nDecrypted data matches encrypted data [PASS]\n");
 	else
 		printf("\nDecrypted data doesn't match encrypted data [FAIL]\n");
