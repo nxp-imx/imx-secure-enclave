@@ -126,6 +126,7 @@ void tv_tests_run(hsm_hdl_t key_store_hdl, uint8_t *tv_file_path);
  * opened as part of the test run
  */
 hsm_hdl_t get_hsm_session_hdl(void);
+hsm_hdl_t get_key_store_hdl(void);
 uint8_t get_rsa_tcase_status(void);
 
 void hexdump(uint32_t buf[], uint32_t size);
