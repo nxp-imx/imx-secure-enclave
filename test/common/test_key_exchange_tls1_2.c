@@ -120,6 +120,10 @@ out:
  *                           [0..47];
  */
 static void test_tls1_2_master_secret(hsm_hdl_t key_mgmt_hdl,
+				      hsm_key_type_t key_type,
+				      hsm_bit_key_sz_t bit_key_size,
+				      hsm_permitted_algo_t key_permitted_algo,
+				      hsm_op_key_derivation_tls1_2_algo_t algo,
 				      uint32_t *master_secret_key_id,
 				      uint8_t *master_secret,
 				      uint32_t master_secret_len,
@@ -129,16 +133,17 @@ static void test_tls1_2_master_secret(hsm_hdl_t key_mgmt_hdl,
 	in_content_tls1_2_master_secret_args_t in_content;
 	op_key_exchange_args_t key_ex_args;
 	op_generate_key_args_t key_gen_args;
-	uint8_t fw_pub_key[64] = {0}; // 2 * BITS_TO_BYTES(HSM_KEY_SIZE_ECC_NIST_256)
+	uint8_t fw_pub_key[2 * BITS_TO_BYTES(HSM_KEY_SIZE_ECC_NIST_384)] = {0};
 	uint32_t fw_key_id = 0;
 	uint8_t mbedtls_master_secret[BITS_TO_BYTES(HSM_KEY_SIZE_DERIVE_384)] = {0};
 	static char mbedtls_premaster_secret[48] = {0};
 	uint32_t mbedtls_premaster_secret_len = sizeof(mbedtls_premaster_secret);
 	uint32_t tls1_2_label_ms_len = strlen(test_tls1_2_label_master_secret);
+	uint8_t *peer_pub_key;
+	uint32_t peer_pub_key_size;
+	uint8_t *peer_priv_key;
+	uint32_t peer_priv_key_size;
 	uint32_t ret;
-
-	printf("\nTLS 1.2 Master Secret:\n");
-	printf("--------------------------\n");
 
 	/* 1. Generate ELE Private Key for Premaster secret generation */
 	memset(&key_gen_args, 0, sizeof(op_generate_key_args_t));
@@ -147,10 +152,10 @@ static void test_tls1_2_master_secret(hsm_hdl_t key_mgmt_hdl,
 	key_gen_args.key_group = 40;
 	key_gen_args.key_lifetime = HSM_SE_KEY_STORAGE_VOLATILE;
 	key_gen_args.key_usage = HSM_KEY_USAGE_DERIVE;
-	key_gen_args.permitted_algo = PERMITTED_ALGO_TLS1_2_MASTER_SECRET_SHA256;
+	key_gen_args.permitted_algo = key_permitted_algo;
 	key_gen_args.flags = 0x0;
-	key_gen_args.key_type = HSM_KEY_TYPE_ECC_NIST;
-	key_gen_args.bit_key_sz = HSM_KEY_SIZE_ECC_NIST_256;
+	key_gen_args.key_type = key_type;
+	key_gen_args.bit_key_sz = bit_key_size;
 	key_gen_args.key_lifecycle = 0x0; // Current Device Lifecycle
 	key_gen_args.out_key = fw_pub_key;
 	key_gen_args.out_size = sizeof(fw_pub_key);
@@ -161,19 +166,31 @@ static void test_tls1_2_master_secret(hsm_hdl_t key_mgmt_hdl,
 		return;
 	}
 
+	if (algo == HSM_KEY_DERIVATION_TLS1_2_MASTER_SECRET_SHA256) {
+		peer_pub_key = ecc_256_pub_key;
+		peer_pub_key_size = sizeof(ecc_256_pub_key);
+		peer_priv_key = ecc_256_priv_key;
+		peer_priv_key_size = sizeof(ecc_256_priv_key);
+	} else {
+		peer_pub_key = ecc_384_pub_key;
+		peer_pub_key_size = sizeof(ecc_384_pub_key);
+		peer_priv_key = ecc_384_priv_key;
+		peer_priv_key_size = sizeof(ecc_384_priv_key);
+	}
+
 	/* 2. Prepare Input Content for TLS 1.2 master secret */
 	memset(&in_content, 0, sizeof(in_content_tls1_2_master_secret_args_t));
 
 	in_content.ver = 0x1;
 	in_content.rsv = 0x0;
 	in_content.keystore_id = key_store_id;
-	in_content.tls1_2_algo = HSM_KEY_DERIVATION_TLS1_2_MASTER_SECRET_SHA256;
+	in_content.tls1_2_algo = algo;
 	in_content.priv_key_id = fw_key_id;
 	in_content.derived_key_type = HSM_KEY_TYPE_DERIVE; //Ignored
-	in_content.derived_key_bits_size = HSM_KEY_SIZE_DERIVE_384; //Ignored
+	in_content.derived_key_bits_size = 0x0;
 	in_content.derived_key_lifetime = HSM_SE_KEY_STORAGE_VOLATILE; //Ignored
 	in_content.derived_key_usage = HSM_KEY_USAGE_DERIVE; //Ignored
-	in_content.derived_key_permitted_algo = 0x0; // Ignored by ELE
+	in_content.derived_key_permitted_algo = 0x0;
 	in_content.derived_key_lifecycle = 0x0; // Ignored by ELE. Set to Current
 	in_content.derived_key_id = 0x0; // Ignored by ELE
 	in_content.reserved = 0x0;
@@ -184,8 +201,8 @@ static void test_tls1_2_master_secret(hsm_hdl_t key_mgmt_hdl,
 	key_ex_args.flags = HSM_OP_KEY_EXCHANGE_FLAGS_INPUT_PLAINTEXT_CONTENT;
 	key_ex_args.in_content_sz = sizeof(in_content);
 	key_ex_args.in_content = (uint8_t *)(&in_content);
-	key_ex_args.in_pub_buffer_sz = sizeof(ecc_256_pub_key);
-	key_ex_args.in_pub_buffer = ecc_256_pub_key;
+	key_ex_args.in_pub_buffer_sz = peer_pub_key_size;
+	key_ex_args.in_pub_buffer = peer_pub_key;
 	key_ex_args.user_fixed_info_sz = sizeof(test_tls1_2_ms_seed);
 	key_ex_args.user_fixed_info = (uint8_t *)test_tls1_2_ms_seed;
 	key_ex_args.output_sz = 0;
@@ -204,8 +221,8 @@ static void test_tls1_2_master_secret(hsm_hdl_t key_mgmt_hdl,
 		HSM_OP_KEY_EXCHANGE_FLAGS_RETURN_OUTPUT;
 	key_ex_args.in_content_sz = sizeof(in_content);
 	key_ex_args.in_content = (uint8_t *)(&in_content);
-	key_ex_args.in_pub_buffer_sz = sizeof(ecc_256_pub_key);
-	key_ex_args.in_pub_buffer = ecc_256_pub_key;
+	key_ex_args.in_pub_buffer_sz = peer_pub_key_size;
+	key_ex_args.in_pub_buffer = peer_pub_key;
 	key_ex_args.user_fixed_info_sz = sizeof(test_tls1_2_ms_seed);
 	key_ex_args.user_fixed_info = (uint8_t *)test_tls1_2_ms_seed;
 	key_ex_args.output_sz = master_secret_len;
@@ -217,14 +234,14 @@ static void test_tls1_2_master_secret(hsm_hdl_t key_mgmt_hdl,
 		goto out;
 
 	/* 4.1. Compute Premaster Secret with MbedTLS   */
-	my_mbedtls_ecdh(HSM_KEY_SIZE_ECC_NIST_256, HSM_KEY_TYPE_ECC_NIST,
-			fw_pub_key, sizeof(fw_pub_key),
-			ecc_256_priv_key, sizeof(ecc_256_priv_key),
+	my_mbedtls_ecdh(bit_key_size, key_type,
+			fw_pub_key, 2 * BITS_TO_BYTES(bit_key_size),
+			peer_priv_key, peer_priv_key_size,
 			mbedtls_premaster_secret,
 			&mbedtls_premaster_secret_len);
 
 	/* 4.2. Compute Mbed-TLS master secret */
-	ret = my_mbedtls_tls12_prf(HSM_KEY_DERIVATION_TLS1_2_MASTER_SECRET_SHA256,
+	ret = my_mbedtls_tls12_prf(algo,
 				   mbedtls_premaster_secret,
 				   mbedtls_premaster_secret_len,
 				   test_tls1_2_label_master_secret,
@@ -595,7 +612,14 @@ void key_exchange_test_tls1_2(hsm_hdl_t key_store_hdl,
 
 	memset(master_secret, 0, master_secret_len);
 
-	test_tls1_2_master_secret(key_mgmt_hdl, &master_secret_key_id,
+	printf("\nPermitted Key TLS 1.2 MS SHA256 & HSM TLS 1.2 MS SHA256:\n");
+	printf("----------------------------------------------------------\n");
+	test_tls1_2_master_secret(key_mgmt_hdl,
+				  HSM_KEY_TYPE_ECC_NIST,
+				  HSM_KEY_SIZE_ECC_NIST_256,
+				  PERMITTED_ALGO_TLS1_2_MASTER_SECRET_SHA256,
+				  HSM_KEY_DERIVATION_TLS1_2_MASTER_SECRET_SHA256,
+				  &master_secret_key_id,
 				  master_secret, master_secret_len, key_store_id);
 
 	test_tls1_2_key_block(key_store_hdl, key_mgmt_hdl, master_secret_key_id,
@@ -608,6 +632,42 @@ void key_exchange_test_tls1_2(hsm_hdl_t key_store_hdl,
 				master_secret, master_secret_len, key_store_id);
 
 	/* Delete the test keys */
+	delete_test_key(key_mgmt_hdl, master_secret_key_id, 0);
+
+	printf("\nPermitted Key TLS 1.2 MS SHA384 & HSM TLS 1.2 MS SHA384:\n");
+	printf("----------------------------------------------------------\n");
+	test_tls1_2_master_secret(key_mgmt_hdl,
+				  HSM_KEY_TYPE_ECC_NIST,
+				  HSM_KEY_SIZE_ECC_NIST_384,
+				  PERMITTED_ALGO_TLS1_2_MASTER_SECRET_SHA384,
+				  HSM_KEY_DERIVATION_TLS1_2_MASTER_SECRET_SHA384,
+				  &master_secret_key_id,
+				  master_secret, master_secret_len, key_store_id);
+
+	delete_test_key(key_mgmt_hdl, master_secret_key_id, 0);
+
+	printf("\nPermitted Key TLS 1.2 MS SHA ANY & HSM TLS 1.2 MS SHA256:\n");
+	printf("----------------------------------------------------------\n");
+	test_tls1_2_master_secret(key_mgmt_hdl,
+				  HSM_KEY_TYPE_ECC_NIST,
+				  HSM_KEY_SIZE_ECC_NIST_256,
+				  PERMITTED_ALGO_TLS1_2_MASTER_SECRET_SHA_ANY,
+				  HSM_KEY_DERIVATION_TLS1_2_MASTER_SECRET_SHA256,
+				  &master_secret_key_id,
+				  master_secret, master_secret_len, key_store_id);
+
+	delete_test_key(key_mgmt_hdl, master_secret_key_id, 0);
+
+	printf("\nPermitted Key TLS 1.2 MS SHA ANY & HSM TLS 1.2 MS SHA384:\n");
+	printf("-----------------------------------------------------------\n");
+	test_tls1_2_master_secret(key_mgmt_hdl,
+				  HSM_KEY_TYPE_ECC_NIST,
+				  HSM_KEY_SIZE_ECC_NIST_384,
+				  PERMITTED_ALGO_TLS1_2_MASTER_SECRET_SHA_ANY,
+				  HSM_KEY_DERIVATION_TLS1_2_MASTER_SECRET_SHA384,
+				  &master_secret_key_id,
+				  master_secret, master_secret_len, key_store_id);
+
 	delete_test_key(key_mgmt_hdl, master_secret_key_id, 0);
 
 	printf("\n-----------------------------------------------------\n");
