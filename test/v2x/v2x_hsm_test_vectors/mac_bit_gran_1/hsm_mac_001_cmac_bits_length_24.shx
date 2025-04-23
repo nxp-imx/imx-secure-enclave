@@ -1,0 +1,138 @@
+HSM_OPEN_SESSION
+0 # session index (uint32_t)
+0x51 # Read value (uint8_t)
+0 # Check value (err)
+1 # Check if pointer ok
+
+HSM_OPEN_KEY_STORE_SERVICE
+0 # session index (uint32_t)
+1 # key store id  (uint32_t)
+0 # Read value (uint32_t)
+0 # Read value (uint16_t)
+9 # Read value (hsm_svc_key_store_flags_t): create + set_bit_len
+24 # Read value (uint8_t) min mac length in bits
+2 # key store index (uint32_t)
+0 # Check value (err)
+1 # Check if pointer ok (testCtx->hdl[new_hdl_index]) -- 0=
+
+HSM_OPEN_KEY_MANAGEMENT_SERVICE
+2 # key_store index (uint32_t)
+0 # Read value (hsm_svc_key_management_flags_t)
+3 # key management index (uint32_t)
+0 # Check value (err)
+1 # Check if pointer ok (testCtx->hdl[new_hdl_index]) -- 0=
+
+HSM_OPEN_MAC_SERVICE
+2 # key store index (uint32_t)
+0 # Read value (hsm_svc_cipher_flags_t)
+4 # mac index (uint32_t)
+0 # Check value (err)
+1 # Check if pointer ok (testCtx->hdl[cipher_hdl_index]) -- 0=
+
+HSM_GENERATE_KEY
+3 # key management index
+2 # key_id
+0 # Out_size : no key
+2 # flags : Create Persistent
+0x32 # key_type AES_256
+1 # key_group
+0 # key_info
+0x00 # Out_pub_key
+0 # check value (err)
+NULL # out pub_key
+
+HSM_GENERATE_KEY
+3 # key management index
+0x13 # key_id
+0 # Out_size : no key
+2 # flags : Create Persistent
+0x32 # key_type AES_256
+0x13 # key_group
+0 # key_info
+0x00 # Out_pub_key
+0 # check value (err)
+NULL # out pub_key
+
+HSM_GENERATE_KEY
+3 # key management index
+0x14 # key_id
+0 # Out_size : no key
+2 # flags : Create Persistent
+0x32 # key_type AES_256
+0x14 # key_group
+0 # key_info
+0x00 # Out_pub_key
+0 # check value (err)
+NULL # out pub_key
+
+HSM_GENERATE_KEY
+3 # key management index
+0x15 # key_id
+0 # Out_size : no key
+2 # flags : Create Persistent
+0x32 # key_type AES_256
+0x15 # key_group
+0 # key_info
+0x00 # Out_pub_key
+0 # check value (err)
+NULL # out pub_key
+
+< 1 MAC Gen >
+HSM_MAC_ONE_GO
+4 # mac index (uint32_t)
+2 # key_id_number
+0 # mac message stored id
+1 # algorithm CMAC
+1 # flags - GENERATION
+16 # payload size (uint32_t)
+0x00, 0x11, 0x22, 0x33, 0x44, 0x55, 0x66, 0x77,
+0x88, 0x99, 0xAA, 0xBB, 0xCC, 0xDD, 0xEE, 0xFF # payload
+0x04 # mac size (uint32_t) # 32 bit
+0x00, 0x00, 0x00, 0x00 # mac
+0, 0, 0, 0 # allocation verification status
+0 # Check value (err) # HSM_NO_ERROR
+NULL # mac expected value
+
+HSM_GENERATE_KEY
+3 # key management index
+3 # key_id
+0 # Out_size : no key
+2 # flags : Create Persistent
+0x32 # key_type AES_256
+1 # key_group
+0 # key_info
+0x00 # Out_pub_key
+0 # check value (err)
+NULL # out pub_key
+
+< 1 MAC Gen >
+HSM_MAC_ONE_GO
+4 # mac index (uint32_t)
+2 # key_id_number
+0 # mac message stored id
+1 # algorithm CMAC
+1 # flags - GENERATION
+16 # payload size (uint32_t)
+0x00, 0x11, 0x22, 0x33, 0x44, 0x55, 0x66, 0x77,
+0x88, 0x99, 0xAA, 0xBB, 0xCC, 0xDD, 0xEE, 0xFF # payload
+0x04 # mac size (uint32_t) # 32 bit
+0x00, 0x00, 0x00, 0x00 # mac
+0, 0, 0, 0 # allocation verification status
+0 # Check value (err) # HSM_NO_ERROR
+NULL # mac expected value
+
+HSM_CLOSE_MAC_SERVICE
+4 # mac index (uint32_t)
+0 # Check value (err)
+
+HSM_CLOSE_KEY_MANAGEMENT_SERVICE
+3 # Read value (uint32_t)
+0 # Check value (err)
+
+HSM_CLOSE_KEY_STORE_SERVICE
+2 # key store index (uint32_t)
+0 # Check value (err)
+
+HSM_CLOSE_SESSION
+0 # Read value (uint32_t)
+0 # Check value (err)
