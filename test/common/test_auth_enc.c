@@ -222,29 +222,34 @@ static hsm_err_t auth_enc_test_ccm(hsm_hdl_t key_store_hdl,
 }
 
 #ifdef PSA_COMPLIANT
-static hsm_err_t auth_enc_new_ccm_test(hsm_hdl_t key_store_hdl,
-				       hsm_hdl_t key_mgmt_hdl)
+static hsm_err_t auth_enc_new_test(hsm_hdl_t key_store_hdl,
+				   hsm_hdl_t key_mgmt_hdl,
+				   hsm_permitted_algo_t key_permitted_algo,
+				   hsm_bit_key_sz_t bit_key_sz,
+				   hsm_key_type_t key_type,
+				   hsm_key_group_t key_group,
+				   hsm_op_auth_enc_algo_t algo,
+				   char *algo_str)
 {
 	hsm_err_t err = HSM_GENERAL_ERROR;
 	op_auth_enc_new_args_t args = {0};
-	op_delete_key_args_t del_args = {0};
 	uint32_t key_id = 0;
 	uint8_t ciphertext[32] = {0};
 	uint8_t plaintext[32] = {0};
 	uint8_t tag[16] = {0};
 
-	printf("\nOpaque Key Test (CCM):\n");
-	printf("------------------------\n");
+	printf("\nOpaque Key Test (%s):\n", algo_str);
+	printf("---------------------------------\n");
 
 	/* Generate key for the operation */
 	err = generate_key(key_mgmt_hdl,
 			   HSM_SE_KEY_STORAGE_VOLATILE,
 			   HSM_KEY_USAGE_ENCRYPT | HSM_KEY_USAGE_DECRYPT,
-			   PERMITTED_ALGO_CCM,
-			   HSM_KEY_SIZE_AES_256,
+			   key_permitted_algo,
+			   bit_key_sz,
 			   0,
-			   HSM_KEY_TYPE_AES,
-			   50,
+			   key_type,
+			   key_group,
 			   &key_id);
 	if (err != HSM_NO_ERROR)
 		goto out;
@@ -254,7 +259,7 @@ static hsm_err_t auth_enc_new_ccm_test(hsm_hdl_t key_store_hdl,
 
 	args.key_id = key_id;
 	args.flags = HSM_AUTH_ENC_FLAGS_ENCRYPT | HSM_AUTH_ENC_FLAGS_ONE_SHOT;
-	args.ae_algo = HSM_AEAD_ALGO_CCM;
+	args.ae_algo = algo;
 	args.input_size = sizeof(test_message);
 	args.input = test_message;
 	args.output_size = sizeof(ciphertext);
@@ -289,13 +294,7 @@ static hsm_err_t auth_enc_new_ccm_test(hsm_hdl_t key_store_hdl,
 		printf("\nDecrypted data doesn't match Test data [FAIL]\n");
 
 	/* Delete the Generated Test Key */
-	memset(&del_args, 0, sizeof(del_args));
-
-	del_args.key_identifier = key_id;
-	del_args.flags = 0;
-	err = hsm_delete_key(key_mgmt_hdl, &del_args);
-	if (err != HSM_NO_ERROR)
-		printf("hsm_delete_key ret: 0x%x\n", err);
+	delete_test_key(key_mgmt_hdl, key_id, 0);
 out:
 	return err;
 }
@@ -555,7 +554,24 @@ hsm_err_t auth_enc_test(hsm_hdl_t key_store_hdl, hsm_hdl_t key_mgmt_hdl)
 	printf("AUTH ENC (New) Tests:");
 	printf("\n------------------------------------------------\n");
 
-	auth_enc_new_ccm_test(key_store_hdl, key_mgmt_hdl);
+	auth_enc_new_test(key_store_hdl, key_mgmt_hdl,
+			  PERMITTED_ALGO_CCM,
+			  HSM_KEY_SIZE_AES_256,
+			  HSM_KEY_TYPE_AES,
+			  50,
+			  HSM_AEAD_ALGO_CCM,
+			  "CCM");
+
+	if (se_get_soc_id() != SOC_IMX8ULP &&
+	    se_get_soc_id() != SOC_IMX95)
+		auth_enc_new_test(key_store_hdl, key_mgmt_hdl,
+				  PERMITTED_ALGO_CHACHA20_POLY1305,
+				  HSM_KEY_SIZE_CHACHA20_POLY1305_256,
+				  HSM_KEY_TYPE_CHACHA20_POLY1305,
+				  50,
+				  HSM_AEAD_ALGO_CHACHA20_POLY1305,
+				  "CHACHA20_POLY1305");
+
 	auth_enc_new_ccm_plainkey_test(key_store_hdl, key_mgmt_hdl);
 
 	if (se_get_soc_id() == SOC_IMX95 ||

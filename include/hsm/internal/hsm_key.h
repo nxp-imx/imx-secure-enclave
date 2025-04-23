@@ -103,6 +103,7 @@ typedef enum {
 	 */
 	HSM_KEY_TYPE_DERIVE                 = 0x1200,
 	HSM_KEY_TYPE_HMAC                   = 0x1100,
+	HSM_KEY_TYPE_CHACHA20_POLY1305      = 0x2004,
 	HSM_KEY_TYPE_AES                    = 0x2400,
 	HSM_KEY_TYPE_SM4                    = 0x2405,
 	HSM_KEY_TYPE_RSA                    = 0x7001,
@@ -155,6 +156,7 @@ typedef enum {
 	HSM_KEY_SIZE_AES_128		= 128,
 	HSM_KEY_SIZE_AES_192		= 192,
 	HSM_KEY_SIZE_AES_256		= 256,
+	HSM_KEY_SIZE_CHACHA20_POLY1305_256 = 256,
 	HSM_KEY_SIZE_SM4_128		= 128,
 	HSM_KEY_SIZE_RSA_2048		= 2048,
 	HSM_KEY_SIZE_RSA_3072		= 3072,
