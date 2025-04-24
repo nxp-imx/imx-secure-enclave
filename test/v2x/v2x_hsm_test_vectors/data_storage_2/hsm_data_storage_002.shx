@@ -1,0 +1,57 @@
+HSM_OPEN_SESSION
+0 # session index (uint32_t)
+0x50 # Read value (uint8_t)
+0 # Check value (err)
+1 # Check if pointer ok
+
+HSM_OPEN_KEY_STORE_SERVICE
+0 # session index (uint32_t)
+10 # Read value (uint32_t)
+0 # Read value (uint32_t)
+0 # Read value (uint16_t)
+1 # Read value (hsm_svc_key_store_flags_t) : Create
+0 # Read value (uint8_t)
+1 # key store index (uint32_t)
+0 # Check value (err)
+1 # Check if pointer ok (testCtx->hdl[new_hdl_index]) -- 0=
+
+HSM_OPEN_KEY_STORE_SERVICE
+0 # session index (uint32_t)
+9 # Read value (uint32_t)
+0 # Read value (uint32_t)
+0 # Read value (uint16_t)
+1 # Read value (hsm_svc_key_store_flags_t) : Create
+0 # Read value (uint8_t)
+8 # key store index (uint32_t)
+0 # Check value (err)
+1 # Check if pointer ok (testCtx->hdl[new_hdl_index]) -- 0=
+
+HSM_OPEN_DATA_STORAGE_SERVICE
+8 # key store index (uint32_t)
+0 # Read value (hsm_svc_data_storage_flags_t)
+0 # Read value (uint8_t)
+0 # Read value (uint8_t)
+0 # Read value (uint8_t)
+9 # data storage index (uint32_t)
+0xf4 # Check value (err) # Not supported
+
+HSM_OPEN_DATA_STORAGE_SERVICE
+1 # key store index (uint32_t)
+0 # Read value (hsm_svc_data_storage_flags_t)
+0 # Read value (uint8_t)
+0 # Read value (uint8_t)
+0 # Read value (uint8_t)
+2 # data storage index (uint32_t)
+0xf4 # Check value (err) # Not supported
+
+HSM_CLOSE_KEY_STORE_SERVICE
+1 # key store service index
+0 # Check value (err)
+
+HSM_CLOSE_KEY_STORE_SERVICE
+8 # key store service index
+0 # Check value (err)
+
+HSM_CLOSE_SESSION
+0 # Read value (uint32_t)
+0 # Check value (err)

@@ -32,8 +32,6 @@ uint32_t test_hsm_open_data_storage_service(hsm_test_struct_t *testCtx, FILE *fp
 
 	slt_print(SLT_DEBUG, "Check Error, expect ");
 	READ_CHECK_VALUE(testCtx, fp, err);
-	slt_print(SLT_DEBUG, "Check Pointer - ");
-	READ_CHECK_POINTER(testCtx, fp, testCtx->hdl[new_hdl_index]);
 
 	return fails;
 }

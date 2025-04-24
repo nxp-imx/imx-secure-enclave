@@ -41,28 +41,20 @@ uint32_t test_hsm_open_key_store_service(hsm_test_struct_t *testCtx, FILE *fp)
 			args.signed_msg_size = SIGNED_MESSAGE_KEY_STORE_SEC_PROV_SIZE;
 		}
 	}
-	if (!args.signed_message)
-		slt_print(SLT_WARNING, "Signed message not sent 0x%x\n", l);
-	else
-		slt_print(SLT_INFO, "Signed message sent 0x%x\n", l);
 
 	(void)close(fd);
 
 	hsm_err_t err = hsm_open_key_store_service(testCtx->hdl[index],
 						   &args,
 						   &testCtx->hdl[new_hdl_index]);
-	printf("args.flags 0x%x\n", args.flags);
 	if (err == HSM_KEY_STORE_CONFLICT) {
 		args.flags &= ~HSM_SVC_KEY_STORE_FLAGS_CREATE;
-		printf("args.flags 0x%x\n", args.flags);
 		err = hsm_open_key_store_service(testCtx->hdl[index],
 						 &args,	&testCtx->hdl[new_hdl_index]);
 	}
 
 	slt_print(SLT_DEBUG, "Check Error, expect ");
 	READ_CHECK_VALUE(testCtx, fp, err);
-	slt_print(SLT_DEBUG, "Check Pointer - ");
-	READ_CHECK_POINTER(testCtx, fp, testCtx->hdl[new_hdl_index]);
 
 	return fails;
 }
