@@ -34,7 +34,6 @@ HSM_OPEN_DATA_STORAGE_SERVICE
 0 # Read value (uint8_t)
 9 # data storage index (uint32_t)
 0xf4 # Check value (err) # Not supported
-0 # Check if pointer ok (testCtx->hdl[new_hdl_index]) -- 0=
 
 HSM_OPEN_DATA_STORAGE_SERVICE
 1 # key store index (uint32_t)
@@ -44,7 +43,6 @@ HSM_OPEN_DATA_STORAGE_SERVICE
 0 # Read value (uint8_t)
 2 # data storage index (uint32_t)
 0xf4 # Check value (err) # Not supported
-0 # Check if pointer ok (testCtx->hdl[new_hdl_index]) -- 0=
 
 HSM_CLOSE_KEY_STORE_SERVICE
 1 # key store service index

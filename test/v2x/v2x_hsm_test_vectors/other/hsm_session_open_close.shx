@@ -1,0 +1,9 @@
+HSM_OPEN_SESSION
+0 # Read value (uint32_t)
+0x50 # Read value (uint8_t)
+0 # Check value (err)
+1 # Check if pointer ok
+
+HSM_CLOSE_SESSION
+0 # Read value (uint32_t)
+0 # Check value (err)
