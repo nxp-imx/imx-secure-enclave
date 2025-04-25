@@ -207,8 +207,10 @@ static void test_tls1_3_early_secrets(hsm_hdl_t key_mgmt_hdl, uint32_t key_store
 
 	err = hsm_key_exchange(key_mgmt_hdl, &key_ex_args);
 	printf("\nhsm_key_exchange [TLS 1.3 ES case #1.1] err: 0x%x\n", err);
+#ifdef ELE_DEBUG
 	printf("\t--Derived Key ID: 0x%x\n", key_ex_args.out_derived_key_id);
 	printf("\t--Salt Size: 0x%x\n", key_ex_args.out_salt_sz);
+#endif
 	if (err != HSM_NO_ERROR)
 		goto out;
 
@@ -237,12 +239,13 @@ static void test_tls1_3_early_secrets(hsm_hdl_t key_mgmt_hdl, uint32_t key_store
 	key_ex_args.output = (uint8_t *)output_key_buffer;
 
 	err = hsm_key_exchange(key_mgmt_hdl, &key_ex_args);
-	printf("\nhsm_key_exchange [TLS 1.3 ES case #1.2] err: 0x%x\n", err);
+	printf("hsm_key_exchange [TLS 1.3 ES case #1.2] err: 0x%x\n", err);
+#ifdef ELE_DEBUG
 	printf("\t--Derived Key ID: 0x%x\n", key_ex_args.out_derived_key_id);
 	printf("\t--Salt Size: 0x%x\n", key_ex_args.out_salt_sz);
 	printf("\n--Derived Key Buffer:\n");
 	dump_hex(key_ex_args.output, key_ex_args.output_sz);
-
+#endif
 	if (err != HSM_NO_ERROR)
 		goto out;
 
@@ -558,6 +561,47 @@ out:
 	return;
 }
 
+static uint8_t get_test_ecc_key_pairs(hsm_key_type_t key_type,
+				      hsm_bit_key_sz_t bit_key_sz,
+				      uint8_t **pub_key,
+				      uint32_t *pub_key_size,
+				      uint8_t **priv_key,
+				      uint32_t *priv_key_size)
+{
+	if (!pub_key || !pub_key_size || !priv_key || !priv_key_size)
+		return FAILURE;
+
+	if (key_type == HSM_KEY_TYPE_ECC_NIST &&
+	    bit_key_sz == HSM_KEY_SIZE_ECC_NIST_256) {
+		*pub_key = ecc_256_pub_key;
+		*pub_key_size = sizeof(ecc_256_pub_key);
+		*priv_key = ecc_256_priv_key;
+		*priv_key_size = sizeof(ecc_256_priv_key);
+	} else if (key_type == HSM_KEY_TYPE_ECC_NIST &&
+		   bit_key_sz == HSM_KEY_SIZE_ECC_NIST_384) {
+		*pub_key = ecc_384_pub_key;
+		*pub_key_size = sizeof(ecc_384_pub_key);
+		*priv_key = ecc_384_priv_key;
+		*priv_key_size = sizeof(ecc_384_priv_key);
+	} else if (key_type == HSM_KEY_TYPE_ECC_MONTGOMERY &&
+		   bit_key_sz == HSM_KEY_SIZE_ECC_MONTGOMERY_255) {
+		*pub_key = ecc_x25519_pub_key;
+		*pub_key_size = sizeof(ecc_x25519_pub_key);
+		*priv_key = ecc_x25519_priv_key;
+		*priv_key_size = sizeof(ecc_x25519_priv_key);
+	} else if (key_type == HSM_KEY_TYPE_ECC_MONTGOMERY &&
+		   bit_key_sz == HSM_KEY_SIZE_ECC_MONTGOMERY_448) {
+		*pub_key = ecc_x448_pub_key;
+		*pub_key_size = sizeof(ecc_x448_pub_key);
+		*priv_key = ecc_x448_priv_key;
+		*priv_key_size = sizeof(ecc_x448_priv_key);
+	} else {
+		return FAILURE;
+	}
+
+	return SUCCESS;
+}
+
 /**
  * RFC 8446 section 7.1 Part-2 Handshake Secrets
  *
@@ -598,10 +642,10 @@ static void test_tls1_3_handshake_secrets(hsm_hdl_t key_mgmt_hdl,
 	uint32_t output_key_buffer[TEST_TLS1_3_DERIVED_MAX_KEY_SIZE];
 	uint8_t fw_pub_key[96] = {0};
 	char mbedtls_c_hs_traffic_secret[HSM_HASH_MAX_SIZE] = {0};
-	uint8_t *peer_pub_key;
-	uint32_t peer_pub_key_size;
-	uint8_t *peer_priv_key;
-	uint32_t peer_priv_key_size;
+	uint8_t *peer_pub_key = NULL;
+	uint32_t pub_key_size = 0;
+	uint8_t *peer_priv_key = NULL;
+	uint32_t priv_key_size = 0;
 	uint32_t hash_algo;
 	uint32_t hash_algo_size;
 
@@ -617,19 +661,11 @@ static void test_tls1_3_handshake_secrets(hsm_hdl_t key_mgmt_hdl,
 	uint8_t context_len;
 
 	if (tls1_3_hs_algo == HSM_KEY_DERIVATION_TLS1_3_HANDSHAKE_SECRET_SHA256) {
-		peer_pub_key_size = sizeof(ecc_256_pub_key);
-		peer_pub_key = ecc_256_pub_key;
-		peer_priv_key_size = sizeof(ecc_256_priv_key);
-		peer_priv_key = ecc_256_priv_key;
 		hash_algo = HSM_HASH_ALGO_SHA_256;
 		hash_algo_size = HSM_HASH_ALGO_SHA_256_SIZE;
 		context = context_buffer;
 		context_len = sizeof(context_buffer);
 	} else {
-		peer_pub_key_size = sizeof(ecc_384_pub_key);
-		peer_pub_key = ecc_384_pub_key;
-		peer_priv_key_size = sizeof(ecc_384_priv_key);
-		peer_priv_key = ecc_384_priv_key;
 		hash_algo = HSM_HASH_ALGO_SHA_384;
 		hash_algo_size = HSM_HASH_ALGO_SHA_384_SIZE;
 		context = context_384_buffer;
@@ -637,6 +673,14 @@ static void test_tls1_3_handshake_secrets(hsm_hdl_t key_mgmt_hdl,
 	}
 
 	length = hash_algo_size;
+
+	ret = get_test_ecc_key_pairs(key_type, bit_key_sz,
+				     &peer_pub_key, &pub_key_size,
+				     &peer_priv_key, &priv_key_size);
+	if (ret) {
+		printf("\nFailed to get test ECC key pairs.\n");
+		goto out;
+	}
 
 	/* 1. Generate ELE Private Key for Key Agreement process */
 	key_gen_args.key_identifier = &key_id;
@@ -649,7 +693,7 @@ static void test_tls1_3_handshake_secrets(hsm_hdl_t key_mgmt_hdl,
 	key_gen_args.bit_key_sz = bit_key_sz;
 	key_gen_args.key_lifecycle = 0x0; // Current Device Lifecycle
 	key_gen_args.out_key = fw_pub_key;
-	key_gen_args.out_size = 2 * BITS_TO_BYTES(bit_key_sz);
+	key_gen_args.out_size = pub_key_size;
 
 	err = hsm_generate_key(key_mgmt_hdl, &key_gen_args);
 	if (err != HSM_NO_ERROR)
@@ -676,7 +720,7 @@ static void test_tls1_3_handshake_secrets(hsm_hdl_t key_mgmt_hdl,
 	key_ex_args.flags = HSM_OP_KEY_EXCHANGE_FLAGS_INPUT_PLAINTEXT_CONTENT;
 	key_ex_args.in_content_sz = sizeof(in_content_tls13_args_t);
 	key_ex_args.in_content = (uint8_t *)(&in_content);
-	key_ex_args.in_pub_buffer_sz = peer_pub_key_size;
+	key_ex_args.in_pub_buffer_sz = pub_key_size;
 	key_ex_args.in_pub_buffer = peer_pub_key;
 	key_ex_args.user_fixed_info_sz = hkdf_label_len;
 	key_ex_args.user_fixed_info = (uint8_t *)hkdf_label;
@@ -685,8 +729,10 @@ static void test_tls1_3_handshake_secrets(hsm_hdl_t key_mgmt_hdl,
 
 	err = hsm_key_exchange(key_mgmt_hdl, &key_ex_args);
 	printf("\nhsm_key_exchange [TLS 1.3 HS case  #1.1] err: 0x%x\n", err);
+#ifdef ELE_DEBUG
 	printf("\t--Derived Key ID: 0x%x\n", key_ex_args.out_derived_key_id);
 	printf("\t--Salt Size: 0x%x\n", key_ex_args.out_salt_sz);
+#endif
 	if (err != HSM_NO_ERROR)
 		goto out;
 
@@ -701,7 +747,7 @@ static void test_tls1_3_handshake_secrets(hsm_hdl_t key_mgmt_hdl,
 			    HSM_OP_KEY_EXCHANGE_FLAGS_RETURN_OUTPUT;
 	key_ex_args.in_content_sz = sizeof(in_content_tls13_args_t);
 	key_ex_args.in_content = (uint8_t *)(&in_content);
-	key_ex_args.in_pub_buffer_sz = peer_pub_key_size;
+	key_ex_args.in_pub_buffer_sz = pub_key_size;
 	key_ex_args.in_pub_buffer = peer_pub_key;
 	key_ex_args.user_fixed_info_sz = hkdf_label_len;
 	key_ex_args.user_fixed_info = (uint8_t *)hkdf_label;
@@ -709,12 +755,13 @@ static void test_tls1_3_handshake_secrets(hsm_hdl_t key_mgmt_hdl,
 	key_ex_args.output = (uint8_t *)output_key_buffer;
 
 	err = hsm_key_exchange(key_mgmt_hdl, &key_ex_args);
-	printf("\nhsm_key_exchange [TLS 1.3 HS case #1.2] err: 0x%x\n", err);
+	printf("hsm_key_exchange [TLS 1.3 HS case #1.2] err: 0x%x\n", err);
+#ifdef ELE_DEBUG
 	printf("\t--Derived Key ID: 0x%x\n", key_ex_args.out_derived_key_id);
 	printf("\t--Salt Size: 0x%x\n", key_ex_args.out_salt_sz);
 	printf("\n--Derived Key Buffer:\n");
 	dump_hex(key_ex_args.output, key_ex_args.output_sz);
-
+#endif
 	/**
 	 * 6. Mbed-TLS validation for the generated Handshake secret.
 	 *    Currently done for only ECC NIST key type.
@@ -726,9 +773,9 @@ static void test_tls1_3_handshake_secrets(hsm_hdl_t key_mgmt_hdl,
 	ret = mbedtls_derive_label_w_handshake_secret(bit_key_sz,
 						      key_type,
 						      fw_pub_key,
-						      2 * BITS_TO_BYTES(bit_key_sz),
+						      pub_key_size,
 						      peer_priv_key,
-						      peer_priv_key_size,
+						      priv_key_size,
 						      hash_algo,
 						      hash_algo_size,
 						      label,
@@ -756,15 +803,8 @@ static void test_tls1_3_handshake_secrets(hsm_hdl_t key_mgmt_hdl,
 
 out:
 	/* 7. Delete the Generated test Key */
-	if (key_id) {
-		memset(&del_args, 0, sizeof(del_args));
-
-		del_args.key_identifier = key_id;
-		del_args.flags = 0;
-		err = hsm_delete_key(key_mgmt_hdl, &del_args);
-		if (err != HSM_NO_ERROR)
-			printf("hsm_delete_key (Generated) ret: 0x%x\n", err);
-	}
+	if (key_id)
+		delete_test_key(key_mgmt_hdl, key_id, 0);
 
 	return;
 }
@@ -796,34 +836,65 @@ out:
 static void test_tls1_3_master_secrets(hsm_hdl_t key_mgmt_hdl,
 				       hsm_key_type_t key_type,
 				       hsm_bit_key_sz_t bit_key_sz,
+				       uint32_t tls1_3_key_permitted_algo,
+				       uint32_t tls1_3_ms_algo,
+				       uint32_t *test_key_id,
 				       uint32_t key_store_id)
 {
 	hsm_err_t err;
+	int ret;
 	in_content_tls13_args_t in_content = {0};
 	op_key_exchange_args_t key_ex_args = {0};
 	op_generate_key_args_t key_gen_args = {0};
 	op_delete_key_args_t del_args = {0};
 	uint32_t key_id = 0; //Private Key ID, ELE FW
 	uint32_t output_key_buffer[TEST_TLS1_3_DERIVED_MAX_KEY_SIZE];
+	uint8_t *peer_pub_key = NULL;
+	uint32_t pub_key_size = 0;
+	uint8_t *peer_priv_key = NULL;
+	uint32_t priv_key_size = 0;
+	uint32_t hash_algo;
+	uint32_t hash_algo_size;
 
 	/**************Master Secrets - Client application traffic ***************/
 
 	/* HKDF label related variables */
 	unsigned char hkdf_label[TEST_TLS1_3_HKDF_LABEL_MAX_LEN];
 	uint16_t hkdf_label_len = 0;
-	/* expanded key len - 32 bytes */
-	uint16_t length = BITS_TO_BYTES(HSM_KEY_SIZE_DERIVE_256);
+	uint16_t length; // Expanded key length
 	const unsigned char *label = test_tls13_label_client_application_traffic;
 	uint8_t label_len = sizeof(test_tls13_label_client_application_traffic);
-	const unsigned char *context = context_buffer;
-	uint8_t context_len = sizeof(context_buffer);
+	const unsigned char *context;
+	uint8_t context_len;
+
+	if (tls1_3_ms_algo == HSM_KEY_DERIVATION_TLS1_3_MASTER_SECRET_SHA256) {
+		hash_algo = HSM_HASH_ALGO_SHA_256;
+		hash_algo_size = HSM_HASH_ALGO_SHA_256_SIZE;
+		context = context_buffer;
+		context_len = sizeof(context_buffer);
+	} else {
+		hash_algo = HSM_HASH_ALGO_SHA_384;
+		hash_algo_size = HSM_HASH_ALGO_SHA_384_SIZE;
+		context = context_384_buffer;
+		context_len = sizeof(context_384_buffer);
+	}
+
+	length = hash_algo_size;
+
+	ret = get_test_ecc_key_pairs(key_type, bit_key_sz,
+				     &peer_pub_key, &pub_key_size,
+				     &peer_priv_key, &priv_key_size);
+	if (ret) {
+		printf("\nFailed to get test ECC key pairs.\n");
+		goto out;
+	}
 
 	/* 1. Generate ELE Private Key for Key Agreement process */
 	key_gen_args.key_identifier = &key_id;
 	key_gen_args.key_group = 40;
 	key_gen_args.key_lifetime = HSM_SE_KEY_STORAGE_VOLATILE;
 	key_gen_args.key_usage = HSM_KEY_USAGE_DERIVE;
-	key_gen_args.permitted_algo = PERMITTED_ALGO_TLS1_3_MASTER_SECRET_SHA256;
+	key_gen_args.permitted_algo = tls1_3_key_permitted_algo;
 	key_gen_args.flags = 0x0;
 	key_gen_args.key_type = key_type;
 	key_gen_args.bit_key_sz = bit_key_sz;
@@ -832,23 +903,16 @@ static void test_tls1_3_master_secrets(hsm_hdl_t key_mgmt_hdl,
 	key_gen_args.out_size = 0x0;
 
 	err = hsm_generate_key(key_mgmt_hdl, &key_gen_args);
-	printf("\nhsm_generate_key (KeyPair) err: 0x%x\n", err);
+	if (err != HSM_NO_ERROR)
+		printf("\nhsm_generate_key (KeyPair) err: 0x%x\n", err);
 
 	/* 2. Prepare Input Plaintext Context for TLS 1.3, without optional PSK */
 	memset(&in_content, 0, sizeof(in_content_tls13_args_t));
 
 	in_content.ver = 0x1;
-	in_content.rsv = 0x0;
 	in_content.keystore_id = key_store_id;
-	in_content.tls1_3_algo = HSM_KEY_DERIVATION_TLS1_3_MASTER_SECRET_SHA256;
+	in_content.tls1_3_algo = tls1_3_ms_algo;
 	in_content.priv_key_id = key_id;
-	in_content.derived_key_type = HSM_KEY_TYPE_DERIVE;
-	in_content.derived_key_bits_size = HSM_KEY_SIZE_DERIVE_256;
-	in_content.derived_key_lifetime = HSM_SE_KEY_STORAGE_VOLATILE; // Volatile
-	in_content.derived_key_usage = HSM_KEY_USAGE_DERIVE;
-	in_content.derived_key_permitted_algo = HSM_KEY_DERIVATION_HKDF_EXPAND_SHA256;
-	in_content.derived_key_lifecycle = 0x0; // Current
-	in_content.derived_key_id = 0x0; // Volatile Key, so ID chosen by FW
 	in_content.psk_id = 0x0; // Optional PSK not used.
 
 	/* 3. Prepare User Fixed Info or HKDF label */
@@ -864,8 +928,8 @@ static void test_tls1_3_master_secrets(hsm_hdl_t key_mgmt_hdl,
 	key_ex_args.flags = HSM_OP_KEY_EXCHANGE_FLAGS_INPUT_PLAINTEXT_CONTENT;
 	key_ex_args.in_content_sz = sizeof(in_content_tls13_args_t);
 	key_ex_args.in_content = (uint8_t *)(&in_content);
-	key_ex_args.in_pub_buffer_sz = sizeof(public_buffer);
-	key_ex_args.in_pub_buffer = public_buffer;
+	key_ex_args.in_pub_buffer_sz = pub_key_size;
+	key_ex_args.in_pub_buffer = peer_pub_key;
 	key_ex_args.user_fixed_info_sz = hkdf_label_len;
 	key_ex_args.user_fixed_info = (uint8_t *)hkdf_label;
 	key_ex_args.output_sz = 0;
@@ -873,21 +937,17 @@ static void test_tls1_3_master_secrets(hsm_hdl_t key_mgmt_hdl,
 
 	err = hsm_key_exchange(key_mgmt_hdl, &key_ex_args);
 	printf("\nhsm_key_exchange [TLS 1.3 MS case #1.1] err: 0x%x\n", err);
+#ifdef ELE_DEBUG
 	printf("\t--Derived Key ID: 0x%x\n", key_ex_args.out_derived_key_id);
 	printf("\t--Salt Size: 0x%x\n", key_ex_args.out_salt_sz);
+#endif
 	if (err != HSM_NO_ERROR)
 		goto out;
 
-	/* 5. Delete Derived Key */
-	memset(&del_args, 0, sizeof(del_args));
+	/* Return the Master Secret key_id to support other testings. (KM & IV) */
+	*test_key_id = key_ex_args.out_derived_key_id;
 
-	del_args.key_identifier = key_ex_args.out_derived_key_id;
-	del_args.flags = 0;
-	err = hsm_delete_key(key_mgmt_hdl, &del_args);
-	if (err != HSM_NO_ERROR)
-		printf("hsm_delete_key (Derived #1) ret: 0x%x\n", err);
-
-	/* 6. Case 1.2. Export Derived/Output Key Buffer. */
+	/* 5. Case 1.2. Export Derived/Output Key Buffer. */
 	memset(&key_ex_args, 0, sizeof(op_key_exchange_args_t));
 	memset(output_key_buffer, 0, sizeof(output_key_buffer));
 
@@ -895,33 +955,26 @@ static void test_tls1_3_master_secrets(hsm_hdl_t key_mgmt_hdl,
 			    HSM_OP_KEY_EXCHANGE_FLAGS_RETURN_OUTPUT;
 	key_ex_args.in_content_sz = sizeof(in_content_tls13_args_t);
 	key_ex_args.in_content = (uint8_t *)(&in_content);
-	key_ex_args.in_pub_buffer_sz = sizeof(public_buffer);
-	key_ex_args.in_pub_buffer = public_buffer;
+	key_ex_args.in_pub_buffer_sz = pub_key_size;
+	key_ex_args.in_pub_buffer = peer_pub_key;
 	key_ex_args.user_fixed_info_sz = hkdf_label_len;
 	key_ex_args.user_fixed_info = (uint8_t *)hkdf_label;
-	key_ex_args.output_sz = BITS_TO_BYTES(HSM_KEY_SIZE_DERIVE_256);
+	key_ex_args.output_sz = length;
 	key_ex_args.output = (uint8_t *)output_key_buffer;
 
 	err = hsm_key_exchange(key_mgmt_hdl, &key_ex_args);
-	printf("\nhsm_key_exchange [TLS 1.3 MS case #1.2] err: 0x%x\n", err);
+	printf("hsm_key_exchange [TLS 1.3 MS case #1.2] err: 0x%x\n", err);
+#ifdef ELE_DEBUG
 	printf("\t--Derived Key ID: 0x%x\n", key_ex_args.out_derived_key_id);
 	printf("\t--Salt Size: 0x%x\n", key_ex_args.out_salt_sz);
 	printf("\n--Derived Key Buffer:\n");
 	dump_hex(key_ex_args.output, key_ex_args.output_sz);
-
-	if (err != HSM_NO_ERROR)
-		goto out;
-
-	/* 7. Delete the Generated test Key */
-	memset(&del_args, 0, sizeof(del_args));
-
-	del_args.key_identifier = key_id;
-	del_args.flags = 0;
-	err = hsm_delete_key(key_mgmt_hdl, &del_args);
-	if (err != HSM_NO_ERROR)
-		printf("hsm_delete_key (Generated) ret: 0x%x\n", err);
-
+#endif
 out:
+	/* 6. Delete the Generated test Key */
+	if (key_id)
+		delete_test_key(key_mgmt_hdl, key_id, 0);
+
 	return;
 }
 
@@ -1025,8 +1078,8 @@ void key_exchange_test_tls1_3(hsm_hdl_t key_mgmt_hdl, uint32_t key_store_id)
 
 	delete_test_key(key_mgmt_hdl, test_key_id, 0);
 
-	printf("\nECC_MONTGOMERY & HSM_KEY_DERIVATION_TLS1_3_HANDSHAKE_SECRET_SHA256:\n");
-	printf("-------------------------------------------------------------------\n");
+	printf("\nECC_MONTGOMERY (255) & HSM KEY DERIVATION TLS 1.3 HS SHA256:\n");
+	printf("-------------------------------------------------------------\n");
 	test_tls1_3_handshake_secrets(key_mgmt_hdl,
 				      HSM_KEY_TYPE_ECC_MONTGOMERY,
 				      HSM_KEY_SIZE_ECC_MONTGOMERY_255,
@@ -1039,19 +1092,119 @@ void key_exchange_test_tls1_3(hsm_hdl_t key_mgmt_hdl, uint32_t key_store_id)
 
 	delete_test_key(key_mgmt_hdl, test_key_id, 0);
 
+	printf("\nECC_MONTGOMERY (255) & HSM KEY DERIVATION TLS 1.3 HS SHA384:\n");
+	printf("-------------------------------------------------------------\n");
+	test_tls1_3_handshake_secrets(key_mgmt_hdl,
+				      HSM_KEY_TYPE_ECC_MONTGOMERY,
+				      HSM_KEY_SIZE_ECC_MONTGOMERY_255,
+				      PERMITTED_ALGO_TLS1_3_MASTER_SECRET_SHA384,
+				      HSM_KEY_DERIVATION_TLS1_3_HANDSHAKE_SECRET_SHA384,
+				      &test_key_id,
+				      mbedtls_secret,
+				      &mbedtls_secret_size,
+				      key_store_id);
+
+	delete_test_key(key_mgmt_hdl, test_key_id, 0);
+
+	printf("\nECC_MONTGOMERY (448) & HSM KEY DERIVATION TLS 1.3 HS SHA256:\n");
+	printf("-------------------------------------------------------------\n");
+	test_tls1_3_handshake_secrets(key_mgmt_hdl,
+				      HSM_KEY_TYPE_ECC_MONTGOMERY,
+				      HSM_KEY_SIZE_ECC_MONTGOMERY_448,
+				      PERMITTED_ALGO_TLS1_3_MASTER_SECRET_SHA256,
+				      HSM_KEY_DERIVATION_TLS1_3_HANDSHAKE_SECRET_SHA256,
+				      &test_key_id,
+				      mbedtls_secret,
+				      &mbedtls_secret_size,
+				      key_store_id);
+
+	delete_test_key(key_mgmt_hdl, test_key_id, 0);
+
+	printf("\nECC_MONTGOMERY (448) & HSM KEY DERIVATION TLS 1.3 HS SHA384:\n");
+	printf("-------------------------------------------------------------\n");
+	test_tls1_3_handshake_secrets(key_mgmt_hdl,
+				      HSM_KEY_TYPE_ECC_MONTGOMERY,
+				      HSM_KEY_SIZE_ECC_MONTGOMERY_448,
+				      PERMITTED_ALGO_TLS1_3_MASTER_SECRET_SHA384,
+				      HSM_KEY_DERIVATION_TLS1_3_HANDSHAKE_SECRET_SHA384,
+				      &test_key_id,
+				      mbedtls_secret,
+				      &mbedtls_secret_size,
+				      key_store_id);
+
+	delete_test_key(key_mgmt_hdl, test_key_id, 0);
+
 	printf("\nECC_NIST & HSM_KEY_DERIVATION_TLS1_3_MASTER_SECRET_SHA256:\n");
 	printf("----------------------------------------------------------\n");
 	test_tls1_3_master_secrets(key_mgmt_hdl,
 				   HSM_KEY_TYPE_ECC_NIST,
 				   HSM_KEY_SIZE_ECC_NIST_256,
+				   PERMITTED_ALGO_TLS1_3_MASTER_SECRET_SHA256,
+				   HSM_KEY_DERIVATION_TLS1_3_MASTER_SECRET_SHA256,
+				   &test_key_id,
 				   key_store_id);
 
-	printf("\nECC_MONTGOMERY & HSM_KEY_DERIVATION_TLS1_3_MASTER_SECRET_SHA256:\n");
-	printf("----------------------------------------------------------------\n");
+	delete_test_key(key_mgmt_hdl, test_key_id, 0);
+
+	printf("\nECC_NIST & HSM_KEY_DERIVATION_TLS1_3_MASTER_SECRET_SHA384:\n");
+	printf("----------------------------------------------------------\n");
+	test_tls1_3_master_secrets(key_mgmt_hdl,
+				   HSM_KEY_TYPE_ECC_NIST,
+				   HSM_KEY_SIZE_ECC_NIST_384,
+				   PERMITTED_ALGO_TLS1_3_MASTER_SECRET_SHA384,
+				   HSM_KEY_DERIVATION_TLS1_3_MASTER_SECRET_SHA384,
+				   &test_key_id,
+				   key_store_id);
+
+	delete_test_key(key_mgmt_hdl, test_key_id, 0);
+
+	printf("\nECC_MONTGOMERY (255) & HSM KEY DERIVATION TLS 1.3 MS SHA256:\n");
+	printf("-------------------------------------------------------------\n");
 	test_tls1_3_master_secrets(key_mgmt_hdl,
 				   HSM_KEY_TYPE_ECC_MONTGOMERY,
 				   HSM_KEY_SIZE_ECC_MONTGOMERY_255,
+				   PERMITTED_ALGO_TLS1_3_MASTER_SECRET_SHA256,
+				   HSM_KEY_DERIVATION_TLS1_3_MASTER_SECRET_SHA256,
+				   &test_key_id,
 				   key_store_id);
+
+	delete_test_key(key_mgmt_hdl, test_key_id, 0);
+
+	printf("\nECC_MONTGOMERY (255) & HSM KEY DERIVATION TLS 1.3 MS SHA384:\n");
+	printf("-------------------------------------------------------------\n");
+	test_tls1_3_master_secrets(key_mgmt_hdl,
+				   HSM_KEY_TYPE_ECC_MONTGOMERY,
+				   HSM_KEY_SIZE_ECC_MONTGOMERY_255,
+				   PERMITTED_ALGO_TLS1_3_MASTER_SECRET_SHA384,
+				   HSM_KEY_DERIVATION_TLS1_3_MASTER_SECRET_SHA384,
+				   &test_key_id,
+				   key_store_id);
+
+	delete_test_key(key_mgmt_hdl, test_key_id, 0);
+
+	printf("\nECC MONTGOMERY (448) & HSM KEY DERIVATION TLS 1.3 MS SHA256:\n");
+	printf("-------------------------------------------------------------\n");
+	test_tls1_3_master_secrets(key_mgmt_hdl,
+				   HSM_KEY_TYPE_ECC_MONTGOMERY,
+				   HSM_KEY_SIZE_ECC_MONTGOMERY_448,
+				   PERMITTED_ALGO_TLS1_3_MASTER_SECRET_SHA256,
+				   HSM_KEY_DERIVATION_TLS1_3_MASTER_SECRET_SHA256,
+				   &test_key_id,
+				   key_store_id);
+
+	delete_test_key(key_mgmt_hdl, test_key_id, 0);
+
+	printf("\nECC MONTGOMERY (448) & HSM KEY DERIVATION TLS 1.3 MS SHA384:\n");
+	printf("-------------------------------------------------------------\n");
+	test_tls1_3_master_secrets(key_mgmt_hdl,
+				   HSM_KEY_TYPE_ECC_MONTGOMERY,
+				   HSM_KEY_SIZE_ECC_MONTGOMERY_448,
+				   PERMITTED_ALGO_TLS1_3_MASTER_SECRET_SHA384,
+				   HSM_KEY_DERIVATION_TLS1_3_MASTER_SECRET_SHA384,
+				   &test_key_id,
+				   key_store_id);
+
+	delete_test_key(key_mgmt_hdl, test_key_id, 0);
 
 	printf("\n-----------------------------------------------------\n");
 	printf("Test Complete");
