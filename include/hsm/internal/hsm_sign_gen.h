@@ -1,6 +1,6 @@
 // SPDX-License-Identifier: BSD-3-Clause
 /*
- * Copyright 2022-2024 NXP
+ * Copyright 2022-2025 NXP
  */
 
 #ifndef HSM_SIGN_GEN_H
@@ -109,6 +109,7 @@ typedef enum {
 	HSM_SIGNATURE_SCHEME_ECDSA_SHA384               = 0x0600060A,
 	HSM_SIGNATURE_SCHEME_ECDSA_SHA512               = 0x0600060B,
 	HSM_SIGNATURE_SCHEME_ED25519PH                  = 0x0600090B,
+	HSM_SIGNATURE_SCHEME_ED448PH                    = 0x06000915,
 	HSM_SIGNATURE_SCHEME_PURE_EDDSA                 = 0x06000800,
 	HSM_SIGNATURE_SCHEME_EDDSA_ALL                  = 0x86000800,
 } hsm_signature_scheme_id_t;
