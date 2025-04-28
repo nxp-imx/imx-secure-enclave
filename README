@@ -84,6 +84,8 @@ Table 1: Supported Secure Enclave Library Artifacts Type for each platform
 +----------+---------+-----------+-----------+------------+------------+
 | i.MX8QXP |   NA    |    NA     |     NA    |     YES    |     YES    |
 +----------+---------+-----------+-----------+------------+------------+
+| i.MX943  |   YES   |    YES    |    YES    |     NA     |     NA     |
++----------+---------+-----------+-----------+------------+------------+
 
 
 Table 2: Secure Enclave Storage (NVM) directories
@@ -92,16 +94,12 @@ Table 2: Secure Enclave Storage (NVM) directories
 +--------+----------------------------------+-------------------+-----------------+
 | H/W IP |               Platform           |        HSM        |       SHE       |
 +========+==================================+===================+=================+
-|  ELE   |   i.MX8ULP/i.MX93/i.MX95/i.MX91  |    /etc/ele/      |     N/A         |
-|        |                                  |                   |                 |
+|  ELE   |     i.MX8ULP/i.MX93/i.MX95/      |    /etc/ele/      |     N/A         |
+|        |         i.MX91/i.MX943           |                   |                 |
 |--------+----------------------------------+-------------------+-----------------+
-|  V2X   |            i.MX95                |   /etc/v2x_hsm/   |  /etc/v2x_she/  |
+|  V2X   |     i.MX95/i.MX943/i.MX8DXL      |   /etc/v2x_hsm/   |  /etc/v2x_she/  |
 +--------+----------------------------------+-------------------+-----------------+
-|  V2X   |           i.MX8DXL               |   /etc/v2x_hsm/   |  /etc/v2x_she/  |
-+--------+----------------------------------+-------------------+-----------------+
-|  SECO  |           i.MX8DXL               |   /etc/hsm/       |  /etc/she/      |
-+--------+----------------------------------+-------------------+-----------------+
-|  SECO  |           i.MX8QXP               |   /etc/hsm/       |  /etc/she/      |
+|  SECO  |       i.MX8DXL/i.MX8QXP          |   /etc/hsm/       |  /etc/she/      |
 +--------+----------------------------------+-------------------+-----------------+
 
 
@@ -296,10 +294,10 @@ Table 3: Secure Enclave HSM Tests with their target Platform/IP
 +--------+---------------------------------+-------------------+
 |   IP   |              Platform           |     HSM Test      |
 +========+=================================+===================+
-|  ELE   |  i.MX8ULP/i.MX93/i.MX95/i.MX91  | ele_hsm_test      |
-|        |                                 | ele_hsm_perf_test |
+|  ELE   |     i.MX8ULP/i.MX93/i.MX95/     | ele_hsm_test      |
+|        |        i.MX91/i.MX943           | ele_hsm_perf_test |
 |--------+---------------------------------+-------------------+
-|  V2X   |        i.MX95/i.MX8DXL          |   v2x_hsm_test    |
+|  V2X   |     i.MX95/i.MX8DXL/i.MX943     |   v2x_hsm_test    |
 +--------+---------------------------------+-------------------+
 |  SECO  |        i.MX8DXL/i.MX8QXP        |   seco_hsm_test   |
 +--------+---------------------------------+-------------------+
@@ -310,16 +308,15 @@ Table 4: Secure Enclave SHE Tests with their target Platform/IP
 +--------+---------------------------------+-----------------+
 |   IP   |              Platform           |     SHE Test    |
 +========+=================================+=================+
-|  V2X   |        i.MX95/i.MX8DXL-DL3      |   v2x_she_test  |
+|  V2X   |     i.MX95/i.MX8DXL-DL3/i.MX943 |   v2x_she_test  |
 +--------+---------------------------------+-----------------+
 |  SECO  |        i.MX8QXP/i.MX8DXL-DL1    |   seco_she_test |
 +--------+---------------------------------+-----------------+
 
 
 Note #3:
-- i.MX95 Platform is newly added. The FW and ROM APIs of ELE-HSM/V2X-SHE, are
-  under testing using this library.
-- V2X-HSM support has not been tested yet on i.MX95.
+- V2X-HSM test can not be supported on i.MX95 A0, as no support for SG MUs.
+- V2X-HSM test is partially supported on i.MX8DXL-DL2 board.
 - i.MX8DXL-DL2 board dont support SHE
 
 Pre-requisites for Secure Enclave Tests
@@ -488,6 +485,8 @@ V2X-HSM Test:
 	service nvm_daemon_v2x start;
 	service nvm_daemon_v2x status;
 	v2x_hsm_test;
+	v2x_hsm_test -a;                  //execute all test vectors, supported on i.MX943 currently
+	v2x_hsm_test shx_file;            //execute test vectors available in given shx
 	service nvm_daemon_v2x stop;
 
 SECO-HSM Test:
@@ -562,7 +561,8 @@ V2X: V2X-SHE + V2X-HSM: Tests Artifacts
 /usr/bin/v2x_she_test                          (V2X-SHE test app)
 /usr/bin/v2x_hsm_test                          (V2X-HSM test app)
 /usr/share/se/she_test_vectors/*               (V2X-SHE test vectors)
-/usr/share/se/test_vectors/non_psa/readme.tv   (V2X test vectors readme)
+/usr/share/se/v2x_hsm_test_vectors/*           (V2X-HSM test vectors)
+/usr/share/se/she_test_vectors/                (Path for V2X-SHE test vectors readme)
 
 SECO: SECO-HSM + SECO-SHE: Tests Artifacts
 ---------------------------------------
