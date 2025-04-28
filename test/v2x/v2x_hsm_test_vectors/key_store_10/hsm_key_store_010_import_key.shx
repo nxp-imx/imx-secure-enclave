@@ -1,0 +1,105 @@
+HSM_OPEN_SESSION (0)
+0x0 #  => SESSION(0) (uint32_t)
+0x50 # Read value (uint8_t)
+0x0 # [check] expected return value (HSM_NO_ERROR)
+0x1 # [check] Service status pointer POINTER_OPENED
+
+HSM_OPEN_KEY_STORE_SERVICE
+0 # session index (uint32_t)
+10 # Read value (uint32_t)
+0 # Read value (uint32_t)
+0 # Read value (uint16_t)
+1 # Read value (hsm_svc_key_store_flags_t) create
+0 # Read value (uint8_t)
+2 # key store index (uint32_t)
+0 # Check value (err)
+1 # Check if pointer ok (testCtx->hdl[new_hdl_index]) -- 0=
+
+HSM_OPEN_KEY_MANAGEMENT_SERVICE
+2 # key_store index (uint32_t)
+0 # Read value (hsm_svc_key_management_flags_t)
+3 # key management index (uint32_t)
+0 # Check value (err)
+1 # Check if pointer ok (testCtx->hdl[new_hdl_index]) -- 0=
+
+HSM_OPEN_CIPHER_SERVICE
+2 # key store index (uint32_t)
+0 # Read value (hsm_svc_cipher_flags_t)
+4 # cipher index (uint32_t)
+0 # Check value (err)
+1 # Check if pointer ok (testCtx->hdl[cipher_hdl_index]) -- 0=
+
+HSM_FULL_KEY_EXCHANGE_SHA_KEK
+3 # key management index (uint32_t)
+5 # kek index (uint32_t)
+0 # kek group
+0x02 # initiator_key_type - P256
+0x02 # key_exchange_scheme - P256
+0x00, 0x01, 0x02, 0x03, 0x04, 0x05, 0x06, 0x07,
+0x08, 0x09, 0x0a, 0x0b, 0x0c, 0x0d, 0x0e, 0x0f,
+0x10, 0x11, 0x12, 0x13, 0x14, 0x15, 0x16, 0x17,
+0x18, 0x19, 0x1a, 0x1b, 0x1c, 0x1d, 0x1e, 0x1f # kek data
+0 # Check value (err)
+
+HSM_GENERATE_KEY
+3 # key management index
+0 # key_id
+0 # Out_size
+0x2 # flags : Create
+0x30 # key_type AES_128
+1 # key_group
+0 # key_info
+0x00 # Out_pub_key
+0 # check value (err)
+NULL # out pub_key
+
+HSM_MANAGE_KEY
+3 # key management index (uint32_t)
+0 # key_id_number (uint32_t)
+5 # kek_id_number (uint32_t)
+0x01 # flags : Import update (hsm_op_manage_key_flags_t)
+0x2c # input_size (uint16_t)
+0x30 # key_type AES_128
+1 # key_group
+0 # key_info (hsm_key_info_t)
+0x00, 0x01, 0x02, 0x03, 0x04, 0x05, 0x06, 0x07,
+0x08, 0x09, 0x0A, 0x0B,
+0x47, 0x03, 0xd4, 0x18, 0xc1, 0xe0, 0xc4, 0x1c,
+0x85, 0x48, 0x9d, 0x80, 0xbd, 0xe4, 0x76, 0x62,
+0xed, 0x39, 0x55, 0x08, 0x27, 0x6f, 0xf6, 0x60,
+0x85, 0x0d, 0x12, 0xd3, 0xe7, 0x55, 0xeb, 0xa5 # encrypted key
+0 # Check value (err - valid only in opened LC)
+
+HSM_CIPHER_ONE_GO
+4 # cipher index
+0 # key_id
+3 # cipher store index
+0 # iv_size
+NULL # iv
+0 # cipher_algo ECB
+1 # flags - ENCRYPT
+16 # input length
+0x62, 0xE6, 0x09, 0xDF, 0x44, 0xC6, 0x81, 0xBF,
+0xF6, 0xA6, 0xED, 0x8E, 0x8F, 0x48, 0xBA, 0x10  # plaintext
+16 # output length
+0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
+0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00 # ciphertext
+0 # Check value (err)
+0xc4, 0x96, 0x9e, 0x6e, 0x10, 0x05, 0x63, 0x31
+0x54, 0xa7, 0xc2, 0x7f, 0x2e, 0x39, 0x74, 0x62 # expected ciphertext
+
+HSM_CLOSE_CIPHER_SERVICE
+4 # cipher index (uint32_t)
+0 # Check value (err)
+
+HSM_CLOSE_KEY_MANAGEMENT_SERVICE
+3 # Read value (uint32_t)
+0 # Check value (err)
+
+HSM_CLOSE_KEY_STORE_SERVICE
+2 # key store service index
+0 # Check value (err)
+
+HSM_CLOSE_SESSION
+0 # Read value (uint32_t)
+0 # Check value (err)

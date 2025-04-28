@@ -1,6 +1,6 @@
 // SPDX-License-Identifier: BSD-3-Clause
 /*
- * Copyright 2023-2024 NXP
+ * Copyright 2023-2025 NXP
  */
 
 #include <stdio.h>
@@ -20,16 +20,19 @@ void lc_update_info(hsm_hdl_t sess_hdl)
 	if (err != HSM_NO_ERROR)
 		printf("hsm_dev_getinfo(ROM) failed err:0x%x\n", err);
 	else {
-		if (dev_getinfo_args.imem_state == 0xca) {
-			/* Firmware is present.
-			 * Tests can be performed.
-			 */
-			args.new_lc_state = HSM_OEM_OPEN_STATE;
-			err = hsm_lc_update(sess_hdl, &args);
-			if (err != HSM_NO_ERROR) {
-				printf("hsm_lc_update(ROM) failed err:0x%x\n", err);
-			}
+		if (se_get_soc_id() == SOC_IMX8ULP &&
+		    dev_getinfo_args.imem_state != 0xca) {
+			printf("hsm_lc_update cannot be performed.\n");
+			return;
 		}
+
+		/* Firmware is present.
+		 * Tests can be performed.
+		 */
+		args.new_lc_state = HSM_OEM_OPEN_STATE;
+		err = hsm_lc_update(sess_hdl, &args);
+		if (err != HSM_NO_ERROR)
+			printf("hsm_lc_update(ROM) failed err:0x%x\n", err);
 	}
 #endif
 }

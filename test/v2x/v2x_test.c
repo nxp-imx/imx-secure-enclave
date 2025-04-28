@@ -1,10 +1,10 @@
 // SPDX-License-Identifier: BSD-3-Clause
 /*
- * Copyright 2021-2024 NXP
+ * Copyright 2021-2025 NXP
  */
 
 #include "hsm_api.h"
-#include "nvm.h"
+#include "test_common.h"
 #include <pthread.h>
 #include <stdio.h>
 #include <stdbool.h>
@@ -13,6 +13,21 @@
 #include <time.h>
 #include <unistd.h>
 #include <plat_utils.h>
+
+#define NUM_SX_MU	4
+
+#define SV0		0
+#define SG0		1
+#define SV1		2
+#define SG1		3
+
+hsm_hdl_t sx_sess_hdl[NUM_SX_MU];
+
+hsm_hdl_t key_store_serv[NUM_SX_MU / 2];
+hsm_hdl_t sig_gen_serv[NUM_SX_MU / 2];
+hsm_hdl_t key_mgmt_srv[NUM_SX_MU / 2];
+hsm_hdl_t cipher_hdl[NUM_SX_MU / 2];
+hsm_hdl_t sig_ver_serv[NUM_SX_MU / 2];
 
 static uint8_t  SM2_test_message[300] = {
     // Note that the first 32 Bytes are the "Z" value that can be retrieved with hsm_sm2_get_z()
@@ -82,7 +97,7 @@ uint8_t ecies_p1[32] = {
     0x4E, 0xE0, 0x86, 0xCE, 0x59, 0x06, 0xA7, 0xCA, 0xC2, 0xF8, 0xA3, 0x98, 0x30, 0x6D, 0x3B, 0xE9
 };
 
-uint8_t ecc_p256_pubk[2*32] = {
+uint8_t ecc_p256_pubkey[2 * 32] = {
     0x1c, 0xcb, 0xe9, 0x1c, 0x07, 0x5f, 0xc7, 0xf4, 0xf0, 0x33, 0xbf, 0xa2, 0x48, 0xdb, 0x8f, 0xcc,
     0xd3, 0x56, 0x5d, 0xe9, 0x4b, 0xbf, 0xb1, 0x2f, 0x3c, 0x59, 0xff, 0x46, 0xc2, 0x71, 0xbf, 0x83,
     0xce, 0x40, 0x14, 0xc6, 0x88, 0x11, 0xf9, 0xa2, 0x1a, 0x1f, 0xdb, 0x2c, 0x0e, 0x61, 0x13, 0xe0,
@@ -153,21 +168,6 @@ uint8_t work_area[128] = {0};
 uint8_t work_area2[128] = {0};
 uint8_t work_area3[128] = {0};
 uint8_t work_area4[128] = {0};
-
-static void *v2x_nvm_ctx = NULL;
-
-uint8_t *nvm_fname_dname[] = {
-	"/etc/ele_nvm_v2x/v2x_nvm_storage",
-	"/etc/ele_nvm_v2x/"
-};
-
-static void *v2x_hsm_storage_thread(void *arg)
-{
-	nvm_manager(V2X_HSM_NVM,
-		    &v2x_nvm_ctx,
-		    nvm_fname_dname[0],
-		    nvm_fname_dname[1]);
-}
 
 typedef struct {
     char *tag;
@@ -245,9 +245,9 @@ static void *sig_loop_thread(void *arg)
     }
     printf("%s success: %d / failures: %d\n", args->tag, success, failed);
 
-    printf("\n---------------------------------------------------\n");
-    printf("P256 Compressed signature \n");
-    printf("-----------------------------------------------------\n");
+	printf("\n---------------------------------------------------\n");
+	printf("P256 Compressed signature\n");
+	printf("-----------------------------------------------------\n");
     /* generate and verify a P256 signature - use alternatively create and update flags. */
     gen_key_args.key_identifier = &key_id;
     gen_key_args.out_size = 64;
@@ -318,76 +318,75 @@ typedef struct {
 static void *cipher_loop_thread(void *arg)
 {
 
-    op_cipher_one_go_args_t cipher_args;
+	op_cipher_one_go_args_t cipher_args;
 	op_generate_key_args_t gen_key_args = {0};
-    uint32_t key_id = 0;;
-    hsm_verification_status_t status;
-    hsm_err_t err;
-    int i, success, failed;
+	uint32_t key_id = 0;
+	hsm_verification_status_t status;
+	hsm_err_t err;
+	int i, success, failed;
+	cipher_thread_args_t *args = (cipher_thread_args_t *)arg;
 
-    cipher_thread_args_t *args = (cipher_thread_args_t *)arg;
-    if (!args)
-        return NULL;
+	if (!args)
+		return NULL;
 
-    success = 0;
-    failed = 0;
-    for (i=0 ; i<200; i++) {
-        memset(args->cipher_area, 0, 128);
-        memset(args->clear_area, 0, 128);
-        /* generate and verify a SM2 signature - use alternatively create and update flags. */
-        gen_key_args.key_identifier = &key_id;
-        gen_key_args.out_size = 0;
-        gen_key_args.key_type = HSM_KEY_TYPE_SM4_128;
-        gen_key_args.key_group = 14;
+	success = 0;
+	failed = 0;
+	for (i = 0 ; i < 200; i++) {
+		memset(args->cipher_area, 0, 128);
+		memset(args->clear_area, 0, 128);
+		/* generate and verify a SM2 signature
+		 * - use alternatively create and update flags.
+		 */
+		gen_key_args.key_identifier = &key_id;
+		gen_key_args.out_size = 0;
+		gen_key_args.key_type = HSM_KEY_TYPE_SM4_128;
+		gen_key_args.key_group = 14;
 #ifndef PSA_COMPLIANT
-        gen_key_args.flags = ((i%4 == 0) ? HSM_OP_KEY_GENERATION_FLAGS_CREATE : HSM_OP_KEY_GENERATION_FLAGS_UPDATE);
-        gen_key_args.key_info = 0U;
+		gen_key_args.flags = ((i % 4 == 0) ?
+				     HSM_OP_KEY_GENERATION_FLAGS_CREATE :
+				     HSM_OP_KEY_GENERATION_FLAGS_UPDATE);
+		gen_key_args.key_info = 0U;
 #else
-        gen_key_args.key_lifetime = 0;
-        gen_key_args.key_usage = 0;
-        gen_key_args.permitted_algo = 0;
+		gen_key_args.key_lifetime = 0;
+		gen_key_args.key_usage = 0;
+		gen_key_args.permitted_algo = 0;
 		gen_key_args.key_lifecycle = 0;
 #endif
-        gen_key_args.out_key = NULL;
-        err = hsm_generate_key(args->key_mgmt_srv, &gen_key_args);
-        // printf("%s err: 0x%x hsm_generate_key hdl: 0x%08x\n", args->tag, err, args->key_mgmt_srv);
+		gen_key_args.out_key = NULL;
+		err = hsm_generate_key(args->key_mgmt_srv, &gen_key_args);
 
-        cipher_args.key_identifier = key_id;
-        cipher_args.iv = ((i%2 == 0) ? SM2_IDENTIFIER : NULL); // just need 16 bytes somewhere to be used as IV
-        cipher_args.iv_size = ((i%2 == 0) ? 16 : 0);
-        cipher_args.cipher_algo = ((i % 2 == 0) ?
+		cipher_args.key_identifier = key_id;
+		// just need 16 bytes somewhere to be used as IV
+		cipher_args.iv = ((i % 2 == 0) ? SM2_IDENTIFIER : NULL);
+		cipher_args.iv_size = ((i % 2 == 0) ? 16 : 0);
+		cipher_args.cipher_algo = ((i % 2 == 0) ?
 #ifdef PSA_COMPLIANT
 			HSM_CIPHER_ONE_GO_ALGO_CBC : HSM_CIPHER_ONE_GO_ALGO_ECB);
 #else
 			HSM_CIPHER_ONE_GO_ALGO_SM4_CBC : HSM_CIPHER_ONE_GO_ALGO_SM4_ECB);
 #endif
-        cipher_args.flags = HSM_CIPHER_ONE_GO_FLAGS_ENCRYPT;
-        cipher_args.input = SM2_test_message;
-        cipher_args.output = args->cipher_area;
-        cipher_args.input_size = 128;
-        cipher_args.output_size = 128;
-        hsm_cipher_one_go(args->cipher_hdl, &cipher_args);
-        // printf("%s err: 0x%x hsm_cipher_one_go ENCRYPT hdl: 0x%08x\n", args->tag, err, args->cipher_hdl);
+		cipher_args.flags = HSM_CIPHER_ONE_GO_FLAGS_ENCRYPT;
+		cipher_args.input = SM2_test_message;
+		cipher_args.output = args->cipher_area;
+		cipher_args.input_size = 128;
+		cipher_args.output_size = 128;
+		hsm_cipher_one_go(args->cipher_hdl, &cipher_args);
 
-        cipher_args.flags = HSM_CIPHER_ONE_GO_FLAGS_DECRYPT;
-        cipher_args.input = args->cipher_area;
-        cipher_args.output = args->clear_area;
-        // other args unchanged
-        hsm_cipher_one_go(args->cipher_hdl, &cipher_args);
-        // printf("%s err: 0x%x hsm_cipher_one_go DECRYPT hdl: 0x%08x\n", args->tag, err, args->cipher_hdl);
+		cipher_args.flags = HSM_CIPHER_ONE_GO_FLAGS_DECRYPT;
+		cipher_args.input = args->cipher_area;
+		cipher_args.output = args->clear_area;
+		// other args unchanged
+		hsm_cipher_one_go(args->cipher_hdl, &cipher_args);
 
-        if (memcmp(SM2_test_message, args->clear_area, 128) == 0) {
-            success++;
-            // printf(" --> SUCCESS\n");
-        } else {
-            failed++;
-            // printf(" --> FAILURE\n");
-        }
-    }
-    printf("%s success: %d / failures: %d\n", args->tag, success, failed);
+		if (memcmp(SM2_test_message, args->clear_area, 128) == 0)
+			success++;
+		else
+			failed++;
+	}
+	printf("%s success: %d / failures: %d\n", args->tag, success, failed);
 
-    pthread_exit(NULL);
-    return NULL;
+	pthread_exit(NULL);
+	return NULL;
 }
 
 static void v2x_rng_test(hsm_hdl_t sess_hdl, op_get_random_args_t *rng_get_random_args)
@@ -406,7 +405,11 @@ static void v2x_rng_test(hsm_hdl_t sess_hdl, op_get_random_args_t *rng_get_rando
 #ifndef PSA_COMPLIANT
 	rng_srv_args.flags = 0;
 	err = hsm_open_rng_service(sess_hdl, &rng_srv_args, &rng_serv_hdl);
-	se_info("err: 0x%x hsm_open_rng_service hdl: 0x%08x\n", err, rng_serv_hdl);
+	if (err) {
+		se_info("RNG open service failed for 0x%x\n", sess_hdl);
+		return;
+	}
+	se_info("hsm_open_rng_service hdl: 0x%08x\n", rng_serv_hdl);
 #endif
 	rng_get_random_args->output = rng_out_buff;
 	rng_get_random_args->random_size = 3;
@@ -420,10 +423,6 @@ static void v2x_rng_test(hsm_hdl_t sess_hdl, op_get_random_args_t *rng_get_rando
 	printf("err: 0x%x hsm_get_random srv_hdl: 0x%08x, rand size=0x%08x\n",
 	       err, rng_serv_hdl, rng_get_random_args->random_size);
 #endif
-	for (i = 0; i < rng_get_random_args->random_size; i++)
-		printf("%02x", rng_out_buff[i]);
-	printf("\n");
-
 	rng_get_random_args->random_size = 176;
 
 #ifdef PSA_COMPLIANT
@@ -435,10 +434,6 @@ static void v2x_rng_test(hsm_hdl_t sess_hdl, op_get_random_args_t *rng_get_rando
 	printf("err: 0x%x hsm_get_random srv_hdl: 0x%08x, rand size=0x%08x\n",
 	       err, rng_serv_hdl, rng_get_random_args->random_size);
 #endif
-	for (i = 0; i < rng_get_random_args->random_size; i++)
-		printf("%02x", rng_out_buff[i]);
-	printf("\n");
-
 	rng_get_random_args->random_size = 2050;
 
 #ifdef PSA_COMPLIANT
@@ -450,10 +445,6 @@ static void v2x_rng_test(hsm_hdl_t sess_hdl, op_get_random_args_t *rng_get_rando
 	printf("err: 0x%x hsm_get_random srv_hdl: 0x%08x, rand size=0x%08x\n",
 	       err, rng_serv_hdl, rng_get_random_args->random_size);
 #endif
-	for (i = 0; i < rng_get_random_args->random_size; i++)
-		printf("%02x", rng_out_buff[i]);
-	printf("\n");
-
 	rng_get_random_args->random_size = 4096;
 
 #ifdef PSA_COMPLIANT
@@ -465,9 +456,6 @@ static void v2x_rng_test(hsm_hdl_t sess_hdl, op_get_random_args_t *rng_get_rando
 	printf("err: 0x%x hsm_get_random srv_hdl: 0x%08x, rand size=0x%08x\n",
 	       err, rng_serv_hdl, rng_get_random_args->random_size);
 #endif
-	for (i = 0; i < rng_get_random_args->random_size; i++)
-		printf("%02x", rng_out_buff[i]);
-	printf("\n");
 
 #ifndef PSA_COMPLIANT
 	err = hsm_close_rng_service(rng_serv_hdl);
@@ -737,1211 +725,1328 @@ static void v2x_root_kek_export_test(hsm_hdl_t sg0_sess)
 #endif
 }
 
-int main(int argc, char *argv[])
+int v2x_hsm_open_session(uint8_t index)
 {
-    open_session_args_t args;
+	open_session_args_t args;
 
-    open_svc_hash_args_t hash_srv_args;
-    open_svc_key_store_args_t key_store_srv_args;
-    open_svc_key_management_args_t key_mgmt_srv_args;
-    open_svc_sign_gen_args_t sig_gen_srv_args;
-    open_svc_sign_ver_args_t sig_ver_srv_args;
-    open_svc_cipher_args_t cipher_srv_args;
-    open_svc_key_generic_crypto_args_t key_generic_crypto_args;
+	switch (index) {
+	case SV0:
+		args.mu_type = V2X_SV0;
+		break;
+	case SG0:
+		args.mu_type = V2X_SG0;
+		break;
+	case SV1:
+		args.mu_type = V2X_SV1;
+		break;
+	case SG1:
+		args.mu_type = V2X_SG1;
+		break;
+	default:
+		args.mu_type = V2X_SG0;
+	}
 
-    op_hash_one_go_args_t hash_args;
-    op_sm2_get_z_args_t get_z_args;
-    op_sm2_eces_enc_args_t sm2_eces_enc_args;
+	return hsm_open_session(&args, &sx_sess_hdl[index]);
+}
 
-    open_svc_sm2_eces_args_t sm2_eces_dec_svc_args;
-    op_sm2_eces_dec_args_t sm2_eces_dec_args;
-    op_get_random_args_t rng_get_random_args;
-    op_auth_enc_args_t auth_enc_args;
+int open_sg_services(uint8_t index)
+{
+	static uint8_t sg_index;
+	hsm_err_t err = HSM_NO_ERROR;
+
+	open_svc_key_store_args_t key_store_srv_args = {0};
+	open_svc_key_management_args_t key_mgmt_srv_args = {0};
+	open_svc_sign_gen_args_t sig_gen_srv_args = {0};
+	open_svc_cipher_args_t cipher_srv_args = {0};
+
+	key_store_srv_args.key_store_identifier = 1234 + sg_index;
+	key_store_srv_args.authentication_nonce = 1234 + sg_index;
+	key_store_srv_args.max_updates_number = 12;
+	key_store_srv_args.flags = HSM_SVC_KEY_STORE_FLAGS_CREATE;
+	key_store_srv_args.signed_message = NULL;
+	key_store_srv_args.signed_msg_size = 0;
+
+	err = hsm_open_key_store_service(sx_sess_hdl[index],
+					 &key_store_srv_args,
+					 &key_store_serv[sg_index]);
+
+	if (err != HSM_NO_ERROR) {
+		/* key store may already exist. */
+		key_store_srv_args.flags = 0U;
+		err = hsm_open_key_store_service(sx_sess_hdl[index],
+						 &key_store_srv_args,
+						 &key_store_serv[sg_index]);
+
+		if (err) {
+			printf("err : 0x%x, Failed to open key store on SG%d\n",
+			       err, sg_index);
+			return err;
+		}
+		printf("hsm_open_key_store_service hdl SG%d: 0x%08x\n",
+		       sg_index, key_store_serv[sg_index]);
+	}
+
+	err = hsm_open_key_management_service(key_store_serv[sg_index],
+					      &key_mgmt_srv_args,
+					      &key_mgmt_srv[sg_index]);
+	if (err) {
+		printf("err : 0x%x, Failed to open key management service on SG%d\n",
+		       err, sg_index);
+		return err;
+	}
+	printf("hsm_open_key_management_service hdl SG%d: 0x%08x\n",
+	       sg_index, key_mgmt_srv[sg_index]);
+
 #ifndef PSA_COMPLIANT
-    op_manage_key_args_t mng_key_args;
+	sig_gen_srv_args.flags = 0;
 #endif
-    op_ecies_enc_args_t op_ecies_enc_args;
-    op_ecies_dec_args_t op_ecies_dec_args;
+	err = hsm_open_signature_generation_service(key_store_serv[sg_index],
+						    &sig_gen_srv_args,
+						    &sig_gen_serv[sg_index]);
+	if (err) {
+		printf("err : 0x%x, Failed to open sig generation service on SG%d\n",
+		       err, sg_index);
+		return err;
+	}
+	printf("hsm_open_signature_generation_service hdl SG%d: 0x%08x\n",
+	       sg_index, sig_gen_serv[sg_index]);
 
-    hsm_hdl_t sg0_sess, sv0_sess;
-    hsm_hdl_t sg1_sess, sv1_sess;
-    hsm_hdl_t sg0_key_store_serv, sg0_sig_gen_serv, sg0_key_mgmt_srv, sg0_cipher_hdl;
-    hsm_hdl_t sg1_key_store_serv, sg1_sig_gen_serv, sg1_key_mgmt_srv, sg1_cipher_hdl;
-    hsm_hdl_t sv0_sig_ver_serv;
-    hsm_hdl_t sv1_sig_ver_serv;
-    hsm_hdl_t hash_serv;
-    hsm_hdl_t sg0_sm2_eces_hdl, sg1_sm2_eces_hdl;
-    hsm_hdl_t key_generic_crypto;
+	err = hsm_open_cipher_service(key_store_serv[sg_index],
+				      &cipher_srv_args,
+				      &cipher_hdl[sg_index]);
+	if (err) {
+		printf("err : 0x%x, Failed to open cipher service on SG%d\n",
+		       err, sg_index);
+		return err;
+	}
+	printf("hsm_open_cipher_service: hdl: 0x%08x\n", cipher_hdl[sg_index]);
+
+	sg_index++;
+	return err;
+}
+
+int open_sv_services(uint8_t index)
+{
+	static uint8_t sv_index;
+	hsm_err_t err = HSM_NO_ERROR;
+	open_svc_sign_ver_args_t sig_ver_srv_args = {0};
+
+	err = hsm_open_signature_verification_service(sx_sess_hdl[index],
+						      &sig_ver_srv_args,
+						      &sig_ver_serv[sv_index]);
+	if (err) {
+		printf("err : 0x%x, Failed to open sig verification service on SV%d\n",
+		       err, sv_index);
+	} else {
+		printf("hsm_open_signature_verification_service hdl SV%d: 0x%08x\n",
+		       sv_index, sig_ver_serv[sv_index]);
+	}
+	sv_index++;
+	return err;
+}
+
+static void v2x_hsm_test_usage(void)
+{
+	printf("------------------------------------------------------------------\n");
+	printf("v2x_hsm_test can be used to run:\n");
+	printf("- functional tests\n");
+	printf("- Specific HSM test vectors\n");
+	printf("- All HSM test vectors\n");
+	printf("\nFor running HSM functional tests:\n");
+	printf("v2x_hsm_test\n");
+	printf("\nFor running HSM test vectors:\n");
+	printf("v2x_hsm_test file1.shx file2.shx ....\n");
+	printf("\nFor running All HSM test vectors:\n");
+	printf("v2x_hsm_test -a\n");
+	printf("------------------------------------------------------------------\n");
+}
+
+void print_global_info(void)
+{
+	printf("-----------------------------------------------------------\n");
+	printf("Global Info:\n");
+	printf("-----------------------------------------------------------\n");
+
+	if (se_get_soc_id() == SOC_IMX8DXL)
+		printf("%s %s %s\n", get_soc_id_str(se_get_soc_id()),
+		       get_soc_rev_str(se_get_soc_rev()),
+		       get_board_type_str(se_get_board_type()));
+	else
+		printf("%s %s\n", get_soc_id_str(se_get_soc_id()),
+		       get_soc_rev_str(se_get_soc_rev()));
+
+	printf("%s Lifecycle\n", get_soc_lf_str(se_get_chip_lifecycle()));
+	printf("Fips mode 0x%x\n", se_get_fips_mode());
+	printf("LIB Version: %s\n", se_get_lib_version());
+	printf("NVM Version: %s\n", se_get_nvm_version());
+	printf("Build ID: %s\n", se_get_commit_id());
+	printf("-----------------------------------------------------------\n");
+}
+
+int v2x_hsm_tests(void)
+{
+	uint8_t fips_enabled = 0;
+	uint8_t sv1_as_she1 = 0;
+	uint8_t index = 0;
+	open_svc_hash_args_t hash_srv_args;
+	open_svc_key_generic_crypto_args_t key_generic_crypto_args;
+
+	op_hash_one_go_args_t hash_args;
+	op_sm2_get_z_args_t get_z_args;
+	op_sm2_eces_enc_args_t sm2_eces_enc_args;
+
+	open_svc_sm2_eces_args_t sm2_eces_dec_svc_args;
+	op_sm2_eces_dec_args_t sm2_eces_dec_args;
+	op_get_random_args_t rng_get_random_args;
+	op_auth_enc_args_t auth_enc_args;
+#ifndef PSA_COMPLIANT
+	op_manage_key_args_t mng_key_args;
+#endif
+	op_ecies_enc_args_t op_ecies_enc_args;
+	op_ecies_dec_args_t op_ecies_dec_args;
+
+	hsm_hdl_t hash_serv;
+	hsm_hdl_t sg0_sm2_eces_hdl, sg1_sm2_eces_hdl;
+	hsm_hdl_t key_generic_crypto;
 
 	op_generate_key_args_t gen_key_args = {0};
-    uint32_t key_id = 0;
-    uint32_t key_id_sm4 = 0;
-    uint32_t master_key_id = 0;
-    uint32_t exp_fct_key_id = 0;
+	uint32_t key_id = 0;
+	uint32_t key_id_sm4 = 0;
+	uint32_t master_key_id = 0;
+	uint32_t exp_fct_key_id = 0;
 
-    hsm_verification_status_t status;
-    hsm_err_t err;
-    int j;
-    pthread_t tid, sig1, sig2;
-    sig_thread_args_t args1, args2;
-    cipher_thread_args_t cipher_args1, cipher_args2;
-    op_pub_key_recovery_args_t pub_k_rec_args;
+	hsm_verification_status_t status;
+	hsm_err_t err;
+	int j;
+	pthread_t tid, sig1, sig2;
+	sig_thread_args_t args1, args2;
+	cipher_thread_args_t cipher_args1, cipher_args2;
+	op_pub_key_recovery_args_t pub_k_rec_args;
 
-    op_key_exchange_args_t key_exch;
-    op_cipher_one_go_args_t cipher_args;
+	op_key_exchange_args_t key_exch;
+	op_cipher_one_go_args_t cipher_args;
 
-    open_svc_mac_args_t mac_srv_args;
-    hsm_hdl_t sg0_mac_hdl;
-    op_mac_one_go_args_t mac_one_go;
-    hsm_mac_verification_status_t mac_status;
-    op_auth_enc_args_t auth_enc_gcm;
-    op_st_butt_key_exp_args_t st_butt_key_expansion;
-    op_key_generic_crypto_args_t key_generic_crypto_srv_args;
+	open_svc_mac_args_t mac_srv_args;
+	hsm_hdl_t sg0_mac_hdl;
+	op_mac_one_go_args_t mac_one_go;
+	hsm_mac_verification_status_t mac_status;
+	op_auth_enc_args_t auth_enc_gcm;
+	op_st_butt_key_exp_args_t st_butt_key_expansion;
+	op_key_generic_crypto_args_t key_generic_crypto_srv_args;
 
-    uint8_t recovered_key[256];
+	uint8_t recovered_key[256];
 
-    srand (time (NULL));
-#ifdef PSA_COMPLIANT
-    printf("\n---------------------------------------------------\n");
-    printf("Starting storage manager \n");
-    printf("---------------------------------------------------\n");
+	printf("\n-------------------------------------------------\n");
+	printf("Opening sessions\n");
+	printf("---------------------------------------------------\n");
 
-    (void)pthread_create(&tid, NULL, v2x_hsm_storage_thread, NULL);
+	for (index = 0; index < NUM_SX_MU; index++) {
+		err = v2x_hsm_open_session(index);
+		if (err)
+			printf("err : 0x%x, Failed to open session on index:%d\n",
+			       err, index);
+		else
+			printf("hsm_open_session hdl %d: 0x%08x\n",
+			       index, sx_sess_hdl[index]);
+	}
 
-    /* Wait for the storage manager to be ready to receive commands from V2X. */
-    while (get_nvmd_status(v2x_nvm_ctx) <= NVM_STATUS_STARTING) {
-        usleep(1000);
-    }
-    /* Check if it ended because of an error. */
-    if (get_nvmd_status(v2x_nvm_ctx) == NVM_STATUS_STOPPED) {
-        printf("nvm manager failed to start\n");
-        return 1;
-    }
-    printf("nvm manager started: status: 0x%x \n", get_nvmd_status(v2x_nvm_ctx));
+	//Populate global info structure, using SV0
+	populate_global_info(sx_sess_hdl[SV0]);
+	print_global_info();
 
-#endif
-    // SG0
-    printf("\n---------------------------------------------------\n");
-    printf("Opening sessions \n");
-    printf("---------------------------------------------------\n");
-	args.mu_type = V2X_SG0;
-    err = hsm_open_session(&args, &sg0_sess);
-    printf("err: 0x%x SG0 hsm_open_session session_hdl: 0x%08x\n", err, sg0_sess);
+	if ((se_get_soc_id() == SOC_IMX8DXL && se_get_board_type() == IMX8DXL_DL2) ||
+	    se_get_soc_id() == SOC_IMX8QXP)
+		fips_enabled = 1;
 
-    // SV0
-	args.mu_type = V2X_SV0;
-    err = hsm_open_session(&args, &sv0_sess);
-    printf("err: 0x%x SV0 hsm_open_session session_hdl: 0x%08x\n", err, sv0_sess);
+	// close SV1 session as SV1 MU is used as SHE1
+	if (se_get_soc_id() == SOC_IMX943 || se_get_soc_id() == SOC_IMX95)
+		sv1_as_she1 = 1;
 
-    // SG1
-	args.mu_type = V2X_SG1;
-    err = hsm_open_session(&args, &sg1_sess);
-    printf("err: 0x%x SG1 hsm_open_session session_hdl: 0x%08x\n", err, sg1_sess);
+	for (index = 1; index < NUM_SX_MU; index += 2) {
+		err = open_sg_services(index);
+		if (err)
+			goto out;
+	}
 
-    // //SV1
-	args.mu_type = V2X_SV1;
-    err = hsm_open_session(&args, &sv1_sess);
-    printf("err: 0x%x SV1 hsm_open_session session_hdl: 0x%08x\n", err, sv1_sess);
+	for (index = 0; index < NUM_SX_MU; index += 2) {
+		err = open_sv_services(index);
+		if (err)
+			goto out;
 
-    // opening services for signature generation/verif on SG0 and SG1
+		if (sv1_as_she1)
+			break;
+	}
 
-    key_store_srv_args.key_store_identifier = 1234;
-    key_store_srv_args.authentication_nonce = 1234;
-    key_store_srv_args.max_updates_number = 12;
-    key_store_srv_args.flags = HSM_SVC_KEY_STORE_FLAGS_CREATE;
-    key_store_srv_args.signed_message = NULL;
-    key_store_srv_args.signed_msg_size = 0;
-    err = hsm_open_key_store_service(sg0_sess, &key_store_srv_args, &sg0_key_store_serv);
-    if (err != HSM_NO_ERROR) {
-        /* key store may already exist. */
-        key_store_srv_args.flags = 0U;
-        err = hsm_open_key_store_service(sg0_sess, &key_store_srv_args, &sg0_key_store_serv);
-    }
-    printf("err: 0x%x hsm_open_key_store_service hdl: 0x%08x\n", err, sg0_key_store_serv);
+	if (!fips_enabled) {
+		// SM2 signature test: generate a signature and verify it
+		//
+		printf("\n---------------------------------------------------\n");
+		printf("SM2 signature generation and verification in parallel\n");
+		printf("---------------------------------------------------\n");
+		args1.tag = "HIGH_P";
+		args1.key_mgmt_srv = key_mgmt_srv[0];
+		args1.sig_gen_serv = sig_gen_serv[0];
+		args1.sig_ver_serv = sig_ver_serv[0];
+		args1.sig_area = work_area;
+		args1.pubk_area = work_area2;
+		(void)pthread_create(&sig1, NULL, sig_loop_thread, &args1);
+		printf("started signature High prio thread\n");
 
-    key_store_srv_args.key_store_identifier = 5678;
-    key_store_srv_args.authentication_nonce = 5678;
-    key_store_srv_args.flags = HSM_SVC_KEY_STORE_FLAGS_CREATE;
-    err = hsm_open_key_store_service(sg1_sess, &key_store_srv_args, &sg1_key_store_serv);
-    if (err != HSM_NO_ERROR) {
-        /* key store may already exist. */
-        key_store_srv_args.flags = 0U;
-        err = hsm_open_key_store_service(sg1_sess, &key_store_srv_args, &sg1_key_store_serv);
-    }
-    printf("err: 0x%x hsm_open_key_store_service hdl: 0x%08x\n", err, sg1_key_store_serv);
+		if (!sv1_as_she1) {
+			args2.tag = "LOW_P ";
+			args2.key_mgmt_srv = key_mgmt_srv[1];
+			args2.sig_gen_serv = sig_gen_serv[1];
+			args2.sig_ver_serv = sig_ver_serv[1];
+			args2.sig_area = work_area3;
+			args2.pubk_area = work_area4;
+			(void)pthread_create(&sig2, NULL, sig_loop_thread, &args2);
+			printf("started signature Low prio thread\n");
+		}
+		pthread_join(sig1, NULL);
+		printf("completed signature High prio thread\n");
 
-    key_mgmt_srv_args.flags = 0;
-    err = hsm_open_key_management_service(sg0_key_store_serv, &key_mgmt_srv_args, &sg0_key_mgmt_srv);
-	printf("err: 0x%x hsm_open_key_management_service hdl: 0x%08x\n",
-	       err, sg0_key_mgmt_srv);
-    err = hsm_open_key_management_service(sg1_key_store_serv, &key_mgmt_srv_args, &sg1_key_mgmt_srv);
-	printf("err: 0x%x hsm_open_key_management_service hdl: 0x%08x\n",
-	       err, sg1_key_mgmt_srv);
-#ifndef PSA_COMPLIANT
-    sig_gen_srv_args.flags = 0;
-#endif
-    err = hsm_open_signature_generation_service(sg0_key_store_serv, &sig_gen_srv_args, &sg0_sig_gen_serv);
-	printf("err: 0x%x hsm_open_signature_generation_service hdl: 0x%08x\n",
-	       err, sg0_sig_gen_serv);
-    err = hsm_open_signature_generation_service(sg1_key_store_serv, &sig_gen_srv_args, &sg1_sig_gen_serv);
-	printf("err: 0x%x hsm_open_signature_generation_service hdl: 0x%08x\n",
-	       err, sg1_sig_gen_serv);
-
-    sig_ver_srv_args.flags = 0;
-    err = hsm_open_signature_verification_service(sv0_sess, &sig_ver_srv_args, &sv0_sig_ver_serv);
-	printf("err: 0x%x hsm_open_signature_verification_service hdl:0x%08x\n",
-	       err, sv0_sig_ver_serv);
-    err = hsm_open_signature_verification_service(sv1_sess, &sig_ver_srv_args, &sv1_sig_ver_serv);
-	printf("err: 0x%x hsm_open_signature_verification_service hdl:0x%08x\n",
-	       err, sv1_sig_ver_serv);
-
-    // SM2 signature test: generate a signature and verify it
-    //
-    printf("\n---------------------------------------------------\n");
-    printf("SM2 signature generation and verification in parallel\n");
-    printf("---------------------------------------------------\n");
-    args1.tag = "HIGH_P";
-    args1.key_mgmt_srv = sg0_key_mgmt_srv;
-    args1.sig_gen_serv = sg0_sig_gen_serv;
-    args1.sig_ver_serv = sv0_sig_ver_serv;
-    args1.sig_area = work_area;
-    args1.pubk_area = work_area2;
-    (void)pthread_create(&sig1, NULL, sig_loop_thread, &args1);
-    printf("started signature High prio thread\n");
-
-    args2.tag = "LOW_P ";
-    args2.key_mgmt_srv = sg1_key_mgmt_srv;
-    args2.sig_gen_serv = sg1_sig_gen_serv;
-    args2.sig_ver_serv = sv1_sig_ver_serv;
-    args2.sig_area = work_area3;
-    args2.pubk_area = work_area4;
-    (void)pthread_create(&sig2, NULL, sig_loop_thread, &args2);
-    printf("started signature Low prio thread\n");
-
-    pthread_join(sig1, NULL);
-    printf("completed signature High prio thread\n");
-
-    pthread_join(sig2, NULL);
-    printf("completed signature Low prio thread\n");
-
+		if (!sv1_as_she1) {
+			pthread_join(sig2, NULL);
+			printf("completed signature Low prio thread\n");
+		}
+	}
 	// RNG tests
-	v2x_rng_test(sv0_sess, &rng_get_random_args);
-	v2x_rng_test(sv1_sess, &rng_get_random_args);
-	v2x_rng_test(sg0_sess, &rng_get_random_args);
-	v2x_rng_test(sg1_sess, &rng_get_random_args);
+	for (index = 0; index < NUM_SX_MU; index++)
+		if (sx_sess_hdl[index])
+			v2x_rng_test(sx_sess_hdl[index], &rng_get_random_args);
 
-	printf("\n---------------------------------------------------\n");
-	printf("PUB KEY DECOMPRESSION test\n");
-	printf("---------------------------------------------------\n");
-	v2x_public_key_test(sv0_sess);
+	if (!fips_enabled) {
+		printf("\n---------------------------------------------------\n");
+		printf("PUB KEY DECOMPRESSION test\n");
+		printf("---------------------------------------------------\n");
+		v2x_public_key_test(sx_sess_hdl[SV0]);
 
-	printf("\n---------------------------------------------------\n");
-	printf("PUB KEY RECONSTRUCTION test\n");
-	printf("---------------------------------------------------\n");
-	v2x_public_key_reconstruction(sv0_sess);
+		printf("\n---------------------------------------------------\n");
+		printf("PUB KEY RECONSTRUCTION test\n");
+		printf("---------------------------------------------------\n");
+		v2x_public_key_reconstruction(sx_sess_hdl[SV0]);
 
-	printf("\n---------------------------------------------------\n");
-	printf("Root KEK Export\n");
-	printf("---------------------------------------------------\n");
-	v2x_root_kek_export_test(sg0_sess);
+		printf("\n---------------------------------------------------\n");
+		printf("Root KEK Export\n");
+		printf("---------------------------------------------------\n");
+		v2x_root_kek_export_test(sx_sess_hdl[SG0]);
 
-    // SM3 hash test
+		// SM3 hash test
 
-    printf("\n---------------------------------------------------\n");
-    printf("SM3 hash test\n");
-    printf("---------------------------------------------------\n");
-    err = hsm_open_hash_service(sv0_sess, &hash_srv_args, &hash_serv);
-    printf("err: 0x%x hsm_open_hash_service hdl: 0x%08x\n", err, hash_serv);
+		printf("\n---------------------------------------------------\n");
+		printf("SM3 hash test\n");
+		printf("---------------------------------------------------\n");
+		err = hsm_open_hash_service(sx_sess_hdl[SV0],
+					    &hash_srv_args,
+					    &hash_serv);
+		if (err) {
+			printf("err: 0x%x hsm_open_hash_service hdl\n", err);
+			goto skip_sm3_hash;
+		}
 
-    hash_args.input = SM2_test_message;
-    hash_args.output = work_area;
-    hash_args.input_size = sizeof(SM2_test_message);
-    hash_args.output_size = 32;
-    hash_args.algo = 0x11;
+		printf("hsm_open_hash_service hdl: 0x%08x\n", hash_serv);
 
-    err = hsm_hash_one_go(hash_serv, &hash_args);
-    printf("err: 0x%x hsm_hash_one_go hdl: 0x%08x\n", err, hash_serv);
-    printf("SM3 output:\n");
-    for (j=0; j<32; j++) {
-        printf("0x%02x ", work_area[j]);
-        if (j%16 == 15)
-            printf("\n");
-    }
-    if (memcmp(SM3_HASH, work_area, sizeof(SM3_HASH)) == 0) {
-        printf(" --> SUCCESS\n");
-    } else {
-        printf(" --> FAILURE\n");
-    }
+		hash_args.input = SM2_test_message;
+		hash_args.output = work_area;
+		hash_args.input_size = sizeof(SM2_test_message);
+		hash_args.output_size = 32;
+		hash_args.algo = 0x11;
 
-    printf("\n---------------------------------------------------\n");
-    printf("SM2 get Z test\n");
-    printf("---------------------------------------------------\n");
-    get_z_args.public_key = SM2_PUBK;
-    get_z_args.identifier = SM2_IDENTIFIER;
-    get_z_args.z_value = work_area;
-    get_z_args.public_key_size = 64;
-    get_z_args.id_size = 16;
-    get_z_args.z_size = 32;
-    get_z_args.key_type = HSM_KEY_TYPE_DSA_SM2_FP_256;
-    get_z_args.flags = 0;
+		err = hsm_hash_one_go(hash_serv, &hash_args);
+		printf("SM3 output:\n");
+		for (j = 0; j < 32; j++) {
+			printf("0x%02x ", work_area[j]);
+			if (j % 16 == 15)
+				printf("\n");
+		}
+		if (memcmp(SM3_HASH, work_area, sizeof(SM3_HASH)) == 0)
+			printf(" --> SUCCESS\n");
+		else
+			printf(" --> FAILURE\n");
+skip_sm3_hash:
+		printf("\n---------------------------------------------------\n");
+		printf("SM2 get Z test\n");
+		printf("---------------------------------------------------\n");
+		get_z_args.public_key = SM2_PUBK;
+		get_z_args.identifier = SM2_IDENTIFIER;
+		get_z_args.z_value = work_area;
+		get_z_args.public_key_size = 64;
+		get_z_args.id_size = 16;
+		get_z_args.z_size = 32;
+		get_z_args.key_type = HSM_KEY_TYPE_DSA_SM2_FP_256;
+		get_z_args.flags = 0;
 
-    err = hsm_sm2_get_z(sv0_sess, &get_z_args);
-    printf("err: 0x%x hsm_sm2_get_z hdl: 0x%08x\n", err, sv0_sess);
-    printf("Z output:\n");
-    for (j=0; j<32; j++) {
-        printf("0x%02x ", work_area[j]);
-        if (j%16 == 15)
-            printf("\n");
-    }
-    if (memcmp(SM2_Z, work_area, sizeof(SM2_Z)) == 0) {
-        printf(" --> SUCCESS\n");
-    } else {
-        printf(" --> FAILURE\n");
-    }
+		err = hsm_sm2_get_z(sx_sess_hdl[SV0], &get_z_args);
+		printf("err: 0x%x hsm_sm2_get_z hdl: 0x%08x\n", err, sx_sess_hdl[SV0]);
+		printf("Z output:\n");
+		for (j = 0; j < 32; j++) {
+			printf("0x%02x ", work_area[j]);
+			if (j % 16 == 15)
+				printf("\n");
+		}
+		if (memcmp(SM2_Z, work_area, sizeof(SM2_Z)) == 0)
+			printf(" --> SUCCESS\n");
+		else
+			printf(" --> FAILURE\n");
 
-    // SM4 test
-    printf("\n---------------------------------------------------\n");
-    printf("SM4 encrypt/decrypt test\n");
-    printf("---------------------------------------------------\n");
-    cipher_srv_args.flags = 0U;
-    err = hsm_open_cipher_service(sg0_key_store_serv, &cipher_srv_args, &sg0_cipher_hdl);
-	printf("err: 0x%x hsm_open_cipher_service: hdl: 0x%08x\n",
-	       err, sg0_cipher_hdl);
-    err = hsm_open_cipher_service(sg1_key_store_serv, &cipher_srv_args, &sg1_cipher_hdl);
-	printf("err: 0x%x hsm_open_cipher_service: hdl: 0x%08x\n",
-	       err, sg1_cipher_hdl);
+		// SM4 test
+		printf("\n---------------------------------------------------\n");
+		printf("SM4 encrypt/decrypt test\n");
+		printf("---------------------------------------------------\n");
 
-    cipher_args1.tag = "HIGH_P";
-    cipher_args1.key_mgmt_srv = sg0_key_mgmt_srv;
-    cipher_args1.cipher_hdl = sg0_cipher_hdl;
-    cipher_args1.cipher_area = work_area;
-    cipher_args1.clear_area = work_area2;
-    (void)pthread_create(&sig1, NULL, cipher_loop_thread, &cipher_args1);
-    printf("started cipher High prio thread\n");
+		cipher_args1.tag = "HIGH_P";
+		cipher_args1.key_mgmt_srv = key_mgmt_srv[0];
+		cipher_args1.cipher_hdl = cipher_hdl[0];
+		cipher_args1.cipher_area = work_area;
+		cipher_args1.clear_area = work_area2;
+		(void)pthread_create(&sig1, NULL, cipher_loop_thread, &cipher_args1);
+		printf("started cipher High prio thread\n");
 
-    cipher_args2.tag = "LOW_P ";
-    cipher_args2.key_mgmt_srv = sg1_key_mgmt_srv;
-    cipher_args2.cipher_hdl = sg1_cipher_hdl;
-    cipher_args2.cipher_area = work_area3;
-    cipher_args2.clear_area = work_area4;
-    (void)pthread_create(&sig2, NULL, cipher_loop_thread, &cipher_args2);
-    printf("started cipher Low prio thread\n");
+		cipher_args2.tag = "LOW_P ";
+		cipher_args2.key_mgmt_srv = key_mgmt_srv[1];
+		cipher_args2.cipher_hdl = cipher_hdl[1];
+		cipher_args2.cipher_area = work_area3;
+		cipher_args2.clear_area = work_area4;
+		(void)pthread_create(&sig2, NULL, cipher_loop_thread, &cipher_args2);
+		printf("started cipher Low prio thread\n");
 
-    pthread_join(sig1, NULL);
-    printf("completed cipher High prio thread\n");
+		pthread_join(sig1, NULL);
+		printf("completed cipher High prio thread\n");
 
-    pthread_join(sig2, NULL);
-    printf("completed cipher Low prio thread\n");
+		pthread_join(sig2, NULL);
+		printf("completed cipher Low prio thread\n");
 
-    // SM2 eces encrypt and decrypt
-    printf("\n---------------------------------------------------\n");
-    printf("SM2 ECES test\n");
-    printf("---------------------------------------------------\n");
+		// SM2 eces encrypt and decrypt
+		printf("\n---------------------------------------------------\n");
+		printf("SM2 ECES test\n");
+		printf("---------------------------------------------------\n");
 
-    sm2_eces_dec_svc_args.flags = 0U;
-    err = hsm_open_sm2_eces_service(sg0_key_store_serv, &sm2_eces_dec_svc_args, &sg0_sm2_eces_hdl);
-	printf("err: 0x%x hsm_open_sm2_eces_service: hdl: 0x%08x\n",
-	       err, sg0_sm2_eces_hdl);
-    err = hsm_open_sm2_eces_service(sg1_key_store_serv, &sm2_eces_dec_svc_args, &sg1_sm2_eces_hdl);
-	printf("err: 0x%x hsm_open_sm2_eces_service: hdl: 0x%08x\n",
-	       err, sg1_sm2_eces_hdl);
+		sm2_eces_dec_svc_args.flags = 0U;
+		err = hsm_open_sm2_eces_service(key_store_serv[0],
+						&sm2_eces_dec_svc_args,
+						&sg0_sm2_eces_hdl);
+		printf("err: 0x%x hsm_open_sm2_eces_service: hdl: 0x%08x\n",
+		       err, sg0_sm2_eces_hdl);
+		err = hsm_open_sm2_eces_service(key_store_serv[1],
+						&sm2_eces_dec_svc_args,
+						&sg1_sm2_eces_hdl);
+		printf("err: 0x%x hsm_open_sm2_eces_service: hdl: 0x%08x\n",
+		       err, sg1_sm2_eces_hdl);
 
-    gen_key_args.key_identifier = &key_id;
-    gen_key_args.out_size = 64;
-    gen_key_args.key_type = HSM_KEY_TYPE_DSA_SM2_FP_256;
-    gen_key_args.key_group = 12;
+		gen_key_args.key_identifier = &key_id;
+		gen_key_args.out_size = 64;
+		gen_key_args.key_type = HSM_KEY_TYPE_DSA_SM2_FP_256;
+		gen_key_args.key_group = 12;
 #ifndef PSA_COMPLIANT
-    gen_key_args.flags = HSM_OP_KEY_GENERATION_FLAGS_CREATE;
-    gen_key_args.key_info = 0U;
+		gen_key_args.flags = HSM_OP_KEY_GENERATION_FLAGS_CREATE;
+		gen_key_args.key_info = 0U;
 #else
-    gen_key_args.key_lifetime = 0;
-    gen_key_args.key_usage = 0;
-    gen_key_args.permitted_algo = 0;
-	gen_key_args.key_lifecycle = 0;
+		gen_key_args.key_lifetime = 0;
+		gen_key_args.key_usage = 0;
+		gen_key_args.permitted_algo = 0;
+		gen_key_args.key_lifecycle = 0;
 #endif
-    gen_key_args.out_key = work_area2; // public key needed for the encryption
-    err = hsm_generate_key(sg0_key_mgmt_srv, &gen_key_args);
-	printf("err: 0x%x hsm_generate_key hdl: 0x%08x\n",
-	       err, sg0_key_mgmt_srv);
+		gen_key_args.out_key = work_area2; // public key needed for the encryption
+		err = hsm_generate_key(key_mgmt_srv[0], &gen_key_args);
+		printf("err: 0x%x hsm_generate_key hdl: 0x%08x\n",
+		       err, key_mgmt_srv[0]);
 
-    sm2_eces_enc_args.input = SM2_test_message;
-    sm2_eces_enc_args.output = work_area;
-    sm2_eces_enc_args.pub_key = work_area2;
-    sm2_eces_enc_args.input_size = 16;
-    sm2_eces_enc_args.output_size = 128; // aligned with 32 bits - ciphertext size = align(plaintext_size + 97)
-    sm2_eces_enc_args.pub_key_size = 64;
-    sm2_eces_enc_args.key_type = HSM_KEY_TYPE_DSA_SM2_FP_256;
-    sm2_eces_enc_args.flags = 0;
+		sm2_eces_enc_args.input = SM2_test_message;
+		sm2_eces_enc_args.output = work_area;
+		sm2_eces_enc_args.pub_key = work_area2;
+		sm2_eces_enc_args.input_size = 16;
+		// aligned with 32 bits - ciphertext size = align(plaintext_size + 97)
+		sm2_eces_enc_args.output_size = 128;
+		sm2_eces_enc_args.pub_key_size = 64;
+		sm2_eces_enc_args.key_type = HSM_KEY_TYPE_DSA_SM2_FP_256;
+		sm2_eces_enc_args.flags = 0;
 
-    err = hsm_sm2_eces_encryption(sg0_sess, &sm2_eces_enc_args);
-    printf("err: 0x%x hsm_sm2_eces_encryption hdl: 0x%08x\n", err, sv0_sess);
-    printf("output:\n"); // we need to decrypt it with the associated private key to check if the result is correct
-    for (j=0; j<8; j++) {
-        printf("0x%02x ", work_area[j]);
-    }
-    printf("\n");
+		err = hsm_sm2_eces_encryption(sx_sess_hdl[SG0], &sm2_eces_enc_args);
+		printf("err: 0x%x hsm_sm2_eces_encryption hdl: 0x%08x\n",
+		       err, sx_sess_hdl[SG0]);
+		/* we need to decrypt it with the associated private key
+		 * to check if the result is correct
+		 */
+		printf("output:\n");
+		for (j = 0; j < 8; j++)
+			printf("0x%02x ", work_area[j]);
+		printf("\n");
 
-    sm2_eces_dec_args.input = work_area;
-    sm2_eces_dec_args.output = work_area3; //plaintext
-    sm2_eces_dec_args.key_identifier = key_id;
-    sm2_eces_dec_args.input_size = 113;
-    sm2_eces_dec_args.output_size = 16;
-    sm2_eces_dec_args.key_type = HSM_KEY_TYPE_DSA_SM2_FP_256;
-    sm2_eces_dec_args.flags = 0;
+		sm2_eces_dec_args.input = work_area;
+		sm2_eces_dec_args.output = work_area3; //plaintext
+		sm2_eces_dec_args.key_identifier = key_id;
+		sm2_eces_dec_args.input_size = 113;
+		sm2_eces_dec_args.output_size = 16;
+		sm2_eces_dec_args.key_type = HSM_KEY_TYPE_DSA_SM2_FP_256;
+		sm2_eces_dec_args.flags = 0;
 
-    err = hsm_sm2_eces_decryption(sg0_sm2_eces_hdl, &sm2_eces_dec_args);
-    printf("err: 0x%x hsm_sm2_eces_decryption hdl: 0x%08x\n", err, sg0_sm2_eces_hdl);
+		err = hsm_sm2_eces_decryption(sg0_sm2_eces_hdl, &sm2_eces_dec_args);
+		printf("err: 0x%x hsm_sm2_eces_decryption hdl: 0x%08x\n",
+		       err, sg0_sm2_eces_hdl);
 
-    if (memcmp(SM2_test_message, work_area3, 16) == 0) {
-        printf(" --> SUCCESS\n");
-    } else {
-        printf(" --> FAILURE\n");
-    }
+		if (memcmp(SM2_test_message, work_area3, 16) == 0)
+			printf(" --> SUCCESS\n");
+		else
+			printf(" --> FAILURE\n");
 
-    printf("\n---------------------------------------------------\n");
-    printf("Public key recovery\n");
-    printf("---------------------------------------------------\n");
+		printf("\n---------------------------------------------------\n");
+		printf("Public key recovery\n");
+		printf("---------------------------------------------------\n");
 
-    pub_k_rec_args.key_identifier = key_id;
-    pub_k_rec_args.out_key = recovered_key;
-    pub_k_rec_args.out_key_size = 64;
+		pub_k_rec_args.key_identifier = key_id;
+		pub_k_rec_args.out_key = recovered_key;
+		pub_k_rec_args.out_key_size = 64;
 #ifndef PSA_COMPLIANT
-	pub_k_rec_args.key_type = HSM_KEY_TYPE_DSA_SM2_FP_256;
-	pub_k_rec_args.flags = 0;
+		pub_k_rec_args.key_type = HSM_KEY_TYPE_DSA_SM2_FP_256;
+		pub_k_rec_args.flags = 0;
 #endif
-    err = hsm_pub_key_recovery(sg0_key_store_serv, &pub_k_rec_args);
-    printf("err: 0x%x hsm_pub_key_recovery\n", err);
-    if (memcmp(recovered_key, work_area2, 64) == 0) {
-        printf(" --> SUCCESS\n");
-    } else {
-        printf(" --> FAILURE\n");
-    }
+		err = hsm_pub_key_recovery(key_store_serv[0], &pub_k_rec_args);
+		printf("err: 0x%x hsm_pub_key_recovery\n", err);
+		if (memcmp(recovered_key, work_area2, 64) == 0)
+			printf(" --> SUCCESS\n");
+		else
+			printf(" --> FAILURE\n");
 
-    printf("\n---------------------------------------------------\n");
-    printf("key deletion test\n");
-    printf("---------------------------------------------------\n");
+		printf("\n---------------------------------------------------\n");
+		printf("key deletion test\n");
+		printf("---------------------------------------------------\n");
 
-    /* Test deletion of last generated key. */
-    mng_key_args.key_identifier = &key_id;
-    mng_key_args.kek_identifier = 0;
-    mng_key_args.input_size = 0;
-    mng_key_args.flags = HSM_OP_MANAGE_KEY_FLAGS_DELETE;
-    mng_key_args.key_type = HSM_KEY_TYPE_DSA_SM2_FP_256;
-    mng_key_args.key_group = 12;
-    mng_key_args.key_info = 0;
-    mng_key_args.input_data = NULL;
+		/* Test deletion of last generated key. */
+		mng_key_args.key_identifier = &key_id;
+		mng_key_args.kek_identifier = 0;
+		mng_key_args.input_size = 0;
+		mng_key_args.flags = HSM_OP_MANAGE_KEY_FLAGS_DELETE;
+		mng_key_args.key_type = HSM_KEY_TYPE_DSA_SM2_FP_256;
+		mng_key_args.key_group = 12;
+		mng_key_args.key_info = 0;
+		mng_key_args.input_data = NULL;
 
-    err = hsm_manage_key(sg0_key_mgmt_srv, &mng_key_args);
-    printf("err: 0x%x hsm_manage_key hdl: 0x%08x\n", err, sg0_key_mgmt_srv);
+		err = hsm_manage_key(key_mgmt_srv[0], &mng_key_args);
+		printf("err: 0x%x hsm_manage_key hdl: 0x%08x\n", err, key_mgmt_srv[0]);
 
-    /* Try to use again this key: an error is expected. */
-    sm2_eces_dec_args.input = work_area;
-    sm2_eces_dec_args.output = work_area3; //plaintext
-    sm2_eces_dec_args.key_identifier = key_id;
-    sm2_eces_dec_args.input_size = 113;
-    sm2_eces_dec_args.output_size = 16;
-    sm2_eces_dec_args.key_type = HSM_KEY_TYPE_DSA_SM2_FP_256;
-    sm2_eces_dec_args.flags = 0;
+		/* Try to use again this key: an error is expected. */
+		sm2_eces_dec_args.input = work_area;
+		sm2_eces_dec_args.output = work_area3; //plaintext
+		sm2_eces_dec_args.key_identifier = key_id;
+		sm2_eces_dec_args.input_size = 113;
+		sm2_eces_dec_args.output_size = 16;
+		sm2_eces_dec_args.key_type = HSM_KEY_TYPE_DSA_SM2_FP_256;
+		sm2_eces_dec_args.flags = 0;
 
-    err = hsm_sm2_eces_decryption(sg0_sm2_eces_hdl, &sm2_eces_dec_args);
-    printf("err: 0x%x hsm_sm2_eces_decryption hdl: 0x%08x\n", err, sg0_sm2_eces_hdl);
-    if (err == HSM_UNKNOWN_ID) {
-        printf("error expected --> SUCCESS\n");
-    } else {
-        printf("unexpected error code --> FAILURE\n");
-    }
+		err = hsm_sm2_eces_decryption(sg0_sm2_eces_hdl, &sm2_eces_dec_args);
+		printf("err: 0x%x hsm_sm2_eces_decryption hdl: 0x%08x\n",
+		       err, sg0_sm2_eces_hdl);
+		if (err == HSM_UNKNOWN_ID)
+			printf("error expected --> SUCCESS\n");
+		else
+			printf("unexpected error code --> FAILURE\n");
 
-    printf("\n---------------------------------------------------\n");
-    printf("key delete with key group check test \n");
-    printf("---------------------------------------------------\n");
+		printf("\n---------------------------------------------------\n");
+		printf("key delete with key group check test\n");
+		printf("---------------------------------------------------\n");
 
-    gen_key_args.key_identifier = &key_id;
-    gen_key_args.out_size = 64;
-    gen_key_args.key_type = HSM_KEY_TYPE_DSA_SM2_FP_256;
-    gen_key_args.key_group = 12;
+		gen_key_args.key_identifier = &key_id;
+		gen_key_args.out_size = 64;
+		gen_key_args.key_type = HSM_KEY_TYPE_DSA_SM2_FP_256;
+		gen_key_args.key_group = 12;
 #ifndef PSA_COMPLIANT
-    gen_key_args.flags = HSM_OP_KEY_GENERATION_FLAGS_CREATE;
-    gen_key_args.key_info = 0U;
+		gen_key_args.flags = HSM_OP_KEY_GENERATION_FLAGS_CREATE;
+		gen_key_args.key_info = 0U;
 #else
-    gen_key_args.key_lifetime = 0;
-    gen_key_args.key_usage = 0;
-    gen_key_args.permitted_algo = 0;
-	gen_key_args.key_lifecycle = 0;
+		gen_key_args.key_lifetime = 0;
+		gen_key_args.key_usage = 0;
+		gen_key_args.permitted_algo = 0;
+		gen_key_args.key_lifecycle = 0;
 #endif
-    gen_key_args.out_key = work_area2; // public key needed for the encryption
-    err = hsm_generate_key(sg0_key_mgmt_srv, &gen_key_args);
-	printf("err: 0x%x hsm_generate_key hdl: 0x%08x\n",
-	       err, sg0_key_mgmt_srv);
+		gen_key_args.out_key = work_area2; // public key needed for the encryption
+		err = hsm_generate_key(key_mgmt_srv[0], &gen_key_args);
+		printf("err: 0x%x hsm_generate_key hdl: 0x%08x\n",
+		       err, key_mgmt_srv[0]);
 
 #ifndef PSA_COMPLIANT
-    /* Test deletion of last generated key with bad key group */
-    mng_key_args.key_identifier = &key_id;
-    mng_key_args.kek_identifier = 0;
-    mng_key_args.input_size = 0;
-    mng_key_args.flags = HSM_OP_MANAGE_KEY_FLAGS_DELETE;
-    mng_key_args.key_type = HSM_KEY_TYPE_DSA_SM2_FP_256;
-    mng_key_args.key_group = 10;
-    mng_key_args.key_info = 0;
-    mng_key_args.input_data = NULL;
+		/* Test deletion of last generated key with bad key group */
+		mng_key_args.key_identifier = &key_id;
+		mng_key_args.kek_identifier = 0;
+		mng_key_args.input_size = 0;
+		mng_key_args.flags = HSM_OP_MANAGE_KEY_FLAGS_DELETE;
+		mng_key_args.key_type = HSM_KEY_TYPE_DSA_SM2_FP_256;
+		mng_key_args.key_group = 10;
+		mng_key_args.key_info = 0;
+		mng_key_args.input_data = NULL;
 
-    err = hsm_manage_key(sg0_key_mgmt_srv, &mng_key_args);
-    printf("err: 0x%x hsm_manage_key hdl: 0x%08x\n", err, sg0_key_mgmt_srv);
-    if (err == HSM_UNKNOWN_ID) {
-        printf("error expected --> SUCCESS\n");
-    } else {
-        printf("unexpected error code --> FAILURE\n");
-    }
+		err = hsm_manage_key(key_mgmt_srv[0], &mng_key_args);
+		printf("err: 0x%x hsm_manage_key hdl: 0x%08x\n", err, key_mgmt_srv[0]);
+		if (err == HSM_UNKNOWN_ID)
+			printf("error expected --> SUCCESS\n");
+		else
+			printf("unexpected error code --> FAILURE\n");
 
-    /* Test deletion of last generated key with the right key group */
-    mng_key_args.key_identifier = &key_id;
-    mng_key_args.kek_identifier = 0;
-    mng_key_args.input_size = 0;
-    mng_key_args.flags = HSM_OP_MANAGE_KEY_FLAGS_DELETE;
-    mng_key_args.key_type = HSM_KEY_TYPE_DSA_SM2_FP_256;
-    mng_key_args.key_group = 12;
-    mng_key_args.key_info = 0;
-    mng_key_args.input_data = NULL;
+		/* Test deletion of last generated key with the right key group */
+		mng_key_args.key_identifier = &key_id;
+		mng_key_args.kek_identifier = 0;
+		mng_key_args.input_size = 0;
+		mng_key_args.flags = HSM_OP_MANAGE_KEY_FLAGS_DELETE;
+		mng_key_args.key_type = HSM_KEY_TYPE_DSA_SM2_FP_256;
+		mng_key_args.key_group = 12;
+		mng_key_args.key_info = 0;
+		mng_key_args.input_data = NULL;
 
-    err = hsm_manage_key(sg0_key_mgmt_srv, &mng_key_args);
-    printf("err: 0x%x hsm_manage_key hdl: 0x%08x\n", err, sg0_key_mgmt_srv);
+		err = hsm_manage_key(key_mgmt_srv[0], &mng_key_args);
+		printf("err: 0x%x hsm_manage_key hdl: 0x%08x\n", err, key_mgmt_srv[0]);
 
-    printf("\n---------------------------------------------------\n");
-    printf("ecies test\n");
-    printf("---------------------------------------------------\n");
+		printf("\n---------------------------------------------------\n");
+		printf("ecies test\n");
+		printf("---------------------------------------------------\n");
 #endif
-    gen_key_args.key_identifier = &key_id;
-    gen_key_args.out_size = 64;
-    gen_key_args.key_type = HSM_KEY_TYPE_ECDSA_NIST_P256;
-    gen_key_args.key_group = 12;
+		gen_key_args.key_identifier = &key_id;
+		gen_key_args.out_size = 64;
+		gen_key_args.key_type = HSM_KEY_TYPE_ECDSA_NIST_P256;
+		gen_key_args.key_group = 12;
 #ifndef PSA_COMPLIANT
-    gen_key_args.flags = HSM_OP_KEY_GENERATION_FLAGS_CREATE;
-    gen_key_args.key_info = 0U;
+		gen_key_args.flags = HSM_OP_KEY_GENERATION_FLAGS_CREATE;
+		gen_key_args.key_info = 0U;
 #else
-    gen_key_args.key_lifetime = 0;
-    gen_key_args.key_usage = 0;
-    gen_key_args.permitted_algo = 0;
-	gen_key_args.key_lifecycle = 0;
+		gen_key_args.key_lifetime = 0;
+		gen_key_args.key_usage = 0;
+		gen_key_args.permitted_algo = 0;
+		gen_key_args.key_lifecycle = 0;
 #endif
-    gen_key_args.out_key = work_area2; // public key needed for the encryption
-    err = hsm_generate_key(sg0_key_mgmt_srv, &gen_key_args);
-	printf("err: 0x%x hsm_generate_key hdl: 0x%08x\n",
-	       err, sg0_key_mgmt_srv);
+		gen_key_args.out_key = work_area2; // public key needed for the encryption
+		err = hsm_generate_key(key_mgmt_srv[0], &gen_key_args);
+		printf("err: 0x%x hsm_generate_key hdl: 0x%08x\n",
+		       err, key_mgmt_srv[0]);
 
-    op_ecies_enc_args.input = ecies_input;
-    op_ecies_enc_args.pub_key = work_area2;
-    op_ecies_enc_args.p1 = ecies_p1;
-    op_ecies_enc_args.p2 = NULL;
-    op_ecies_enc_args.output = work_area;
-    op_ecies_enc_args.input_size = 16;
-    op_ecies_enc_args.p1_size = 32;
-    op_ecies_enc_args.p2_size = 0;
-    op_ecies_enc_args.pub_key_size = 2*32;
-    op_ecies_enc_args.mac_size = 16;
-    op_ecies_enc_args.out_size = 3*32;
-    op_ecies_enc_args.key_type = HSM_KEY_TYPE_ECDSA_NIST_P256;
-    op_ecies_enc_args.flags = 0u;
-    err = hsm_ecies_encryption(sg0_sess, &op_ecies_enc_args);
-	printf("err: 0x%x hsm_ecies_encryption hdl: 0x%08x\n",
-	       err, sg0_key_mgmt_srv);
-    printf("output:\n"); // we need to decrypt it with the associated private key to check if the result is correct
-    for (j=0; j<3*32; j++) {
-        printf("0x%02x ", work_area[j]);
-        if (j%16 == 15) printf("\n");
-    }
-    printf("\n");
+		op_ecies_enc_args.input = ecies_input;
+		op_ecies_enc_args.pub_key = work_area2;
+		op_ecies_enc_args.p1 = ecies_p1;
+		op_ecies_enc_args.p2 = NULL;
+		op_ecies_enc_args.output = work_area;
+		op_ecies_enc_args.input_size = 16;
+		op_ecies_enc_args.p1_size = 32;
+		op_ecies_enc_args.p2_size = 0;
+		op_ecies_enc_args.pub_key_size = 2 * 32;
+		op_ecies_enc_args.mac_size = 16;
+		op_ecies_enc_args.out_size = 3 * 32;
+		op_ecies_enc_args.key_type = HSM_KEY_TYPE_ECDSA_NIST_P256;
+		op_ecies_enc_args.flags = 0u;
+		err = hsm_ecies_encryption(sx_sess_hdl[SG0], &op_ecies_enc_args);
+		printf("err: 0x%x hsm_ecies_encryption hdl: 0x%08x\n",
+		       err, key_mgmt_srv[0]);
+		/* we need to decrypt it with the associated private key
+		 * to check if the result is correct
+		 */
+		printf("output:\n");
+		for (j = 0; j < 3 * 32; j++) {
+			printf("0x%02x ", work_area[j]);
+			if (j % 16 == 15)
+				printf("\n");
+		}
+		printf("\n");
 
-    op_ecies_dec_args.key_identifier = key_id;
-    op_ecies_dec_args.input = work_area;
-    op_ecies_dec_args.p1 = ecies_p1;
-    op_ecies_dec_args.p2 = NULL;
-    op_ecies_dec_args.output = work_area3;
-    op_ecies_dec_args.input_size = 3*32;
-    op_ecies_dec_args.output_size = 16;
-    op_ecies_dec_args.p1_size = 32;
-    op_ecies_dec_args.p2_size = 0;
-    op_ecies_dec_args.mac_size = 16;
-    op_ecies_dec_args.key_type = HSM_KEY_TYPE_ECDSA_NIST_P256;
-    op_ecies_dec_args.flags = 0;
-    err = hsm_ecies_decryption(sg0_cipher_hdl, &op_ecies_dec_args);
-	printf("err: 0x%x hsm_ecies_decryption hdl: 0x%08x\n",
-	       err, sg0_cipher_hdl);
+		op_ecies_dec_args.key_identifier = key_id;
+		op_ecies_dec_args.input = work_area;
+		op_ecies_dec_args.p1 = ecies_p1;
+		op_ecies_dec_args.p2 = NULL;
+		op_ecies_dec_args.output = work_area3;
+		op_ecies_dec_args.input_size = 3 * 32;
+		op_ecies_dec_args.output_size = 16;
+		op_ecies_dec_args.p1_size = 32;
+		op_ecies_dec_args.p2_size = 0;
+		op_ecies_dec_args.mac_size = 16;
+		op_ecies_dec_args.key_type = HSM_KEY_TYPE_ECDSA_NIST_P256;
+		op_ecies_dec_args.flags = 0;
+		err = hsm_ecies_decryption(cipher_hdl[0], &op_ecies_dec_args);
+		printf("err: 0x%x hsm_ecies_decryption hdl: 0x%08x\n",
+		       err, cipher_hdl[0]);
 
-    if (memcmp(ecies_input, work_area3, 16) == 0) {
-        printf(" --> SUCCESS\n");
-    } else {
-        printf(" --> FAILURE\n");
-    }
+		if (memcmp(ecies_input, work_area3, 16) == 0)
+			printf(" --> SUCCESS\n");
+		else
+			printf(" --> FAILURE\n");
 
-    // Key exchange to create a KEK
-    printf("\n---------------------------------------------------\n");
-    printf("Key exchange KEK derivation \n");
-    printf("---------------------------------------------------\n");
-    key_exch.key_identifier =0;
-    key_exch.shared_key_identifier_array = work_area2;
-    key_exch.ke_input = ecc_p256_pubk;
-    key_exch.ke_output = work_area3;
-    key_exch.kdf_input = 0;
-    key_exch.kdf_output = 0;
-    key_exch.shared_key_group = 32;
-    key_exch.shared_key_info = HSM_KEY_INFO_KEK;
-    key_exch.shared_key_type = HSM_KEY_TYPE_AES_256;
-    key_exch.initiator_public_data_type = HSM_KEY_TYPE_ECDSA_NIST_P256;
-    key_exch.key_exchange_scheme = HSM_KE_SCHEME_ECDH_NIST_P256;
-    key_exch.kdf_algorithm = HSM_KDF_ONE_STEP_SHA_256;
-    key_exch.ke_input_size = 64;
-    key_exch.ke_output_size = 64;
-    key_exch.shared_key_identifier_array_size = 4;
-    key_exch.kdf_input_size = 0;
-    key_exch.kdf_output_size = 0;
-    key_exch.flags = HSM_OP_KEY_EXCHANGE_FLAGS_CREATE | HSM_OP_KEY_EXCHANGE_FLAGS_GENERATE_EPHEMERAL;
-    key_exch.signed_message = NULL;
-    key_exch.signed_msg_size = 0;
+		// SM2 Key exchange
+		printf("\n---------------------------------------------------\n");
+		printf("SM2 Key exchange\n");
+		printf("---------------------------------------------------\n");
 
-    err = hsm_key_exchange(sg0_key_mgmt_srv, &key_exch);
-	printf("err: 0x%x hsm_key_exchange hdl: 0x%08x\n",
-	       err, sg0_key_mgmt_srv);
-
-    printf("Receiver pubk:\n");
-    for (j=0; j<64; j++) {
-        printf("0x%02x ", work_area3[j]);
-        if (j%16 == 15)
-            printf("\n");
-    }
-
-
-    // SM2 Key exchange
-    printf("\n---------------------------------------------------\n");
-    printf("SM2 Key exchange \n");
-    printf("---------------------------------------------------\n");
-
-    gen_key_args.key_identifier = &key_id;
-    gen_key_args.out_size = 64;
-    gen_key_args.key_type = HSM_KEY_TYPE_DSA_SM2_FP_256;
-    gen_key_args.key_group = 12;
+		gen_key_args.key_identifier = &key_id;
+		gen_key_args.out_size = 64;
+		gen_key_args.key_type = HSM_KEY_TYPE_DSA_SM2_FP_256;
+		gen_key_args.key_group = 12;
 #ifndef PSA_COMPLIANT
-    gen_key_args.flags = HSM_OP_KEY_GENERATION_FLAGS_CREATE;
-    gen_key_args.key_info = 0U;
+		gen_key_args.flags = HSM_OP_KEY_GENERATION_FLAGS_CREATE;
+		gen_key_args.key_info = 0U;
 #else
-    gen_key_args.key_lifetime = 0;
-    gen_key_args.key_usage = 0;
-    gen_key_args.permitted_algo = 0;
-	gen_key_args.key_lifecycle = 0;
+		gen_key_args.key_lifetime = 0;
+		gen_key_args.key_usage = 0;
+		gen_key_args.permitted_algo = 0;
+		gen_key_args.key_lifecycle = 0;
 #endif
-    gen_key_args.out_key = work_area2;
-    err = hsm_generate_key(sg0_key_mgmt_srv, &gen_key_args);
-	printf("err: 0x%x hsm_generate_key hdl: 0x%08x\n",
-	       err, sg0_key_mgmt_srv);
+		gen_key_args.out_key = work_area2;
+		err = hsm_generate_key(key_mgmt_srv[0], &gen_key_args);
+		printf("err: 0x%x hsm_generate_key hdl: 0x%08x\n",
+		       err, key_mgmt_srv[0]);
 
-    key_exch.key_identifier = key_id;
-    key_exch.shared_key_identifier_array = (uint8_t *)&key_id_sm4;
-    key_exch.ke_input = sm2_ke_input;
-    key_exch.ke_output = work_area3;
-    key_exch.kdf_input = sm2_kdf_input; // Za|| Zb
-    key_exch.kdf_output = 0;
-    key_exch.shared_key_group = 12;
-    key_exch.shared_key_info = 0;
-    key_exch.shared_key_type = HSM_KEY_TYPE_SM4_128;
-    key_exch.initiator_public_data_type = HSM_KEY_TYPE_DSA_SM2_FP_256;
-    key_exch.key_exchange_scheme = HSM_KE_SCHEME_SM2_FP_256;
-    key_exch.kdf_algorithm = HSM_KDF_ALG_FOR_SM2;
-    key_exch.ke_input_size = 64 *2;
-    key_exch.ke_output_size = 64 * 2;
-    key_exch.shared_key_identifier_array_size = 4;
-    key_exch.kdf_input_size = 32*2;
-    key_exch.kdf_output_size = 0;
-    key_exch.flags = HSM_OP_KEY_EXCHANGE_FLAGS_CREATE;
-    key_exch.signed_message = NULL;
-    key_exch.signed_msg_size = 0;
+		key_exch.key_identifier = key_id;
+		key_exch.shared_key_identifier_array = (uint8_t *)&key_id_sm4;
+		key_exch.ke_input = sm2_ke_input;
+		key_exch.ke_output = work_area3;
+		key_exch.kdf_input = sm2_kdf_input; // Za|| Zb
+		key_exch.kdf_output = 0;
+		key_exch.shared_key_group = 12;
+		key_exch.shared_key_info = 0;
+		key_exch.shared_key_type = HSM_KEY_TYPE_SM4_128;
+		key_exch.initiator_public_data_type = HSM_KEY_TYPE_DSA_SM2_FP_256;
+		key_exch.key_exchange_scheme = HSM_KE_SCHEME_SM2_FP_256;
+		key_exch.kdf_algorithm = HSM_KDF_ALG_FOR_SM2;
+		key_exch.ke_input_size = 64 * 2;
+		key_exch.ke_output_size = 64 * 2;
+		key_exch.shared_key_identifier_array_size = 4;
+		key_exch.kdf_input_size = 32 * 2;
+		key_exch.kdf_output_size = 0;
+		key_exch.flags = HSM_OP_KEY_EXCHANGE_FLAGS_CREATE;
+		key_exch.signed_message = NULL;
+		key_exch.signed_msg_size = 0;
 
-    err = hsm_key_exchange(sg0_key_mgmt_srv, &key_exch);
-	printf("err: 0x%x hsm_key_exchange hdl: 0x%08x\n",
-	       err, sg0_key_mgmt_srv);
+		err = hsm_key_exchange(key_mgmt_srv[0], &key_exch);
+		printf("err: 0x%x hsm_key_exchange hdl: 0x%08x\n",
+		       err, key_mgmt_srv[0]);
 
-    printf("Receiver pubk:\n");
-    for (j=0; j<64; j++) {
-        printf("0x%02x ", work_area3[j]);
-        if (j%16 == 15)
-            printf("\n");
-    }
+		printf("Receiver pubk:\n");
+		for (j = 0; j < 64; j++) {
+			printf("0x%02x ", work_area3[j]);
+			if (j % 16 == 15)
+				printf("\n");
+		}
 
-    printf("Derived key_id 0x%08x\n", key_id_sm4);
+		printf("Derived key_id 0x%08x\n", key_id_sm4);
 
-    // SM4 test with the derived key
-    printf("\n---------------------------------------------------\n");
-    printf("SM4 encrypt test with derived key \n");
-    printf("---------------------------------------------------\n");
-    cipher_srv_args.flags = 0U;
-    err = hsm_open_cipher_service(sg0_key_store_serv, &cipher_srv_args, &sg0_cipher_hdl);
-	printf("err: 0x%x hsm_open_cipher_service hdl: 0x%08x\n",
-	       err, sg0_cipher_hdl);
+		// SM4 test with the derived key
+		printf("\n---------------------------------------------------\n");
+		printf("SM4 encrypt test with derived key\n");
+		printf("---------------------------------------------------\n");
 
-    cipher_args.key_identifier = key_id_sm4;
-    cipher_args.iv = 0;
-    cipher_args.iv_size = 0;
+		cipher_args.key_identifier = key_id_sm4;
+		cipher_args.iv = 0;
+		cipher_args.iv_size = 0;
 #ifdef PSA_COMPLIANT
-    cipher_args.cipher_algo = HSM_CIPHER_ONE_GO_ALGO_CBC;
+		cipher_args.cipher_algo = HSM_CIPHER_ONE_GO_ALGO_CBC;
 #else
-    cipher_args.cipher_algo = HSM_CIPHER_ONE_GO_ALGO_SM4_ECB;
+		cipher_args.cipher_algo = HSM_CIPHER_ONE_GO_ALGO_SM4_ECB;
 #endif
-    cipher_args.flags = HSM_CIPHER_ONE_GO_FLAGS_ENCRYPT;
-    cipher_args.input = SM2_test_message;
-    cipher_args.output = work_area3;
-    cipher_args.input_size = 16;
-    cipher_args.output_size = 16;
-    err = hsm_cipher_one_go(sg0_cipher_hdl, &cipher_args);
-    printf("err: 0x%x hsm_cipher_one_go SM4 ENCRYPT hdl: 0x%08x\n", err, sg0_cipher_hdl);
+		cipher_args.flags = HSM_CIPHER_ONE_GO_FLAGS_ENCRYPT;
+		cipher_args.input = SM2_test_message;
+		cipher_args.output = work_area3;
+		cipher_args.input_size = 16;
+		cipher_args.output_size = 16;
+		err = hsm_cipher_one_go(cipher_hdl[0], &cipher_args);
+		printf("err: 0x%x hsm_cipher_one_go SM4 ENCRYPT hdl: 0x%08x\n",
+		       err, cipher_hdl[0]);
 
-    key_exch.key_identifier = key_id;
-    key_exch.shared_key_identifier_array = work_area2;
-    key_exch.ke_input = sm2_ke_input;
-    key_exch.ke_output = work_area3;
-    key_exch.kdf_input = sm2_kdf_input; // Za|| Zb
-    key_exch.kdf_output = 0;
-    key_exch.shared_key_group = 12;
-    key_exch.shared_key_info = 0;
-    key_exch.shared_key_type = HSM_KEY_TYPE_DSA_SM2_FP_256;
-    key_exch.initiator_public_data_type = HSM_KEY_TYPE_DSA_SM2_FP_256;
-    key_exch.key_exchange_scheme = HSM_KE_SCHEME_SM2_FP_256;
-    key_exch.kdf_algorithm = HSM_KDF_ALG_FOR_SM2;
-    key_exch.ke_input_size = 64 *2;
-    key_exch.ke_output_size = 64 * 2;
-    key_exch.shared_key_identifier_array_size = 4;
-    key_exch.kdf_input_size = 32*2;
-    key_exch.kdf_output_size = 0;
-    key_exch.flags = HSM_OP_KEY_EXCHANGE_FLAGS_CREATE | HSM_OP_KEY_EXCHANGE_FLAGS_STRICT_OPERATION;
-    key_exch.signed_message = NULL;
-    key_exch.signed_msg_size = 0;
+		key_exch.key_identifier = key_id;
+		key_exch.shared_key_identifier_array = work_area2;
+		key_exch.ke_input = sm2_ke_input;
+		key_exch.ke_output = work_area3;
+		key_exch.kdf_input = sm2_kdf_input; // Za|| Zb
+		key_exch.kdf_output = 0;
+		key_exch.shared_key_group = 12;
+		key_exch.shared_key_info = 0;
+		key_exch.shared_key_type = HSM_KEY_TYPE_DSA_SM2_FP_256;
+		key_exch.initiator_public_data_type = HSM_KEY_TYPE_DSA_SM2_FP_256;
+		key_exch.key_exchange_scheme = HSM_KE_SCHEME_SM2_FP_256;
+		key_exch.kdf_algorithm = HSM_KDF_ALG_FOR_SM2;
+		key_exch.ke_input_size = 64 * 2;
+		key_exch.ke_output_size = 64 * 2;
+		key_exch.shared_key_identifier_array_size = 4;
+		key_exch.kdf_input_size = 32 * 2;
+		key_exch.kdf_output_size = 0;
+		key_exch.flags = HSM_OP_KEY_EXCHANGE_FLAGS_CREATE |
+				 HSM_OP_KEY_EXCHANGE_FLAGS_STRICT_OPERATION;
+		key_exch.signed_message = NULL;
+		key_exch.signed_msg_size = 0;
 
-    err = hsm_key_exchange(sg0_key_mgmt_srv, &key_exch);
+		err = hsm_key_exchange(key_mgmt_srv[0], &key_exch);
+		printf("err: 0x%x hsm_key_exchange hdl: 0x%08x\n",
+		       err, key_mgmt_srv[0]);
+
+		printf("Receiver pubk:\n");
+		for (j = 0; j < 64; j++) {
+			printf("0x%02x ", work_area3[j]);
+			if (j % 16 == 15)
+				printf("\n");
+		}
+	}
+
+	// Key exchange to create a KEK
+	printf("\n---------------------------------------------------\n");
+	printf("Key exchange KEK derivation\n");
+	printf("---------------------------------------------------\n");
+	key_exch.key_identifier = 0;
+	key_exch.shared_key_identifier_array = work_area2;
+	key_exch.ke_input = ecc_p256_pubkey;
+	key_exch.ke_output = work_area3;
+	key_exch.kdf_input = 0;
+	key_exch.kdf_output = 0;
+	key_exch.shared_key_group = 32;
+	key_exch.shared_key_info = HSM_KEY_INFO_KEK;
+	key_exch.shared_key_type = HSM_KEY_TYPE_AES_256;
+	key_exch.initiator_public_data_type = HSM_KEY_TYPE_ECDSA_NIST_P256;
+	key_exch.key_exchange_scheme = HSM_KE_SCHEME_ECDH_NIST_P256;
+	key_exch.kdf_algorithm = HSM_KDF_ONE_STEP_SHA_256;
+	key_exch.ke_input_size = 64;
+	key_exch.ke_output_size = 64;
+	key_exch.shared_key_identifier_array_size = 4;
+	key_exch.kdf_input_size = 0;
+	key_exch.kdf_output_size = 0;
+	key_exch.flags = HSM_OP_KEY_EXCHANGE_FLAGS_CREATE |
+			 HSM_OP_KEY_EXCHANGE_FLAGS_GENERATE_EPHEMERAL;
+	key_exch.signed_message = NULL;
+	key_exch.signed_msg_size = 0;
+
+	err = hsm_key_exchange(key_mgmt_srv[0], &key_exch);
 	printf("err: 0x%x hsm_key_exchange hdl: 0x%08x\n",
-	       err, sg0_key_mgmt_srv);
+	       err, key_mgmt_srv[0]);
 
-    printf("Receiver pubk:\n");
-    for (j=0; j<64; j++) {
-        printf("0x%02x ", work_area3[j]);
-        if (j%16 == 15)
-            printf("\n");
-    }
+	printf("Receiver pubk:\n");
+	for (j = 0; j < 64; j++) {
+		printf("0x%02x ", work_area3[j]);
+		if (j % 16 == 15)
+			printf("\n");
+	}
 
-    // mac test
-    printf("\n---------------------------------------------------\n");
-    printf("MAC ONE GO Test \n");
-    printf("---------------------------------------------------\n");
+	// mac test
+	printf("\n---------------------------------------------------\n");
+	printf("MAC ONE GO Test\n");
+	printf("---------------------------------------------------\n");
 #ifndef PSA_COMPLIANT
-    mac_srv_args.flags = 0u;
+	mac_srv_args.flags = 0u;
 #endif
-    err = hsm_open_mac_service(sg0_key_store_serv, &mac_srv_args, &sg0_mac_hdl);
+	err = hsm_open_mac_service(key_store_serv[0], &mac_srv_args, &sg0_mac_hdl);
 	printf("err: 0x%x hsm_open_mac_service hdl: 0x%08x\n",
 	       err, sg0_mac_hdl);
 
-    gen_key_args.key_identifier = &key_id;
-    gen_key_args.out_size = 0U;
-    gen_key_args.key_type = HSM_KEY_TYPE_AES_256;
-    gen_key_args.key_group = 12;
+	gen_key_args.key_identifier = &key_id;
+	gen_key_args.out_size = 0U;
+	gen_key_args.key_type = HSM_KEY_TYPE_AES_256;
+	gen_key_args.key_group = 12;
 #ifndef PSA_COMPLIANT
-    gen_key_args.flags = HSM_OP_KEY_GENERATION_FLAGS_CREATE;
-    gen_key_args.key_info = 0U;
+	gen_key_args.flags = HSM_OP_KEY_GENERATION_FLAGS_CREATE;
+	gen_key_args.key_info = 0U;
 #else
-    gen_key_args.key_lifetime = 0;
-    gen_key_args.key_usage = 0;
-    gen_key_args.permitted_algo = 0;
+	gen_key_args.key_lifetime = 0;
+	gen_key_args.key_usage = 0;
+	gen_key_args.permitted_algo = 0;
 	gen_key_args.key_lifecycle = 0;
 #endif
-    gen_key_args.out_key = NULL;
-    err = hsm_generate_key(sg0_key_mgmt_srv, &gen_key_args);
+	gen_key_args.out_key = NULL;
+	err = hsm_generate_key(key_mgmt_srv[0], &gen_key_args);
 	printf("err: 0x%x hsm_generate_key hdl: 0x%08x\n",
-	       err, sg0_key_mgmt_srv);
+	       err, key_mgmt_srv[0]);
 
-    mac_one_go.key_identifier = key_id;
+	mac_one_go.key_identifier = key_id;
 #ifdef PSA_COMPLIANT
-    mac_one_go.algorithm = PERMITTED_ALGO_CMAC;
+	mac_one_go.algorithm = PERMITTED_ALGO_CMAC;
 #else
-    mac_one_go.algorithm = HSM_OP_MAC_ONE_GO_ALGO_AES_CMAC;
+	mac_one_go.algorithm = HSM_OP_MAC_ONE_GO_ALGO_AES_CMAC;
 #endif
-    mac_one_go.flags = HSM_OP_MAC_ONE_GO_FLAGS_MAC_GENERATION;
-    mac_one_go.payload = SM2_test_message;
-    mac_one_go.mac = work_area2;
-    mac_one_go.payload_size = 32u;
-    mac_one_go.mac_size = 16u;
-    err = hsm_mac_one_go(sg0_mac_hdl, &mac_one_go, &mac_status);
-    printf("err: 0x%x hsm_mac_one_go GEN hdl: 0x%08x\n", err, sg0_mac_hdl);
+	mac_one_go.flags = HSM_OP_MAC_ONE_GO_FLAGS_MAC_GENERATION;
+	mac_one_go.payload = SM2_test_message;
+	mac_one_go.mac = work_area2;
+	mac_one_go.payload_size = 32u;
+	mac_one_go.mac_size = 16u;
+	err = hsm_mac_one_go(sg0_mac_hdl, &mac_one_go, &mac_status);
+	printf("err: 0x%x hsm_mac_one_go GEN hdl: 0x%08x\n", err, sg0_mac_hdl);
 
-    mac_one_go.key_identifier = key_id;
+	mac_one_go.key_identifier = key_id;
 #ifdef PSA_COMPLIANT
-    mac_one_go.algorithm = PERMITTED_ALGO_CMAC;
+	mac_one_go.algorithm = PERMITTED_ALGO_CMAC;
 #else
-    mac_one_go.algorithm = HSM_OP_MAC_ONE_GO_ALGO_AES_CMAC;
+	mac_one_go.algorithm = HSM_OP_MAC_ONE_GO_ALGO_AES_CMAC;
 #endif
-    mac_one_go.flags = HSM_OP_MAC_ONE_GO_FLAGS_MAC_VERIFICATION;
-    mac_one_go.payload = SM2_test_message;
-    mac_one_go.mac = work_area2;
-    mac_one_go.payload_size = 32u;
-    mac_one_go.mac_size = 8u;
-    err = hsm_mac_one_go(sg0_mac_hdl, &mac_one_go, &mac_status);
-    printf("err: 0x%x hsm_mac_one_go VER hdl: 0x%08x\n", err, sg0_mac_hdl);
+	mac_one_go.flags = HSM_OP_MAC_ONE_GO_FLAGS_MAC_VERIFICATION;
+	mac_one_go.payload = SM2_test_message;
+	mac_one_go.mac = work_area2;
+	mac_one_go.payload_size = 32u;
+	mac_one_go.mac_size = 8u;
+	err = hsm_mac_one_go(sg0_mac_hdl, &mac_one_go, &mac_status);
+	printf("err: 0x%x hsm_mac_one_go VER hdl: 0x%08x\n", err, sg0_mac_hdl);
 
-    if (mac_status == HSM_MAC_VERIFICATION_STATUS_SUCCESS) {
-        printf(" --> SUCCESS\n");
-    } else {
-        printf(" --> FAILURE\n");
-    }
+	if (mac_status == HSM_MAC_VERIFICATION_STATUS_SUCCESS)
+		printf(" --> SUCCESS\n");
+	else
+		printf(" --> FAILURE\n");
 
-    // AES GCM test
-    printf("\n---------------------------------------------------\n");
-    printf("AES GCM Test \n");
-    printf("---------------------------------------------------\n");
+	// AES GCM test
+	printf("\n---------------------------------------------------\n");
+	printf("AES GCM Test\n");
+	printf("---------------------------------------------------\n");
 
-    gen_key_args.key_identifier = &key_id;
-    gen_key_args.out_size = 0U;
-    gen_key_args.key_type = HSM_KEY_TYPE_AES_256;
-    gen_key_args.key_group = 12;
+	gen_key_args.key_identifier = &key_id;
+	gen_key_args.out_size = 0U;
+	gen_key_args.key_type = HSM_KEY_TYPE_AES_256;
+	gen_key_args.key_group = 12;
 #ifndef PSA_COMPLIANT
-    gen_key_args.flags = HSM_OP_KEY_GENERATION_FLAGS_CREATE;
-    gen_key_args.key_info = 0U;
+	gen_key_args.flags = HSM_OP_KEY_GENERATION_FLAGS_CREATE;
+	gen_key_args.key_info = 0U;
 #else
-    gen_key_args.key_lifetime = 0;
-    gen_key_args.key_usage = 0;
-    gen_key_args.permitted_algo = 0;
+	gen_key_args.key_lifetime = 0;
+	gen_key_args.key_usage = 0;
+	gen_key_args.permitted_algo = 0;
 	gen_key_args.key_lifecycle = 0;
 #endif
-    gen_key_args.out_key = NULL;
-    err = hsm_generate_key(sg0_key_mgmt_srv, &gen_key_args);
+	gen_key_args.out_key = NULL;
+	err = hsm_generate_key(key_mgmt_srv[0], &gen_key_args);
 	printf("err: 0x%x hsm_generate_key hdl: 0x%08x\n",
-	       err, sg0_key_mgmt_srv);
+	       err, key_mgmt_srv[0]);
 
-    auth_enc_gcm.key_identifier = key_id;
-    auth_enc_gcm.iv = &SM2_test_message[256];
-    auth_enc_gcm.iv_size = 4;
-    auth_enc_gcm.aad = &SM2_test_message[128];
-    auth_enc_gcm.aad_size = 16;
-    auth_enc_gcm.ae_algo = HSM_AUTH_ENC_ALGO_AES_GCM;
-    auth_enc_gcm.flags = HSM_AUTH_ENC_FLAGS_ENCRYPT | HSM_AUTH_ENC_FLAGS_GENERATE_COUNTER_IV;
-    auth_enc_gcm.input = SM2_test_message;
-    auth_enc_gcm.output = work_area3;
-    auth_enc_gcm.input_size = 32;
-    auth_enc_gcm.output_size = 32+16+12;
-    err = hsm_auth_enc(sg0_cipher_hdl, &auth_enc_gcm);
-	printf("err: 0x%x hsm_auth_enc hdl: 0x%08x\n", err, sg0_cipher_hdl);
+	auth_enc_gcm.key_identifier = key_id;
+	auth_enc_gcm.iv = &SM2_test_message[256];
+	auth_enc_gcm.iv_size = 4;
+	auth_enc_gcm.aad = &SM2_test_message[128];
+	auth_enc_gcm.aad_size = 16;
+	auth_enc_gcm.ae_algo = HSM_AUTH_ENC_ALGO_AES_GCM;
+	auth_enc_gcm.flags = HSM_AUTH_ENC_FLAGS_ENCRYPT |
+			     HSM_AUTH_ENC_FLAGS_GENERATE_COUNTER_IV;
+	auth_enc_gcm.input = SM2_test_message;
+	auth_enc_gcm.output = work_area3;
+	auth_enc_gcm.input_size = 32;
+	auth_enc_gcm.output_size = 32 + 16 + 12;
+	err = hsm_auth_enc(cipher_hdl[0], &auth_enc_gcm);
+	printf("err: 0x%x hsm_auth_enc hdl: 0x%08x\n", err, cipher_hdl[0]);
 
+	printf("IV :\n");
+	for (j = 0; j < 12; j++) {
+		printf("0x%02x ", work_area3[32 + 16 + j]);
+		if (j % 16 == 15)
+			printf("\n");
+	}
 
-    printf("IV :\n");
-    for (j=0; j<12; j++) {
-        printf("0x%02x ", work_area3[32+16+j]);
-        if (j%16 == 15)
-            printf("\n");
-    }
+	auth_enc_gcm.key_identifier = key_id;
+	auth_enc_gcm.iv = &work_area3[32 + 16];
+	auth_enc_gcm.iv_size = 12;
+	auth_enc_gcm.aad = &SM2_test_message[128];
+	auth_enc_gcm.aad_size = 16;
+	auth_enc_gcm.ae_algo = HSM_AUTH_ENC_ALGO_AES_GCM;
+	auth_enc_gcm.flags = HSM_AUTH_ENC_FLAGS_DECRYPT;
+	auth_enc_gcm.input = work_area3;
+	auth_enc_gcm.output = work_area4;
+	auth_enc_gcm.input_size = 32 + 16;
+	auth_enc_gcm.output_size = 32;
 
-    auth_enc_gcm.key_identifier = key_id;
-    auth_enc_gcm.iv = &work_area3[32+16];
-    auth_enc_gcm.iv_size = 12;
-    auth_enc_gcm.aad = &SM2_test_message[128];
-    auth_enc_gcm.aad_size = 16;
-    auth_enc_gcm.ae_algo = HSM_AUTH_ENC_ALGO_AES_GCM;
-    auth_enc_gcm.flags = HSM_AUTH_ENC_FLAGS_DECRYPT;
-    auth_enc_gcm.input = work_area3;
-    auth_enc_gcm.output = work_area4;
-    auth_enc_gcm.input_size = 32 +16;
-    auth_enc_gcm.output_size = 32;
+	err = hsm_auth_enc(cipher_hdl[0], &auth_enc_gcm);
+	printf("err: 0x%x hsm_auth_enc hdl: 0x%08x\n", err, cipher_hdl[0]);
 
-    err = hsm_auth_enc(sg0_cipher_hdl, &auth_enc_gcm);
-	printf("err: 0x%x hsm_auth_enc hdl: 0x%08x\n", err, sg0_cipher_hdl);
+	if (memcmp(SM2_test_message, work_area4, 32) == 0)
+		printf(" --> SUCCESS\n");
+	else
+		printf(" --> FAILURE\n");
 
-    if (memcmp(SM2_test_message, work_area4, 32) == 0) {
-        printf(" --> SUCCESS\n");
-    } else {
-        printf(" --> FAILURE\n");
-    }
+	auth_enc_gcm.key_identifier = key_id;
+	auth_enc_gcm.iv = &SM2_test_message[256];
+	auth_enc_gcm.iv_size = 4;
+	auth_enc_gcm.aad = &SM2_test_message[128];
+	auth_enc_gcm.aad_size = 16;
+	auth_enc_gcm.ae_algo = HSM_AUTH_ENC_ALGO_AES_GCM;
+	auth_enc_gcm.flags = HSM_AUTH_ENC_FLAGS_ENCRYPT |
+			     HSM_AUTH_ENC_FLAGS_GENERATE_COUNTER_IV;
+	auth_enc_gcm.input = SM2_test_message;
+	auth_enc_gcm.output = work_area3;
+	auth_enc_gcm.input_size = 32;
+	auth_enc_gcm.output_size = 32 + 16 + 12;
+	err = hsm_auth_enc(cipher_hdl[0], &auth_enc_gcm);
+	printf("err: 0x%x hsm_auth_enc hdl: 0x%08x\n", err, cipher_hdl[0]);
 
-    auth_enc_gcm.key_identifier = key_id;
-    auth_enc_gcm.iv = &SM2_test_message[256];
-    auth_enc_gcm.iv_size = 4;
-    auth_enc_gcm.aad = &SM2_test_message[128];
-    auth_enc_gcm.aad_size = 16;
-    auth_enc_gcm.ae_algo = HSM_AUTH_ENC_ALGO_AES_GCM;
-    auth_enc_gcm.flags = HSM_AUTH_ENC_FLAGS_ENCRYPT | HSM_AUTH_ENC_FLAGS_GENERATE_COUNTER_IV;
-    auth_enc_gcm.input = SM2_test_message;
-    auth_enc_gcm.output = work_area3;
-    auth_enc_gcm.input_size = 32;
-    auth_enc_gcm.output_size = 32+16+12;
-    err = hsm_auth_enc(sg0_cipher_hdl, &auth_enc_gcm);
-	printf("err: 0x%x hsm_auth_enc hdl: 0x%08x\n", err, sg0_cipher_hdl);
+	printf("IV :\n");
+	for (j = 0; j < 12; j++) {
+		printf("0x%02x ", work_area3[32 + 16 + j]);
+		if (j % 16 == 15)
+			printf("\n");
+	}
 
+	auth_enc_gcm.key_identifier = key_id;
+	auth_enc_gcm.iv = &work_area3[32 + 16];
+	auth_enc_gcm.iv_size = 12;
+	auth_enc_gcm.aad = &SM2_test_message[128];
+	auth_enc_gcm.aad_size = 16;
+	auth_enc_gcm.ae_algo = HSM_AUTH_ENC_ALGO_AES_GCM;
+	auth_enc_gcm.flags = HSM_AUTH_ENC_FLAGS_DECRYPT;
+	auth_enc_gcm.input = work_area3;
+	auth_enc_gcm.output = work_area4;
+	auth_enc_gcm.input_size = 32 + 16;
+	auth_enc_gcm.output_size = 32;
 
-    printf("IV :\n");
-    for (j=0; j<12; j++) {
-        printf("0x%02x ", work_area3[32+16+j]);
-        if (j%16 == 15)
-            printf("\n");
-    }
+	err = hsm_auth_enc(cipher_hdl[0], &auth_enc_gcm);
+	printf("err: 0x%x hsm_auth_enc hdl: 0x%08x\n", err, cipher_hdl[0]);
 
-    auth_enc_gcm.key_identifier = key_id;
-    auth_enc_gcm.iv = &work_area3[32+16];
-    auth_enc_gcm.iv_size = 12;
-    auth_enc_gcm.aad = &SM2_test_message[128];
-    auth_enc_gcm.aad_size = 16;
-    auth_enc_gcm.ae_algo = HSM_AUTH_ENC_ALGO_AES_GCM;
-    auth_enc_gcm.flags = HSM_AUTH_ENC_FLAGS_DECRYPT;
-    auth_enc_gcm.input = work_area3;
-    auth_enc_gcm.output = work_area4;
-    auth_enc_gcm.input_size = 32 +16;
-    auth_enc_gcm.output_size = 32;
+	if (memcmp(SM2_test_message, work_area4, 32) == 0)
+		printf(" --> SUCCESS\n");
+	else
+		printf(" --> FAILURE\n");
 
-    err = hsm_auth_enc(sg0_cipher_hdl, &auth_enc_gcm);
-	printf("err: 0x%x hsm_auth_enc hdl: 0x%08x\n", err, sg0_cipher_hdl);
+	auth_enc_gcm.key_identifier = key_id;
+	auth_enc_gcm.iv = NULL;
+	auth_enc_gcm.iv_size = 0;
+	auth_enc_gcm.aad = &SM2_test_message[128];
+	auth_enc_gcm.aad_size = 16;
+	auth_enc_gcm.ae_algo = HSM_AUTH_ENC_ALGO_AES_GCM;
+	auth_enc_gcm.flags = HSM_AUTH_ENC_FLAGS_ENCRYPT |
+			     HSM_AUTH_ENC_FLAGS_GENERATE_FULL_IV;
+	auth_enc_gcm.input = SM2_test_message;
+	auth_enc_gcm.output = work_area3;
+	auth_enc_gcm.input_size = 32;
+	auth_enc_gcm.output_size = 32 + 16 + 12;
+	err = hsm_auth_enc(cipher_hdl[0], &auth_enc_gcm);
+	printf("err: 0x%x hsm_auth_enc hdl: 0x%08x\n", err, cipher_hdl[0]);
 
-    if (memcmp(SM2_test_message, work_area4, 32) == 0) {
-        printf(" --> SUCCESS\n");
-    } else {
-        printf(" --> FAILURE\n");
-    }
+	printf("IV :\n");
+	for (j = 0; j < 12; j++) {
+		printf("0x%02x ", work_area3[32 + 16 + j]);
+		if (j % 16 == 15)
+			printf("\n");
+	}
 
-    auth_enc_gcm.key_identifier = key_id;
-    auth_enc_gcm.iv = NULL;
-    auth_enc_gcm.iv_size = 0;
-    auth_enc_gcm.aad = &SM2_test_message[128];
-    auth_enc_gcm.aad_size = 16;
-    auth_enc_gcm.ae_algo = HSM_AUTH_ENC_ALGO_AES_GCM;
-    auth_enc_gcm.flags = HSM_AUTH_ENC_FLAGS_ENCRYPT | HSM_AUTH_ENC_FLAGS_GENERATE_FULL_IV;
-    auth_enc_gcm.input = SM2_test_message;
-    auth_enc_gcm.output = work_area3;
-    auth_enc_gcm.input_size = 32;
-    auth_enc_gcm.output_size = 32+16+12;
-    err = hsm_auth_enc(sg0_cipher_hdl, &auth_enc_gcm);
-	printf("err: 0x%x hsm_auth_enc hdl: 0x%08x\n", err, sg0_cipher_hdl);
+	auth_enc_gcm.key_identifier = key_id;
+	auth_enc_gcm.iv = &work_area3[32 + 16];
+	auth_enc_gcm.iv_size = 12;
+	auth_enc_gcm.aad = &SM2_test_message[128];
+	auth_enc_gcm.aad_size = 16;
+	auth_enc_gcm.ae_algo = HSM_AUTH_ENC_ALGO_AES_GCM;
+	auth_enc_gcm.flags = HSM_AUTH_ENC_FLAGS_DECRYPT;
+	auth_enc_gcm.input = work_area3;
+	auth_enc_gcm.output = work_area4;
+	auth_enc_gcm.input_size = 32 + 16;
+	auth_enc_gcm.output_size = 32;
 
-    printf("IV :\n");
-    for (j=0; j<12; j++) {
-        printf("0x%02x ", work_area3[32+16+j]);
-        if (j%16 == 15)
-            printf("\n");
-    }
+	err = hsm_auth_enc(cipher_hdl[0], &auth_enc_gcm);
+	printf("err: 0x%x hsm_auth_enc hdl: 0x%08x\n", err, cipher_hdl[0]);
 
-    auth_enc_gcm.key_identifier = key_id;
-    auth_enc_gcm.iv = &work_area3[32+16];
-    auth_enc_gcm.iv_size = 12;
-    auth_enc_gcm.aad = &SM2_test_message[128];
-    auth_enc_gcm.aad_size = 16;
-    auth_enc_gcm.ae_algo = HSM_AUTH_ENC_ALGO_AES_GCM;
-    auth_enc_gcm.flags = HSM_AUTH_ENC_FLAGS_DECRYPT;
-    auth_enc_gcm.input = work_area3;
-    auth_enc_gcm.output = work_area4;
-    auth_enc_gcm.input_size = 32 +16;
-    auth_enc_gcm.output_size = 32;
+	if (memcmp(SM2_test_message, work_area4, 32) == 0)
+		printf(" --> SUCCESS\n");
+	else
+		printf(" --> FAILURE\n");
 
-    err = hsm_auth_enc(sg0_cipher_hdl, &auth_enc_gcm);
-	printf("err: 0x%x hsm_auth_enc hdl: 0x%08x\n", err, sg0_cipher_hdl);
+	if (!fips_enabled) {
+		// Standalone butterfly key expansion
+		printf("\n---------------------------------------------------\n");
+		printf("Standalone butterfly key expansion Test\n");
+		printf("---------------------------------------------------\n");
 
-    if (memcmp(SM2_test_message, work_area4, 32) == 0) {
-        printf(" --> SUCCESS\n");
-    } else {
-        printf(" --> FAILURE\n");
-    }
-
-    // Standalone butterfly key expansion
-    printf("\n---------------------------------------------------\n");
-    printf("Standalone butterfly key expansion Test \n");
-    printf("---------------------------------------------------\n");
-
-    gen_key_args.key_identifier = &master_key_id;
-    gen_key_args.out_size = 64;
-    gen_key_args.key_type = HSM_KEY_TYPE_DSA_SM2_FP_256;
-    gen_key_args.key_group = 1;
+		gen_key_args.key_identifier = &master_key_id;
+		gen_key_args.out_size = 64;
+		gen_key_args.key_type = HSM_KEY_TYPE_DSA_SM2_FP_256;
+		gen_key_args.key_group = 1;
 #ifndef PSA_COMPLIANT
-    gen_key_args.flags = HSM_OP_KEY_GENERATION_FLAGS_CREATE;
-    gen_key_args.key_info = HSM_KEY_INFO_MASTER;
+		gen_key_args.flags = HSM_OP_KEY_GENERATION_FLAGS_CREATE;
+		gen_key_args.key_info = HSM_KEY_INFO_MASTER;
 #else
-    gen_key_args.key_lifetime = 0;
-    gen_key_args.key_usage = 0;
-    gen_key_args.permitted_algo = 0;
-	gen_key_args.key_lifecycle = 0;
+		gen_key_args.key_lifetime = 0;
+		gen_key_args.key_usage = 0;
+		gen_key_args.permitted_algo = 0;
+		gen_key_args.key_lifecycle = 0;
 #endif
-    gen_key_args.out_key = work_area2;
-    err = hsm_generate_key(sg0_key_mgmt_srv, &gen_key_args);
-	printf("err: 0x%x hsm_generate_key hdl: 0x%08x\n",
-	       err, sg0_key_mgmt_srv);
+		gen_key_args.out_key = work_area2;
+		err = hsm_generate_key(key_mgmt_srv[0], &gen_key_args);
+		printf("err: 0x%x hsm_generate_key hdl: 0x%08x\n",
+		       err, key_mgmt_srv[0]);
 
-    gen_key_args.key_identifier = &exp_fct_key_id;
-    gen_key_args.out_size = 0U;
-    gen_key_args.key_type = HSM_KEY_TYPE_SM4_128;
-    gen_key_args.key_group = 1;
+		gen_key_args.key_identifier = &exp_fct_key_id;
+		gen_key_args.out_size = 0U;
+		gen_key_args.key_type = HSM_KEY_TYPE_SM4_128;
+		gen_key_args.key_group = 1;
 #ifndef PSA_COMPLIANT
-    gen_key_args.flags = HSM_OP_KEY_GENERATION_FLAGS_CREATE;
-    gen_key_args.key_info = 0;
+		gen_key_args.flags = HSM_OP_KEY_GENERATION_FLAGS_CREATE;
+		gen_key_args.key_info = 0;
 #else
-    gen_key_args.key_lifetime = 0;
-    gen_key_args.key_usage = 0;
-    gen_key_args.permitted_algo = 0;
-	gen_key_args.key_lifecycle = 0;
+		gen_key_args.key_lifetime = 0;
+		gen_key_args.key_usage = 0;
+		gen_key_args.permitted_algo = 0;
+		gen_key_args.key_lifecycle = 0;
 #endif
-    gen_key_args.out_key = NULL;
-    err = hsm_generate_key(sg0_key_mgmt_srv, &gen_key_args);
-	printf("err: 0x%x hsm_generate_key hdl: 0x%08x\n",
-	       err, sg0_key_mgmt_srv);
+		gen_key_args.out_key = NULL;
+		err = hsm_generate_key(key_mgmt_srv[0], &gen_key_args);
+		printf("err: 0x%x hsm_generate_key hdl: 0x%08x\n",
+		       err, key_mgmt_srv[0]);
 
-    st_butt_key_expansion.key_identifier = master_key_id;
-    st_butt_key_expansion.expansion_fct_key_identifier = exp_fct_key_id;
-    st_butt_key_expansion.expansion_fct_input = sm2_exp_fct_input;
-    st_butt_key_expansion.hash_value = sm2_butt_hash_val;
-    st_butt_key_expansion.pr_reconstruction_value = sm2_butt_rec_val;
-    st_butt_key_expansion.expansion_fct_input_size = 16;
-    st_butt_key_expansion.hash_value_size = 32;
-    st_butt_key_expansion.pr_reconstruction_value_size = 32;
-    st_butt_key_expansion.flags = HSM_OP_ST_BUTTERFLY_KEY_FLAGS_CREATE | HSM_OP_ST_BUTTERFLY_KEY_FLAGS_IMPLICIT_CERTIF;
-    st_butt_key_expansion.dest_key_identifier = &key_id;
-    st_butt_key_expansion.output = work_area;
-    st_butt_key_expansion.output_size = 64;
-    st_butt_key_expansion.key_type = HSM_KEY_TYPE_DSA_SM2_FP_256;
+		st_butt_key_expansion.key_identifier = master_key_id;
+		st_butt_key_expansion.expansion_fct_key_identifier = exp_fct_key_id;
+		st_butt_key_expansion.expansion_fct_input = sm2_exp_fct_input;
+		st_butt_key_expansion.hash_value = sm2_butt_hash_val;
+		st_butt_key_expansion.pr_reconstruction_value = sm2_butt_rec_val;
+		st_butt_key_expansion.expansion_fct_input_size = 16;
+		st_butt_key_expansion.hash_value_size = 32;
+		st_butt_key_expansion.pr_reconstruction_value_size = 32;
+		st_butt_key_expansion.flags =
+			HSM_OP_ST_BUTTERFLY_KEY_FLAGS_CREATE |
+			HSM_OP_ST_BUTTERFLY_KEY_FLAGS_IMPLICIT_CERTIF;
+		st_butt_key_expansion.dest_key_identifier = &key_id;
+		st_butt_key_expansion.output = work_area;
+		st_butt_key_expansion.output_size = 64;
+		st_butt_key_expansion.key_type = HSM_KEY_TYPE_DSA_SM2_FP_256;
 #ifndef PSA_COMPLIANT
-    st_butt_key_expansion.expansion_fct_algo = HSM_CIPHER_ONE_GO_ALGO_SM4_ECB;
+		st_butt_key_expansion.expansion_fct_algo = HSM_CIPHER_ONE_GO_ALGO_SM4_ECB;
 #endif
-    st_butt_key_expansion.key_group = 1;
-    st_butt_key_expansion.key_info = 0;
-    err = hsm_standalone_butterfly_key_expansion(sg0_key_mgmt_srv, &st_butt_key_expansion);
-	printf("err: 0x%x hsm_standalone_butterfly_key_expansion hdl: 0x%08x\n",
-	       err, sg0_key_mgmt_srv);
+		st_butt_key_expansion.key_group = 1;
+		st_butt_key_expansion.key_info = 0;
+		err = hsm_standalone_butterfly_key_expansion(key_mgmt_srv[0],
+							     &st_butt_key_expansion);
+		printf("err: 0x%x hsm_standalone_butterfly_key_expansion hdl: 0x%08x\n",
+		       err, key_mgmt_srv[0]);
 
-    printf("Derived SM2 public key  :\n");
-    for (j=0; j<64; j++) {
-        printf("0x%02x ", work_area[j]);
-        if (j%16 == 15)
-            printf("\n");
-    }
+		printf("Derived SM2 public key  :\n");
+		for (j = 0; j < 64; j++) {
+			printf("0x%02x ", work_area[j]);
+			if (j % 16 == 15)
+				printf("\n");
+		}
 
-    gen_key_args.key_identifier = &master_key_id;
-    gen_key_args.out_size = 64;
-    gen_key_args.key_type = HSM_KEY_TYPE_ECDSA_NIST_P256;
-    gen_key_args.key_group = 1;
+		gen_key_args.key_identifier = &master_key_id;
+		gen_key_args.out_size = 64;
+		gen_key_args.key_type = HSM_KEY_TYPE_ECDSA_NIST_P256;
+		gen_key_args.key_group = 1;
 #ifndef PSA_COMPLIANT
-    gen_key_args.flags = HSM_OP_KEY_GENERATION_FLAGS_CREATE;
-    gen_key_args.key_info = HSM_KEY_INFO_MASTER;
+		gen_key_args.flags = HSM_OP_KEY_GENERATION_FLAGS_CREATE;
+		gen_key_args.key_info = HSM_KEY_INFO_MASTER;
 #else
-    gen_key_args.key_lifetime = 0;
-    gen_key_args.key_usage = 0;
-    gen_key_args.permitted_algo = 0;
-	gen_key_args.key_lifecycle = 0;
+		gen_key_args.key_lifetime = 0;
+		gen_key_args.key_usage = 0;
+		gen_key_args.permitted_algo = 0;
+		gen_key_args.key_lifecycle = 0;
 #endif
-    gen_key_args.out_key = work_area2;
-    err = hsm_generate_key(sg0_key_mgmt_srv, &gen_key_args);
-	printf("err: 0x%x hsm_generate_key hdl: 0x%08x\n",
-	       err, sg0_key_mgmt_srv);
+		gen_key_args.out_key = work_area2;
+		err = hsm_generate_key(key_mgmt_srv[0], &gen_key_args);
+		printf("err: 0x%x hsm_generate_key hdl: 0x%08x\n",
+		       err, key_mgmt_srv[0]);
 
-    gen_key_args.key_identifier = &exp_fct_key_id;
-    gen_key_args.out_size = 0U;
-    gen_key_args.key_type = HSM_KEY_TYPE_AES_128;
-    gen_key_args.key_group = 1;
+		gen_key_args.key_identifier = &exp_fct_key_id;
+		gen_key_args.out_size = 0U;
+		gen_key_args.key_type = HSM_KEY_TYPE_AES_128;
+		gen_key_args.key_group = 1;
 #ifndef PSA_COMPLIANT
-    gen_key_args.flags = HSM_OP_KEY_GENERATION_FLAGS_CREATE;
-    gen_key_args.key_info = 0;
+		gen_key_args.flags = HSM_OP_KEY_GENERATION_FLAGS_CREATE;
+		gen_key_args.key_info = 0;
 #else
-    gen_key_args.key_lifetime = 0;
-    gen_key_args.key_usage = 0;
-    gen_key_args.permitted_algo = 0;
-	gen_key_args.key_lifecycle = 0;
+		gen_key_args.key_lifetime = 0;
+		gen_key_args.key_usage = 0;
+		gen_key_args.permitted_algo = 0;
+		gen_key_args.key_lifecycle = 0;
 #endif
-    gen_key_args.out_key = NULL;
-    err = hsm_generate_key(sg0_key_mgmt_srv, &gen_key_args);
-	printf("err: 0x%x hsm_generate_key hdl: 0x%08x\n",
-	       err, sg0_key_mgmt_srv);
+		gen_key_args.out_key = NULL;
+		err = hsm_generate_key(key_mgmt_srv[0], &gen_key_args);
+		printf("err: 0x%x hsm_generate_key hdl: 0x%08x\n",
+		       err, key_mgmt_srv[0]);
 
-    st_butt_key_expansion.key_identifier = master_key_id;
-    st_butt_key_expansion.expansion_fct_key_identifier = exp_fct_key_id;
-    st_butt_key_expansion.expansion_fct_input = p256_exp_fct_input;
-    st_butt_key_expansion.hash_value = 0;
-    st_butt_key_expansion.pr_reconstruction_value = 0;
-    st_butt_key_expansion.expansion_fct_input_size = 16;
-    st_butt_key_expansion.hash_value_size = 0;
-    st_butt_key_expansion.pr_reconstruction_value_size = 0;
-    st_butt_key_expansion.flags = HSM_OP_ST_BUTTERFLY_KEY_FLAGS_CREATE | HSM_OP_ST_BUTTERFLY_KEY_FLAGS_EXPLICIT_CERTIF;
-    st_butt_key_expansion.dest_key_identifier = &key_id;
-    st_butt_key_expansion.output = work_area;
-    st_butt_key_expansion.output_size = 64;
-    st_butt_key_expansion.key_type = HSM_KEY_TYPE_ECDSA_NIST_P256;
+		st_butt_key_expansion.key_identifier = master_key_id;
+		st_butt_key_expansion.expansion_fct_key_identifier = exp_fct_key_id;
+		st_butt_key_expansion.expansion_fct_input = p256_exp_fct_input;
+		st_butt_key_expansion.hash_value = 0;
+		st_butt_key_expansion.pr_reconstruction_value = 0;
+		st_butt_key_expansion.expansion_fct_input_size = 16;
+		st_butt_key_expansion.hash_value_size = 0;
+		st_butt_key_expansion.pr_reconstruction_value_size = 0;
+		st_butt_key_expansion.flags =
+			HSM_OP_ST_BUTTERFLY_KEY_FLAGS_CREATE |
+			HSM_OP_ST_BUTTERFLY_KEY_FLAGS_EXPLICIT_CERTIF;
+		st_butt_key_expansion.dest_key_identifier = &key_id;
+		st_butt_key_expansion.output = work_area;
+		st_butt_key_expansion.output_size = 64;
+		st_butt_key_expansion.key_type = HSM_KEY_TYPE_ECDSA_NIST_P256;
 #ifndef PSA_COMPLIANT
-    st_butt_key_expansion.expansion_fct_algo = HSM_CIPHER_ONE_GO_ALGO_AES_ECB;
+		st_butt_key_expansion.expansion_fct_algo =
+			HSM_CIPHER_ONE_GO_ALGO_AES_ECB;
 #endif
-    st_butt_key_expansion.key_group = 1;
-    st_butt_key_expansion.key_info = 0;
-    err = hsm_standalone_butterfly_key_expansion(sg0_key_mgmt_srv, &st_butt_key_expansion);
-	printf("err: 0x%x hsm_standalone_butterfly_key_expansion hdl: 0x%08x\n",
-	       err, sg0_key_mgmt_srv);
+		st_butt_key_expansion.key_group = 1;
+		st_butt_key_expansion.key_info = 0;
+		err = hsm_standalone_butterfly_key_expansion(key_mgmt_srv[0],
+							     &st_butt_key_expansion);
+		printf("err: 0x%x hsm_standalone_butterfly_key_expansion hdl: 0x%08x\n",
+		       err, key_mgmt_srv[0]);
 
-    printf("Derived P256 public key  :\n");
-    for (j=0; j<64; j++) {
-        printf("0x%02x ", work_area[j]);
-        if (j%16 == 15)
-            printf("\n");
-    }
+		printf("Derived P256 public key  :\n");
+		for (j = 0; j < 64; j++) {
+			printf("0x%02x ", work_area[j]);
+			if (j % 16 == 15)
+				printf("\n");
+		}
 
-	v2x_transient_key_tests(sg0_key_mgmt_srv);
+		v2x_transient_key_tests(key_mgmt_srv[0]);
 
-    // SM4 CCM
-    printf("\n---------------------------------------------------\n");
-    printf("SM4 CCM Test \n");
-    printf("---------------------------------------------------\n");
+		// SM4 CCM
+		printf("\n---------------------------------------------------\n");
+		printf("SM4 CCM Test\n");
+		printf("---------------------------------------------------\n");
 
-    gen_key_args.key_identifier = &key_id;
-    gen_key_args.out_size = 0U;
-    gen_key_args.key_type = HSM_KEY_TYPE_SM4_128;
-    gen_key_args.key_group = 2U;
+		gen_key_args.key_identifier = &key_id;
+		gen_key_args.out_size = 0U;
+		gen_key_args.key_type = HSM_KEY_TYPE_SM4_128;
+		gen_key_args.key_group = 2U;
 #ifndef PSA_COMPLIANT
-    gen_key_args.flags = HSM_OP_KEY_GENERATION_FLAGS_CREATE;
-    gen_key_args.key_info = 0U;
+		gen_key_args.flags = HSM_OP_KEY_GENERATION_FLAGS_CREATE;
+		gen_key_args.key_info = 0U;
 #else
-    gen_key_args.key_lifetime = 0;
-    gen_key_args.key_usage = 0;
-    gen_key_args.permitted_algo = 0;
-	gen_key_args.key_lifecycle = 0;
+		gen_key_args.key_lifetime = 0;
+		gen_key_args.key_usage = 0;
+		gen_key_args.permitted_algo = 0;
+		gen_key_args.key_lifecycle = 0;
 #endif
-    gen_key_args.out_key = NULL;
-    err = hsm_generate_key(sg0_key_mgmt_srv, &gen_key_args);
-	printf("err: 0x%x hsm_generate_key hdl: 0x%08x\n",
-	       err, sg0_key_mgmt_srv);
+		gen_key_args.out_key = NULL;
+		err = hsm_generate_key(key_mgmt_srv[0], &gen_key_args);
+		printf("err: 0x%x hsm_generate_key hdl: 0x%08x\n",
+		       err, key_mgmt_srv[0]);
 
-    auth_enc_gcm.key_identifier = key_id;
-    auth_enc_gcm.iv = NULL;
-    auth_enc_gcm.iv_size = 0;
-    auth_enc_gcm.aad = NULL;
-    auth_enc_gcm.aad_size = 0;
-    auth_enc_gcm.ae_algo = HSM_AUTH_ENC_ALGO_SM4_CCM;
-    auth_enc_gcm.flags = HSM_AUTH_ENC_FLAGS_ENCRYPT | HSM_AUTH_ENC_FLAGS_GENERATE_FULL_IV;
-    auth_enc_gcm.input = sm4_ccm_ptx;
-    auth_enc_gcm.output = work_area3;
-    auth_enc_gcm.input_size = 23;
-    auth_enc_gcm.output_size = 23+16+12;
-    err = hsm_auth_enc(sg0_cipher_hdl, &auth_enc_gcm);
-	printf("err: 0x%x hsm_auth_enc hdl: 0x%08x\n", err, sg0_cipher_hdl);
+		auth_enc_gcm.key_identifier = key_id;
+		auth_enc_gcm.iv = NULL;
+		auth_enc_gcm.iv_size = 0;
+		auth_enc_gcm.aad = NULL;
+		auth_enc_gcm.aad_size = 0;
+		auth_enc_gcm.ae_algo = HSM_AUTH_ENC_ALGO_SM4_CCM;
+		auth_enc_gcm.flags = HSM_AUTH_ENC_FLAGS_ENCRYPT |
+				     HSM_AUTH_ENC_FLAGS_GENERATE_FULL_IV;
+		auth_enc_gcm.input = sm4_ccm_ptx;
+		auth_enc_gcm.output = work_area3;
+		auth_enc_gcm.input_size = 23;
+		auth_enc_gcm.output_size = 23 + 16 + 12;
+		err = hsm_auth_enc(cipher_hdl[0], &auth_enc_gcm);
+		printf("err: 0x%x hsm_auth_enc hdl: 0x%08x\n", err, cipher_hdl[0]);
 
-    auth_enc_gcm.key_identifier = key_id;
-    auth_enc_gcm.iv = &work_area3[23+16];
-    auth_enc_gcm.iv_size = 12;
-    auth_enc_gcm.aad = NULL;
-    auth_enc_gcm.aad_size = 0;
-    auth_enc_gcm.ae_algo = HSM_AUTH_ENC_ALGO_SM4_CCM;
-    auth_enc_gcm.flags = HSM_AUTH_ENC_FLAGS_DECRYPT;
-    auth_enc_gcm.input = work_area3;
-    auth_enc_gcm.output = work_area4;
-    auth_enc_gcm.input_size = 23 + 16;
-    auth_enc_gcm.output_size = 23;
-    err = hsm_auth_enc(sg0_cipher_hdl, &auth_enc_gcm);
-	printf("err: 0x%x hsm_auth_enc hdl: 0x%08x\n", err, sg0_cipher_hdl);
+		auth_enc_gcm.key_identifier = key_id;
+		auth_enc_gcm.iv = &work_area3[23 + 16];
+		auth_enc_gcm.iv_size = 12;
+		auth_enc_gcm.aad = NULL;
+		auth_enc_gcm.aad_size = 0;
+		auth_enc_gcm.ae_algo = HSM_AUTH_ENC_ALGO_SM4_CCM;
+		auth_enc_gcm.flags = HSM_AUTH_ENC_FLAGS_DECRYPT;
+		auth_enc_gcm.input = work_area3;
+		auth_enc_gcm.output = work_area4;
+		auth_enc_gcm.input_size = 23 + 16;
+		auth_enc_gcm.output_size = 23;
+		err = hsm_auth_enc(cipher_hdl[0], &auth_enc_gcm);
+		printf("err: 0x%x hsm_auth_enc hdl: 0x%08x\n", err, cipher_hdl[0]);
 
-    if (memcmp(sm4_ccm_ptx, work_area4, 23) == 0) {
-        printf(" --> SUCCESS\n");
-    } else {
-        printf(" --> FAILURE\n");
-    }
+		if (!memcmp(sm4_ccm_ptx, work_area4, 23))
+			printf(" --> SUCCESS\n");
+		else
+			printf(" --> FAILURE\n");
 
-    // Key Generic crypto service
-    printf("\n---------------------------------------------------\n");
-    printf("Key Generic crypto service  \n");
-    printf("---------------------------------------------------\n");
+		// Key Generic crypto service
+		printf("\n---------------------------------------------------\n");
+		printf("Key Generic crypto service\n");
+		printf("---------------------------------------------------\n");
 
-    key_generic_crypto_args.flags = 0u;
-    err = hsm_open_key_generic_crypto_service(sg0_sess, &key_generic_crypto_args, &key_generic_crypto);
-	printf("err: 0x%x hsm_open_key_generic_crypto_service hdl: 0x%08x\n",
-	       err, sg0_sess);
+		key_generic_crypto_args.flags = 0u;
+		err = hsm_open_key_generic_crypto_service(sx_sess_hdl[SG0],
+							  &key_generic_crypto_args,
+							  &key_generic_crypto);
+		printf("err: 0x%x hsm_open_key_generic_crypto_service hdl: 0x%08x\n",
+		       err, sx_sess_hdl[SG0]);
 
-    key_generic_crypto_srv_args.key = sm4_ccm_key;
-    key_generic_crypto_srv_args.key_size = 16u;
-    key_generic_crypto_srv_args.iv = sm4_ccm_nonce;
-    key_generic_crypto_srv_args.iv_size = 12u;
-    key_generic_crypto_srv_args.aad = NULL;
-    key_generic_crypto_srv_args.aad_size = 0u;
-    key_generic_crypto_srv_args.tag_size = 16u;
-    key_generic_crypto_srv_args.crypto_algo = HSM_KEY_GENERIC_ALGO_SM4_CCM;
-    key_generic_crypto_srv_args.flags = HSM_KEY_GENERIC_FLAGS_ENCRYPT;
-    key_generic_crypto_srv_args.input = sm4_ccm_ptx;
-    key_generic_crypto_srv_args.output = work_area3;
-    key_generic_crypto_srv_args.input_size = 23;
-    key_generic_crypto_srv_args.output_size = 23+16;
-    err = hsm_key_generic_crypto(key_generic_crypto, &key_generic_crypto_srv_args);
-	printf("err: 0x%x hsm_key_generic_crypto hdl: 0x%08x\n",
-	       err, key_generic_crypto);
+		key_generic_crypto_srv_args.key = sm4_ccm_key;
+		key_generic_crypto_srv_args.key_size = 16u;
+		key_generic_crypto_srv_args.iv = sm4_ccm_nonce;
+		key_generic_crypto_srv_args.iv_size = 12u;
+		key_generic_crypto_srv_args.aad = NULL;
+		key_generic_crypto_srv_args.aad_size = 0u;
+		key_generic_crypto_srv_args.tag_size = 16u;
+		key_generic_crypto_srv_args.crypto_algo = HSM_KEY_GENERIC_ALGO_SM4_CCM;
+		key_generic_crypto_srv_args.flags = HSM_KEY_GENERIC_FLAGS_ENCRYPT;
+		key_generic_crypto_srv_args.input = sm4_ccm_ptx;
+		key_generic_crypto_srv_args.output = work_area3;
+		key_generic_crypto_srv_args.input_size = 23;
+		key_generic_crypto_srv_args.output_size = 23 + 16;
+		err = hsm_key_generic_crypto(key_generic_crypto,
+					     &key_generic_crypto_srv_args);
+		printf("err: 0x%x hsm_key_generic_crypto hdl: 0x%08x\n",
+		       err, key_generic_crypto);
 
-    if (memcmp(sm4_ccm_ctx_tag, work_area3, 23+16) == 0) {
-        printf(" --> SUCCESS\n");
-    } else {
-        printf(" --> FAILURE\n");
-    }
+		if (!memcmp(sm4_ccm_ctx_tag, work_area3, 23 + 16))
+			printf(" --> SUCCESS\n");
+		else
+			printf(" --> FAILURE\n");
 
-    key_generic_crypto_srv_args.key = sm4_ccm_key;
-    key_generic_crypto_srv_args.key_size = 16u;
-    key_generic_crypto_srv_args.iv = sm4_ccm_nonce;
-    key_generic_crypto_srv_args.iv_size = 12u;
-    key_generic_crypto_srv_args.aad = NULL;
-    key_generic_crypto_srv_args.aad_size = 0u;
-    key_generic_crypto_srv_args.tag_size = 16u;
-    key_generic_crypto_srv_args.crypto_algo = HSM_KEY_GENERIC_ALGO_SM4_CCM;
-    key_generic_crypto_srv_args.flags = HSM_KEY_GENERIC_FLAGS_DECRYPT;
-    key_generic_crypto_srv_args.input = sm4_ccm_ctx_tag;
-    key_generic_crypto_srv_args.output = work_area4;
-    key_generic_crypto_srv_args.input_size = 23 +16;
-    key_generic_crypto_srv_args.output_size = 23;
-    err = hsm_key_generic_crypto(key_generic_crypto, &key_generic_crypto_srv_args);
-	printf("err: 0x%x hsm_key_generic_crypto hdl: 0x%08x\n",
-	       err, key_generic_crypto);
+		key_generic_crypto_srv_args.key = sm4_ccm_key;
+		key_generic_crypto_srv_args.key_size = 16u;
+		key_generic_crypto_srv_args.iv = sm4_ccm_nonce;
+		key_generic_crypto_srv_args.iv_size = 12u;
+		key_generic_crypto_srv_args.aad = NULL;
+		key_generic_crypto_srv_args.aad_size = 0u;
+		key_generic_crypto_srv_args.tag_size = 16u;
+		key_generic_crypto_srv_args.crypto_algo = HSM_KEY_GENERIC_ALGO_SM4_CCM;
+		key_generic_crypto_srv_args.flags = HSM_KEY_GENERIC_FLAGS_DECRYPT;
+		key_generic_crypto_srv_args.input = sm4_ccm_ctx_tag;
+		key_generic_crypto_srv_args.output = work_area4;
+		key_generic_crypto_srv_args.input_size = 23 + 16;
+		key_generic_crypto_srv_args.output_size = 23;
+		err = hsm_key_generic_crypto(key_generic_crypto,
+					     &key_generic_crypto_srv_args);
+		printf("err: 0x%x hsm_key_generic_crypto hdl: 0x%08x\n",
+		       err, key_generic_crypto);
 
-    if (memcmp(sm4_ccm_ptx, work_area4, 23) == 0) {
-        printf(" --> SUCCESS\n");
-    } else {
-        printf(" --> FAILURE\n");
-    }
+		if (!memcmp(sm4_ccm_ptx, work_area4, 23))
+			printf(" --> SUCCESS\n");
+		else
+			printf(" --> FAILURE\n");
+	}
 
-    // Close all services and sessions
-    printf("\n---------------------------------------------------\n");
-    printf("Closing services and sessions\n");
-    printf("---------------------------------------------------\n");
+	// Close all services and sessions
+out:
+	printf("\n---------------------------------------------------\n");
+	printf("Closing services and sessions\n");
+	printf("---------------------------------------------------\n");
 
-    err = hsm_close_hash_service(hash_serv);
-    printf("err: 0x%x hsm_close_hash_service hdl: 0x%08x\n", err, hash_serv);
-    err = hsm_close_signature_verification_service(sv0_sig_ver_serv);
-    printf("err: 0x%x hsm_close_signature_verification_service hdl: 0x%08x\n", err, sv0_sig_ver_serv);
-    err = hsm_close_signature_verification_service(sv1_sig_ver_serv);
-    printf("err: 0x%x hsm_close_signature_verification_service hdl: 0x%08x\n", err, sv1_sig_ver_serv);
+	if (hash_serv)
+		hsm_close_hash_service(hash_serv);
 
-    err = hsm_close_signature_generation_service(sg0_sig_gen_serv);
-    printf("err: 0x%x hsm_close_signature_generation_service hdl: 0x%08x\n", err, sg0_sig_gen_serv);
-    err = hsm_close_signature_generation_service(sg1_sig_gen_serv);
-    printf("err: 0x%x hsm_close_signature_generation_service hdl: 0x%08x\n", err, sg1_sig_gen_serv);
+	for (index = 0; index < NUM_SX_MU / 2; index++)
+		if (sig_ver_serv[index])
+			hsm_close_signature_verification_service(sig_ver_serv[index]);
 
-    err = hsm_close_sm2_eces_service(sg0_sm2_eces_hdl);
-    printf("err: 0x%x hsm_close_sm2_eces_service hdl: 0x%08x\n", err, sg0_sm2_eces_hdl);
-    err = hsm_close_sm2_eces_service(sg1_sm2_eces_hdl);
-    printf("err: 0x%x hsm_close_sm2_eces_service hdl: 0x%08x\n", err, sg1_sm2_eces_hdl);
+	if (sg0_sm2_eces_hdl)
+		hsm_close_sm2_eces_service(sg0_sm2_eces_hdl);
 
-    err = hsm_close_mac_service(sg0_mac_hdl);
-    printf("err: 0x%x hsm_close_mac_service hdl: 0x%x\n", err, sg0_mac_hdl);
-    err = hsm_close_key_management_service(sg0_key_mgmt_srv);
-    printf("err: 0x%x hsm_close_key_management_service hdl: 0x%x\n", err, sg0_key_mgmt_srv);
-    err = hsm_close_key_management_service(sg1_key_mgmt_srv);
-    printf("err: 0x%x hsm_close_key_management_service hdl: 0x%x\n", err, sg1_key_mgmt_srv);
+	if (sg1_sm2_eces_hdl)
+		hsm_close_sm2_eces_service(sg1_sm2_eces_hdl);
 
-    err = hsm_close_key_store_service(sg0_key_store_serv);
-    printf("err: 0x%x hsm_close_key_store_service hdl: 0x%08x\n", err, sg0_key_store_serv);
+	if (sg0_mac_hdl)
+		hsm_close_mac_service(sg0_mac_hdl);
 
-    err = hsm_close_key_store_service(sg1_key_store_serv);
-    printf("err: 0x%x hsm_close_key_store_service hdl: 0x%08x\n", err, sg1_key_store_serv);
+	for (index = 0; index < NUM_SX_MU / 2; index++) {
+		if (cipher_hdl[index])
+			hsm_close_cipher_service(cipher_hdl[index]);
+		if (sig_gen_serv[index])
+			hsm_close_signature_generation_service(sig_gen_serv[index]);
+		if (key_mgmt_srv[index])
+			hsm_close_key_management_service(key_mgmt_srv[index]);
+		if (key_store_serv[index])
+			hsm_close_key_store_service(key_store_serv[index]);
+	}
 
-    err = hsm_close_key_generic_crypto_service(key_generic_crypto);
-    printf("err: 0x%x hsm_close_key_generic_crypto_service hdl: 0x%x\n", err, key_generic_crypto);
+	if (key_generic_crypto)
+		hsm_close_key_generic_crypto_service(key_generic_crypto);
 
-    err = hsm_close_session(sg0_sess);
-    printf("err: 0x%x SG hsm_close_session hdl: 0x%x\n", err, sg0_sess);
+	for (index = 0; index < NUM_SX_MU; index++)
+		if (sx_sess_hdl[index])
+			hsm_close_session(sx_sess_hdl[index]);
 
-    err = hsm_close_session(sv0_sess);
-    printf("err: 0x%x SV hsm_close_session hdl: 0x%x\n", err, sv0_sess);
-
-    err = hsm_close_session(sg1_sess);
-    printf("err: 0x%x SG hsm_close_session hdl: 0x%x\n", err, sg1_sess);
-
-    err = hsm_close_session(sv1_sess);
-    printf("err: 0x%x SV hsm_close_session hdl: 0x%x\n", err, sv1_sess);
-#ifdef PSA_COMPLIANT
-    if (get_nvmd_status(v2x_nvm_ctx) != NVM_STATUS_STOPPED) {
-        pthread_cancel(tid);
-    }
-    nvm_close_session(v2x_nvm_ctx);
-#endif
-    return 0;
+	return 0;
 }
 
+/* Test entry function. */
+int main(int argc, char *argv[])
+{
+	if ((argc == 2 &&
+	     (strcmp("--help", argv[1]) == 0 || strcmp("-h", argv[1]) == 0))) {
+		v2x_hsm_test_usage();
+		return 0;
+	}
+
+	if (argc == 2) {
+		if (strcmp("-a", argv[1]) == 0)
+			shx_tests_run();
+		else
+			shx_v2x_hsm_tests(argc, argv);
+
+		return 0;
+	}
+	v2x_hsm_tests();
+
+	return 0;
+}

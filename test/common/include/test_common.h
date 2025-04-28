@@ -126,6 +126,7 @@ void tv_tests_run(hsm_hdl_t key_store_hdl, uint8_t *tv_file_path);
  * opened as part of the test run
  */
 hsm_hdl_t get_hsm_session_hdl(void);
+hsm_hdl_t get_key_store_hdl(void);
 uint8_t get_rsa_tcase_status(void);
 
 void hexdump(uint32_t buf[], uint32_t size);
@@ -160,4 +161,5 @@ void shx_tests_run(void);
 int8_t get_supported_mu(uint8_t mu_type);
 she_err_t open_session(open_session_args_t *args, struct she_session_hdl_s **hdl);
 
+int shx_v2x_hsm_tests(int argc, char *argv[]);
 #endif

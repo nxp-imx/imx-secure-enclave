@@ -1,0 +1,67 @@
+HSM_OPEN_SESSION
+0 # session index (uint32_t)
+0x50 # Read value (uint8_t)
+0 # Check value (err)
+1 # Check if pointer ok
+
+HSM_OPEN_KEY_STORE_SERVICE
+0 # session index (uint32_t)
+10 # Read value (uint32_t)
+0 # Read value (uint32_t)
+0 # Read value (uint16_t)
+1 # Read value (hsm_svc_key_store_flags_t) create
+0 # Read value (uint8_t)
+1 # key store index (uint32_t)
+0 # Check value (err)
+1 # Check if pointer ok (testCtx->hdl[new_hdl_index]) -- 0=
+
+HSM_OPEN_KEY_MANAGEMENT_SERVICE
+1 # key_store index (uint32_t)
+0 # Read value (hsm_svc_key_management_flags_t)
+2 # key management index (uint32_t)
+0 # Check value (err)
+1 # Check if pointer ok (testCtx->hdl[new_hdl_index]) -- 0=
+
+HSM_FULL_KEY_EXCHANGE_SHA_KEK
+2 # key management index (uint32_t)
+5 # kek index (uint32_t)
+0 # kek group
+0x02 # initiator_key_type - P256
+0x02 # key_exchange_scheme - P256
+0x00, 0x01, 0x02, 0x03, 0x04, 0x05, 0x06, 0x07,
+0x08, 0x09, 0x0a, 0x0b, 0x0c, 0x0d, 0x0e, 0x0f,
+0x10, 0x11, 0x12, 0x13, 0x14, 0x15, 0x16, 0x17,
+0x18, 0x19, 0x1a, 0x1b, 0x1c, 0x1d, 0x1e, 0x1f # kek data
+0 # Check value (err)
+
+#Use injected KEK to inject another key - verifies key exchange worked as expected
+HSM_MANAGE_KEY
+0x02  # <= KEY_MGMT
+14  # KEY ID
+5  # KEK ID
+0x02  # flags create
+0x3c  # Input Size
+0x32  # Key Type HSM_KEY_TYPE_AES_256
+0x01  # Key group
+0x02  # Key info - transient
+0x00, 0x01, 0x02, 0x03, 0x04, 0x05, 0x06, 0x07,
+0x08, 0x09, 0x0A, 0x0B,
+0x47, 0x03, 0xd4, 0x18, 0xc1, 0xe0, 0xc4, 0x1c,
+0x85, 0x48, 0x9d, 0x80, 0xbd, 0xe4, 0x76, 0x62,
+0x93, 0xc7, 0x95, 0x27, 0xe4, 0x6e, 0x49, 0x6b,
+0x20, 0x7e, 0xff, 0x9e, 0x01, 0x74, 0x1e, 0xad,
+0x5e, 0xdd, 0xdc, 0x50, 0x74, 0x04, 0x4e, 0x22,
+0x82, 0xb4, 0x32, 0xb3, 0xf2, 0xd8, 0xf6, 0x73 # encrypted key
+0x00  # [check] expected return value (HSM_NO_ERROR)
+
+HSM_CLOSE_KEY_MANAGEMENT_SERVICE
+2 # Read value (uint32_t)
+0 # Check value (err)
+
+HSM_CLOSE_KEY_STORE_SERVICE
+1 # key store service index
+0 # Check value (err)
+
+HSM_CLOSE_SESSION
+0 # Read value (uint32_t)
+0 # Check value (err)

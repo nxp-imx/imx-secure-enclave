@@ -27,6 +27,7 @@
 #define SOC_IMX93   0x9300
 #define SOC_IMX95   0x9500
 #define SOC_IMX943  0x9430
+#define SOC_IMX952  0x9520
 
 #define SOC_REV_A0  0xa000
 #define SOC_REV_A1  0xa100

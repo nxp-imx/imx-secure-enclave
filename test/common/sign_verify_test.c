@@ -1,6 +1,6 @@
 // SPDX-License-Identifier: BSD-3-Clause
 /*
- * Copyright 2022-2024 NXP
+ * Copyright 2022-2025 NXP
  */
 
 #include <stdbool.h>
@@ -12,6 +12,11 @@
 
 #include "test_common.h"
 #include "hsm_api.h"
+
+#define TEST_ED25519_PUBKEY_SIZE 32
+#define TEST_ED448_PUBKEY_SIZE   57
+#define TEST_ED25519_SIGNATURE_SIZE 64
+#define TEST_ED448_SIGNATURE_SIZE   114
 
 static uint8_t payload[32] = {
 	0x00, 0x01, 0x02, 0x03, 0x04, 0x05, 0x06, 0x07,
@@ -153,27 +158,38 @@ hsm_err_t hsm_sign_verify_plaintext_tests(hsm_hdl_t sess_hdl,
 static hsm_err_t hsm_sign_verify_eddsa_tests_helper(hsm_hdl_t sess_hdl,
 						    hsm_hdl_t key_store_hdl,
 						    hsm_hdl_t key_mgmt_hdl,
+						    hsm_bit_key_sz_t bit_key_size,
 						    hsm_permitted_algo_t permitted_algo,
 						    hsm_signature_scheme_id_t algo)
 {
 	hsm_err_t ret;
 	uint32_t key_id = 0;
-	uint8_t fw_pub_key[32] = {0};
-	uint8_t signature[64] = {0};
+	uint8_t pub_key[64] = {0};
+	uint8_t pub_key_size = 0;
+	uint8_t signature[128] = {0};
+	uint8_t signature_size = 0;
 	uint8_t test_status = TEST_STATUS_FAILED;
+
+	if (bit_key_size == HSM_KEY_SIZE_ECC_TWISTED_EDWARDS_255) {
+		pub_key_size = TEST_ED25519_PUBKEY_SIZE;
+		signature_size = TEST_ED25519_SIGNATURE_SIZE;
+	} else if (bit_key_size == HSM_KEY_SIZE_ECC_TWISTED_EDWARDS_448) {
+		pub_key_size = TEST_ED448_PUBKEY_SIZE;
+		signature_size = TEST_ED448_SIGNATURE_SIZE;
+	}
 
 	// Generate key for the operation
 	ret = generate_test_key(key_mgmt_hdl,
 				HSM_KEY_TYPE_ECC_TWISTED_EDWARDS,
-				HSM_KEY_SIZE_ECC_TWISTED_EDWARDS_255,
+				bit_key_size,
 				HSM_SE_KEY_STORAGE_VOLATILE,
 				HSM_KEY_USAGE_SIGN_MSG | HSM_KEY_USAGE_VERIFY_MSG,
 				permitted_algo,
 				0,
 				0,
 				50,
-				sizeof(fw_pub_key),
-				fw_pub_key,
+				pub_key_size,
+				pub_key,
 				&key_id);
 	if (ret != HSM_NO_ERROR)
 		goto out;
@@ -183,11 +199,11 @@ static hsm_err_t hsm_sign_verify_eddsa_tests_helper(hsm_hdl_t sess_hdl,
 				    algo,
 				    0,
 				    HSM_PUBKEY_TYPE_ECC_TWISTED_EDWARDS,
-				    HSM_KEY_SIZE_ECC_TWISTED_EDWARDS_255,
-				    signature, sizeof(signature),
+				    bit_key_size,
+				    signature, signature_size,
 				    payload, sizeof(payload),
 				    0, 0,
-				    fw_pub_key, sizeof(fw_pub_key),
+				    pub_key, pub_key_size,
 				    TEST_INPUT_MESSAGE);
 	if (ret != HSM_NO_ERROR)
 		goto out;
@@ -212,23 +228,51 @@ void hsm_sign_verify_eddsa_tests(hsm_hdl_t sess_hdl,
 				 hsm_hdl_t key_store_hdl,
 				 hsm_hdl_t key_mgmt_hdl)
 {
-	printf("HSM_KEY_TYPE_ECC_TWISTED_EDWARDS & HSM_SIGNATURE_SCHEME_ED25519PH:");
+	printf("HSM_KEY_SIZE_ECC_TWISTED_EDWARDS_255 & HSM_SIGNATURE_SCHEME_ED25519PH:");
 	hsm_sign_verify_eddsa_tests_helper(sess_hdl, key_store_hdl, key_mgmt_hdl,
+					   HSM_KEY_SIZE_ECC_TWISTED_EDWARDS_255,
 					   PERMITTED_ALGO_ED25519PH,
 					   HSM_SIGNATURE_SCHEME_ED25519PH);
 
-	printf("HSM_KEY_TYPE_ECC_TWISTED_EDWARDS & HSM_SIGNATURE_SCHEME_PURE_EDDSA:");
+	printf("HSM_KEY_SIZE_ECC_TWISTED_EDWARDS_255 & HSM_SIGNATURE_SCHEME_PURE_EDDSA:");
 	hsm_sign_verify_eddsa_tests_helper(sess_hdl, key_store_hdl, key_mgmt_hdl,
+					   HSM_KEY_SIZE_ECC_TWISTED_EDWARDS_255,
 					   PERMITTED_ALGO_PURE_EDDSA,
 					   HSM_SIGNATURE_SCHEME_PURE_EDDSA);
 
-	printf("HSM_KEY_TYPE_ECC_TWISTED_EDWARDS & ED25519PH (PERMITTED EDDSA_ALL):");
+	printf("HSM_KEY_SIZE_ECC_TWISTED_EDWARDS_255 & ED25519PH (EDDSA_ALL):");
 	hsm_sign_verify_eddsa_tests_helper(sess_hdl, key_store_hdl, key_mgmt_hdl,
+					   HSM_KEY_SIZE_ECC_TWISTED_EDWARDS_255,
 					   PERMITTED_ALGO_EDDSA_ALL,
 					   HSM_SIGNATURE_SCHEME_ED25519PH);
 
-	printf("HSM_KEY_TYPE_ECC_TWISTED_EDWARDS & PURE_EDDSA (PERMITTED EDDSA_ALL):");
+	printf("HSM_KEY_SIZE_ECC_TWISTED_EDWARDS_255 & PURE_EDDSA (EDDSA_ALL):");
 	hsm_sign_verify_eddsa_tests_helper(sess_hdl, key_store_hdl, key_mgmt_hdl,
+					   HSM_KEY_SIZE_ECC_TWISTED_EDWARDS_255,
+					   PERMITTED_ALGO_EDDSA_ALL,
+					   HSM_SIGNATURE_SCHEME_PURE_EDDSA);
+
+	printf("HSM_KEY_SIZE_ECC_TWISTED_EDWARDS_448 & HSM_SIGNATURE_SCHEME_ED448PH:");
+	hsm_sign_verify_eddsa_tests_helper(sess_hdl, key_store_hdl, key_mgmt_hdl,
+					   HSM_KEY_SIZE_ECC_TWISTED_EDWARDS_448,
+					   PERMITTED_ALGO_ED448PH,
+					   HSM_SIGNATURE_SCHEME_ED448PH);
+
+	printf("HSM_KEY_SIZE_ECC_TWISTED_EDWARDS_448 & HSM_SIGNATURE_SCHEME_PURE_EDDSA:");
+	hsm_sign_verify_eddsa_tests_helper(sess_hdl, key_store_hdl, key_mgmt_hdl,
+					   HSM_KEY_SIZE_ECC_TWISTED_EDWARDS_448,
+					   PERMITTED_ALGO_PURE_EDDSA,
+					   HSM_SIGNATURE_SCHEME_PURE_EDDSA);
+
+	printf("HSM_KEY_SIZE_ECC_TWISTED_EDWARDS_448 & ED448PH (EDDSA_ALL):");
+	hsm_sign_verify_eddsa_tests_helper(sess_hdl, key_store_hdl, key_mgmt_hdl,
+					   HSM_KEY_SIZE_ECC_TWISTED_EDWARDS_448,
+					   PERMITTED_ALGO_EDDSA_ALL,
+					   HSM_SIGNATURE_SCHEME_ED448PH);
+
+	printf("HSM_KEY_SIZE_ECC_TWISTED_EDWARDS_448 & PURE_EDDSA (EDDSA_ALL):");
+	hsm_sign_verify_eddsa_tests_helper(sess_hdl, key_store_hdl, key_mgmt_hdl,
+					   HSM_KEY_SIZE_ECC_TWISTED_EDWARDS_448,
 					   PERMITTED_ALGO_EDDSA_ALL,
 					   HSM_SIGNATURE_SCHEME_PURE_EDDSA);
 }

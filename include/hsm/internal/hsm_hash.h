@@ -1,6 +1,6 @@
 // SPDX-License-Identifier: BSD-3-Clause
 /*
- * Copyright 2022-2024 NXP
+ * Copyright 2022-2025 NXP
  */
 
 #ifndef HSM_HASH_H
@@ -80,14 +80,21 @@ typedef uint8_t hsm_hash_algo_t;
 #endif
 
 /**
- * Bit field indicating the hash service operations
+ * Bit field indicating the hash service operations (only one can be set):
  */
 typedef enum {
 	HSM_HASH_FLAG_ONE_SHOT = 0x1,
+	//!< One-Shot operation (Context is not used).
 	HSM_HASH_FLAG_INIT = 0x2,
+	//!< Init.
 	HSM_HASH_FLAG_UPDATE = 0x4,
+	//!< Update.
 	HSM_HASH_FLAG_FINAL = 0x8,
+	//!< Final (Final can be used multiple time if algo is SHAKE).
+	HSM_HASH_FLAG_DESTROY = 0x10,
+	//!< Destroy (valid for SHAKE algo only).
 	HSM_HASH_FLAG_GET_CONTEXT = 0x80,
+	//!< Get context size. Return context size to allocate (depends on Algorithm).
 } hsm_hash_svc_flags_t;
 
 /**
@@ -95,7 +102,7 @@ typedef enum {
  */
 #define HSM_HASH_FLAG_ALLOWED    (HSM_HASH_FLAG_ONE_SHOT | HSM_HASH_FLAG_INIT \
 				  | HSM_HASH_FLAG_UPDATE | HSM_HASH_FLAG_FINAL \
-				  | HSM_HASH_FLAG_GET_CONTEXT)
+				  | HSM_HASH_FLAG_DESTROY | HSM_HASH_FLAG_GET_CONTEXT)
 
 /**
  * Structure describing the hash one go operation arguments
