@@ -146,7 +146,10 @@ void tls13_hkdf_label_encode(uint16_t length,
  *            |
  *            v
  */
-static void test_tls1_3_early_secrets(hsm_hdl_t key_mgmt_hdl, uint32_t key_store_id)
+static void test_tls1_3_early_secrets(hsm_hdl_t key_mgmt_hdl,
+				      uint32_t tls1_3_es_algo,
+				      uint32_t *test_key_id,
+				      uint32_t key_store_id)
 {
 	hsm_err_t err;
 	in_content_tls13_args_t in_content = {0};
@@ -154,34 +157,38 @@ static void test_tls1_3_early_secrets(hsm_hdl_t key_mgmt_hdl, uint32_t key_store
 	op_delete_key_args_t del_args = {0};
 	uint32_t key_id = 0; //Private Key ID, ELE FW
 	uint32_t output_key_buffer[TEST_TLS1_3_DERIVED_MAX_KEY_SIZE];
+	uint32_t hash_algo_size;
 
 	/*********************Early Secrets - EXT Binder *********************/
 
 	/* HKDF label related variables */
 	unsigned char hkdf_label[TEST_TLS1_3_HKDF_LABEL_MAX_LEN];
 	uint16_t hkdf_label_len = 0;
-	/* expanded key len - 32 bytes */
-	uint16_t length = BITS_TO_BYTES(HSM_KEY_SIZE_DERIVE_256);
+	uint16_t length; // Expanded key length
 	const unsigned char *label = test_tls13_label_ext_binder;
 	uint8_t label_len = sizeof(test_tls13_label_ext_binder);
-	const unsigned char *context = context_buffer;
-	uint8_t context_len = sizeof(context_buffer);
+	const unsigned char *context;
+	uint8_t context_len;
+
+	if (tls1_3_es_algo == HSM_KEY_DERIVATION_TLS1_3_EARLY_SECRET_SHA256) {
+		hash_algo_size = HSM_HASH_ALGO_SHA_256_SIZE;
+		context = context_buffer;
+		context_len = sizeof(context_buffer);
+	} else {
+		hash_algo_size = HSM_HASH_ALGO_SHA_384_SIZE;
+		context = context_384_buffer;
+		context_len = sizeof(context_384_buffer);
+	}
+
+	length = hash_algo_size;
 
 	/* 1. Prepare Input Plaintext Context, without optional PSK */
 	memset(&in_content, 0, sizeof(in_content_tls13_args_t));
 
 	in_content.ver = 0x1;
-	in_content.rsv = 0x0;
 	in_content.keystore_id = key_store_id;
-	in_content.tls1_3_algo = HSM_KEY_DERIVATION_TLS1_3_EARLY_SECRET_SHA256;
+	in_content.tls1_3_algo = tls1_3_es_algo;
 	in_content.priv_key_id = key_id; // Ignored for Early Secrets.
-	in_content.derived_key_type = HSM_KEY_TYPE_DERIVE;
-	in_content.derived_key_bits_size = HSM_KEY_SIZE_DERIVE_256;
-	in_content.derived_key_lifetime = HSM_SE_KEY_STORAGE_VOLATILE; // Volatile
-	in_content.derived_key_usage = HSM_KEY_USAGE_DERIVE;
-	in_content.derived_key_permitted_algo = HSM_KEY_DERIVATION_HKDF_EXPAND_SHA256;
-	in_content.derived_key_lifecycle = 0x0; // Current
-	in_content.derived_key_id = 0x0; // Volatile Key, so ID chosen by FW
 	in_content.psk_id = 0x0; // Optional PSK not used.
 
 	/* 2. Prepare User Fixed Info or HKDF label */
@@ -214,16 +221,10 @@ static void test_tls1_3_early_secrets(hsm_hdl_t key_mgmt_hdl, uint32_t key_store
 	if (err != HSM_NO_ERROR)
 		goto out;
 
-	/* 4. Delete Derived Key */
-	memset(&del_args, 0, sizeof(del_args));
+	/* Return the Early Secret key_id to support other testings. (KM & IV) */
+	*test_key_id = key_ex_args.out_derived_key_id;
 
-	del_args.key_identifier = key_ex_args.out_derived_key_id;
-	del_args.flags = 0;
-	err = hsm_delete_key(key_mgmt_hdl, &del_args);
-	if (err != HSM_NO_ERROR)
-		printf("hsm_delete_key (Derived #1) ret: 0x%x\n", err);
-
-	/* 5. Case 1.2. Export Derived/Output Key Buffer. */
+	/* 4. Case 1.2. Export Derived/Output Key Buffer. */
 	memset(&key_ex_args, 0, sizeof(op_key_exchange_args_t));
 	memset(output_key_buffer, 0, sizeof(output_key_buffer));
 
@@ -235,7 +236,7 @@ static void test_tls1_3_early_secrets(hsm_hdl_t key_mgmt_hdl, uint32_t key_store
 	key_ex_args.in_pub_buffer = NULL;
 	key_ex_args.user_fixed_info_sz = hkdf_label_len;
 	key_ex_args.user_fixed_info = (uint8_t *)hkdf_label;
-	key_ex_args.output_sz = BITS_TO_BYTES(HSM_KEY_SIZE_DERIVE_256);
+	key_ex_args.output_sz = length;
 	key_ex_args.output = (uint8_t *)output_key_buffer;
 
 	err = hsm_key_exchange(key_mgmt_hdl, &key_ex_args);
@@ -996,7 +997,21 @@ void key_exchange_test_tls1_3(hsm_hdl_t key_mgmt_hdl, uint32_t key_store_id)
 
 	printf("\nECC_NIST & HSM_KEY_DERIVATION_TLS1_3_EARLY_SECRET_SHA256:\n");
 	printf("---------------------------------------------------------\n");
-	test_tls1_3_early_secrets(key_mgmt_hdl, key_store_id);
+	test_tls1_3_early_secrets(key_mgmt_hdl,
+				  HSM_KEY_DERIVATION_TLS1_3_EARLY_SECRET_SHA256,
+				  &test_key_id,
+				  key_store_id);
+
+	delete_test_key(key_mgmt_hdl, test_key_id, 0);
+
+	printf("\nECC_NIST & HSM_KEY_DERIVATION_TLS1_3_EARLY_SECRET_SHA384:\n");
+	printf("---------------------------------------------------------\n");
+	test_tls1_3_early_secrets(key_mgmt_hdl,
+				  HSM_KEY_DERIVATION_TLS1_3_EARLY_SECRET_SHA384,
+				  &test_key_id,
+				  key_store_id);
+
+	delete_test_key(key_mgmt_hdl, test_key_id, 0);
 
 	printf("\nECC_NIST & HSM_KEY_DERIVATION_TLS1_3_HANDSHAKE_SECRET_SHA256:\n");
 	printf("-------------------------------------------------------------\n");
@@ -1200,6 +1215,59 @@ void key_exchange_test_tls1_3(hsm_hdl_t key_mgmt_hdl, uint32_t key_store_id)
 				   HSM_KEY_TYPE_ECC_MONTGOMERY,
 				   HSM_KEY_SIZE_ECC_MONTGOMERY_448,
 				   PERMITTED_ALGO_TLS1_3_MASTER_SECRET_SHA384,
+				   HSM_KEY_DERIVATION_TLS1_3_MASTER_SECRET_SHA384,
+				   &test_key_id,
+				   key_store_id);
+
+	delete_test_key(key_mgmt_hdl, test_key_id, 0);
+
+	// Test TLS 1.3 Key Permitted algos
+	printf("\nPermitted TLS 1.3 MS SHA ANY & HSM TLS 1.3 HS SHA256:\n");
+	printf("-------------------------------------------------------\n");
+	test_tls1_3_handshake_secrets(key_mgmt_hdl,
+				      HSM_KEY_TYPE_ECC_NIST,
+				      HSM_KEY_SIZE_ECC_NIST_256,
+				      PERMITTED_ALGO_TLS1_3_MASTER_SECRET_SHA_ANY,
+				      HSM_KEY_DERIVATION_TLS1_3_HANDSHAKE_SECRET_SHA256,
+				      &test_key_id,
+				      mbedtls_secret,
+				      &mbedtls_secret_size,
+				      key_store_id);
+
+	delete_test_key(key_mgmt_hdl, test_key_id, 0);
+
+	printf("\nPermitted TLS 1.3 MS SHA ANY & HSM TLS 1.3 HS SHA384:\n");
+	printf("-------------------------------------------------------\n");
+	test_tls1_3_handshake_secrets(key_mgmt_hdl,
+				      HSM_KEY_TYPE_ECC_NIST,
+				      HSM_KEY_SIZE_ECC_NIST_384,
+				      PERMITTED_ALGO_TLS1_3_MASTER_SECRET_SHA_ANY,
+				      HSM_KEY_DERIVATION_TLS1_3_HANDSHAKE_SECRET_SHA384,
+				      &test_key_id,
+				      mbedtls_secret,
+				      &mbedtls_secret_size,
+				      key_store_id);
+
+	delete_test_key(key_mgmt_hdl, test_key_id, 0);
+
+	printf("\nPermitted TLS 1.3 MS SHA ANY & HSM TLS 1.3 MS SHA256:\n");
+	printf("-------------------------------------------------------\n");
+	test_tls1_3_master_secrets(key_mgmt_hdl,
+				   HSM_KEY_TYPE_ECC_NIST,
+				   HSM_KEY_SIZE_ECC_NIST_256,
+				   PERMITTED_ALGO_TLS1_3_MASTER_SECRET_SHA_ANY,
+				   HSM_KEY_DERIVATION_TLS1_3_MASTER_SECRET_SHA256,
+				   &test_key_id,
+				   key_store_id);
+
+	delete_test_key(key_mgmt_hdl, test_key_id, 0);
+
+	printf("\nPermitted TLS 1.3 MS SHA ANY & HSM TLS 1.3 MS SHA384:\n");
+	printf("-------------------------------------------------------\n");
+	test_tls1_3_master_secrets(key_mgmt_hdl,
+				   HSM_KEY_TYPE_ECC_NIST,
+				   HSM_KEY_SIZE_ECC_NIST_384,
+				   PERMITTED_ALGO_TLS1_3_MASTER_SECRET_SHA_ANY,
 				   HSM_KEY_DERIVATION_TLS1_3_MASTER_SECRET_SHA384,
 				   &test_key_id,
 				   key_store_id);
