@@ -478,10 +478,27 @@ hsm_err_t do_hash_stream_test(hsm_hdl_t hash_sess)
 #endif
 		hash_args.input = hash_temp_input1;
 		hash_args.input_size = sizeof(hash_temp_input1);
+#ifdef PSA_COMPLIANT
+		if (hash_args.algo == HSM_HASH_ALGO_SHAKE_256) {
+			hash_args.input = NULL;
+			hash_args.input_size = 0;
+		}
+#endif
 		hash_args.svc_flags = HSM_HASH_FLAG_INIT;
 
 		err = hsm_do_hash(hash_sess, &hash_args);
+#ifdef PSA_COMPLIANT
+		/* Note: In case of SHAKE Hash algorithm, all input data needs
+		 * to be provided through UPDATE flag.
+		 */
+		if (hash_args.algo == HSM_HASH_ALGO_SHAKE_256) {
+			hash_args.input = hash_temp_input1;
+			hash_args.input_size = sizeof(hash_temp_input1);
+			hash_args.svc_flags = HSM_HASH_FLAG_UPDATE;
 
+			err = hsm_do_hash(hash_sess, &hash_args);
+		}
+#endif
 		for (i, j = 0; i < 150; i++, j++)
 			hash_temp_input2[j] = hash_test_message[i];
 
@@ -503,10 +520,20 @@ hsm_err_t do_hash_stream_test(hsm_hdl_t hash_sess)
 		for (i, j = 0; i < 300; i++, j++)
 			hash_temp_input4[j] = hash_test_message[i];
 
-		hash_args.output_size = hash_size;
-		hash_args.output = hash_work_area;
 		hash_args.input = hash_temp_input4;
 		hash_args.input_size = sizeof(hash_temp_input4);
+#ifdef PSA_COMPLIANT
+		if (hash_args.algo == HSM_HASH_ALGO_SHAKE_256) {
+			hash_args.svc_flags = HSM_HASH_FLAG_UPDATE;
+
+			err = hsm_do_hash(hash_sess, &hash_args);
+
+			hash_args.input = NULL;
+			hash_args.input_size = 0;
+		}
+#endif
+		hash_args.output_size = hash_size;
+		hash_args.output = hash_work_area;
 		hash_args.svc_flags = HSM_HASH_FLAG_FINAL;
 
 		err = hsm_do_hash(hash_sess, &hash_args);
