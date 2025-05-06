@@ -710,7 +710,8 @@ static void transient_key_tests(hsm_hdl_t sess_hdl,
 	    (se_get_soc_id() == SOC_IMX91 || se_get_soc_id() == SOC_IMX93))
 		key_exchange_nxp_prod_key_test(key_mgmt_hdl, key_store_id);
 
-	if (se_get_soc_id() == SOC_IMX93 || se_get_soc_id() == SOC_IMX91) {
+	if (se_get_soc_id() == SOC_IMX93 || se_get_soc_id() == SOC_IMX91 ||
+	    (se_get_soc_id() == SOC_IMX95 && se_get_soc_rev() == SOC_REV_B0)) {
 		key_exchange_test_tls1_3(key_mgmt_hdl, key_store_id);
 		key_exchange_test_hkdf_expand(key_mgmt_hdl, key_store_id);
 		key_exchange_test_hkdf_full(key_store_hdl, key_mgmt_hdl, key_store_id);
