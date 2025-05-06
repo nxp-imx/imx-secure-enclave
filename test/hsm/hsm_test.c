@@ -482,7 +482,8 @@ static void transient_key_tests(hsm_hdl_t sess_hdl,
 	else
 		printf("\nResult ---> FAILURE\n");
 
-	if (se_get_soc_id() == SOC_IMX93 || se_get_soc_id() == SOC_IMX91)
+	if (se_get_soc_id() == SOC_IMX93 || se_get_soc_id() == SOC_IMX91 ||
+	    (se_get_soc_id() == SOC_IMX95 && se_get_soc_rev() == SOC_REV_B0))
 		hsm_sign_verify_eddsa_tests(sess_hdl, key_store_hdl, key_mgmt_hdl);
 
 	printf("-----------------------------------------------------\n");
