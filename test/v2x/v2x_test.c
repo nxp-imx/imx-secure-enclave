@@ -2032,20 +2032,53 @@ out:
 /* Test entry function. */
 int main(int argc, char *argv[])
 {
+	open_session_args_t open_session_args = {0};
+	hsm_hdl_t hdl;
+	uint32_t err;
+
 	if ((argc == 2 &&
 	     (strcmp("--help", argv[1]) == 0 || strcmp("-h", argv[1]) == 0))) {
 		v2x_hsm_test_usage();
 		return 0;
 	}
 
+	/* Open HSM session on V2X */
+	open_session_args.mu_type = V2X_SV0;
+
+	err = hsm_open_session(&open_session_args, &hdl);
+	if (err) {
+		printf("open_session failed for HSM, err:0x%x\n", err);
+		return 0;
+	}
+
+	populate_global_info(open_session_args.session_hdl);
+	hsm_close_session(open_session_args.session_hdl);
+
+	/* return if not i.MX95 B0 board */
+	if (se_get_soc_id() == SOC_IMX95 && se_get_soc_rev() != SOC_REV_B0) {
+		printf("V2X HSM test suite is not supported on %s %s %s\n",
+		       get_soc_id_str(se_get_soc_id()),
+		       get_soc_rev_str(se_get_soc_rev()),
+		       get_board_type_str(se_get_board_type()));
+		return 0;
+	}
+
 	if (argc == 2) {
-		if (strcmp("-a", argv[1]) == 0)
+		if (strcmp("-a", argv[1]) == 0) {
+			/* Aautomated TVs are not supported on 8dxl */
+			if (se_get_soc_id() == SOC_IMX8DXL) {
+				printf("V2X HSM TVs are not supported on %s\n",
+				       get_soc_id_str(se_get_soc_id()));
+				return 0;
+			}
 			shx_tests_run();
-		else
+		} else {
 			shx_v2x_hsm_tests(argc, argv);
+		}
 
 		return 0;
 	}
+
 	v2x_hsm_tests();
 
 	return 0;
