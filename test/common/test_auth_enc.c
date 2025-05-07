@@ -563,7 +563,7 @@ hsm_err_t auth_enc_test(hsm_hdl_t key_store_hdl, hsm_hdl_t key_mgmt_hdl)
 			  "CCM");
 
 	if (se_get_soc_id() != SOC_IMX8ULP &&
-	    se_get_soc_id() != SOC_IMX95)
+	    !(se_get_soc_id() == SOC_IMX95 && se_get_soc_rev() != SOC_REV_B0))
 		auth_enc_new_test(key_store_hdl, key_mgmt_hdl,
 				  PERMITTED_ALGO_CHACHA20_POLY1305,
 				  HSM_KEY_SIZE_CHACHA20_POLY1305_256,
