@@ -72,9 +72,10 @@ ________________________________________________________________________________
 |________|_________________________________________________________________________________________________________________|
 |  0x48  | SHE MU on V2X												   |
 |  0x08  | SHE MU on SECO												   |
-|  0x59  | SHE1 MU on V2X (applicable for i.MX95 board.                                                                    |
-|        |    (NXP internal Users only.)                                                                                   |
-|        |	Please follow below page to enable SHE1 in linux:                                                          |
+|  0x49  | SHE1 MU on V2X (applicable for i.MX943 and i.MX95 board.)                                                       |
+|        |    (To enable on i.MX95, please follow below steps:)                                                            |
+|	 |    (NXP internal Users only)                                                                                    |
+|        |	Please follow below page to enable SHE1 in linux for i.MX95 board:                                         |
 |        |	https://confluence.sw.nxp.com/display/EPSTEC/i.MX95%3A+Steps+To+Enable+SHE1+AKA+SV1+and+SHE+NVM+on+DEBUG+MU|
 |________|_________________________________________________________________________________________________________________|
 
