@@ -147,6 +147,11 @@ function imx943evk_nvmd_config()
             nvmd_config_setup "/etc/v2x_she/v2x_she_master" "/etc/v2x_she/" "0xC8" "V2X"
             ;;
 
+        0xC9 | 0xc9 | "V2X_SHE1_NVM" | "v2x_she1_nvm")
+            nvmd_config_setup \
+	    "/etc/v2x_she1/v2x_she1_master" "/etc/v2x_she1/" "0xC9" "V2X"
+            ;;
+
         0xE0 | 0xe0 | "V2X_SHE_DEBUG_MU_NVM" | "v2x_she_debug_mu_nvm")
             printf "Unsupported NVM-D config opted for iMX943.\n"
             ;;
@@ -168,6 +173,7 @@ function usage()
 
     printf "\tNVMD_MU_SESSION_FLAG=0x80 / HSM_NVM\n"
     printf "\tNVMD_MU_SESSION_FLAG=0xc8 / V2X_SHE_NVM\n"
+    printf "\tNVMD_MU_SESSION_FLAG=0xc9 / V2X_SHE1_NVM\n"
     printf "\tNVMD_MU_SESSION_FLAG=0xe0 / V2X_SHE_DEBUG_MU_NVM\n"
     printf "\tNVMD_MU_SESSION_FLAG=0xd0 / V2X_HSM_NVM\n"
     printf "\tNVMD_MU_SESSION_FLAG=0x88 / SHE_NVM\n\n"

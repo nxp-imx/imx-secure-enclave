@@ -1,6 +1,6 @@
 // SPDX-License-Identifier: BSD-3-Clause
 /*
- * Copyright 2023-2024 NXP
+ * Copyright 2023-2025 NXP
  */
 
 #ifndef SESSION_H
@@ -45,6 +45,8 @@ typedef struct {
 //!< SG1 channel on V2X, low latency low priority.
 #define V2X_SHE (0x48u)
 //!< SHE channel on V2X, low latency  high priority.
+#define V2X_SHE1 (0x49u)
+//!< SHE1 channel on V2X, low latency  high priority.
 #define SHE1	(0x08u)
 //!< SHE channel on SE,  best effort high priority.
 #define V2X_SV0 (0x58u)
@@ -57,6 +59,8 @@ typedef struct {
 //!< SHE NVM channel on SE.
 #define V2X_SHE_NVM (0xC8u)
 //!< SHE NVM channel on V2X.
+#define V2X_SHE1_NVM (0xC9u)
+//!< SHE1 NVM channel on V2X.
 #define V2X_HSM_NVM (0xD0u)
 //!< V2X HSM NVM channel run on SG0.
 #define V2X_SHE_DEBUG_MU_NVM (0xE0u)

@@ -1,6 +1,6 @@
 // SPDX-License-Identifier: BSD-3-Clause
 /*
- * Copyright 2024 NXP
+ * Copyright 2024-2025 NXP
  */
 
 #include <ctype.h>
@@ -61,7 +61,7 @@ int main(int argc, char *argv[])
 
 		if (SHE_id)
 			/* Open SHE1 session */
-			mu_type = V2X_SV1;
+			mu_type = V2X_SHE1;
 		else
 			mu_type = V2X_SHE;
 
