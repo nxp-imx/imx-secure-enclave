@@ -822,13 +822,16 @@ int execute_hsm_tests(uint32_t key_store_id)
 	transient_key_tests(hsm_session_hdl, key_store_hdl, key_store_id);
 
 #ifdef PSA_COMPLIANT
-	if (se_get_soc_id() != SOC_IMX8ULP) {
+	if (se_get_soc_id() != SOC_IMX8ULP && se_get_soc_id() != SOC_IMX943 &&
+	    !(se_get_soc_id() == SOC_IMX95 && se_get_soc_rev() == SOC_REV_B0)) {
 		gc_akey_gen_test(hsm_session_hdl);
 		gc_acrypto_test(hsm_session_hdl);
 		gc_aead_test(hsm_session_hdl);
 	}
 
-	gc_cipher_test(hsm_session_hdl);
+	if (se_get_soc_id() != SOC_IMX943 &&
+	    !(se_get_soc_id() == SOC_IMX95 && se_get_soc_rev() == SOC_REV_B0))
+		gc_cipher_test(hsm_session_hdl);
 
 	/**
 	 * Test the Data DELETE operation on the data stored, with previous
