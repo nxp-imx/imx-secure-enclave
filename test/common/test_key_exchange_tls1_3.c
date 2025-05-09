@@ -268,6 +268,7 @@ static void test_tls1_3_early_secrets(hsm_hdl_t key_mgmt_hdl,
 
 	/* 4. Case 1.3. Export Derived/Output Key Buffer, without PSK */
 	in_content.psk_id = 0x0;
+#if SUPPORT_KEY_EXCHANGE_PLAINTEXT_OUTPUT
 	memset(&key_ex_args, 0, sizeof(op_key_exchange_args_t));
 	memset(output_key_buffer, 0, sizeof(output_key_buffer));
 
@@ -292,7 +293,7 @@ static void test_tls1_3_early_secrets(hsm_hdl_t key_mgmt_hdl,
 #endif
 	if (err != HSM_NO_ERROR)
 		goto out;
-
+#endif
 out:
 	return;
 }
@@ -830,6 +831,7 @@ static void test_tls1_3_handshake_secrets(hsm_hdl_t key_mgmt_hdl,
 
 	/* 6. Case 1.3. Export Derived/Output Key Buffer, without PSK */
 	in_content.psk_id = 0x0;
+#if SUPPORT_KEY_EXCHANGE_PLAINTEXT_OUTPUT
 	memset(&key_ex_args, 0, sizeof(op_key_exchange_args_t));
 	memset(output_key_buffer, 0, sizeof(output_key_buffer));
 
@@ -890,7 +892,7 @@ static void test_tls1_3_handshake_secrets(hsm_hdl_t key_mgmt_hdl,
 		printf("\nTLS 1.3: HS: Mbed-TLS validation. SUCCESS\n");
 	else
 		printf("\nTLS 1.3: HS: Mbed-TLS validation. FAILED\n");
-
+#endif
 out:
 	/* 7. Delete the Generated test Key */
 	if (key_id)
@@ -1084,6 +1086,7 @@ static void test_tls1_3_master_secrets(hsm_hdl_t key_mgmt_hdl,
 
 	/* 5. Case 1.3. Export Derived/Output Key Buffer, without PSK */
 	in_content.psk_id = 0x0;
+#if SUPPORT_KEY_EXCHANGE_PLAINTEXT_OUTPUT
 	memset(&key_ex_args, 0, sizeof(op_key_exchange_args_t));
 	memset(output_key_buffer, 0, sizeof(output_key_buffer));
 
@@ -1105,6 +1108,7 @@ static void test_tls1_3_master_secrets(hsm_hdl_t key_mgmt_hdl,
 	printf("\t--Salt Size: 0x%x\n", key_ex_args.out_salt_sz);
 	printf("\n--Derived Key Buffer:\n");
 	dump_hex(key_ex_args.output, key_ex_args.output_sz);
+#endif
 #endif
 out:
 	/* 6. Delete the Generated test Key */

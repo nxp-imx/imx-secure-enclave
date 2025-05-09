@@ -27,6 +27,8 @@
 #define TEST_INPUT_DIGEST  0
 #define TEST_INPUT_MESSAGE 1
 
+#define SUPPORT_KEY_EXCHANGE_PLAINTEXT_OUTPUT 0
+
 hsm_err_t generate_test_key(hsm_hdl_t key_mgmt_hdl,
 			    hsm_key_type_t key_type,
 #ifdef PSA_COMPLIANT
