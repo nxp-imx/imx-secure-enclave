@@ -1,6 +1,6 @@
 // SPDX-License-Identifier: BSD-3-Clause
 /*
- * Copyright 2021-2024 NXP
+ * Copyright 2021-2025 NXP
  */
 
 #include "errno.h"
@@ -30,7 +30,9 @@ void plat_build_cmd_msg_hdr(struct sab_mu_hdr *hdr, msg_type_t msg_type,
 		hdr->ver = V2X_SV1_API_VER;
 		break;
 	case V2X_SHE:
+	case V2X_SHE1:
 	case V2X_SHE_NVM:
+	case V2X_SHE1_NVM:
 	case V2X_SHE_DEBUG_MU_NVM:
 		hdr->ver = V2X_SHE_API_VER;
 		break;
@@ -64,7 +66,9 @@ void plat_build_rsp_msg_hdr(struct sab_mu_hdr *hdr, msg_type_t msg_type,
 		hdr->ver = V2X_SV1_API_VER;
 	break;
 	case V2X_SHE:
+	case V2X_SHE1:
 	case V2X_SHE_NVM:
+	case V2X_SHE1_NVM:
 	case V2X_SHE_DEBUG_MU_NVM:
 		hdr->ver = V2X_SHE_API_VER;
 	break;

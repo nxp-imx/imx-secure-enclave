@@ -1,6 +1,6 @@
 // SPDX-License-Identifier: BSD-3-Clause
 /*
- * Copyright 2021-2024 NXP
+ * Copyright 2021-2025 NXP
  */
 
 #include <stdio.h>
@@ -49,6 +49,7 @@ uint32_t plat_os_abs_storage_write(struct plat_os_abs_hdl *phdl,
 	if (phdl->type == SHE_NVM ||
 	    phdl->type == HSM_NVM ||
 	    phdl->type == V2X_SHE_NVM ||
+	    phdl->type == V2X_SHE1_NVM ||
 	    phdl->type == V2X_SHE_DEBUG_MU_NVM ||
 	    phdl->type == V2X_HSM_NVM) {
 		/* Open or create the file with access reserved
@@ -96,6 +97,7 @@ uint32_t plat_os_abs_storage_read(struct plat_os_abs_hdl *phdl,
 	if (phdl->type == SHE_NVM ||
 	    phdl->type == HSM_NVM ||
 	    phdl->type == V2X_SHE_NVM ||
+	    phdl->type == V2X_SHE1_NVM ||
 	    phdl->type == V2X_SHE_DEBUG_MU_NVM ||
 	    phdl->type == V2X_HSM_NVM) {
 		/* Open the file as read only. */
@@ -175,6 +177,7 @@ uint32_t plat_os_abs_storage_write_chunk(struct plat_os_abs_hdl *phdl,
 	if (phdl->type == HSM_NVM ||
 	    phdl->type == V2X_HSM_NVM ||
 	    phdl->type == V2X_SHE_NVM ||
+	    phdl->type == V2X_SHE1_NVM ||
 	    phdl->type == V2X_SHE_DEBUG_MU_NVM) {
 		n = get_chunk_file_path(&path, nvm_storage_dname, blob_id);
 	} else {
@@ -219,6 +222,7 @@ uint32_t plat_os_abs_storage_read_chunk(struct plat_os_abs_hdl *phdl,
 	if (phdl->type == HSM_NVM ||
 	    phdl->type == V2X_HSM_NVM ||
 	    phdl->type == V2X_SHE_NVM ||
+	    phdl->type == V2X_SHE1_NVM ||
 	    phdl->type == V2X_SHE_DEBUG_MU_NVM) {
 		n = get_chunk_file_path(&path, nvm_storage_dname, blob_id);
 	} else {

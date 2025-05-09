@@ -1,6 +1,6 @@
 // SPDX-License-Identifier: BSD-3-Clause
 /*
- * Copyright 2019-2024 NXP
+ * Copyright 2019-2025 NXP
  */
 
 #include <errno.h>
@@ -215,6 +215,7 @@ bool is_flag_supported(uint8_t flags)
 	if (flags == HSM_NVM ||
 	    flags == SHE_NVM ||
 	    flags == V2X_SHE_NVM ||
+	    flags == V2X_SHE1_NVM ||
 	    flags == V2X_HSM_NVM ||
 	    flags == V2X_SHE_DEBUG_MU_NVM)
 		return true;
