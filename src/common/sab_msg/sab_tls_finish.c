@@ -1,6 +1,6 @@
 // SPDX-License-Identifier: BSD-3-Clause
 /*
- * Copyright 2023 NXP
+ * Copyright 2023-2025 NXP
  */
 
 #include "internal/hsm_key_exchange.h"

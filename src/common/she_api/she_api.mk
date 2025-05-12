@@ -1,5 +1,5 @@
 # SPDX-License-Identifier: BSD-3-Clause
-# Copyright 2023 NXP
+# Copyright 2023-2025 NXP
 #
 
 SHE_API_SRC	+= $(PLAT_COMMON_PATH)/she_api/she_handle.o \
