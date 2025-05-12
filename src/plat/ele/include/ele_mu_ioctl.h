@@ -1,6 +1,6 @@
 // SPDX-License-Identifier: BSD-3-Clause
 /*
- * Copyright 2021, 2023-2024 NXP
+ * Copyright 2021-2025 NXP
  */
 
 #ifndef ELE_MU_IOCTL_H

@@ -1,6 +1,6 @@
 // SPDX-License-Identifier: BSD-3-Clause
 /*
- * Copyright 2023-2024 NXP
+ * Copyright 2019-2021, 2023-2025 NXP
  */
 
 #ifdef PSA_COMPLIANT
