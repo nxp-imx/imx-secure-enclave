@@ -159,7 +159,7 @@ static void test_tls1_3_early_secrets(hsm_hdl_t key_mgmt_hdl,
 	uint32_t key_id = 0; //Private Key ID, ELE FW
 	uint32_t output_key_buffer[TEST_TLS1_3_DERIVED_MAX_KEY_SIZE];
 	uint32_t hash_algo_size;
-	uint32_t psk_id;
+	uint32_t psk_id = 0;
 	uint32_t psk_bit_key_size;
 
 	/*********************Early Secrets - EXT Binder *********************/
@@ -265,6 +265,8 @@ static void test_tls1_3_early_secrets(hsm_hdl_t key_mgmt_hdl,
 
 	if (err != HSM_NO_ERROR)
 		goto out;
+
+	delete_test_key(key_mgmt_hdl, key_ex_args.out_derived_key_id, 0);
 
 	/* 4. Case 1.3. Export Derived/Output Key Buffer, without PSK */
 	in_content.psk_id = 0x0;
@@ -693,7 +695,7 @@ static void test_tls1_3_handshake_secrets(hsm_hdl_t key_mgmt_hdl,
 	uint32_t priv_key_size = 0;
 	uint32_t hash_algo;
 	uint32_t hash_algo_size;
-	uint32_t psk_id;
+	uint32_t psk_id = 0;
 	uint32_t psk_bit_key_size;
 
 	/**************Handshake Secrets - Client HS traffic ***************/
@@ -829,6 +831,8 @@ static void test_tls1_3_handshake_secrets(hsm_hdl_t key_mgmt_hdl,
 	if (err != HSM_NO_ERROR)
 		goto out;
 
+	delete_test_key(key_mgmt_hdl, key_ex_args.out_derived_key_id, 0);
+
 	/* 6. Case 1.3. Export Derived/Output Key Buffer, without PSK */
 	in_content.psk_id = 0x0;
 #if SUPPORT_KEY_EXCHANGE_PLAINTEXT_OUTPUT
@@ -947,7 +951,7 @@ static void test_tls1_3_master_secrets(hsm_hdl_t key_mgmt_hdl,
 	uint32_t priv_key_size = 0;
 	uint32_t hash_algo;
 	uint32_t hash_algo_size;
-	uint32_t psk_id;
+	uint32_t psk_id = 0;
 	uint32_t psk_bit_key_size;
 
 	/**************Master Secrets - Client application traffic ***************/
@@ -1083,6 +1087,8 @@ static void test_tls1_3_master_secrets(hsm_hdl_t key_mgmt_hdl,
 
 	if (err != HSM_NO_ERROR)
 		goto out;
+
+	delete_test_key(key_mgmt_hdl, key_ex_args.out_derived_key_id, 0);
 
 	/* 5. Case 1.3. Export Derived/Output Key Buffer, without PSK */
 	in_content.psk_id = 0x0;
