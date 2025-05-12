@@ -1,6 +1,6 @@
 // SPDX-License-Identifier: BSD-3-Clause
 /*
- * Copyright 2022 NXP
+ * Copyright 2022-2023, 2025 NXP
  */
 
 #ifndef SAB_DELETE_KEY_H

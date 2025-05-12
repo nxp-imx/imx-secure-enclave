@@ -147,6 +147,7 @@ void tls13_hkdf_label_encode(uint16_t length,
  *            v
  */
 static void test_tls1_3_early_secrets(hsm_hdl_t key_mgmt_hdl,
+				      uint32_t tls1_3_key_permitted_algo,
 				      uint32_t tls1_3_es_algo,
 				      uint32_t *test_key_id,
 				      uint32_t key_store_id)
@@ -158,6 +159,8 @@ static void test_tls1_3_early_secrets(hsm_hdl_t key_mgmt_hdl,
 	uint32_t key_id = 0; //Private Key ID, ELE FW
 	uint32_t output_key_buffer[TEST_TLS1_3_DERIVED_MAX_KEY_SIZE];
 	uint32_t hash_algo_size;
+	uint32_t psk_id;
+	uint32_t psk_bit_key_size;
 
 	/*********************Early Secrets - EXT Binder *********************/
 
@@ -174,15 +177,25 @@ static void test_tls1_3_early_secrets(hsm_hdl_t key_mgmt_hdl,
 		hash_algo_size = HSM_HASH_ALGO_SHA_256_SIZE;
 		context = context_buffer;
 		context_len = sizeof(context_buffer);
+		psk_bit_key_size = HSM_KEY_SIZE_DERIVE_256;
 	} else {
 		hash_algo_size = HSM_HASH_ALGO_SHA_384_SIZE;
 		context = context_384_buffer;
 		context_len = sizeof(context_384_buffer);
+		psk_bit_key_size = HSM_KEY_SIZE_DERIVE_384;
 	}
 
 	length = hash_algo_size;
 
-	/* 1. Prepare Input Plaintext Context, without optional PSK */
+	/* 1. Prepare User Fixed Info or HKDF label */
+	memset(hkdf_label, 0, sizeof(hkdf_label));
+
+	tls13_hkdf_label_encode(length,
+				label, label_len,
+				context, context_len,
+				hkdf_label, &hkdf_label_len);
+
+	/* 2.1. Prepare Input Plaintext Context, without optional PSK */
 	memset(&in_content, 0, sizeof(in_content_tls13_args_t));
 
 	in_content.ver = 0x1;
@@ -191,15 +204,7 @@ static void test_tls1_3_early_secrets(hsm_hdl_t key_mgmt_hdl,
 	in_content.priv_key_id = key_id; // Ignored for Early Secrets.
 	in_content.psk_id = 0x0; // Optional PSK not used.
 
-	/* 2. Prepare User Fixed Info or HKDF label */
-	memset(hkdf_label, 0, sizeof(hkdf_label));
-
-	tls13_hkdf_label_encode(length,
-				label, label_len,
-				context, context_len,
-				hkdf_label, &hkdf_label_len);
-
-	/* 3. Case 1.1. Derived Key stored in ELE FW. */
+	/* 2.2. Case 1.1. Derived Key stored in ELE FW. */
 	memset(&key_ex_args, 0, sizeof(op_key_exchange_args_t));
 
 	key_ex_args.flags = HSM_OP_KEY_EXCHANGE_FLAGS_INPUT_PLAINTEXT_CONTENT;
@@ -224,7 +229,46 @@ static void test_tls1_3_early_secrets(hsm_hdl_t key_mgmt_hdl,
 	/* Return the Early Secret key_id to support other testings. (KM & IV) */
 	*test_key_id = key_ex_args.out_derived_key_id;
 
-	/* 4. Case 1.2. Export Derived/Output Key Buffer. */
+	/* 3.1. Generate PSK ID for deriving Early Secret */
+	generate_test_key(key_mgmt_hdl,
+			  HSM_KEY_TYPE_DERIVE,
+			  psk_bit_key_size,
+			  HSM_SE_KEY_STORAGE_VOLATILE,
+			  HSM_KEY_USAGE_DERIVE,
+			  tls1_3_key_permitted_algo,
+			  0x0,
+			  0x0,
+			  40,
+			  0x0,
+			  NULL,
+			  &psk_id);
+
+	/* 3.2. Prepare Input Plaintext Context, with PSK ID */
+	in_content.psk_id = psk_id;
+
+	/* 3.3. Case 1.2. Derived Key stored in ELE FW. */
+	memset(&key_ex_args, 0, sizeof(op_key_exchange_args_t));
+
+	key_ex_args.flags = HSM_OP_KEY_EXCHANGE_FLAGS_INPUT_PLAINTEXT_CONTENT;
+	key_ex_args.in_content_sz = sizeof(in_content_tls13_args_t);
+	key_ex_args.in_content = (uint8_t *)(&in_content);
+	key_ex_args.user_fixed_info_sz = hkdf_label_len;
+	key_ex_args.user_fixed_info = (uint8_t *)hkdf_label;
+
+	err = hsm_key_exchange(key_mgmt_hdl, &key_ex_args);
+	printf("\nhsm_key_exchange [TLS 1.3 ES case #1.2] err: 0x%x\n", err);
+#ifdef ELE_DEBUG
+	printf("\t--Derived Key ID: 0x%x\n", key_ex_args.out_derived_key_id);
+	printf("\t--Salt Size: 0x%x\n", key_ex_args.out_salt_sz);
+#endif
+	delete_test_key(key_mgmt_hdl, psk_id, 0);
+
+	if (err != HSM_NO_ERROR)
+		goto out;
+
+	/* 4. Case 1.3. Export Derived/Output Key Buffer, without PSK */
+	in_content.psk_id = 0x0;
+#if SUPPORT_KEY_EXCHANGE_PLAINTEXT_OUTPUT
 	memset(&key_ex_args, 0, sizeof(op_key_exchange_args_t));
 	memset(output_key_buffer, 0, sizeof(output_key_buffer));
 
@@ -240,7 +284,7 @@ static void test_tls1_3_early_secrets(hsm_hdl_t key_mgmt_hdl,
 	key_ex_args.output = (uint8_t *)output_key_buffer;
 
 	err = hsm_key_exchange(key_mgmt_hdl, &key_ex_args);
-	printf("hsm_key_exchange [TLS 1.3 ES case #1.2] err: 0x%x\n", err);
+	printf("hsm_key_exchange [TLS 1.3 ES case #1.3] err: 0x%x\n", err);
 #ifdef ELE_DEBUG
 	printf("\t--Derived Key ID: 0x%x\n", key_ex_args.out_derived_key_id);
 	printf("\t--Salt Size: 0x%x\n", key_ex_args.out_salt_sz);
@@ -249,7 +293,7 @@ static void test_tls1_3_early_secrets(hsm_hdl_t key_mgmt_hdl,
 #endif
 	if (err != HSM_NO_ERROR)
 		goto out;
-
+#endif
 out:
 	return;
 }
@@ -649,6 +693,8 @@ static void test_tls1_3_handshake_secrets(hsm_hdl_t key_mgmt_hdl,
 	uint32_t priv_key_size = 0;
 	uint32_t hash_algo;
 	uint32_t hash_algo_size;
+	uint32_t psk_id;
+	uint32_t psk_bit_key_size;
 
 	/**************Handshake Secrets - Client HS traffic ***************/
 
@@ -666,11 +712,13 @@ static void test_tls1_3_handshake_secrets(hsm_hdl_t key_mgmt_hdl,
 		hash_algo_size = HSM_HASH_ALGO_SHA_256_SIZE;
 		context = context_buffer;
 		context_len = sizeof(context_buffer);
+		psk_bit_key_size = HSM_KEY_SIZE_DERIVE_256;
 	} else {
 		hash_algo = HSM_HASH_ALGO_SHA_384;
 		hash_algo_size = HSM_HASH_ALGO_SHA_384_SIZE;
 		context = context_384_buffer;
 		context_len = sizeof(context_384_buffer);
+		psk_bit_key_size = HSM_KEY_SIZE_DERIVE_384;
 	}
 
 	length = hash_algo_size;
@@ -700,20 +748,20 @@ static void test_tls1_3_handshake_secrets(hsm_hdl_t key_mgmt_hdl,
 	if (err != HSM_NO_ERROR)
 		printf("\nhsm_generate_key (KeyPair) err: 0x%x\n", err);
 
-	/* 2. Prepare Input Plaintext Context for TLS 1.3, without optional PSK */
+	/* 2. Prepare User Fixed Info or HKDF label */
+	memset(hkdf_label, 0, sizeof(hkdf_label));
+	tls13_hkdf_label_encode(length,
+				label, label_len,
+				context, context_len,
+				hkdf_label, &hkdf_label_len);
+
+	/* 3. Prepare Input Plaintext Context for TLS 1.3, without optional PSK */
 	memset(&in_content, 0, sizeof(in_content_tls13_args_t));
 
 	in_content.ver = 0x1;
 	in_content.keystore_id = key_store_id;
 	in_content.tls1_3_algo = tls1_3_hs_algo;
 	in_content.priv_key_id = key_id;
-
-	/* 3. Prepare User Fixed Info or HKDF label */
-	memset(hkdf_label, 0, sizeof(hkdf_label));
-	tls13_hkdf_label_encode(length,
-				label, label_len,
-				context, context_len,
-				hkdf_label, &hkdf_label_len);
 
 	/* 4. Case 1.1. Derived Key stored in ELE FW. */
 	memset(&key_ex_args, 0, sizeof(op_key_exchange_args_t));
@@ -740,7 +788,50 @@ static void test_tls1_3_handshake_secrets(hsm_hdl_t key_mgmt_hdl,
 	/* Return the Handshake Secret key_id to support other testings. (KM & IV) */
 	*test_key_id = key_ex_args.out_derived_key_id;
 
-	/* 5. Case 1.2. Export Derived/Output Key Buffer. */
+	/* 5.1. Generate PSK ID for deriving Handshake Secret */
+	generate_test_key(key_mgmt_hdl,
+			  HSM_KEY_TYPE_DERIVE,
+			  psk_bit_key_size,
+			  HSM_SE_KEY_STORAGE_VOLATILE,
+			  HSM_KEY_USAGE_DERIVE,
+			  tls1_3_key_permitted_algo,
+			  0x0,
+			  0x0,
+			  40,
+			  0x0,
+			  NULL,
+			  &psk_id);
+
+	/* 5.2. Prepare Input Plaintext Context for TLS 1.3, with PSK ID */
+	in_content.psk_id = psk_id;
+
+	/* 5.3. Case 1.2. Derived Key stored in ELE FW. */
+	memset(&key_ex_args, 0, sizeof(op_key_exchange_args_t));
+
+	key_ex_args.flags = HSM_OP_KEY_EXCHANGE_FLAGS_INPUT_PLAINTEXT_CONTENT;
+	key_ex_args.in_content_sz = sizeof(in_content_tls13_args_t);
+	key_ex_args.in_content = (uint8_t *)(&in_content);
+	key_ex_args.in_pub_buffer_sz = pub_key_size;
+	key_ex_args.in_pub_buffer = peer_pub_key;
+	key_ex_args.user_fixed_info_sz = hkdf_label_len;
+	key_ex_args.user_fixed_info = (uint8_t *)hkdf_label;
+	key_ex_args.output_sz = 0;
+	key_ex_args.output = NULL;
+
+	err = hsm_key_exchange(key_mgmt_hdl, &key_ex_args);
+	printf("\nhsm_key_exchange [TLS 1.3 HS case  #1.2] err: 0x%x\n", err);
+#ifdef ELE_DEBUG
+	printf("\t--Derived Key ID: 0x%x\n", key_ex_args.out_derived_key_id);
+	printf("\t--Salt Size: 0x%x\n", key_ex_args.out_salt_sz);
+#endif
+	delete_test_key(key_mgmt_hdl, psk_id, 0);
+
+	if (err != HSM_NO_ERROR)
+		goto out;
+
+	/* 6. Case 1.3. Export Derived/Output Key Buffer, without PSK */
+	in_content.psk_id = 0x0;
+#if SUPPORT_KEY_EXCHANGE_PLAINTEXT_OUTPUT
 	memset(&key_ex_args, 0, sizeof(op_key_exchange_args_t));
 	memset(output_key_buffer, 0, sizeof(output_key_buffer));
 
@@ -756,7 +847,7 @@ static void test_tls1_3_handshake_secrets(hsm_hdl_t key_mgmt_hdl,
 	key_ex_args.output = (uint8_t *)output_key_buffer;
 
 	err = hsm_key_exchange(key_mgmt_hdl, &key_ex_args);
-	printf("hsm_key_exchange [TLS 1.3 HS case #1.2] err: 0x%x\n", err);
+	printf("hsm_key_exchange [TLS 1.3 HS case #1.3] err: 0x%x\n", err);
 #ifdef ELE_DEBUG
 	printf("\t--Derived Key ID: 0x%x\n", key_ex_args.out_derived_key_id);
 	printf("\t--Salt Size: 0x%x\n", key_ex_args.out_salt_sz);
@@ -801,7 +892,7 @@ static void test_tls1_3_handshake_secrets(hsm_hdl_t key_mgmt_hdl,
 		printf("\nTLS 1.3: HS: Mbed-TLS validation. SUCCESS\n");
 	else
 		printf("\nTLS 1.3: HS: Mbed-TLS validation. FAILED\n");
-
+#endif
 out:
 	/* 7. Delete the Generated test Key */
 	if (key_id)
@@ -856,6 +947,8 @@ static void test_tls1_3_master_secrets(hsm_hdl_t key_mgmt_hdl,
 	uint32_t priv_key_size = 0;
 	uint32_t hash_algo;
 	uint32_t hash_algo_size;
+	uint32_t psk_id;
+	uint32_t psk_bit_key_size;
 
 	/**************Master Secrets - Client application traffic ***************/
 
@@ -873,11 +966,13 @@ static void test_tls1_3_master_secrets(hsm_hdl_t key_mgmt_hdl,
 		hash_algo_size = HSM_HASH_ALGO_SHA_256_SIZE;
 		context = context_buffer;
 		context_len = sizeof(context_buffer);
+		psk_bit_key_size = HSM_KEY_SIZE_DERIVE_256;
 	} else {
 		hash_algo = HSM_HASH_ALGO_SHA_384;
 		hash_algo_size = HSM_HASH_ALGO_SHA_384_SIZE;
 		context = context_384_buffer;
 		context_len = sizeof(context_384_buffer);
+		psk_bit_key_size = HSM_KEY_SIZE_DERIVE_384;
 	}
 
 	length = hash_algo_size;
@@ -907,7 +1002,14 @@ static void test_tls1_3_master_secrets(hsm_hdl_t key_mgmt_hdl,
 	if (err != HSM_NO_ERROR)
 		printf("\nhsm_generate_key (KeyPair) err: 0x%x\n", err);
 
-	/* 2. Prepare Input Plaintext Context for TLS 1.3, without optional PSK */
+	/* 2. Prepare User Fixed Info or HKDF label */
+	memset(hkdf_label, 0, sizeof(hkdf_label));
+	tls13_hkdf_label_encode(length,
+				label, label_len,
+				context, context_len,
+				hkdf_label, &hkdf_label_len);
+
+	/* 3.1. Prepare Input Plaintext Context for TLS 1.3, without optional PSK */
 	memset(&in_content, 0, sizeof(in_content_tls13_args_t));
 
 	in_content.ver = 0x1;
@@ -916,14 +1018,7 @@ static void test_tls1_3_master_secrets(hsm_hdl_t key_mgmt_hdl,
 	in_content.priv_key_id = key_id;
 	in_content.psk_id = 0x0; // Optional PSK not used.
 
-	/* 3. Prepare User Fixed Info or HKDF label */
-	memset(hkdf_label, 0, sizeof(hkdf_label));
-	tls13_hkdf_label_encode(length,
-				label, label_len,
-				context, context_len,
-				hkdf_label, &hkdf_label_len);
-
-	/* 4. Case 1.1. Derived Key stored in ELE FW. */
+	/* 3.2. Case 1.1. Derived Key stored in ELE FW. */
 	memset(&key_ex_args, 0, sizeof(op_key_exchange_args_t));
 
 	key_ex_args.flags = HSM_OP_KEY_EXCHANGE_FLAGS_INPUT_PLAINTEXT_CONTENT;
@@ -948,7 +1043,50 @@ static void test_tls1_3_master_secrets(hsm_hdl_t key_mgmt_hdl,
 	/* Return the Master Secret key_id to support other testings. (KM & IV) */
 	*test_key_id = key_ex_args.out_derived_key_id;
 
-	/* 5. Case 1.2. Export Derived/Output Key Buffer. */
+	/* 4.1. Generate PSK ID for deriving Master Secret */
+	generate_test_key(key_mgmt_hdl,
+			  HSM_KEY_TYPE_DERIVE,
+			  psk_bit_key_size,
+			  HSM_SE_KEY_STORAGE_VOLATILE,
+			  HSM_KEY_USAGE_DERIVE,
+			  tls1_3_key_permitted_algo,
+			  0x0,
+			  0x0,
+			  40,
+			  0x0,
+			  NULL,
+			  &psk_id);
+
+	/* 4.2. Prepare Input Plaintext Context for TLS 1.3, with PSK ID */
+	in_content.psk_id = psk_id;
+
+	/* 4.3. Case 1.2. Derived Key stored in ELE FW. */
+	memset(&key_ex_args, 0, sizeof(op_key_exchange_args_t));
+
+	key_ex_args.flags = HSM_OP_KEY_EXCHANGE_FLAGS_INPUT_PLAINTEXT_CONTENT;
+	key_ex_args.in_content_sz = sizeof(in_content_tls13_args_t);
+	key_ex_args.in_content = (uint8_t *)(&in_content);
+	key_ex_args.in_pub_buffer_sz = pub_key_size;
+	key_ex_args.in_pub_buffer = peer_pub_key;
+	key_ex_args.user_fixed_info_sz = hkdf_label_len;
+	key_ex_args.user_fixed_info = (uint8_t *)hkdf_label;
+	key_ex_args.output_sz = 0;
+	key_ex_args.output = NULL;
+
+	err = hsm_key_exchange(key_mgmt_hdl, &key_ex_args);
+	printf("\nhsm_key_exchange [TLS 1.3 MS case #1.2] err: 0x%x\n", err);
+#ifdef ELE_DEBUG
+	printf("\t--Derived Key ID: 0x%x\n", key_ex_args.out_derived_key_id);
+	printf("\t--Salt Size: 0x%x\n", key_ex_args.out_salt_sz);
+#endif
+	delete_test_key(key_mgmt_hdl, psk_id, 0);
+
+	if (err != HSM_NO_ERROR)
+		goto out;
+
+	/* 5. Case 1.3. Export Derived/Output Key Buffer, without PSK */
+	in_content.psk_id = 0x0;
+#if SUPPORT_KEY_EXCHANGE_PLAINTEXT_OUTPUT
 	memset(&key_ex_args, 0, sizeof(op_key_exchange_args_t));
 	memset(output_key_buffer, 0, sizeof(output_key_buffer));
 
@@ -964,12 +1102,13 @@ static void test_tls1_3_master_secrets(hsm_hdl_t key_mgmt_hdl,
 	key_ex_args.output = (uint8_t *)output_key_buffer;
 
 	err = hsm_key_exchange(key_mgmt_hdl, &key_ex_args);
-	printf("hsm_key_exchange [TLS 1.3 MS case #1.2] err: 0x%x\n", err);
+	printf("hsm_key_exchange [TLS 1.3 MS case #1.3] err: 0x%x\n", err);
 #ifdef ELE_DEBUG
 	printf("\t--Derived Key ID: 0x%x\n", key_ex_args.out_derived_key_id);
 	printf("\t--Salt Size: 0x%x\n", key_ex_args.out_salt_sz);
 	printf("\n--Derived Key Buffer:\n");
 	dump_hex(key_ex_args.output, key_ex_args.output_sz);
+#endif
 #endif
 out:
 	/* 6. Delete the Generated test Key */
@@ -998,6 +1137,7 @@ void key_exchange_test_tls1_3(hsm_hdl_t key_mgmt_hdl, uint32_t key_store_id)
 	printf("\nECC_NIST & HSM_KEY_DERIVATION_TLS1_3_EARLY_SECRET_SHA256:\n");
 	printf("---------------------------------------------------------\n");
 	test_tls1_3_early_secrets(key_mgmt_hdl,
+				  PERMITTED_ALGO_TLS1_3_MASTER_SECRET_SHA256,
 				  HSM_KEY_DERIVATION_TLS1_3_EARLY_SECRET_SHA256,
 				  &test_key_id,
 				  key_store_id);
@@ -1007,6 +1147,7 @@ void key_exchange_test_tls1_3(hsm_hdl_t key_mgmt_hdl, uint32_t key_store_id)
 	printf("\nECC_NIST & HSM_KEY_DERIVATION_TLS1_3_EARLY_SECRET_SHA384:\n");
 	printf("---------------------------------------------------------\n");
 	test_tls1_3_early_secrets(key_mgmt_hdl,
+				  PERMITTED_ALGO_TLS1_3_MASTER_SECRET_SHA384,
 				  HSM_KEY_DERIVATION_TLS1_3_EARLY_SECRET_SHA384,
 				  &test_key_id,
 				  key_store_id);
@@ -1222,6 +1363,26 @@ void key_exchange_test_tls1_3(hsm_hdl_t key_mgmt_hdl, uint32_t key_store_id)
 	delete_test_key(key_mgmt_hdl, test_key_id, 0);
 
 	// Test TLS 1.3 Key Permitted algos
+	printf("\nPermitted TLS 1.3 MS SHA ANY & HSM TLS 1.3 ES SHA256:\n");
+	printf("-------------------------------------------------------\n");
+	test_tls1_3_early_secrets(key_mgmt_hdl,
+				  PERMITTED_ALGO_TLS1_3_MASTER_SECRET_SHA_ANY,
+				  HSM_KEY_DERIVATION_TLS1_3_EARLY_SECRET_SHA256,
+				  &test_key_id,
+				  key_store_id);
+
+	delete_test_key(key_mgmt_hdl, test_key_id, 0);
+
+	printf("\nPermitted TLS 1.3 MS SHA ANY & HSM TLS 1.3 ES SHA384:\n");
+	printf("-------------------------------------------------------\n");
+	test_tls1_3_early_secrets(key_mgmt_hdl,
+				  PERMITTED_ALGO_TLS1_3_MASTER_SECRET_SHA_ANY,
+				  HSM_KEY_DERIVATION_TLS1_3_EARLY_SECRET_SHA384,
+				  &test_key_id,
+				  key_store_id);
+
+	delete_test_key(key_mgmt_hdl, test_key_id, 0);
+
 	printf("\nPermitted TLS 1.3 MS SHA ANY & HSM TLS 1.3 HS SHA256:\n");
 	printf("-------------------------------------------------------\n");
 	test_tls1_3_handshake_secrets(key_mgmt_hdl,

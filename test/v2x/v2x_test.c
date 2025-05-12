@@ -1,6 +1,6 @@
 // SPDX-License-Identifier: BSD-3-Clause
 /*
- * Copyright 2021-2025 NXP
+ * Copyright 2020-2025 NXP
  */
 
 #include "hsm_api.h"

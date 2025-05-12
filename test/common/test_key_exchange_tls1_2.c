@@ -210,11 +210,13 @@ static void test_tls1_2_master_secret(hsm_hdl_t key_mgmt_hdl,
 
 	err = hsm_key_exchange(key_mgmt_hdl, &key_ex_args);
 	printf("\nhsm_key_exchange [TLS 1.2 Master Secret case #1.1] err: 0x%x\n", err);
+#ifdef ELE_DEBUG
 	printf("\t--Derived Key ID: 0x%x\n", key_ex_args.out_derived_key_id);
-
+#endif
 	*master_secret_key_id = key_ex_args.out_derived_key_id;
 
 	/* 3.2. Export/Output Derived TLS 1.2 Master Secret Key */
+#if SUPPORT_KEY_EXCHANGE_PLAINTEXT_OUTPUT
 	memset(&key_ex_args, 0, sizeof(op_key_exchange_args_t));
 
 	key_ex_args.flags = HSM_OP_KEY_EXCHANGE_FLAGS_INPUT_PLAINTEXT_CONTENT |
@@ -257,7 +259,7 @@ static void test_tls1_2_master_secret(hsm_hdl_t key_mgmt_hdl,
 		printf("TLS 1.2 MS: Mbed-TLS validation. SUCCESS\n");
 	else
 		printf("TLS 1.2 MS: Mbed-TLS validation. FAILED\n");
-
+#endif
 out:
 	/* 6. Delete the test Keys */
 	delete_test_key(key_mgmt_hdl, fw_key_id, 0);
@@ -356,9 +358,10 @@ static void test_tls1_2_key_block(hsm_hdl_t key_store_hdl,
 
 	err = hsm_key_exchange(key_mgmt_hdl, &key_ex_args);
 	printf("\nhsm_key_exchange [TLS 1.2 Key Blocks case #1.1] err: 0x%x\n", err);
+#ifdef ELE_DEBUG
 	printf("\t--Output Key IDs:\n");
 	dump_hex(output_key_ids, sizeof(output_key_ids));
-
+#endif
 	if (err != HSM_NO_ERROR)
 		return;
 
@@ -388,6 +391,7 @@ static void test_tls1_2_key_block(hsm_hdl_t key_store_hdl,
 	test_tls1_2_kb_keys_cbc(key_store_hdl, server_write_key_id);
 
 	/* 3.1. Export Derived TLS 1.2 Key Block from ELE FW. */
+#if SUPPORT_KEY_EXCHANGE_PLAINTEXT_OUTPUT
 	memset(&key_ex_args, 0, sizeof(op_key_exchange_args_t));
 
 	key_ex_args.flags = HSM_OP_KEY_EXCHANGE_FLAGS_INPUT_PLAINTEXT_CONTENT |
@@ -424,7 +428,7 @@ static void test_tls1_2_key_block(hsm_hdl_t key_store_hdl,
 		printf("TLS 1.2 KB: Mbed-TLS validation. SUCCESS\n");
 	else
 		printf("TLS 1.2 KB: Mbed-TLS validation. FAILED\n");
-
+#endif
 out:
 	/* 6. Delete the test Keys */
 	delete_test_key(key_mgmt_hdl, client_write_mac_key_id, 0);
@@ -473,8 +477,7 @@ static void test_tls1_2_iv(hsm_hdl_t key_mgmt_hdl,
 	/* 2. Export ELE FW generated TLS 1.2 IVs */
 	memset(&key_ex_args, 0, sizeof(op_key_exchange_args_t));
 
-	key_ex_args.flags = HSM_OP_KEY_EXCHANGE_FLAGS_INPUT_PLAINTEXT_CONTENT |
-		HSM_OP_KEY_EXCHANGE_FLAGS_RETURN_OUTPUT;
+	key_ex_args.flags = HSM_OP_KEY_EXCHANGE_FLAGS_INPUT_PLAINTEXT_CONTENT;
 	key_ex_args.in_content_sz = sizeof(in_content);
 	key_ex_args.in_content = (uint8_t *)(&in_content);
 	key_ex_args.in_pub_buffer_sz = sizeof(ecc_256_pub_key);
@@ -489,6 +492,7 @@ static void test_tls1_2_iv(hsm_hdl_t key_mgmt_hdl,
 	if (err != HSM_NO_ERROR)
 		return;
 
+#if SUPPORT_KEY_EXCHANGE_PLAINTEXT_OUTPUT
 	/* 3. Compute Mbed-TLS TLS 1.2 IVs */
 	ret = my_mbedtls_tls12_prf(HSM_KEY_DERIVATION_TLS1_2_IV_SHA256,
 				   master_secret,
@@ -513,6 +517,7 @@ static void test_tls1_2_iv(hsm_hdl_t key_mgmt_hdl,
 		printf("TLS 1.2 IVs: Mbed-TLS validation. SUCCESS\n");
 	else
 		printf("TLS 1.2 IVs: Mbed-TLS validation. FAILED\n");
+#endif
 }
 
 /**
@@ -550,8 +555,7 @@ static void test_tls1_2_verify_data(hsm_hdl_t key_mgmt_hdl,
 	/* 2. Export ELE FW computed TLS 1.2 Verify Data */
 	memset(&key_ex_args, 0, sizeof(op_key_exchange_args_t));
 
-	key_ex_args.flags = HSM_OP_KEY_EXCHANGE_FLAGS_INPUT_PLAINTEXT_CONTENT |
-			    HSM_OP_KEY_EXCHANGE_FLAGS_RETURN_OUTPUT;
+	key_ex_args.flags = HSM_OP_KEY_EXCHANGE_FLAGS_INPUT_PLAINTEXT_CONTENT;
 	key_ex_args.in_content_sz = sizeof(in_content);
 	key_ex_args.in_content = (uint8_t *)(&in_content);
 	key_ex_args.user_fixed_info_sz = sizeof(test_tls1_2_client_verify_data_seed);
@@ -564,6 +568,7 @@ static void test_tls1_2_verify_data(hsm_hdl_t key_mgmt_hdl,
 	if (err != HSM_NO_ERROR)
 		return;
 
+#if SUPPORT_KEY_EXCHANGE_PLAINTEXT_OUTPUT
 	/* 3. Compute Mbed-TLS TLS 1.2 Verify Data */
 	ret = my_mbedtls_tls12_prf(HSM_KEY_DERIVATION_TLS1_2_VERIFY_DATA_SHA256,
 				   master_secret,
@@ -585,6 +590,7 @@ static void test_tls1_2_verify_data(hsm_hdl_t key_mgmt_hdl,
 		printf("TLS 1.2 Verify Data: Mbed-TLS validation. SUCCESS\n");
 	else
 		printf("TLS 1.2 Verify Data: Mbed-TLS validation. FAILED\n");
+#endif
 }
 
 /**
