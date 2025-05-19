@@ -111,7 +111,7 @@ void pub_key_attest_test(hsm_hdl_t key_store_hdl, hsm_hdl_t key_mgmt_hdl);
 void get_device_info(hsm_hdl_t sess_hdl);
 void write_fuse(hsm_hdl_t sess_hdl);
 void perform_dev_attestation(hsm_hdl_t sess_hdl);
-void lc_update_info(hsm_hdl_t sess_hdl);
+void lc_update_info(hsm_hdl_t sess_hdl, hsm_lc_new_state_t state);
 
 void key_management(uint32_t key_op,
 		    hsm_hdl_t key_mgmt_hdl,
