@@ -1,6 +1,6 @@
 // SPDX-License-Identifier: BSD-3-Clause
 /*
- * Copyright 2023-2024 NXP
+ * Copyright 2023-2025 NXP
  */
 
 #include "sab_messaging.h"
@@ -48,7 +48,8 @@ uint32_t process_verify_args(void *phdl,
 				      op_args->message,
 				      op_args->message_length,
 				      DATA_BUF_IS_INPUT |
-				      DATA_BUF_SHE_V2X);
+				      DATA_BUF_SHE_V2X |
+				      DATA_BUF_RESET_ON_ERROR);
 
 	if (ret != PLAT_SUCCESS) {
 		err |= ret;
@@ -89,7 +90,8 @@ uint32_t process_generate_args(void *phdl,
 				      op_args->message,
 				      op_args->message_length,
 				      DATA_BUF_IS_INPUT |
-				      DATA_BUF_SHE_V2X);
+				      DATA_BUF_SHE_V2X |
+				      DATA_BUF_RESET_ON_ERROR);
 
 	if (ret != PLAT_SUCCESS) {
 		err |= ret;

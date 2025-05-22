@@ -1,6 +1,6 @@
 // SPDX-License-Identifier: BSD-3-Clause
 /*
- * Copyright 2019-2024 NXP
+ * Copyright 2019-2025 NXP
  */
 
 
@@ -217,6 +217,7 @@ uint64_t plat_os_abs_data_buf(struct plat_os_abs_hdl *phdl, uint8_t *src, uint32
 #define DATA_BUF_USE_SEC_MEM      0x02u
 #define DATA_BUF_SHORT_ADDR       0x04u
 #define DATA_BUF_SHE_V2X	  0x08u
+#define DATA_BUF_RESET_ON_ERROR   0x20u
 #define SEC_MEM_SHORT_ADDR_MASK   0xFFFFu
 
 /**

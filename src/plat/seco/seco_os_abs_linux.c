@@ -1,6 +1,6 @@
 // SPDX-License-Identifier: BSD-3-Clause
 /*
- * Copyright 2019-2024 NXP
+ * Copyright 2019-2025 NXP
  */
 
 #include <stdio.h>
@@ -248,7 +248,10 @@ uint32_t plat_os_abs_data_buf_v2(struct plat_os_abs_hdl *phdl,
 
 	if (ret != 0) {
 		*addr = 0;
-		err = PLAT_DATA_BUF_SETUP_FAIL;
+		if (errno == ENOMEM)
+			err = PLAT_ERR_OUT_OF_MEMORY;
+		else
+			err = PLAT_DATA_BUF_SETUP_FAIL;
 	}
 
 	return err;
