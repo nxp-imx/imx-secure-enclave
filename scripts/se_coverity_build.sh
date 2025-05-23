@@ -1,9 +1,9 @@
+#!/bin/bash
 # SPDX-License-Identifier: BSD-3-Clause
 #
 # Copyright 2022-2023, 2025 NXP
 #
 
-#!/bin/bash
 set -e
 
 function usage()

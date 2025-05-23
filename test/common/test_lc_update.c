@@ -9,7 +9,7 @@
 #include "hsm_api.h"
 #include "test_common.h"
 
-void lc_update_info(hsm_hdl_t sess_hdl)
+void lc_update_info(hsm_hdl_t sess_hdl, hsm_lc_new_state_t state)
 {
 	op_lc_update_msg_args_t args;
 #if HSM_DEV_GETINFO
@@ -29,7 +29,7 @@ void lc_update_info(hsm_hdl_t sess_hdl)
 		/* Firmware is present.
 		 * Tests can be performed.
 		 */
-		args.new_lc_state = HSM_OEM_OPEN_STATE;
+		args.new_lc_state = state;
 		err = hsm_lc_update(sess_hdl, &args);
 		if (err != HSM_NO_ERROR)
 			printf("hsm_lc_update(ROM) failed err:0x%x\n", err);
