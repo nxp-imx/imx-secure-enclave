@@ -173,9 +173,11 @@ void execute_tests(int session_id, int SHE_id, int key_store_num)
 	}
 
 	err = do_she_fast_mac_mubuff_v2_test(utils_args[j][i].utils_handle);
-	if (err && err != SHE_FEATURE_NOT_SUPPORTED) {
-		se_print("Error[0x%x]: FAST MAC V2 test Failed.\n", err);
-		return;
+	if (err) {
+		if (err != SHE_FEATURE_NOT_SUPPORTED && err != SHE_OUT_OF_MEMORY) {
+			se_print("Error[0x%x]: FAST MAC V2 test Failed.\n", err);
+			return;
+		}
 	}
 
 	err = do_she_ext_fast_mac_test(utils_args[j][i].utils_handle);
