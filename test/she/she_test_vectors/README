@@ -86,6 +86,11 @@ If you want to run for other MU type, Ensure:
 			find ./ -type f | xargs sed -i 's/48 # MU_TYPE/08 # MU_TYPE/g'
 	- board type should support intended MU_TYPE.
 
+	- to execute SHE test vectors for SHE1, please replace below parameters:
+		1: find ./ -type f | xargs sed -i 's/48 # MU_TYPE/49 # MU_TYPE/g'
+		2: find ./ -type f | xargs sed -i 's/0 # key storage identifier/2 # key storage identifier/g'
+		3: find ./ -type f | xargs sed -i 's/0xbec00001  # password/0xbec00003  # password/g'
+
 User application can refer:
 get_supported_mu() in test/she/she_test_common.c file for reference implementation about MU_TYPE.
 
