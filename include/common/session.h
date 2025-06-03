@@ -33,8 +33,6 @@ typedef struct {
 #endif
 } open_session_args_t;
 
-/** @} end of session group */
-
 #define HSM1	(0x0u)
 //!< HSM1 channel on SE, best effort high priority.
 #define HSM2	(0x1u)
@@ -65,6 +63,8 @@ typedef struct {
 //!< V2X HSM NVM channel run on SG0.
 #define V2X_SHE_DEBUG_MU_NVM (0xE0u)
 //!< V2X SHE NVM channel on DEBUG MU.
+
+/** @} end of session group */
 
 /*
  * bit < 0 - 2 > gives the INSTANCE ID
