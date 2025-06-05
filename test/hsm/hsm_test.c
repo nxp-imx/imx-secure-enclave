@@ -705,11 +705,13 @@ static void transient_key_tests(hsm_hdl_t sess_hdl,
 
 	//Key Exchange API tests
 	if (get_signed_tests_en_status() && se_get_soc_id() != SOC_IMX95)
-		key_exchange_test(sess_hdl, key_store_hdl, key_mgmt_hdl);
+		key_exchange_test(sess_hdl, key_store_hdl, key_mgmt_hdl, key_store_id);
 
+#if SUPPORT_KEY_EXCHANGE_HKDF
 	if (get_signed_tests_en_status() &&
 	    (se_get_soc_id() == SOC_IMX91 || se_get_soc_id() == SOC_IMX93))
 		key_exchange_nxp_prod_key_test(key_mgmt_hdl, key_store_id);
+#endif
 
 	if (se_get_soc_id() == SOC_IMX93 || se_get_soc_id() == SOC_IMX91 ||
 	    (se_get_soc_id() == SOC_IMX95 && se_get_soc_rev() == SOC_REV_B0)) {
@@ -725,7 +727,7 @@ static void transient_key_tests(hsm_hdl_t sess_hdl,
 	pub_key_attest_test(key_store_hdl, key_mgmt_hdl);
 #else
 	if (se_get_soc_id() == SOC_IMX8DXL)
-		key_exchange_test(sess_hdl, key_store_hdl, key_mgmt_hdl);
+		key_exchange_test(sess_hdl, key_store_hdl, key_mgmt_hdl, key_store_id);
 #endif
 	hsmret = hsm_close_key_management_service(key_mgmt_hdl);
 	printf("hsm_close_key_management_service ret:0x%x\n", hsmret);

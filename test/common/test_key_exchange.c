@@ -195,7 +195,8 @@ out:
 
 hsm_err_t key_exchange_test(hsm_hdl_t hsm_session_hdl,
 			    hsm_hdl_t key_store_hdl,
-			    hsm_hdl_t key_mgmt_hdl)
+			    hsm_hdl_t key_mgmt_hdl,
+			    uint32_t key_store_id)
 {
 	hsm_err_t err = HSM_GENERAL_ERROR;
 	op_key_exchange_args_t key_exchange_args = {0};
@@ -215,6 +216,12 @@ hsm_err_t key_exchange_test(hsm_hdl_t hsm_session_hdl,
 #ifdef PSA_COMPLIANT
 	if (get_signed_tests_key_type() != SIGNED_TESTS_KEYS_TYPE_SECP384)
 		return err;
+
+	/*
+	 * Signed Buffers have been generated with particular Key Store ID.
+	 */
+	if (key_store_id != TEST_KEYSTORE_ID)
+		return err;
 #endif
 	printf("\n------------------------------------------------\n");
 	printf("Key Exchange API Test:");
@@ -231,7 +238,7 @@ hsm_err_t key_exchange_test(hsm_hdl_t hsm_session_hdl,
 	key_gen_args.key_group = 30;
 	key_gen_args.key_lifetime = HSM_SE_KEY_STORAGE_PERSISTENT;
 	key_gen_args.key_usage = HSM_KEY_USAGE_DERIVE;
-	key_gen_args.permitted_algo = HSM_KEY_EXCHANGE_ECDH_HKDF_SHA256;
+	key_gen_args.permitted_algo = PERMITTED_ALGO_KEY_EX_ECDH_HKDF_SHA256;
 	key_gen_args.flags = HSM_OP_KEY_GENERATION_FLAGS_STRICT_OPERATION;
 	key_gen_args.key_type = HSM_KEY_TYPE_ECC_NIST;
 	key_gen_args.bit_key_sz = HSM_KEY_SIZE_ECC_NIST_256;
