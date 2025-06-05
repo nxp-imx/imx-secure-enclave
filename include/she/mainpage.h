@@ -18,6 +18,7 @@
  * 0.2 | Apr 15 2024  | Update Global Info for i.MX95 Lifecycle values
  * 0.3 | Aug 28 2024  | Update Global Info and get_soc_info ioctl for board_type
  * 0.4 | Nov 14 2024  | Add support of CMAC API
+ * 0.5 | Jun 04 2025  | Add support of i.MX943 SoC and Update MU_TYPE
  */
 
 /*! \page page1 General concepts related to the API
