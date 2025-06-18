@@ -1,5 +1,5 @@
 # SPDX-License-Identifier: BSD-3-Clause
-# Copyright 2022-2024 NXP
+# Copyright 2022-2025 NXP
 #
 
 include $(PLAT_PATH)/sab_msg.def
@@ -36,6 +36,10 @@ DEFINES		+=	-DMT_SAB_STORAGE_EXPORT_FINISH_REQ=${MT_SAB_STORAGE_EXPORT_FINISH_RE
 SAB_RCVMSG_SRC	+= \
 		$(PLAT_COMMON_PATH)/sab_msg/sab_storage_export_finish.o
 endif
+
+CRRM_SAB_MSG_SRC += \
+		 $(PLAT_COMMON_PATH)/sab_msg/sab_process_msg.o \
+		 $(PLAT_COMMON_PATH)/sab_msg/sab_init_crrm_msg.o \
 
 SHE_SAB_MSG_SRC	+= \
 		$(PLAT_COMMON_PATH)/sab_msg/sab_process_msg.o \
@@ -122,6 +126,8 @@ ifneq (${MT_SAB_DEV_GETINFO},0x0)
 DEFINES		+=	-DMT_SAB_DEV_GETINFO=${MT_SAB_DEV_GETINFO}
 SAB_MSG_SRC	+= \
 		$(PLAT_COMMON_PATH)/sab_msg/sab_dev_getinfo.o
+CRRM_SAB_MSG_SRC += \
+		 $(PLAT_COMMON_PATH)/sab_msg/sab_dev_getinfo.o
 endif
 
 ifneq (${MT_SAB_DEV_WRITE_FUSE},0x0)
@@ -135,6 +141,8 @@ DEFINES		+=	-DMT_SAB_GET_INFO=${MT_SAB_GET_INFO}
 SAB_MSG_SRC	+= \
 		$(PLAT_COMMON_PATH)/sab_msg/sab_get_info.o
 SHE_SAB_MSG_SRC	+= \
+		$(PLAT_COMMON_PATH)/sab_msg/sab_get_info.o
+CRRM_SAB_MSG_SRC += \
 		$(PLAT_COMMON_PATH)/sab_msg/sab_get_info.o
 endif
 
@@ -152,6 +160,8 @@ SAB_MSG_SRC	+= \
 		$(PLAT_COMMON_PATH)/sab_msg/sab_session.o
 SHE_SAB_MSG_SRC	+= \
 		$(PLAT_COMMON_PATH)/sab_msg/sab_session.o
+CRRM_SAB_MSG_SRC += \
+		 $(PLAT_COMMON_PATH)/sab_msg/sab_session.o
 endif
 
 ifneq (${MT_SAB_KEY_STORE},0x0)
@@ -410,9 +420,34 @@ SHE_SAB_MSG_SRC	+= \
 		$(PLAT_COMMON_PATH)/sab_msg/sab_get_id.o
 endif
 
+ifneq (${MT_SAB_BOOT_MODE},0x0)
+DEFINES		+=	-DMT_SAB_BOOT_MODE=${MT_SAB_BOOT_MODE}
+CRRM_SAB_MSG_SRC += \
+		 $(PLAT_COMMON_PATH)/sab_msg/sab_boot_mode.o
+endif
+
+ifneq (${MT_SAB_GET_AWDT_STATUS},0x0)
+DEFINES		+=	-DMT_SAB_GET_AWDT_STATUS=${MT_SAB_GET_AWDT_STATUS}
+CRRM_SAB_MSG_SRC += \
+		 $(PLAT_COMMON_PATH)/sab_msg/sab_get_AWDT_status.o
+endif
+
+ifneq (${MT_SAB_GET_NONCE},0x0)
+DEFINES		+=	-DMT_SAB_GET_NONCE=${MT_SAB_GET_NONCE}
+CRRM_SAB_MSG_SRC += \
+		 $(PLAT_COMMON_PATH)/sab_msg/sab_get_nonce.o
+endif
+
+ifneq (${MT_SAB_REFRESH_AWDT},0x0)
+DEFINES		+=	-DMT_SAB_REFRESH_AWDT=${MT_SAB_REFRESH_AWDT}
+CRRM_SAB_MSG_SRC += \
+		 $(PLAT_COMMON_PATH)/sab_msg/sab_refresh_AWDT.o
+endif
+
 OBJECTS		+= $(SAB_MSG_SRC) \
 		$(SAB_RCVMSG_SRC) \
 		$(SHE_SAB_MSG_SRC) \
+		$(CRRM_SAB_MSG_SRC) \
 		$(PLAT_COMMON_PATH)/sab_msg/sab_session.o
 
 INCLUDE_PATHS	+= \

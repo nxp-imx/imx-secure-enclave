@@ -3,26 +3,7 @@
  * Copyright 2025 NXP
  */
 
-#include <stdio.h>
-#include <stdlib.h>
-
-#include "crrm_api.h"
-
-#define TIMER_INFO_SIZE			16
-
-// Function to print the structure members
-void print_nonce_info(nonce_info *info)
-{
-	int i = 0;
-
-	printf("Nonce data: ");
-
-	for (i = 0; i < NONCE_DATA_SIZE; i++)
-		printf("%2x ", info->nonce_data[i]);
-
-	printf("\nTimer Info: ");
-	printf("%s\n", info->timer_info);
-}
+#include "crrm_utils.h"
 
 hsm_err_t crrm_test_get_nonce(hsm_hdl_t crrm_hdl)
 {

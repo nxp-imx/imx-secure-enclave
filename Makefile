@@ -47,7 +47,7 @@ endif
 PLAT_PATH := src/plat/$(PLAT)
 PLAT_COMMON_PATH := src/common
 
-INCLUDE_PATHS := -I${PLAT_PATH}/include -I${PLAT_COMMON_PATH}/include -Iinclude -Iinclude/hsm -Iinclude/she -Iinclude/common
+INCLUDE_PATHS := -I${PLAT_PATH}/include -I${PLAT_COMMON_PATH}/include -Iinclude -Iinclude/hsm -Iinclude/she -Iinclude/common -Iinclude/crrm
 
 NVM_OBJECTS := \
 	$(PLAT_COMMON_PATH)/nvm/nvm_manager.o \
@@ -57,7 +57,8 @@ OBJECTS	:= $(NVM_OBJECTS)\
 	$(PLAT_COMMON_PATH)/sab_messaging.o \
 	$(PLAT_COMMON_PATH)/sab_common_err.o \
 	$(PLAT_COMMON_PATH)/she_lib.o \
-	$(PLAT_COMMON_PATH)/hsm_lib.o
+	$(PLAT_COMMON_PATH)/hsm_lib.o \
+	$(PLAT_COMMON_PATH)/crrm_lib.o
 
 NVM_LIB :=
 NVM_LIB_MAJOR :=
@@ -66,10 +67,13 @@ HSM_LIB_MAJOR :=
 SHE_LIB :=
 SHE_LIB_MAJOR :=
 SO_EXT =
+CRRM_LIB :=
+CRRM_LIB_MAJOR :=
 
 include $(PLAT_COMMON_PATH)/sab_msg/sab_msg.mk
 include $(PLAT_COMMON_PATH)/hsm_api/hsm_api.mk
 include $(PLAT_COMMON_PATH)/she_api/she_api.mk
+include $(PLAT_COMMON_PATH)/crrm_api/crrm_api.mk
 include $(PLAT_PATH)/$(PLAT).mk
 
 TEST_COMMON_TV_PATH := test/common/test_vectors/$(PSA)
@@ -78,11 +82,10 @@ SHE_TEST_README_PATH := test/she/she_test_vectors/README
 SHE_TEST_V2X_TV_PATH := test/she/she_test_vectors/v2x/
 V2X_HSM_TV_PATH := test/v2x/v2x_hsm_test_vectors/
 
-LIB_NAMES := $(HSM_LIB_NAME) $(NVM_LIB_NAME) $(SHE_LIB_NAME)
+LIB_NAMES := $(HSM_LIB_NAME) $(NVM_LIB_NAME) $(SHE_LIB_NAME) $(CRRM_LIB_NAME)
 
-all_tests:= $(SHE_TEST) $(HSM_TEST) $(HSM_PERF_TEST) $(V2X_HSM_TEST) $(V2X_SHE_TEST)
-all_libs:= $(SHE_LIB) $(NVM_LIB) $(HSM_LIB)
-
+all_tests:= $(SHE_TEST) $(HSM_TEST) $(HSM_PERF_TEST) $(V2X_HSM_TEST) $(V2X_SHE_TEST) $(CRRM_TEST)
+all_libs:= $(SHE_LIB) $(NVM_LIB) $(HSM_LIB) $(CRRM_LIB)
 
 # Make targets, must need NVM-Daemon to run successfully.
 tests: | install_version build_tests  clean_ver_hfile
@@ -125,6 +128,19 @@ $(HSM_LIB): $(HSM_LIB_OBJECTS) \
 	$(PLAT_PATH)/$(PLAT)_os_abs_linux.o
 	$(CC) -shared -Wl,-soname,$(HSM_LIB_MAJOR) -fPIC -o $@ $^
 
+# CRRM lib
+$(CRRM_LIB): $(CRRM_LIB_OBJECTS) \
+	$(PLAT_COMMON_PATH)/crrm_lib.o \
+	$(PLAT_PATH)/plat_err.o \
+	$(PLAT_PATH)/$(PLAT)_utils.o \
+	$(CRRM_SAB_MSG_SRC) \
+	$(PLAT_COMMON_PATH)/sab_msg/sab_session.o\
+	$(CRRM_API_SRC) \
+	$(PLAT_COMMON_PATH)/sab_messaging.o \
+	$(PLAT_COMMON_PATH)/sab_common_err.o \
+	$(PLAT_PATH)/$(PLAT)_os_abs_linux.o
+	$(CC) -shared -Wl,-soname,$(CRRM_LIB_MAJOR) -fPIC -o $@ $^
+
 # NVM manager lib
 $(NVM_LIB): $(PLAT_COMMON_PATH)/nvm/nvm_manager.o\
 	$(PLAT_COMMON_PATH)/sab_msg/sab_session.o\
@@ -160,12 +176,18 @@ HSM_TEST_OBJ= test/hsm/hsm_test.c $(COMMON_TEST_OBJ) $(MBEDTLS_TEST_OBJ)
 HSM_PERF_TEST_OBJ= test/hsm/hsm_perf_test.c $(HSM_TEST_PERF_OBJ)
 TEST_CFLAGS = -Wno-deprecated-declarations $(CFLAGS)
 TEST_LDFLAGS = -L $(OPENSSL_PATH) -lcrypto $(LDFLAGS) -lcrypto -lpthread
+TEST_CRRM_LDFLAGS = -L $(OPENSSL_PATH) -lcrypto
 TEST_INCLUDE_PATHS = ${INCLUDE_PATHS} -I$(OPENSSL_PATH)/include
 
 $(HSM_TEST): $(HSM_TEST_OBJ) $(HSM_LIB)
 	$(CC) $^  -o $@ ${TEST_INCLUDE_PATHS} ${TEST_INCLUDE_PATHS_MBEDTLS} ${COMMON_TEST_INC} $(TEST_CFLAGS) $(TEST_LDFLAGS) $(TEST_LDFLAGS_MBEDTLS) $(GCOV_FLAGS)
 $(HSM_PERF_TEST): $(HSM_PERF_TEST_OBJ) $(HSM_LIB)
 	$(CC) $^  -o $@ ${TEST_INCLUDE_PATHS} ${COMMON_TEST_INC} $(TEST_CFLAGS) $(TEST_PERF_CFLAGS) $(TEST_LDFLAGS) $(GCOV_FLAGS)
+
+#CRRM test app
+CRRM_TEST_OBJ=$(wildcard test/crrm/*.c)
+$(CRRM_TEST): $(CRRM_TEST_OBJ) $(CRRM_LIB)
+	$(CC) $^  -o $@ ${TEST_INCLUDE_PATHS} ${COMMON_TEST_INC} $(TEST_CFLAGS) $(TEST_CRRM_LDFLAGS) $(GCOV_FLAGS)
 
 SHE_SHX_TEST_INC=-Itest/she/shx_src/include/
 SHX_INC=-Itest/shx/include/

@@ -30,20 +30,12 @@ hsm_err_t crrm_test_get_AWDT_status(hsm_hdl_t crrm_hdl)
 	hsm_err_t err;
 	uint8_t status_data[AWDT_TIMER_STATUS_SIZE + TIMER_INFO_SIZE] = {0};
 
-	printf("--------------------------\n");
-	printf("\nAWDT STATUS TEST STARTED\n");
-	printf("--------------------------\n");
-
 	args.input_size = AWDT_TIMER_STATUS_SIZE + TIMER_INFO_SIZE;
 	args.addr = status_data;
 	err = crrm_get_AWDT_status(crrm_hdl, &args);
 
-	printf("args.output_size %d\n", args.output_size);
 	args.status = (AWDT_timer *)args.addr;
 	print_timer_status(args.status);
-	printf("--------------------------\n");
-	printf("\nAWDT STATUS TEST FINISHED\n");
-	printf("--------------------------\n");
 
 	return err;
 }

@@ -1,6 +1,6 @@
 // SPDX-License-Identifier: BSD-3-Clause
 /*
- * Copyright 2022-2023 NXP
+ * Copyright 2022-2023, 2025 NXP
  */
 
 
@@ -78,5 +78,6 @@ void init_proc_sab_msg_rcv_eng(msg_type_t msg_type,
 void init_sab_hsm_msg_engine(msg_type_t msg_type);
 void init_sab_nvm_msg_engine(msg_type_t msg_type);
 void init_sab_she_msg_engine(msg_type_t msg_type);
+void init_sab_crrm_msg_engine(msg_type_t msg_type);
 void send_cancel_signal_to_engine(void);
 #endif

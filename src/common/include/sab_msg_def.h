@@ -152,6 +152,12 @@
 #define SAB_SHE_FAST_MAC_MUBUFF_REQ		0xF9u
 #define SAB_SHE_FAST_MAC_MUBUFF_V2_REQ		0xFAu
 
+#define SAB_CRRM_GET_BOOT_MODE_REQ		0xE9u
+#define SAB_CRRM_SET_BOOT_MODE_REQ		0xEDu
+#define SAB_CRRM_GET_NONCE_REQ			0xEEu
+#define SAB_CRRM_REFRESH_AWDT_REQ		0xEFu
+#define SAB_CRRM_GET_STATUS_REQ			0xF8u
+
 #define SAB_MSG_MAX_ID				0xFFu
 
 #define GET_STATUS_CODE(rsp_code)               ((uint8_t)((rsp_code) & 0xFFu))

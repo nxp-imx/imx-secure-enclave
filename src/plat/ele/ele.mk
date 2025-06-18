@@ -1,10 +1,11 @@
 # SPDX-License-Identifier: BSD-3-Clause
 #
-# Copyright 2021-2024 NXP
+# Copyright 2021-2025 NXP
 #
 
 MINOR_VER := 0
 
+CRRM_TEST := $(PLAT)_crrm_test
 HSM_TEST := $(PLAT)_hsm_test
 HSM_PERF_TEST := $(PLAT)_hsm_perf_test
 TEST_PERF_CFLAGS := -DELE_PERF
@@ -13,12 +14,15 @@ V2X_TEST :=
 SHE_LIB_NAME :=
 HSM_LIB_NAME := lib$(PLAT)_hsm
 NVM_LIB_NAME := lib$(PLAT)_nvm
+CRRM_LIB_NAME := lib$(PLAT)_crrm
 
 SO_EXT := so.${MAJOR_VER}.${MINOR_VER}
 NVM_LIB := $(NVM_LIB_NAME).$(SO_EXT)
 NVM_LIB_MAJOR := $(NVM_LIB_NAME).so.$(MAJOR_VER)
 HSM_LIB := $(HSM_LIB_NAME).$(SO_EXT)
 HSM_LIB_MAJOR := $(HSM_LIB_NAME).so.$(MAJOR_VER)
+CRRM_LIB := $(CRRM_LIB_NAME).$(SO_EXT)
+CRRM_LIB_MAJOR := $(CRRM_LIB_NAME).so.$(MAJOR_VER)
 
 TEST_LDFLAGS_MBEDTLS = -L ${MBEDTLS_PATH}/library -lmbedtls -lmbedx509 -lmbedcrypto
 TEST_INCLUDE_PATHS_MBEDTLS = -Itest/mbedtls/include -I${MBEDTLS_PATH}/include -I${MBEDTLS_PATH}/library
