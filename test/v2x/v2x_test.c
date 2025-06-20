@@ -1420,7 +1420,6 @@ skip_sm3_hash:
 
 		printf("Derived key_id 0x%08x\n", key_id_sm4);
 
-#ifdef SM4_SUPPORTED
 		// SM4 test with the derived key
 		printf("\n---------------------------------------------------\n");
 		printf("SM4 encrypt test with derived key\n");
@@ -1474,7 +1473,6 @@ skip_sm3_hash:
 			if (j % 16 == 15)
 				printf("\n");
 		}
-#endif
 	}
 
 	// Key exchange to create a KEK

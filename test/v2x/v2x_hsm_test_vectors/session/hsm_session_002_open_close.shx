@@ -1,0 +1,99 @@
+HSM_OPEN_SESSION
+0 # session index (uint32_t)
+0x50 # Read value (uint8_t)
+0 # Check value (err)
+1 # Check if pointer ok
+
+HSM_CLOSE_SESSION
+0 # Read value (uint32_t)
+0 # Check value (err)
+
+HSM_OPEN_SESSION
+1 # session index (uint32_t)
+0x50 # Read value (uint8_t)
+0 # Check value (err)
+1 # Check if pointer ok
+
+HSM_CLOSE_SESSION
+1 # Read value (uint32_t)
+0 # Check value (err)
+
+HSM_OPEN_SESSION
+2 # session index (uint32_t)
+0x50 # Read value (uint8_t)
+0 # Check value (err)
+1 # Check if pointer ok
+
+HSM_CLOSE_SESSION
+2 # Read value (uint32_t)
+0 # Check value (err)
+
+HSM_OPEN_SESSION
+3 # session index (uint32_t)
+0x50 # Read value (uint8_t)
+0 # Check value (err)
+1 # Check if pointer ok
+
+HSM_CLOSE_SESSION
+3 # Read value (uint32_t)
+0 # Check value (err)
+
+HSM_OPEN_SESSION
+4 # session index (uint32_t)
+0x50 # Read value (uint8_t)
+0 # Check value (err)
+1 # Check if pointer ok
+
+HSM_CLOSE_SESSION
+4 # Read value (uint32_t)
+0 # Check value (err)
+
+HSM_OPEN_SESSION
+5 # session index (uint32_t)
+0x50 # Read value (uint8_t)
+0 # Check value (err)
+1 # Check if pointer ok
+
+HSM_CLOSE_SESSION
+5 # Read value (uint32_t)
+0 # Check value (err)
+
+HSM_OPEN_SESSION
+6 # session index (uint32_t)
+0x50 # Read value (uint8_t)
+0 # Check value (err)
+1 # Check if pointer ok
+
+HSM_CLOSE_SESSION
+6 # Read value (uint32_t)
+0 # Check value (err)
+
+HSM_OPEN_SESSION
+7 # session index (uint32_t)
+0x50 # Read value (uint8_t)
+0 # Check value (err)
+1 # Check if pointer ok
+
+HSM_CLOSE_SESSION
+7 # Read value (uint32_t)
+0 # Check value (err)
+
+HSM_OPEN_SESSION
+8 # session index (uint32_t)
+0x50 # Read value (uint8_t)
+0 # Check value (err)
+1 # Check if pointer ok
+
+HSM_CLOSE_SESSION
+8 # Read value (uint32_t)
+0 # Check value (err)
+
+HSM_OPEN_SESSION
+9 # session index (uint32_t)
+0x50 # Read value (uint8_t)
+0 # Check value (err)
+1 # Check if pointer ok
+
+HSM_CLOSE_SESSION
+9 # Read value (uint32_t)
+0 # Check value (err)
