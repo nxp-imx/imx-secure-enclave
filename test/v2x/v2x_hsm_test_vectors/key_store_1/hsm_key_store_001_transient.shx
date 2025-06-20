@@ -46,7 +46,7 @@ HSM_GENERATE_KEY
 4 # key management index
 0 # key_id
 96 # Out_size : pub_key P_384
-0x82 # flags : Create & strict update
+0x2 # flags : Create
 3 # key_type NIST P_384
 1 # key_group
 2 # key_info : transient

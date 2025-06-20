@@ -498,7 +498,6 @@ static void v2x_transient_key_tests(hsm_hdl_t sg0_key_mgmt_srv)
 	key_gen_args.key_usage = HSM_KEY_USAGE_SIGN_HASH
 		| HSM_KEY_USAGE_VERIFY_HASH;
 	key_gen_args.permitted_algo = PERMITTED_ALGO_ECDSA_SHA256;
-	key_gen_args.flags = HSM_OP_KEY_GENERATION_FLAGS_STRICT_OPERATION;
 	key_gen_args.key_type = HSM_KEY_TYPE_ECC_NIST;
 	key_gen_args.bit_key_sz = HSM_KEY_SIZE_ECC_NIST_256;
 	key_gen_args.key_lifecycle = 0;
@@ -1461,8 +1460,7 @@ skip_sm3_hash:
 		key_exch.shared_key_identifier_array_size = 4;
 		key_exch.kdf_input_size = 32 * 2;
 		key_exch.kdf_output_size = 0;
-		key_exch.flags = HSM_OP_KEY_EXCHANGE_FLAGS_CREATE |
-				 HSM_OP_KEY_EXCHANGE_FLAGS_STRICT_OPERATION;
+		key_exch.flags = HSM_OP_KEY_EXCHANGE_FLAGS_CREATE;
 		key_exch.signed_message = NULL;
 		key_exch.signed_msg_size = 0;
 

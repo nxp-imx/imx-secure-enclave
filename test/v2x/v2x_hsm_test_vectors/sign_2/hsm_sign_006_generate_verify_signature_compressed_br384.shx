@@ -46,7 +46,7 @@ HSM_GENERATE_KEY
 4 # key management index
 0, 0, 0, 0 # key_id
 96 # Out_size : pub_key Br_R1_384
-2 # flags : Create Persistent
+2 # flags : Create
 0x15 # key_type BRR1_384
 0 # key_group
 0 # key_info
