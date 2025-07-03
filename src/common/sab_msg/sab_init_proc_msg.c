@@ -1,6 +1,6 @@
 // SPDX-License-Identifier: BSD-3-Clause
 /*
- * Copyright 2022-2024 NXP
+ * Copyright 2022-2025 NXP
  */
 
 #include "sab_msg_def.h"
@@ -182,6 +182,10 @@
 #include "sab_key_management.h"
 #endif
 
+#if MT_SAB_DEV_ELE_RESET
+#include "sab_dev_ele_reset.h"
+#endif
+
 static int init_proc_sab_base_msg_engine(msg_type_t msg_type,
 					 uint32_t msg_id)
 {
@@ -239,6 +243,15 @@ static int init_proc_sab_base_msg_engine(msg_type_t msg_type,
 						proc_msg_rsp_dev_attest);
 			}
 			break;
+#endif
+#if MT_SAB_DEV_ELE_RESET
+	case ROM_DEV_ELE_RESET_REQ:
+		if (msg_type == MT_SAB_DEV_ELE_RESET) {
+			ret = add_sab_msg_handler(msg_id, MT_SAB_DEV_ELE_RESET,
+						  prepare_msg_dev_ele_reset,
+						  proc_msg_rsp_dev_ele_reset);
+		}
+	break;
 #endif
 		default:
 			break;

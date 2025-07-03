@@ -444,6 +444,12 @@ CRRM_SAB_MSG_SRC += \
 		 $(PLAT_COMMON_PATH)/sab_msg/sab_refresh_AWDT.o
 endif
 
+ifneq (${MT_SAB_DEV_ELE_RESET},0x0)
+DEFINES		+=	-DMT_SAB_DEV_ELE_RESET=${MT_SAB_DEV_ELE_RESET}
+SAB_MSG_SRC	+= \
+		$(PLAT_COMMON_PATH)/sab_msg/sab_dev_ele_reset.o
+endif
+
 OBJECTS		+= $(SAB_MSG_SRC) \
 		$(SAB_RCVMSG_SRC) \
 		$(SHE_SAB_MSG_SRC) \

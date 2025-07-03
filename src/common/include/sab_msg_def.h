@@ -117,6 +117,7 @@
 
 #define ROM_DEV_FWD_LC_UPDATE                   0x95
 #define ROM_DEV_RET_LC_UPDATE                   0xA0
+#define ROM_DEV_ELE_RESET_REQ			0xC7
 #define ROM_DEV_WRITE_FUSE_REQ			0xD6
 #define ROM_DEV_GETINFO_REQ                     0xDA
 #define ROM_DEV_ATTEST_REQ                      0xDB

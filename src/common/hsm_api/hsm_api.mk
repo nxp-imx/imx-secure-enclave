@@ -1,5 +1,5 @@
 # SPDX-License-Identifier: BSD-3-Clause
-# Copyright 2022-2024 NXP
+# Copyright 2022-2025 NXP
 #
 
 HSM_API_SRC	+= \
@@ -278,6 +278,12 @@ ifneq (${MT_SAB_GET_INFO},0x0)
 DEFINES		+=	-DHSM_GET_INFO
 HSM_API_SRC	+= \
 		$(PLAT_COMMON_PATH)/hsm_api/hsm_get_info.o
+endif
+
+ifneq (${MT_SAB_DEV_ELE_RESET},0x0)
+DEFINES		+=	-DHSM_DEV_ELE_RESET
+HSM_API_SRC	+= \
+		$(PLAT_COMMON_PATH)/hsm_api/hsm_dev_ele_reset.o
 endif
 
 OBJECTS		+= $(HSM_API_SRC)
