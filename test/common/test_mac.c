@@ -207,22 +207,19 @@ hsm_err_t do_mac_test(hsm_hdl_t key_store_hdl, hsm_hdl_t key_mgmt_hdl)
 	if (se_get_soc_id() == SOC_IMX95 && se_get_soc_rev() != SOC_REV_B0)
 		goto out;
 
-#if PLAT_ELE_FEAT_NOT_SUPPORTED
+#ifndef PSA_COMPLIANT
+	/*
+	 * HMAC is not supported on i.MX 8QXP board and
+	 * i.MX8DXL A1 board
+	 */
+	if (se_get_soc_id() == SOC_IMX8QXP ||
+	    se_get_soc_id() == SOC_IMX8DXL && se_get_soc_rev() != SOC_REV_B0)
+		goto out;
+
 	printf("HSM_KEY_TYPE_HMAC_224 & HSM_OP_MAC_ONE_GO_ALGO_HMAC_SHA_224:");
 	sym_key_id = 0;
-	generate_key(key_mgmt_hdl,
-#ifndef PSA_COMPLIANT
-			HSM_KEY_INFO_TRANSIENT,
-			HSM_KEY_TYPE_HMAC_224,
-#else
-			HSM_SE_KEY_STORAGE_VOLATILE,
-			HSM_KEY_USAGE_SIGN_MSG | HSM_KEY_USAGE_VERIFY_MSG,
-			PERMITTED_ALGO_HMAC_SHA224, // Not supported on ELE
-			HSM_KEY_SIZE_HMAC_224,
-			0,
-			HSM_KEY_TYPE_HMAC,
-#endif
-			&sym_key_id);
+	generate_key(key_mgmt_hdl, HSM_KEY_INFO_TRANSIENT,
+		     HSM_KEY_TYPE_HMAC_224, &sym_key_id);
 
 	mac_one_go_test(sym_key_id, sg0_mac_hdl,
 			HSM_OP_MAC_ONE_GO_ALGO_HMAC_SHA_224, 28, 28, 28);
@@ -274,22 +271,11 @@ hsm_err_t do_mac_test(hsm_hdl_t key_store_hdl, hsm_hdl_t key_mgmt_hdl)
 			HSM_OP_MAC_ONE_GO_ALGO_HMAC_SHA_384, 32, 16, 8);
 #endif
 
-#if PLAT_ELE_FEAT_NOT_SUPPORTED
+#ifndef PSA_COMPLIANT
 	printf("HSM_KEY_TYPE_HMAC_512 & HSM_OP_MAC_ONE_GO_ALGO_HMAC_SHA_512:");
 	sym_key_id = 0;
-	generate_key(key_mgmt_hdl,
-#ifndef PSA_COMPLIANT
-			HSM_KEY_INFO_TRANSIENT,
-			HSM_KEY_TYPE_HMAC_512,
-#else
-			HSM_SE_KEY_STORAGE_VOLATILE,
-			HSM_KEY_USAGE_SIGN_MSG | HSM_KEY_USAGE_VERIFY_MSG,
-			PERMITTED_ALGO_HMAC_SHA512, // Not supported on ELE
-			HSM_KEY_SIZE_HMAC_512,
-			0,
-			HSM_KEY_TYPE_HMAC,
-#endif
-			&sym_key_id);
+	generate_key(key_mgmt_hdl, HSM_KEY_INFO_TRANSIENT,
+		     HSM_KEY_TYPE_HMAC_512, &sym_key_id);
 	mac_one_go_test(sym_key_id, sg0_mac_hdl,
 			HSM_OP_MAC_ONE_GO_ALGO_HMAC_SHA_512, 32, 16, 8);
 #endif
@@ -406,22 +392,21 @@ hsm_err_t hsm_mac_test(hsm_hdl_t key_store_hdl, hsm_hdl_t key_mgmt_hdl)
 	if (se_get_soc_id() == SOC_IMX95 && se_get_soc_rev() != SOC_REV_B0)
 		goto out;
 
-#if PLAT_ELE_FEAT_NOT_SUPPORTED
+#ifndef PSA_COMPLIANT
+	/*
+	 * HMAC is not supported on i.MX 8QXP board and
+	 * i.MX8DXL A1 board
+	 */
+	if (se_get_soc_id() == SOC_IMX8QXP ||
+	    (se_get_soc_id() == SOC_IMX8DXL && se_get_soc_rev() != SOC_REV_B0))
+		goto out;
+
 	printf("HSM_KEY_TYPE_HMAC_224 & HSM_OP_MAC_ONE_GO_ALGO_HMAC_SHA_224:");
 	sym_key_id = 0;
 	generate_key(key_mgmt_hdl,
-#ifndef PSA_COMPLIANT
-			HSM_KEY_INFO_TRANSIENT,
-			HSM_KEY_TYPE_HMAC_224,
-#else
-			HSM_SE_KEY_STORAGE_VOLATILE,
-			HSM_KEY_USAGE_SIGN_MSG | HSM_KEY_USAGE_VERIFY_MSG,
-			PERMITTED_ALGO_HMAC_SHA224, // Not supported on ELE
-			HSM_KEY_SIZE_HMAC_224,
-			0,
-			HSM_KEY_TYPE_HMAC,
-#endif
-			&sym_key_id);
+		     HSM_KEY_INFO_TRANSIENT,
+		     HSM_KEY_TYPE_HMAC_224,
+		     &sym_key_id);
 
 	mac_one_go.key_identifier = sym_key_id;
 	mac_one_go.algorithm = HSM_OP_MAC_ONE_GO_ALGO_HMAC_SHA_224;
@@ -438,11 +423,7 @@ hsm_err_t hsm_mac_test(hsm_hdl_t key_store_hdl, hsm_hdl_t key_mgmt_hdl)
 
 	err = hsm_do_mac(key_store_hdl, &mac_one_go);
 	status(&mac_one_go);
-#ifdef PSA_COMPLIANT
-	delete_test_key(key_mgmt_hdl, sym_key_id, 0);
 #endif
-#endif
-
 	printf("HSM_KEY_TYPE_HAMC_256 & HSM_OP_MAC_ONE_GO_ALGO_HMAC_SHA_256:");
 	sym_key_id = 0;
 	generate_key(key_mgmt_hdl,
@@ -520,22 +501,11 @@ hsm_err_t hsm_mac_test(hsm_hdl_t key_store_hdl, hsm_hdl_t key_mgmt_hdl)
 #ifdef PSA_COMPLIANT
 	delete_test_key(key_mgmt_hdl, sym_key_id, 0);
 #endif
-#if PLAT_ELE_FEAT_NOT_SUPPORTED
+#ifndef PSA_COMPLIANT
 	printf("HSM_KEY_TYPE_HAMC_512 & HSM_OP_MAC_ONE_GO_ALGO_HMAC_SHA_512:");
 	sym_key_id = 0;
-	generate_key(key_mgmt_hdl,
-#ifndef PSA_COMPLIANT
-			HSM_KEY_INFO_TRANSIENT,
-			HSM_KEY_TYPE_HMAC_512,
-#else
-			HSM_SE_KEY_STORAGE_VOLATILE,
-			HSM_KEY_USAGE_SIGN_MSG | HSM_KEY_USAGE_VERIFY_MSG,
-			PERMITTED_ALGO_HMAC_SHA512, // Not supporetd on ELE
-			HSM_KEY_SIZE_HMAC_512,
-			0,
-			HSM_KEY_TYPE_HMAC,
-#endif
-			&sym_key_id);
+	generate_key(key_mgmt_hdl, HSM_KEY_INFO_TRANSIENT,
+		     HSM_KEY_TYPE_HMAC_512, &sym_key_id);
 
 	mac_one_go.key_identifier = sym_key_id;
 	mac_one_go.algorithm = HSM_OP_MAC_ONE_GO_ALGO_HMAC_SHA_512;
@@ -551,10 +521,7 @@ hsm_err_t hsm_mac_test(hsm_hdl_t key_store_hdl, hsm_hdl_t key_mgmt_hdl)
 	mac_one_go.mac_size = 8;
 
 	err = hsm_do_mac(key_store_hdl, &mac_one_go);
-	status(&mac_one_go);
-#ifdef PSA_COMPLIANT
-	delete_test_key(key_mgmt_hdl, sym_key_id, 0);
-#endif
+		status(&mac_one_go);
 #endif
 out:
 	printf("\n---------------------------------------------------\n");
