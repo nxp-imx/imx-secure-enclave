@@ -240,21 +240,28 @@ void hash_test(hsm_hdl_t hash_sess)
 
 	test_status(SHA512_HASH, hash_work_area, sizeof(SHA512_HASH), "HSM_HASH_ALGO_SHA_512");
 
-#if PLAT_ELE_FEAT_NOT_SUPPORTED
-	memset(hash_work_area, 0, sizeof(hash_work_area));
-	hash_args.input = hash_test_message;
-	hash_args.output = hash_work_area;
-	hash_args.input_size = sizeof(hash_test_message);
-	hash_args.algo = HSM_HASH_ALGO_SM3_256;
-	hash_size = 32;
-	hash_args.output_size = hash_size;
-
-	err = hsm_hash_one_go(hash_serv, &hash_args);
-	printf("err: 0x%x hsm_hash_one_go hdl: 0x%08x\n", err, hash_serv);
-	test_status(SM3_HASH, hash_work_area, sizeof(SM3_HASH), "HSM_HASH_ALGO_SM3_256");
-#endif
-
 #ifndef PSA_COMPLIANT
+	/*
+	 * HSM_HASH_ALGO_SM3_256 is not supported on i.MX 8QXP board and
+	 * i.MX8DXL A1 board
+	 */
+	if (!(se_get_soc_id() == SOC_IMX8QXP ||
+	      se_get_soc_id() == SOC_IMX8DXL &&
+	      se_get_soc_rev() != SOC_REV_B0)) {
+		memset(hash_work_area, 0, sizeof(hash_work_area));
+		hash_args.input = hash_test_message;
+		hash_args.output = hash_work_area;
+		hash_args.input_size = sizeof(hash_test_message);
+		hash_args.algo = HSM_HASH_ALGO_SM3_256;
+		hash_size = 32;
+		hash_args.output_size = hash_size;
+
+		err = hsm_hash_one_go(hash_serv, &hash_args);
+		printf("err: 0x%x hsm_hash_one_go hdl: 0x%08x\n", err, hash_serv);
+		test_status(SM3_HASH, hash_work_area,
+			    sizeof(SM3_HASH),
+			    "HSM_HASH_ALGO_SM3_256");
+	}
 	err = hsm_close_hash_service(hash_serv);
 	printf("err: 0x%x hsm_close_hash_service hdl: 0x%08x\n", err, hash_serv);
 #endif
@@ -376,8 +383,7 @@ hsm_err_t do_hash_test(hsm_hdl_t hash_sess)
 			break;
 #endif
 	}
-
-#if PLAT_ELE_FEAT_NOT_SUPPORTED
+#ifndef PSA_COMPLIANT
 	memset(hash_work_area, 0, sizeof(hash_work_area));
 	hash_args.algo = HSM_HASH_ALGO_SM3_256;
 	hash_size = 32;

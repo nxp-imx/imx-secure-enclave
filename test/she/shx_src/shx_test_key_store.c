@@ -1,6 +1,6 @@
 // SPDX-License-Identifier: BSD-3-Clause
 /*
- * Copyright 2024 NXP
+ * Copyright 2024-2025 NXP
  */
 
 #include <stdio.h>
@@ -35,7 +35,6 @@ uint32_t she_test_key_store_open(she_test_struct_t *testCtx, FILE *fp)
 
 	if (err == SHE_KEY_STORE_CONFLICT || err == SHE_ID_CONFLICT) {
 		args.flags &= ~(KEY_STORE_OPEN_FLAGS_CREATE |
-				KEY_STORE_OPEN_FLAGS_STRICT_OPERATION |
 				KEY_STORE_OPEN_FLAGS_SET_MAC_LEN);
 
 		err = she_open_key_store_service(testCtx[index].she_hdl, &args);

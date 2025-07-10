@@ -84,7 +84,6 @@ void execute_tests(int session_id, int SHE_id, int key_store_num)
 
 	key_store_args[j][i].flags		 |= KEY_STORE_OPEN_FLAGS_CREATE |
 					    KEY_STORE_OPEN_FLAGS_SHE |
-					    KEY_STORE_OPEN_FLAGS_STRICT_OPERATION |
 					    KEY_STORE_OPEN_FLAGS_SET_MAC_LEN;
 
 	key_store_args[j][i].min_mac_length        = 32;

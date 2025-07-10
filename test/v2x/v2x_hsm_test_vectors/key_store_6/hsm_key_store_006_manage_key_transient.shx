@@ -46,7 +46,7 @@ HSM_GENERATE_KEY
 4 # key management index
 0 # key_id
 96 # Out_size : pub_key P_384
-0x82 # flags : Create & strict update
+0x2 # flags : Create
 3 # key_type NIST P_384
 1 # key_group
 2 # key_info : transient
@@ -69,7 +69,7 @@ HSM_GENERATE_KEY
 4 # key management index
 1 # key_id
 64 # Out_size : pub_key P_256
-0x82 # flags : Create & strict update
+0x2 # flags
 2 # key_type NIST P_256
 1 # key_group
 2 # key_info : transient
@@ -88,7 +88,7 @@ HSM_GENERATE_KEY
 4 # key management index
 2 # key_id
 0 # Out_size
-0x82 # flags : Create & strict update
+0x2 # flags : Create
 0x30 # key_type AES_128
 1 # key_group
 2 # key_info : transient
@@ -107,7 +107,7 @@ HSM_GENERATE_KEY
 4 # key management index
 3 # key_id
 64 # Out_size : pub_key P_256
-0x82 # flags : Create
+0x2 # flags : Create
 2 # key_type NIST P_256
 1 # key_group
 2 # key_info : transient
@@ -162,7 +162,7 @@ HSM_GENERATE_KEY
 4 # key management index
 4 # key_id
 0 # Out_size
-0x82 # flags : Create & strict update
+0x2 # flags : Create
 0x30 # key_type AES_128
 1 # key_group
 2 # key_info : transient
@@ -181,7 +181,7 @@ HSM_GENERATE_KEY
 4 # key management index
 5 # key_id
 96 # Out_size : pub_key P_384
-0x82 # flags : Create & strict update
+0x2 # flags : Create
 3 # key_type NIST P_384
 1 # key_group
 2 # key_info : transient
@@ -204,7 +204,7 @@ HSM_GENERATE_KEY
 4 # key management index
 6 # key_id
 64 # Out_size : pub_key P_256
-0x82 # flags : Create & strict update
+0x2 # flags : Create
 2 # key_type NIST P_256
 1 # key_group
 2 # key_info : transient

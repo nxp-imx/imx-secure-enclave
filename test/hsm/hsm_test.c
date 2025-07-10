@@ -940,6 +940,7 @@ int main(int argc, char *argv[])
 		tv_tests_run(hsm_key_store_args.key_store_hdl, NULL);
 	}
 
+#ifdef PSA_COMPLIANT
 	/* Test shared keystores */
 	for (i = 0; i < HSM_TEST_SESSIONS; i++) {
 		if (i > 0) {
@@ -958,9 +959,6 @@ int main(int argc, char *argv[])
 		key_store_args[i].flags		       = HSM_SVC_KEY_STORE_FLAGS_CREATE |
 							 HSM_SVC_KEY_STORE_FLAGS_SHARED;
 
-#ifndef PSA_COMPLIANT
-		key_store_args[i].max_updates_number   = 100;
-#endif
 		printf("hsm_open_key_store_service for key_id = 0x%x, flags = 0x%x\n",
 		       key_store_args[i].key_store_identifier, key_store_args[i].flags);
 		err = hsm_open_key_store_service(hsm_session_hdl,
@@ -983,26 +981,31 @@ int main(int argc, char *argv[])
 		if (err)
 			goto ginfo_out;
 	}
+#endif
 
 ginfo_out:
-	for (i = 0; i < HSM_TEST_SESSIONS; i++) {
-		/* close non-shared key stores */
-		if (i == 0 && hsm_key_store_args.key_store_hdl) {
-			err = hsm_close_key_store_service
-				(hsm_key_store_args.key_store_hdl);
-			printf("hsm_close_key_store_service[%d] ret:0x%x\n", i, err);
-		}
 
+	/* close non-shared key store,opened on HSM Session 0 */
+	if (hsm_key_store_args.key_store_hdl) {
+		err = hsm_close_key_store_service
+			(hsm_key_store_args.key_store_hdl);
+		printf("hsm_close_key_store_service[%d] ret:0x%x\n", i, err);
+		hsm_key_store_args.key_store_hdl = 0;
+	}
+
+	for (i = 0; i < HSM_TEST_SESSIONS; i++) {
 		/* close shared key stores */
 		if (key_store_args[i].key_store_hdl) {
 			err = hsm_close_key_store_service
 				(key_store_args[i].key_store_hdl);
 			printf("hsm_close_key_store_service[%d] ret:0x%x\n", i, err);
+			key_store_args[i].key_store_hdl = 0;
 		}
 
 		if (open_session_args[i].session_hdl) {
 			err = hsm_close_session(open_session_args[i].session_hdl);
 			printf("hsm_close_session[%d] ret:0x%x\n", i, err);
+			open_session_args[i].session_hdl = 0;
 		}
 	}
 

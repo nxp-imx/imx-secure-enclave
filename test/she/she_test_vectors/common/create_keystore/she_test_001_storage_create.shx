@@ -10,7 +10,7 @@ SHE_TEST_KEY_STORE_OPEN
 0 # key store number, maximum 5 supported for i.MX95
 0 # key storage identifier
 0xbec00001  # password
-0x8b # flags (SHE, CREATE, SET_MAC_LENGTH, PERSISTENT)
+0xb # flags (SHE, CREATE, SET_MAC_LENGTH)
 300  # max number of updates
 32 # min mac length
 0 # signed message length

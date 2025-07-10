@@ -170,8 +170,7 @@ uint32_t test_hsm_generate_n_groups(hsm_test_struct_t *testCtx, FILE *fp)
 	index                       = READ_VALUE(fp, uint8_t);
 	key_id_start                = READ_VALUE(fp, uint32_t);
 	args.out_size               = READ_VALUE(fp, uint16_t);
-	args.flags                  = HSM_OP_KEY_GENERATION_FLAGS_CREATE |
-					HSM_OP_KEY_GENERATION_FLAGS_STRICT_OPERATION;
+	args.flags                  = HSM_OP_KEY_GENERATION_FLAGS_CREATE;
 	args.key_type               = READ_VALUE(fp, hsm_key_type_t);
 	key_group_start             = READ_VALUE(fp, uint32_t);
 	key_group_number_iteration  = READ_VALUE(fp, uint32_t);

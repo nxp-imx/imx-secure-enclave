@@ -33,7 +33,7 @@ HSM_GENERATE_KEY
 3 # key management index
 2 # key_id
 0 # Out_size : no key
-2 # flags : Create Persistent
+2 # flags : Create
 0x32 # key_type AES_256
 1 # key_group
 0 # key_info
@@ -45,7 +45,7 @@ HSM_GENERATE_KEY
 3 # key management index
 0x13 # key_id
 0 # Out_size : no key
-2 # flags : Create Persistent
+2 # flags : Create
 0x32 # key_type AES_256
 0x13 # key_group
 0 # key_info
@@ -57,7 +57,7 @@ HSM_GENERATE_KEY
 3 # key management index
 0x14 # key_id
 0 # Out_size : no key
-2 # flags : Create Persistent
+2 # flags : Create
 0x32 # key_type AES_256
 0x14 # key_group
 0 # key_info
@@ -69,7 +69,7 @@ HSM_GENERATE_KEY
 3 # key management index
 0x15 # key_id
 0 # Out_size : no key
-2 # flags : Create Persistent
+2 # flags : Create
 0x32 # key_type AES_256
 0x15 # key_group
 0 # key_info
@@ -97,7 +97,7 @@ HSM_GENERATE_KEY
 3 # key management index
 3 # key_id
 0 # Out_size : no key
-2 # flags : Create Persistent
+2 # flags : Create
 0x32 # key_type AES_256
 1 # key_group
 0 # key_info

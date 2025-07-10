@@ -26,7 +26,7 @@ HSM_GENERATE_KEY
 2 # key management index
 1 # key_id
 64 # Out_size : pub_key P_256
-0x2 # flags : Create Persistent
+0x2 # flags : Create
 2 # key_type NIST P_256
 0 # key_group
 0 # key_info
