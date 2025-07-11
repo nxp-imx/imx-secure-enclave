@@ -1,6 +1,6 @@
 // SPDX-License-Identifier: BSD-3-Clause
 /*
- * Copyright 2019-2024 NXP
+ * Copyright 2019-2025 NXP
  */
 
 
@@ -137,7 +137,7 @@
 #define SAB_RCVMSG_START_ID                     SAB_STORAGE_OPEN_REQ
 #define SAB_STORAGE_NVM_LAST_CMD                (SAB_STORAGE_CHUNK_DELETE_REQ + 1)
 
-#define SAB_RCVMSG_MAX_ID                       (SAB_STORAGE_CHUNK_DELETE_REQ \
+#define SAB_RCVMSG_MAX_ID                       (SAB_STORAGE_NVM_LAST_CMD \
 							- SAB_RCVMSG_START_ID)
 
 #define SAB_SHE_UTILS_OPEN                      0xF0u
