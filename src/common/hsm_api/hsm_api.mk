@@ -160,6 +160,12 @@ HSM_API_SRC	+= \
 		$(PLAT_COMMON_PATH)/hsm_api/hsm_get_event.o
 endif
 
+ifneq (${MT_SAB_BLOB_UNBLOB},0x0)
+DEFINES		+=	-DHSM_BLOB_UNBLOB
+HSM_API_SRC	+= \
+		$(PLAT_COMMON_PATH)/hsm_api/hsm_blob_unblob.o
+endif
+
 ifneq (${MT_SAB_DEBUG_DUMP},0x0)
 DEFINES		+=	-DHSM_DEBUG_DUMP
 HSM_API_SRC	+= \

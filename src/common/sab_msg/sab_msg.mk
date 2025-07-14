@@ -110,6 +110,12 @@ SAB_MSG_SRC	+= \
 		$(PLAT_COMMON_PATH)/sab_msg/sab_get_event.o
 endif
 
+ifneq (${MT_SAB_BLOB_UNBLOB},0x0)
+DEFINES		+=	-DMT_SAB_BLOB_UNBLOB=${MT_SAB_BLOB_UNBLOB}
+SAB_MSG_SRC	+= \
+		$(PLAT_COMMON_PATH)/sab_msg/sab_blob_unblob.o
+endif
+
 ifneq (${MT_SAB_DEBUG_DUMP},0x0)
 DEFINES		+=	-DMT_SAB_DEBUG_DUMP=${MT_SAB_DEBUG_DUMP}
 SAB_MSG_SRC	+= \

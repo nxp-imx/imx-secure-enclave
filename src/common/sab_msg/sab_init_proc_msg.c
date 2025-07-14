@@ -14,6 +14,10 @@
 #include "sab_get_event.h"
 #endif
 
+#if MT_SAB_BLOB_UNBLOB
+#include "sab_blob_unblob.h"
+#endif
+
 #if MT_SAB_DEBUG_DUMP
 #include "sab_debug_dump.h"
 #endif
@@ -227,6 +231,15 @@ static int init_proc_sab_base_msg_engine(msg_type_t msg_type,
 				ret = add_sab_msg_handler(msg_id, MT_SAB_GET_EVENT,
 							  prepare_msg_get_event,
 							  proc_msg_rsp_get_event);
+			}
+			break;
+#endif
+#if MT_SAB_BLOB_UNBLOB
+		case ROM_BLOB_UNBLOB_REQ:
+			if (msg_type == MT_SAB_BLOB_UNBLOB) {
+				ret = add_sab_msg_handler(msg_id, MT_SAB_BLOB_UNBLOB,
+							  prepare_msg_blob_unblob,
+							  proc_msg_rsp_blob_unblob);
 			}
 			break;
 #endif

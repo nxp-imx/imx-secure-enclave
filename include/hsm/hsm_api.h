@@ -69,6 +69,8 @@ extern "C" {
 
 #include "internal/hsm_get_event.h"
 
+#include "internal/hsm_blob_unblob.h"
+
 #include "internal/hsm_dev_attest.h"
 
 #include "internal/hsm_get_info.h"

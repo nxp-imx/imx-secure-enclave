@@ -1,6 +1,6 @@
 // SPDX-License-Identifier: BSD-3-Clause
 /*
- * Copyright 2022-2023 NXP
+ * Copyright 2022-2023, 2025 NXP
  */
 
 #include "sab_common_err.h"
@@ -28,6 +28,7 @@ static struct sab_err_map_s sab_err_str_map[SAB_ERR_MAP_N] = {
 	{0x1B29, "Key not supported"},
 	{0x1C29, "Trying to delete a permanent key"},
 	{0x1D29, "Output public key size is too small"},
+	{0xBC29, "Inconsistent Parameter"},
 	{0xB929, "Command CRC check error"},
 	{0xF229, "Invalid Lifecycle operation"},
 };

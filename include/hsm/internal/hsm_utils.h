@@ -89,6 +89,8 @@ typedef enum {
 	/**< Invalid Signature verification handle: Opaque key can’t be used. */
 	HSM_CRC_CHECK_ERR = 0xB9,
 	/**<Command CRC check error */
+	HSM_INCONSISTENT_PARAM_ERR = 0xBC,
+	/**<In-consistent parameter provided in the message request. */
 	HSM_OEM_CLOSED_LC_SIGNED_MSG_VERIFICATION_FAIL = 0xF0,
 	/**<In OEM closed lifecycle, Signed message signature verification
 	 * failure
