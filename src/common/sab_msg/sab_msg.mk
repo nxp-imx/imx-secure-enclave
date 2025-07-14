@@ -104,6 +104,12 @@ SAB_MSG_SRC	+= \
 		$(PLAT_COMMON_PATH)/sab_msg/sab_lc_update.o
 endif
 
+ifneq (${MT_SAB_GET_EVENT},0x0)
+DEFINES		+=	-DMT_SAB_GET_EVENT=${MT_SAB_GET_EVENT}
+SAB_MSG_SRC	+= \
+		$(PLAT_COMMON_PATH)/sab_msg/sab_get_event.o
+endif
+
 ifneq (${MT_SAB_DEBUG_DUMP},0x0)
 DEFINES		+=	-DMT_SAB_DEBUG_DUMP=${MT_SAB_DEBUG_DUMP}
 SAB_MSG_SRC	+= \

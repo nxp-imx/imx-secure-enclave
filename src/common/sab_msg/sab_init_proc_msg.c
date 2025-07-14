@@ -10,6 +10,10 @@
 #include "sab_lc_update.h"
 #endif
 
+#if MT_SAB_GET_EVENT
+#include "sab_get_event.h"
+#endif
+
 #if MT_SAB_DEBUG_DUMP
 #include "sab_debug_dump.h"
 #endif
@@ -214,6 +218,15 @@ static int init_proc_sab_base_msg_engine(msg_type_t msg_type,
 				ret = add_sab_msg_handler(msg_id, MT_SAB_LC_UPDATE,
 						prepare_msg_ret_lc_update,
 						proc_msg_rsp_ret_lc_update);
+			}
+			break;
+#endif
+#if MT_SAB_GET_EVENT
+		case ROM_DEV_GET_EVENT:
+			if (msg_type == MT_SAB_GET_EVENT) {
+				ret = add_sab_msg_handler(msg_id, MT_SAB_GET_EVENT,
+							  prepare_msg_get_event,
+							  proc_msg_rsp_get_event);
 			}
 			break;
 #endif

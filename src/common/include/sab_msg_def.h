@@ -115,12 +115,13 @@
 #define SAB_GC_CIPHER_REQ                       0xC8u
 #define SAB_GC_AEAD_REQ                         0xC9u
 
-#define ROM_DEV_FWD_LC_UPDATE                   0x95
-#define ROM_DEV_RET_LC_UPDATE                   0xA0
-#define ROM_DEV_ELE_RESET_REQ			0xC7
-#define ROM_DEV_WRITE_FUSE_REQ			0xD6
-#define ROM_DEV_GETINFO_REQ                     0xDA
-#define ROM_DEV_ATTEST_REQ                      0xDB
+#define ROM_DEV_FWD_LC_UPDATE                   0x95u
+#define ROM_DEV_RET_LC_UPDATE                   0xA0u
+#define ROM_DEV_GET_EVENT			0xA2u
+#define ROM_DEV_ELE_RESET_REQ			0xC7u
+#define ROM_DEV_WRITE_FUSE_REQ			0xD6u
+#define ROM_DEV_GETINFO_REQ                     0xDAu
+#define ROM_DEV_ATTEST_REQ                      0xDBu
 
 /* FW: Maximum number of words without crc in a command */
 #define SAB_STORAGE_NB_WORDS_MAX_WO_CRC         4u

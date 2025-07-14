@@ -76,6 +76,7 @@ MT_SAB_LC_UPDATE	:=	${ROM}
 # - As the PMIC will bounce VDD_SOC, the reset reason will be lost
 #   and appears to be a POR.
 MT_SAB_DEV_ELE_RESET	:=	${NOT_SUPPORTED}
+MT_SAB_GET_EVENT	:=	${ROM}
 
 MT_SAB_STORAGE_MASTER_IMPORT     :=	${FMW}
 MT_SAB_STORAGE_MASTER_EXPORT_REQ :=	${FMW}

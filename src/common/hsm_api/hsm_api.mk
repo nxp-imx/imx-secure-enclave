@@ -154,6 +154,12 @@ HSM_API_SRC	+= \
 		$(PLAT_COMMON_PATH)/hsm_api/hsm_lc_update.o
 endif
 
+ifneq (${MT_SAB_GET_EVENT},0x0)
+DEFINES		+=	-DHSM_GET_EVENT
+HSM_API_SRC	+= \
+		$(PLAT_COMMON_PATH)/hsm_api/hsm_get_event.o
+endif
+
 ifneq (${MT_SAB_DEBUG_DUMP},0x0)
 DEFINES		+=	-DHSM_DEBUG_DUMP
 HSM_API_SRC	+= \
