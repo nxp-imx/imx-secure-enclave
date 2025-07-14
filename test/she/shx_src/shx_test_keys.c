@@ -1,6 +1,6 @@
 // SPDX-License-Identifier: BSD-3-Clause
 /*
- * Copyright 2024 NXP
+ * Copyright 2024-2025 NXP
  */
 
 #include <stdbool.h>
@@ -28,6 +28,7 @@ uint32_t she_test_load_key(she_test_struct_t *testCtx, FILE *fp)
 	// These macros define buffers and use pointers so that
 	// we can replace them with values, if specified
 	args.key_id = READ_VALUE(fp, uint8_t);
+	args.flag = READ_VALUE(fp, uint8_t);
 	args.m1 = READ_INPUT_BUFFER(fp, 16u);  // input: 128 bits
 	args.m2 = READ_INPUT_BUFFER(fp, 32u);  // input: 256 bits
 	args.m3 = READ_INPUT_BUFFER(fp, 16u);  // input: 128 bits

@@ -1,6 +1,6 @@
 // SPDX-License-Identifier: BSD-3-Clause
 /*
- * Copyright 2023-2024 NXP
+ * Copyright 2023-2025 NXP
  */
 
 #ifndef SHE_KEY_UPDATE_H
@@ -48,6 +48,11 @@ typedef struct {
 	//!< pointer to the output address for M5 message
 	uint8_t m5_size;
 	//!< size of M5 message - 128 bits
+	uint8_t flag;
+	//!< flag parameter is valid till monotonic counter's value is zero
+	//!<--- 0 : default, command will not execute as
+	//!<        it will enforce increasing the monotonic counter
+	//!<--- 1 : it will increase the monotonic counter
 } op_key_update_args_t;
 
 /**

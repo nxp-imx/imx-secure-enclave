@@ -1,6 +1,6 @@
 // SPDX-License-Identifier: BSD-3-Clause
 /*
- * Copyright 2023 NXP
+ * Copyright 2023, 2025 NXP
  */
 
 #include "she_api.h"
@@ -10,6 +10,7 @@ she_err_t she_key_update(she_hdl_t utils_handle, op_key_update_args_t *args)
 {
 	struct she_service_hdl_s *serv_ptr;
 	she_err_t err = SHE_GENERAL_ERROR;
+	op_get_info_args_t iargs = {0};
 	uint32_t sab_err;
 	uint32_t rsp_code = SAB_NO_MESSAGE_RATING;
 
@@ -31,6 +32,19 @@ she_err_t she_key_update(she_hdl_t utils_handle, op_key_update_args_t *args)
 	    args->m5_size != SHE_KEY_SIZE_IN_BYTES) {
 		se_err("Invalid Input size\n");
 		return err;
+	}
+
+	she_get_info(serv_ptr->session->session_hdl, &iargs);
+
+	printf("chip_monotonic_counter 0x%x\n", iargs.chip_monotonic_counter);
+
+	if (!iargs.chip_monotonic_counter) {
+		if (!args->flag) {
+			se_err("Monotonic counter will not be enabled, flag is not set\n");
+			return err;
+		}
+		se_err("Incrementing the monotonic counter will be enforced\n");
+		se_err("from now onwards, even if the flag is set or not.\n");
 	}
 
 	sab_err = process_sab_msg(serv_ptr->session->phdl,

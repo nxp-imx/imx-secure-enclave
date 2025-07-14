@@ -99,39 +99,42 @@ static void hexdump(uint32_t buf[], uint32_t size)
 }
 #endif
 
-static uint8_t err_handling_v2_support(uint8_t msg_id)
+static uint8_t err_handling_v2_support(uint8_t msg_type, uint8_t msg_id)
 {
 	uint8_t ret = 0;
 
-	if (msg_id == SAB_SESSION_OPEN_REQ ||
-	    msg_id == SAB_SESSION_CLOSE_REQ ||
-	    msg_id == SAB_MAC_OPEN_REQ ||
-	    msg_id == SAB_MAC_REQ ||
-	    msg_id == SAB_MAC_CLOSE_REQ ||
-	    msg_id == SAB_KEY_EXCHANGE_REQ ||
-	    msg_id == ROM_DEV_GETINFO_REQ ||
-	    msg_id == ROM_DEV_WRITE_FUSE_REQ ||
-	    msg_id == SAB_SHE_FAST_MAC_MUBUFF_REQ ||
-	    msg_id == SAB_BUT_KEY_EXP_REQ ||
-	    msg_id == SAB_PUB_KEY_DECOMPRESSION_REQ ||
-	    msg_id == SAB_ROOT_KEK_EXPORT_REQ ||
-	    msg_id == SAB_PUB_KEY_RECONSTRUCTION_REQ ||
-	    msg_id == SAB_TLS_FINISH_REQ ||
-	    msg_id == SAB_IMPORT_PUB_KEY ||
-	    msg_id == SAB_SHE_GET_ID ||
-	    msg_id == SAB_SHE_FAST_MAC_MUBUFF_V2_REQ ||
-	    msg_id == SAB_FAST_MAC_REQ ||
-	    msg_id == SAB_KEY_STORE_OPEN_REQ ||
-	    msg_id == SAB_KEY_STORE_CLOSE_REQ ||
-	    msg_id == SAB_SHARED_BUF_REQ ||
-	    msg_id == SAB_KEY_STORE_REPROV_EN_REQ ||
-	    msg_id == SAB_CRRM_GET_BOOT_MODE_REQ ||
-	    msg_id == SAB_CRRM_SET_BOOT_MODE_REQ ||
-	    msg_id == SAB_CRRM_GET_NONCE_REQ ||
-	    msg_id == SAB_CRRM_REFRESH_AWDT_REQ ||
-	    msg_id == SAB_CRRM_GET_STATUS_REQ ||
-	    msg_id == ROM_DEV_ELE_RESET_REQ)
-		ret = 1;
+	if (msg_type == ROM_MSG) {
+		if (msg_id == ROM_DEV_GETINFO_REQ ||
+		    msg_id == ROM_DEV_WRITE_FUSE_REQ ||
+		    msg_id == SAB_CRRM_GET_BOOT_MODE_REQ ||
+		    msg_id == SAB_CRRM_SET_BOOT_MODE_REQ ||
+		    msg_id == SAB_CRRM_GET_NONCE_REQ ||
+		    msg_id == SAB_CRRM_REFRESH_AWDT_REQ ||
+		    msg_id == SAB_CRRM_GET_STATUS_REQ)
+			ret = 1;
+	} else if (msg_type == SAB_MSG) {
+		if (msg_id == SAB_SESSION_OPEN_REQ ||
+		    msg_id == SAB_SESSION_CLOSE_REQ ||
+		    msg_id == SAB_MAC_OPEN_REQ ||
+		    msg_id == SAB_MAC_REQ ||
+		    msg_id == SAB_MAC_CLOSE_REQ ||
+		    msg_id == SAB_KEY_EXCHANGE_REQ ||
+		    msg_id == SAB_SHE_FAST_MAC_MUBUFF_REQ ||
+		    msg_id == SAB_BUT_KEY_EXP_REQ ||
+		    msg_id == SAB_PUB_KEY_DECOMPRESSION_REQ ||
+		    msg_id == SAB_ROOT_KEK_EXPORT_REQ ||
+		    msg_id == SAB_PUB_KEY_RECONSTRUCTION_REQ ||
+		    msg_id == SAB_TLS_FINISH_REQ ||
+		    msg_id == SAB_IMPORT_PUB_KEY ||
+		    msg_id == SAB_SHE_GET_ID ||
+		    msg_id == SAB_SHE_FAST_MAC_MUBUFF_V2_REQ ||
+		    msg_id == SAB_FAST_MAC_REQ ||
+		    msg_id == SAB_KEY_STORE_OPEN_REQ ||
+		    msg_id == SAB_KEY_STORE_CLOSE_REQ ||
+		    msg_id == SAB_SHARED_BUF_REQ ||
+		    msg_id == SAB_KEY_STORE_REPROV_EN_REQ)
+			ret = 1;
+	}
 
 	return ret;
 }
@@ -160,7 +163,7 @@ uint32_t process_sab_msg(struct plat_os_abs_hdl *phdl,
 	 *	-MSG ID is in valid range
 	 */
 	if (msg_type <= NOT_SUPPORTED || msg_type >= MAX_MSG_TYPE) {
-		if (err_handling_v2_support(msg_id))
+		if (err_handling_v2_support(msg_type, msg_id))
 			error = SENDMSG_ENGN_ERR(SAB_LIB_CMD_INVALID);
 		else
 			error = SAB_INVALID_MESSAGE_RATING;
@@ -169,7 +172,7 @@ uint32_t process_sab_msg(struct plat_os_abs_hdl *phdl,
 	}
 
 	if (msg_id == SAB_MSG_MAX_ID) {
-		if (err_handling_v2_support(msg_id))
+		if (err_handling_v2_support(msg_type, msg_id))
 			error = SENDMSG_ENGN_ERR(SAB_LIB_CMD_INVALID);
 		else
 			error = SAB_NO_MESSAGE_RATING;
@@ -185,7 +188,7 @@ uint32_t process_sab_msg(struct plat_os_abs_hdl *phdl,
 	 * check is important.
 	 */
 	if (prepare_sab_msg[msg_type - 1][msg_id] == NULL) {
-		if (err_handling_v2_support(msg_id))
+		if (err_handling_v2_support(msg_type, msg_id))
 			error = SENDMSG_ENGN_ERR(SAB_LIB_INVALID_MSG_HANDLER);
 		else
 			error = SAB_NO_MESSAGE_RATING;
@@ -196,7 +199,7 @@ uint32_t process_sab_msg(struct plat_os_abs_hdl *phdl,
 	error = prepare_sab_msg[msg_type - 1][msg_id](phdl, &cmd, &rsp, &cmd_msg_sz,
 					&rsp_msg_sz, msg_hdl, args);
 
-	if (err_handling_v2_support(msg_id)) {
+	if (err_handling_v2_support(msg_type, msg_id)) {
 		if (PARSE_LIB_ERR_STATUS(error) != SAB_LIB_SUCCESS) {
 			error = ENGN_SEND_CMD_PATH_FLAG | error;
 			goto out;
@@ -216,7 +219,7 @@ uint32_t process_sab_msg(struct plat_os_abs_hdl *phdl,
 	nb_words = cmd_msg_sz / (uint32_t)sizeof(uint32_t);
 	if (nb_words > SAB_STORAGE_NB_WORDS_MAX_WO_CRC) {
 		if (plat_add_msg_crc(cmd, cmd_msg_sz)) {
-			if (err_handling_v2_support(msg_id))
+			if (err_handling_v2_support(msg_type, msg_id))
 				error = SENDMSG_ENGN_ERR(SAB_LIB_CRC_FAIL);
 			else
 				error = SAB_NO_MESSAGE_RATING;
@@ -228,7 +231,7 @@ uint32_t process_sab_msg(struct plat_os_abs_hdl *phdl,
 	if (ep.cancel_signal) {
 		ep.cancel_signal = 0;
 
-		if (err_handling_v2_support(msg_id)) {
+		if (err_handling_v2_support(msg_type, msg_id)) {
 			error = SAB_LIB_SHE_CANCEL_ERROR;
 			goto out;
 		}
@@ -249,7 +252,7 @@ uint32_t process_sab_msg(struct plat_os_abs_hdl *phdl,
 		cmd, cmd_msg_sz, rsp, &rsp_msg_sz);
 
 	if (error) {
-		if (err_handling_v2_support(msg_id))
+		if (err_handling_v2_support(msg_type, msg_id))
 			error = RCVMSG_ENGN_ERR(SAB_LIB_CMD_RSP_TRANSACT_FAIL);
 		else
 			error = SAB_NO_MESSAGE_RATING;
@@ -260,7 +263,7 @@ uint32_t process_sab_msg(struct plat_os_abs_hdl *phdl,
 	if (ep.cancel_signal) {
 		ep.cancel_signal = 0;
 
-		if (err_handling_v2_support(msg_id)) {
+		if (err_handling_v2_support(msg_type, msg_id)) {
 			error = SAB_LIB_SHE_CANCEL_ERROR;
 			goto out;
 		}
@@ -272,7 +275,7 @@ uint32_t process_sab_msg(struct plat_os_abs_hdl *phdl,
 	nb_words = rsp_msg_sz / (uint32_t)sizeof(uint32_t);
 	if (nb_words > SAB_STORAGE_NB_WORDS_MAX_WO_CRC) {
 		if (plat_validate_msg_crc(rsp, rsp_msg_sz)) {
-			if (err_handling_v2_support(msg_id))
+			if (err_handling_v2_support(msg_type, msg_id))
 				error = RCVMSG_ENGN_ERR(SAB_LIB_CRC_FAIL);
 			else
 				error = SAB_NO_MESSAGE_RATING;
@@ -302,7 +305,7 @@ uint32_t process_sab_msg(struct plat_os_abs_hdl *phdl,
 			    msg_id, *rsp_code);
 
 	if (process_sab_msg_rsp[msg_type - 1][msg_id] == NULL) {
-		if (err_handling_v2_support(msg_id))
+		if (err_handling_v2_support(msg_type, msg_id))
 			error = RCVMSG_ENGN_ERR(SAB_LIB_INVALID_MSG_HANDLER);
 		else
 			error = SAB_NO_MESSAGE_RATING;
@@ -312,7 +315,7 @@ uint32_t process_sab_msg(struct plat_os_abs_hdl *phdl,
 
 	error = process_sab_msg_rsp[msg_type - 1][msg_id](&rsp, args);
 
-	if (err_handling_v2_support(msg_id)) {
+	if (err_handling_v2_support(msg_type, msg_id)) {
 		if (PARSE_LIB_ERR_STATUS(error) != SAB_LIB_SUCCESS) {
 			error = ENGN_RCV_RESP_PATH_FLAG | error;
 			goto out;
@@ -332,13 +335,13 @@ uint32_t process_sab_msg(struct plat_os_abs_hdl *phdl,
 	/**
 	 * Returning Library Success code if reached till here.
 	 */
-	if (err_handling_v2_support(msg_id))
+	if (err_handling_v2_support(msg_type, msg_id))
 		error = RCVMSG_ENGN_ERR(SAB_LIB_SUCCESS);
 out:
 	/**
 	 * printing Plat errors and Library errors if occurred.
 	 */
-	if (err_handling_v2_support(msg_id) &&
+	if (err_handling_v2_support(msg_type, msg_id) &&
 	    PARSE_LIB_ERR_STATUS(error) != SAB_LIB_SUCCESS) {
 		se_err("LIB Error: CMD [0x%x] error [0x%06x]\n", msg_id, error);
 		plat_lib_err_map(msg_id, PARSE_LIB_ERR_PLAT(error));

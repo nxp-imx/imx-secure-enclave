@@ -20,10 +20,12 @@ SHE_TEST_UTILS_OPEN
 0 # key store number, maximum 5 supported for i.MX95
 0 # expected return value
 
-SHE_TEST_LOAD_KEY
+SHE_TEST_EXT_LOAD_KEY
 0 # session handle index
 0 # key store number, maximum 5 supported for i.MX95
+0x00  # SHE_DEFAULT_KEY
 0x04  # SHE KEY_1
+0x00  # flags
 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00
 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x44  # m1 (128 bits)
 0xe0, 0xd0, 0x8b, 0xc3, 0x17, 0x36, 0x34, 0x5a
@@ -41,7 +43,6 @@ SHE_TEST_LOAD_KEY
 0x00  # expected return value (SHE_NO_ERROR)
 NULL  # expected_m4 (256 bits)
 NULL  # expected_m5 (128 bits)
-
 
 EXT_SHE_TEST_MAC_VERIF_BIT
 0x2  # iteration
