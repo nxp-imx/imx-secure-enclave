@@ -378,7 +378,8 @@ hsm_err_t do_cipher_test(hsm_hdl_t key_store_hdl, hsm_hdl_t key_mgmt_hdl)
 		delete_test_key(key_mgmt_hdl, sym_key_id, 0);
 
 	if (se_get_soc_id() == SOC_IMX95 ||
-	    se_get_soc_id() == SOC_IMX943)
+	    se_get_soc_id() == SOC_IMX943 ||
+	    se_get_soc_id() == SOC_IMX952)
 		do_cipher_stream_opaquekey_test(key_store_hdl, key_mgmt_hdl);
 
 	hsmret = do_cipher_plainkey_test(key_store_hdl, key_mgmt_hdl);

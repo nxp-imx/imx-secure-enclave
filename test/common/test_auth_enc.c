@@ -535,7 +535,7 @@ out:
 hsm_err_t auth_enc_test(hsm_hdl_t key_store_hdl, hsm_hdl_t key_mgmt_hdl)
 {
 #ifdef PSA_COMPLIANT
-	if (se_get_soc_id() != SOC_IMX943 &&
+	if (se_get_soc_id() != SOC_IMX943 && se_get_soc_id() != SOC_IMX952 &&
 	    !(se_get_soc_id() == SOC_IMX95 && se_get_soc_rev() == SOC_REV_B0)) {
 		printf("\n------------------------------------------------\n");
 		printf("AUTH ENC (legacy) Test:");
@@ -578,7 +578,8 @@ hsm_err_t auth_enc_test(hsm_hdl_t key_store_hdl, hsm_hdl_t key_mgmt_hdl)
 	auth_enc_new_ccm_plainkey_test(key_store_hdl, key_mgmt_hdl);
 
 	if (se_get_soc_id() == SOC_IMX95 ||
-	    se_get_soc_id() == SOC_IMX943)
+	    se_get_soc_id() == SOC_IMX943 ||
+	    se_get_soc_id() == SOC_IMX952)
 		auth_enc_new_ccm_stream_test(key_store_hdl, key_mgmt_hdl);
 
 	printf("\n------------------------------------------------\n");
