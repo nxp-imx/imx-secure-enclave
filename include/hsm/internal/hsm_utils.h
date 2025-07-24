@@ -1,6 +1,6 @@
 // SPDX-License-Identifier: BSD-3-Clause
 /*
- * Copyright 2022-2024 NXP
+ * Copyright 2022-2025 NXP
  */
 
 #ifndef HSM_UTILS_H
@@ -85,6 +85,8 @@ typedef enum {
 	/**<Trying to delete a permanent key */
 	HSM_OUT_TOO_SMALL                   = 0x1D,
 	/**<Output buffer size is too small */
+	HSM_INVALID_SIGNATURE_VERIFICATION_HANDLE = 0x21,
+	/**< Invalid Signature verification handle: Opaque key can’t be used. */
 	HSM_CRC_CHECK_ERR = 0xB9,
 	/**<Command CRC check error */
 	HSM_OEM_CLOSED_LC_SIGNED_MSG_VERIFICATION_FAIL = 0xF0,

@@ -1,6 +1,6 @@
 // SPDX-License-Identifier: BSD-3-Clause
 /*
- * Copyright 2022-2023 NXP
+ * Copyright 2022-2023, 2025 NXP
  */
 
 #include <stdbool.h>
@@ -13,12 +13,13 @@
 
 #include "sab_process_msg.h"
 
-hsm_err_t hsm_open_signature_verification_service(hsm_hdl_t session_hdl,
-						open_svc_sign_ver_args_t *args,
-						hsm_hdl_t *signature_ver_hdl)
+hsm_err_t hsm_open_signature_verification_service(hsm_hdl_t op_hdl,
+						  open_svc_sign_ver_args_t *args,
+						  hsm_hdl_t *signature_ver_hdl)
 {
 	struct hsm_session_hdl_s *sess_ptr;
-	struct hsm_service_hdl_s *serv_ptr;
+	struct hsm_service_hdl_s *key_store_serv_ptr;
+	struct hsm_service_hdl_s *sig_verify_serv_ptr;
 	uint32_t error;
 	hsm_err_t err = HSM_GENERAL_ERROR;
 	uint32_t rsp_code = SAB_NO_MESSAGE_RATING;
@@ -28,43 +29,48 @@ hsm_err_t hsm_open_signature_verification_service(hsm_hdl_t session_hdl,
 			break;
 		}
 
-		if (!session_hdl) {
+		if (!op_hdl) {
 			err = HSM_UNKNOWN_HANDLE;
 			break;
 		}
 
-		sess_ptr = session_hdl_to_ptr(session_hdl);
-		if (sess_ptr == NULL) {
-			err = HSM_UNKNOWN_HANDLE;
-			break;
+		key_store_serv_ptr = service_hdl_to_ptr(op_hdl);
+		if (!key_store_serv_ptr) {
+			sess_ptr = session_hdl_to_ptr(op_hdl);
+			if (!sess_ptr) {
+				err = HSM_UNKNOWN_HANDLE;
+				break;
+			}
+
+			sig_verify_serv_ptr = add_service(sess_ptr);
+		} else {
+			sig_verify_serv_ptr = add_service(key_store_serv_ptr->session);
 		}
 
-		serv_ptr = add_service(sess_ptr);
-		if (serv_ptr == NULL) {
+		if (!sig_verify_serv_ptr)
 			break;
-		}
 
-		error = process_sab_msg(serv_ptr->session->phdl,
-					serv_ptr->session->mu_type,
+		error = process_sab_msg(sig_verify_serv_ptr->session->phdl,
+					sig_verify_serv_ptr->session->mu_type,
 					SAB_SIGNATURE_VERIFICATION_OPEN_REQ,
 					MT_SAB_VERIFY_SIGN,
-					(uint32_t)session_hdl,
+					(uint32_t)op_hdl,
 					args, &rsp_code);
 
-		err = sab_rating_to_hsm_err(error, serv_ptr->session->phdl);
+		err = sab_rating_to_hsm_err(error, sig_verify_serv_ptr->session->phdl);
 		if (err != HSM_NO_ERROR) {
 			se_err("HSM Error: SAB_SIGNATURE_VERIFICATION_OPEN_REQ [0x%x].\n", err);
-			delete_service(serv_ptr);
+			delete_service(sig_verify_serv_ptr);
 			break;
 		}
 
-		err = sab_rating_to_hsm_err(rsp_code, serv_ptr->session->phdl);
+		err = sab_rating_to_hsm_err(rsp_code, sig_verify_serv_ptr->session->phdl);
 		if (err != HSM_NO_ERROR) {
 			se_err("HSM RSP Error: SAB_SIGNATURE_VERIFICATION_OPEN_REQ [0x%x].\n", err);
-			delete_service(serv_ptr);
+			delete_service(sig_verify_serv_ptr);
 			break;
 		}
-		serv_ptr->service_hdl = args->sig_ver_hdl;
+		sig_verify_serv_ptr->service_hdl = args->sig_ver_hdl;
 		*signature_ver_hdl = args->sig_ver_hdl;
 	} while (false);
 
@@ -175,7 +181,7 @@ hsm_err_t hsm_verify_signature(hsm_hdl_t signature_ver_hdl,
 	return err;
 }
 
-hsm_err_t hsm_verify_sign(hsm_hdl_t session_hdl,
+hsm_err_t hsm_verify_sign(hsm_hdl_t op_hdl,
 			  op_verify_sign_args_t *args,
 			  hsm_verification_status_t *status)
 {
@@ -188,7 +194,7 @@ hsm_err_t hsm_verify_sign(hsm_hdl_t session_hdl,
 #ifndef PSA_COMPLIANT
 	open_sig_ver_args.flags = args->svc_flags;
 #endif
-	op_err = hsm_open_signature_verification_service(session_hdl,
+	op_err = hsm_open_signature_verification_service(op_hdl,
 							 &open_sig_ver_args,
 							 &sig_ver_hdl);
 	if (op_err) {

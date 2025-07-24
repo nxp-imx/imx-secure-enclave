@@ -1,6 +1,6 @@
 // SPDX-License-Identifier: BSD-3-Clause
 /*
- * Copyright 2022-2023 NXP
+ * Copyright 2022-2023, 2025 NXP
  */
 
 #ifndef SAB_VERIFY_SIGN_H
@@ -37,7 +37,7 @@ struct sab_signature_verify_close_rsp {
 struct sab_signature_verify_msg {
 	struct sab_mu_hdr hdr;
 	uint32_t sig_ver_hdl;
-	uint32_t key_addr;
+	uint32_t key;
 	uint32_t msg_addr;
 	uint32_t sig_addr;
 #ifdef PSA_COMPLIANT
