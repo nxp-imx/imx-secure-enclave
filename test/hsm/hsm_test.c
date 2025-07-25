@@ -887,6 +887,13 @@ int main(int argc, char *argv[])
 	}
 	printf("hsm_open_session PASS 0x%x\n", hsm_session_hdl);
 
+#ifdef PSA_COMPLIANT
+	if (se_get_soc_id() == SOC_IMX95 ||
+	    se_get_soc_id() == SOC_IMX943) {
+		test_ele_blob_unblob(hsm_session_hdl, NULL);
+		test_ele_blob_unblob(hsm_session_hdl, "abcdefghijklmnopqrstuvwxyz");
+	}
+#endif
 #ifdef WRITE_SHE_KEYS
 	write_fuse(hsm_session_hdl);
 #endif

@@ -165,4 +165,7 @@ int8_t get_supported_mu(uint8_t mu_type);
 she_err_t open_session(open_session_args_t *args, struct she_session_hdl_s **hdl);
 
 int shx_v2x_hsm_tests(int argc, char *argv[]);
+#ifdef PSA_COMPLIANT
+uint32_t test_ele_blob_unblob(hsm_hdl_t session_hdl, uint8_t *usr_ctx_buf);
+#endif
 #endif
