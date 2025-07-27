@@ -11,7 +11,7 @@
 #define __round_mask(x, y) ((__typeof__(x))((y) - 1))
 #define round_up(x, y) ((((x) - 1) | __round_mask(x, y)) + 1)
 
-int v2x_prime_mcompare(void *dst, void *src, size_t size)
+int prime_mcompare(void *dst, void *src, size_t size)
 {
 	char *d8 = (char *)dst;
 	char *s8 = (char *)src;
@@ -24,7 +24,7 @@ int v2x_prime_mcompare(void *dst, void *src, size_t size)
 	return 0;
 }
 
-void v2x_prime_mcopy(void *dst, void *src, size_t size)
+void prime_mcopy(void *dst, void *src, size_t size)
 {
 	uint32_t *d32 = (uint32_t *)dst;
 	uint32_t *s32 = (uint32_t *)src;
@@ -40,7 +40,7 @@ void v2x_prime_mcopy(void *dst, void *src, size_t size)
 		*d8++ = *s8++;
 }
 
-void v2x_prime_mfree(uint32_t service_hdl, uint32_t len)
+void prime_mfree(uint32_t service_hdl, uint32_t len)
 {
 	struct uio_fce_mu *fce_mu = get_uio_fce_mu();
 	struct io_mem *iomem = &fce_mu->iomem;
@@ -51,10 +51,8 @@ void v2x_prime_mfree(uint32_t service_hdl, uint32_t len)
 		iomem->pos = 0;
 }
 
-int v2x_prime_malloc(uint32_t service_hdl,
-		     uint8_t **virt_addr,
-		     uint32_t *phys_addr,
-		     uint32_t len)
+int prime_malloc(uint32_t service_hdl, uint8_t **virt_addr, uint32_t *phys_addr,
+		 uint32_t len)
 {
 	struct uio_fce_mu *fce_mu = get_uio_fce_mu();
 	struct io_mem *iomem = &fce_mu->iomem;

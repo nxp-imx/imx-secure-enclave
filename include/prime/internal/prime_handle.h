@@ -3,25 +3,25 @@
  * Copyright 2025 NXP
  */
 
-#ifndef FCE_HANDLE_H
-#define FCE_HANDLE_H
+#ifndef PRIME_HANDLE_H
+#define PRIME_HANDLE_H
 
 #include <stdint.h>
 
-#define FCE_HANDLE_NONE		(0x0)
+#define PRIME_HANDLE_NONE		(0x0)
 
 /**
  *  Define the HSM handle type
  */
-typedef uint32_t fce_hdl_t;
+typedef uint32_t prime_hdl_t;
 
 /**
  * Structure describing the service handle members
  */
-struct fce_service_hdl_s {
+struct prime_service_hdl_s {
 	uint32_t service_hdl;
 };
 
-struct fce_service_hdl_s *service_hdl_to_ptr(uint32_t hdl);
+struct prime_service_hdl_s *service_hdl_to_ptr(uint32_t hdl);
 
 #endif

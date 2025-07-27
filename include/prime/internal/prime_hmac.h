@@ -3,10 +3,10 @@
  * Copyright 2025 NXP
  */
 
-#ifndef FCE_HMAC_H
-#define FCE_HMAC_H
+#ifndef PRIME_HMAC_H
+#define PRIME_HMAC_H
 
-#include "internal/fce_utils.h"
+#include "internal/prime_utils.h"
 
 typedef struct {
 	const uint8_t *key;
@@ -35,6 +35,6 @@ struct auth_op_params {
 	struct buf digest;
 };
 
-fce_err_t fce_auth_init(hmac_key_t *args);
+prime_err_t prime_auth_init(hmac_key_t *args);
 
 #endif

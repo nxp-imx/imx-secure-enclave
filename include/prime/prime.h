@@ -3,15 +3,15 @@
  * Copyright 2025 NXP
  */
 
-#ifndef FCE_H
-#define FCE_H
+#ifndef PRIME_H
+#define PRIME_H
 
 #include <stddef.h>
 
-#include "internal/fce_handle.h"
-#include "internal/fce_hmac.h"
-#include "internal/fce_aes.h"
-#include "internal/fce_service.h"
+#include "internal/prime_handle.h"
+#include "internal/prime_hmac.h"
+#include "internal/prime_aes.h"
+#include "internal/prime_service.h"
 
 enum crypto_op_type {
 	CRYPTO_OP_TYPE_NONE,
@@ -31,7 +31,7 @@ enum crypto_op_status {
 	CRYPTO_OP_ERROR,
 };
 
-/* FCE crypto private session structure */
+/* PRIME crypto private session structure */
 typedef struct crypto_op {
 	struct buf src;
 	struct buf dst;
@@ -46,8 +46,8 @@ typedef struct crypto_op {
 	};
 } crypto_op_args_t;
 
-void v2x_prime_process_ops(fce_hdl_t service_hdl,
-			   crypto_op_args_t **ops,
-			   uint32_t nb_ops);
+void prime_process_ops(prime_hdl_t service_hdl,
+		       crypto_op_args_t **ops,
+		       uint32_t nb_ops);
 
 #endif

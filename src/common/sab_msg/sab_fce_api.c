@@ -63,7 +63,7 @@ int fce_get_request_status(void *mu_base, uint32_t *req_id)
 
 	ret = imx_mu_send_recv(mu_base, &msg, &msg);
 	if (ret)
-		printf("Session req-id: 0x%x, Err req-id: 0x%x, Err: 0x%x",
+		printf("Session req-id: 0x%x, Err req-id: 0x%x, Err: 0x%x.\n",
 		       *req_id, msg.data[1],  msg.data[0]);
 
 	*req_id = msg.data[1];

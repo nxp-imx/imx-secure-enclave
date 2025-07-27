@@ -3,11 +3,11 @@
  * Copyright 2025 NXP
  */
 
-#ifndef FCE_SERVICE_H
-#define FCE_SERVICE_H
+#ifndef PRIME_SERVICE_H
+#define PRIME_SERVICE_H
 
-#include "internal/fce_utils.h"
-#include "internal/fce_handle.h"
+#include "internal/prime_utils.h"
+#include "internal/prime_handle.h"
 
 enum service_type {
 	SERVICE_TYPE_NONE,
@@ -24,7 +24,7 @@ typedef struct {
 	//!< MU with associated functionality on which service session will be opened
 } open_service_args_t;
 
-fce_err_t v2x_prime_open_service(open_service_args_t *op_serv_args, fce_hdl_t *serv_hdl);
-void v2x_prime_close_service(fce_hdl_t ser_hdl);
+prime_err_t prime_open_service(open_service_args_t *op_serv_args, prime_hdl_t *serv_hdl);
+void prime_close_service(prime_hdl_t ser_hdl);
 
 #endif

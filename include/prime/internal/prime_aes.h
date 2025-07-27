@@ -3,10 +3,10 @@
  * Copyright 2025 NXP
  */
 
-#ifndef FCE_AES_H
-#define FCE_AES_H
+#ifndef PRIME_AES_H
+#define PRIME_AES_H
 
-#include "internal/fce_utils.h"
+#include "internal/prime_utils.h"
 
 typedef struct {
 	const uint8_t *key;
@@ -48,6 +48,7 @@ struct aead_op_params {
 	struct buf aad;
 	struct buf tag;
 };
-fce_err_t fce_cipher_init(aes_key_t *args);
+
+prime_err_t prime_cipher_init(aes_key_t *args);
 
 #endif

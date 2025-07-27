@@ -3,18 +3,18 @@
  * Copyright 2025 NXP
  */
 
-#ifndef FCE_UTILS_H
-#define FCE_UTILS_H
+#ifndef PRIME_UTILS_H
+#define PRIME_UTILS_H
 
 #include "stdint.h"
 
 /*
- * Error codes returned by FCE functions.
+ * Error codes returned by PRIME functions.
  */
 typedef enum {
-	FCE_NO_ERROR,
-	FCE_ERROR,
-} fce_err_t;
+	PRIME_NO_ERROR,
+	PRIME_ERROR,
+} prime_err_t;
 
 struct buf {
 	uint8_t *virt_addr;

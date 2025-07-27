@@ -5,7 +5,7 @@
 
 #include <stdio.h>
 #include <stdint.h>
-#include "internal/fce_service.h"
+#include "internal/prime_service.h"
 
 #include "include/test_fce.h"
 #include "include/test_fce_utils.h"
@@ -39,17 +39,17 @@ void data_cache_clean(uint8_t *buf, uint32_t len, int clean_only)
 int main(void)
 {
 	open_service_args_t op_serv_args;
-	fce_hdl_t serv_hdl;
+	prime_hdl_t serv_hdl;
 
 	op_serv_args.serv_type = SERVICE_TYPE_ALL;
-	serv_hdl = v2x_prime_open_service(&op_serv_args, &serv_hdl);
+	serv_hdl = prime_open_service(&op_serv_args, &serv_hdl);
 
 	hmac_test(serv_hdl);
 	aes_cbc_test(serv_hdl);
 	aes_ecb_test(serv_hdl);
 	aes_gcm_test(serv_hdl);
 
-	v2x_prime_close_service(serv_hdl);
+	prime_close_service(serv_hdl);
 
 	return 0;
 }

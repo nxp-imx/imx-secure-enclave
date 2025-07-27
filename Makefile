@@ -50,7 +50,7 @@ endif
 PLAT_PATH := src/plat/$(PLAT)
 PLAT_COMMON_PATH := src/common
 
-INCLUDE_PATHS := -I${PLAT_PATH}/include -I${PLAT_COMMON_PATH}/include -Iinclude -Iinclude/hsm -Iinclude/she -Iinclude/common -Iinclude/crrm -Iinclude/fce
+INCLUDE_PATHS := -I${PLAT_PATH}/include -I${PLAT_COMMON_PATH}/include -Iinclude -Iinclude/hsm -Iinclude/she -Iinclude/common -Iinclude/crrm -Iinclude/prime
 
 NVM_OBJECTS := \
 	$(PLAT_COMMON_PATH)/nvm/nvm_manager.o \
@@ -192,7 +192,7 @@ SE_TOOL_OBJ= tools/se_tools.c \
 	     test/common/test_lc_update.c \
 	     test/common/test_dev_getinfo.c
 
-FCE_TEST_OBJ= test/fce/*.c
+FCE_TEST_OBJ= test/prime/*.c
 HSM_TEST_OBJ= test/hsm/hsm_test.c $(COMMON_TEST_OBJ) $(MBEDTLS_TEST_OBJ)
 HSM_PERF_TEST_OBJ= test/hsm/hsm_perf_test.c $(HSM_TEST_PERF_OBJ)
 TEST_CFLAGS = -Wno-deprecated-declarations $(CFLAGS)

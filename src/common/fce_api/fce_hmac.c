@@ -6,7 +6,7 @@
 #include "sab_fce_auth.h"
 #include "fce_uio.h"
 
-fce_err_t fce_auth_init(hmac_key_t *args)
+prime_err_t prime_auth_init(hmac_key_t *args)
 {
 	struct uio_fce_mu *fce_mu = get_uio_fce_mu();
 

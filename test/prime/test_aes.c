@@ -7,8 +7,8 @@
 #include <stdint.h>
 #include <string.h>
 
-#include "fce.h"
-#include "internal/fce_mem.h"
+#include "prime.h"
+#include "internal/prime_mem.h"
 
 #include "include/test_fce_utils.h"
 
@@ -176,8 +176,8 @@ static void validate_aes_ecb_ops(crypto_op_args_t **ops, uint32_t nb_ops)
 	uint32_t i;
 
 	for (i = 0; i < nb_ops; i++) {
-		if (v2x_prime_mcompare(ops[i]->dst.virt_addr, ecb_cipher,
-				       ops[i]->dst.len))
+		if (prime_mcompare(ops[i]->dst.virt_addr, ecb_cipher,
+				   ops[i]->dst.len))
 			printf("AES-256-ECB(256B) test failed\n");
 		else
 			printf("AES-256-ECB(256B) test passed\n");
@@ -189,8 +189,8 @@ static void validate_aes_cbc_ops(crypto_op_args_t **ops, uint32_t nb_ops)
 	uint32_t i;
 
 	for (i = 0; i < nb_ops; i++) {
-		if (v2x_prime_mcompare(ops[i]->dst.virt_addr, cbc_cipher,
-				       ops[i]->dst.len))
+		if (prime_mcompare(ops[i]->dst.virt_addr, cbc_cipher,
+				   ops[i]->dst.len))
 			printf("AES-256-CBC(256B) test failed\n");
 		else
 			printf("AES-256-CBC(256B) test passed\n");
@@ -204,9 +204,9 @@ static void free_aes_ops(uint32_t service_hdl, crypto_op_args_t **ops,
 
 	for (i = 0; i < nb_ops; i++) {
 		if (ops[i]->dst.virt_addr != ops[i]->src.virt_addr)
-			v2x_prime_mfree(service_hdl, ops[i]->dst.len);
+			prime_mfree(service_hdl, ops[i]->dst.len);
 
-		v2x_prime_mfree(service_hdl, ops[i]->src.len);
+		prime_mfree(service_hdl, ops[i]->src.len);
 	}
 }
 
@@ -225,8 +225,8 @@ static void prepare_aes_cbc_op(uint32_t service_hdl, crypto_op_args_t *op,
 
 	/* allocate input buffer from reserved memory */
 	op->src.len = sizeof(cbc_plain);
-	v2x_prime_malloc(service_hdl, &op->src.virt_addr, &op->src.phys_addr,
-			 op->src.len);
+	prime_malloc(service_hdl, &op->src.virt_addr, &op->src.phys_addr,
+		     op->src.len);
 
 	/* output buffer */
 	op->dst.len = op->src.len;
@@ -234,7 +234,7 @@ static void prepare_aes_cbc_op(uint32_t service_hdl, crypto_op_args_t *op,
 	op->dst.phys_addr = op->src.phys_addr;
 
 	/* copy the test vector & cache clean */
-	v2x_prime_mcopy(op->src.virt_addr, cbc_plain, op->src.len);
+	prime_mcopy(op->src.virt_addr, cbc_plain, op->src.len);
 	data_cache_clean(op->src.virt_addr, op->src.len, 1);
 
 	op->op_type = CRYPTO_OP_TYPE_AES;
@@ -252,7 +252,7 @@ static int aes_load_key(aes_key_t *key_args)
 	key_args->keylen = sizeof(key);
 	key_args->keyslot = 0;
 
-	return fce_cipher_init(key_args);
+	return prime_cipher_init(key_args);
 }
 
 void aes_cbc_test(uint32_t service_hdl)
@@ -275,7 +275,7 @@ void aes_cbc_test(uint32_t service_hdl)
 	nb_ops = 1;
 
 	/* invoke fast crypto engine */
-	v2x_prime_process_ops(service_hdl, &op_ptr, nb_ops);
+	prime_process_ops(service_hdl, &op_ptr, nb_ops);
 
 	/* complete execution and free memory */
 	complete_aes_ops(&op_ptr, nb_ops);
@@ -294,8 +294,8 @@ static void prepare_aes_ecb_op(uint32_t service_hdl, crypto_op_args_t *op,
 
 	/* allocate input buffer from reserved memory */
 	op->src.len = sizeof(ecb_plain);
-	v2x_prime_malloc(service_hdl, &op->src.virt_addr, &op->src.phys_addr,
-			 op->src.len);
+	prime_malloc(service_hdl, &op->src.virt_addr, &op->src.phys_addr,
+		     op->src.len);
 
 	/* output buffer */
 	op->dst.len = op->src.len;
@@ -303,7 +303,7 @@ static void prepare_aes_ecb_op(uint32_t service_hdl, crypto_op_args_t *op,
 	op->dst.phys_addr = op->src.phys_addr;
 
 	/* copy the test vector & cache clean */
-	v2x_prime_mcopy(op->src.virt_addr, ecb_plain, op->src.len);
+	prime_mcopy(op->src.virt_addr, ecb_plain, op->src.len);
 	data_cache_clean(op->src.virt_addr, op->src.len, 1);
 
 	/* prepare op */
@@ -319,7 +319,7 @@ static int aes_ecb_load_key(aes_key_t *key_args)
 	key_args->keylen = sizeof(ecb_key);
 	key_args->keyslot = 0;
 
-	return fce_cipher_init(key_args);
+	return prime_cipher_init(key_args);
 }
 
 void aes_ecb_test(uint32_t service_hdl)
@@ -342,7 +342,7 @@ void aes_ecb_test(uint32_t service_hdl)
 	nb_ops = 1;
 
 	/* invoke fast crypto engine */
-	v2x_prime_process_ops(service_hdl, &op_ptr, nb_ops);
+	prime_process_ops(service_hdl, &op_ptr, nb_ops);
 
 	/* complete execution and free memory */
 	complete_aes_ops(&op_ptr, nb_ops);

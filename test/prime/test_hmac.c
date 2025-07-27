@@ -7,8 +7,8 @@
 #include <stdint.h>
 #include <string.h>
 
-#include "fce.h"
-#include "internal/fce_mem.h"
+#include "prime.h"
+#include "internal/prime_mem.h"
 
 #include "include/test_fce_utils.h"
 
@@ -71,15 +71,15 @@ static void complete_hmac_ops(uint32_t service_hdl,
 		data_cache_clean(ops[i]->op_auth_args.digest.virt_addr,
 				 ops[i]->op_auth_args.digest.len, 0);
 
-		if (v2x_prime_mcompare(ops[i]->op_auth_args.digest.virt_addr,
-				       digest, ops[i]->op_auth_args.digest.len))
+		if (prime_mcompare(ops[i]->op_auth_args.digest.virt_addr,
+				   digest, ops[i]->op_auth_args.digest.len))
 			printf("SHA2-256-HMAC test failed\n");
 		else
 			printf("SHA2-256-HMAC test passed\n");
 
 		/* free memory */
-		v2x_prime_mfree(service_hdl, ops[i]->op_auth_args.digest.len);
-		v2x_prime_mfree(service_hdl, ops[i]->src.len);
+		prime_mfree(service_hdl, ops[i]->op_auth_args.digest.len);
+		prime_mfree(service_hdl, ops[i]->src.len);
 	}
 }
 
@@ -90,21 +90,18 @@ static void prepare_hmac_op(uint32_t service_hdl,
 {
 	/* allocate input buffer from reserved memory */
 	op->src.len = sizeof(msg);
-	v2x_prime_malloc(service_hdl,
-			 &op->src.virt_addr,
-			 &op->src.phys_addr,
-			 op->src.len);
+	prime_malloc(service_hdl, &op->src.virt_addr, &op->src.phys_addr,
+		     op->src.len);
 
 	/* copy the test vector & cache clean */
-	v2x_prime_mcopy(op->src.virt_addr, msg, op->src.len);
+	prime_mcopy(op->src.virt_addr, msg, op->src.len);
 	data_cache_clean(op->src.virt_addr, op->src.len, 1);
 
 	/* allocate digest buffer from reserved memory  */
 	op->op_auth_args.digest.len = 32;
-	v2x_prime_malloc(service_hdl,
-			 &op->op_auth_args.digest.virt_addr,
-			 &op->op_auth_args.digest.phys_addr,
-			 op->op_auth_args.digest.len);
+	prime_malloc(service_hdl, &op->op_auth_args.digest.virt_addr,
+		     &op->op_auth_args.digest.phys_addr,
+		     op->op_auth_args.digest.len);
 
 	/* prepare op */
 	op->op_type = CRYPTO_OP_TYPE_HMAC;
@@ -120,7 +117,7 @@ int hmac_load_key(hmac_key_t *key_args, int sha_algo)
 	key_args->keyslot = 0;
 	key_args->sha_algo = sha_algo;
 
-	return fce_auth_init(key_args);
+	return prime_auth_init(key_args);
 }
 
 void hmac_test(uint32_t service_hdl)
@@ -142,7 +139,7 @@ void hmac_test(uint32_t service_hdl)
 	nb_ops = 1;
 
 	/* invoke fast crypto engine */
-	v2x_prime_process_ops(service_hdl, &op_ptr, nb_ops);
+	prime_process_ops(service_hdl, &op_ptr, nb_ops);
 
 	/* complete execution and free memory */
 	complete_hmac_ops(service_hdl, &op_ptr, nb_ops);

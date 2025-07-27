@@ -4,7 +4,7 @@
 
 #include <stdio.h>
 
-#include "fce.h"
+#include "prime.h"
 #include "sab_fce_process_msg.h"
 #include "sab_fce_auth.h"
 #include "sab_fce_aes.h"

@@ -7,7 +7,7 @@
 
 #include <stdint.h>
 
-#include "fce.h"
+#include "prime.h"
 
 int fce_auth_build(crypto_op_args_t *op,
 		   uint8_t buf_off,
