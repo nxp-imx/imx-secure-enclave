@@ -27,6 +27,7 @@ NVMD_CONF_FILE = nvmd.conf
 NVM_DAEMON = nvm_daemon
 SYSTEMD_NVM_SERVICE = $(NVM_DAEMON).service
 NVMD_CONFIG_SCRIPT = nvmd_conf_setup.sh
+SE_TOOL = se_tools
 
 EXPORT_NVM_DAEMON =
 EXPORT_NVMD_CONF_FILE =
@@ -84,7 +85,7 @@ V2X_HSM_TV_PATH := test/v2x/v2x_hsm_test_vectors/
 
 LIB_NAMES := $(HSM_LIB_NAME) $(NVM_LIB_NAME) $(SHE_LIB_NAME) $(CRRM_LIB_NAME)
 
-all_tests:= $(SHE_TEST) $(HSM_TEST) $(HSM_PERF_TEST) $(V2X_HSM_TEST) $(V2X_SHE_TEST) $(CRRM_TEST)
+all_tests:= $(SHE_TEST) $(HSM_TEST) $(HSM_PERF_TEST) $(V2X_HSM_TEST) $(V2X_SHE_TEST) $(CRRM_TEST) $(SE_TOOL)
 all_libs:= $(SHE_LIB) $(NVM_LIB) $(HSM_LIB) $(CRRM_LIB)
 
 # Make targets, must need NVM-Daemon to run successfully.
@@ -172,6 +173,12 @@ HSM_TEST_PERF_OBJ := test/common/ele_perf.c \
 			test/common/test_sign_verify_tv.c
 COMMON_TEST_INC=-Itest/common/include/
 
+SE_TOOL_OBJ= tools/se_tools.c \
+	     test/common/test_utils.c \
+	     test/common/test_dev_attest.c \
+	     test/common/test_lc_update.c \
+	     test/common/test_dev_getinfo.c
+
 HSM_TEST_OBJ= test/hsm/hsm_test.c $(COMMON_TEST_OBJ) $(MBEDTLS_TEST_OBJ)
 HSM_PERF_TEST_OBJ= test/hsm/hsm_perf_test.c $(HSM_TEST_PERF_OBJ)
 TEST_CFLAGS = -Wno-deprecated-declarations $(CFLAGS)
@@ -179,6 +186,8 @@ TEST_LDFLAGS = -L $(OPENSSL_PATH) -lcrypto $(LDFLAGS) -lcrypto -lpthread
 TEST_CRRM_LDFLAGS = -L $(OPENSSL_PATH) -lcrypto
 TEST_INCLUDE_PATHS = ${INCLUDE_PATHS} -I$(OPENSSL_PATH)/include
 
+$(SE_TOOL): $(SE_TOOL_OBJ) $(HSM_LIB)
+	$(CC) $^  -o $@ ${TEST_INCLUDE_PATHS} ${TEST_INCLUDE_PATHS_MBEDTLS} ${COMMON_TEST_INC} $(TEST_CFLAGS) $(TEST_LDFLAGS) $(GCOV_FLAGS)
 $(HSM_TEST): $(HSM_TEST_OBJ) $(HSM_LIB)
 	$(CC) $^  -o $@ ${TEST_INCLUDE_PATHS} ${TEST_INCLUDE_PATHS_MBEDTLS} ${COMMON_TEST_INC} $(TEST_CFLAGS) $(TEST_LDFLAGS) $(TEST_LDFLAGS_MBEDTLS) $(GCOV_FLAGS)
 $(HSM_PERF_TEST): $(HSM_PERF_TEST_OBJ) $(HSM_LIB)
