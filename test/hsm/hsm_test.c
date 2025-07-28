@@ -897,6 +897,10 @@ int main(int argc, char *argv[])
 		test_ele_blob_unblob(hsm_session_hdl, NULL, 0);
 		test_ele_blob_unblob(hsm_session_hdl, "abcdefghijklmnopqrstuvwxyz", 5);
 	}
+
+	if (se_get_soc_id() == SOC_IMX95)
+		test_mono_counter(hsm_session_hdl);
+
 #endif
 
 #ifdef WRITE_SHE_KEYS

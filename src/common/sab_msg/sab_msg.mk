@@ -432,6 +432,12 @@ SHE_SAB_MSG_SRC	+= \
 		$(PLAT_COMMON_PATH)/sab_msg/sab_fast_mac_mubuff_v2.o
 endif
 
+ifneq (${MT_SAB_DEV_MONO_COUNTER},0x0)
+DEFINES		+=	-DMT_SAB_DEV_MONO_COUNTER=${MT_SAB_DEV_MONO_COUNTER}
+SAB_MSG_SRC	+= \
+		$(PLAT_COMMON_PATH)/sab_msg/sab_dev_mono_counter.o
+endif
+
 ifneq (${MT_SAB_GET_ID},0x0)
 DEFINES		+=	-DMT_SAB_GET_ID=${MT_SAB_GET_ID}
 SHE_SAB_MSG_SRC	+= \

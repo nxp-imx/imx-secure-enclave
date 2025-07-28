@@ -292,6 +292,12 @@ HSM_API_SRC	+= \
 		$(PLAT_COMMON_PATH)/hsm_api/hsm_dev_write_fuse.o
 endif
 
+ifneq (${MT_SAB_DEV_MONO_COUNTER},0x0)
+DEFINES		+=	-DHSM_DEV_MONO_COUNTER
+HSM_API_SRC	+= \
+		$(PLAT_COMMON_PATH)/hsm_api/hsm_dev_mono_counter.o
+endif
+
 ifneq (${MT_SAB_GET_INFO},0x0)
 DEFINES		+=	-DHSM_GET_INFO
 HSM_API_SRC	+= \

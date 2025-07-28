@@ -34,12 +34,6 @@
 #define SAB_RNG_OPEN_REQ                        0x20u
 #define SAB_RNG_CLOSE_REQ                       0x21u
 
-/* For debug s400, dump messsage
- * cmd id = 0x21, but version is 0x6
- */
-#define ROM_DEBUG_DUMP_REQ                      0x21u
-#define ROM_DEBUG_DUMP_MSG_SZ                   0x01u
-
 #ifndef SAB_RNG_GET_RANDOM
 #define SAB_RNG_GET_RANDOM                      0xCDu
 #endif
@@ -115,15 +109,27 @@
 #define SAB_GC_CIPHER_REQ                       0xC8u
 #define SAB_GC_AEAD_REQ                         0xC9u
 
+/* ROM APIs */
+/* For debug s400, dump message
+ * cmd id = 0x21, but version is 0x6
+ */
+#define ROM_DEBUG_DUMP_MSG_SZ                   0x01u
+#define ROM_DEBUG_DUMP_REQ                      0x21u
 #define ROM_DEV_FWD_LC_UPDATE                   0x95u
 #define ROM_DEV_RET_LC_UPDATE                   0xA0u
 #define ROM_DEV_GET_EVENT			0xA2u
 #define ROM_BOOT_STAGE_CTX_OPS                  0xBEu
 #define ROM_BLOB_UNBLOB_REQ			0xBFu
 #define ROM_DEV_ELE_RESET_REQ			0xC7u
+#define ROM_DEV_MONO_COUNTER_REQ                0xC9
 #define ROM_DEV_WRITE_FUSE_REQ			0xD6u
 #define ROM_DEV_GETINFO_REQ                     0xDAu
 #define ROM_DEV_ATTEST_REQ                      0xDBu
+#define SAB_CRRM_GET_BOOT_MODE_REQ		0xE9u
+#define SAB_CRRM_SET_BOOT_MODE_REQ		0xEDu
+#define SAB_CRRM_GET_NONCE_REQ			0xEEu
+#define SAB_CRRM_REFRESH_AWDT_REQ		0xEFu
+#define SAB_CRRM_GET_STATUS_REQ			0xF8u
 
 /* FW: Maximum number of words without crc in a command */
 #define SAB_STORAGE_NB_WORDS_MAX_WO_CRC         4u
@@ -155,12 +161,6 @@
 #define SAB_SHE_KEY_UPDATE_EXT                  0xF8u
 #define SAB_SHE_FAST_MAC_MUBUFF_REQ		0xF9u
 #define SAB_SHE_FAST_MAC_MUBUFF_V2_REQ		0xFAu
-
-#define SAB_CRRM_GET_BOOT_MODE_REQ		0xE9u
-#define SAB_CRRM_SET_BOOT_MODE_REQ		0xEDu
-#define SAB_CRRM_GET_NONCE_REQ			0xEEu
-#define SAB_CRRM_REFRESH_AWDT_REQ		0xEFu
-#define SAB_CRRM_GET_STATUS_REQ			0xF8u
 
 #define SAB_MSG_MAX_ID				0xFFu
 

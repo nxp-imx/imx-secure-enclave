@@ -198,6 +198,10 @@
 #include "sab_dev_ele_reset.h"
 #endif
 
+#if MT_SAB_DEV_MONO_COUNTER
+#include "sab_dev_mono_counter.h"
+#endif
+
 static int init_proc_sab_base_msg_engine(msg_type_t msg_type,
 					 uint32_t msg_id)
 {
@@ -273,6 +277,15 @@ static int init_proc_sab_base_msg_engine(msg_type_t msg_type,
 							  proc_msg_rsp_dev_write_fuse);
 			}
 			break;
+#endif
+#if MT_SAB_DEV_MONO_COUNTER
+	case ROM_DEV_MONO_COUNTER_REQ:
+		if (msg_type == MT_SAB_DEV_MONO_COUNTER) {
+			ret = add_sab_msg_handler(msg_id, MT_SAB_DEV_MONO_COUNTER,
+						  prepare_msg_dev_mono_counter,
+						  proc_msg_rsp_dev_mono_counter);
+		}
+	break;
 #endif
 #if MT_SAB_DEV_ATTEST
 		case ROM_DEV_ATTEST_REQ:
