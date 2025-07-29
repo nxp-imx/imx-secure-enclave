@@ -1,5 +1,5 @@
 # SPDX-License-Identifier: BSD-3-Clause
-# Copyright 2022-2024 NXP
+# Copyright 2022-2025 NXP
 #
 
 # Message Type (MT)
@@ -80,3 +80,8 @@ MT_SAB_STORAGE_CHUNK_EXPORT_REQ  :=	${FMW}
 MT_SAB_STORAGE_OPEN		 :=	${FMW}
 MT_SAB_STORAGE_CLOSE		 :=	${FMW}
 MT_SAB_STORAGE_KEY_DB_REQ        :=     ${NOT_SUPPORTED}
+
+MT_SAB_BOOT_MODE		 :=     ${ROM}
+MT_SAB_GET_NONCE		 :=     ${ROM}
+MT_SAB_REFRESH_AWDT		 :=     ${ROM}
+MT_SAB_GET_AWDT_STATUS		 :=     ${ROM}

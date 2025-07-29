@@ -95,6 +95,7 @@ hsm_err_t hsm_sign_verify_tests(hsm_hdl_t sess_hdl, hsm_hdl_t key_store_hdl,
 	if (hsmret)
 		printf("hsm_do_sign failed ret:0x%x\n", hsmret);
 
+	/* Signature Verification using Plaintext key */
 	sig_ver_args.key = pub_key;
 	sig_ver_args.message = input_data;
 	sig_ver_args.signature = signature_data;
@@ -114,6 +115,25 @@ hsm_err_t hsm_sign_verify_tests(hsm_hdl_t sess_hdl, hsm_hdl_t key_store_hdl,
 	if (verif_status != HSM_VERIFICATION_STATUS_SUCCESS)
 		printf("Verification FAIL, status:0x%x\n", verif_status);
 
+#ifdef PSA_COMPLIANT
+	/* Signature Verification using Opaque key */
+	if (key_id && (se_get_soc_id() == SOC_IMX95 || se_get_soc_id() == SOC_IMX943)) {
+		sig_ver_args.flags |= HSM_OP_VERIFY_SIGN_FLAGS_OPAQUE_KEY;
+		sig_ver_args.key_identifier = key_id;
+		sig_ver_args.key = NULL;
+		sig_ver_args.pkey_type = 0;
+		sig_ver_args.key_size = 0;
+		sig_ver_args.key_sz   = 0;
+
+		hsmret = hsm_verify_sign(key_store_hdl, &sig_ver_args, &verif_status);
+
+		if (hsmret)
+			printf("hsm_verify_signature (opaque key) ret:0x%x\n", hsmret);
+
+		if (verif_status != HSM_VERIFICATION_STATUS_SUCCESS)
+			printf("Verification FAIL, status:0x%x\n", verif_status);
+	}
+#endif
 	return hsmret;
 }
 

@@ -1,6 +1,6 @@
 // SPDX-License-Identifier: BSD-3-Clause
 /*
- * Copyright 2022-2023 NXP
+ * Copyright 2022-2023, 2025 NXP
  */
 
 #include <string.h>
@@ -99,12 +99,25 @@ uint32_t prepare_msg_verify_sign(void *phdl,
 		return SAB_ENGN_FAIL;
 
 	cmd->sig_ver_hdl = msg_hdl;
-	set_phy_addr_to_words(&cmd->key_addr,
+#ifdef PSA_COMPLIANT
+	if (op_args->flags & HSM_OP_VERIFY_SIGN_FLAGS_OPAQUE_KEY)
+		cmd->key = op_args->key_identifier;
+	else
+		set_phy_addr_to_words(&cmd->key,
+				      0u,
+				      plat_os_abs_data_buf((struct plat_os_abs_hdl *)phdl,
+							   op_args->key,
+							   op_args->key_size,
+							   DATA_BUF_IS_INPUT));
+#else
+	set_phy_addr_to_words(&cmd->key,
 			      0u,
 			      plat_os_abs_data_buf((struct plat_os_abs_hdl *)phdl,
 						   op_args->key,
 						   op_args->key_size,
 						   DATA_BUF_IS_INPUT));
+
+#endif
 	set_phy_addr_to_words(&cmd->msg_addr,
 			      0u,
 			      plat_os_abs_data_buf((struct plat_os_abs_hdl *)phdl,

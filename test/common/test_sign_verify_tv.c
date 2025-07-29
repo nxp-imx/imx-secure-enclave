@@ -1,6 +1,6 @@
 // SPDX-License-Identifier: BSD-3-Clause
 /*
- * Copyright 2023-2024 NXP
+ * Copyright 2023-2025 NXP
  */
 
 #include <stdio.h>
@@ -197,6 +197,31 @@ static void sign_verify_test(hsm_hdl_t key_store_hdl,
 		goto out;
 	}
 
+#ifdef PSA_COMPLIANT
+	/* Signature Verification using Opaque Key */
+	if (key_identifier &&
+	    (se_get_soc_id() == SOC_IMX95 || se_get_soc_id() == SOC_IMX943)) {
+		sig_ver_args.flags |= HSM_OP_VERIFY_SIGN_FLAGS_OPAQUE_KEY;
+		sig_ver_args.key_identifier = key_identifier;
+		sig_ver_args.key = NULL;
+		sig_ver_args.key_size = 0;
+		sig_ver_args.key_sz = 0;
+		sig_ver_args.pkey_type = 0;
+
+		hsmret2 = hsm_verify_sign(key_store_hdl,
+					  &sig_ver_args,
+					  &verification_status);
+
+		if (hsmret2 != exp_sign_verify_rsp)
+			goto out;
+
+		if (sig_ver_args.verification_status != exp_verification_status) {
+			se_info("\nEXP_VERIFICATION_STATUS didn't match Actual status(0x%x)\n",
+				sig_ver_args.verification_status);
+			goto out;
+		}
+	}
+#endif
 	*test_status = TEST_STATUS_SUCCESS;
 
 out:

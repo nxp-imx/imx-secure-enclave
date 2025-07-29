@@ -1,6 +1,6 @@
 // SPDX-License-Identifier: BSD-3-Clause
 /*
- * Copyright 2022-2024 NXP
+ * Copyright 2022-2025 NXP
  */
 
 #include <stdlib.h>
@@ -124,7 +124,12 @@ static uint8_t err_handling_v2_support(uint8_t msg_id)
 	    msg_id == SAB_KEY_STORE_OPEN_REQ ||
 	    msg_id == SAB_KEY_STORE_CLOSE_REQ ||
 	    msg_id == SAB_SHARED_BUF_REQ ||
-	    msg_id == SAB_KEY_STORE_REPROV_EN_REQ)
+	    msg_id == SAB_KEY_STORE_REPROV_EN_REQ ||
+	    msg_id == SAB_CRRM_GET_BOOT_MODE_REQ ||
+	    msg_id == SAB_CRRM_SET_BOOT_MODE_REQ ||
+	    msg_id == SAB_CRRM_GET_NONCE_REQ ||
+	    msg_id == SAB_CRRM_REFRESH_AWDT_REQ ||
+	    msg_id == SAB_CRRM_GET_STATUS_REQ)
 		ret = 1;
 
 	return ret;

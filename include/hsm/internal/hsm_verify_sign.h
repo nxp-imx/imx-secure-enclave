@@ -1,6 +1,6 @@
 // SPDX-License-Identifier: BSD-3-Clause
 /*
- * Copyright 2022-2023 NXP
+ * Copyright 2022-2023, 2025 NXP
  */
 
 #ifndef HSM_VERIFY_SIGN_H
@@ -49,6 +49,14 @@ typedef struct {
 	//!< pointer to the public key to be used for the verification.
 	//!< If the HSM_OP_VERIFY_SIGN_FLAGS_KEY_INTERNAL is set, it must point
 	//!< to the key reference returned by the hsm_import_public_key API.
+	//!< Only valid with PLAINTEXT flag.
+#ifdef PSA_COMPLIANT
+	uint32_t key_identifier;
+	//!< identifier of the key to be used for the operation
+	//!< In case of using key identifier (i.e. opaque key),
+	//!< it must be ensured that the flag for PLAINTEXT key is not set.
+	//!< Supported platforms: i.MX95 and i.MX943.
+#endif
 	uint8_t *message;
 	//!< pointer to the input (message or message digest)
 	uint8_t *signature;
@@ -58,6 +66,7 @@ typedef struct {
 	//!< the HSM_OP_VERIFY_SIGN_FLAGS_COMPRESSED_POINT is set.
 	uint16_t key_size;
 	//!< length in bytes of the input key
+	//!< Only valid with PLAINTEXT flag.
 	uint16_t signature_size;
 	//!< length in bytes of the output - it must contain one additional
 	//!< byte where to store the Ry.
@@ -73,8 +82,10 @@ typedef struct {
 	//!< salt length in bytes
 	hsm_bit_key_sz_t key_sz;
 	//!< indicates key security size in bits.
+	//!< Only valid with PLAINTEXT flag.
 	hsm_pubkey_type_t pkey_type;
 	//!< indicates the public key type
+	//!< Only valid with PLAINTEXT flag.
 #endif
 	hsm_op_verify_sign_flags_t flags;
 	//!< bitmap specifying the operation attributes
@@ -87,18 +98,20 @@ typedef struct {
 /**
  * User must open this service in order to perform signature verification
  * operations.
- * User can call this function only after having opened a session.
+ * User can call this function only after having opened a session or keystore,
+ * depending on type of operation (plaintext or opaque key) and platform.
  *
- * \param session_hdl handle identifying the current session.
+ * \param op_hdl handle identifying the current session or key store, depending
+ * on type of operation (plaintext or opaque key) and platform.
  * \param args pointer to the structure containing the function arguments.
  * \param signature_ver_hdl pointer to where the signature verification service
  *                          flow handle must be written.
  *
  * \return error code
  */
-hsm_err_t hsm_open_signature_verification_service(hsm_hdl_t session_hdl,
-						open_svc_sign_ver_args_t *args,
-						hsm_hdl_t *signature_ver_hdl);
+hsm_err_t hsm_open_signature_verification_service(hsm_hdl_t op_hdl,
+						  open_svc_sign_ver_args_t *args,
+						  hsm_hdl_t *signature_ver_hdl);
 
 
 /**
@@ -163,6 +176,21 @@ hsm_err_t hsm_verify_signature(hsm_hdl_t signature_ver_hdl,
  */
 #define HSM_OP_VERIFY_SIGN_FLAGS_KEY_INTERNAL \
 				((hsm_op_verify_sign_flags_t)(1u << 2))
+
+#ifdef PSA_COMPLIANT
+/**
+ *  Verify signature bit indicating input public key is in plaintext,
+ *  i.e. Public key comes from user memory.
+ */
+#define HSM_OP_VERIFY_SIGN_FLAGS_PLAINTEXT_KEY \
+				((hsm_op_verify_sign_flags_t)(0u << 3))
+/**
+ *  Verify signature bit indicating input public key is opaque,
+ *  i.e. public key comes from Secure Enclave keystore.
+ */
+#define HSM_OP_VERIFY_SIGN_FLAGS_OPAQUE_KEY \
+				((hsm_op_verify_sign_flags_t)(1u << 3))
+#endif
 
 /**
  *  Verify signature response success status

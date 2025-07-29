@@ -1,6 +1,6 @@
 // SPDX-License-Identifier: BSD-3-Clause
 /*
- * Copyright 2019-2024 NXP
+ * Copyright 2019-2025 NXP
  */
 
 #ifndef HSM_API_H
@@ -240,15 +240,17 @@ hsm_err_t hsm_do_pub_key_attest(hsm_hdl_t key_store_hdl,
  * 3. Post performing the operation, terminate the previously opened\n
  *    signature-verification service flow.\n
  *
- * User can call this function only after having opened a session.\n
+ * User can call this function only after having opened a session or keystore,
+ * depending on type of operation (plaintext or opaque key) and platform.\n
  *
- * \param session_hdl handle identifying the current key-store.
+ * \param op_hdl handle identifying the current session or keystore, depending
+ * on type of operation (plaintext or opaque key) and platform.
  * \param args pointer to the structure containing the function arguments.
  * \param verification_status pointer for storing the verification status.
  *
  * \return error code
  */
-hsm_err_t hsm_verify_sign(hsm_hdl_t session_hdl,
+hsm_err_t hsm_verify_sign(hsm_hdl_t op_hdl,
 			  op_verify_sign_args_t *args,
 			  hsm_verification_status_t *verification_status);
 #ifndef PSA_COMPLIANT
