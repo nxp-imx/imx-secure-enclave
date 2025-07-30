@@ -118,6 +118,7 @@
 #define ROM_DEV_FWD_LC_UPDATE                   0x95u
 #define ROM_DEV_RET_LC_UPDATE                   0xA0u
 #define ROM_DEV_GET_EVENT			0xA2u
+#define ROM_BOOT_STAGE_CTX_OPS                  0xBEu
 #define ROM_BLOB_UNBLOB_REQ			0xBFu
 #define ROM_DEV_ELE_RESET_REQ			0xC7u
 #define ROM_DEV_WRITE_FUSE_REQ			0xD6u

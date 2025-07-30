@@ -18,6 +18,10 @@
 #include "sab_blob_unblob.h"
 #endif
 
+#if MT_SAB_BOOT_STAGE
+#include "sab_bsctx_ops.h"
+#endif
+
 #if MT_SAB_DEBUG_DUMP
 #include "sab_debug_dump.h"
 #endif
@@ -240,6 +244,15 @@ static int init_proc_sab_base_msg_engine(msg_type_t msg_type,
 				ret = add_sab_msg_handler(msg_id, MT_SAB_BLOB_UNBLOB,
 							  prepare_msg_blob_unblob,
 							  proc_msg_rsp_blob_unblob);
+			}
+			break;
+#endif
+#if MT_SAB_BOOT_STAGE
+		case ROM_BOOT_STAGE_CTX_OPS:
+			if (msg_type == MT_SAB_BOOT_STAGE) {
+				ret = add_sab_msg_handler(msg_id, MT_SAB_BOOT_STAGE,
+							  prepare_msg_bsctx_ops,
+							  proc_msg_rsp_bsctx_ops);
 			}
 			break;
 #endif

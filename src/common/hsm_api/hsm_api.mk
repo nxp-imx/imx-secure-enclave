@@ -166,6 +166,12 @@ HSM_API_SRC	+= \
 		$(PLAT_COMMON_PATH)/hsm_api/hsm_blob_unblob.o
 endif
 
+ifneq (${MT_SAB_BOOT_STAGE},0x0)
+DEFINES		+=	-DHSM_BOOT_STAGE
+HSM_API_SRC	+= \
+		$(PLAT_COMMON_PATH)/hsm_api/hsm_bsctx_ops.o
+endif
+
 ifneq (${MT_SAB_DEBUG_DUMP},0x0)
 DEFINES		+=	-DHSM_DEBUG_DUMP
 HSM_API_SRC	+= \
