@@ -890,10 +890,11 @@ int main(int argc, char *argv[])
 #ifdef PSA_COMPLIANT
 	if (se_get_soc_id() == SOC_IMX95 ||
 	    se_get_soc_id() == SOC_IMX943) {
-		test_ele_blob_unblob(hsm_session_hdl, NULL);
-		test_ele_blob_unblob(hsm_session_hdl, "abcdefghijklmnopqrstuvwxyz");
+		test_ele_blob_unblob(hsm_session_hdl, NULL, 0);
+		test_ele_blob_unblob(hsm_session_hdl, "abcdefghijklmnopqrstuvwxyz", 5);
 	}
 #endif
+
 #ifdef WRITE_SHE_KEYS
 	write_fuse(hsm_session_hdl);
 #endif
