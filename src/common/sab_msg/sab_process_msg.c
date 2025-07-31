@@ -106,6 +106,7 @@ static uint8_t err_handling_v2_support(uint8_t msg_type, uint8_t msg_id)
 	if (msg_type == ROM_MSG) {
 		if (msg_id == ROM_DEV_GETINFO_REQ ||
 		    msg_id == ROM_DEV_WRITE_FUSE_REQ ||
+		    msg_id == ROM_DEV_GET_EVENT ||
 		    msg_id == ROM_BLOB_UNBLOB_REQ ||
 		    msg_id == ROM_BOOT_STAGE_CTX_OPS ||
 		    msg_id == SAB_CRRM_GET_BOOT_MODE_REQ ||

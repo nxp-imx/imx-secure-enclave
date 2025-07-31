@@ -18,10 +18,10 @@
 
 hsm_err_t hsm_get_event(hsm_hdl_t session_hdl, op_get_event_msg_args_t *args)
 {
+	uint32_t rsp_code = SAB_NO_MESSAGE_RATING;
 	struct hsm_session_hdl_s *sess_ptr;
 	hsm_err_t err = HSM_GENERAL_ERROR;
-	uint32_t rsp_code = 0x0;
-	uint32_t error;
+	uint32_t lib_err;
 
 	do {
 		if (!args)
@@ -33,23 +33,23 @@ hsm_err_t hsm_get_event(hsm_hdl_t session_hdl, op_get_event_msg_args_t *args)
 			break;
 		}
 
-		error = process_sab_msg(sess_ptr->phdl,
-					sess_ptr->mu_type,
-					ROM_DEV_GET_EVENT,
-					MT_SAB_GET_EVENT,
-					HSM_HANDLE_NONE,
-					args, &rsp_code);
+		lib_err = process_sab_msg(sess_ptr->phdl,
+					  sess_ptr->mu_type,
+					  ROM_DEV_GET_EVENT,
+					  MT_SAB_GET_EVENT,
+					  HSM_HANDLE_NONE,
+					  args, &rsp_code);
 
-		err = sab_rating_to_hsm_err(error, sess_ptr->phdl);
+		err = lib_err_to_hsm_err(lib_err);
 
-		if (err != HSM_NO_ERROR) {
-			se_err("HSM Lib Error: %s [0x%x].\n", msg, err);
+		if (err != HSM_NO_ERROR)
 			break;
-		}
+
 		err = sab_rating_to_hsm_err(rsp_code, sess_ptr->phdl);
 
 		if (err != HSM_NO_ERROR)
-			se_err("HSM RSP Error: %s [0x%x].\n", msg, err);
+			se_err("HSM RSP Error: %s [0x%x].\n",
+			       "DEVICE_GET_EVENT", err);
 
 	} while (false);
 

@@ -16,12 +16,10 @@ uint32_t prepare_msg_get_event(void *phdl, void *cmd_buf, void *rsp_buf,
 			       uint32_t *cmd_msg_sz, uint32_t *rsp_msg_sz,
 			       uint32_t msg_hdl, void *args)
 {
-	uint32_t ret = SAB_ENGN_PASS;
-
 	*cmd_msg_sz = sizeof(struct rom_cmd_get_event_msg);
 	*rsp_msg_sz = sizeof(struct rom_cmd_get_event_rsp);
 
-	return ret;
+	return SAB_LIB_STATUS(SAB_LIB_SUCCESS);
 }
 
 uint32_t proc_msg_rsp_get_event(void *rsp_buf, void *args)
