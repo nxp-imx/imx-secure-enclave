@@ -12,9 +12,9 @@
 
 #include "sab_process_msg.h"
 
-hsm_err_t crrm_refresh_AWDT(hsm_hdl_t crrm_hdl, op_refresh_AWDT_args_t *args)
+crrm_err_t crrm_refresh_AWDT(crrm_hdl_t crrm_hdl, op_refresh_AWDT_args_t *args)
 {
-	hsm_err_t err = HSM_GENERAL_ERROR;
+	crrm_err_t err = HSM_GENERAL_ERROR;
 	struct hsm_session_hdl_s *sess_ptr;
 	uint32_t error;
 	uint32_t rsp_code = SAB_NO_MESSAGE_RATING;

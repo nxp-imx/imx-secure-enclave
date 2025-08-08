@@ -11,9 +11,9 @@
 
 #include "sab_process_msg.h"
 
-hsm_err_t crrm_get_boot_mode(hsm_hdl_t crrm_hdl, op_get_boot_mode_args_t *args)
+crrm_err_t crrm_get_boot_mode(crrm_hdl_t crrm_hdl, op_get_boot_mode_args_t *args)
 {
-	hsm_err_t err = HSM_GENERAL_ERROR;
+	crrm_err_t err = HSM_GENERAL_ERROR;
 	struct hsm_session_hdl_s *sess_ptr;
 	uint32_t error;
 	uint32_t rsp_code = SAB_NO_MESSAGE_RATING;
@@ -53,9 +53,9 @@ hsm_err_t crrm_get_boot_mode(hsm_hdl_t crrm_hdl, op_get_boot_mode_args_t *args)
 	return err;
 }
 
-hsm_err_t crrm_set_boot_mode(hsm_hdl_t crrm_hdl, op_set_boot_mode_args_t *args)
+crrm_err_t crrm_set_boot_mode(crrm_hdl_t crrm_hdl, op_set_boot_mode_args_t *args)
 {
-	hsm_err_t err = HSM_GENERAL_ERROR;
+	crrm_err_t err = HSM_GENERAL_ERROR;
 	struct hsm_session_hdl_s *sess_ptr;
 	uint32_t error;
 	uint32_t rsp_code = SAB_NO_MESSAGE_RATING;

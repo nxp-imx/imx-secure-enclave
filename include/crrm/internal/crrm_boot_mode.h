@@ -6,7 +6,7 @@
 #ifndef CRRM_BOOT_MODE_H
 #define CRRM_BOOT_MODE_H
 
-#include "internal/hsm_utils.h"
+#include "internal/crrm_handle.h"
 
 /**
  *  @defgroup group1 Boot Mode
@@ -54,7 +54,11 @@ typedef struct {
 
 /**
  * Perform get boot mode operation\n
- * User can call this function only after CRRM init has been done.
+ * User can call this function only after CRRM init has been done.\n
+ * Get CRRM handle before calling this API.\n
+ * This API request the boot mode information from the BBSM.
+ * For the case that the BBSM has just been initialized,
+ * the boot mode will be indicated as normal boot.
  *
  * \param crrm_hdl handle identifying the current session.
  * \param args pointer to the structure containing the function arguments.
@@ -62,11 +66,20 @@ typedef struct {
  * \return error code
  */
 
-hsm_err_t crrm_get_boot_mode(hsm_hdl_t crrm_hdl, op_get_boot_mode_args_t *args);
+crrm_err_t crrm_get_boot_mode(crrm_hdl_t crrm_hdl, op_get_boot_mode_args_t *args);
 
 /**
  * Perform set boot mode operation\n
- * User can call this function only after CRRM init has been done.
+ * User can call this function only after CRRM init has been done.\n
+ * Get CRRM handle before calling this API.\n
+ * This API set the boot mode information in the BBSM.
+ * It is used by the recovery OS to request a mode transition.
+ * Only specific transitions are accepted, others are ignored.
+ * Accepted transitions are:\n
+ * Recovery download -> recovery install (after recovery image successfully downloaded)\n
+ * Recovery install -> normal (after recovery image successfully installed)\n
+ * Recovery install -> recovery download (encountered error in recovery image install)\n
+ * Only one transition can be requested per boot cycle.
  *
  * \param crrm_hdl handle identifying the current session.
  * \param args pointer to the structure containing the function arguments.
@@ -74,7 +87,7 @@ hsm_err_t crrm_get_boot_mode(hsm_hdl_t crrm_hdl, op_get_boot_mode_args_t *args);
  * \return error code
  */
 
-hsm_err_t crrm_set_boot_mode(hsm_hdl_t crrm_hdl, op_set_boot_mode_args_t *args);
+crrm_err_t crrm_set_boot_mode(crrm_hdl_t crrm_hdl, op_set_boot_mode_args_t *args);
 
 /** @} end of Boot Mode operation */
 #endif

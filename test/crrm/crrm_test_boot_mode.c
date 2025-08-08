@@ -7,10 +7,10 @@
 
 #include "crrm_api.h"
 
-hsm_err_t crrm_test_boot_mode(hsm_hdl_t crrm_hdl)
+crrm_err_t crrm_test_boot_mode(crrm_hdl_t crrm_hdl)
 {
 	op_get_boot_mode_args_t gargs = {0};
-	hsm_err_t err;
+	crrm_err_t err;
 
 	err = crrm_get_boot_mode(crrm_hdl, &gargs);
 	printf("\nCurrent Boot mode is 0x%x\n\n", gargs.boot_mode);

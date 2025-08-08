@@ -8,7 +8,7 @@
 
 #include <stdint.h>
 
-#include "internal/hsm_utils.h"
+#include "internal/crrm_handle.h"
 #include "internal/crrm_boot_mode.h"
 #include "internal/crrm_get_AWDT_status.h"
 #include "internal/crrm_get_nonce.h"

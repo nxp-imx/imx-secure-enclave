@@ -6,7 +6,7 @@
 #ifndef CRRM_GET_AWDT_STATUS_H
 #define CRRM_GET_AWDT_STATUS_H
 
-#include "internal/hsm_utils.h"
+#include "internal/crrm_handle.h"
 
 /**
  *  @defgroup group2 Get AWDT status
@@ -58,7 +58,11 @@ typedef struct {
 
 /**
  * Perform get AWDT status operation\n
- * User can call this function only after CRRM init has been done.
+ * User can call this function only after CRRM init has been done.\n
+ * Get CRRM handle before calling this API.\n
+ * This API request a status report for a given timer.\n
+ * The status data will be output to the memory address provided.
+ * If the buffer to copy this data is too small, no data will be copied.
  *
  * \param crrm_hdl handle identifying the current session.
  * \param args pointer to the structure containing the function arguments.
@@ -66,7 +70,7 @@ typedef struct {
  * \return error code
  */
 
-hsm_err_t crrm_get_AWDT_status(hsm_hdl_t crrm_hdl, op_get_AWDT_status_args_t *args);
+crrm_err_t crrm_get_AWDT_status(crrm_hdl_t crrm_hdl, op_get_AWDT_status_args_t *args);
 
 /** @} end of AWDT Get status operation */
 #endif

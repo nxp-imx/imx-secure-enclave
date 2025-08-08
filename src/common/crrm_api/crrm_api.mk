@@ -9,6 +9,7 @@ CRRM_API_SRC	+= \
 		$(PLAT_COMMON_PATH)/hsm_api/hsm_handle.o \
 		$(PLAT_COMMON_PATH)/hsm_api/hsm_dev_getinfo.o \
 		$(PLAT_COMMON_PATH)/hsm_api/hsm_get_info.o \
+		$(PLAT_COMMON_PATH)/crrm_api/crrm_handle.o \
 
 ifneq (${MT_SAB_BOOT_MODE},0x0)
 DEFINES		+=	-DBOOT_MODE

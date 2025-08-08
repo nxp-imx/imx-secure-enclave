@@ -13,17 +13,16 @@
 #include "hsm_api.h"
 #include "crrm_utils.h"
 
+#include "internal/crrm_handle.h"
 #include "internal/hsm_utils.h"
 #include "internal/hsm_session.h"
 
-static open_session_args_t open_session_args = {0};
-static hsm_hdl_t crrm_session_hdl;
+static crrm_hdl_t crrm_session_hdl;
 
 void crrm_test_sig_handler(int ht_signo,
 			   siginfo_t *ht_siginfo,
 			   void *ht_sigctx)
 {
-	hsm_close_session(crrm_session_hdl);
 	exit(EXIT_SUCCESS);
 }
 
@@ -129,23 +128,18 @@ int main(int argc, char *argv[])
 		return 0;
 	}
 
+	crrm_session_hdl = get_session_handle();
+	if (!crrm_session_hdl) {
+		printf("Failed to get CRRM handle : 0x%x\n", err);
+		return -1;
+	}
+
 	if (argc == 4) {
 		if (strcmp("-f", argv[1]) == 0) {
-			err = hsm_open_session(&open_session_args, &crrm_session_hdl);
-			if (err != HSM_NO_ERROR) {
-				printf("hsm_open_session failed err:0x%x\n", err);
-				return -1;
-			}
-			printf("hsm_open_session PASS 0x%x\n", crrm_session_hdl);
-
 			timer_period = atoi(argv[2]);
 			refresh_period = atoi(argv[3]);
 			printf(" %d : %d\n", timer_period, refresh_period);
 			execute_crrm_tests(timer_period, refresh_period);
-			if (open_session_args.session_hdl) {
-				err = hsm_close_session(open_session_args.session_hdl);
-				printf("hsm_close_session ret:0x%x\n", err);
-			}
 		} else {
 			crrm_test_usage();
 		}
@@ -155,12 +149,6 @@ int main(int argc, char *argv[])
 			crrm_test_usage();
 			return 0;
 		}
-		err = hsm_open_session(&open_session_args, &crrm_session_hdl);
-		if (err != HSM_NO_ERROR) {
-			printf("hsm_open_session failed err:0x%x\n", err);
-			return -1;
-		}
-		printf("hsm_open_session PASS 0x%x\n", crrm_session_hdl);
 
 		if (strcmp("-r", argv[1]) == 0)
 			execute_crrm_recovery_test();
@@ -170,11 +158,6 @@ int main(int argc, char *argv[])
 			execute_crrm_kill_test();
 		else
 			crrm_test_usage();
-
-		if (open_session_args.session_hdl) {
-			err = hsm_close_session(open_session_args.session_hdl);
-			printf("hsm_close_session ret:0x%x\n", err);
-		}
 	} else {
 		crrm_test_usage();
 		return 0;

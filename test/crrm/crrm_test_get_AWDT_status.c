@@ -24,10 +24,10 @@ void print_timer_status(AWDT_timer *status)
 	printf("%s\n", status->timer_info);
 }
 
-hsm_err_t crrm_test_get_AWDT_status(hsm_hdl_t crrm_hdl)
+crrm_err_t crrm_test_get_AWDT_status(crrm_hdl_t crrm_hdl)
 {
 	op_get_AWDT_status_args_t args = {0};
-	hsm_err_t err;
+	crrm_err_t err;
 	uint8_t status_data[AWDT_TIMER_STATUS_SIZE + TIMER_INFO_SIZE] = {0};
 
 	args.input_size = AWDT_TIMER_STATUS_SIZE + TIMER_INFO_SIZE;

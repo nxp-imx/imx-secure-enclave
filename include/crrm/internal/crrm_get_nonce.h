@@ -6,7 +6,7 @@
 #ifndef CRRM_GET_NONCE_H
 #define CRRM_GET_NONCE_H
 
-#include "internal/hsm_utils.h"
+#include "internal/crrm_handle.h"
 
 /**
  *  @defgroup group3 Get Nonce
@@ -43,7 +43,13 @@ typedef struct {
 
 /**
  * Perform get nonce operation\n
- * User can call this function only after CRRM init has been done.
+ * User can call this function only after CRRM init has been done.\n
+ * Get CRRM handle before calling this API.\n
+ * This API request a new nonce value for a given timer.\n
+ * This nonce value will invalidate any previous nonce values for the given timer.\n
+ * The nonce plus programmed timerInfo will be output.\n
+ * Note that if the buffer to copy this data is too small,
+ * no data will be copied but the nonce will still be updated inside the Sentinel.
  *
  * \param crrm_hdl handle identifying the current session.
  * \param args pointer to the structure containing the function arguments.
@@ -51,7 +57,7 @@ typedef struct {
  * \return error code
  */
 
-hsm_err_t crrm_get_nonce(hsm_hdl_t crrm_hdl, op_get_nonce_args_t *args);
+crrm_err_t crrm_get_nonce(crrm_hdl_t crrm_hdl, op_get_nonce_args_t *args);
 
 /** @} end of get nonce operation */
 #endif

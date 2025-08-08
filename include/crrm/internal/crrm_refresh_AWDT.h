@@ -6,7 +6,7 @@
 #ifndef CRRM_REFRESH_AWDT_H
 #define CRRM_REFRESH_AWDT_H
 
-#include "internal/hsm_utils.h"
+#include "internal/crrm_handle.h"
 
 /**
  *  @defgroup group4 Refresh AWDT
@@ -63,7 +63,16 @@ typedef struct {
 
 /**
  * Perform refresh AWDT operation\n
- * User can call this function only after CRRM init has been done.
+ * User can call this function only after CRRM init has been done.\n
+ * Get CRRM handle before calling this API.\n
+ * This API is used to refresh the specified AWDT.\n
+ * The message contains a signature,
+ * that is calculated over the concatenation of the following information:\n
+ * 1: word 1 of the message below (pub key index and timer ID)\n
+ * 2: the newTimerValue from the request structure\n
+ * 3: current nonce value for the requested timer\n
+ * 4: timer info for the requested timer if present\n
+ * If the signature is valid, the corresponding AWDT timer is refreshed
  *
  * \param crrm_hdl handle identifying the current session.
  * \param args pointer to the structure containing the function arguments.
@@ -71,7 +80,7 @@ typedef struct {
  * \return error code
  */
 
-hsm_err_t crrm_refresh_AWDT(hsm_hdl_t crrm_hdl, op_refresh_AWDT_args_t *args);
+crrm_err_t crrm_refresh_AWDT(crrm_hdl_t crrm_hdl, op_refresh_AWDT_args_t *args);
 
 /** @} end of refresh AWDT operation */
 #endif
