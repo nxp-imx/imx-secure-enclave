@@ -258,6 +258,16 @@ hsm_doc_seco: include/hsm/hsm_api.h
 	cp doc/latex/refman.pdf doc/seco_hsm_api_document.pdf
 	rm -rf doc/latex/
 
+crrm_doc: include/crrm/crrm_api.h
+	rm -rf doc/latex/
+	rm -rf doc/rtf/
+	doxygen doc/crrm/CRRM_Doxyfile
+	make -C ./doc/latex pdf
+	cp doc/latex/refman.pdf doc/crrm_api_document.pdf
+	cp doc/rtf/refman.rtf doc/crrm_api_document.rtf
+	rm -rf doc/latex/
+	rm -rf doc/rtf/
+
 install: libs
 	mkdir -p $(DESTDIR)$(LIBDIR) $(DESTDIR)$(INCLUDEDIR)
 	$(foreach i, $(LIB_NAMES),\
