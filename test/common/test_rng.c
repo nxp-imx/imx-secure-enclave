@@ -8,7 +8,7 @@
 hsm_err_t do_rng_test(hsm_hdl_t sess_hdl)
 {
 	op_get_random_args_t rng_get_random_args = {0};
-	uint8_t rng_out_buff[4096];
+	uint8_t rng_out_buff[4096] = {0};
 	int i = 3, j;
 	hsm_err_t err;
 

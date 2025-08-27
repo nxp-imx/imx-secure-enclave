@@ -1,6 +1,6 @@
 // SPDX-License-Identifier: BSD-3-Clause
 /*
- * Copyright 2024 NXP
+ * Copyright 2024-2025 NXP
  */
 
 #include <stdio.h>
@@ -237,21 +237,21 @@ static int8_t prepare_and_run_gc_acrypto_test(hsm_hdl_t key_store_hdl, FILE *fp)
 
 	uint32_t key_mgmt_tv_id = 0;
 
-	uint8_t *data_buff1 = 0;
+	uint8_t *data_buff1 = NULL;
 	hsm_op_gc_acrypto_algo_t algorithm;
 	hsm_gc_acrypto_op_mode_t op_mode;
 	hsm_bit_key_sz_t bit_key_sz;
 	hsm_op_gc_acrypto_flags_t flags;
-	uint32_t data_buff1_size;
-	uint32_t data_buff2_size;
-	uint8_t *key_buff1;
-	uint8_t *key_buff2_pub;
-	uint8_t *key_buff2_priv;
-	uint16_t key_buff1_size;
-	uint16_t key_buff2_pub_size;
-	uint16_t key_buff2_priv_size;
-	uint8_t *rsa_label;
-	uint16_t rsa_label_size;
+	uint32_t data_buff1_size = 0;
+	uint32_t data_buff2_size = 0;
+	uint8_t *key_buff1 = NULL;
+	uint8_t *key_buff2_pub = NULL;
+	uint8_t *key_buff2_priv = NULL;
+	uint16_t key_buff1_size = 0;
+	uint16_t key_buff2_pub_size = 0;
+	uint16_t key_buff2_priv_size = 0;
+	uint8_t *rsa_label = NULL;
+	uint16_t rsa_label_size = 0;
 	uint8_t rsa_salt_len;
 	uint32_t exp_plaintext_len;
 	hsm_gc_acrypto_verification_status_t exp_verification_status;

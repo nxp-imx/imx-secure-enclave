@@ -162,11 +162,6 @@ TEST_KGEN_END
 ##########################################################################
 
 
-#Load Persistent Key Info (KEY_TV_ID, KEY_IDENTIFIER) from persistent key
-#details stored previously
-LOAD_PERSIST_KEY_INFO
-
-
 #Positive Case
 #Test Generate Key API for Persistent Key Generation and Usage in getting
 #Key Attributes if already generated

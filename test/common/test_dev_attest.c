@@ -81,6 +81,35 @@ void perform_dev_attestation(hsm_hdl_t sess_hdl)
 		printf("Signature:");
 		hexdump((uint32_t *)dev_attest_args.signature,
 			dev_attest_args.sign_sz/sizeof(uint32_t));
+
+		// freeing the memory after usage
+
+		if (dev_attest_args.uid)
+			free(dev_attest_args.uid);
+
+		if (dev_attest_args.sha_rom_patch)
+			free(dev_attest_args.sha_rom_patch);
+
+		if (dev_attest_args.sha_fw)
+			free(dev_attest_args.sha_fw);
+
+		if (dev_attest_args.rsp_nounce)
+			free(dev_attest_args.rsp_nounce);
+
+		if (dev_attest_args.info_buf)
+			free(dev_attest_args.info_buf);
+
+		if (dev_attest_args.signature)
+			free(dev_attest_args.signature);
+
+		if (hsm_get_dev_attest_api_ver() == HSM_API_VERSION_2 ||
+		    hsm_get_dev_attest_api_ver() == HSM_API_VERSION_3) {
+			if (dev_attest_args.oem_srkh)
+				free(dev_attest_args.oem_srkh);
+
+			if (dev_attest_args.oem_pqc_srkh)
+				free(dev_attest_args.oem_pqc_srkh);
+		}
 	}
 	printf("---------------------------------------------------\n\n");
 #endif

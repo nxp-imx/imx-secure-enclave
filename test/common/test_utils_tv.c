@@ -1,12 +1,13 @@
 // SPDX-License-Identifier: BSD-3-Clause
 /*
- * Copyright 2022-2024 NXP
+ * Copyright 2022-2025 NXP
  */
 
 #include <stdint.h>
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
+#include <unistd.h>
 
 #include "hsm_api.h"
 #include "test_common_tv.h"
@@ -89,7 +90,8 @@ void parse_param_value_buffer(FILE *fp, uint8_t **dst, uint32_t size,
 		++(*input_ctr);
 	}
 
-	free(line);
+	if (line)
+		free(line);
 }
 
 /* Print test vector file input/output buffers */
@@ -171,6 +173,12 @@ void save_persistent_key(uint32_t key_tv_id, uint32_t key_identifier)
 
 	fprintf(fp, "%u 0x%x\n", key_tv_id, key_identifier);
 	se_info("\nPersistent Key Identifier 0x%x entered in file\n", key_identifier);
+
+	if (fp) {
+		fflush(fp);
+		fsync(fileno(fp));
+		fclose(fp);
+	}
 }
 
 /* Load persistent keys details */
@@ -225,6 +233,12 @@ void load_persist_key_info(void)
 		se_info("\nPersistent Key Info Loaded: KEY_TV_ID %u  Key Identifier 0x%x\n",
 			key_tv_id, key_identifier);
 	}
+
+	if (fp)
+		fclose(fp);
+
+	if (line)
+		free(line);
 }
 
 /* Get key identifier from key_tv_id */

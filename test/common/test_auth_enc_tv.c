@@ -1,6 +1,6 @@
 // SPDX-License-Identifier: BSD-3-Clause
 /*
- * Copyright 2024 NXP
+ * Copyright 2024-2025 NXP
  */
 
 #include <stdio.h>
@@ -54,8 +54,8 @@ static hsm_err_t do_auth_enc_test(hsm_hdl_t key_store_hdl, hsm_hdl_t key_mgmt_hd
 		goto out;
 	}
 
-	memset(ciphered_data, 0, sizeof(ciphered_data));
-	memset(deciphered_data, 0, sizeof(deciphered_data));
+	memset(ciphered_data, 0, ciphertext_size);
+	memset(deciphered_data, 0, plaintext_size);
 
 	//ENCRYPT-DECRYPT common part
 	auth_enc_args.key_identifier = key_identifier;

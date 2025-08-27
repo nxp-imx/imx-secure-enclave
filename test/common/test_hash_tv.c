@@ -1,6 +1,6 @@
 // SPDX-License-Identifier: BSD-3-Clause
 /*
- * Copyright 2023-2024 NXP
+ * Copyright 2023-2025 NXP
  */
 
 #include <stdio.h>
@@ -113,8 +113,8 @@ static int8_t prepare_and_run_hash_test(FILE *fp)
 	hsm_hash_svc_flags_t flags;
 #ifdef PSA_COMPLIANT
 	uint8_t *msb;
-	uint8_t *ctx;
-	uint16_t ctx_size;
+	uint8_t *ctx = NULL;
+	uint16_t ctx_size = 0;
 	uint16_t exp_ctx_size;
 #endif
 	uint32_t input_size = 0;
@@ -201,14 +201,13 @@ static int8_t prepare_and_run_hash_test(FILE *fp)
 
 		} else if (strcmp(param_name, "INPUT_CTX") == 0) {
 			ctx = (uint8_t *)malloc(ctx_size * sizeof(uint8_t));
-			memset(ctx, 0, ctx_size * sizeof(uint8_t));
-
 			if (!ctx) {
 				invalid_read = 1;
 				printf("\nError: Couldn't allocate memory for %s\n",
 				       param_name);
 				break;
 			}
+			memset(ctx, 0, ctx_size * sizeof(uint8_t));
 
 			parse_param_value_buffer(fp, &ctx, ctx_size,
 						 param_name, &input_ctr,
@@ -323,6 +322,10 @@ exit:
 	if (exp_output_buf)
 		free(exp_output_buf);
 
+#ifdef PSA_COMPLIANT
+	if (ctx)
+		free(ctx);
+#endif
 	if (line)
 		free(line);
 

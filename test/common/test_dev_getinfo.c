@@ -1,6 +1,6 @@
 // SPDX-License-Identifier: BSD-3-Clause
 /*
- * Copyright 2022-2024 NXP
+ * Copyright 2022-2025 NXP
  */
 
 #include <stdio.h>
@@ -35,6 +35,9 @@ void get_info(hsm_hdl_t sess_hdl)
 					get_info_args.version_ext);
 		printf("FIPS Mode             : 0x%02x\n",
 					get_info_args.fips_mode);
+
+		if (get_info_args.chip_unique_id)
+			free(get_info_args.chip_unique_id);
 	}
 #endif
 }
@@ -78,6 +81,23 @@ void dev_get_info(hsm_hdl_t sess_hdl)
 		printf("IMEM state = 0x%x.\n", dev_getinfo_args.imem_state);
 		printf("CSAL state = 0x%x.\n", dev_getinfo_args.csal_state);
 		printf("TRNG state = 0x%x.\n", dev_getinfo_args.trng_state);
+
+		// freeing memory after the usage
+
+		if (dev_getinfo_args.uid)
+			free(dev_getinfo_args.uid);
+
+		if (dev_getinfo_args.sha_rom_patch)
+			free(dev_getinfo_args.sha_rom_patch);
+
+		if (dev_getinfo_args.sha_fw)
+			free(dev_getinfo_args.sha_fw);
+
+		if (dev_getinfo_args.oem_srkh)
+			free(dev_getinfo_args.oem_srkh);
+
+		if (dev_getinfo_args.oem_pqc_srkh)
+			free(dev_getinfo_args.oem_pqc_srkh);
 	}
 #endif
 }

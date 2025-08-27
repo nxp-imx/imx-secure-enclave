@@ -1,6 +1,6 @@
 // SPDX-License-Identifier: BSD-3-Clause
 /*
- * Copyright 2021-2024 NXP
+ * Copyright 2021-2025 NXP
  */
 
 #include <stdio.h>
@@ -200,20 +200,19 @@ uint32_t plat_os_abs_configure_shared_buf_v2(struct plat_os_abs_hdl *phdl,
 
 uint64_t plat_os_abs_data_buf(struct plat_os_abs_hdl *phdl, uint8_t *src, uint32_t size, uint32_t flags)
 {
-    struct ele_mu_ioctl_setup_iobuf io;
-    int32_t err;
+	struct ele_mu_ioctl_setup_iobuf io = {0};
+	int32_t err;
 
-    io.user_buf = src;
-    io.length = size;
-    io.flags = flags;
+	io.user_buf = src;
+	io.length = size;
+	io.flags = flags;
 
-    err = ioctl(phdl->fd, ELE_MU_IOCTL_SETUP_IOBUF, &io);
+	err = ioctl(phdl->fd, ELE_MU_IOCTL_SETUP_IOBUF, &io);
 
-    if (err != 0) {
-        io.ele_addr = 0;
-    }
+	if (err != 0)
+		io.ele_addr = 0;
 
-    return io.ele_addr;
+	return io.ele_addr;
 }
 
 uint32_t plat_os_abs_data_buf_v2(struct plat_os_abs_hdl *phdl,
@@ -222,7 +221,7 @@ uint32_t plat_os_abs_data_buf_v2(struct plat_os_abs_hdl *phdl,
 				 uint32_t size,
 				 uint32_t flags)
 {
-	struct ele_mu_ioctl_setup_iobuf io;
+	struct ele_mu_ioctl_setup_iobuf io = {0};
 	uint32_t err = PLAT_SUCCESS;
 	int32_t ret;
 
@@ -402,33 +401,32 @@ uint32_t plat_os_abs_cmd_snd_rcv_rsp(struct plat_os_abs_hdl *phdl,
 				     uint32_t *tx_buf, uint32_t *tx_buf_sz,
 				     uint32_t *rx_buf, uint32_t *rx_buf_sz)
 {
-    struct ele_ioctl_cmd_snd_rcv_rsp_info cmd_snd_rcv_rsp_info;
-    int32_t err;
+	struct ele_ioctl_cmd_snd_rcv_rsp_info cmd_snd_rcv_rsp_info = {0};
+	int32_t err;
 
-    cmd_snd_rcv_rsp_info.tx_buf = tx_buf;
-    cmd_snd_rcv_rsp_info.tx_buf_sz = *tx_buf_sz;
-    cmd_snd_rcv_rsp_info.rx_buf = rx_buf;
-    cmd_snd_rcv_rsp_info.rx_buf_sz = *rx_buf_sz;
+	cmd_snd_rcv_rsp_info.tx_buf = tx_buf;
+	cmd_snd_rcv_rsp_info.tx_buf_sz = *tx_buf_sz;
+	cmd_snd_rcv_rsp_info.rx_buf = rx_buf;
+	cmd_snd_rcv_rsp_info.rx_buf_sz = *rx_buf_sz;
 
-    err = ioctl(phdl->fd, ELE_IOCTL_CMD_SEND_RCV_RSP, &cmd_snd_rcv_rsp_info);
+	err = ioctl(phdl->fd, ELE_IOCTL_CMD_SEND_RCV_RSP, &cmd_snd_rcv_rsp_info);
 
-    if (err < 0) {
-        err = PLAT_FAILURE;
-	if (cmd_snd_rcv_rsp_info.tx_buf_sz < 0)
-		se_err("\nPLAT send error[%d]: %s\n",
-		       errno,
-		       strerror(errno));
+	if (err < 0) {
+		err = PLAT_FAILURE;
+		if (cmd_snd_rcv_rsp_info.tx_buf_sz < 0)
+			se_err("\nPLAT send error[%d]: %s\n",
+			       errno,
+			       strerror(errno));
 
-	if (cmd_snd_rcv_rsp_info.rx_buf_sz < 0)
-		se_err("\nPLAT read error[%d]: %s\n",
-		       errno,
-		       strerror(errno));
-    }
-    else {
-        err = PLAT_SUCCESS;
-        *tx_buf_sz = cmd_snd_rcv_rsp_info.tx_buf_sz;
-        *rx_buf_sz = cmd_snd_rcv_rsp_info.rx_buf_sz;
-    }
+		if (cmd_snd_rcv_rsp_info.rx_buf_sz < 0)
+			se_err("\nPLAT read error[%d]: %s\n",
+			       errno,
+			       strerror(errno));
+	} else {
+		err = PLAT_SUCCESS;
+		*tx_buf_sz = cmd_snd_rcv_rsp_info.tx_buf_sz;
+		*rx_buf_sz = cmd_snd_rcv_rsp_info.rx_buf_sz;
+	}
 
-    return err;
+	return err;
 }
