@@ -58,9 +58,6 @@ struct plat_os_abs_hdl *plat_os_abs_open_mu_channel(uint32_t type, struct plat_m
 		}
 	}
 
-	if (device_path)
-		printf("device_path %s\n", device_path);
-
 	if (phdl && mu_params) {
 		phdl->fd = open(device_path, O_RDWR);
 		/* If open failed return NULL handle. */
