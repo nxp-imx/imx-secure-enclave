@@ -7,7 +7,8 @@
 set -eu
 
 nvmd_conf_fpath="/etc/nvmd.conf"
-nvmd_v2x_conf_fpath="/etc/nvmd_v2x.conf"
+nvmd_v2x_she_conf_fpath="/etc/nvmd_v2x_she.conf"
+nvmd_v2x_hsm_conf_fpath="/etc/nvmd_v2x_hsm.conf"
 
 function nvmd_config_setup()
 {
@@ -16,8 +17,10 @@ function nvmd_config_setup()
   local nvmd_config_storage_dirname="/^NVMD_STORAGE_DIRNAME=/c\NVMD_STORAGE_DIRNAME=${2}"
   local nvmd_config_mu_session_flag="/^NVMD_MU_SESSION_FLAG=/c\NVMD_MU_SESSION_FLAG=$3"
 
-  if [[ $4 == V2X ]]; then
-	nvmd_conf_target=${nvmd_v2x_conf_fpath}
+  if [[ $4 == "V2X SHE" ]]; then
+	nvmd_conf_target=${nvmd_v2x_she_conf_fpath}
+  elif [[ $4 == "V2X HSM" ]]; then
+	nvmd_conf_target=${nvmd_v2x_hsm_conf_fpath}
   fi
 
   #Change/Replace the line beginning with given string, with the intended one
@@ -77,11 +80,13 @@ function imx8dxlevk_nvmd_config()
             ;;
 
         0xD0 | 0xd0 | "V2X_HSM_NVM" | "v2x_hsm_nvm")
-            nvmd_config_setup "/etc/v2x_hsm/v2x_hsm_master" "/etc/v2x_hsm/" "0xD0" "V2X"
+            nvmd_config_setup "/etc/v2x_hsm/v2x_hsm_master" "/etc/v2x_hsm/" "0xD0"
+	    "V2X HSM"
             ;;
 
         0xC8 | 0xc8 | "V2X_SHE_NVM" | "v2x_she_nvm")
-            nvmd_config_setup "/etc/v2x_she/v2x_she_master" "/etc/v2x_she/" "0xC8" "V2X"
+            nvmd_config_setup "/etc/v2x_she/v2x_she_master" "/etc/v2x_she/" "0xC8"
+	    "V2X SHE"
             ;;
 
         *)
@@ -116,15 +121,18 @@ function imx95evk_nvmd_config()
     case ${loc_config_id} in
 
         0xD0 | 0xd0 | "V2X_HSM_NVM" | "v2x_hsm_nvm")
-            nvmd_config_setup "/etc/v2x_hsm/v2x_hsm_master" "/etc/v2x_hsm/" "0xD0" "V2X"
+            nvmd_config_setup "/etc/v2x_hsm/v2x_hsm_master" "/etc/v2x_hsm/" "0xD0"
+	    "V2X HSM"
             ;;
 
         0xC8 | 0xc8 | "V2X_SHE_NVM" | "v2x_she_nvm")
-            nvmd_config_setup "/etc/v2x_she/v2x_she_master" "/etc/v2x_she/" "0xC8" "V2X"
+            nvmd_config_setup "/etc/v2x_she/v2x_she_master" "/etc/v2x_she/" "0xC8"
+	    "V2X SHE"
             ;;
 
         0xE0 | 0xe0 | "V2X_SHE_DEBUG_MU_NVM" | "v2x_she_debug_mu_nvm")
-            nvmd_config_setup "/etc/v2x_she/v2x_she_master" "/etc/v2x_she/" "0xE0" "V2X"
+            nvmd_config_setup "/etc/v2x_she/v2x_she_master" "/etc/v2x_she/" "0xE0"
+	    "V2X SHE"
             ;;
 
         *)
@@ -140,16 +148,18 @@ function imx943evk_nvmd_config()
     case ${loc_config_id} in
 
         0xD0 | 0xd0 | "V2X_HSM_NVM" | "v2x_hsm_nvm")
-            nvmd_config_setup "/etc/v2x_hsm/v2x_hsm_master" "/etc/v2x_hsm/" "0xD0" "V2X"
+            nvmd_config_setup "/etc/v2x_hsm/v2x_hsm_master" "/etc/v2x_hsm/" "0xD0"
+	    "V2X HSM"
             ;;
 
         0xC8 | 0xc8 | "V2X_SHE_NVM" | "v2x_she_nvm")
-            nvmd_config_setup "/etc/v2x_she/v2x_she_master" "/etc/v2x_she/" "0xC8" "V2X"
+            nvmd_config_setup "/etc/v2x_she/v2x_she_master" "/etc/v2x_she/" "0xC8"
+	    "V2X SHE"
             ;;
 
         0xC9 | 0xc9 | "V2X_SHE1_NVM" | "v2x_she1_nvm")
             nvmd_config_setup \
-	    "/etc/v2x_she1/v2x_she1_master" "/etc/v2x_she1/" "0xC9" "V2X"
+	    "/etc/v2x_she1/v2x_she1_master" "/etc/v2x_she1/" "0xC9" "V2X SHE"
             ;;
 
         0xE0 | 0xe0 | "V2X_SHE_DEBUG_MU_NVM" | "v2x_she_debug_mu_nvm")

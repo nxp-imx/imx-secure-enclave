@@ -280,8 +280,10 @@ V2X: V2X-SHE + V2X-HSM: Library Artifacts
 /usr/lib/lib_hsm.so.0 -> lib_hsm.so.0.1        (V2X-HSM Shared library)
 /usr/lib/lib_hsm.so.0.1                        (V2X-HSM Shared library)
 /usr/bin/nvm_daemon_v2x                        (NVM Daemon V2X)
-/etc/nvmd_v2x.conf                             (NVM-Daemon V2X configuration file)
-/etc/systemd/system/nvm_daemon_v2x.service     (NVM-Daemon V2X service file)
+/etc/nvmd_v2x_she.conf                         (NVM-Daemon V2X SHE configuration file)
+/etc/systemd/system/nvm_daemon_v2x_she.service (NVM-Daemon V2X SHE service file)
+/etc/nvmd_v2x_hsm.conf                         (NVM-Daemon V2X HSM configuration file)
+/etc/systemd/system/nvm_daemon_v2x_hsm.service (NVM-Daemon V2X HSM service file)
 /usr/bin/nvmd_conf_setup.sh                    (NVM-Daemon configuration helper script)
 
 
@@ -478,12 +480,12 @@ V2X-SHE Test:
 	nvmd_conf_setup.sh config_id=0xe0; or
 	nvmd_conf_setup.sh config_id=V2X_SHE_DEBUG_MU_NVM;
 
-	systemctl start nvm_daemon_v2x;
-	systemctl status nvm_daemon_v2x;
+	systemctl start nvm_daemon_v2x_she.service;
+	systemctl status nvm_daemon_v2x_she.service;
 	v2x_she_test $1 $2 $3;
 	v2x_she_test -a;                  //execute all test vectors
 	v2x_she_test shx_file;            //execute test vectors available in given shx
-	systemctl stop nvm_daemon_v2x;
+	systemctl stop nvm_daemon_v2x_she.service;
 
 	Example for v2x_she_test args:
 	------------------------------
@@ -497,12 +499,12 @@ V2X-HSM Test:
 
 	nvmd_conf_setup.sh config_id=0xd0; or
 	nvmd_conf_setup.sh config_id=v2x_hsm_nvm;
-	systemctl start nvm_daemon_v2x;
-	systemctl status nvm_daemon_v2x;
+	systemctl start nvm_daemon_v2x_hsm.service;
+	systemctl status nvm_daemon_v2x_hsm.service;
 	v2x_hsm_test;
 	v2x_hsm_test -a;                  //execute all test vectors, supported on i.MX943 currently
 	v2x_hsm_test shx_file;            //execute test vectors available in given shx
-	systemctl stop nvm_daemon_v2x;
+	systemctl stop nvm_daemon_v2x_hsm.service;
 
 SECO-HSM Test:
 -------------

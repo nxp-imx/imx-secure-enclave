@@ -42,15 +42,15 @@ uint32_t test_hsm_start_v2x_storage_manager(hsm_test_struct_t *testCtx, FILE *fp
 {
 	uint32_t fails = 0;
 
-	if (system("systemctl status nvm_daemon_v2x") == 0) {
+	if (system("systemctl status nvm_daemon_v2x_hsm.service") == 0) {
 		nvm_status = NVM_STATUS_RUNNING;
 		return fails;
-	} else if (system("systemctl start nvm_daemon_v2x")) {
-		printf("Error: Failed to start NVM Daemon\n");
+	} else if (system("systemctl start nvm_daemon_v2x_hsm.service")) {
+		printf("Error: Failed to start V2X HSM NVM Daemon\n");
 		fails = 1;
 	}
 
-	while (system("systemctl status nvm_daemon_v2x") != 0)
+	while (system("systemctl status nvm_daemon_v2x_hsm.service") != 0)
 		;
 
 	return fails;
@@ -82,12 +82,12 @@ uint32_t test_hsm_stop_v2x_storage_manager(hsm_test_struct_t *testCtx, FILE *fp)
 	if (nvm_status == NVM_STATUS_RUNNING)
 		return fails;
 
-	if (system("systemctl stop nvm_daemon_v2x")) {
-		printf("Error: Failed to stop NVM Daemon\n");
+	if (system("systemctl stop nvm_daemon_v2x_hsm.service")) {
+		printf("Error: Failed to stop V2X HSM NVM Daemon\n");
 		fails = 1;
 	}
 
-	while (system("systemctl status nvm_daemon_v2x") == 0)
+	while (system("systemctl status nvm_daemon_v2x_hsm.service") == 0)
 		;
 
 	return fails;
