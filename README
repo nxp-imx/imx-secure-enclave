@@ -446,6 +446,17 @@ Test Steps on the Boards
 ELE-HSM Tests:
 --------------
 
+	/* If Test Environment running multiple test apps which use ELE HSM and same nvm_daemon,
+	 * then first need to check the status of daemon and execute stop command
+	 * if nvm_daemon is already running
+	 */
+
+	systemctl status nvm_daemon;
+	systemctl stop nvm_daemon;
+
+	rm -rf /etc/ele/*;           //delete Storage/NVM directory old data
+	rm -rf /var/lib/se/*;        //delete ELE-HSM tests vectors old key database
+
 	systemctl start nvm_daemon;
 	systemctl status nvm_daemon;
 	ele_hsm_test;
@@ -515,11 +526,30 @@ SECO-SHE Test:
 	systemctl stop nvm_daemon;
 
 Note #5:
-Before running the tests for the first time, it is required to perform the cleanup
-of the Storage/NVM directory (before start of the NVM Daemon) for persistent data.
-The NVM directory may contain the persistent data of some test applications,
-other than the secure enclave tests. In case of conflicting NVM data with other
-test applications or previous runs of itself, the secure enclave tests may fail.
+Before following the test steps, it is required to perform the cleanup/deletion of all
+the files/contents of the Storage/NVM directory (before start of the NVM daemon)
+for persistent data. Please note that the cleanup to be performed only when NVM
+is not running.
+
+Make sure that start NVM daemon step is properly done, i.e. it must provide fresh
+context with the targeted IP. If the same NVM daemon has been already started by
+some other test app (e.g. SMW tests) and currently running with previous context,
+then performing start NVM daemon again will have no effect, and it will still
+maintain the previous test app's NVM context, which may impact/fail further tests.
+
+Hence, If the testing involves multiple test apps (e.g. smw, itest, ele-hsm..) which
+may have cross impact due to usage of same NVM daemon, then below additional
+steps also needed before other mandatory test steps:
+	systemctl status <NVM_DAEMON_NAME>
+	systemctl stop <NVM_DAEMON_NAME>
+
+Here, NVM_DAEMON_NAME represents the NVM binary from test steps under consideration,
+and the corresponding Storage/NVM directory can be referred from Table 2.
+For e.g.
+If following ELE-HSM Test section steps, NVM_DAEMON_NAME is nvm_daemon and NVM
+directory is /etc/ele/ (refer - Table 2).
+If following V2X-SHE Test section steps, NVM_DAEMON_NAME is nvm_daemon_v2x and NVM
+directory is /etc/v2x_she/  (refer - Table 2).
 
 Note #6:
 nvmd_conf_setup.sh can help in setting up the configurations for NVM Daemon,
@@ -542,28 +572,7 @@ ELE: ELE-HSM: Tests Artifacts
 /usr/bin/ele_hsm_test                                               (ELE-HSM test app)
 /usr/bin/ele_hsm_perf_test                                          (ELE-HSM Performance test app)
 /usr/share/se/test_vectors/psa/el2go_aes_test.blob                  (ELE-HSM test blob file)
-/usr/share/se/test_vectors/psa/test_vectors_set0_kgen_n.tv          (ELE-HSM test vector)
-/usr/share/se/test_vectors/psa/test_vectors_set0_kgen_p.tv          (ELE-HSM test vector)
-/usr/share/se/test_vectors/psa/test_vectors_set0_kgen_volatile_ap.tv   (ELE-HSM test vector)
-/usr/share/se/test_vectors/psa/test_vectors_set0_kgen_persistent_ap.tv (ELE-HSM test vector)
-/usr/share/se/test_vectors/psa/test_vectors_set0_kgen_permanent_ap.tv  (ELE-HSM test vector)
-/usr/share/se/test_vectors/psa/test_vectors_set1_cipher_n.tv        (ELE-HSM test vector)
-/usr/share/se/test_vectors/psa/test_vectors_set1_cipher_p.tv        (ELE-HSM test vector)
-/usr/share/se/test_vectors/psa/test_vectors_set1_cipher_ap.tv       (ELE-HSM test vector)
-/usr/share/se/test_vectors/psa/test_vectors_set2_mac_n.tv           (ELE-HSM test vector)
-/usr/share/se/test_vectors/psa/test_vectors_set2_mac_p.tv           (ELE-HSM test vector)
-/usr/share/se/test_vectors/psa/test_vectors_set2_mac_ap.tv          (ELE-HSM test vector)
-/usr/share/se/test_vectors/psa/test_vectors_set3_sign_verify_n.tv   (ELE-HSM test vector)
-/usr/share/se/test_vectors/psa/test_vectors_set3_sign_verify_p.tv   (ELE-HSM test vector)
-/usr/share/se/test_vectors/psa/test_vectors_set3_sign_verify_ap.tv  (ELE-HSM test vector)
-/usr/share/se/test_vectors/psa/test_vectors_set4_hash_n.tv          (ELE-HSM test vector)
-/usr/share/se/test_vectors/psa/test_vectors_set4_hash_p.tv          (ELE-HSM test vector)
-/usr/share/se/test_vectors/psa/test_vectors_set4_hash_ap.tv         (ELE-HSM test vector)
-/usr/share/se/test_vectors/psa/test_vectors_set5_data_storage_p.tv  (ELE-HSM test vector)
-/usr/share/se/test_vectors/psa/test_vectors_set5_data_storage_ap.tv (ELE-HSM test vector)
-/usr/share/se/test_vectors/psa/test_vectors_set6_auth_enc_ap.tv     (ELE-HSM test vector)
-/usr/share/se/test_vectors/psa/test_vectors_set7_rng_ap.tv          (ELE-HSM test vector)
-/usr/share/se/test_vectors/psa/test_vectors_set8_gc_acrypto_ap.tv   (ELE-HSM test vector)
+/usr/share/se/test_vectors/psa/*                                    (ELE-HSM test vectors)
 
 V2X: V2X-SHE + V2X-HSM: Tests Artifacts
 ---------------------------------------
