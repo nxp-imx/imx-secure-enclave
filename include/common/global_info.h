@@ -37,7 +37,7 @@
 
 #define GINFO_LIB_VERSION_LEN        16
 #define GINFO_NVM_VERSION_LEN        16
-#define GINFO_COMMIT_ID_SZ           40
+#define GINFO_COMMIT_ID_SZ           41
 
 #define HSM_API_VERSION_1    0x1
 #define HSM_API_VERSION_2    0x2

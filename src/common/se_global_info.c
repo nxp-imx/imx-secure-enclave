@@ -264,10 +264,10 @@ void populate_global_info(uint32_t session_hdl)
 	if (len < 0)
 		se_err("Failed to get NVM version\n");
 
-	if (strlen(LIB_COMMIT_ID) == GINFO_COMMIT_ID_SZ)
+	if (strlen(LIB_COMMIT_ID) < GINFO_COMMIT_ID_SZ)
 		plat_os_abs_memcpy(global_info.se_commit_id,
 				   LIB_COMMIT_ID,
-				   GINFO_COMMIT_ID_SZ);
+				   strlen(LIB_COMMIT_ID) + 1);
 
 	global_info.is_populated = true;
 }

@@ -301,10 +301,14 @@ install_tests: install tests
 	$(MKDIR_V2X_HSM_TV)
 	$(EXPORT_V2X_HSM_SHX_TV)
 
-install_version: .git
+install_version:
 	echo "#ifndef SE_VERSION_H" > ${SE_VER_FILE}
 	echo "#define SE_VERSION_H" >> ${SE_VER_FILE}
-	echo "#define LIB_COMMIT_ID \"$(shell git rev-parse HEAD)\"" >> ${SE_VER_FILE}
+	@if test -d ".git"; then \
+		echo "#define LIB_COMMIT_ID \"$(shell git rev-parse HEAD)\"" >> ${SE_VER_FILE}; \
+	else \
+		echo "#define LIB_COMMIT_ID \"unknown\"" >> ${SE_VER_FILE}; \
+	fi
 	cat se_version.txt >> ${SE_VER_FILE}
 	echo "#endif" >> ${SE_VER_FILE}
 
