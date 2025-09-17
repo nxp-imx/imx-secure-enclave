@@ -112,6 +112,8 @@ const char *get_soc_rev_str(uint16_t soc_rev)
 		return "A2";
 	case SOC_REV_B0:
 		return "B0";
+	case SOC_REV_B1:
+		return "B1";
 #ifndef PSA_COMPLIANT
 	case SOC_REV_C0:
 		return "C0";
@@ -220,7 +222,7 @@ void populate_global_info(uint32_t session_hdl)
 #ifdef PSA_COMPLIANT
 	if (global_info.soc_id == SOC_IMX943 ||
 	    global_info.soc_id == SOC_IMX952 ||
-	    (global_info.soc_id == SOC_IMX95 && global_info.soc_rev == SOC_REV_B0))
+	    (global_info.soc_id == SOC_IMX95 && global_info.soc_rev >= SOC_REV_B0))
 		global_info.ver = HSM_API_VERSION_3;
 	else if ((global_info.soc_id == SOC_IMX93 && global_info.soc_rev >= SOC_REV_A1) ||
 		 global_info.soc_id == SOC_IMX91 ||

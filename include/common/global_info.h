@@ -33,6 +33,7 @@
 #define SOC_REV_A1  0xa100
 #define SOC_REV_A2  0xa200
 #define SOC_REV_B0  0xb000
+#define SOC_REV_B1  0xb100
 #define SOC_REV_C0  0xc000
 
 #define GINFO_LIB_VERSION_LEN        16
