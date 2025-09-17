@@ -327,7 +327,7 @@ static void tv_tests(hsm_hdl_t key_store_hdl, uint8_t *tv_file_path)
 				if (se_get_soc_id() != SOC_IMX943 &&
 				    se_get_soc_id() != SOC_IMX952 &&
 				    !(se_get_soc_id() == SOC_IMX95 &&
-				      se_get_soc_rev() == SOC_REV_B0) &&
+				      se_get_soc_rev() >= SOC_REV_B0) &&
 				    memcmp(line, "TEST_AUTH_ENC", 13) == 0)
 					auth_enc_test_tv(key_store_hdl, fp, line,
 							 &tauth_enc_passed,
@@ -341,7 +341,7 @@ static void tv_tests(hsm_hdl_t key_store_hdl, uint8_t *tv_file_path)
 				    se_get_soc_id() != SOC_IMX943 &&
 				    se_get_soc_id() != SOC_IMX952 &&
 				    !(se_get_soc_id() == SOC_IMX95 &&
-				      se_get_soc_rev() == SOC_REV_B0) &&
+				      se_get_soc_rev() >= SOC_REV_B0) &&
 				    memcmp(line, "TEST_GC_ACRYPTO", 15) == 0)
 					gc_acrypto_test_tv(key_store_hdl, fp,
 							   line, &tgc_acrypto_passed,
