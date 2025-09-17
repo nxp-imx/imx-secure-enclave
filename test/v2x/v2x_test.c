@@ -2054,8 +2054,8 @@ int main(int argc, char *argv[])
 	populate_global_info(open_session_args.session_hdl);
 	hsm_close_session(open_session_args.session_hdl);
 
-	/* return if not i.MX95 B0 board */
-	if (se_get_soc_id() == SOC_IMX95 && se_get_soc_rev() != SOC_REV_B0) {
+	/* return if not i.MX95 B0 or later board */
+	if (se_get_soc_id() == SOC_IMX95 && se_get_soc_rev() < SOC_REV_B0) {
 		printf("V2X HSM test suite is not supported on %s %s %s\n",
 		       get_soc_id_str(se_get_soc_id()),
 		       get_soc_rev_str(se_get_soc_rev()),
