@@ -1,6 +1,6 @@
 // SPDX-License-Identifier: BSD-3-Clause
 /*
- * Copyright 2023 NXP
+ * Copyright 2023, 2025 NXP
  */
 
 #include <errno.h>
@@ -46,9 +46,9 @@ uint32_t parse_cmd_prep_rsp_storage_master_export(struct nvm_ctx_st *nvm_ctx_par
 	}
 
 	/* Extract length of the blob from the message. */
-	data_len = TO_UINT16_T(msg->key_store_size) + NVM_HEADER_SZ;
+	data_len = UINT32_ADD(msg->key_store_size, NVM_HEADER_SZ);
 
-	if ((msg->key_store_size == 0u) || (data_len > 16u*1024u)) {
+	if (!data_len || msg->key_store_size == 0u || (data_len > 16u * 1024u)) {
 		/* Fixing arbitrary maximum blob size to 16k
 		 * for sanity checks.
 		 */
@@ -66,7 +66,8 @@ uint32_t parse_cmd_prep_rsp_storage_master_export(struct nvm_ctx_st *nvm_ctx_par
 		set_phy_addr_to_words(&resp->key_store_export_address,
 				      0u,
 				      plat_os_abs_data_buf(nvm_ctx_param->phdl,
-							   *data + NVM_HEADER_SZ,
+							   BLOB_START_ADDR(*data,
+									   NVM_HEADER_SZ),
 							   msg->key_store_size,
 							   0u));
 		resp->rsp_code = plat_sab_success_tag(nvm_ctx_param->phdl);

@@ -1,6 +1,6 @@
 // SPDX-License-Identifier: BSD-3-Clause
 /*
- * Copyright 2023 NXP
+ * Copyright 2023, 2025 NXP
  */
 
 #include <errno.h>
@@ -61,7 +61,9 @@ uint32_t parse_cmd_prep_rsp_storage_finish_export(struct nvm_ctx_st *nvm_ctx_par
 	}
 
 	if (*prev_cmd_id == SAB_STORAGE_MASTER_EXPORT_REQ) {
-		data_len = *data_sz + NVM_HEADER_SZ;
+		data_len = UINT32_ADD(*data_sz, NVM_HEADER_SZ);
+		if (!data_len)
+			goto out;
 
 		/* fill header for sanity check when it will be re-loaded. */
 		blob_hdr = (struct nvm_header_s *)*data;
@@ -71,8 +73,16 @@ uint32_t parse_cmd_prep_rsp_storage_finish_export(struct nvm_ctx_st *nvm_ctx_par
 				   0x0,
 				   sizeof(blob_hdr->blob_id));
 		blob_id = &blob_hdr->blob_id;
-		blob_hdr->size = *data_sz;
-		blob_hdr->crc = plat_fetch_msg_crc((uint32_t *)(*data + NVM_HEADER_SZ), *data_sz);
+		blob_hdr->size = data_len;
+		blob_hdr->crc = plat_fetch_msg_crc((uint32_t *)
+						   BLOB_START_ADDR(*data,
+								   NVM_HEADER_SZ),
+						   *data_sz);
+
+		if (!blob_hdr->crc) {
+			resp->rsp_code = SAB_FAILURE_STATUS;
+			goto out;
+		}
 
 		/* Data have been provided by platform.
 		 * Write them in NVM and acknowledge.
@@ -93,8 +103,10 @@ uint32_t parse_cmd_prep_rsp_storage_finish_export(struct nvm_ctx_st *nvm_ctx_par
 		chunk = *data;
 		blob_hdr = (struct nvm_header_s *)chunk->data;
 		blob_hdr->size = chunk->len;
-		blob_hdr->crc = plat_fetch_msg_crc((uint32_t *)(chunk->data + NVM_HEADER_SZ),
-						   chunk->len);
+		blob_hdr->crc = plat_fetch_msg_crc((uint32_t *)
+						   BLOB_START_ADDR(chunk->data,
+								   NVM_HEADER_SZ),
+						   BLOB_LEN(chunk->len, NVM_HEADER_SZ));
 		blob_id = &chunk->blob_id;
 		plat_os_abs_memcpy((uint8_t *)&blob_hdr->blob_id, (uint8_t *)blob_id,
 				   sizeof(blob_hdr->blob_id));

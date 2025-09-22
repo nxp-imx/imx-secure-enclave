@@ -1,6 +1,6 @@
 // SPDX-License-Identifier: BSD-3-Clause
 /*
- * Copyright 2023 NXP
+ * Copyright 2023, 2025 NXP
  */
 
 #include <errno.h>
@@ -49,9 +49,9 @@ uint32_t parse_cmd_prep_rsp_storage_chunk_export(struct nvm_ctx_st *nvm_ctx_para
 
 	/* Extract length of the blob from the message. */
 	blob_size = msg->chunk_size;
-	data_len = TO_UINT16_T(msg->chunk_size) + NVM_HEADER_SZ;
+	data_len = UINT32_ADD(msg->chunk_size, NVM_HEADER_SZ);
 
-	if ((msg->chunk_size == 0u) || (data_len > 16u*1024u)) {
+	if (!data_len || msg->chunk_size == 0u || (data_len > 16u * 1024u)) {
 		/*
 		 * Fixing arbitrary maximum blob size to 16k
 		 * for sanity checks.
@@ -81,10 +81,9 @@ uint32_t parse_cmd_prep_rsp_storage_chunk_export(struct nvm_ctx_st *nvm_ctx_para
 	set_phy_addr_to_words(&resp->chunk_export_address,
 			      0u,
 			      plat_os_abs_data_buf(nvm_ctx_param->phdl,
-						   chunk->data +
-						   NVM_HEADER_SZ,
-						   blob_size,
-						   0u));
+						   BLOB_START_ADDR(chunk->data,
+								   NVM_HEADER_SZ),
+						   blob_size, 0u));
 	resp->rsp_code = plat_sab_success_tag(nvm_ctx_param->phdl);
 	/* chunk gets freed in nvm rcv cmd engine */
 	*data = (struct nvm_chunk_hdr *)chunk;

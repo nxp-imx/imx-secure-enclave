@@ -79,6 +79,7 @@ uint32_t plat_os_abs_storage_write(struct plat_os_abs_hdl *phdl,
 				       strerror(errno));
 			}
 
+			fsync(fd);
 			(void)close(fd);
 		}
 	}
@@ -199,6 +200,7 @@ uint32_t plat_os_abs_storage_write_chunk(struct plat_os_abs_hdl *phdl,
 				       strerror(errno));
 			}
 
+			fsync(fd);
 			(void)close(fd);
 		}
 	}

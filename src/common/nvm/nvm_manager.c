@@ -42,11 +42,12 @@ static uint32_t nvm_storage_import(struct nvm_ctx_st *nvm_ctx_param,
 		blob_hdr = (struct nvm_header_s *)data;
 
 		/* Sanity check on the provided data. */
-		if ((TO_UINT8_T(blob_hdr->size) + NVM_HEADER_SZ) != len)
+		if (blob_hdr->size != len)
 			break;
 
-		if (plat_fetch_msg_crc((uint32_t *)(data + NVM_HEADER_SZ),
-				       blob_hdr->size) != blob_hdr->crc)
+		if (plat_fetch_msg_crc((uint32_t *)BLOB_START_ADDR(data, NVM_HEADER_SZ),
+				       BLOB_LEN(blob_hdr->size, NVM_HEADER_SZ))
+		    != blob_hdr->crc)
 			break;
 
 		error = process_sab_msg(nvm_ctx_param->phdl,
@@ -291,7 +292,7 @@ uint32_t nvm_manager(uint8_t flags,
 					     nvm_ctx->nvm_fname)
 					     == NVM_HEADER_SZ) {
 
-			data_len = TO_UINT8_T(nvm_hdr.size) + NVM_HEADER_SZ;
+			data_len = nvm_hdr.size;
 			data = plat_os_abs_malloc(data_len);
 
 			if (data != NULL) {
