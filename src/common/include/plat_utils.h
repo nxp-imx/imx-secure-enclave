@@ -1,6 +1,6 @@
 // SPDX-License-Identifier: BSD-3-Clause
 /*
- * Copyright 2019-2024 NXP
+ * Copyright 2019-2025 NXP
  */
 
 
@@ -28,6 +28,14 @@
 #ifndef BIT
 #define BIT(x) (1 << (x))
 #endif
+
+#define UINT32_ADD(value_a, value_b) \
+	({ \
+		typeof(value_a) _a = (value_a); \
+		typeof(value_b) _b = (value_b); \
+		long _c = _a + _b; \
+		(_c < UINT32_MAX) ? (uint32_t)_c : 0; \
+	 })
 
 #define TO_UINT8_T(x)   ((x) & 0xFFu)
 #define TO_UINT16_T(x)  ((x) & 0xFFFFu)

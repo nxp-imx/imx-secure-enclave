@@ -1,6 +1,6 @@
 // SPDX-License-Identifier: BSD-3-Clause
 /*
- * Copyright 2023 NXP
+ * Copyright 2023, 2025 NXP
  */
 
 #ifndef SAB_NVM_H
@@ -16,7 +16,16 @@ struct nvm_header_s {
 	struct sab_blob_id blob_id;
 };
 
-#define NVM_HEADER_SZ	16u
+#define NVM_HEADER_SZ ((uint16_t)sizeof(struct nvm_header_s))
+#define BLOB_START_ADDR(addr, offset_in_bytes) \
+	((char *)(addr) + (offset_in_bytes))
+
+#define BLOB_LEN(curr_sz, sz_to_adjust) \
+	({ \
+		typeof(curr_sz) _curr = (curr_sz); \
+		typeof(sz_to_adjust) _adj = (sz_to_adjust); \
+		(_curr > _adj) ? (_curr - _adj) : 0; \
+	 })
 
 struct nvm_ctx_st {
 	uint32_t status;
@@ -40,7 +49,5 @@ struct nvm_chunk_hdr {
 	uint32_t len;
 	uint8_t *data;
 };
-
-#define NVM_CHUNK_HDR_SZ	13u
 
 #endif

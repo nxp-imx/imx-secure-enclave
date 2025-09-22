@@ -1,6 +1,6 @@
 // SPDX-License-Identifier: BSD-3-Clause
 /*
- * Copyright 2021-2024 NXP
+ * Copyright 2021-2025 NXP
  */
 
 #include <stdio.h>
@@ -50,6 +50,7 @@ uint32_t plat_os_abs_storage_write(struct plat_os_abs_hdl *phdl,
 				se_err("Write error [%d]:%s\n", errno, strerror(errno));
 			}
 
+			fsync(fd);
 			(void)close(fd);
 		}
 	}
@@ -167,6 +168,7 @@ uint32_t plat_os_abs_storage_write_chunk(struct plat_os_abs_hdl *phdl,
 				se_err("Write error [%d]:%s\n", errno, strerror(errno));
 			}
 
+			fsync(fd);
 			(void)close(fd);
 		}
 	}
@@ -211,10 +213,11 @@ uint32_t plat_os_abs_storage_read_chunk(struct plat_os_abs_hdl *phdl,
 	return TO_UINT32_T(l);
 }
 
-uint32_t plat_os_abs_storage_remove_file(char *filename)
+uint32_t plat_os_abs_storage_remove_file(char *filename, char *dirname)
 {
 	uint32_t ret = PLAT_SUCCESS;
 	int err;
+	int dir_fd;
 
 	err = remove(filename);
 	if (err) {
@@ -223,6 +226,15 @@ uint32_t plat_os_abs_storage_remove_file(char *filename)
 		ret = PLAT_FAILURE;
 		if (errno == ENOENT)
 			ret = PLAT_ERR_NO_SUCH_FILE_DIR;
+	}
+
+	dir_fd = open(dirname, O_DIRECTORY | O_RDONLY);
+	if (dir_fd < 0) {
+		se_err("failed to open directory and sync [%d]: %s\n",
+		       errno, strerror(errno));
+	} else {
+		fsync(dir_fd);
+		close(dir_fd);
 	}
 
 	return ret;

@@ -1,6 +1,6 @@
 // SPDX-License-Identifier: BSD-3-Clause
 /*
- * Copyright 2023 NXP
+ * Copyright 2023, 2025 NXP
  */
 
 #include <errno.h>
@@ -28,15 +28,20 @@ uint32_t prepare_msg_storage_master_import(void *phdl,
 	if (!blob_hdr || !data)
 		return SAB_ENGN_FAIL;
 
+	msg->storage_handle = msg_hdl;
+	msg->key_store_size = BLOB_LEN(blob_hdr->size, NVM_HEADER_SZ);
+
+	if (!msg->key_store_size)
+		return SAB_ENGN_FAIL;
+
 	set_phy_addr_to_words(&msg->key_store_address,
 			      0u,
 			      plat_os_abs_data_buf((struct plat_os_abs_hdl *)phdl,
-						   data + NVM_HEADER_SZ,
-						   blob_hdr->size,
+						   BLOB_START_ADDR(data,
+								   NVM_HEADER_SZ),
+						   msg->key_store_size,
 						   DATA_BUF_IS_INPUT));
 
-	msg->storage_handle = msg_hdl;
-	msg->key_store_size = blob_hdr->size;
 
 	*cmd_msg_sz = sizeof(struct sab_cmd_key_store_import_msg);
 	*rsp_msg_sz = sizeof(struct sab_cmd_key_store_import_rsp);

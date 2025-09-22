@@ -430,10 +430,11 @@ uint32_t get_chunk_file_path(char **path,
  * Remove a file if it exists.
  *
  * \param filename path of the file to remove.
+ * \param dirname path of the directory.
  *
  * \return PLAT_SUCCESS on success, PLAT_FAILURE on failure.
  */
-uint32_t plat_os_abs_storage_remove_file(char *filename);
+uint32_t plat_os_abs_storage_remove_file(char *filename, char *dirname);
 
 #if MT_SAB_STORAGE_KEY_DB_REQ
 /**

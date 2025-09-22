@@ -1,6 +1,6 @@
 // SPDX-License-Identifier: BSD-3-Clause
 /*
- * Copyright 2024 NXP
+ * Copyright 2024-2025 NXP
  */
 
 #include <errno.h>
@@ -50,7 +50,7 @@ uint32_t parse_cmd_prep_rsp_chunk_delete(struct nvm_ctx_st *nvm_ctx_param,
 		goto out;
 
 	if (get_chunk_file_path(&path, nvm_ctx_param->nvm_dname, blob_id)) {
-		err = plat_os_abs_storage_remove_file(path);
+		err = plat_os_abs_storage_remove_file(path, nvm_ctx_param->nvm_dname);
 		if (err != PLAT_SUCCESS) {
 			if (err == PLAT_ERR_NO_SUCH_FILE_DIR)
 				resp->rsp_code = SAB_UNKNOWN_ID_STATUS;

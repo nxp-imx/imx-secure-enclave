@@ -1,6 +1,6 @@
 // SPDX-License-Identifier: BSD-3-Clause
 /*
- * Copyright 2023 NXP
+ * Copyright 2023, 2025 NXP
  */
 
 #include <errno.h>
@@ -81,13 +81,15 @@ uint32_t parse_cmd_prep_rsp_storage_get_chunk(struct nvm_ctx_st *nvm_ctx_param,
 	}
 
 	if (err == 0u) {
-		resp->chunk_size = nvm_hdr.size - NVM_HEADER_SZ;
+		resp->chunk_size = BLOB_LEN(nvm_hdr.size, NVM_HEADER_SZ);
+		if (!resp->chunk_size)
+			goto out;
 		set_phy_addr_to_words(&resp->chunk_addr,
 				      0u,
 				      plat_os_abs_data_buf(nvm_ctx_param->phdl,
-							   *data + NVM_HEADER_SZ,
-							   nvm_hdr.size - NVM_HEADER_SZ,
-							   DATA_BUF_IS_INPUT));
+						BLOB_START_ADDR(*data, NVM_HEADER_SZ),
+						resp->chunk_size,
+						DATA_BUF_IS_INPUT));
 
 		resp->rsp_code = plat_sab_success_tag(nvm_ctx_param->phdl);
 	} else {
