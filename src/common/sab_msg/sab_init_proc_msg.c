@@ -202,6 +202,10 @@
 #include "sab_dev_mono_counter.h"
 #endif
 
+#if MT_SAB_ASYMMETRIC_CRYPTO
+#include "sab_asymmetric_crypto.h"
+#endif
+
 static int init_proc_sab_base_msg_engine(msg_type_t msg_type,
 					 uint32_t msg_id)
 {
@@ -866,6 +870,31 @@ static  int init_proc_sab_hsm_msg_engine(msg_type_t msg_type,
 						  proc_msg_rsp_key_exchange);
 		}
 		break;
+#endif
+#if MT_SAB_ASYMMETRIC_CRYPTO
+#ifdef PSA_COMPLIANT
+	case SAB_ASYMMETRIC_ENC_OPEN_REQ:
+		if (msg_type == MT_SAB_ASYMMETRIC_CRYPTO) {
+			ret = add_sab_msg_handler(msg_id, MT_SAB_ASYMMETRIC_CRYPTO,
+						  prepare_msg_asymmetric_enc_open,
+						  proc_msg_rsp_asymmetric_enc_open);
+		}
+		break;
+	case SAB_ASYMMETRIC_ENC_CLOSE_REQ:
+		if (msg_type == MT_SAB_ASYMMETRIC_CRYPTO) {
+			ret = add_sab_msg_handler(msg_id, MT_SAB_ASYMMETRIC_CRYPTO,
+						  prepare_msg_asymmetric_enc_close,
+						  proc_msg_rsp_asymmetric_enc_close);
+		}
+		break;
+	case SAB_ASYMMETRIC_ENC_REQ:
+		if (msg_type == MT_SAB_ASYMMETRIC_CRYPTO) {
+			ret = add_sab_msg_handler(msg_id, MT_SAB_ASYMMETRIC_CRYPTO,
+						  prepare_msg_asymmetric_enc,
+						  proc_msg_rsp_asymmetric_enc);
+		}
+		break;
+#endif
 #endif
 	default:
 		break;

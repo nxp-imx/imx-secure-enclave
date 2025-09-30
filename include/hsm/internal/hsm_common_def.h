@@ -66,6 +66,8 @@ typedef enum {
 	ALGO_RSA_PKCS1_OAEP_SHA256 = 0x07000309,
 	ALGO_RSA_PKCS1_OAEP_SHA384 = 0x0700030A,
 	ALGO_RSA_PKCS1_OAEP_SHA512 = 0x0700030B,
+	ALGO_RSA_PKCS1_OAEP_SHA_ANY = 0x070003FF,
+	ALGO_RSA_PKCS1_CRYPT_ALL = 0x8700FF00,
 } hsm_asymmetric_crypto_algo_t;
 
 typedef enum {
@@ -125,4 +127,5 @@ typedef enum {
 		ALGO_ALL_CIPHER			= 0x84C0FF00,
 		ALGO_ALL_AEAD			= 0x8550FF00,
 } hsm_algo_t;
+
 #endif
