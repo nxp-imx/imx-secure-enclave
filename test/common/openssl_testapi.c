@@ -1,6 +1,6 @@
 /*
  *
- * Copyright 2023 NXP
+ * Copyright 2023, 2025 NXP
  * SPDX-License-Identifier: BSD-3-Clause
  *
  */
@@ -215,4 +215,169 @@ uint32_t openSSL_Encryption(void *pldataB, uint32_t pldataB_length,
 		EVP_CIPHER_CTX_free(ctx_ccm);
 	}
 	return status;
+}
+
+void print_rsa_key(RSA *rsa)
+{
+	if (!rsa) {
+		printf("RSA key is NULL\n");
+		return;
+	}
+
+	const BIGNUM * n = NULL, *e = NULL, *d = NULL;
+
+	// Extract key components
+	RSA_get0_key(rsa, &n, &e, &d);
+
+	if (n) {
+		char *n_hex = BN_bn2hex(n);
+
+		printf("Modulus (n): %s\n", n_hex);
+		OPENSSL_free(n_hex);
+	} else {
+		printf("Modulus (n): NULL\n");
+	}
+
+	if (e) {
+		char *e_hex = BN_bn2hex(e);
+
+		printf("Public Exponent (e): %s\n", e_hex);
+		OPENSSL_free(e_hex);
+	} else {
+		printf("Public Exponent (e): NULL\n");
+	}
+
+	if (d) {
+		char *d_hex = BN_bn2hex(d);
+
+		printf("Private Exponent (d): %s\n", d_hex);
+		OPENSSL_free(d_hex);
+	} else {
+		printf("Private Exponent (d): NULL\n");
+	}
+}
+
+EVP_PKEY *create_RSA_key(uint8_t *modulus, size_t modulus_size,
+			 uint8_t *priv_exp, size_t priv_exp_size)
+{
+	EVP_PKEY *pkey = NULL;
+	// Load RSA key from modulus and exponent
+	BIGNUM *n = BN_bin2bn(modulus, modulus_size, NULL);
+	BIGNUM *e = BN_new(); BN_set_word(e, RSA_F4);
+	BIGNUM *d = BN_bin2bn(priv_exp, priv_exp_size, NULL);
+
+	RSA *rsa = RSA_new();
+
+	if (!n || !e || !d || !rsa) {
+		printf("Error creating BIGNUMs or RSA structure\n");
+		return NULL;
+	}
+
+	RSA_set0_key(rsa, n, e, d);
+
+	pkey = EVP_PKEY_new();
+	EVP_PKEY_assign_RSA(pkey, rsa);
+
+	return pkey;
+}
+
+void delete_RSA_key(EVP_PKEY *pkey)
+{
+	EVP_PKEY_free(pkey);
+}
+
+void print_openSSL_error(void)
+{
+	ERR_load_crypto_strings();
+	unsigned long err_code;
+
+	// Print all errors in the OpenSSL error queue
+	while ((err_code = ERR_get_error()) != 0) {
+		char err_msg[256];
+
+		ERR_error_string_n(err_code, err_msg, sizeof(err_msg));
+		printf("OpenSSL Error: %s\n", err_msg);
+	}
+
+	ERR_free_strings();
+}
+
+int8_t openSSL_RSA_encryption(uint8_t *plaintext, size_t plaintext_len,
+			      uint8_t *ciphertext, size_t ciphertext_len,
+			      EVP_PKEY *pkey)
+{
+	EVP_PKEY_CTX *ctx = NULL;
+	uint8_t err = -1;
+
+	// Encryption
+	ctx = EVP_PKEY_CTX_new(pkey, NULL);
+	if (!ctx || EVP_PKEY_encrypt_init(ctx) <= 0) {
+		print_openSSL_error();
+		goto cleanup;
+	}
+
+	// Set OAEP padding
+	EVP_PKEY_CTX_set_rsa_padding(ctx, RSA_PKCS1_OAEP_PADDING);
+#ifdef DEBUG
+	//EVP_PKEY_CTX_set_rsa_oaep_md(ctx, EVP_sha256());
+
+	// Determine buffer size
+	if (EVP_PKEY_encrypt(ctx, NULL, &ciphertext_len, plaintext, plaintext_len) <= 0) {
+		print_openSSL_error();
+		goto cleanup;
+	}
+#endif
+	if (!ciphertext ||
+	    EVP_PKEY_encrypt(ctx, ciphertext, &ciphertext_len,
+			     plaintext, plaintext_len) <= 0) {
+		print_openSSL_error();
+		goto cleanup;
+	}
+
+	err = 0;
+
+cleanup:
+	EVP_PKEY_CTX_free(ctx);
+
+	return err;
+}
+
+int8_t openSSL_RSA_decryption(uint8_t *decrypted, size_t decrypted_len,
+			      uint8_t *ciphertext, size_t ciphertext_len,
+			      EVP_PKEY *pkey)
+{
+	EVP_PKEY_CTX *ctx = NULL;
+	uint8_t err = -1;
+
+	ctx = EVP_PKEY_CTX_new(pkey, NULL);
+	if (!ctx || EVP_PKEY_decrypt_init(ctx) <= 0) {
+		print_openSSL_error();
+		goto cleanup;
+	}
+
+	EVP_PKEY_CTX_set_rsa_padding(ctx, RSA_PKCS1_OAEP_PADDING);
+#ifdef DEBUG
+//	EVP_PKEY_CTX_set_rsa_oaep_md(ctx, EVP_sha256());
+
+	if (EVP_PKEY_decrypt(ctx, NULL, &decrypted_len,
+			     ciphertext, ciphertext_len) <= 0) {
+		print_openSSL_error();
+		goto cleanup;
+	}
+
+	printf("Decrypted data length: %zu\n", decrypted_len);
+#endif
+	if (!decrypted ||
+	    EVP_PKEY_decrypt(ctx, decrypted, &decrypted_len,
+			     ciphertext, ciphertext_len) <= 0) {
+		print_openSSL_error();
+		goto cleanup;
+	}
+
+	err = 0;
+
+cleanup:
+	EVP_PKEY_CTX_free(ctx);
+
+	return err;
 }

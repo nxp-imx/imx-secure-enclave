@@ -4,16 +4,27 @@
  */
 
 #include <stdio.h>
+#include <stdlib.h>
+#include <string.h>
 
 #include "hsm_api.h"
 #include "internal/hsm_asymmetric_crypto.h"
 #include "internal/hsm_key.h"
-#include "openssl_testapi.h"
+#include <openssl_testapi.h>
+#include "test_utils.h"
 
 #if MT_SAB_ASYMMETRIC_CRYPTO
 #ifdef PSA_COMPLIANT
 
-//pub exponent
+//For generated opaque key
+static uint8_t modulus_opaque[512] = {'\0'};
+static uint8_t key_group_id = 20;
+
+static uint8_t pub_exp_buff[5] = {
+	0x1, 0x0, 0x0, 0x0, 0x1
+};
+
+//private exponent
 static uint8_t priv_exp[256] = {
 	0x8a, 0x7b, 0xc8, 0xc4, 0x4a, 0xd1, 0x85, 0xd4,
 	0xff, 0xb4, 0xb0, 0x76, 0x42, 0x25, 0xc7, 0x15,
@@ -71,10 +82,12 @@ static uint8_t plaintext[128] = {
 
 //ciphertext
 static uint8_t ciphertext[256] = {'\0'};
+static uint8_t opq_ciphertext[512] = {'\0'};
 
-static uint8_t deciphered_text[128] = {'\0'};
+static uint8_t deciphered_text[256] = {'\0'};
+static uint8_t opq_deciphered_text[128] = {'\0'};
 
-//decryption = sizeof(priv_exp_buff) + sizeof(modulus_buff);
+//decryption = sizeof(priv_exp) + sizeof(modulus_buff);
 static uint8_t dec_modulus_buff[512] = {
 	0x8a, 0x7b, 0xc8, 0xc4, 0x4a, 0xd1, 0x85, 0xd4,
 	0xff, 0xb4, 0xb0, 0x76, 0x42, 0x25, 0xc7, 0x15,
@@ -177,33 +190,78 @@ static uint8_t modulus_buff[256] = {
 	0x1c, 0x11, 0xd5, 0x21, 0x0a, 0x30, 0xbe, 0x13
 };
 
-hsm_err_t test_asymmetric_crypto(hsm_hdl_t session_hdl,
-				 hsm_hdl_t key_store_hdl)
+hsm_err_t test_asymmetric_rsa_crypto_openssl_encrypt(hsm_hdl_t session_hdl,
+						     hsm_hdl_t key_store_hdl)
 {
+	EVP_PKEY *pkey = NULL;
 	hsm_err_t err = HSM_GENERAL_ERROR;
-	op_asymmetric_enc_open_args_t asym_open_args = {0};
+	int8_t ret;
 	op_asymmetric_enc_args_t asym_enc_args = {0};
-	int i = 0;
 
-	printf("\n------------------------------\n");
-	printf("Asymmetric Encryption Crypto Test:");
-	printf("\n------------------------------\n");
+	/* RSA ENCRYPT operation with RSA 2048 key using openssl*/
+	memset(ciphertext, 0, sizeof(ciphertext));
+	asym_enc_args.plaintext_addr = plaintext;
+	asym_enc_args.ciphertext_addr = ciphertext;
+	asym_enc_args.plaintext_size = sizeof(plaintext);
+	asym_enc_args.ciphertext_size = sizeof(ciphertext);
 
-	/* Asymmetric encryption open */
-	asym_open_args.key_store_handle = key_store_hdl;
+	pkey = create_RSA_key(modulus_buff, sizeof(modulus_buff),
+			      priv_exp, sizeof(priv_exp));
+	if (!pkey) {
+		printf("Failed to create RSA key\n");
+		return HSM_GENERAL_ERROR;
+	}
 
-	err = hsm_asymmetric_enc_open(session_hdl, &asym_open_args);
-	if (err) {
-		printf("\nhsm_asymmetric_enc_open ret: 0x%x\n", err);
+	ret = openSSL_RSA_encryption(plaintext, sizeof(plaintext),
+				     ciphertext, sizeof(ciphertext),
+				     pkey);
+
+	if (ret) {
+		printf("Failed to encrypt data using openssl\n");
 		return err;
 	}
+
+	delete_RSA_key(pkey);
+
+	/* RSA DECRYPT operation with RSA 2048 key */
+	memset(deciphered_text, 0, sizeof(deciphered_text));
+
+	asym_enc_args.algorithm = ALGO_RSA_PKCS1_OAEP_SHA1;
+	asym_enc_args.flags = HSM_ASYM_FLAGS_DECRYPT | HSM_ASYM_FLAGS_PLAINTEXT_KEY;
+	asym_enc_args.plaintext_addr = deciphered_text;
+	asym_enc_args.ciphertext_addr = ciphertext;
+	asym_enc_args.plaintext_size = sizeof(deciphered_text);
+	asym_enc_args.ciphertext_size = sizeof(ciphertext);
+	asym_enc_args.key_addr = dec_modulus_buff;
+	asym_enc_args.input_plainkey_size = sizeof(dec_modulus_buff);
+	asym_enc_args.input_plainkey_security_size = HSM_KEY_SIZE_RSA_2048;
+	asym_enc_args.input_plainkey_type = HSM_KEY_TYPE_RSA;
+
+	err = hsm_asymmetric_enc(session_hdl, &asym_enc_args);
+	if (err) {
+		printf("\nhsm_asymmetric_enc (DECRYPT) ret: 0x%x\n", err);
+		return err;
+	}
+
+	if (memcmp(plaintext, deciphered_text, sizeof(plaintext))) {
+		printf("\nDecrypted Text doesn't match the Plaintext [FAIL]\n");
+		return HSM_GENERAL_ERROR;
+	}
+
+	return err;
+}
+
+hsm_err_t test_asymmetric_rsa_crypto_openssl_decrypt(hsm_hdl_t session_hdl,
+						     hsm_hdl_t key_store_hdl)
+{
+	EVP_PKEY *pkey = NULL;
+	int8_t err = HSM_GENERAL_ERROR;
+	op_asymmetric_enc_args_t asym_enc_args = {0};
 
 	/* RSA ENCRYPT operation with RSA 2048 key */
 	memset(ciphertext, 0, sizeof(ciphertext));
 
-	asym_enc_args.asymmetric_enc_handle =
-		asym_open_args.asymmetric_enc_handle;
-	asym_enc_args.algorithm = HSM_ASYM_ALGO_RSA_PKCS1_OAEP_SHA1;
+	asym_enc_args.algorithm = ALGO_RSA_PKCS1_OAEP_SHA1;
 	asym_enc_args.flags = HSM_ASYM_FLAGS_ENCRYPT | HSM_ASYM_FLAGS_PLAINTEXT_KEY;
 	asym_enc_args.plaintext_addr = plaintext;
 	asym_enc_args.ciphertext_addr = ciphertext;
@@ -217,14 +275,67 @@ hsm_err_t test_asymmetric_crypto(hsm_hdl_t session_hdl,
 	err = hsm_asymmetric_enc(session_hdl, &asym_enc_args);
 	if (err) {
 		printf("\nhsm_asymmetric_enc (ENCRYPT) ret: 0x%x\n", err);
-		goto exit;
+		return err;
+	}
+
+	/* RSA DECRYPT operation with RSA 2048 key using openssl */
+	memset(deciphered_text, 0, sizeof(deciphered_text));
+
+	pkey = create_RSA_key(modulus_buff, sizeof(modulus_buff),
+			      priv_exp, sizeof(priv_exp));
+	if (!pkey) {
+		printf("Failed to create RSA key\n");
+		return HSM_GENERAL_ERROR;
+	}
+
+	err = openSSL_RSA_decryption(deciphered_text, sizeof(deciphered_text),
+				     ciphertext, sizeof(ciphertext), pkey);
+
+	if (err) {
+		printf("Failed to decrypt data using openssl\n");
+		return HSM_GENERAL_ERROR;
+	}
+
+	delete_RSA_key(pkey);
+
+	if (memcmp(plaintext, deciphered_text, sizeof(plaintext))) {
+		printf("Decrypted Text doesn't match the Plaintext [FAIL]\n");
+		return HSM_GENERAL_ERROR;
+	}
+
+	return err;
+}
+
+hsm_err_t test_asymmetric_rsa_plain_crypto(hsm_hdl_t session_hdl,
+					   hsm_hdl_t key_store_hdl)
+{
+	hsm_err_t err = HSM_GENERAL_ERROR;
+	op_asymmetric_enc_args_t asym_enc_args = {0};
+
+	/* RSA ENCRYPT operation with RSA 2048 key */
+	memset(ciphertext, 0, sizeof(ciphertext));
+
+	asym_enc_args.algorithm = ALGO_RSA_PKCS1_OAEP_SHA1;
+	asym_enc_args.flags = HSM_ASYM_FLAGS_ENCRYPT | HSM_ASYM_FLAGS_PLAINTEXT_KEY;
+	asym_enc_args.plaintext_addr = plaintext;
+	asym_enc_args.ciphertext_addr = ciphertext;
+	asym_enc_args.plaintext_size = sizeof(plaintext);
+	asym_enc_args.ciphertext_size = sizeof(ciphertext);
+	asym_enc_args.key_addr = modulus_buff;
+	asym_enc_args.input_plainkey_size = sizeof(modulus_buff);
+	asym_enc_args.input_plainkey_security_size = HSM_KEY_SIZE_RSA_2048;
+	asym_enc_args.input_plainkey_type = HSM_PUBKEY_TYPE_RSA;
+
+	err = hsm_asymmetric_enc(session_hdl, &asym_enc_args);
+	if (err) {
+		printf("\nhsm_asymmetric_enc (ENCRYPT) ret: 0x%x\n", err);
+		return err;
 	}
 
 	/* RSA DECRYPT operation with RSA 2048 key */
 	memset(&asym_enc_args, 0, sizeof(asym_enc_args));
+	memset(deciphered_text, 0, sizeof(deciphered_text));
 
-	asym_enc_args.asymmetric_enc_handle =
-		asym_open_args.asymmetric_enc_handle;
 	asym_enc_args.algorithm = HSM_ASYM_ALGO_RSA_PKCS1_OAEP_SHA1;
 	asym_enc_args.flags = HSM_ASYM_FLAGS_DECRYPT | HSM_ASYM_FLAGS_PLAINTEXT_KEY;
 	asym_enc_args.plaintext_addr = deciphered_text;
@@ -239,26 +350,271 @@ hsm_err_t test_asymmetric_crypto(hsm_hdl_t session_hdl,
 	err = hsm_asymmetric_enc(session_hdl, &asym_enc_args);
 	if (err) {
 		printf("\nhsm_asymmetric_enc (DECRYPT) ret: 0x%x\n", err);
-		goto exit;
-	}
-
-	if (memcmp(plaintext, deciphered_text, sizeof(plaintext)) == 0)
-		printf("\nDecrypted Text matches the Plaintext [PASS]\n");
-	else
-		printf("\nDecrypted Text doesn't match the Plaintext [FAIL]\n");
-exit:
-	err = hsm_asymmetric_enc_close(asym_open_args.asymmetric_enc_handle);
-	if (err) {
-		printf("\nhsm_asymmetric_enc_close ret: 0x%x\n", err);
 		return err;
 	}
 
-	printf("\n------------------------------------------------\n");
-	printf("Test Complete");
-	printf("\n------------------------------------------------\n");
+	if (memcmp(plaintext, deciphered_text, sizeof(plaintext))) {
+		printf("\nDecrypted Text doesn't match the Plaintext [FAIL]\n");
+		return HSM_GENERAL_ERROR;
+	}
 
 	return err;
 }
 
+static void test_generate_opaque_key_id(hsm_hdl_t key_mgmt_hdl, uint32_t *key_id)
+{
+	hsm_err_t ret = HSM_GENERAL_ERROR;
+	op_generate_key_args_t key_gen_args = {0};
+
+	memset(&key_gen_args, 0, sizeof(key_gen_args));
+
+	key_gen_args.key_identifier = key_id;
+	key_gen_args.out_size = 0;
+	key_gen_args.key_group = key_group_id;
+	key_gen_args.flags = HSM_ASYM_FLAGS_OPAQUE_KEY;
+	key_gen_args.key_lifetime = HSM_SE_KEY_STORAGE_VOLATILE;
+	key_gen_args.key_usage = HSM_KEY_USAGE_ENCRYPT |
+				 HSM_KEY_USAGE_DECRYPT;
+	key_gen_args.permitted_algo = ALGO_RSA_PKCS1_OAEP_SHA1;
+	key_gen_args.bit_key_sz = HSM_KEY_SIZE_RSA_4096;
+	key_gen_args.key_lifecycle = HSM_KEY_LIFECYCLE_OPEN;
+	key_gen_args.key_type = HSM_KEY_TYPE_RSA;
+	key_gen_args.out_key = NULL;
+
+	//Generate Opaque Key
+	ret = hsm_generate_key(key_mgmt_hdl, &key_gen_args);
+}
+
+static void test_generate_opaque_key_data(hsm_hdl_t key_mgmt_hdl, uint32_t *key_id)
+{
+	hsm_err_t ret = HSM_GENERAL_ERROR;
+	op_generate_key_args_t key_gen_args = {0};
+
+	memset(&key_gen_args, 0, sizeof(key_gen_args));
+
+	key_gen_args.key_identifier = key_id;
+	key_gen_args.out_size = sizeof(modulus_opaque);
+	key_gen_args.key_group = key_group_id;
+	key_gen_args.flags = HSM_ASYM_FLAGS_OPAQUE_KEY;
+	key_gen_args.key_lifetime = HSM_SE_KEY_STORAGE_VOLATILE;
+	key_gen_args.key_usage = HSM_KEY_USAGE_ENCRYPT |
+				 HSM_KEY_USAGE_DECRYPT;
+	key_gen_args.permitted_algo = ALGO_RSA_PKCS1_OAEP_SHA1;
+	key_gen_args.bit_key_sz = HSM_KEY_SIZE_RSA_4096;
+	key_gen_args.key_lifecycle = HSM_KEY_LIFECYCLE_OPEN;
+	key_gen_args.key_type = HSM_KEY_TYPE_RSA;
+	key_gen_args.out_key = modulus_opaque;
+
+	//Generate Opaque Key
+	ret = hsm_generate_key(key_mgmt_hdl, &key_gen_args);
+}
+
+hsm_err_t test_asymmetric_rsa_opaque_crypto_key_data(hsm_hdl_t session_hdl,
+						     hsm_hdl_t key_store_hdl)
+{
+	hsm_err_t err = HSM_GENERAL_ERROR;
+	open_svc_key_management_args_t key_mgmt_args;
+	hsm_hdl_t key_mgmt_hdl;
+	uint32_t key_id = 0x0;
+	op_asymmetric_enc_open_args_t asym_open_args = {0};
+	op_asymmetric_enc_args_t asym_enc_args = {0};
+
+	/* Generate Opaque key */
+	memset(&key_mgmt_args, 0, sizeof(key_mgmt_args));
+	err = hsm_open_key_management_service
+		(key_store_hdl,
+		 &key_mgmt_args,
+		 &key_mgmt_hdl);
+
+	test_generate_opaque_key_data(key_mgmt_hdl, &key_id);
+
+	/* Asymmetric encryption open */
+	asym_open_args.key_store_handle = key_store_hdl;
+
+	err = hsm_asymmetric_enc_open(session_hdl, &asym_open_args);
+	if (err) {
+		printf("\nhsm_asymmetric_enc_open ret: 0x%x\n", err);
+		goto exit;
+	}
+
+	memset(opq_ciphertext, 0, sizeof(opq_ciphertext));
+	memset(opq_deciphered_text, 0, sizeof(opq_deciphered_text));
+
+	/* RSA ENCRYPT operation with RSA 4096 key */
+	memset(ciphertext, 0, sizeof(ciphertext));
+
+	asym_enc_args.asymmetric_enc_handle =
+		asym_open_args.asymmetric_enc_handle;
+	asym_enc_args.algorithm = ALGO_RSA_PKCS1_OAEP_SHA1;
+	asym_enc_args.flags = HSM_ASYM_FLAGS_ENCRYPT | HSM_ASYM_FLAGS_PLAINTEXT_KEY;
+	asym_enc_args.plaintext_addr = plaintext;
+	asym_enc_args.ciphertext_addr = opq_ciphertext;
+	asym_enc_args.plaintext_size = sizeof(plaintext);
+	asym_enc_args.ciphertext_size = sizeof(opq_ciphertext);
+	asym_enc_args.key_addr = modulus_opaque;
+	asym_enc_args.input_plainkey_size = sizeof(modulus_opaque);
+	asym_enc_args.input_plainkey_security_size = HSM_KEY_SIZE_RSA_4096;
+	asym_enc_args.input_plainkey_type = HSM_PUBKEY_TYPE_RSA;
+
+	err = hsm_asymmetric_enc(session_hdl, &asym_enc_args);
+	if (err) {
+		printf("\nhsm_asymmetric_enc (ENCRYPT) ret: 0x%x\n", err);
+		goto exit;
+	}
+
+	/* RSA DECRYPT operation with RSA 4096 key */
+	memset(&asym_enc_args, 0, sizeof(asym_enc_args));
+
+	asym_enc_args.asymmetric_enc_handle =
+		asym_open_args.asymmetric_enc_handle;
+	asym_enc_args.algorithm = ALGO_RSA_PKCS1_OAEP_SHA1;
+	asym_enc_args.flags = HSM_ASYM_FLAGS_DECRYPT | HSM_ASYM_FLAGS_OPAQUE_KEY;
+	asym_enc_args.plaintext_addr = opq_deciphered_text;
+	asym_enc_args.ciphertext_addr = opq_ciphertext;
+	asym_enc_args.plaintext_size = sizeof(opq_deciphered_text);
+	asym_enc_args.ciphertext_size = sizeof(opq_ciphertext);
+	asym_enc_args.key_id = key_id;
+
+	err = hsm_asymmetric_enc(session_hdl, &asym_enc_args);
+	if (err) {
+		printf("\nhsm_asymmetric_enc (DECRYPT) ret: 0x%x\n", err);
+		goto exit;
+	}
+
+	if (memcmp(plaintext, opq_deciphered_text, sizeof(plaintext))) {
+		printf("\nDecrypted Text doesn't match the Plaintext [FAIL]\n");
+		err = HSM_GENERAL_ERROR;
+	}
+exit:
+	if (asym_open_args.asymmetric_enc_handle)
+		hsm_asymmetric_enc_close(asym_open_args.asymmetric_enc_handle);
+
+	delete_test_key(key_mgmt_hdl, key_id, 0);
+
+	hsm_close_key_management_service(key_mgmt_hdl);
+
+	return err;
+}
+
+hsm_err_t test_asymmetric_rsa_opaque_crypto_key_id(hsm_hdl_t session_hdl,
+						   hsm_hdl_t key_store_hdl)
+{
+	hsm_err_t err = HSM_GENERAL_ERROR;
+	open_svc_key_management_args_t key_mgmt_args;
+	hsm_hdl_t key_mgmt_hdl;
+	uint32_t key_id = 0x0;
+	op_asymmetric_enc_open_args_t asym_open_args = {0};
+	op_asymmetric_enc_args_t asym_enc_args = {0};
+
+	/* Generate Opaque key */
+	memset(&key_mgmt_args, 0, sizeof(key_mgmt_args));
+	err = hsm_open_key_management_service
+		(key_store_hdl,
+		 &key_mgmt_args,
+		 &key_mgmt_hdl);
+
+	test_generate_opaque_key_id(key_mgmt_hdl, &key_id);
+
+	/* Asymmetric encryption open */
+	asym_open_args.key_store_handle = key_store_hdl;
+
+	err = hsm_asymmetric_enc_open(session_hdl, &asym_open_args);
+	if (err) {
+		printf("\nhsm_asymmetric_enc_open ret: 0x%x\n", err);
+		goto exit;
+	}
+
+	/* RSA ENCRYPT operation with RSA 4096 key */
+	memset(opq_ciphertext, 0, sizeof(opq_ciphertext));
+	memset(opq_deciphered_text, 0, sizeof(opq_deciphered_text));
+
+	asym_enc_args.asymmetric_enc_handle =
+		asym_open_args.asymmetric_enc_handle;
+	asym_enc_args.algorithm = ALGO_RSA_PKCS1_OAEP_SHA1;
+	asym_enc_args.flags = HSM_ASYM_FLAGS_ENCRYPT | HSM_ASYM_FLAGS_OPAQUE_KEY;
+	asym_enc_args.plaintext_addr = plaintext;
+	asym_enc_args.ciphertext_addr = opq_ciphertext;
+	asym_enc_args.plaintext_size = sizeof(plaintext);
+	asym_enc_args.ciphertext_size = sizeof(opq_ciphertext);
+	asym_enc_args.key_id = key_id;
+
+	err = hsm_asymmetric_enc(session_hdl, &asym_enc_args);
+	if (err) {
+		printf("\nhsm_asymmetric_enc (ENCRYPT) ret: 0x%x\n", err);
+		goto exit;
+	}
+
+	/* RSA DECRYPT operation with RSA 4096 key */
+	memset(&asym_enc_args, 0, sizeof(asym_enc_args));
+
+	asym_enc_args.asymmetric_enc_handle =
+		asym_open_args.asymmetric_enc_handle;
+	asym_enc_args.algorithm = ALGO_RSA_PKCS1_OAEP_SHA1;
+	asym_enc_args.flags = HSM_ASYM_FLAGS_DECRYPT | HSM_ASYM_FLAGS_OPAQUE_KEY;
+	asym_enc_args.plaintext_addr = opq_deciphered_text;
+	asym_enc_args.ciphertext_addr = opq_ciphertext;
+	asym_enc_args.plaintext_size = sizeof(opq_deciphered_text);
+	asym_enc_args.ciphertext_size = sizeof(opq_ciphertext);
+	asym_enc_args.key_id = key_id;
+
+	err = hsm_asymmetric_enc(session_hdl, &asym_enc_args);
+	if (err) {
+		printf("\nhsm_asymmetric_enc (DECRYPT) ret: 0x%x\n", err);
+		goto exit;
+	}
+
+	if (memcmp(plaintext, opq_deciphered_text, sizeof(plaintext))) {
+		printf("\nDecrypted Text doesn't match the Plaintext [FAIL]\n");
+		err = HSM_GENERAL_ERROR;
+	}
+exit:
+	if (asym_open_args.asymmetric_enc_handle)
+		hsm_asymmetric_enc_close(asym_open_args.asymmetric_enc_handle);
+
+	delete_test_key(key_mgmt_hdl, key_id, 0);
+
+	hsm_close_key_management_service(key_mgmt_hdl);
+
+	return err;
+}
+
+hsm_err_t test_asymmetric_crypto(hsm_hdl_t session_hdl,
+				 hsm_hdl_t key_store_hdl)
+{
+	hsm_err_t err;
+
+	printf("--------------- Asymmetric Test --------------\n");
+	err = test_asymmetric_rsa_plain_crypto(session_hdl, key_store_hdl);
+	if (err)
+		printf("Plain Key Test ---> FAILED\n");
+	else
+		printf("Plain Key Test ---> SUCCESS\n");
+
+	err = test_asymmetric_rsa_crypto_openssl_encrypt(session_hdl, key_store_hdl);
+	if (err)
+		printf("Openssl Encrypt Data Test ---> FAILED\n");
+	else
+		printf("Openssl Encrypt Data Test ---> SUCCESS\n");
+
+	err = test_asymmetric_rsa_crypto_openssl_decrypt(session_hdl, key_store_hdl);
+	if (err)
+		printf("Openssl Decrypt Data Test ---> FAILED\n");
+	else
+		printf("Openssl Decrypt Data Test ---> SUCCESS\n");
+
+	err = test_asymmetric_rsa_opaque_crypto_key_id(session_hdl, key_store_hdl);
+	if (err)
+		printf("Opaque Key ID Test ---> FAILED\n");
+	else
+		printf("Opaque Key ID Test ---> SUCCESS\n");
+
+	err = test_asymmetric_rsa_opaque_crypto_key_data(session_hdl, key_store_hdl);
+	if (err)
+		printf("Opaque Key Data Test ---> FAILED\n");
+	else
+		printf("Opaque Key Data Test ---> SUCCESS\n");
+
+	printf("----------------------------------------------\n");
+}
 #endif
 #endif
