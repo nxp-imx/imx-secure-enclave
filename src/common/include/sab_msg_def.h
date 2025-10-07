@@ -83,8 +83,15 @@
 #define SAB_SIGNATURE_VERIFY_REQ                0x82u
 #define SAB_IMPORT_PUB_KEY                      0x83u
 
+#ifdef PSA_COMPLIANT
+#define SAB_ASYMMETRIC_ENC_OPEN_REQ		0x90
+#define SAB_ASYMMETRIC_ENC_CLOSE_REQ		0x91
+#define SAB_ASYMMETRIC_ENC_REQ			0x92
+#else
 #define SAB_HASH_OPEN_REQ                       0x90u
 #define SAB_HASH_CLOSE_REQ                      0x91u
+#endif
+
 #ifndef SAB_HASH_ONE_GO_REQ
 #define SAB_HASH_ONE_GO_REQ                     0xCCu
 #endif

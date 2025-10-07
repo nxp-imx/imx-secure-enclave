@@ -848,8 +848,11 @@ int execute_hsm_tests(uint32_t key_store_id)
 	/* MbedTLS tests */
 	mbedtls_hkdf_test();
 	mbedtls_tls1_3_tests();
-#endif
 
+	if (se_get_soc_id() != SOC_IMX943 && se_get_soc_id() != SOC_IMX8ULP)
+		test_asymmetric_crypto(hsm_session_hdl, key_store_hdl);
+
+#endif
 	return err;
 }
 

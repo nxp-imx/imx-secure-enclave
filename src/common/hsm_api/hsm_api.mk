@@ -310,6 +310,12 @@ HSM_API_SRC	+= \
 		$(PLAT_COMMON_PATH)/hsm_api/hsm_dev_ele_reset.o
 endif
 
+ifneq (${MT_SAB_ASYMMETRIC_CRYPTO},0x0)
+DEFINES		+=	-DHSM_ASYMMETRIC_CRYPTO
+HSM_API_SRC	+= \
+		$(PLAT_COMMON_PATH)/hsm_api/hsm_asymmetric_crypto.o
+endif
+
 OBJECTS		+= $(HSM_API_SRC)
 
 INCLUDE_PATHS	+= \

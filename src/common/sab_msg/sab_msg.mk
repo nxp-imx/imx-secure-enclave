@@ -474,6 +474,12 @@ SAB_MSG_SRC	+= \
 		$(PLAT_COMMON_PATH)/sab_msg/sab_dev_ele_reset.o
 endif
 
+ifneq (${MT_SAB_ASYMMETRIC_CRYPTO},0x0)
+DEFINES		+=	-DMT_SAB_ASYMMETRIC_CRYPTO=${MT_SAB_ASYMMETRIC_CRYPTO}
+SAB_MSG_SRC	+= \
+		$(PLAT_COMMON_PATH)/sab_msg/sab_asymmetric_crypto.o
+endif
+
 OBJECTS		+= $(SAB_MSG_SRC) \
 		$(SAB_RCVMSG_SRC) \
 		$(SHE_SAB_MSG_SRC) \
