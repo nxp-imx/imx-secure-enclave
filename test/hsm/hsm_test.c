@@ -484,6 +484,7 @@ static void transient_key_tests(hsm_hdl_t sess_hdl,
 
 	if (se_get_soc_id() == SOC_IMX93 || se_get_soc_id() == SOC_IMX91 ||
 	    (se_get_soc_id() == SOC_IMX95 && se_get_soc_rev() >= SOC_REV_B0) ||
+	    (se_get_soc_id() == SOC_IMX943 && se_get_soc_rev() >= SOC_REV_A1) ||
 	    se_get_soc_id() == SOC_IMX952)
 		hsm_sign_verify_eddsa_tests(sess_hdl, key_store_hdl, key_mgmt_hdl);
 
@@ -717,6 +718,7 @@ static void transient_key_tests(hsm_hdl_t sess_hdl,
 
 	if (se_get_soc_id() == SOC_IMX93 || se_get_soc_id() == SOC_IMX91 ||
 	    (se_get_soc_id() == SOC_IMX95 && se_get_soc_rev() >= SOC_REV_B0) ||
+	    (se_get_soc_id() == SOC_IMX943 && se_get_soc_rev() >= SOC_REV_A1) ||
 	    se_get_soc_id() == SOC_IMX952) {
 		key_exchange_test_tls1_3(key_mgmt_hdl, key_store_id);
 #if SUPPORT_KEY_EXCHANGE_HKDF
