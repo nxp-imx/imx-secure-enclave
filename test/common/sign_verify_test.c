@@ -117,7 +117,9 @@ hsm_err_t hsm_sign_verify_tests(hsm_hdl_t sess_hdl, hsm_hdl_t key_store_hdl,
 
 #ifdef PSA_COMPLIANT
 	/* Signature Verification using Opaque key */
-	if (key_id && (se_get_soc_id() == SOC_IMX95 || se_get_soc_id() == SOC_IMX943)) {
+	if (key_id &&
+	    (se_get_soc_id() == SOC_IMX95 || se_get_soc_id() == SOC_IMX943 ||
+	     se_get_soc_id() == SOC_IMX952)) {
 		sig_ver_args.flags |= HSM_OP_VERIFY_SIGN_FLAGS_OPAQUE_KEY;
 		sig_ver_args.key_identifier = key_id;
 		sig_ver_args.key = NULL;
@@ -228,14 +230,13 @@ static hsm_err_t hsm_sign_verify_eddsa_tests_helper(hsm_hdl_t sess_hdl,
 	if (ret != HSM_NO_ERROR)
 		goto out;
 
-	// Delete the test key
-	ret = delete_test_key(key_mgmt_hdl, key_id, 0);
-	if (ret != HSM_NO_ERROR)
-		goto out;
-
 	test_status = TEST_STATUS_SUCCESS;
 
 out:
+	// Delete the test key
+	if (key_id)
+		delete_test_key(key_mgmt_hdl, key_id, 0);
+
 	if (test_status == TEST_STATUS_SUCCESS)
 		printf("\nResult ---> SUCCESS\n");
 	else
