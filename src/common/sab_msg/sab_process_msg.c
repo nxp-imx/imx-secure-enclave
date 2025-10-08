@@ -136,6 +136,7 @@ static uint8_t err_handling_v2_support(uint8_t msg_type, uint8_t msg_id)
 		    msg_id == SAB_KEY_STORE_OPEN_REQ ||
 		    msg_id == SAB_KEY_STORE_CLOSE_REQ ||
 		    msg_id == SAB_SHARED_BUF_REQ ||
+		    msg_id == SAB_HASH_ONE_GO_REQ ||
 		    msg_id == SAB_KEY_STORE_REPROV_EN_REQ)
 			ret = 1;
 	}

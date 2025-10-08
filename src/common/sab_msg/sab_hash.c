@@ -1,6 +1,6 @@
 // SPDX-License-Identifier: BSD-3-Clause
 /*
- * Copyright 2022-2023 NXP
+ * Copyright 2022-2023, 2025 NXP
  */
 
 #include "internal/hsm_hash.h"
@@ -20,13 +20,15 @@ uint32_t prepare_msg_hash_one_go(void *phdl,
 				 uint32_t msg_hdl,
 				 void *args)
 {
-	uint32_t ret = SAB_ENGN_PASS;
+	op_hash_one_go_args_t *op_args = (op_hash_one_go_args_t *)args;
 	struct sab_hash_one_go_msg *cmd =
-		(struct sab_hash_one_go_msg *) cmd_buf;
-	op_hash_one_go_args_t *op_args = (op_hash_one_go_args_t *) args;
+				(struct sab_hash_one_go_msg *)cmd_buf;
+	uint32_t err = SAB_LIB_STATUS(SAB_LIB_CMD_MSG_PREP_FAIL);
+	uint64_t phy_addr = 0;
+	uint32_t ret;
 
 	if (!op_args)
-		return SAB_ENGN_FAIL;
+		return err;
 
 #ifdef PSA_COMPLIANT
 	/*
@@ -35,29 +37,47 @@ uint32_t prepare_msg_hash_one_go(void *phdl,
 	 * Bit 4-6 reserved and get context size operation flag = Bit 8.
 	 */
 	if (!(op_args->svc_flags & CTX_ADDR_IGNORE)) {
-		set_phy_addr_to_words(&cmd->ctx_addr,
-				      0u,
-				      plat_os_abs_data_buf((struct plat_os_abs_hdl *)phdl,
-							   op_args->ctx,
-							   op_args->ctx_size,
-							   DATA_BUF_IS_IN_OUT));
+		ret = plat_os_abs_data_buf_v2((struct plat_os_abs_hdl *)phdl,
+					      &phy_addr,
+					      op_args->ctx,
+					      op_args->ctx_size,
+					      DATA_BUF_IS_IN_OUT);
+
+		if (ret != PLAT_SUCCESS) {
+			err |= ret;
+			return err;
+		}
+
+		set_phy_addr_to_words(&cmd->ctx_addr, 0u, phy_addr);
 	}
 	cmd->ctx_size = op_args->ctx_size;
 #else
 	cmd->hash_hdl = msg_hdl;
 #endif
-	set_phy_addr_to_words(&cmd->input_addr,
-			      0u,
-			      plat_os_abs_data_buf((struct plat_os_abs_hdl *)phdl,
-						   op_args->input,
-						   op_args->input_size,
-						   DATA_BUF_IS_INPUT));
-	set_phy_addr_to_words(&cmd->output_addr,
-			      0u,
-			      plat_os_abs_data_buf((struct plat_os_abs_hdl *)phdl,
-						   op_args->output,
-						   op_args->output_size,
-						   DATA_BUF_IS_OUTPUT));
+	ret = plat_os_abs_data_buf_v2((struct plat_os_abs_hdl *)phdl,
+				      &phy_addr,
+				      op_args->input,
+				      op_args->input_size,
+				      DATA_BUF_IS_INPUT);
+
+	if (ret != PLAT_SUCCESS) {
+		err |= ret;
+		return err;
+	}
+	set_phy_addr_to_words(&cmd->input_addr, 0u, phy_addr);
+
+	ret = plat_os_abs_data_buf_v2((struct plat_os_abs_hdl *)phdl,
+				      &phy_addr,
+				      op_args->output,
+				      op_args->output_size,
+				      DATA_BUF_IS_OUTPUT);
+
+	if (ret != PLAT_SUCCESS) {
+		err |= ret;
+		return err;
+	}
+
+	set_phy_addr_to_words(&cmd->output_addr, 0u, phy_addr);
 	cmd->input_size = op_args->input_size;
 	cmd->output_size = op_args->output_size;
 	cmd->algo = op_args->algo;
@@ -68,9 +88,10 @@ uint32_t prepare_msg_hash_one_go(void *phdl,
 	*cmd_msg_sz = sizeof(struct sab_hash_one_go_msg);
 	*rsp_msg_sz = sizeof(struct sab_hash_one_go_rsp);
 
+	err = SAB_LIB_STATUS(SAB_LIB_SUCCESS);
 	cmd->crc = 0u;
 
-	return ret;
+	return err;
 }
 
 uint32_t proc_msg_rsp_hash_one_go(void *rsp_buf, void *args)
