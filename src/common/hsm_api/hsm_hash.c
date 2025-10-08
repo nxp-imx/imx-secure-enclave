@@ -1,6 +1,6 @@
 // SPDX-License-Identifier: BSD-3-Clause
 /*
- * Copyright 2022-2023 NXP
+ * Copyright 2022-2023, 2025 NXP
  */
 
 #include <stdint.h>
@@ -19,7 +19,7 @@
 hsm_err_t hsm_hash_one_go(hsm_hdl_t hash_hdl,
 			  op_hash_one_go_args_t *args)
 {
-	uint32_t error;
+	uint32_t lib_err;
 #ifndef PSA_COMPLIANT
 	struct hsm_service_hdl_s *serv_ptr;
 #endif
@@ -61,23 +61,22 @@ hsm_err_t hsm_hash_one_go(hsm_hdl_t hash_hdl,
 			break;
 		}
 #endif
-		error = process_sab_msg(sess_ptr->phdl,
-					sess_ptr->mu_type,
-					SAB_HASH_ONE_GO_REQ,
-					MT_SAB_HASH_GEN,
-					(uint32_t)hash_hdl,
-					args, &rsp_code);
+		lib_err = process_sab_msg(sess_ptr->phdl,
+					  sess_ptr->mu_type,
+					  SAB_HASH_ONE_GO_REQ,
+					  MT_SAB_HASH_GEN,
+					  (uint32_t)hash_hdl,
+					  args, &rsp_code);
 
-		err = sab_rating_to_hsm_err(error, sess_ptr->phdl);
+		err = lib_err_to_hsm_err(lib_err);
 
-		if (err != HSM_NO_ERROR) {
-			se_err("HSM Error: SAB_HASH_ONE_GO_REQ [0x%x].\n", err);
-			break;
-		}
-		err = sab_rating_to_hsm_err(rsp_code, sess_ptr->phdl);
 		if (err != HSM_NO_ERROR)
-			se_err("HSM RSP Error: SAB_HASH_ONE_GO_REQ [0x%x].\n",
-				err);
+			break;
+
+		err = sab_rating_to_hsm_err(rsp_code, sess_ptr->phdl);
+
+		if (err != HSM_NO_ERROR)
+			se_err("HSM RSP Error: SAB_HASH_ONE_GO_REQ [0x%x].\n", err);
 
 	} while (false);
 

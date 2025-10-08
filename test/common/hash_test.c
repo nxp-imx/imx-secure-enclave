@@ -339,6 +339,10 @@ hsm_err_t do_hash_test(hsm_hdl_t hash_sess)
 		hash_args.svc_flags = 0x0;
 #endif
 		err = hsm_do_hash(hash_sess, &hash_args);
+		if (err) {
+			printf("\nhsm_do_hash failed ...0x%x\n", err);
+			goto exit;
+		}
 
 		if (hash_args.algo == HSM_HASH_ALGO_SHA_256)
 			test_status(SHA256_HASH, hash_work_area,
@@ -392,6 +396,7 @@ hsm_err_t do_hash_test(hsm_hdl_t hash_sess)
 	err = hsm_do_hash(hash_sess, &hash_args);
 	test_status(SM3_HASH, hash_work_area, sizeof(SM3_HASH), "HSM_HASH_ALGO_SM3_256");
 #endif
+exit:
 	printf("\n-----------hash one shot operation end-------------\n");
 	return err;
 }
