@@ -308,7 +308,7 @@ uint32_t plat_os_abs_malloc_v2(uint8_t **mem_p, uint32_t size)
 
 	*mem_p =  (uint8_t *)malloc(size);
 
-	if (!(*mem_p) || errno == ENOMEM) {
+	if (!(*mem_p)) {
 		ret = PLAT_ERR_OUT_OF_MEMORY;
 		se_err("\nPLAT malloc error[%d]: %s\n",
 		       errno,
