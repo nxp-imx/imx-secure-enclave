@@ -213,7 +213,7 @@ uint32_t proc_msg_rsp_asymmetric_enc(void *rsp_buf, void *args)
 	if (!op_args)
 		return SAB_LIB_STATUS(SAB_LIB_RSP_PROC_FAIL);
 
-	if (op_args->flags == HSM_ASYM_FLAGS_ENCRYPT)
+	if (op_args->flags & HSM_ASYM_FLAGS_ENCRYPT)
 		op_args->exp_ciphertext_size = rsp->output_size;
 	else
 		op_args->exp_plaintext_size = rsp->output_size;
