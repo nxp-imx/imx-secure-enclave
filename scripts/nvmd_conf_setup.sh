@@ -80,13 +80,11 @@ function imx8dxlevk_nvmd_config()
             ;;
 
         0xD0 | 0xd0 | "V2X_HSM_NVM" | "v2x_hsm_nvm")
-            nvmd_config_setup "/etc/v2x_hsm/v2x_hsm_master" "/etc/v2x_hsm/" "0xD0"
-	    "V2X HSM"
+            nvmd_config_setup "/etc/v2x_hsm/v2x_hsm_master" "/etc/v2x_hsm/" "0xD0" "V2X HSM"
             ;;
 
         0xC8 | 0xc8 | "V2X_SHE_NVM" | "v2x_she_nvm")
-            nvmd_config_setup "/etc/v2x_she/v2x_she_master" "/etc/v2x_she/" "0xC8"
-	    "V2X SHE"
+            nvmd_config_setup "/etc/v2x_she/v2x_she_master" "/etc/v2x_she/" "0xC8" "V2X SHE"
             ;;
 
         *)
@@ -121,18 +119,15 @@ function imx95evk_nvmd_config()
     case ${loc_config_id} in
 
         0xD0 | 0xd0 | "V2X_HSM_NVM" | "v2x_hsm_nvm")
-            nvmd_config_setup "/etc/v2x_hsm/v2x_hsm_master" "/etc/v2x_hsm/" "0xD0"
-	    "V2X HSM"
+            nvmd_config_setup "/etc/v2x_hsm/v2x_hsm_master" "/etc/v2x_hsm/" "0xD0" "V2X HSM"
             ;;
 
         0xC8 | 0xc8 | "V2X_SHE_NVM" | "v2x_she_nvm")
-            nvmd_config_setup "/etc/v2x_she/v2x_she_master" "/etc/v2x_she/" "0xC8"
-	    "V2X SHE"
+            nvmd_config_setup "/etc/v2x_she/v2x_she_master" "/etc/v2x_she/" "0xC8" "V2X SHE"
             ;;
 
         0xE0 | 0xe0 | "V2X_SHE_DEBUG_MU_NVM" | "v2x_she_debug_mu_nvm")
-            nvmd_config_setup "/etc/v2x_she/v2x_she_master" "/etc/v2x_she/" "0xE0"
-	    "V2X SHE"
+            nvmd_config_setup "/etc/v2x_she/v2x_she_master" "/etc/v2x_she/" "0xE0" "V2X SHE"
             ;;
 
         *)
@@ -148,13 +143,11 @@ function imx943evk_nvmd_config()
     case ${loc_config_id} in
 
         0xD0 | 0xd0 | "V2X_HSM_NVM" | "v2x_hsm_nvm")
-            nvmd_config_setup "/etc/v2x_hsm/v2x_hsm_master" "/etc/v2x_hsm/" "0xD0"
-	    "V2X HSM"
+            nvmd_config_setup "/etc/v2x_hsm/v2x_hsm_master" "/etc/v2x_hsm/" "0xD0" "V2X HSM"
             ;;
 
         0xC8 | 0xc8 | "V2X_SHE_NVM" | "v2x_she_nvm")
-            nvmd_config_setup "/etc/v2x_she/v2x_she_master" "/etc/v2x_she/" "0xC8"
-	    "V2X SHE"
+            nvmd_config_setup "/etc/v2x_she/v2x_she_master" "/etc/v2x_she/" "0xC8" "V2X SHE"
             ;;
 
         0xC9 | 0xc9 | "V2X_SHE1_NVM" | "v2x_she1_nvm")
