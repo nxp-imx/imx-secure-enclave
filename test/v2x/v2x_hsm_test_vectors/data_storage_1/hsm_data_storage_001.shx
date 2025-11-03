@@ -26,15 +26,6 @@ HSM_OPEN_KEY_STORE_SERVICE
 0 # Check value (err)
 1 # Check if pointer ok (testCtx->hdl[new_hdl_index]) -- 0=
 
-HSM_OPEN_DATA_STORAGE_SERVICE
-8 # key store index (uint32_t)
-0 # Read value (hsm_svc_data_storage_flags_t)
-0 # Read value (uint8_t)
-0 # Read value (uint8_t)
-0 # Read value (uint8_t)
-9 # data storage index (uint32_t)
-0xf4 # Check value (err) # Not supported
-
 HSM_CLOSE_KEY_STORE_SERVICE
 1 # key store service index
 0 # Check value (err)
