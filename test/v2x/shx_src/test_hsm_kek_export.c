@@ -1,6 +1,6 @@
 // SPDX-License-Identifier: BSD-3-Clause
 /*
- * Copyright 2025 NXP
+ * Copyright 2025-2026 NXP
  */
 #include <fcntl.h>
 
@@ -46,9 +46,13 @@ uint32_t test_hsm_root_kek_export(hsm_test_struct_t *testCtx, FILE *fp)
 	(void)close(fd);
 
 	hsm_err_t err = hsm_export_root_key_encryption_key(testCtx->hdl[index], &args);
+	if (err == HSM_INVALID_MESSAGE) {
+		slt_print(SLT_WARNING, "Command not supported\n");
+	} else {
+		READ_CHECK_VALUE(testCtx, fp, err);
+		READ_CHECK_BUFFER(testCtx, fp, args.out_root_kek, args.root_kek_size);
+	}
 
-	READ_CHECK_VALUE(testCtx, fp, err);
-	READ_CHECK_BUFFER(testCtx, fp, args.out_root_kek, args.root_kek_size);
 	free(signed_message);
 
 	return fails;

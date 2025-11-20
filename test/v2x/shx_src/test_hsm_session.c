@@ -1,6 +1,6 @@
 // SPDX-License-Identifier: BSD-3-Clause
 /*
- * Copyright 2025 NXP
+ * Copyright 2025-2026 NXP
  */
 
 #include "hsm_exec.h"
@@ -15,11 +15,9 @@ uint32_t test_hsm_open_session(hsm_test_struct_t *testCtx, FILE *fp)
 
 	index                  = READ_VALUE(fp, uint32_t);
 	args.mu_type  = READ_VALUE(fp, uint8_t);
-	slt_print(SLT_NOTICE, "MU Type %x\n", args.mu_type);
 
 	hsm_err_t err = hsm_open_session(&args, &testCtx->hdl[index]);
 
-	slt_print(SLT_NOTICE, "Session open Handle 0x%x\n", testCtx->hdl[index]);
 	slt_print(SLT_DEBUG, "Check Error, expect ");
 	READ_CHECK_VALUE(testCtx, fp, err);
 	slt_print(SLT_DEBUG, "Check Pointer - ");
@@ -39,7 +37,6 @@ uint32_t test_hsm_close_session(hsm_test_struct_t *testCtx, FILE *fp)
 
 	hsm_err_t err = hsm_close_session(testCtx->hdl[index]);
 
-	slt_print(SLT_NOTICE, "Close session Handle 0x%x\n", testCtx->hdl[index]);
 	READ_CHECK_VALUE(testCtx, fp, err);
 
 	if (testCtx->fp) {
