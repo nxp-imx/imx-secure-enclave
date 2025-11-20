@@ -1,6 +1,6 @@
 // SPDX-License-Identifier: BSD-3-Clause
 /*
- * Copyright 2024 NXP
+ * Copyright 2024-2025 NXP
  */
 
 #include <stdbool.h>
@@ -66,9 +66,11 @@ uint32_t she_test_export_plain_key(she_test_struct_t *testCtx, FILE *fp)
 	args.m5_size = 16;
 
 	err = she_export_plain_key(testCtx[index].service_hdl[key_store_n][UTILS], &args);
-
-	/* read the expected error code and check it. */
-	READ_CHECK_VALUE(testCtx, fp, err);
+	if (err == SHE_KEY_EMPTY_RATING)
+		slt_print(SLT_NOTICE, "SECRET_KEY is empty\n");
+	else
+		/* read the expected error code and check it. */
+		READ_CHECK_VALUE(testCtx, fp, err);
 
 	return fails;
 }

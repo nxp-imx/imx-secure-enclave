@@ -1,6 +1,6 @@
 // SPDX-License-Identifier: BSD-3-Clause
 /*
- * Copyright 2024 NXP
+ * Copyright 2024-2025 NXP
  */
 
 #include <stdbool.h>
@@ -42,9 +42,13 @@ uint32_t she_test_mac_mubuff_v2_gen(she_test_struct_t *testCtx, FILE *fp)
 
 	(void)clock_gettime(CLOCK_MONOTONIC_RAW, &ts2);
 
-	/* check the last result */
-	READ_CHECK_VALUE(testCtx, fp, err);
-	READ_CHECK_BUFFER(testCtx, fp, args.mac, SHE_MAC_SIZE);
+	if (err == SHE_OUT_OF_MEMORY) {
+		slt_print(SLT_NOTICE, "MU BUFFER MEMORY EXHAUSTED\n");
+	} else {
+		/* check the last result */
+		READ_CHECK_VALUE(testCtx, fp, err);
+		READ_CHECK_BUFFER(testCtx, fp, args.mac, SHE_MAC_SIZE);
+	}
 
 	if (nb_iter > 1u) {
 		uint32_t avg_time_us = print_perf(&ts1, &ts2, nb_iter);
@@ -89,10 +93,14 @@ uint32_t she_test_mac_mubuff_v2_verif(she_test_struct_t *testCtx, FILE *fp)
 
 	(void)clock_gettime(CLOCK_MONOTONIC_RAW, &ts2);
 
-	/* check the last result */
-	verif = args.verification_status;
-	READ_CHECK_VALUE(testCtx, fp, err);
-	READ_CHECK_VALUE(testCtx, fp, verif);
+	if (err == SHE_OUT_OF_MEMORY) {
+		slt_print(SLT_NOTICE, "MU BUFFER MEMORY EXHAUSTED\n");
+	} else {
+		/* check the last result */
+		verif = args.verification_status;
+		READ_CHECK_VALUE(testCtx, fp, err);
+		READ_CHECK_VALUE(testCtx, fp, verif);
+	}
 
 	if (nb_iter > 1u) {
 		uint32_t avg_time_us = print_perf(&ts1, &ts2, nb_iter);

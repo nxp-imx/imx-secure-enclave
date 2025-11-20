@@ -1,6 +1,6 @@
 // SPDX-License-Identifier: BSD-3-Clause
 /*
- * Copyright 2024 NXP
+ * Copyright 2024-2025 NXP
  */
 #include <stdbool.h>
 #include <stdio.h>
@@ -45,8 +45,6 @@ uint32_t she_test_cipher_close(she_test_struct_t *testCtx, FILE *fp)
 	/* read the session index. */
 	uint32_t index = READ_VALUE(fp, uint32_t);
 	uint32_t key_store_n = READ_VALUE(fp, uint32_t);
-
-	printf("0x%x\n", testCtx[index].service_hdl[key_store_n][CIPHER]);
 
 	err = she_close_cipher_service
 		(testCtx[index].service_hdl[key_store_n][CIPHER]);

@@ -1,6 +1,6 @@
 // SPDX-License-Identifier: BSD-3-Clause
 /*
- * Copyright 2024 NXP
+ * Copyright 2024-2025 NXP
  */
 
 #include <stdbool.h>
@@ -34,7 +34,6 @@ uint32_t she_test_open_cmac_session(she_test_struct_t *testCtx, FILE *fp)
 	if (!fails)
 		testCtx[index].service_hdl[key_store_n][CMAC] = args.mac_serv_hdl;
 
-	printf("0x%x\n", testCtx[index].service_hdl[key_store_n][CMAC]);
 	return fails;
 }
 
@@ -48,8 +47,6 @@ uint32_t she_test_close_cmac_session(she_test_struct_t *testCtx, FILE *fp)
 	/* read the session index. */
 	uint32_t index = READ_VALUE(fp, uint32_t);
 	uint32_t key_store_n = READ_VALUE(fp, uint32_t);
-
-	printf("0x%x\n", testCtx[index].service_hdl[key_store_n][CMAC]);
 
 	err = she_close_mac_service
 		(testCtx[index].service_hdl[key_store_n][CMAC]);

@@ -1,6 +1,6 @@
 // SPDX-License-Identifier: BSD-3-Clause
 /*
- * Copyright 2024 NXP
+ * Copyright 2024-2025 NXP
  */
 
 #include <stdbool.h>
@@ -28,7 +28,6 @@ uint32_t she_test_open_session(she_test_struct_t *testCtx, FILE *fp)
 
 	/* Open the SHE session. */
 	err = she_open_session(&args, &session_hdl);
-	printf("session_hdl 0x%x\n", session_hdl);
 	testCtx[index].she_hdl = session_hdl;
 	/* Check there is no error reported. */
 	READ_CHECK_POINTER(testCtx[index], fp, testCtx[index].she_hdl);
@@ -44,7 +43,6 @@ uint32_t she_test_close_session(she_test_struct_t *testCtx, FILE *fp)
 	/* read the session index. */
 	uint32_t index = shx_read_single_data(fp);
 
-	printf("%s 0x%x\n", __func__, testCtx[index].she_hdl);
 	/* Close session if it was opened. */
 	she_close_session(testCtx[index].she_hdl);
 

@@ -63,8 +63,6 @@ uint32_t she_test_key_store_close(she_test_struct_t *testCtx, FILE *fp)
 	uint32_t index = READ_VALUE(fp, uint32_t);
 	uint32_t key_store_num = READ_VALUE(fp, uint32_t);
 
-	printf("0x%x\n", testCtx[index].service_hdl[key_store_num][KEY_STORE]);
-
 	err = she_close_key_store_service
 		(testCtx[index].service_hdl[key_store_num][KEY_STORE]);
 
