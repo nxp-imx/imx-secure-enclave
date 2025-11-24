@@ -7,7 +7,7 @@
 #include <stdint.h>
 #include <string.h>
 
-#include "internal/fce.h"
+#include "fce.h"
 #include "internal/fce_mem.h"
 
 #include "include/test_fce_utils.h"
@@ -68,18 +68,17 @@ static void complete_hmac_ops(uint32_t service_hdl,
 	uint32_t i;
 
 	for (i = 0; i < nb_ops; i++) {
-		data_cache_clean(ops[i]->auth.digest.virt_addr,
-				 ops[i]->auth.digest.len, 0);
+		data_cache_clean(ops[i]->op_auth_args.digest.virt_addr,
+				 ops[i]->op_auth_args.digest.len, 0);
 
-		if (v2x_prime_mcompare(ops[i]->auth.digest.virt_addr,
-				       digest,
-				       ops[i]->auth.digest.len))
+		if (v2x_prime_mcompare(ops[i]->op_auth_args.digest.virt_addr,
+				       digest, ops[i]->op_auth_args.digest.len))
 			printf("SHA2-256-HMAC test failed\n");
 		else
 			printf("SHA2-256-HMAC test passed\n");
 
 		/* free memory */
-		v2x_prime_mfree(service_hdl, ops[i]->auth.digest.len);
+		v2x_prime_mfree(service_hdl, ops[i]->op_auth_args.digest.len);
 		v2x_prime_mfree(service_hdl, ops[i]->src.len);
 	}
 }
@@ -101,16 +100,17 @@ static void prepare_hmac_op(uint32_t service_hdl,
 	data_cache_clean(op->src.virt_addr, op->src.len, 1);
 
 	/* allocate digest buffer from reserved memory  */
-	op->auth.digest.len = 32;
+	op->op_auth_args.digest.len = 32;
 	v2x_prime_malloc(service_hdl,
-			 &op->auth.digest.virt_addr,
-			 &op->auth.digest.phys_addr,
-			 op->auth.digest.len);
+			 &op->op_auth_args.digest.virt_addr,
+			 &op->op_auth_args.digest.phys_addr,
+			 op->op_auth_args.digest.len);
 
 	/* prepare op */
-	op->auth.sha_algo = key_args->sha_algo;
-	op->auth.keyslot = key_args->keyslot;
-	op->auth.dir = dir;		// dir = {0:generate, 1:verify}
+	op->op_type = CRYPTO_OP_TYPE_HMAC;
+	op->op_auth_args.sha_algo = key_args->sha_algo;
+	op->op_auth_args.keyslot = key_args->keyslot;
+	op->op_auth_args.dir = dir;		// dir = {0:generate, 1:verify}
 }
 
 int hmac_load_key(hmac_key_t *key_args, int sha_algo)

@@ -27,6 +27,14 @@ enum crypto_auth_algorithm {
 	CRYPTO_AUTH_SHA_521
 };
 
+/* Authentication Parameters */
+struct auth_op_params {
+	enum crypto_auth_algorithm sha_algo;
+	uint8_t keyslot;
+	uint8_t dir;
+	struct buf digest;
+};
+
 fce_err_t fce_auth_init(hmac_key_t *args);
 
 #endif

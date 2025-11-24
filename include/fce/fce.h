@@ -7,8 +7,19 @@
 #define FCE_H
 
 #include <stddef.h>
+
+#include "internal/fce_handle.h"
 #include "internal/fce_hmac.h"
 #include "internal/fce_aes.h"
+#include "internal/fce_service.h"
+
+enum crypto_op_type {
+	CRYPTO_OP_TYPE_NONE,
+	CRYPTO_OP_TYPE_AES,
+	CRYPTO_OP_TYPE_AEAD,
+	CRYPTO_OP_TYPE_HMAC,
+	CRYPTO_OP_TYPE_MAX,
+};
 
 /* Status of crypto operation */
 enum crypto_op_status {
@@ -20,46 +31,23 @@ enum crypto_op_status {
 	CRYPTO_OP_ERROR,
 };
 
-struct buf {
-	uint8_t *virt_addr;
-	uint32_t phys_addr;
-	uint32_t len;
-};
-
 /* FCE crypto private session structure */
 typedef struct crypto_op {
 	struct buf src;
 	struct buf dst;
 	uint32_t req_id;
 	enum crypto_op_status status;
+	enum crypto_op_type op_type;
 
-	/* Cipher Parameters */
-	struct {
-		enum crypto_cipher_algorithm algo;
-		uint8_t keyslot;
-		uint8_t enc;
-		uint8_t *iv;
-		uint16_t ivlen;
-	} cipher;
-
-	/* Authentication Parameters */
-	struct {
-		enum crypto_auth_algorithm sha_algo;
-		uint8_t keyslot;
-		uint8_t dir;
-		struct buf digest;
-	} auth;
-
-	/* AEAD Parameters */
-	struct {
-		enum crypto_aead_algorithm algo;
-		uint8_t keyslot;
-		uint8_t enc;
-		uint8_t *iv;
-		uint16_t ivlen;
-		struct buf aad;
-		struct buf tag;
-	} aead;
+	union {
+		struct aes_op_params op_aes_args;
+		struct aead_op_params op_aead_args;
+		struct auth_op_params op_auth_args;
+	};
 } crypto_op_args_t;
+
+void v2x_prime_process_ops(fce_hdl_t service_hdl,
+			   crypto_op_args_t **ops,
+			   uint32_t nb_ops);
 
 #endif

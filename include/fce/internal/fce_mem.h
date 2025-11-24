@@ -6,10 +6,6 @@
 #ifndef FCE_MEM_H
 #define FCE_MEM_H
 
-void v2x_prime_process_ops(uint32_t service_hdl,
-			   crypto_op_args_t **ops,
-			   uint32_t nb_ops);
-
 int v2x_prime_malloc(uint32_t service_hdl,
 		     uint8_t **virt_addr,
 		     uint32_t *phys_addr,

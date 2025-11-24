@@ -38,16 +38,18 @@ void data_cache_clean(uint8_t *buf, uint32_t len, int clean_only)
 
 int main(void)
 {
-	struct fce_service_hdl_s hdl;
+	open_service_args_t op_serv_args;
+	fce_hdl_t serv_hdl;
 
-	v2x_prime_service_init(&hdl);
+	op_serv_args.serv_type = SERVICE_TYPE_ALL;
+	serv_hdl = v2x_prime_open_service(&op_serv_args, &serv_hdl);
 
-	hmac_test(hdl.service_hdl);
-	aes_cbc_test(hdl.service_hdl);
-	aes_ecb_test(hdl.service_hdl);
-	aes_gcm_test(hdl.service_hdl);
+	hmac_test(serv_hdl);
+	aes_cbc_test(serv_hdl);
+	aes_ecb_test(serv_hdl);
+	aes_gcm_test(serv_hdl);
 
-	v2x_prime_service_deinit(&hdl);
+	v2x_prime_close_service(serv_hdl);
 
 	return 0;
 }

@@ -4,7 +4,7 @@
 
 #include <stdio.h>
 
-#include "internal/fce.h"
+#include "fce.h"
 #include "sab_fce_process_msg.h"
 #include "sab_fce_auth.h"
 #include "sab_fce_aes.h"
@@ -17,10 +17,10 @@ int fce_auth_build(crypto_op_args_t *op,
 	struct uio_fce_mu *fce_mu = get_uio_fce_mu();
 	uint32_t *mu_buf = (uint32_t *)(fce_mu->mu_buf + buf_off);
 
-	fce_auth_construct(mu_buf, op->auth.keyslot,
+	fce_auth_construct(mu_buf, op->op_auth_args.keyslot,
 			   op->src.phys_addr, op->src.len,
-			   op->auth.digest.phys_addr, op->auth.sha_algo,
-			   op->auth.dir, flag);
+			   op->op_auth_args.digest.phys_addr, op->op_auth_args.sha_algo,
+			   op->op_auth_args.dir, flag);
 
 	return 0;
 }
@@ -31,33 +31,25 @@ int fce_cipher_build(crypto_op_args_t *op,
 {
 	struct uio_fce_mu *fce_mu = get_uio_fce_mu();
 	uint32_t *mu_buf = (uint32_t *)(fce_mu->mu_buf + buf_off);
-	uint32_t digest_addr;
-	uint8_t sha_algo;
+	uint32_t digest_addr = 0;
+	uint8_t sha_algo = 0;
 
-	if (op->auth.sha_algo != 0) {
-		digest_addr = op->auth.digest.phys_addr;
-		sha_algo = op->auth.sha_algo;
-	} else {
-		digest_addr = 0;
-		sha_algo = 0;
-	}
-
-	switch (op->cipher.algo) {
+	switch (op->op_aes_args.algo) {
 	case CRYPTO_CIPHER_AES_CBC:
-		fce_cbc_construct(mu_buf, op->cipher.keyslot,
+		fce_cbc_construct(mu_buf, op->op_aes_args.keyslot,
 				  op->src.phys_addr, op->dst.phys_addr,
-				  op->src.len, op->cipher.enc,
-				  op->cipher.iv, op->cipher.ivlen,
+				  op->src.len, op->op_aes_args.enc,
+				  op->op_aes_args.iv, op->op_aes_args.ivlen,
 				  digest_addr, sha_algo, flag);
 		break;
 	case CRYPTO_CIPHER_AES_ECB:
-		fce_ecb_construct(mu_buf, op->cipher.keyslot,
+		fce_ecb_construct(mu_buf, op->op_aes_args.keyslot,
 				  op->src.phys_addr, op->dst.phys_addr,
-				  op->src.len, op->cipher.enc,
+				  op->src.len, op->op_aes_args.enc,
 				  digest_addr, sha_algo, flag);
 		break;
 	default:
-		printf("unsupported cipher algo %u", op->cipher.algo);
+		printf("unsupported cipher algo %u", op->op_aes_args.algo);
 		return -1;
 	}
 
@@ -71,18 +63,20 @@ int fce_aead_build(crypto_op_args_t *op,
 	struct uio_fce_mu *fce_mu = get_uio_fce_mu();
 	uint32_t *mu_buf = (uint32_t *)(fce_mu->mu_buf + buf_off);
 
-	switch (op->aead.algo) {
+	switch (op->op_aead_args.algo) {
 	case CRYPTO_AEAD_AES_GCM:
-		fce_gcm_construct(mu_buf, op->aead.keyslot,
+		fce_gcm_construct(mu_buf, op->op_aead_args.keyslot,
 				  op->src.phys_addr, op->dst.phys_addr,
-				  op->src.len, op->aead.enc,
-				  op->aead.iv, op->aead.ivlen,
-				  op->aead.aad.phys_addr, op->aead.aad.len,
-				  op->aead.tag.phys_addr, op->aead.tag.len,
+				  op->src.len, op->op_aead_args.enc,
+				  op->op_aead_args.iv, op->op_aead_args.ivlen,
+				  op->op_aead_args.aad.phys_addr,
+				  op->op_aead_args.aad.len,
+				  op->op_aead_args.tag.phys_addr,
+				  op->op_aead_args.tag.len,
 				  flag);
 		break;
 	default:
-		printf("unsupported aead algo %u", op->aead.algo);
+		printf("unsupported aead algo %u", op->op_aead_args.algo);
 		return -1;
 	}
 

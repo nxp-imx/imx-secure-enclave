@@ -6,26 +6,12 @@
 #include <stdio.h>
 #include <stdint.h>
 
-#include "internal/fce.h"
+#include "fce.h"
+
 #include "sab_fce_process_msg.h"
 #include "sab_fce_api.h"
 #include "sab_fce_pvt.h"
 #include "fce_uio.h"
-
-int is_cipher_only(crypto_op_args_t *op)
-{
-	return ((op->cipher.algo != 0) && (op->auth.sha_algo == 0));
-}
-
-int is_auth_only(crypto_op_args_t *op)
-{
-	return ((op->cipher.algo == 0) && (op->auth.sha_algo != 0));
-}
-
-int is_aead_only(crypto_op_args_t *op)
-{
-	return (op->aead.algo != 0);
-}
 
 static void set_status(crypto_op_args_t **ops, uint16_t nb_ops, int req_id,
 		       int status)
@@ -66,12 +52,22 @@ static void dequeue_ops(crypto_op_args_t **ops, uint32_t nb_ops)
 
 static void build_op(crypto_op_args_t *op, uint8_t buf_off, uint8_t flag)
 {
-	if (is_auth_only(op))
-		fce_auth_build(op, buf_off, flag);
-	else if (is_cipher_only(op))
+	switch (op->op_type) {
+	case CRYPTO_OP_TYPE_AES:
 		fce_cipher_build(op, buf_off, flag);
-	else if (is_aead_only(op))
+		break;
+	case CRYPTO_OP_TYPE_AEAD:
 		fce_aead_build(op, buf_off, flag);
+		break;
+	case CRYPTO_OP_TYPE_HMAC:
+		fce_auth_build(op, buf_off, flag);
+		break;
+	default:
+		printf("Un-supported crypto operation.\n");
+		break;
+	};
+
+	return;
 }
 
 static int enqueue_ops(crypto_op_args_t **ops, uint16_t nb_ops, uint8_t flag)

@@ -6,7 +6,8 @@
 #define SAB_FCE_PVT_H
 
 #include <stdint.h>
-#include "internal/fce.h"
+
+#include "fce.h"
 
 int fce_auth_build(crypto_op_args_t *op,
 		   uint8_t buf_off,

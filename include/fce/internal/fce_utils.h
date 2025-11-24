@@ -16,4 +16,10 @@ typedef enum {
 	FCE_ERROR,
 } fce_err_t;
 
+struct buf {
+	uint8_t *virt_addr;
+	uint32_t phys_addr;
+	uint32_t len;
+};
+
 #endif

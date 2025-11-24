@@ -7,7 +7,7 @@
 #include <stdint.h>
 #include <string.h>
 
-#include "internal/fce.h"
+#include "fce.h"
 #include "internal/fce_mem.h"
 
 #include "include/test_fce_utils.h"
@@ -112,8 +112,8 @@ static void validate_aes_gcm_ops(crypto_op_args_t **ops, uint32_t nb_ops)
 		if (v2x_prime_mcompare(ops[i]->dst.virt_addr,
 				       gcm_cipher,
 				       ops[i]->dst.len) ||
-		    v2x_prime_mcompare(ops[i]->aead.tag.virt_addr, tag,
-				       ops[i]->aead.tag.len))
+		    v2x_prime_mcompare(ops[i]->op_aead_args.tag.virt_addr, tag,
+				       ops[i]->op_aead_args.tag.len))
 			printf("AES-256-GCM(256B) test failed\n");
 		else
 			printf("AES-256-GCM(256B) test passed\n");
@@ -130,8 +130,8 @@ static void free_aes_gcm_ops(uint32_t service_hdl, crypto_op_args_t **ops,
 			v2x_prime_mfree(service_hdl, ops[i]->dst.len);
 
 		v2x_prime_mfree(service_hdl, ops[i]->src.len);
-		v2x_prime_mfree(service_hdl, ops[i]->aead.aad.len);
-		v2x_prime_mfree(service_hdl, ops[i]->aead.tag.len);
+		v2x_prime_mfree(service_hdl, ops[i]->op_aead_args.aad.len);
+		v2x_prime_mfree(service_hdl, ops[i]->op_aead_args.tag.len);
 	}
 }
 
@@ -141,7 +141,8 @@ static void complete_aes_gcm_ops(crypto_op_args_t **ops, uint32_t nb_ops)
 
 	for (i = 0; i < nb_ops; i++) {
 		data_cache_clean(ops[i]->dst.virt_addr, ops[i]->dst.len, 0);
-		data_cache_clean(ops[i]->aead.tag.virt_addr, ops[i]->aead.tag.len, 0);
+		data_cache_clean(ops[i]->op_aead_args.tag.virt_addr,
+				 ops[i]->op_aead_args.tag.len, 0);
 	}
 }
 
@@ -165,27 +166,30 @@ static void prepare_aes_gcm_op(uint32_t service_hdl, crypto_op_args_t *op,
 	data_cache_clean(op->src.virt_addr, op->src.len, 1);
 
 	/* allocate aad buffer */
-	op->aead.aad.len = sizeof(aad);
-	v2x_prime_malloc(service_hdl, &op->aead.aad.virt_addr,
-			 &op->aead.aad.phys_addr, op->aead.aad.len);
+	op->op_aead_args.aad.len = sizeof(aad);
+	v2x_prime_malloc(service_hdl,
+			 &op->op_aead_args.aad.virt_addr,
+			 &op->op_aead_args.aad.phys_addr,
+			 op->op_aead_args.aad.len);
 
 	/* copy aad & cache clean */
-	v2x_prime_mcopy(op->aead.aad.virt_addr, aad, op->aead.aad.len);
-	data_cache_clean(op->aead.aad.virt_addr, op->aead.aad.len, 1);
+	v2x_prime_mcopy(op->op_aead_args.aad.virt_addr, aad, op->op_aead_args.aad.len);
+	data_cache_clean(op->op_aead_args.aad.virt_addr, op->op_aead_args.aad.len, 1);
 
 	/* allocate tag buffer from reserved memory  */
-	op->aead.tag.len = 16;
+	op->op_aead_args.tag.len = 16;
 	v2x_prime_malloc(service_hdl,
-			 &op->aead.tag.virt_addr,
-			 &op->aead.tag.phys_addr,
-			 op->aead.tag.len);
+			 &op->op_aead_args.tag.virt_addr,
+			 &op->op_aead_args.tag.phys_addr,
+			 op->op_aead_args.tag.len);
 
 	/* prepare op */
-	op->aead.algo = CRYPTO_AEAD_AES_GCM;
-	op->aead.keyslot = keyslot;
-	op->aead.enc = enc;		// enc = {0:encrypt, 1:decrypt}
-	op->aead.iv = iv;
-	op->aead.ivlen = sizeof(iv);
+	op->op_type = CRYPTO_OP_TYPE_AEAD;
+	op->op_aead_args.algo = CRYPTO_AEAD_AES_GCM;
+	op->op_aead_args.keyslot = keyslot;
+	op->op_aead_args.enc = enc;		// enc = {0:encrypt, 1:decrypt}
+	op->op_aead_args.iv = iv;
+	op->op_aead_args.ivlen = sizeof(iv);
 }
 
 static int aes_load_key(aes_key_t *key_args)

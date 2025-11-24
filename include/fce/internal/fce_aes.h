@@ -29,6 +29,25 @@ enum crypto_cipher_operation {
 	CRYPTO_CIPHER_OP_DECRYPT
 };
 
+/* Cipher Parameters */
+struct aes_op_params {
+	enum crypto_cipher_algorithm algo;
+	uint8_t keyslot;
+	uint8_t enc;
+	uint8_t *iv;
+	uint16_t ivlen;
+};
+
+/* AEAD Parameters */
+struct aead_op_params {
+	enum crypto_aead_algorithm algo;
+	uint8_t keyslot;
+	uint8_t enc;
+	uint8_t *iv;
+	uint16_t ivlen;
+	struct buf aad;
+	struct buf tag;
+};
 fce_err_t fce_cipher_init(aes_key_t *args);
 
 #endif

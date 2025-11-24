@@ -11,6 +11,11 @@
 #define FCE_HANDLE_NONE		(0x0)
 
 /**
+ *  Define the HSM handle type
+ */
+typedef uint32_t fce_hdl_t;
+
+/**
  * Structure describing the service handle members
  */
 struct fce_service_hdl_s {

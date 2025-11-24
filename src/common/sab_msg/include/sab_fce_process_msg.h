@@ -6,7 +6,7 @@
 #ifndef SAB_FCE_PROCESS_MSG_H
 #define SAB_FCE_PROCESS_MSG_H
 
-#include "internal/fce.h"
+#include "fce.h"
 
 #define FCE_MAX_OPS	32
 #define FCE_REQ_ID_DIFF	0x10

@@ -7,7 +7,7 @@
 #include <stdint.h>
 #include <string.h>
 
-#include "internal/fce.h"
+#include "fce.h"
 #include "internal/fce_mem.h"
 
 #include "include/test_fce_utils.h"
@@ -237,12 +237,13 @@ static void prepare_aes_cbc_op(uint32_t service_hdl, crypto_op_args_t *op,
 	v2x_prime_mcopy(op->src.virt_addr, cbc_plain, op->src.len);
 	data_cache_clean(op->src.virt_addr, op->src.len, 1);
 
+	op->op_type = CRYPTO_OP_TYPE_AES;
 	/* prepare op */
-	op->cipher.algo = CRYPTO_CIPHER_AES_CBC;
-	op->cipher.keyslot = keyslot;
-	op->cipher.enc = enc;		// enc = {0:encrypt, 1:decrypt}
-	op->cipher.iv = iv;
-	op->cipher.ivlen = sizeof(iv);
+	op->op_aes_args.algo = CRYPTO_CIPHER_AES_CBC;
+	op->op_aes_args.keyslot = keyslot;
+	op->op_aes_args.enc = enc;		// enc = {0:encrypt, 1:decrypt}
+	op->op_aes_args.iv = iv;
+	op->op_aes_args.ivlen = sizeof(iv);
 }
 
 static int aes_load_key(aes_key_t *key_args)
@@ -306,9 +307,10 @@ static void prepare_aes_ecb_op(uint32_t service_hdl, crypto_op_args_t *op,
 	data_cache_clean(op->src.virt_addr, op->src.len, 1);
 
 	/* prepare op */
-	op->cipher.algo = CRYPTO_CIPHER_AES_ECB;
-	op->cipher.keyslot = keyslot;
-	op->cipher.enc = enc;		// enc = {0:encrypt, 1:decrypt}
+	op->op_type = CRYPTO_OP_TYPE_AES;
+	op->op_aes_args.algo = CRYPTO_CIPHER_AES_ECB;
+	op->op_aes_args.keyslot = keyslot;
+	op->op_aes_args.enc = enc;		// enc = {0:encrypt, 1:decrypt}
 }
 
 static int aes_ecb_load_key(aes_key_t *key_args)

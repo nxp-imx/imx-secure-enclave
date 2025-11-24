@@ -3,24 +3,25 @@
  */
 
 #include "internal/fce_handle.h"
+#include "internal/fce_service.h"
+
 #include "sab_fce_process_msg.h"
 #include "sab_fce_service.h"
 #include "fce_uio.h"
 
-fce_err_t v2x_prime_service_init(struct fce_service_hdl_s *service_hdl_ptr)
+fce_err_t v2x_prime_open_service(open_service_args_t *op_serv_args, fce_hdl_t *serv_hdl)
 {
 	struct uio_fce_mu *fce_mu = get_uio_fce_mu();
 
-	service_hdl_ptr->service_hdl = FCE_HANDLE_NONE;
+	op_serv_args->service_hdl = FCE_HANDLE_NONE;
+	*serv_hdl = FCE_HANDLE_NONE;
 
 	return fce_service_open(fce_mu->base);
 }
 
-void v2x_prime_service_deinit(struct fce_service_hdl_s *service_hdl_ptr)
+void v2x_prime_close_service(fce_hdl_t ser_hdl)
 {
 	struct uio_fce_mu *fce_mu = get_uio_fce_mu();
-
-	service_hdl_ptr->service_hdl = FCE_HANDLE_NONE;
 
 	fce_service_close(fce_mu->base);
 }
