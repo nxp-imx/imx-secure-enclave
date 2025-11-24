@@ -197,15 +197,16 @@ static void validate_aes_cbc_ops(crypto_op_args_t **ops, uint32_t nb_ops)
 	}
 }
 
-static void free_aes_ops(crypto_op_args_t **ops, uint32_t nb_ops)
+static void free_aes_ops(uint32_t service_hdl, crypto_op_args_t **ops,
+			 uint32_t nb_ops)
 {
 	uint32_t i;
 
 	for (i = 0; i < nb_ops; i++) {
 		if (ops[i]->dst.virt_addr != ops[i]->src.virt_addr)
-			v2x_prime_mfree(ops[i]->dst.len);
+			v2x_prime_mfree(service_hdl, ops[i]->dst.len);
 
-		v2x_prime_mfree(ops[i]->src.len);
+		v2x_prime_mfree(service_hdl, ops[i]->src.len);
 	}
 }
 
@@ -217,13 +218,15 @@ static void complete_aes_ops(crypto_op_args_t **ops, uint32_t nb_ops)
 		data_cache_clean(ops[i]->dst.virt_addr, ops[i]->dst.len, 0);
 }
 
-static void prepare_aes_cbc_op(crypto_op_args_t *op, uint8_t keyslot, int enc)
+static void prepare_aes_cbc_op(uint32_t service_hdl, crypto_op_args_t *op,
+			       uint8_t keyslot, int enc)
 {
 	int i;
 
 	/* allocate input buffer from reserved memory */
 	op->src.len = sizeof(cbc_plain);
-	v2x_prime_malloc(&op->src.virt_addr, &op->src.phys_addr, op->src.len);
+	v2x_prime_malloc(service_hdl, &op->src.virt_addr, &op->src.phys_addr,
+			 op->src.len);
 
 	/* output buffer */
 	op->dst.len = op->src.len;
@@ -251,7 +254,7 @@ static int aes_load_key(aes_key_t *key_args)
 	return fce_cipher_init(key_args);
 }
 
-void aes_cbc_test(void)
+void aes_cbc_test(uint32_t service_hdl)
 {
 	aes_key_t key_args = {0};
 	crypto_op_args_t op = {0};
@@ -263,14 +266,15 @@ void aes_cbc_test(void)
 		return;
 
 	/* prepare op */
-	prepare_aes_cbc_op(&op, key_args.keyslot, CRYPTO_CIPHER_OP_ENCRYPT);
+	prepare_aes_cbc_op(service_hdl, &op, key_args.keyslot,
+			   CRYPTO_CIPHER_OP_ENCRYPT);
 
 	/* fill ops array */
 	op_ptr = &op;
 	nb_ops = 1;
 
 	/* invoke fast crypto engine */
-	v2x_prime_process_ops(&op_ptr, nb_ops);
+	v2x_prime_process_ops(service_hdl, &op_ptr, nb_ops);
 
 	/* complete execution and free memory */
 	complete_aes_ops(&op_ptr, nb_ops);
@@ -279,16 +283,18 @@ void aes_cbc_test(void)
 	validate_aes_cbc_ops(&op_ptr, nb_ops);
 
 	/* free ops memory */
-	free_aes_ops(&op_ptr, nb_ops);
+	free_aes_ops(service_hdl, &op_ptr, nb_ops);
 }
 
-static void prepare_aes_ecb_op(crypto_op_args_t *op, uint8_t keyslot, int enc)
+static void prepare_aes_ecb_op(uint32_t service_hdl, crypto_op_args_t *op,
+			       uint8_t keyslot, int enc)
 {
 	int i;
 
 	/* allocate input buffer from reserved memory */
 	op->src.len = sizeof(ecb_plain);
-	v2x_prime_malloc(&op->src.virt_addr, &op->src.phys_addr, op->src.len);
+	v2x_prime_malloc(service_hdl, &op->src.virt_addr, &op->src.phys_addr,
+			 op->src.len);
 
 	/* output buffer */
 	op->dst.len = op->src.len;
@@ -314,7 +320,7 @@ static int aes_ecb_load_key(aes_key_t *key_args)
 	return fce_cipher_init(key_args);
 }
 
-void aes_ecb_test(void)
+void aes_ecb_test(uint32_t service_hdl)
 {
 	aes_key_t key_args = {0};
 	crypto_op_args_t op = {0};
@@ -326,14 +332,15 @@ void aes_ecb_test(void)
 		return;
 
 	/* prepare op */
-	prepare_aes_ecb_op(&op, key_args.keyslot, CRYPTO_CIPHER_OP_ENCRYPT);
+	prepare_aes_ecb_op(service_hdl, &op, key_args.keyslot,
+			   CRYPTO_CIPHER_OP_ENCRYPT);
 
 	/* fill ops array */
 	op_ptr = &op;
 	nb_ops = 1;
 
 	/* invoke fast crypto engine */
-	v2x_prime_process_ops(&op_ptr, nb_ops);
+	v2x_prime_process_ops(service_hdl, &op_ptr, nb_ops);
 
 	/* complete execution and free memory */
 	complete_aes_ops(&op_ptr, nb_ops);
@@ -342,5 +349,5 @@ void aes_ecb_test(void)
 	validate_aes_ecb_ops(&op_ptr, nb_ops);
 
 	/* free ops memory */
-	free_aes_ops(&op_ptr, nb_ops);
+	free_aes_ops(service_hdl, &op_ptr, nb_ops);
 }

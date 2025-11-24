@@ -61,7 +61,9 @@ static uint8_t digest[32] = {
 	0xe3, 0xe9, 0x37, 0xc0, 0x89, 0x4b, 0x67, 0x26,
 };
 
-static void complete_hmac_ops(crypto_op_args_t **ops, uint32_t nb_ops)
+static void complete_hmac_ops(uint32_t service_hdl,
+			      crypto_op_args_t **ops,
+			      uint32_t nb_ops)
 {
 	uint32_t i;
 
@@ -77,17 +79,20 @@ static void complete_hmac_ops(crypto_op_args_t **ops, uint32_t nb_ops)
 			printf("SHA2-256-HMAC test passed\n");
 
 		/* free memory */
-		v2x_prime_mfree(ops[i]->auth.digest.len);
-		v2x_prime_mfree(ops[i]->src.len);
+		v2x_prime_mfree(service_hdl, ops[i]->auth.digest.len);
+		v2x_prime_mfree(service_hdl, ops[i]->src.len);
 	}
 }
 
-static void prepare_hmac_op(crypto_op_args_t *op, hmac_key_t *key_args,
+static void prepare_hmac_op(uint32_t service_hdl,
+			    crypto_op_args_t *op,
+			    hmac_key_t *key_args,
 			    int dir)
 {
 	/* allocate input buffer from reserved memory */
 	op->src.len = sizeof(msg);
-	v2x_prime_malloc(&op->src.virt_addr,
+	v2x_prime_malloc(service_hdl,
+			 &op->src.virt_addr,
 			 &op->src.phys_addr,
 			 op->src.len);
 
@@ -97,7 +102,8 @@ static void prepare_hmac_op(crypto_op_args_t *op, hmac_key_t *key_args,
 
 	/* allocate digest buffer from reserved memory  */
 	op->auth.digest.len = 32;
-	v2x_prime_malloc(&op->auth.digest.virt_addr,
+	v2x_prime_malloc(service_hdl,
+			 &op->auth.digest.virt_addr,
 			 &op->auth.digest.phys_addr,
 			 op->auth.digest.len);
 
@@ -105,8 +111,6 @@ static void prepare_hmac_op(crypto_op_args_t *op, hmac_key_t *key_args,
 	op->auth.sha_algo = key_args->sha_algo;
 	op->auth.keyslot = key_args->keyslot;
 	op->auth.dir = dir;		// dir = {0:generate, 1:verify}
-
-return;
 }
 
 int hmac_load_key(hmac_key_t *key_args, int sha_algo)
@@ -119,7 +123,7 @@ int hmac_load_key(hmac_key_t *key_args, int sha_algo)
 	return fce_auth_init(key_args);
 }
 
-void hmac_test(void)
+void hmac_test(uint32_t service_hdl)
 {
 	hmac_key_t key_args = {0};
 	crypto_op_args_t op = {0};
@@ -131,16 +135,15 @@ void hmac_test(void)
 		return;
 
 	/* prepare op */
-	prepare_hmac_op(&op, &key_args,
-			CRYPTO_AUTH_OP_HMAC_GEN);
+	prepare_hmac_op(service_hdl, &op, &key_args, CRYPTO_AUTH_OP_HMAC_GEN);
 
 	/* fill ops array */
 	op_ptr = &op;
 	nb_ops = 1;
 
 	/* invoke fast crypto engine */
-	v2x_prime_process_ops(&op_ptr, nb_ops);
+	v2x_prime_process_ops(service_hdl, &op_ptr, nb_ops);
 
 	/* complete execution and free memory */
-	complete_hmac_ops(&op_ptr, nb_ops);
+	complete_hmac_ops(service_hdl, &op_ptr, nb_ops);
 }

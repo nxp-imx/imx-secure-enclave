@@ -3,8 +3,8 @@
  * Copyright 2025 NXP
  */
 
-#ifndef TEST_FCE_H
-#define TEST_FCE_H
+#ifndef TEST_FCE_UTILS_H
+#define TEST_FCE_UTILS_H
 
 void hexdump(uint8_t buf[], uint32_t size);
 void data_cache_clean(uint8_t *buf, uint32_t len, int clean_only);

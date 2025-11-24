@@ -144,7 +144,9 @@ static int run_ops(crypto_op_args_t **ops, uint32_t nb_ops)
 	return 0;
 }
 
-void v2x_prime_process_ops(crypto_op_args_t **ops, uint32_t nb_ops)
+void v2x_prime_process_ops(uint32_t service_hdl,
+			   crypto_op_args_t **ops,
+			   uint32_t nb_ops)
 {
 	uint32_t max_ops = FCE_MAX_OPS;
 	uint32_t unused_ops = nb_ops;

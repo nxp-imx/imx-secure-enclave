@@ -40,7 +40,7 @@ void v2x_prime_mcopy(void *dst, void *src, size_t size)
 		*d8++ = *s8++;
 }
 
-void v2x_prime_mfree(uint32_t len)
+void v2x_prime_mfree(uint32_t service_hdl, uint32_t len)
 {
 	struct uio_fce_mu *fce_mu = get_uio_fce_mu();
 	struct io_mem *iomem = &fce_mu->iomem;
@@ -51,7 +51,8 @@ void v2x_prime_mfree(uint32_t len)
 		iomem->pos = 0;
 }
 
-int v2x_prime_malloc(uint8_t **virt_addr,
+int v2x_prime_malloc(uint32_t service_hdl,
+		     uint8_t **virt_addr,
 		     uint32_t *phys_addr,
 		     uint32_t len)
 {

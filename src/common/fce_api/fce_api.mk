@@ -6,7 +6,7 @@ FCE_API_SRC	+= \
 		$(PLAT_COMMON_PATH)/fce_api/fce_service.o \
 		$(PLAT_COMMON_PATH)/fce_api/fce_hmac.o \
 		$(PLAT_COMMON_PATH)/fce_api/fce_aes.o \
-		$(PLAT_COMMON_PATH)/fce_api/fce_io.o
+		$(PLAT_COMMON_PATH)/fce_api/fce_mem.o
 
 OBJECTS		+= $(FCE_API_SRC)
 
