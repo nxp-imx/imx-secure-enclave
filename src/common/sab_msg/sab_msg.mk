@@ -480,11 +480,23 @@ SAB_MSG_SRC	+= \
 		$(PLAT_COMMON_PATH)/sab_msg/sab_asymmetric_crypto.o
 endif
 
+FCE_SAB_MSG_SRC += \
+		$(PLAT_COMMON_PATH)/sab_msg/sab_fce_init.o \
+		$(PLAT_COMMON_PATH)/sab_msg/sab_fce_service.o \
+		$(PLAT_COMMON_PATH)/sab_msg/sab_fce_process_msg.o \
+		$(PLAT_COMMON_PATH)/sab_msg/sab_fce_crypt.o \
+		$(PLAT_COMMON_PATH)/sab_msg/sab_fce_api.o \
+		$(PLAT_COMMON_PATH)/sab_msg/sab_fce_aes.o \
+		$(PLAT_COMMON_PATH)/sab_msg/sab_fce_auth.o \
+
+
 OBJECTS		+= $(SAB_MSG_SRC) \
 		$(SAB_RCVMSG_SRC) \
 		$(SHE_SAB_MSG_SRC) \
 		$(CRRM_SAB_MSG_SRC) \
+		$(FCE_SAB_MSG_SRC) \
 		$(PLAT_COMMON_PATH)/sab_msg/sab_session.o
 
 INCLUDE_PATHS	+= \
-       		-I${PLAT_COMMON_PATH}/sab_msg/include
+		-I${PLAT_COMMON_PATH}/sab_msg/include \
+		-I$(PLAT_PATH)

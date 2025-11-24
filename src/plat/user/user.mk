@@ -1,0 +1,31 @@
+# SPDX-License-Identifier: BSD-3-Clause
+#
+# Copyright 2025 NXP
+#
+
+MINOR_VER := 0
+
+NVM_DAEMON :=
+SHE_TEST :=
+HSM_TEST :=
+HSM_PERF_TEST :=
+V2X_HSM_TEST :=
+V2X_SHE_TEST :=
+CRRM_TEST :=
+SE_TOOL :=
+FCE_TEST := fce_test
+FCE_LIB_NAME := libfce
+
+SO_EXT := so.${MAJOR_VER}.${MINOR_VER}
+FCE_LIB := $(FCE_LIB_NAME).$(SO_EXT)
+FCE_LIB_MAJOR := $(FCE_LIB_NAME).so.$(MAJOR_VER)
+
+INCLUDE_HEADERS_CP = cp -a include/common include/fce $(DESTDIR)$(INCLUDEDIR)
+
+DEFINES		+=	-DCONFIG_PLAT_FCE \
+			-DLIB_MINOR_VERSION=${MINOR_VER}
+
+PLAT_OBJECTS	:=	$(PLAT_PATH)/fce_uio.o \
+			$(PLAT_PATH)/fce_mu.o
+
+OBJECTS	+= $(PLAT_OBJECTS)

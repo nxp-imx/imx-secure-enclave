@@ -50,7 +50,7 @@ endif
 PLAT_PATH := src/plat/$(PLAT)
 PLAT_COMMON_PATH := src/common
 
-INCLUDE_PATHS := -I${PLAT_PATH}/include -I${PLAT_COMMON_PATH}/include -Iinclude -Iinclude/hsm -Iinclude/she -Iinclude/common -Iinclude/crrm
+INCLUDE_PATHS := -I${PLAT_PATH}/include -I${PLAT_COMMON_PATH}/include -Iinclude -Iinclude/hsm -Iinclude/she -Iinclude/common -Iinclude/crrm -Iinclude/fce
 
 NVM_OBJECTS := \
 	$(PLAT_COMMON_PATH)/nvm/nvm_manager.o \
@@ -72,11 +72,14 @@ SHE_LIB_MAJOR :=
 SO_EXT =
 CRRM_LIB :=
 CRRM_LIB_MAJOR :=
+FCE_LIB :=
+FCE_LIB_MAJOR :=
 
 include $(PLAT_COMMON_PATH)/sab_msg/sab_msg.mk
 include $(PLAT_COMMON_PATH)/hsm_api/hsm_api.mk
 include $(PLAT_COMMON_PATH)/she_api/she_api.mk
 include $(PLAT_COMMON_PATH)/crrm_api/crrm_api.mk
+include $(PLAT_COMMON_PATH)/fce_api/fce_api.mk
 include $(PLAT_PATH)/$(PLAT).mk
 
 TEST_COMMON_TV_PATH := test/common/test_vectors/$(PSA)
@@ -85,10 +88,10 @@ SHE_TEST_README_PATH := test/she/she_test_vectors/README
 SHE_TEST_V2X_TV_PATH := test/she/she_test_vectors/v2x/
 V2X_HSM_TV_PATH := test/v2x/v2x_hsm_test_vectors/
 
-LIB_NAMES := $(HSM_LIB_NAME) $(NVM_LIB_NAME) $(SHE_LIB_NAME) $(CRRM_LIB_NAME)
+LIB_NAMES := $(HSM_LIB_NAME) $(NVM_LIB_NAME) $(SHE_LIB_NAME) $(CRRM_LIB_NAME) $(FCE_LIB_NAME)
 
-all_tests:= $(SHE_TEST) $(HSM_TEST) $(HSM_PERF_TEST) $(V2X_HSM_TEST) $(V2X_SHE_TEST) $(CRRM_TEST) $(SE_TOOL)
-all_libs:= $(SHE_LIB) $(NVM_LIB) $(HSM_LIB) $(CRRM_LIB)
+all_tests:= $(SHE_TEST) $(HSM_TEST) $(HSM_PERF_TEST) $(V2X_HSM_TEST) $(V2X_SHE_TEST) $(CRRM_TEST) $(SE_TOOL) $(FCE_TEST)
+all_libs:= $(SHE_LIB) $(NVM_LIB) $(HSM_LIB) $(CRRM_LIB) $(FCE_LIB)
 
 # Make targets, must need NVM-Daemon to run successfully.
 tests: | install_version build_tests  clean_ver_hfile
@@ -104,6 +107,14 @@ build_all: $(all_libs) $(all_tests) $(NVM_DAEMON)
 %.o: %.c
 	@echo "  HOSTCC  $<"
 	${CC} -c ${CFLAGS} ${GCOV_FLAGS} ${INCLUDE_PATHS} $< -o $@
+
+# FCE lib
+$(FCE_LIB): $(FCE_LIB_OBJECTS)\
+	$(PLAT_COMMON_PATH)/fce_lib.o \
+	$(PLAT_OBJECTS) \
+	$(FCE_SAB_MSG_SRC) \
+	$(FCE_API_SRC)
+	$(CC) -shared -Wl,-soname,$(FCE_LIB_MAJOR) -fPIC -o $@ $^
 
 # SHE lib
 $(SHE_LIB): $(SHE_LIB_OBJECTS)\
@@ -181,6 +192,7 @@ SE_TOOL_OBJ= tools/se_tools.c \
 	     test/common/test_lc_update.c \
 	     test/common/test_dev_getinfo.c
 
+FCE_TEST_OBJ= test/fce/*.c
 HSM_TEST_OBJ= test/hsm/hsm_test.c $(COMMON_TEST_OBJ) $(MBEDTLS_TEST_OBJ)
 HSM_PERF_TEST_OBJ= test/hsm/hsm_perf_test.c $(HSM_TEST_PERF_OBJ)
 TEST_CFLAGS = -Wno-deprecated-declarations $(CFLAGS)
@@ -190,6 +202,8 @@ TEST_INCLUDE_PATHS = ${INCLUDE_PATHS} -I$(OPENSSL_PATH)/include
 
 $(SE_TOOL): $(SE_TOOL_OBJ) $(HSM_LIB)
 	$(CC) $^  -o $@ ${TEST_INCLUDE_PATHS} ${TEST_INCLUDE_PATHS_MBEDTLS} ${COMMON_TEST_INC} $(TEST_CFLAGS) $(TEST_LDFLAGS) $(GCOV_FLAGS)
+$(FCE_TEST): $(FCE_TEST_OBJ) $(FCE_LIB)
+	$(CC) $^  -o $@ ${TEST_INCLUDE_PATHS} $(TEST_CFLAGS) $(LDFLAGS) $(GCOV_FLAGS)
 $(HSM_TEST): $(HSM_TEST_OBJ) $(HSM_LIB)
 	$(CC) $^  -o $@ ${TEST_INCLUDE_PATHS} ${TEST_INCLUDE_PATHS_MBEDTLS} ${COMMON_TEST_INC} $(TEST_CFLAGS) $(TEST_LDFLAGS) $(TEST_LDFLAGS_MBEDTLS) $(GCOV_FLAGS)
 $(HSM_PERF_TEST): $(HSM_PERF_TEST_OBJ) $(HSM_LIB)

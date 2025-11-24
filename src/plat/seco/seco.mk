@@ -21,6 +21,10 @@ HSM_LIB_MAJOR := $(HSM_LIB_NAME).so.$(MAJOR_VER)
 SHE_LIB := $(SHE_LIB_NAME).$(SO_EXT)
 SHE_LIB_MAJOR := $(SHE_LIB_NAME).so.$(MAJOR_VER)
 
+ifeq ($(COMPATIBLE_MACHINE), mx94-nxp-bsp)
+include $(PLAT_COMMON_PATH)/fce_api/fce_api.mk
+endif
+
 INCLUDE_HEADERS_CP = cp -a include/* $(DESTDIR)$(INCLUDEDIR)
 PSA := non_psa
 

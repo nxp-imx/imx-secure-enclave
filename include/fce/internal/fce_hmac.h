@@ -1,0 +1,32 @@
+// SPDX-License-Identifier: BSD-3-Clause
+/*
+ * Copyright 2025 NXP
+ */
+
+#ifndef FCE_HMAC_H
+#define FCE_HMAC_H
+
+#include "internal/fce_utils.h"
+
+typedef struct {
+	const uint8_t *key;
+	uint32_t keylen;
+	uint8_t keyslot;
+	uint8_t sha_algo;
+} hmac_key_t;
+
+enum crypto_auth_operation {
+	CRYPTO_AUTH_OP_HMAC_GEN,
+	CRYPTO_AUTH_OP_HMAC_VERIFY,
+	CRYPTO_AUTH_OP_SHA_GEN
+};
+
+enum crypto_auth_algorithm {
+	CRYPTO_AUTH_SHA_256 = 1,
+	CRYPTO_AUTH_SHA_384,
+	CRYPTO_AUTH_SHA_521
+};
+
+fce_err_t fce_auth_init(hmac_key_t *args);
+
+#endif
