@@ -25,7 +25,7 @@ ifeq ($(COMPATIBLE_MACHINE), mx94-nxp-bsp)
 include $(PLAT_COMMON_PATH)/fce_api/fce_api.mk
 endif
 
-INCLUDE_HEADERS_CP = cp -a include/* $(DESTDIR)$(INCLUDEDIR)
+INCLUDE_HEADERS_CP = cp -a include/common include/hsm include/crrm include/she include/nvm.h $(DESTDIR)$(INCLUDEDIR)
 PSA := non_psa
 
 # SHX Test Vectors name

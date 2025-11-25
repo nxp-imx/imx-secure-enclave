@@ -293,8 +293,10 @@ install: libs
 	mkdir -p $(DESTDIR)$(BINDIR)
 	$(prepare_seco_stage_files)
 	$(EXPORT_NVM_DAEMON)
+ifdef NVMD_CONFIG_SCRIPT
 	cp $(SE_SCRIPTS_PATH)/$(NVMD_CONFIG_SCRIPT) $(DESTDIR)$(BINDIR)
 	mkdir -p $(DESTDIR)$(SYSTEMD_DIR)
+endif
 	$(EXPORT_SYSTEMD_NVM_SERVICE)
 	$(EXPORT_NVMD_CONF_FILE)
 	mkdir -p $(DESTDIR)$(TARGET_README_DIR)
@@ -310,8 +312,12 @@ install: libs
 install_tests: install tests
 	mkdir -p $(DESTDIR)$(BINDIR)
 	cp $(all_tests) $(DESTDIR)$(BINDIR)
+# TEST_COMMON_TV_PATH is set using $PSA.
+# If $PSA is empty, TV(s) will not be copied.
+ifdef PSA
 	mkdir -p $(DESTDIR)$(TEST_VECTOR_DEFAULT_DIR)
 	cp -r $(TEST_COMMON_TV_PATH) $(DESTDIR)$(TEST_VECTOR_DEFAULT_DIR)
+endif
 	$(MKDIR_SHE_TV)
 	$(EXPORT_SHE_SHX_TV)
 	$(EXPORT_SHE_V2X_SHX_TV)
