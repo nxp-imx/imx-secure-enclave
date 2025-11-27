@@ -4,10 +4,12 @@ Overview
 Secure Enclave Userspace Library exposes the user application with API(s) for:
 - HSM
 - SHE
+- V2X PRIME
 
 These API(s) are consumed and responded by the NXP HW IP(s):
 - Secure Enclave like SECO, ELE400, ELE401, etc., for HSM API(s) and
 - V2X for SHE, HSM API(s).
+- V2X PRIME for AES, SHA, AES GCM
 
 Scope of the document:
 	1. Platforms supported by the library
@@ -50,6 +52,15 @@ NVM Manager, is Linux Kernel daemon linked to shared library (libxxx_nvm.so),
 It is a slave to the ELE FW, and manages storage as directed by FW. The storage
 is maintained on the Linux Filesystem, at rest.
 
+V2X PRIME Crypto Accelerator
+----------------------------
+V2X PRIME is a crypto accelerator providing high performance cryptographic solution.
+	- A new AHB-DMA to V2X-FH subsystem
+	- Faster AES engine (LTC-AES) that interacts with the DMA directly
+	- A prefetcher to remove DRAM memory accesses latency
+
+This engine allow users to use the hardware cryptographic accelerators
+so that they can achive fast cryptographic operations (AES, AES GCM, SHA).
 
 1. Supported Platforms
 ======================
@@ -60,32 +71,33 @@ Secure Enclave library build types:
 	- ele     (ELE-HSM)
 	- seco    (SECO-SHE + SECO-HSM)
 	- v2x     (V2X-SHE + V2X-HSM)
+	- v2x prime (v2x crypto accelerator)
 
 
 Table 1: Supported Secure Enclave Library Artifacts Type for each platform
 --------------------------------------------------------------------------
 
-+----------+-----------------------------------------------------------+
-|          |                  Supported Library Artifacts Type         |
-+----------+---------+-----------------------+-------------------------+
-| Platform |   ele   |          v2x          |          SECO           |
-+----------+---------+-----------+-----------+------------+------------+
-|          | ELE-HSM |  V2X-SHE  |  V2X-HSM  |  SECO-HSM  |  SECO-SHE  |
-+==========+=========+===========+===========+============+============+
-| i.MX8ULP |   YES   |    NA     |     NA    |     NA     |     NA     |
-+----------+---------+-----------+-----------+------------+------------+
-| i.MX93   |   YES   |    NA     |     NA    |     NA     |     NA     |
-+----------+---------+-----------+-----------+------------+------------+
-| i.MX95   |   YES   |    YES    |     YES   |     NA     |     NA     |
-+----------+---------+-----------+-----------+------------+------------+
-| i.MX91   |   YES   |    NA     |     NA    |     NA     |     NA     |
-+----------+---------+-----------+-----------+------------+------------+
-| i.MX8DXL |   NA    |    YES    |     YES   |     YES    |     YES    |
-+----------+---------+-----------+-----------+------------+------------+
-| i.MX8QXP |   NA    |    NA     |     NA    |     YES    |     YES    |
-+----------+---------+-----------+-----------+------------+------------+
-| i.MX943  |   YES   |    YES    |    YES    |     NA     |     NA     |
-+----------+---------+-----------+-----------+------------+------------+
++----------+---------------------------------------------------------------------------+
+|          |                  Supported Library Artifacts Type                         |
++----------+---------+-----------------------+-------------------------+---------------+
+| Platform |   ele   |          v2x          |               |          SECO           |
++----------+---------+-----------+-----------+   v2x prime   +------------+------------+
+|          | ELE-HSM |  V2X-SHE  |  V2X-HSM  |               |  SECO-HSM  |  SECO-SHE  |
++==========+=========+===========+===========+===============+============+============+
+| i.MX8ULP |   YES   |    NA     |     NA    |      NA       |     NA     |     NA     |
++----------+---------+-----------+-----------+---------------+------------+------------+
+| i.MX93   |   YES   |    NA     |     NA    |      NA       |     NA     |     NA     |
++----------+---------+-----------+-----------+---------------+------------+------------+
+| i.MX95   |   YES   |    YES    |     YES   |      NA       |     NA     |     NA     |
++----------+---------+-----------+-----------+---------------+------------+------------+
+| i.MX91   |   YES   |    NA     |     NA    |      NA       |     NA     |     NA     |
++----------+---------+-----------+-----------+---------------+------------+------------+
+| i.MX8DXL |   NA    |    YES    |     YES   |      NA       |     YES    |     YES    |
++----------+---------+-----------+-----------+---------------+------------+------------+
+| i.MX8QXP |   NA    |    NA     |     NA    |      NA       |     YES    |     YES    |
++----------+---------+-----------+-----------+---------------+------------+------------+
+| i.MX943  |   YES   |    YES    |    YES    |      YES      |     NA     |     NA     |
++----------+---------+-----------+-----------+---------------+------------+------------+
 
 
 Table 2: Secure Enclave Storage (NVM) directories
@@ -158,7 +170,12 @@ Secure Enclave Environment Setup
 2.2 Secure Enclave Library build steps
 ======================================
 
-Build Types: ele (PLAT=ele) or (PLAT=seco) or v2x (No PLAT input)
+Build Types (By default, PLAT=seco):
+a. ele (PLAT=ele), or
+b. prime (PLAT=prime), or
+c. seco (PLAT=seco)
+
+Note: PLAT=seco, to be used for compiling libraries for V2X-SHE & V2X-HSM.
 
 -To clean
 
@@ -206,6 +223,11 @@ v2x:
 	make PLAT=ele clean; make clean;
 	make libs;
 
+v2x prime:
+
+	make PLAT=prime clean; make clean;
+	make PLAT=prime libs;
+
 seco:
 
 	make PLAT=seco COMPATIBLE_MACHINE=mx8dxl-nxp-bsp clean; make clean;
@@ -222,6 +244,11 @@ v2x:
 
 	make PLAT=ele clean; make clean;
 	make libs install;
+
+v2x prime:
+
+	make PLAT=prime clean; make clean;
+	make PLAT=prime libs install;
 
 seco:
 
@@ -286,6 +313,12 @@ V2X: V2X-SHE + V2X-HSM: Library Artifacts
 /etc/systemd/system/nvm_daemon_v2x_hsm.service (NVM-Daemon V2X HSM service file)
 /usr/bin/nvmd_conf_setup.sh                    (NVM-Daemon configuration helper script)
 
+V2X PRIME Library Artifacts
+---------------------------
+/usr/lib/libprime.so -> libprime.so.1          (V2X PRIME Shared library)
+/usr/lib/libprime.so.1 -> libprime.so.1.0      (V2X PRIME Shared library)
+/usr/lib/libprime.so.1.0                       (V2X PRIME Shared library)
+
 
 4. Testing Steps: Compilation, Installation & Execution
 =======================================================
@@ -315,6 +348,15 @@ Table 4: Secure Enclave SHE Tests with their target Platform/IP
 |  SECO  |        i.MX8QXP/i.MX8DXL-DL1    |   seco_she_test |
 +--------+---------------------------------+-----------------+
 
+Table 5: Secure Enclave V2X PRIME Tests with their target Platform/IP
+-----------------------------------------------------------
+
++--------+---------------------------------+-------------------+
+|   IP   |              Platform           |        Test       |
++========+=================================+===================+
+|  V2X   |            i.MX943              |     prime_test    |
+| PRIME  |                                 |                   |
++--------+---------------------------------+-------------------+
 
 Note #3:
 - V2X-HSM test can not be supported on i.MX95 A0, as no support for SG MUs.
@@ -427,6 +469,11 @@ v2x:
 	rm -rf export;make PLAT=ele clean; make clean;
 	make install_tests;tree export;
 
+v2x prime:
+
+	rm -rf export;make PLAT=prime clean; make clean;
+	make PLAT=prime install_tests;tree export;
+
 seco:
 
 	rm -rf export;make PLAT=seco COMPATIBLE_MACHINE=mx8dxl-nxp-bsp clean; make clean;
@@ -506,6 +553,10 @@ V2X-HSM Test:
 	v2x_hsm_test shx_file;            //execute test vectors available in given shx
 	systemctl stop nvm_daemon_v2x_hsm.service;
 
+V2X PRIME Test:
+---------------
+	prime_test;
+
 SECO-HSM Test:
 -------------
 
@@ -583,6 +634,10 @@ V2X: V2X-SHE + V2X-HSM: Tests Artifacts
 /usr/share/se/she_test_vectors/*               (V2X-SHE test vectors)
 /usr/share/se/v2x_hsm_test_vectors/*           (V2X-HSM test vectors)
 /usr/share/se/she_test_vectors/                (Path for V2X-SHE test vectors readme)
+
+V2X PRIME Tests Artifacts
+-------------------------
+/usr/bin/prime_test                             (V2X PRIME test app)
 
 SECO: SECO-HSM + SECO-SHE: Tests Artifacts
 ---------------------------------------
@@ -675,3 +730,11 @@ lf-6.6.36_2.1.0 : New Features
 - SECO-HSM + SECO-SHE
 
  Added support for i.MX8DXL and i.MX8QXP Platform.
+
+lf-6.18.y_1.0.0 : New Features
+-------------------------------
+
+- V2X PRIME
+
+ Added HMAC support and tests
+ Added AES(CBC, ECB, GCM) support and tests
