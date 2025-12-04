@@ -307,6 +307,8 @@ hsm_err_t do_hash_test(hsm_hdl_t hash_sess)
 			hash_size = 16;
 		else if (hash_args.algo == HSM_HASH_ALGO_SHA_1)
 			hash_size = 20;
+		else if (hash_args.algo == HSM_HASH_ALGO_SM3)
+			hash_size = 32;
 		else if (hash_args.algo == HSM_HASH_ALGO_SHAKE_256)
 			hash_size = 64;
 
@@ -320,12 +322,13 @@ hsm_err_t do_hash_test(hsm_hdl_t hash_sess)
 			alg = HSM_HASH_ALGO_SHA_1 - 1;
 		else if (hash_args.algo == HSM_HASH_ALGO_SHA_1)
 			alg = HSM_HASH_ALGO_SHA_224 - 1;
-		else if (hash_args.algo == HSM_HASH_ALGO_SHA3_512)
-			alg = HSM_HASH_ALGO_SHAKE_256 - 1;
 
 		if (se_get_soc_id() == SOC_IMX8ULP &&
 		    (hash_args.algo == HSM_HASH_ALGO_MD5 ||
 		     hash_args.algo == HSM_HASH_ALGO_SHA_1))
+			continue;
+
+		if (se_get_soc_id() != SOC_IMX943 && hash_args.algo == HSM_HASH_ALGO_SM3)
 			continue;
 #endif
 		hash_args.output_size = hash_size;
@@ -375,6 +378,9 @@ hsm_err_t do_hash_test(hsm_hdl_t hash_sess)
 		else if (hash_args.algo == HSM_HASH_ALGO_SHA_1)
 			test_status(SHA_1_HASH, hash_work_area,
 				    sizeof(SHA_1_HASH), "HSM_HASH_ALGO_SHA_1");
+		else if (hash_args.algo == HSM_HASH_ALGO_SM3)
+			test_status(SM3_HASH, hash_work_area,
+				    sizeof(SM3_HASH), "HSM_HASH_ALGO_SM3");
 		else if (hash_args.algo == HSM_HASH_ALGO_SHAKE_256)
 			test_status(SHAKE_256_HASH, hash_work_area,
 				    sizeof(SHAKE_256_HASH), "HSM_HASH_ALGO_SHAKE_256");
@@ -449,6 +455,8 @@ hsm_err_t do_hash_stream_test(hsm_hdl_t hash_sess)
 			hash_size = 16;
 		else if (hash_args.algo == HSM_HASH_ALGO_SHA_1)
 			hash_size = 20;
+		else if (hash_args.algo == HSM_HASH_ALGO_SM3)
+			hash_size = 32;
 		else if (hash_args.algo == HSM_HASH_ALGO_SHAKE_256)
 			hash_size = 64;
 
@@ -462,12 +470,13 @@ hsm_err_t do_hash_stream_test(hsm_hdl_t hash_sess)
 			alg = HSM_HASH_ALGO_SHA_1 - 1;
 		else if (hash_args.algo == HSM_HASH_ALGO_SHA_1)
 			alg = HSM_HASH_ALGO_SHA_224 - 1;
-		else if (hash_args.algo == HSM_HASH_ALGO_SHA3_512)
-			alg = HSM_HASH_ALGO_SHAKE_256 - 1;
 
 		if (se_get_soc_id() == SOC_IMX8ULP &&
 		    (hash_args.algo == HSM_HASH_ALGO_MD5 ||
 		     hash_args.algo == HSM_HASH_ALGO_SHA_1))
+			continue;
+
+		if (se_get_soc_id() != SOC_IMX943 && hash_args.algo == HSM_HASH_ALGO_SM3)
 			continue;
 #endif
 		hash_args.svc_flags = HSM_HASH_FLAG_GET_CONTEXT;
@@ -583,6 +592,9 @@ hsm_err_t do_hash_stream_test(hsm_hdl_t hash_sess)
 		else if (hash_args.algo == HSM_HASH_ALGO_SHA_1)
 			test_status(SHA_1_HASH, hash_work_area,
 				    sizeof(SHA_1_HASH), "HSM_HASH_ALGO_SHA_1");
+		else if (hash_args.algo == HSM_HASH_ALGO_SM3)
+			test_status(SM3_HASH, hash_work_area,
+				    sizeof(SM3_HASH), "HSM_HASH_ALGO_SM3");
 		else if (hash_args.algo == HSM_HASH_ALGO_SHAKE_256)
 			test_status(SHAKE_256_HASH, hash_work_area,
 				    sizeof(SHAKE_256_HASH), "HSM_HASH_ALGO_SHAKE_256");

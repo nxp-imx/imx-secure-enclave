@@ -807,24 +807,19 @@ int execute_hsm_tests(uint32_t key_store_id)
 	ecies_tests(hsm_session_hdl);
 #endif
 #ifdef SECONDARY_API_SUPPORTED
-#ifdef PSA_COMPLIANT
 	err = do_hash_test(hsm_session_hdl);
 	if (err)
 		printf("Error[0x%x]: HASH test Failed.\n", err);
-	err = do_hash_stream_test(hsm_session_hdl);
-	if (err)
-		printf("Error[0x%x]: HASH init() update final() test Failed.\n", err);
 #else
-	err = do_hash_test(hsm_session_hdl);
+#ifndef PSA_COMPLIANT
+	hash_test(hsm_session_hdl);
 #endif
-#else
+#endif
+
 #ifdef PSA_COMPLIANT
 	err = do_hash_stream_test(hsm_session_hdl);
 	if (err)
 		printf("Error[0x%x]: HASH init() update final() test Failed.\n", err);
-#else
-	hash_test(hsm_session_hdl);
-#endif
 #endif
 	transient_key_tests(hsm_session_hdl, key_store_hdl, key_store_id);
 
