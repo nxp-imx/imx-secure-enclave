@@ -1,6 +1,6 @@
 // SPDX-License-Identifier: BSD-3-Clause
 /*
- * Copyright 2023-2025 NXP
+ * Copyright 2023-2026 NXP
  */
 
 #include <stdio.h>
@@ -574,6 +574,16 @@ hsm_err_t auth_enc_test(hsm_hdl_t key_store_hdl, hsm_hdl_t key_mgmt_hdl)
 				  50,
 				  HSM_AEAD_ALGO_CHACHA20_POLY1305,
 				  "CHACHA20_POLY1305");
+
+	/* SM4 testing */
+	if (se_get_soc_id() == SOC_IMX943)
+		auth_enc_new_test(key_store_hdl, key_mgmt_hdl,
+				  PERMITTED_ALGO_CCM,
+				  HSM_KEY_SIZE_SM4_128,
+				  HSM_KEY_TYPE_SM4,
+				  50,
+				  HSM_AEAD_ALGO_CCM,
+				  "SM4 CCM");
 
 	auth_enc_new_ccm_plainkey_test(key_store_hdl, key_mgmt_hdl);
 

@@ -205,9 +205,11 @@ static void hsm_rng_test(hsm_hdl_t sess_hdl, op_get_random_args_t *rng_get_rando
     err =  hsm_get_random(rng_serv_hdl, rng_get_random_args);
 #endif
     printf("err: 0x%x hsm_get_random hdl: 0x%08x, rand size=0x%08x\n", err, rng_serv_hdl, rng_get_random_args->random_size);
+#ifdef ELE_DEBUG
     for (i = 0; i < rng_get_random_args->random_size; i++)
 	    printf("%02x", rng_out_buff[i]);
     printf("\n");
+#endif
 
     rng_get_random_args->random_size = 176;
 #ifdef PSA_COMPLIANT
@@ -217,9 +219,11 @@ static void hsm_rng_test(hsm_hdl_t sess_hdl, op_get_random_args_t *rng_get_rando
 #endif
     printf("Random Number Successfully fetched: 0x%x hsm_get_random hdl: 0x%08x, rand size=0x%08x\n",
 		    err, rng_serv_hdl, rng_get_random_args->random_size);
+#ifdef ELE_DEBUG
     for (i = 0; i < rng_get_random_args->random_size; i++)
 	    printf("%02x", rng_out_buff[i]);
     printf("\n");
+#endif
 
     rng_get_random_args->random_size = 2050;
 #ifdef PSA_COMPLIANT
@@ -229,9 +233,11 @@ static void hsm_rng_test(hsm_hdl_t sess_hdl, op_get_random_args_t *rng_get_rando
 #endif
     printf("Random Number Successfully fetched: 0x%x hsm_get_random hdl: 0x%08x, rand size=0x%08x\n",
 		    err, rng_serv_hdl, rng_get_random_args->random_size);
+#ifdef ELE_DEBUG
     for (i = 0; i < rng_get_random_args->random_size; i++)
 	    printf("%02x", rng_out_buff[i]);
     printf("\n");
+#endif
 
     rng_get_random_args->random_size = 4096;
 #ifdef PSA_COMPLIANT
@@ -241,9 +247,11 @@ static void hsm_rng_test(hsm_hdl_t sess_hdl, op_get_random_args_t *rng_get_rando
 #endif
     printf("Random Number Successfully fetched: 0x%x hsm_get_random hdl: 0x%08x, rand size=0x%08x\n",
 		    err, rng_serv_hdl, rng_get_random_args->random_size);
+#ifdef ELE_DEBUG
     for (i = 0; i < rng_get_random_args->random_size; i++)
 	    printf("%02x", rng_out_buff[i]);
     printf("\n");
+#endif
 
 #ifndef PSA_COMPLIANT
     err = hsm_close_rng_service(rng_serv_hdl);
@@ -602,9 +610,20 @@ static void transient_key_tests(hsm_hdl_t sess_hdl,
 	if (se_get_soc_id() == SOC_IMX95 ||
 	    se_get_soc_id() == SOC_IMX943 ||
 	    se_get_soc_id() == SOC_IMX952)
-		hsm_mac_stream_test(key_store_hdl, key_mgmt_hdl);
+		hsm_mac_stream_test(key_store_hdl, key_mgmt_hdl,
+				    PERMITTED_ALGO_CMAC,
+				    HSM_KEY_TYPE_AES,
+				    HSM_KEY_SIZE_AES_256,
+				    "KEY_AES_256 ALGO_CMAC");
 
-	// functiopnal test hsm_mac_test() to verify MAC Secondary API
+	if (se_get_soc_id() == SOC_IMX943)
+		hsm_mac_stream_test(key_store_hdl, key_mgmt_hdl,
+				    PERMITTED_ALGO_CMAC,
+				    HSM_KEY_TYPE_SM4,
+				    HSM_KEY_SIZE_SM4_128,
+				    "KEY_SM4_128 ALGO_CMAC");
+
+	// functional test hsm_mac_test() to verify MAC Secondary API
 	hsmret = hsm_mac_test(key_store_hdl, key_mgmt_hdl);
 #else
 	hsmret = do_mac_test(key_store_hdl, key_mgmt_hdl);

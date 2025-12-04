@@ -1,6 +1,6 @@
 // SPDX-License-Identifier: BSD-3-Clause
 /*
- * Copyright 2022-2025 NXP
+ * Copyright 2022-2026 NXP
  */
 
 #include <stdio.h>
@@ -151,7 +151,12 @@ hsm_err_t do_cipher_plainkey_test(hsm_hdl_t key_store_hdl, hsm_hdl_t key_mgmt_hd
 }
 
 static hsm_err_t do_cipher_stream_opaquekey_test(hsm_hdl_t key_store_hdl,
-						 hsm_hdl_t key_mgmt_hdl)
+						 hsm_hdl_t key_mgmt_hdl,
+						 hsm_permitted_algo_t key_permitted_algo,
+						 hsm_key_type_t key_type,
+						 hsm_bit_key_sz_t bit_key_sz,
+						 hsm_op_cipher_algo_t cipher_algo,
+						 char *algo_info)
 {
 	hsm_err_t err;
 	hsm_hdl_t cipher_hdl = 0;
@@ -164,16 +169,16 @@ static hsm_err_t do_cipher_stream_opaquekey_test(hsm_hdl_t key_store_hdl,
 	uint16_t output_offset = 0;
 	uint32_t key_id = 0;
 
-	printf("\nStreaming Test (Opaque key):\n");
+	printf("\nStreaming Test (Opaque key) %s:\n", algo_info);
 	printf("-------------------------------------\n");
 
 	generate_key(key_mgmt_hdl,
 		     HSM_SE_KEY_STORAGE_VOLATILE,
 		     HSM_KEY_USAGE_ENCRYPT | HSM_KEY_USAGE_DECRYPT,
-		     PERMITTED_ALGO_CBC_NO_PADDING,
-		     HSM_KEY_SIZE_AES_128,
+		     key_permitted_algo,
+		     bit_key_sz,
 		     0,
-		     HSM_KEY_TYPE_AES,
+		     key_type,
 		     &key_id);
 
 	/* Open Cipher Service.
@@ -190,7 +195,7 @@ static hsm_err_t do_cipher_stream_opaquekey_test(hsm_hdl_t key_store_hdl,
 	/* INIT */
 	memset(&args, 0, sizeof(op_cipher_args_t));
 	args.flags = HSM_CIPHER_FLAGS_ENCRYPT | HSM_CIPHER_FLAGS_INIT;
-	args.cipher_algo = HSM_CIPHER_ALGO_CBC;
+	args.cipher_algo = cipher_algo;
 	args.key_identifier = key_id;
 	args.iv = iv_data;
 	args.iv_size = sizeof(iv_data);
@@ -205,7 +210,7 @@ static hsm_err_t do_cipher_stream_opaquekey_test(hsm_hdl_t key_store_hdl,
 	for (uint8_t i = 0; i < sizeof(ciphered_data) / input_pkt_size; ++i) {
 		memset(&args, 0, sizeof(op_cipher_args_t));
 		args.flags = HSM_CIPHER_FLAGS_ENCRYPT | HSM_CIPHER_FLAGS_UPDATE_DATA;
-		args.cipher_algo = HSM_CIPHER_ALGO_CBC;
+		args.cipher_algo = cipher_algo;
 		args.input = test_data + input_offset; //plaintext
 		args.input_size = input_pkt_size;
 		args.output = ciphered_data + output_offset;
@@ -227,7 +232,7 @@ static hsm_err_t do_cipher_stream_opaquekey_test(hsm_hdl_t key_store_hdl,
 	/* FINALIZE */
 	memset(&args, 0, sizeof(op_cipher_args_t));
 	args.flags = HSM_CIPHER_FLAGS_ENCRYPT | HSM_CIPHER_FLAGS_FINALIZE;
-	args.cipher_algo = HSM_CIPHER_ALGO_CBC;
+	args.cipher_algo = cipher_algo;
 	args.output = ciphered_data + output_offset;
 	args.output_size = sizeof(ciphered_data) - output_offset;
 
@@ -246,7 +251,7 @@ static hsm_err_t do_cipher_stream_opaquekey_test(hsm_hdl_t key_store_hdl,
 	/* INIT */
 	memset(&args, 0, sizeof(op_cipher_args_t));
 	args.flags = HSM_CIPHER_FLAGS_DECRYPT | HSM_CIPHER_FLAGS_INIT;
-	args.cipher_algo = HSM_CIPHER_ALGO_CBC;
+	args.cipher_algo = cipher_algo;
 	args.key_identifier = key_id;
 	args.iv = iv_data;
 	args.iv_size = sizeof(iv_data);
@@ -261,7 +266,7 @@ static hsm_err_t do_cipher_stream_opaquekey_test(hsm_hdl_t key_store_hdl,
 	for (uint8_t i = 0; i < sizeof(ciphered_data) / input_pkt_size; ++i) {
 		memset(&args, 0, sizeof(op_cipher_args_t));
 		args.flags = HSM_CIPHER_FLAGS_DECRYPT | HSM_CIPHER_FLAGS_UPDATE_DATA;
-		args.cipher_algo = HSM_CIPHER_ALGO_CBC;
+		args.cipher_algo = cipher_algo;
 		args.input = ciphered_data + input_offset; //ciphertext
 		args.input_size = input_pkt_size;
 		args.output = deciphered_data + output_offset;
@@ -283,7 +288,7 @@ static hsm_err_t do_cipher_stream_opaquekey_test(hsm_hdl_t key_store_hdl,
 	/* FINALIZE */
 	memset(&args, 0, sizeof(op_cipher_args_t));
 	args.flags = HSM_CIPHER_FLAGS_DECRYPT | HSM_CIPHER_FLAGS_FINALIZE;
-	args.cipher_algo = HSM_CIPHER_ALGO_CBC;
+	args.cipher_algo = cipher_algo;
 	args.output = deciphered_data + output_offset;
 	args.output_size = sizeof(deciphered_data) - output_offset;
 
@@ -326,6 +331,8 @@ hsm_err_t do_cipher_test(hsm_hdl_t key_store_hdl, hsm_hdl_t key_mgmt_hdl)
 	printf("\nOpaque Key Test\n");
 	printf("-----------------\n");
 
+	printf("\nAES_256 ALGO_CBC Test\n");
+	printf("-----------------\n");
 	generate_key(key_mgmt_hdl,
 #ifndef PSA_COMPLIANT
 			HSM_KEY_INFO_TRANSIENT,
@@ -377,10 +384,161 @@ hsm_err_t do_cipher_test(hsm_hdl_t key_store_hdl, hsm_hdl_t key_mgmt_hdl)
 	if (sym_key_id)
 		delete_test_key(key_mgmt_hdl, sym_key_id, 0);
 
+	if (se_get_soc_id() == SOC_IMX943) {
+		printf("\nSM4 Key ALGO_CBC Test\n");
+		printf("-----------------\n");
+
+		sym_key_id = 0;
+		generate_key(key_mgmt_hdl,
+			     HSM_SE_KEY_STORAGE_VOLATILE,
+			     HSM_KEY_USAGE_ENCRYPT | HSM_KEY_USAGE_DECRYPT,
+			     PERMITTED_ALGO_CBC_NO_PADDING,
+			     HSM_KEY_SIZE_SM4_128,
+			     0,
+			     HSM_KEY_TYPE_SM4,
+			     &sym_key_id);
+
+		cipher_args.key_identifier = sym_key_id;
+		cipher_args.iv = iv_data;
+		cipher_args.iv_size = sizeof(iv_data);
+		cipher_args.cipher_algo = HSM_CIPHER_ONE_GO_ALGO_CBC;
+		cipher_args.flags = HSM_CIPHER_ONE_GO_FLAGS_ENCRYPT;
+		cipher_args.input = hash_data;
+		cipher_args.output = ciphered_data;
+		cipher_args.input_size = sizeof(hash_data);
+		cipher_args.output_size = sizeof(ciphered_data);
+
+		hsmret = hsm_do_cipher(key_store_hdl, &cipher_args);
+		if (hsmret)
+			printf("hsm_cipher_one_go ret:0x%x\n", hsmret);
+
+		cipher_args.flags = HSM_CIPHER_ONE_GO_FLAGS_DECRYPT;
+		cipher_args.input = ciphered_data;
+		cipher_args.output = deciphered_data;
+		cipher_args.input_size = sizeof(ciphered_data);
+		cipher_args.output_size = sizeof(deciphered_data);
+
+		hsmret = hsm_do_cipher(key_store_hdl, &cipher_args);
+		if (hsmret)
+			printf("hsm_cipher_one_go ret:0x%x\n", hsmret);
+
+		if (memcmp(hash_data, deciphered_data, sizeof(hash_data)) == 0)
+			printf("\nDecrypted data matches encrypted data [PASS]\n");
+		else
+			printf("\nDecrypted data doesn't match encrypted data [FAIL]\n");
+
+		if (sym_key_id)
+			delete_test_key(key_mgmt_hdl, sym_key_id, 0);
+
+		printf("\nSM4 Key ALGO_ECB Test\n");
+		printf("-----------------\n");
+
+		sym_key_id = 0;
+		generate_key(key_mgmt_hdl,
+			     HSM_SE_KEY_STORAGE_VOLATILE,
+			     HSM_KEY_USAGE_ENCRYPT | HSM_KEY_USAGE_DECRYPT,
+			     PERMITTED_ALGO_ECB_NO_PADDING,
+			     HSM_KEY_SIZE_SM4_128,
+			     0,
+			     HSM_KEY_TYPE_SM4,
+			     &sym_key_id);
+
+		cipher_args.key_identifier = sym_key_id;
+		cipher_args.iv = NULL;
+		cipher_args.iv_size = 0;
+		cipher_args.cipher_algo = HSM_CIPHER_ONE_GO_ALGO_ECB;
+		cipher_args.flags = HSM_CIPHER_ONE_GO_FLAGS_ENCRYPT;
+		cipher_args.input = hash_data;
+		cipher_args.output = ciphered_data;
+		cipher_args.input_size = sizeof(hash_data);
+		cipher_args.output_size = sizeof(ciphered_data);
+
+		hsmret = hsm_do_cipher(key_store_hdl, &cipher_args);
+		if (hsmret)
+			printf("hsm_cipher_one_go ret:0x%x\n", hsmret);
+
+		cipher_args.flags = HSM_CIPHER_ONE_GO_FLAGS_DECRYPT;
+		cipher_args.input = ciphered_data;
+		cipher_args.output = deciphered_data;
+		cipher_args.input_size = sizeof(ciphered_data);
+		cipher_args.output_size = sizeof(deciphered_data);
+
+		hsmret = hsm_do_cipher(key_store_hdl, &cipher_args);
+		if (hsmret)
+			printf("hsm_cipher_one_go ret:0x%x\n", hsmret);
+
+		if (memcmp(hash_data, deciphered_data, sizeof(hash_data)) == 0)
+			printf("\nDecrypted data matches encrypted data [PASS]\n");
+		else
+			printf("\nDecrypted data doesn't match encrypted data [FAIL]\n");
+
+		if (sym_key_id)
+			delete_test_key(key_mgmt_hdl, sym_key_id, 0);
+
+		printf("\nSM4 Key All Cipher Test\n");
+		printf("-----------------\n");
+
+		sym_key_id = 0;
+		generate_key(key_mgmt_hdl,
+			     HSM_SE_KEY_STORAGE_VOLATILE,
+			     HSM_KEY_USAGE_ENCRYPT | HSM_KEY_USAGE_DECRYPT,
+			     PERMITTED_ALGO_ALL_CIPHER,
+			     HSM_KEY_SIZE_SM4_128,
+			     0,
+			     HSM_KEY_TYPE_SM4,
+			     &sym_key_id);
+
+		cipher_args.key_identifier = sym_key_id;
+		cipher_args.iv = iv_data;
+		cipher_args.iv_size = sizeof(iv_data);
+		cipher_args.cipher_algo = HSM_CIPHER_ONE_GO_ALGO_CBC;
+		cipher_args.flags = HSM_CIPHER_ONE_GO_FLAGS_ENCRYPT;
+		cipher_args.input = hash_data;
+		cipher_args.output = ciphered_data;
+		cipher_args.input_size = sizeof(hash_data);
+		cipher_args.output_size = sizeof(ciphered_data);
+
+		hsmret = hsm_do_cipher(key_store_hdl, &cipher_args);
+		if (hsmret)
+			printf("hsm_cipher_one_go ret:0x%x\n", hsmret);
+
+		cipher_args.flags = HSM_CIPHER_ONE_GO_FLAGS_DECRYPT;
+		cipher_args.input = ciphered_data;
+		cipher_args.output = deciphered_data;
+		cipher_args.input_size = sizeof(ciphered_data);
+		cipher_args.output_size = sizeof(deciphered_data);
+
+		hsmret = hsm_do_cipher(key_store_hdl, &cipher_args);
+		if (hsmret)
+			printf("hsm_cipher_one_go ret:0x%x\n", hsmret);
+
+		if (memcmp(hash_data, deciphered_data, sizeof(hash_data)) == 0)
+			printf("\nDecrypted data matches encrypted data [PASS]\n");
+		else
+			printf("\nDecrypted data doesn't match encrypted data [FAIL]\n");
+
+		if (sym_key_id)
+			delete_test_key(key_mgmt_hdl, sym_key_id, 0);
+	}
+
 	if (se_get_soc_id() == SOC_IMX95 ||
 	    se_get_soc_id() == SOC_IMX943 ||
 	    se_get_soc_id() == SOC_IMX952)
-		do_cipher_stream_opaquekey_test(key_store_hdl, key_mgmt_hdl);
+		do_cipher_stream_opaquekey_test(key_store_hdl, key_mgmt_hdl,
+						PERMITTED_ALGO_CBC_NO_PADDING,
+						HSM_KEY_TYPE_AES,
+						HSM_KEY_SIZE_AES_128,
+						HSM_CIPHER_ALGO_CBC,
+						"AES_128 CBC"
+						);
+
+	if (se_get_soc_id() == SOC_IMX943)
+		do_cipher_stream_opaquekey_test(key_store_hdl, key_mgmt_hdl,
+						PERMITTED_ALGO_CBC_NO_PADDING,
+						HSM_KEY_TYPE_SM4,
+						HSM_KEY_SIZE_SM4_128,
+						HSM_CIPHER_ALGO_CBC,
+						"SM4_128 CBC");
 
 	hsmret = do_cipher_plainkey_test(key_store_hdl, key_mgmt_hdl);
 #endif

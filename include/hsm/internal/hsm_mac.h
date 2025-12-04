@@ -1,6 +1,6 @@
 // SPDX-License-Identifier: BSD-3-Clause
 /*
- * Copyright 2022-2024 NXP
+ * Copyright 2022-2024, 2026 NXP
  */
 
 #ifndef HSM_MAC_H
@@ -147,6 +147,7 @@ typedef uint32_t hsm_mac_verification_status_t;
 //!< -  PERMITTED_ALGO_HMAC_SHA256			= 0x03800009,
 //!< -	PERMITTED_ALGO_HMAC_SHA384			= 0x0380000A,
 //!<  -	PERMITTED_ALGO_CMAC				= 0x03C00200,
+//!<  -	PERMITTED_ALGO_CBCMAC (SM4_ONLY)		= 0x03C00100,
 typedef hsm_permitted_algo_t hsm_op_mac_algo_t;
 #else
 typedef uint8_t hsm_op_mac_algo_t;

@@ -53,7 +53,11 @@ hsm_err_t do_cipher_test(hsm_hdl_t key_store_hdl, hsm_hdl_t key_mgmt_hdl);
 hsm_err_t hsm_mac_test(hsm_hdl_t key_store_hdl, hsm_hdl_t key_mgmt_hdl);
 #ifdef PSA_COMPLIANT
 hsm_err_t hsm_mac_plainkey_test(hsm_hdl_t key_store_hdl, hsm_hdl_t key_mgmt_hdl);
-hsm_err_t hsm_mac_stream_test(hsm_hdl_t key_store_hdl, hsm_hdl_t key_mgmt_hdl);
+hsm_err_t hsm_mac_stream_test(hsm_hdl_t key_store_hdl, hsm_hdl_t key_mgmt_hdl,
+			      hsm_permitted_algo_t key_permitted_algo,
+			      hsm_key_type_t key_type,
+			      hsm_bit_key_sz_t bit_key_sz,
+			      char *algo_info);
 #endif
 hsm_err_t do_rng_test(hsm_hdl_t hsm_session_hdl);
 hsm_err_t gen_rng_hex_str(hsm_hdl_t sess_hdl, op_get_random_args_t *rng_get_random_args,

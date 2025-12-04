@@ -41,12 +41,16 @@ hsm_err_t do_rng_test(hsm_hdl_t sess_hdl)
 	do {
 		rng_get_random_args.random_size = i;
 		ret = gen_rng_hex_str(sess_hdl, &rng_get_random_args,
-				      rng_out_buff, false);
+				      rng_out_buff, true);
 		if (ret) {
 			printf("Error[0x%02x]: RNG test failed for size[%d bytes].",
 			       ret, rng_get_random_args.random_size);
 			return ret;
+		} else {
+			printf("RNG test passed for size[%d bytes].\n",
+			       rng_get_random_args.random_size);
 		}
+
 		i = i + 1000;
 	} while (i <= 4096);
 

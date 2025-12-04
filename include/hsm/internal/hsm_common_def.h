@@ -1,6 +1,6 @@
 // SPDX-License-Identifier: BSD-3-Clause
 /*
- * Copyright 2023-2025 NXP
+ * Copyright 2023-2026 NXP
  */
 #ifndef HSM_COMMON_DEF_H
 #define HSM_COMMON_DEF_H
@@ -17,6 +17,7 @@ typedef enum {
 	ALGO_HMAC_SHA256 = 0x03800009,
 	ALGO_HMAC_SHA384 = 0x0380000A,
 	ALGO_CMAC	 = 0x03C00200,
+	ALGO_CBCMAC	 = 0x03C00100,
 } hsm_hmac_algo_t;
 
 typedef enum {
