@@ -3,6 +3,7 @@
  */
 
 #include <stdio.h>
+#include <string.h>
 #include <errno.h>
 
 #include "sab_fce_process_msg.h"
@@ -15,6 +16,9 @@ int prime_mcompare(void *dst, void *src, size_t size)
 {
 	char *d8 = (char *)dst;
 	char *s8 = (char *)src;
+
+	if (((uintptr_t)src % 16) == 0)
+		return memcmp(dst, src, size);
 
 	while (size--) {
 		if (*d8++ != *s8++)
@@ -30,6 +34,11 @@ void prime_mcopy(void *dst, void *src, size_t size)
 	uint32_t *s32 = (uint32_t *)src;
 	char *d8 = (char *)dst;
 	char *s8 = (char *)src;
+
+	if (((uintptr_t)src % 16) == 0) {
+		memcpy(dst, src, size);
+		return;
+	}
 
 	while (size >= sizeof(uint32_t)) {
 		*d32++ = *s32++;
