@@ -25,6 +25,7 @@ enum crypto_op_type {
 enum crypto_op_status {
 	CRYPTO_OP_SUCCESS,
 	CRYPTO_OP_IN_PROGRESS,
+	CRYPTO_OP_ENQ_ERR,
 	CRYPTO_OP_AUTH_FAILED,
 	CRYPTO_OP_INVALID_ARGS,
 	CRYPTO_OP_FIFO_FULL,
@@ -46,8 +47,8 @@ typedef struct crypto_op {
 	};
 } crypto_op_args_t;
 
-void prime_process_ops(prime_hdl_t service_hdl,
-		       crypto_op_args_t **ops,
-		       uint32_t nb_ops);
+int prime_process_ops(prime_hdl_t service_hdl,
+		      crypto_op_args_t **ops,
+		      uint32_t nb_ops);
 
 #endif

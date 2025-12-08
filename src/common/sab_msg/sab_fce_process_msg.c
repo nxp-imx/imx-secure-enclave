@@ -135,26 +135,31 @@ static int run_ops(crypto_op_args_t **ops, uint32_t nb_ops)
 	dequeue_ops(ops, i);
 
 	if (i != nb_ops)
-		return -1;
+		return CRYPTO_OP_ENQ_ERR;
 
-	return 0;
+	return CRYPTO_OP_SUCCESS;
 }
 
-void prime_process_ops(uint32_t service_hdl, crypto_op_args_t **ops,
-		       uint32_t nb_ops)
+int prime_process_ops(uint32_t service_hdl,
+		      crypto_op_args_t **ops,
+		      uint32_t nb_ops)
 {
 	uint32_t max_ops = FCE_MAX_OPS;
 	uint32_t unused_ops = nb_ops;
 	uint32_t enq_ops;
+	int ret = CRYPTO_OP_SUCCESS;
 
 	for (uint32_t i = 0; i < nb_ops; i = i + enq_ops) {
 		enq_ops = (unused_ops > max_ops) ? max_ops : unused_ops;
-		if (run_ops(&ops[i], enq_ops) < 0)
+		ret = run_ops(&ops[i], enq_ops);
+		if (ret)
 			break;
 
 		unused_ops = unused_ops - enq_ops;
 	}
 
 	if (unused_ops)
-		printf("FCE: %u operations not processed\n", unused_ops);
+		printf("V2X Prime: %u ops not processed\n", unused_ops);
+
+	return ret;
 }
