@@ -54,10 +54,12 @@ void prime_mfree(uint32_t service_hdl, uint32_t len)
 	struct uio_fce_mu *fce_mu = get_uio_fce_mu();
 	struct io_mem *iomem = &fce_mu->iomem;
 
-	iomem->pos -= round_up(len, 8u);
-
-	if (iomem->pos < 0)
+	if (iomem->pos < round_up(len, 8u)) {
 		iomem->pos = 0;
+		return;
+	}
+
+	iomem->pos -= round_up(len, 8u);
 }
 
 int prime_malloc(uint32_t service_hdl, uint8_t **virt_addr, uint32_t *phys_addr,
