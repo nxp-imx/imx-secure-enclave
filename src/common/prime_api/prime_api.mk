@@ -1,0 +1,15 @@
+# SPDX-License-Identifier: BSD-3-Clause
+# Copyright 2025 NXP
+#
+
+PRIME_API_SRC	+= \
+		$(PLAT_COMMON_PATH)/prime_api/service.o \
+		$(PLAT_COMMON_PATH)/prime_api/hmac.o \
+		$(PLAT_COMMON_PATH)/prime_api/aes.o \
+		$(PLAT_COMMON_PATH)/prime_api/mem.o
+
+OBJECTS		+= $(PRIME_API_SRC)
+
+INCLUDE_PATHS	+= \
+		   -Iinclude/prime \
+		   -I${PLAT_COMMON_PATH}/sab_msg/include \

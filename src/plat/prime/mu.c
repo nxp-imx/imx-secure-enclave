@@ -11,8 +11,8 @@
 #include <sys/mman.h>
 #include <errno.h>
 
-#include "fce_time.h"
-#include "fce_mu_regs.h"
+#include "prime_time.h"
+#include "mu_regs.h"
 
 #define BIT(n) (1U << (n))
 
@@ -21,8 +21,7 @@
 #define MU_GSR_SIG_FIN	1UL
 #define MU_GSR_SIG_ERR	BIT(1)
 
-int
-imx_mu_read_clear_gsr(struct mu_type *base)
+int imx_mu_read_clear_gsr(struct mu_type *base)
 {
 	uint32_t mask = MU_GSR_SIG_FIN;
 	uint32_t val;
@@ -53,8 +52,7 @@ imx_mu_read_clear_gsr(struct mu_type *base)
 	return 0;
 }
 
-static int
-imx_mu_read(struct mu_type *base, uint32_t reg_index, uint32_t *msg)
+static int imx_mu_read(struct mu_type *base, uint32_t reg_index, uint32_t *msg)
 {
 	uint32_t mask = MU_SR_RF0_MASK << reg_index;
 	uint32_t val, rr_num;
@@ -87,10 +85,9 @@ imx_mu_read(struct mu_type *base, uint32_t reg_index, uint32_t *msg)
 	return 0;
 }
 
-static int
-imx_mu_rx(struct mu_type *base, void *data)
+static int imx_mu_rx(struct mu_type *base, void *data)
 {
-	struct fce_msg *msg = (struct fce_msg *)data;
+	struct prime_msg *msg = (struct prime_msg *)data;
 	uint32_t count = 0, rr_num;
 	int ret;
 
@@ -105,7 +102,7 @@ imx_mu_rx(struct mu_type *base, void *data)
 	count++;
 
 	/* Check size */
-	if (msg->size > FCE_MAX_MSG) {
+	if (msg->size > PRIME_MAX_MSG) {
 		*((uint32_t *)msg) = 0;
 		return -EINVAL;
 	}
@@ -125,8 +122,7 @@ imx_mu_rx(struct mu_type *base, void *data)
 	return 0;
 }
 
-static int
-imx_mu_write(struct mu_type *base, uint32_t reg_index, uint32_t msg)
+static int imx_mu_write(struct mu_type *base, uint32_t reg_index, uint32_t msg)
 {
 	uint32_t mask = MU_SR_TE0_MASK << reg_index;
 	uint32_t val, tr_num;
@@ -149,10 +145,9 @@ imx_mu_write(struct mu_type *base, uint32_t reg_index, uint32_t msg)
 	return 0;
 }
 
-static int
-imx_mu_tx(struct mu_type *base, void *data)
+static int imx_mu_tx(struct mu_type *base, void *data)
 {
-	struct fce_msg *msg = (struct fce_msg *)data;
+	struct prime_msg *msg = (struct prime_msg *)data;
 	uint8_t count = 0, tr_num;
 	int ret;
 
@@ -160,7 +155,7 @@ imx_mu_tx(struct mu_type *base, void *data)
 		return -EINVAL;
 
 	/* Check size */
-	if (msg->size > FCE_MAX_MSG)
+	if (msg->size > PRIME_MAX_MSG)
 		return -EINVAL;
 
 	/* Write first word */
@@ -184,8 +179,7 @@ imx_mu_tx(struct mu_type *base, void *data)
 	return 0;
 }
 
-int
-imx_mu_send_recv(void *mu_base, void *tx_msg, void *rx_msg)
+int imx_mu_send_recv(void *mu_base, void *tx_msg, void *rx_msg)
 {
 	struct mu_type *base = (struct mu_type *)mu_base;
 	uint32_t result;
@@ -203,17 +197,16 @@ imx_mu_send_recv(void *mu_base, void *tx_msg, void *rx_msg)
 	if (ret)
 		return ret;
 
-	result = ((struct fce_msg *)rx_msg)->data[0];
+	result = ((struct prime_msg *)rx_msg)->data[0];
 	if ((result & 0xff) == REQ_SUCCESS)
 		return 0;
-	else if ((result & 0xffff) == FCE_FIFO_FULL)
+	else if ((result & 0xffff) == PRIME_FIFO_FULL)
 		return -ENOSPC;
 
 	return -EIO;
 }
 
-void
-imx_mu_init(struct mu_type *base)
+void imx_mu_init(struct mu_type *base)
 {
 	uint32_t rr_num = ((*(volatile unsigned int *)(&base->par)) & 0xFF00) >> 8;
 	uint32_t i;

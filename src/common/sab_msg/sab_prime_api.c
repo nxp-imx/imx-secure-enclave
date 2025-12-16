@@ -5,8 +5,8 @@
 #include <stdio.h>
 #include <string.h>
 
-#include "sab_fce_api.h"
-#include "fce_mu_regs.h"
+#include "sab_prime_api.h"
+#include "mu_regs.h"
 
 uint32_t crc_compute(uint32_t *msg, size_t len)
 {
@@ -28,16 +28,16 @@ void imx_mu_word_copy(uint32_t *buf, uint32_t *data, uint8_t size)
 		*((volatile uint32_t *)buf + i) = data[i];
 }
 
-int fce_push(void *mu_base, uint8_t slot)
+int prime_push(void *mu_base, uint8_t slot)
 {
-	struct fce_msg msg = {0};
+	struct prime_msg msg = {0};
 	int ret;
 
 	/* message header */
-	msg.version = FCE_VERSION;
-	msg.size = FCE_PUSH_REQ_SZ >> 2;
-	msg.tag = FCE_CMD_TAG;
-	msg.command = FCE_PUSH_REQ(slot);
+	msg.version = PRIME_VERSION;
+	msg.size = PRIME_PUSH_REQ_SZ >> 2;
+	msg.tag = PRIME_CMD_TAG;
+	msg.command = PRIME_PUSH_REQ(slot);
 
 	ret = imx_mu_send_recv(mu_base, &msg, &msg);
 	if (ret) {
@@ -49,16 +49,16 @@ int fce_push(void *mu_base, uint8_t slot)
 	return msg.data[1];
 }
 
-int fce_get_request_status(void *mu_base, uint32_t *req_id)
+int prime_get_request_status(void *mu_base, uint32_t *req_id)
 {
-	struct fce_msg msg = {0};
+	struct prime_msg msg = {0};
 	int ret;
 
 	/* message header */
-	msg.version = FCE_VERSION;
-	msg.size = FCE_GET_REQ_STATUS_SZ >> 2;
-	msg.tag = FCE_CMD_TAG;
-	msg.command = FCE_GET_REQ_STATUS;
+	msg.version = PRIME_VERSION;
+	msg.size = PRIME_GET_REQ_STATUS_SZ >> 2;
+	msg.tag = PRIME_CMD_TAG;
+	msg.command = PRIME_GET_REQ_STATUS;
 	msg.data[0] = *req_id;
 
 	ret = imx_mu_send_recv(mu_base, &msg, &msg);
@@ -71,7 +71,7 @@ int fce_get_request_status(void *mu_base, uint32_t *req_id)
 	return msg.data[0];
 }
 
-int fce_read_clear_gsr(void *mu_base)
+int prime_read_clear_gsr(void *mu_base)
 {
 	return imx_mu_read_clear_gsr(mu_base);
 }

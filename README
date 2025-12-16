@@ -614,7 +614,7 @@ seco_she_test/v2x_she_test will return failure if functional test/test vector tr
 to re-write the key with same value.
 
 Note #8:
-On i.MX943 board, SHE0 MU is been used by FCE so functionality of SHE is supported on
+On i.MX943 board, SHE0 MU is been used by PRIME so functionality of SHE is supported on
 SHE1 MU only from LF-Q2 2025.
 
 Ensure that following Secure Enclave Tests Artifacts are installed on the

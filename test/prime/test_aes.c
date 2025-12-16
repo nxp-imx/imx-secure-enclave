@@ -10,7 +10,7 @@
 #include "prime.h"
 #include "internal/prime_mem.h"
 
-#include "include/test_fce_utils.h"
+#include "include/test_prime_utils.h"
 
 static uint8_t ecb_key[32] = {
 	0x14, 0xaa, 0xfd, 0xd8, 0xb7, 0x9f, 0x0b, 0x38,

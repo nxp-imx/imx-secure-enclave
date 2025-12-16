@@ -8,10 +8,10 @@
 
 #include "prime.h"
 
-#include "sab_fce_process_msg.h"
-#include "sab_fce_api.h"
-#include "sab_fce_pvt.h"
-#include "fce_uio.h"
+#include "sab_prime_process_msg.h"
+#include "sab_prime_api.h"
+#include "sab_prime_pvt.h"
+#include "uio.h"
 
 static void set_status(crypto_op_args_t **ops, uint16_t nb_ops, int req_id,
 		       int status)
@@ -32,18 +32,18 @@ static void set_status(crypto_op_args_t **ops, uint16_t nb_ops, int req_id,
 
 static void dequeue_ops(crypto_op_args_t **ops, uint32_t nb_ops)
 {
-	struct uio_fce_mu *fce_mu = get_uio_fce_mu();
+	struct uio_prime_mu *prime_mu = get_uio_prime_mu();
 	uint32_t req_id, last_req_id;
 	int status;
 
-	if (!fce_read_clear_gsr(fce_mu->base))
+	if (!prime_read_clear_gsr(prime_mu->base))
 		return;
 
 	/* Error signal is set, clear the FW qeuue by reading error job */
 	last_req_id = ops[nb_ops - 1]->req_id;
 	do {
 		req_id = last_req_id;
-		status = fce_get_request_status(fce_mu->base, &req_id);
+		status = prime_get_request_status(prime_mu->base, &req_id);
 		if (status != 0xd6)
 			set_status(ops, nb_ops, req_id, status);
 
@@ -54,13 +54,13 @@ static void build_op(crypto_op_args_t *op, uint8_t buf_off, uint8_t flag)
 {
 	switch (op->op_type) {
 	case CRYPTO_OP_TYPE_AES:
-		fce_cipher_build(op, buf_off, flag);
+		prime_cipher_build(op, buf_off, flag);
 		break;
 	case CRYPTO_OP_TYPE_AEAD:
-		fce_aead_build(op, buf_off, flag);
+		prime_aead_build(op, buf_off, flag);
 		break;
 	case CRYPTO_OP_TYPE_HMAC:
-		fce_auth_build(op, buf_off, flag);
+		prime_auth_build(op, buf_off, flag);
 		break;
 	default:
 		printf("Un-supported crypto operation.\n");
@@ -72,23 +72,23 @@ static void build_op(crypto_op_args_t *op, uint8_t buf_off, uint8_t flag)
 
 static int enqueue_ops(crypto_op_args_t **ops, uint16_t nb_ops, uint8_t flag)
 {
-	struct uio_fce_mu *fce_mu = get_uio_fce_mu();
+	struct uio_prime_mu *prime_mu = get_uio_prime_mu();
 	uint8_t slot = 0, jobs = 0, buf_off = 64;
 	int i, ret, req_id;
 
 	/* Push Request: MU Slot */
 	for (i = 0; i < nb_ops; i++) {
 		if (flag && (i + 1 == nb_ops))
-			build_op(ops[i], buf_off * i, FCE_SIG_POP_REQ);
+			build_op(ops[i], buf_off * i, PRIME_SIG_POP_REQ);
 		else
-			build_op(ops[i], buf_off * i, FCE_POP_REQ);
+			build_op(ops[i], buf_off * i, PRIME_POP_REQ);
 
 		slot = slot | (1 << i);
 		jobs++;
 	}
 
 	if (slot) {
-		req_id = fce_push(fce_mu->base, slot);
+		req_id = prime_push(prime_mu->base, slot);
 		if (req_id < 0) {
 			for (i = 0; i < nb_ops; i++)
 				ops[i]->status = CRYPTO_OP_FIFO_FULL;
@@ -101,7 +101,7 @@ static int enqueue_ops(crypto_op_args_t **ops, uint16_t nb_ops, uint8_t flag)
 	for (i = nb_ops - 1; i >= 0; i--) {
 		if (slot & (1 << i)) {
 			ops[i]->req_id = req_id;
-			req_id = req_id - FCE_REQ_ID_DIFF;
+			req_id = req_id - PRIME_REQ_ID_DIFF;
 			ops[i]->status = CRYPTO_OP_IN_PROGRESS;
 		}
 	}
@@ -144,7 +144,7 @@ int prime_process_ops(uint32_t service_hdl,
 		      crypto_op_args_t **ops,
 		      uint32_t nb_ops)
 {
-	uint32_t max_ops = FCE_MAX_OPS;
+	uint32_t max_ops = PRIME_MAX_OPS;
 	uint32_t unused_ops = nb_ops;
 	uint32_t enq_ops;
 	int ret = CRYPTO_OP_SUCCESS;

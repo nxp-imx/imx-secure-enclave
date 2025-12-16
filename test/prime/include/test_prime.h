@@ -3,8 +3,8 @@
  * Copyright 2025 NXP
  */
 
-#ifndef TEST_FCE_H
-#define TEST_FCE_H
+#ifndef TEST_PRIME_H
+#define TEST_PRIME_H
 
 void hmac_test(uint32_t service_hdl);
 void aes_cbc_test(uint32_t service_hdl);

@@ -480,21 +480,21 @@ SAB_MSG_SRC	+= \
 		$(PLAT_COMMON_PATH)/sab_msg/sab_asymmetric_crypto.o
 endif
 
-FCE_SAB_MSG_SRC += \
-		$(PLAT_COMMON_PATH)/sab_msg/sab_fce_init.o \
-		$(PLAT_COMMON_PATH)/sab_msg/sab_fce_service.o \
-		$(PLAT_COMMON_PATH)/sab_msg/sab_fce_process_msg.o \
-		$(PLAT_COMMON_PATH)/sab_msg/sab_fce_crypt.o \
-		$(PLAT_COMMON_PATH)/sab_msg/sab_fce_api.o \
-		$(PLAT_COMMON_PATH)/sab_msg/sab_fce_aes.o \
-		$(PLAT_COMMON_PATH)/sab_msg/sab_fce_auth.o \
+PRIME_SAB_MSG_SRC += \
+		$(PLAT_COMMON_PATH)/sab_msg/sab_prime_init.o \
+		$(PLAT_COMMON_PATH)/sab_msg/sab_prime_service.o \
+		$(PLAT_COMMON_PATH)/sab_msg/sab_prime_process_msg.o \
+		$(PLAT_COMMON_PATH)/sab_msg/sab_prime_crypt.o \
+		$(PLAT_COMMON_PATH)/sab_msg/sab_prime_api.o \
+		$(PLAT_COMMON_PATH)/sab_msg/sab_prime_aes.o \
+		$(PLAT_COMMON_PATH)/sab_msg/sab_prime_auth.o \
 
 
 OBJECTS		+= $(SAB_MSG_SRC) \
 		$(SAB_RCVMSG_SRC) \
 		$(SHE_SAB_MSG_SRC) \
 		$(CRRM_SAB_MSG_SRC) \
-		$(FCE_SAB_MSG_SRC) \
+		$(PRIME_SAB_MSG_SRC) \
 		$(PLAT_COMMON_PATH)/sab_msg/sab_session.o
 
 INCLUDE_PATHS	+= \

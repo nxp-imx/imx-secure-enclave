@@ -10,7 +10,7 @@
 #include "prime.h"
 #include "internal/prime_mem.h"
 
-#include "include/test_fce_utils.h"
+#include "include/test_prime_utils.h"
 
 static uint8_t msg[256] __attribute__((aligned(16))) = {
 	0x57, 0x68, 0x61, 0x74, 0x20, 0x61, 0x20, 0x6C,

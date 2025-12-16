@@ -33,7 +33,7 @@ enum crypto_op_status {
 };
 
 /* PRIME crypto private session structure */
-typedef struct crypto_op {
+typedef struct prime_crypto_op {
 	struct buf src;
 	struct buf dst;
 	uint32_t req_id;

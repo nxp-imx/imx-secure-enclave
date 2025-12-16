@@ -7,8 +7,8 @@
 #include <stdint.h>
 #include "internal/prime_service.h"
 
-#include "include/test_fce.h"
-#include "include/test_fce_utils.h"
+#include "include/test_prime.h"
+#include "include/test_prime_utils.h"
 
 void hexdump(uint8_t buf[], uint32_t size)
 {
@@ -27,11 +27,11 @@ void data_cache_clean(uint8_t *buf, uint32_t len, int clean_only)
 	uint32_t i;
 
 	if (clean_only) {
-		for (i = 0; i <= len; i += FCE_CACHE_LINE_SIZE)
+		for (i = 0; i <= len; i += PRIME_CACHE_LINE_SIZE)
 			dcbf(buf + i);
 	} else {
 		/* clean and invalidate */
-		for (i = 0; i <= len; i += FCE_CACHE_LINE_SIZE)
+		for (i = 0; i <= len; i += PRIME_CACHE_LINE_SIZE)
 			dccivac(buf + i);
 	}
 }

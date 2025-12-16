@@ -2,8 +2,8 @@
  * Copyright 2025 NXP
  */
 
-#ifndef FCE_UIO_H
-#define FCE_UIO_H
+#ifndef UIO_H
+#define UIO_H
 
 #include <sys/types.h>
 #include <stdint.h>
@@ -18,7 +18,7 @@ struct io_mem {
 	size_t size;
 };
 
-struct uio_fce_mu {
+struct uio_prime_mu {
 	int fd;
 	void *base;
 	long size;
@@ -26,10 +26,10 @@ struct uio_fce_mu {
 	struct io_mem iomem;
 };
 
-struct uio_fce_mu *fce_mu_open(void);
-int fce_mu_close(int fd);
+struct uio_prime_mu *prime_mu_open(void);
+int prime_mu_close(int fd);
 
 int v2x_prime_mmap(void);
 void v2x_prime_munmap(void);
 
-#endif /* FCE_UIO_H */
+#endif /* UIO_H */

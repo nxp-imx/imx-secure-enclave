@@ -2,14 +2,14 @@
  * Copyright 2025 NXP
  */
 
-#ifndef FCE_MU_REGS_H
-#define FCE_MU_REGS_H
+#ifndef MU_REGS_H
+#define MU_REGS_H
 
 #include <stdint.h>
 
 #define REQ_SUCCESS	0xd6
-#define FCE_FIFO_FULL	0x2029
-#define FCE_MAX_MSG	40U
+#define PRIME_FIFO_FULL	0x2029
+#define PRIME_MAX_MSG	40U
 
 struct mu_type {
 	uint32_t ver;
@@ -36,15 +36,15 @@ struct mu_type {
 	uint32_t mu_attr;
 };
 
-struct fce_msg {
+struct prime_msg {
 	volatile uint8_t version;
 	volatile uint8_t size;
 	volatile uint8_t command;
 	volatile uint8_t tag;
-	uint32_t data[(FCE_MAX_MSG - 1U)];
+	uint32_t data[(PRIME_MAX_MSG - 1U)];
 };
 
-struct fce_load_key_msg {
+struct prime_load_key_msg {
 	volatile uint8_t version;
 	volatile uint8_t size;
 	volatile uint8_t command;
@@ -52,11 +52,11 @@ struct fce_load_key_msg {
 	volatile uint8_t keyslot;
 	volatile uint8_t keysize;
 	uint8_t rfu[2];
-	uint32_t data[(FCE_MAX_MSG - 2U)];
+	uint32_t data[(PRIME_MAX_MSG - 2U)];
 };
 
 int imx_mu_send_recv(void *base, void *tx_msg, void *rx_msg);
 int imx_mu_read_clear_gsr(struct mu_type *base);
 void imx_mu_init(struct mu_type *base);
 
-#endif /* FCE_MU_REGS_H */
+#endif /* MU_REGS_H */

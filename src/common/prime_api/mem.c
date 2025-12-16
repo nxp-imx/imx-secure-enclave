@@ -6,8 +6,8 @@
 #include <string.h>
 #include <errno.h>
 
-#include "sab_fce_process_msg.h"
-#include "fce_uio.h"
+#include "sab_prime_process_msg.h"
+#include "uio.h"
 
 #define __round_mask(x, y) ((__typeof__(x))((y) - 1))
 #define round_up(x, y) ((((x) - 1) | __round_mask(x, y)) + 1)
@@ -51,8 +51,8 @@ void prime_mcopy(void *dst, void *src, size_t size)
 
 void prime_mfree(uint32_t service_hdl, uint32_t len)
 {
-	struct uio_fce_mu *fce_mu = get_uio_fce_mu();
-	struct io_mem *iomem = &fce_mu->iomem;
+	struct uio_prime_mu *prime_mu = get_uio_prime_mu();
+	struct io_mem *iomem = &prime_mu->iomem;
 
 	if (iomem->pos < round_up(len, 8u)) {
 		iomem->pos = 0;
@@ -65,8 +65,8 @@ void prime_mfree(uint32_t service_hdl, uint32_t len)
 int prime_malloc(uint32_t service_hdl, uint8_t **virt_addr, uint32_t *phys_addr,
 		 uint32_t len)
 {
-	struct uio_fce_mu *fce_mu = get_uio_fce_mu();
-	struct io_mem *iomem = &fce_mu->iomem;
+	struct uio_prime_mu *prime_mu = get_uio_prime_mu();
+	struct io_mem *iomem = &prime_mu->iomem;
 
 	if (iomem->pos >= iomem->size ||
 	    (round_up(len, 8u) > (iomem->size - iomem->pos))) {

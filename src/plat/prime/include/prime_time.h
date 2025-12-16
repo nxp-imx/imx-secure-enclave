@@ -2,8 +2,8 @@
  * Copyright 2025 NXP
  */
 
-#ifndef _V2X_FCE_TIME_H_
-#define _V2X_FCE_TIME_H_
+#ifndef PRIME_TIME_H
+#define PRIME_TIME_H
 
 #include <time.h>
 
@@ -49,4 +49,4 @@ static inline uint32_t timeout_expire(unsigned long time, unsigned long timeout)
 	(cond) ? 0 : -ETIMEDOUT; \
 })
 
-#endif /* _V2X_FCE_TIME_H_ */
+#endif /* PRIME_TIME_H */

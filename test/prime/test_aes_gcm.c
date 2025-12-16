@@ -10,7 +10,7 @@
 #include "prime.h"
 #include "internal/prime_mem.h"
 
-#include "include/test_fce_utils.h"
+#include "include/test_prime_utils.h"
 
 static uint8_t key[32] = {
 	0x17, 0xd2, 0x2f, 0x3d, 0xf2, 0x10, 0x9e, 0x63,

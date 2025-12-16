@@ -11,21 +11,20 @@
 #include <sys/mman.h>
 #include <unistd.h>
 #include <errno.h>
-#include "fce_mu_regs.h"
-#include "fce_uio.h"
+#include "mu_regs.h"
+#include "uio.h"
 
 #define UIO_DIR_PATH        "/sys/class/uio"
 #define UIO_DEV_PATH	    "/dev/uio"
-#define FCE_UIO_NAME	    "FCE UIO"
+#define PRIME_UIO_NAME	    "FCE UIO"
 #define UIO_MAP_PATH	    "maps/map"
 #define MU_BUF_OFFSET	    0x8000
 #define DMA_MEM_SZ_MAX      0x10000000
 #define DMA_MEM_START_ADDR  0xa4220000
 
-static struct uio_fce_mu g_fce_mu;
+static struct uio_prime_mu g_prime_mu;
 
-static int
-match_fce_dev_name(const char *uio_path, const char *uio_name)
+static int match_prime_dev_name(const char *uio_path, const char *uio_name)
 {
 	char tmp[ARR_LEN] = {0};
 	ssize_t bytes;
@@ -51,8 +50,7 @@ match_fce_dev_name(const char *uio_path, const char *uio_name)
 	return 0;
 }
 
-static int
-read_fce_uio_num(void)
+static int read_prime_uio_num(void)
 {
 	DIR *dp = NULL;
 	const char *substring = "uio";
@@ -79,7 +77,7 @@ read_fce_uio_num(void)
 			 UIO_DIR_PATH, entry->d_name, "name");
 
 		/* check if uio path has driver name as 'FCE UIO' */
-		ret = match_fce_dev_name(uio_path, FCE_UIO_NAME);
+		ret = match_prime_dev_name(uio_path, PRIME_UIO_NAME);
 		if (ret) {
 			uio_minor_num = -1;
 			continue;
@@ -97,7 +95,7 @@ read_fce_uio_num(void)
 	}
 
 	if (uio_minor_num == -1)
-		printf("Error: FCE UIO Device not found\n");
+		printf("Error: PRIME UIO Device not found\n");
 
 	closedir(dp);
 	return uio_minor_num;
@@ -127,17 +125,16 @@ read_val(const char *path, long *val)
 	return 0;
 }
 
-struct uio_fce_mu *
-fce_mu_open(void)
+struct uio_prime_mu* prime_mu_open(void)
 {
-	struct uio_fce_mu *fce_mu = &g_fce_mu;
+	struct uio_prime_mu *prime_mu = &g_prime_mu;
 	char path[ARR_LEN] = {0};
 	int uio_minor_num;
 	void *map;
 	int ret;
 
 	/* read uio number, generally 0 */
-	uio_minor_num  = read_fce_uio_num();
+	uio_minor_num  = read_prime_uio_num();
 	if (uio_minor_num < 0)
 		return NULL;
 
@@ -147,9 +144,9 @@ fce_mu_open(void)
 		 UIO_MAP_PATH, uio_minor_num, "size");
 
 	/* read the size */
-	ret = read_val(path, &fce_mu->size);
+	ret = read_val(path, &prime_mu->size);
 	if (ret) {
-		perror("uio fce read size");
+		perror("uio prime read size");
 		return NULL;
 	}
 
@@ -159,48 +156,47 @@ fce_mu_open(void)
 		 UIO_DEV_PATH, uio_minor_num);
 
 	/* open uio device */
-	fce_mu->fd = open(path, O_RDWR | O_SYNC);
-	if (fce_mu->fd < 0) {
-		perror("uio fce open");
+	prime_mu->fd = open(path, O_RDWR | O_SYNC);
+	if (prime_mu->fd < 0) {
+		perror("uio prime open");
 		return NULL;
 	}
 
 	/* map the uio memory */
-	map = mmap(NULL, fce_mu->size, PROT_READ | PROT_WRITE,
-		   MAP_SHARED, fce_mu->fd, 0);
+	map = mmap(NULL, prime_mu->size, PROT_READ | PROT_WRITE,
+		   MAP_SHARED, prime_mu->fd, 0);
 	if (map == MAP_FAILED) {
-		perror("uio fce mmap");
-		close(fce_mu->fd);
+		perror("uio prime mmap");
+		close(prime_mu->fd);
 		return NULL;
 	}
 
 	/* store MU base address and MU buffer */
-	fce_mu->base = map;
-	fce_mu->mu_buf = (uint8_t *)fce_mu->base + MU_BUF_OFFSET;
+	prime_mu->base = map;
+	prime_mu->mu_buf = (uint8_t *)prime_mu->base + MU_BUF_OFFSET;
 
 	/* Initialize MU */
-	imx_mu_init(fce_mu->base);
+	imx_mu_init(prime_mu->base);
 
-	return fce_mu;
+	return prime_mu;
 }
 
-int
-fce_mu_close(int fd)
+int prime_mu_close(int fd)
 {
-	struct uio_fce_mu *fce_mu = NULL;
+	struct uio_prime_mu *prime_mu = NULL;
 	int ret;
 
-	if (fd == g_fce_mu.fd)
-		fce_mu = &g_fce_mu;
+	if (fd == g_prime_mu.fd)
+		prime_mu = &g_prime_mu;
 
-	if (!fce_mu) {
+	if (!prime_mu) {
 		printf("MU not available for fd = %d\n", fd);
 		return -1;
 	}
 
-	ret = munmap(fce_mu->base, fce_mu->size);
+	ret = munmap(prime_mu->base, prime_mu->size);
 	if (ret) {
-		perror("uio fce unmap");
+		perror("uio prime unmap");
 		return errno;
 	}
 
@@ -211,12 +207,12 @@ fce_mu_close(int fd)
 
 int v2x_prime_mmap(void)
 {
-	struct uio_fce_mu *fce_mu = &g_fce_mu;
+	struct uio_prime_mu *prime_mu = &g_prime_mu;
 	int fd;
 
-	fce_mu->iomem.phys_addr = 0xa4220000;
-	fce_mu->iomem.size = DMA_MEM_SZ_MAX;
-	fce_mu->iomem.pos = 0;
+	prime_mu->iomem.phys_addr = 0xa4220000;
+	prime_mu->iomem.size = DMA_MEM_SZ_MAX;
+	prime_mu->iomem.pos = 0;
 
 	fd = open("/dev/mem", O_RDWR | O_SYNC);
 	if (fd < 0) {
@@ -224,10 +220,10 @@ int v2x_prime_mmap(void)
 		return -1;
 	}
 
-	fce_mu->iomem.virt_addr = mmap(NULL, fce_mu->iomem.size,
+	prime_mu->iomem.virt_addr = mmap(NULL, prime_mu->iomem.size,
 				       PROT_READ | PROT_WRITE, MAP_SHARED,
-				       fd, fce_mu->iomem.phys_addr);
-	if (fce_mu->iomem.virt_addr == MAP_FAILED) {
+				       fd, prime_mu->iomem.phys_addr);
+	if (prime_mu->iomem.virt_addr == MAP_FAILED) {
 		perror("mmap physical memory");
 		close(fd);
 		return -1;
@@ -240,7 +236,7 @@ int v2x_prime_mmap(void)
 
 void v2x_prime_munmap(void)
 {
-	struct uio_fce_mu *fce_mu = &g_fce_mu;
+	struct uio_prime_mu *prime_mu = &g_prime_mu;
 
-	munmap((void *)fce_mu->iomem.virt_addr, fce_mu->iomem.size);
+	munmap((void *)prime_mu->iomem.virt_addr, prime_mu->iomem.size);
 }

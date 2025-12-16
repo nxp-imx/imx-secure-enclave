@@ -4,14 +4,14 @@
  */
 
 #include <stdio.h>
-#include "fce_uio.h"
+#include "uio.h"
 
-static struct uio_fce_mu *fce_mu;
+static struct uio_prime_mu *prime_mu;
 
 void v2x_prime_init(void)
 {
-	fce_mu = fce_mu_open();
-	if (!fce_mu) {
+	prime_mu = prime_mu_open();
+	if (!prime_mu) {
 		perror("Failed to open V2X PRIME MU Device.\n");
 		return;
 	}
@@ -23,11 +23,11 @@ void v2x_prime_init(void)
 void v2x_prime_deinit(void)
 {
 	v2x_prime_munmap();
-	fce_mu_close(fce_mu->fd);
-	fce_mu = NULL;
+	prime_mu_close(prime_mu->fd);
+	prime_mu = NULL;
 }
 
-struct uio_fce_mu *get_uio_fce_mu(void)
+struct uio_prime_mu *get_uio_prime_mu(void)
 {
-	return fce_mu;
+	return prime_mu;
 }
