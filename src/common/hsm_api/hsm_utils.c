@@ -243,6 +243,7 @@ hsm_err_t lib_err_to_hsm_err(uint32_t lib_err)
 {
 	hsm_err_t ret = HSM_LIB_ERROR;
 	uint32_t lib_err_status = PARSE_LIB_ERR_STATUS(lib_err);
+	uint8_t lib_err_type;
 
 	if (lib_err_status == SAB_LIB_SUCCESS)
 		return HSM_NO_ERROR;
@@ -250,6 +251,15 @@ hsm_err_t lib_err_to_hsm_err(uint32_t lib_err)
 	if (PARSE_LIB_ERR_PATH(lib_err) == ENGN_RCV_RESP_PATH_FLAG)
 		return HSM_NO_ERROR;
 
+	if (lib_err_status == SAB_LIB_CMD_MSG_PREP_FAIL) {
+		lib_err_type = PARSE_LIB_ERR_PLAT(lib_err);
+		if (lib_err_type == PLAT_DATA_BUF_SETUP_FAIL_OUT_OF_MEM)
+			ret |= lib_err_type << 8;
+	}
+
+	/* Treat the error as HSM erorr for invalid, unsupported or any
+	 * exception API(s).
+	 */
 	if (is_lib_err(lib_err))
 		ret = sab_err_rating_to_hsm_err(GET_RATING_CODE(lib_err_status));
 
