@@ -10,6 +10,8 @@
 #include "sab_msg_def.h"
 #include "plat_os_abs.h"
 
+#include "internal/hsm_utils.h"
+
 #define no_printf(...)						\
 {}
 
@@ -53,6 +55,8 @@
 #define PLAT_MEMCPY_FAIL               0x02u
 #define PLAT_ERR_OUT_OF_MEMORY         0x03u
 #define PLAT_DATA_BUF_SETUP_FAIL       0x04u
+#define PLAT_DATA_BUF_SETUP_FAIL_OUT_OF_MEM \
+	(LIB_ERR_IO_BUF_SETUP_OUT_OF_MEM >> 8)
 #define PLAT_SIGNED_MESSAGE_SETUP_FAIL 0x05u
 #define PLAT_ERR_NO_SUCH_FILE_DIR      0x06u
 #define PLAT_CONF_SHARED_BUF_FAIL      0x08u

@@ -19,6 +19,14 @@
  *  @{
  */
 /**
+ * Error codes returned by LIB functions.
+ */
+typedef enum {
+	LIB_ERR_IO_BUF_SETUP_OUT_OF_MEM     = 0x1400u,
+	/**<IO Buffer setup failure. */
+} lib_err_t;
+
+/**
  * Error codes returned by HSM functions.
  */
 typedef enum {
@@ -119,6 +127,9 @@ typedef enum {
 	/**<Unknown errors */
 	HSM_GENERAL_ERROR                   = 0xFF,
 	/**<Error in case General Error is received */
+	HSM_LIB_ERR_IO_BUF_SETUP_OUT_OF_MEM =
+		HSM_LIB_ERROR | LIB_ERR_IO_BUF_SETUP_OUT_OF_MEM,
+	/**< HSM library failure - IO Buffer setup error. */
 } hsm_err_t;
 /** @} end of error code group */
 
