@@ -1,12 +1,14 @@
 // SPDX-License-Identifier: BSD-3-Clause
 /*
- * Copyright 2022-2023 NXP
+ * Copyright 2022-2023, 2026 NXP
  */
 
 #ifndef HSM_HANDLE_H
 #define HSM_HANDLE_H
 
 #include <stdint.h>
+
+#include "common/se_lib_service.h"
 
 #define HSM_HANDLE_NONE		(0x0)
 
@@ -30,6 +32,8 @@ struct hsm_session_hdl_s {
 		//!< Session handle.
 	uint32_t mu_type;
 		//!< Session MU type.
+	se_lib_hdl_t se_lib_serv_hdl;
+		//!< SE lib service handle.
 };
 
 /**

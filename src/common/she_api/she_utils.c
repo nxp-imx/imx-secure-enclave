@@ -1,6 +1,6 @@
 // SPDX-License-Identifier: BSD-3-Clause
 /*
- * Copyright 2023-2025 NXP
+ * Copyright 2023-2026 NXP
  */
 
 #include <stdio.h>
@@ -11,6 +11,7 @@
 #include "perf.h"
 #include "plat_utils.h"
 #include "sab_common_err.h"
+#include "se_lib_serv_intern.h"
 #include "plat_err_def.h"
 
 #define SHE_ERR_SUPPORT 0
@@ -283,13 +284,15 @@ she_err_t lib_err_to_she_err(uint32_t lib_err)
 	return ret;
 }
 
-void se_get_info(uint32_t session_hdl, op_get_info_args_t *args)
+uint32_t se_get_info(uint32_t session_hdl, op_get_info_args_t *args)
 {
 	she_err_t err;
 
 	err = she_get_info(session_hdl, args);
 	if (err != SHE_NO_ERROR)
 		se_err("\nGlobal Info: she_get_info failed err:0x%x\n", err);
+
+	return err;
 }
 
 void se_get_soc_info(uint32_t session_hdl,
@@ -297,16 +300,26 @@ void se_get_soc_info(uint32_t session_hdl,
 		     uint16_t *soc_rev,
 		     uint8_t *board_type)
 {
+	struct se_lib_service_hdl_s *se_lib_serv_ptr;
+	struct plat_os_abs_hdl *phdl = NULL;
 	struct she_session_hdl_s *s_ptr;
 	uint32_t ret;
 
 	s_ptr = she_session_hdl_to_ptr(session_hdl);
-	if (s_ptr)
-		ret = plat_os_abs_get_soc_info(s_ptr->phdl,
+	if (s_ptr) {
+		phdl = s_ptr->phdl;
+	} else {
+		se_lib_serv_ptr = se_lib_serv_hdl_to_ptr(session_hdl);
+		if (se_lib_serv_ptr)
+			phdl = se_lib_serv_ptr->phdl;
+	}
+	if (phdl)
+		ret = plat_os_abs_get_soc_info(phdl,
 					       soc_id,
 					       soc_rev,
 					       board_type);
-	if (!s_ptr || ret != PLAT_SUCCESS)
+
+	if (!phdl || ret != PLAT_SUCCESS)
 		se_err("Global Info: failed to get SoC info.\n");
 }
 

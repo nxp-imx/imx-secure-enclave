@@ -1,8 +1,9 @@
 # SPDX-License-Identifier: BSD-3-Clause
-# Copyright 2025 NXP
+# Copyright 2025-2026 NXP
 #
 
 CRRM_API_SRC	+= \
+		$(PLAT_COMMON_PATH)/se_lib_service.o \
 		$(PLAT_COMMON_PATH)/hsm_api/hsm_utils.o \
 		$(PLAT_COMMON_PATH)/hsm_api/hsm_session.o \
 		$(PLAT_COMMON_PATH)/se_global_info.o \

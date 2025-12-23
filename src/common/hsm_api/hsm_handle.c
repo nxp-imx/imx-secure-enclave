@@ -1,6 +1,6 @@
 // SPDX-License-Identifier: BSD-3-Clause
 /*
- * Copyright 2022-2023, 2025 NXP
+ * Copyright 2022-2023, 2025-2026 NXP
  */
 
 #include <stdint.h>
@@ -88,6 +88,7 @@ void delete_session(struct hsm_session_hdl_s *s_ptr)
 	if (s_ptr != NULL) {
 		s_ptr->phdl = NULL;
 		s_ptr->session_hdl = 0u;
+		s_ptr->se_lib_serv_hdl = 0u;
 	}
 }
 

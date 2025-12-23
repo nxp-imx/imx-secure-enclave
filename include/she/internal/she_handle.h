@@ -1,12 +1,14 @@
 // SPDX-License-Identifier: BSD-3-Clause
 /*
- * Copyright 2023-2025 NXP
+ * Copyright 2023-2026 NXP
  */
 
 #ifndef SHE_HANDLE_H
 #define SHE_HANDLE_H
 
 #include <stdint.h>
+
+#include "common/se_lib_service.h"
 
 /**
  *  @defgroup group1 Session
@@ -37,6 +39,8 @@ struct she_session_hdl_s {
 	//!< Session MU type.
 	uint32_t last_rating;
 	//!< last error code returned by command.
+	se_lib_hdl_t se_lib_serv_hdl;
+		//!< SE lib service handle.
 };
 
 /**

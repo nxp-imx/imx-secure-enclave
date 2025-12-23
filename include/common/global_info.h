@@ -1,6 +1,6 @@
 // SPDX-License-Identifier: BSD-3-Clause
 /*
- * Copyright 2023-2025 NXP
+ * Copyright 2023-2026 NXP
  */
 
 #ifndef GLOBAL_INFO_H
@@ -232,8 +232,8 @@ const char *get_soc_lf_str(uint16_t lifecycle);
 /**
  * Get Info for Global Info setup
  */
-void se_get_info(uint32_t session_hdl,
-		 op_get_info_args_t *args);
+uint32_t se_get_info(uint32_t session_hdl,
+		     op_get_info_args_t *args);
 /**
  * Get SoC Info for Global Info setup
  */

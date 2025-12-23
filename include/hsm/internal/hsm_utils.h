@@ -1,12 +1,14 @@
 // SPDX-License-Identifier: BSD-3-Clause
 /*
- * Copyright 2022-2025 NXP
+ * Copyright 2022-2026 NXP
  */
 
 #ifndef HSM_UTILS_H
 #define HSM_UTILS_H
 
 #include "stdint.h"
+
+#include "common/se_lib_utils.h"
 
 #include "internal/hsm_handle.h"
 #include "common/global_info.h"
@@ -30,7 +32,7 @@ typedef enum {
  * Error codes returned by HSM functions.
  */
 typedef enum {
-	HSM_NO_ERROR                        = 0x0,
+	HSM_NO_ERROR                        = SE_LIB_NO_ERROR,
 	/**<Success. */
 	HSM_INVALID_MESSAGE                 = 0x1,
 	/**<The received message is invalid or unknown. */
@@ -46,7 +48,7 @@ typedef enum {
 	/**<NVM generic issue. */
 	HSM_OUT_OF_MEMORY                   = 0x6,
 	/**<There is not enough memory to handle the requested operation. */
-	HSM_UNKNOWN_HANDLE                  = 0x7,
+	HSM_UNKNOWN_HANDLE                  = SE_LIB_UNKNOWN_HANDLE,
 	/**<Unknown session/service handle. */
 	HSM_UNKNOWN_KEY_STORE               = 0x8,
 	/**<The key store identified by the provided “key store Id”
@@ -111,7 +113,7 @@ typedef enum {
 	/**<A fatal failure occurred, the HSM goes in unrecoverable
 	 * error state not replying to further requests
 	 */
-	HSM_LIB_ERROR                       = 0xEF,
+	HSM_LIB_ERROR                       = SE_LIB_ERROR,
 	/**< HSM library failure */
 	HSM_INVALID_LIFECYCLE_OP            = 0xF2,
 	/**<	Invalid Lifecycle operation (ROM) */

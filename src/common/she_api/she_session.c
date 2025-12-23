@@ -1,6 +1,6 @@
 // SPDX-License-Identifier: BSD-3-Clause
 /*
- * Copyright 2023-2024 NXP
+ * Copyright 2023-2024, 2026 NXP
  */
 
 #include <stdbool.h>
@@ -8,6 +8,7 @@
 
 #include "she_api.h"
 #include "sab_process_msg.h"
+#include "se_lib_serv_intern.h"
 
 she_err_t she_close_session(she_hdl_t session_hdl)
 {
@@ -41,7 +42,7 @@ she_err_t she_close_session(she_hdl_t session_hdl)
 		return err;
 	}
 
-	plat_os_abs_close_session(hdl->phdl);
+	se_lib_close_service(hdl->se_lib_serv_hdl);
 
 	delete_she_session(hdl);
 
@@ -91,11 +92,13 @@ static she_err_t get_shared_buff(struct she_session_hdl_s *hdl)
 she_err_t open_session(open_session_args_t *args,
 		       struct she_session_hdl_s **hdl)
 {
+	struct se_lib_service_hdl_s *se_lib_s_ptr = NULL;
 	struct plat_mu_params mu_params = {'\0'};
 	struct she_session_hdl_s *thdl = NULL;
 	she_err_t err = SHE_GENERAL_ERROR;
 	uint32_t lib_err;
 	uint32_t rsp_code = SAB_NO_MESSAGE_RATING;
+	open_se_lib_serv_args_t se_lib_serv_args;
 
 	thdl = add_she_session();
 	if (!thdl)
@@ -103,19 +106,27 @@ she_err_t open_session(open_session_args_t *args,
 
 	plat_os_abs_memset((uint8_t *)thdl, 0u,
 			   (uint32_t)sizeof(struct she_session_hdl_s));
-	/* Open the SHE session on the MU */
-	thdl->phdl = plat_os_abs_open_mu_channel(args->mu_type, &mu_params);
+
+	se_lib_serv_args.mu_type = args->mu_type;
+	se_lib_open_service(&se_lib_serv_args, &thdl->se_lib_serv_hdl);
+	se_lib_s_ptr = se_lib_serv_hdl_to_ptr(thdl->se_lib_serv_hdl);
+
+	if (!se_lib_s_ptr)
+		return err;
+
+	thdl->mu_type = se_lib_serv_args.mu_type;
+	thdl->phdl = se_lib_s_ptr->phdl;
 	if (!thdl->phdl)
 		return err;
 
-	thdl->mu_type = args->mu_type;
 #ifndef PSA_COMPLIANT
-	args->mu_id = mu_params.mu_id;
-	args->tz = mu_params.tz;
-	args->did = mu_params.did;
+	args->mu_id = se_lib_s_ptr->mu_params.mu_id;
+	args->tz = se_lib_s_ptr->mu_params.tz;
+	args->did = se_lib_s_ptr->mu_params.did;
 #endif
 	if (!args->interrupt_idx)
-		args->interrupt_idx = mu_params.interrupt_idx;
+		args->interrupt_idx = se_lib_s_ptr->mu_params.interrupt_idx;
+
 	/* Open the SHE session on Platform's side */
 	lib_err = process_sab_msg(thdl->phdl,
 				  thdl->mu_type,
@@ -180,7 +191,7 @@ she_err_t she_open_session(open_session_args_t *args, she_hdl_t *session_hdl)
 			break;
 
 		//populate Global Info structure
-		if (err == SHE_NO_ERROR && !is_global_info_populated())
+		if (err == SHE_NO_ERROR)
 			populate_global_info(args->session_hdl);
 
 		args->session_hdl = hdl->session_hdl;
@@ -199,7 +210,7 @@ she_err_t she_open_session(open_session_args_t *args, she_hdl_t *session_hdl)
 			if (hdl->session_hdl != 0u) {
 				(void)she_close_session(hdl->session_hdl);
 			} else if (hdl->phdl) {
-				plat_os_abs_close_session(hdl->phdl);
+				se_lib_close_service(hdl->se_lib_serv_hdl);
 				delete_she_session(hdl);
 			} else {
 				delete_she_session(hdl);

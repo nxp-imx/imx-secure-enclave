@@ -1,6 +1,6 @@
 // SPDX-License-Identifier: BSD-3-Clause
 /*
- * Copyright 2023-2025 NXP
+ * Copyright 2023-2026 NXP
  */
 
 #include <stdio.h>
@@ -214,6 +214,20 @@ void populate_global_info(uint32_t session_hdl)
 	int len;
 	op_get_info_args_t getinfo_args = {0};
 
+	if (!global_info.lifecycle) {
+		plat_os_abs_memset((uint8_t *)&getinfo_args, 0, sizeof(getinfo_args));
+		if (!se_get_info(session_hdl, &getinfo_args)) {
+			if (getinfo_args.chip_unique_id)
+				plat_os_abs_free(getinfo_args.chip_unique_id);
+
+			global_info.lifecycle =	getinfo_args.chip_life_cycle;
+			global_info.fips_mode =	getinfo_args.fips_mode;
+		}
+	}
+
+	if (global_info.is_populated)
+		return;
+
 	plat_os_abs_memset((uint8_t *)&global_info, 0, sizeof(global_info));
 	se_get_soc_info(session_hdl,
 			&global_info.soc_id,
@@ -232,14 +246,6 @@ void populate_global_info(uint32_t session_hdl)
 	else
 		global_info.ver = HSM_API_VERSION_1;
 #endif
-	plat_os_abs_memset((uint8_t *)&getinfo_args, 0, sizeof(getinfo_args));
-	se_get_info(session_hdl, &getinfo_args);
-
-	if (getinfo_args.chip_unique_id)
-		plat_os_abs_free(getinfo_args.chip_unique_id);
-
-	global_info.lifecycle =	getinfo_args.chip_life_cycle;
-	global_info.fips_mode =	getinfo_args.fips_mode;
 	global_info.lib_newness_ver = LIB_NEWNESS_VER;
 	global_info.lib_major_ver = LIB_MAJOR_VER;
 	global_info.lib_minor_ver = LIB_MINOR_VER;

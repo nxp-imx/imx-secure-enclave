@@ -1,8 +1,9 @@
 # SPDX-License-Identifier: BSD-3-Clause
-# Copyright 2022-2025 NXP
+# Copyright 2022-2026 NXP
 #
 
 HSM_API_SRC	+= \
+		$(PLAT_COMMON_PATH)/se_lib_service.o \
 		$(PLAT_COMMON_PATH)/hsm_api/hsm_handle.o \
 		$(PLAT_COMMON_PATH)/hsm_api/hsm_utils.o \
 		$(PLAT_COMMON_PATH)/se_global_info.o \
