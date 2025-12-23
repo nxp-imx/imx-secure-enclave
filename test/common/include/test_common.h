@@ -1,6 +1,6 @@
 // SPDX-License-Identifier: BSD-3-Clause
 /*
- * Copyright 2022-2025 NXP
+ * Copyright 2022-2026 NXP
  */
 
 #ifndef COMMON_H
@@ -109,6 +109,7 @@ uint8_t get_signed_tests_key_type(void);
 void pub_key_attest_test(hsm_hdl_t key_store_hdl, hsm_hdl_t key_mgmt_hdl);
 
 void get_device_info(hsm_hdl_t sess_hdl);
+void dev_get_info(hsm_hdl_t sess_hdl);
 void write_fuse(hsm_hdl_t sess_hdl);
 void perform_dev_attestation(hsm_hdl_t sess_hdl);
 void lc_update_info(hsm_hdl_t sess_hdl, hsm_lc_new_state_t state);

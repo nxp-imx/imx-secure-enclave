@@ -1,6 +1,6 @@
 // SPDX-License-Identifier: BSD-3-Clause
 /*
- * Copyright 2025 NXP
+ * Copyright 2025-2026 NXP
  */
 
 #include <signal.h>
@@ -15,12 +15,12 @@
 #include "hsm_api.h"
 #include "test_importkey.h"
 
-open_session_args_t open_session_args;
-hsm_hdl_t hsm_session_hdl;
+open_se_lib_serv_args_t se_lib_serv_args;
+se_lib_hdl_t se_lib_serv_hdl;
 
 void hsm_test_sig_handler(int ht_signo, siginfo_t *ht_siginfo, void *ht_sigctx)
 {
-	hsm_close_session(hsm_session_hdl);
+	se_lib_close_service(se_lib_serv_hdl);
 
 	exit(EXIT_SUCCESS);
 }
@@ -122,21 +122,21 @@ int process_option(int opt_arg_count, char **optarg)
 	}
 
 	if ((strcmp("--dev-info", optarg[1]) == 0 || strcmp("-d", optarg[1]) == 0)) {
-		get_device_info(hsm_session_hdl);
+		dev_get_info(se_lib_serv_hdl);
 		return 0;
 	}
 
 #ifdef PSA_COMPLIANT
 	if ((strcmp("--dev-attest", optarg[1]) == 0 || strcmp("-t", optarg[1]) == 0)) {
-		perform_dev_attestation(hsm_session_hdl);
-		get_device_info(hsm_session_hdl);
+		perform_dev_attestation(se_lib_serv_hdl);
+		dev_get_info(se_lib_serv_hdl);
 		return 0;
 	}
 
 	if ((strcmp("--get-event", optarg[1]) == 0 || strcmp("-e", optarg[1]) == 0)) {
 		op_get_event_msg_args_t hsm_get_event_args;
 
-		err = hsm_get_event(hsm_session_hdl, &hsm_get_event_args);
+		err = hsm_get_event(se_lib_serv_hdl, &hsm_get_event_args);
 		if (err != HSM_NO_ERROR) {
 			printf("hsm_get_event failed err:0x%x\n", err);
 			return 0;
@@ -149,7 +149,7 @@ int process_option(int opt_arg_count, char **optarg)
 	if ((strcmp("--lc-update", optarg[1]) == 0 || strcmp("-u", optarg[1]) == 0)) {
 		op_get_event_msg_args_t hsm_get_event_args;
 
-		err = hsm_get_event(hsm_session_hdl, &hsm_get_event_args);
+		err = hsm_get_event(se_lib_serv_hdl, &hsm_get_event_args);
 		if (err != HSM_NO_ERROR)
 			printf("hsm_get_event failed err:0x%x\n", err);
 
@@ -160,7 +160,7 @@ int process_option(int opt_arg_count, char **optarg)
 			return 0;
 		}
 		if (opt_arg_count == 3)
-			lc_update_info(hsm_session_hdl, get_lc_state(optarg[2]));
+			lc_update_info(se_lib_serv_hdl, get_lc_state(optarg[2]));
 		else
 			se_tools_usage();
 
@@ -184,20 +184,19 @@ int main(int argc, char *argv[])
 		return 0;
 	}
 
-	open_session_args.mu_type = HSM1;
-	err = hsm_open_session(&open_session_args, &hsm_session_hdl);
+	se_lib_serv_args.mu_type = HSM1;
+	err = se_lib_open_service(&se_lib_serv_args, &se_lib_serv_hdl);
 	if (err != HSM_NO_ERROR) {
-		printf("hsm_open_session failed err:0x%x\n", err);
+		printf("SE lib open service failed err:0x%x\n", err);
 		return 0;
 	}
 
 	process_option(argc, argv);
 
-	if (open_session_args.session_hdl) {
-		err = hsm_close_session(open_session_args.session_hdl);
-		open_session_args.session_hdl = 0;
+	if (se_lib_serv_args.se_lib_serv_hdl)  {
+		se_lib_close_service(se_lib_serv_args.se_lib_serv_hdl);
+		se_lib_serv_args.se_lib_serv_hdl = 0;
 	}
 
 	return 0;
 }
-

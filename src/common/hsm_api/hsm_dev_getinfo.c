@@ -1,6 +1,6 @@
 // SPDX-License-Identifier: BSD-3-Clause
 /*
- * Copyright 2022-2023 NXP
+ * Copyright 2022-2023, 2026 NXP
  */
 
 #include <stdbool.h>
@@ -11,13 +11,17 @@
 #include "internal/hsm_dev_getinfo.h"
 
 #include "sab_process_msg.h"
+#include "se_lib_serv_intern.h"
 
 hsm_err_t hsm_dev_getinfo(hsm_hdl_t session_hdl, op_dev_getinfo_args_t *args)
 {
+	struct se_lib_service_hdl_s *se_lib_serv_ptr;
+	uint32_t rsp_code = SAB_NO_MESSAGE_RATING;
 	struct hsm_session_hdl_s *sess_ptr;
 	hsm_err_t err = HSM_GENERAL_ERROR;
+	struct plat_os_abs_hdl *phdl;
+	uint32_t mu_type;
 	uint32_t lib_err;
-	uint32_t rsp_code = SAB_NO_MESSAGE_RATING;
 
 	do {
 		if (!args)
@@ -31,11 +35,18 @@ hsm_err_t hsm_dev_getinfo(hsm_hdl_t session_hdl, op_dev_getinfo_args_t *args)
 		sess_ptr = session_hdl_to_ptr(session_hdl);
 		if (sess_ptr == NULL) {
 			err = HSM_UNKNOWN_HANDLE;
-			break;
+			se_lib_serv_ptr = se_lib_serv_hdl_to_ptr(session_hdl);
+			if (!se_lib_serv_ptr || !se_lib_serv_ptr->phdl)
+				break;
+			phdl = se_lib_serv_ptr->phdl;
+			mu_type = se_lib_serv_ptr->mu_type;
+		} else {
+			phdl = sess_ptr->phdl;
+			mu_type = sess_ptr->mu_type;
 		}
 
-		lib_err = process_sab_msg(sess_ptr->phdl,
-					  sess_ptr->mu_type,
+		lib_err = process_sab_msg(phdl,
+					  mu_type,
 					  ROM_DEV_GETINFO_REQ,
 					  MT_SAB_DEV_GETINFO,
 					  HSM_HANDLE_NONE,
@@ -45,7 +56,7 @@ hsm_err_t hsm_dev_getinfo(hsm_hdl_t session_hdl, op_dev_getinfo_args_t *args)
 		if (err != HSM_NO_ERROR)
 			break;
 
-		err = sab_rating_to_hsm_err(rsp_code, sess_ptr->phdl);
+		err = sab_rating_to_hsm_err(rsp_code, phdl);
 		if (err != HSM_NO_ERROR) {
 			se_err("HSM RSP Error: SAB_DEV_GETINFO_REQ [0x%x].\n",
 				err);
