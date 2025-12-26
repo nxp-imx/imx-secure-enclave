@@ -235,7 +235,7 @@ case ${opt_plat} in
         imx8qxpmek_nvmd_config ${opt_config_id}
         ;;
 
-    i.MX95)
+    i.MX95|i.MX952)
         imx95evk_nvmd_config ${opt_config_id}
         ;;
 
