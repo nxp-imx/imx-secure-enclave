@@ -1,6 +1,6 @@
 // SPDX-License-Identifier: BSD-3-Clause
 /*
- * Copyright 2025 NXP
+ * Copyright 2025-2026 NXP
  */
 
 #include <stdint.h>
@@ -45,12 +45,15 @@ hsm_err_t hsm_asymmetric_enc_open(hsm_hdl_t session_hdl,
 					  args, &rsp_code);
 
 		err = lib_err_to_hsm_err(lib_err);
-		if (err != HSM_NO_ERROR)
+		if (err != HSM_NO_ERROR) {
+			delete_service(asym_serv_ptr);
 			break;
+		}
 
 		err = sab_rating_to_hsm_err(rsp_code, sess_ptr->phdl);
 		if (err != HSM_NO_ERROR) {
 			se_err("HSM Error: SAB_ASYMMETRIC_ENC_OPEN_REQ [0x%x].\n", err);
+			delete_service(asym_serv_ptr);
 			break;
 		}
 		asym_serv_ptr->service_hdl = args->asymmetric_enc_handle;
@@ -94,6 +97,8 @@ hsm_err_t hsm_asymmetric_enc_close(hsm_hdl_t asymmetric_enc_handle)
 			se_err("HSM Error: SAB_ASYMMETRIC_ENC_CLOSE_REQ [0x%x].\n", err);
 			break;
 		}
+
+		delete_service(serv_ptr);
 	} while (false);
 
 	return err;
