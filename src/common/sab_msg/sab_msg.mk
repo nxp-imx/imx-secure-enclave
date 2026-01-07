@@ -110,6 +110,12 @@ SAB_MSG_SRC	+= \
 		$(PLAT_COMMON_PATH)/sab_msg/sab_get_event.o
 endif
 
+ifneq (${MT_SAB_GEN_ELE_KEY_BLOB},0x0)
+DEFINES		+=	-DMT_SAB_GEN_ELE_KEY_BLOB=${MT_SAB_GEN_ELE_KEY_BLOB}
+SAB_MSG_SRC	+= \
+		$(PLAT_COMMON_PATH)/sab_msg/sab_gen_ele_key_blob.o
+endif
+
 ifneq (${MT_SAB_BLOB_UNBLOB},0x0)
 DEFINES		+=	-DMT_SAB_BLOB_UNBLOB=${MT_SAB_BLOB_UNBLOB}
 SAB_MSG_SRC	+= \

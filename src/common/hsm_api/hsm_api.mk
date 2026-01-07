@@ -161,6 +161,12 @@ HSM_API_SRC	+= \
 		$(PLAT_COMMON_PATH)/hsm_api/hsm_get_event.o
 endif
 
+ifneq (${MT_SAB_GEN_ELE_KEY_BLOB},0x0)
+DEFINES		+=	-DHSM_GEN_ELE_KEY_BLOB
+HSM_API_SRC	+= \
+		$(PLAT_COMMON_PATH)/hsm_api/hsm_gen_ele_key_blob.o
+endif
+
 ifneq (${MT_SAB_BLOB_UNBLOB},0x0)
 DEFINES		+=	-DHSM_BLOB_UNBLOB
 HSM_API_SRC	+= \

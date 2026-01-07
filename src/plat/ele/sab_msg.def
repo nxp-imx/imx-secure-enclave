@@ -1,5 +1,5 @@
 # SPDX-License-Identifier: BSD-3-Clause
-# Copyright 2022-2025 NXP
+# Copyright 2022-2026 NXP
 #
 
 # Message Type (MT)
@@ -79,6 +79,7 @@ MT_SAB_LC_UPDATE	:=	${ROM}
 #   and appears to be a POR.
 MT_SAB_DEV_ELE_RESET	:=	${NOT_SUPPORTED}
 MT_SAB_GET_EVENT	:=	${ROM}
+MT_SAB_GEN_ELE_KEY_BLOB	:=	${ROM}
 MT_SAB_BLOB_UNBLOB	:=	${ROM}
 MT_SAB_BOOT_STAGE	:=	${ROM}
 

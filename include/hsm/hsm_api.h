@@ -1,6 +1,6 @@
 // SPDX-License-Identifier: BSD-3-Clause
 /*
- * Copyright 2019-2025 NXP
+ * Copyright 2019-2026 NXP
  */
 
 #ifndef HSM_API_H
@@ -70,6 +70,8 @@ extern "C" {
 #include "internal/hsm_lc_update.h"
 
 #include "internal/hsm_get_event.h"
+
+#include "internal/hsm_gen_ele_key_blob.h"
 
 #include "internal/hsm_blob_unblob.h"
 

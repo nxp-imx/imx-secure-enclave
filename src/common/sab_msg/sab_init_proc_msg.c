@@ -1,6 +1,6 @@
 // SPDX-License-Identifier: BSD-3-Clause
 /*
- * Copyright 2022-2025 NXP
+ * Copyright 2022-2026 NXP
  */
 
 #include "sab_msg_def.h"
@@ -12,6 +12,10 @@
 
 #if MT_SAB_GET_EVENT
 #include "sab_get_event.h"
+#endif
+
+#if MT_SAB_GEN_ELE_KEY_BLOB
+#include "sab_gen_ele_key_blob.h"
 #endif
 
 #if MT_SAB_BLOB_UNBLOB
@@ -243,6 +247,15 @@ static int init_proc_sab_base_msg_engine(msg_type_t msg_type,
 				ret = add_sab_msg_handler(msg_id, MT_SAB_GET_EVENT,
 							  prepare_msg_get_event,
 							  proc_msg_rsp_get_event);
+			}
+			break;
+#endif
+#if MT_SAB_GEN_ELE_KEY_BLOB
+		case ROM_GEN_ELE_KEY_BLOB_REQ:
+			if (msg_type == MT_SAB_GEN_ELE_KEY_BLOB) {
+				ret = add_sab_msg_handler(msg_id, MT_SAB_GEN_ELE_KEY_BLOB,
+							  prepare_msg_gen_ele_key_blob,
+							  proc_msg_rsp_gen_ele_key_blob);
 			}
 			break;
 #endif
