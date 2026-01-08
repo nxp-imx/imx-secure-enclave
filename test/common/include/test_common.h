@@ -171,7 +171,31 @@ uint32_t test_ele_blob_unblob(hsm_hdl_t session_hdl, uint8_t *usr_ctx_buf,
 			      uint32_t bsctx_val);
 void test_mono_counter(hsm_hdl_t sess_hdl);
 void test_asymmetric_crypto(hsm_hdl_t sess_hdl, hsm_hdl_t key_store_hdl);
-void test_gen_ele_key_blob(hsm_hdl_t sess_hdl);
+
+#define GEN_ELE_KEY_BLOB_TYPE_DEK	"DEK"
+#define GEN_ELE_KEY_BLOB_TYPE_OTFAD	"OTFAD"
+
+#define GEN_ELE_KEY_BLOB_FORMAT_ALGO_AES_CBC "AES_CBC"
+#define GEN_ELE_KEY_BLOB_FORMAT_ALGO_AES_CTR "AES_CBC"
+#define GEN_ELE_KEY_BLOB_FORMAT_ALGO_SM4_CBC "SM4_CBC"
+#define GEN_ELE_KEY_BLOB_FORMAT_ALGO_AES_XTS "AES_XTS"
+
+#define GEN_ELE_KEY_BLOB_FORMAT_ALGO_KEY_SZ_AES128	"AES128"
+#define GEN_ELE_KEY_BLOB_FORMAT_ALGO_KEY_SZ_AES192	"AES192"
+#define GEN_ELE_KEY_BLOB_FORMAT_ALGO_KEY_SZ_AES256	"AES256"
+#define GEN_ELE_KEY_BLOB_FORMAT_ALGO_KEY_SZ_SM4128	"SM4128"
+
+#define GEN_ELE_KEY_BLOB_DEK_KEY_FILE_NAME \
+	"filename_with_absolute_path_containing_key_buffer"
+uint16_t gen_ele_key_blob_get_keysize(hsm_op_gen_ele_key_blob_flags_t flag, char *str);
+hsm_op_gen_ele_key_blob_algo_t
+	gen_ele_key_blob_get_algo(hsm_op_gen_ele_key_blob_flags_t flag, char *str);
+
+hsm_err_t test_gen_ele_key_blob(hsm_hdl_t sess_hdl,
+				hsm_op_gen_ele_key_blob_flags_t flag, uint32_t key_id,
+				hsm_op_gen_ele_key_blob_algo_t algo, uint8_t *payload,
+				uint8_t payload_len, uint8_t *ele_key_blob,
+				uint8_t *ele_key_blob_sz);
 #endif
 
 #endif

@@ -34,7 +34,19 @@ void se_tools_usage(void)
 #ifdef PSA_COMPLIANT
 	printf("-t or --dev-attest: attest the device and show device-attested info.\n");
 	printf("-e or --get-event: show list of active events.\n");
-	printf("-g or --gen-ele-key-blob: Generate ELE key blob: DEK/OTFAD.\n");
+	printf("-g or --gen-ele-key-blob: Generate blob for <\"%s\"/\"%s\">.",
+	       GEN_ELE_KEY_BLOB_TYPE_DEK, GEN_ELE_KEY_BLOB_TYPE_OTFAD);
+	printf("\n\t DEK: Mandatory input:");
+	printf("\n\t\t<algo>     : %s, %s",
+	       GEN_ELE_KEY_BLOB_FORMAT_ALGO_AES_CBC,
+	       GEN_ELE_KEY_BLOB_FORMAT_ALGO_SM4_CBC);
+	printf("\n\t\t<key-type> : %s, %s, %s, %s",
+	       GEN_ELE_KEY_BLOB_FORMAT_ALGO_KEY_SZ_AES128,
+	       GEN_ELE_KEY_BLOB_FORMAT_ALGO_KEY_SZ_AES192,
+	       GEN_ELE_KEY_BLOB_FORMAT_ALGO_KEY_SZ_AES256,
+	       GEN_ELE_KEY_BLOB_FORMAT_ALGO_KEY_SZ_SM4128);
+	printf("\n\t\t<filename> : %s\n", GEN_ELE_KEY_BLOB_DEK_KEY_FILE_NAME);
+	printf("\n\t OTFAD: Not Supported.\n");
 	printf("-u or --lc_update <LC_STATE>: for life-cycle update only\n");
 	printf("\t where, permitted values for LC_STATE are:");
 	printf("\n\t\tHSM_NXP_PROVISIONED_STATE,");
@@ -170,7 +182,72 @@ int process_option(int opt_arg_count, char **optarg)
 
 	if ((strcmp("--gen-ele-key-blob", optarg[1]) == 0 ||
 	     strcmp("-g", optarg[1]) == 0)) {
-		test_gen_ele_key_blob(se_lib_serv_hdl);
+		uint8_t generated_ele_dek_blob[88];
+		uint8_t gen_ele_dek_blob_sz = 88;
+		hsm_op_gen_ele_key_blob_flags_t flag;
+		hsm_op_gen_ele_key_blob_algo_t algo;
+		uint16_t key_size;
+		uint16_t payload_size_read = 0;
+		size_t bytes_read_itr = 0;
+		uint32_t key_id;
+		const uint8_t *payload_fname = (opt_arg_count >= 7) ? optarg[6] : NULL;
+		uint8_t payload[OP_GEN_ELE_KEY_BLOB_PAYLOAD_MAX_SZ];
+
+		if (opt_arg_count != 7) {
+			se_tools_usage();
+			return 0;
+		}
+
+		if (!memcmp(optarg[2], GEN_ELE_KEY_BLOB_TYPE_DEK, strlen(optarg[2]))) {
+			flag = HSM_OP_GEN_ELE_KEY_BLOB_FLAG_BLOB_TYPE_DEK;
+		} else if (!memcmp(optarg[2], GEN_ELE_KEY_BLOB_TYPE_OTFAD,
+			   strlen(optarg[2]))) {
+			flag = HSM_OP_GEN_ELE_KEY_BLOB_FLAG_BLOB_TYPE_OTFAD_CONF;
+		} else {
+			se_tools_usage();
+			return 0;
+		}
+
+		algo = gen_ele_key_blob_get_algo(flag, optarg[4]);
+		if (!algo) {
+			se_tools_usage();
+			return 0;
+		}
+		key_size = gen_ele_key_blob_get_keysize(flag, optarg[5]);
+		if (!algo) {
+			se_tools_usage();
+			return 0;
+		}
+		key_id = atoi(optarg[3]);
+		if (payload_fname) {
+			FILE *pl_fptr = fopen(payload_fname, "rb");
+
+			if (!pl_fptr) {
+				printf("Error: Failed to open file:%s\n",
+				       payload_fname);
+				return 0;
+			}
+			do {
+				bytes_read_itr = fread(payload, 1, sizeof(payload),
+						       pl_fptr);
+				payload_size_read += bytes_read_itr;
+			} while (bytes_read_itr > 0);
+
+			if (payload_size_read >> 1 != key_size) {
+				printf("Error: Mismatch in file-input-buff & input-sz[%d",
+				       payload_size_read >> 1);
+				printf(" bytes].\n");
+				return 0;
+			}
+		}
+
+		err = test_gen_ele_key_blob(se_lib_serv_hdl, flag, key_id,
+					    algo, payload, key_size,
+					    generated_ele_dek_blob,
+					    &gen_ele_dek_blob_sz);
+		if (err)
+			printf("Failed to generate ELE Key blob for DEK.\n");
+
 		return 0;
 	}
 #endif
