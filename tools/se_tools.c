@@ -34,6 +34,7 @@ void se_tools_usage(void)
 #ifdef PSA_COMPLIANT
 	printf("-t or --dev-attest: attest the device and show device-attested info.\n");
 	printf("-e or --get-event: show list of active events.\n");
+	printf("-g or --gen-ele-key-blob: Generate ELE key blob: DEK/OTFAD.\n");
 	printf("-u or --lc_update <LC_STATE>: for life-cycle update only\n");
 	printf("\t where, permitted values for LC_STATE are:");
 	printf("\n\t\tHSM_NXP_PROVISIONED_STATE,");
@@ -164,6 +165,12 @@ int process_option(int opt_arg_count, char **optarg)
 		else
 			se_tools_usage();
 
+		return 0;
+	}
+
+	if ((strcmp("--gen-ele-key-blob", optarg[1]) == 0 ||
+	     strcmp("-g", optarg[1]) == 0)) {
+		test_gen_ele_key_blob(se_lib_serv_hdl);
 		return 0;
 	}
 #endif

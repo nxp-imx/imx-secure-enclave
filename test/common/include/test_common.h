@@ -171,6 +171,7 @@ uint32_t test_ele_blob_unblob(hsm_hdl_t session_hdl, uint8_t *usr_ctx_buf,
 			      uint32_t bsctx_val);
 void test_mono_counter(hsm_hdl_t sess_hdl);
 void test_asymmetric_crypto(hsm_hdl_t sess_hdl, hsm_hdl_t key_store_hdl);
+void test_gen_ele_key_blob(hsm_hdl_t sess_hdl);
 #endif
 
 #endif
