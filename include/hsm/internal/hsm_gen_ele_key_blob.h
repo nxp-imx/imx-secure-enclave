@@ -13,6 +13,7 @@
  *  @defgroup group40 GEN-ELE-KEY-BLOB
  * @{
  */
+#define GEN_ELE_KEY_BLOB_OVERHEAD_SZ	0x30
 
 #define GEN_ELE_KEY_BLOB_FORMAT_TAG	0x81
 #define GEN_ELE_KEY_BLOB_FORMAT_VERS	0x00
