@@ -1,6 +1,6 @@
 // SPDX-License-Identifier: BSD-3-Clause
 /*
- * Copyright 2022-2023, 2025 NXP
+ * Copyright 2022-2023, 2025-2026 NXP
  */
 
 #include <string.h>
@@ -235,13 +235,13 @@ uint32_t proc_msg_rsp_dev_attest(void *rsp_buf, void *args)
 	 * this API, now the version dependent fields have to be filled based on
 	 * the version supported.
 	 */
+	info_data_buf = (uint8_t *)(&rsp_w_data_v1->d_info);
 	if (hsm_get_dev_attest_api_ver() == HSM_API_VERSION_1) {
 		rsp_nounce_data_buf_sz = DEV_ATTEST_NOUNCE_SIZE_V1;
 		rsp_nounce_data_buf = rsp_w_data_v1->nounce;
 		signature_data_buf = rsp_w_data_v1->signature;
 		info_data_buf_sz = sizeof(struct dev_info) +
 				   DEV_ATTEST_NOUNCE_SIZE_V1;
-		info_data_buf = (uint8_t *)(&rsp_w_data_v1->d_info);
 	} else if (hsm_get_dev_attest_api_ver() == HSM_API_VERSION_2) {
 		rsp_nounce_data_buf_sz = DEV_ATTEST_NOUNCE_SIZE_V2;
 		rsp_nounce_data_buf = rsp_w_data_v2->nounce;
@@ -249,7 +249,6 @@ uint32_t proc_msg_rsp_dev_attest(void *rsp_buf, void *args)
 		info_data_buf_sz = sizeof(struct dev_info) +
 				   sizeof(struct dev_addn_info) +
 				   DEV_ATTEST_NOUNCE_SIZE_V2;
-		info_data_buf = (uint8_t *)(&rsp_w_data_v2->d_info);
 	} else {
 		rsp_nounce_data_buf_sz = DEV_ATTEST_NOUNCE_SIZE_V2;
 		rsp_nounce_data_buf = rsp_w_data_v3->nounce;
@@ -258,7 +257,6 @@ uint32_t proc_msg_rsp_dev_attest(void *rsp_buf, void *args)
 				   sizeof(struct dev_addn_info) +
 				   sizeof(struct data_addn_ver3_info) +
 				   DEV_ATTEST_NOUNCE_SIZE_V2;
-		info_data_buf = (uint8_t *)(&rsp_w_data_v3->d_info);
 	}
 
 	op_args->rsp_nounce = plat_os_abs_malloc(rsp_nounce_data_buf_sz);
@@ -336,7 +334,7 @@ uint32_t proc_msg_rsp_dev_attest(void *rsp_buf, void *args)
 
 	if (hsm_get_dev_attest_api_ver() >= HSM_API_VERSION_3) {
 		op_args->oem_pqc_srkh = plat_os_abs_malloc(DEV_GETINFO_OEM_SRKH_SZ);
-		if (!op_args->oem_srkh) {
+		if (!op_args->oem_pqc_srkh) {
 			plat_os_abs_free(op_args->oem_srkh);
 			plat_os_abs_free(op_args->uid);
 			plat_os_abs_free(op_args->sha_rom_patch);

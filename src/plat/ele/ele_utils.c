@@ -1,6 +1,6 @@
 // SPDX-License-Identifier: BSD-3-Clause
 /*
- * Copyright 2019-2025 NXP
+ * Copyright 2019-2026 NXP
  */
 
 #include "errno.h"
@@ -177,7 +177,7 @@ uint32_t plat_send_msg_and_rcv_resp(struct plat_os_abs_hdl *phdl,
 				    uint32_t *rsp,
 				    uint32_t *rsp_len)
 {
-	uint32_t err;
+	uint32_t err = PLAT_FAILURE;
 	uint32_t len = *rsp_len;
 	do {
 		/* Cmd and resp need to be at least 1 word for the header. */

@@ -1,6 +1,6 @@
 // SPDX-License-Identifier: BSD-3-Clause
 /*
- * Copyright 2019-2025 NXP
+ * Copyright 2019-2026 NXP
  */
 
 #include <stdio.h>
@@ -123,8 +123,8 @@ uint32_t plat_os_abs_has_v2x_hw(void)
 /* Close a previously opened session (SHE or storage). */
 void plat_os_abs_close_session(struct plat_os_abs_hdl *phdl)
 {
-    /* Close the device. */
-    (void)close(phdl->fd);
+	/* Close the device. */
+	(void)close(phdl->fd);
 
 	plat_os_abs_free(phdl);
 }
@@ -318,9 +318,10 @@ out:
 	return ret;
 }
 
-void plat_os_abs_free(void *ptr)
+void plat_os_abs_free(void *ptr __attribute__((unused)))
 {
-    free(ptr);
+	free(ptr);
+	ptr = NULL;
 }
 
 void plat_os_abs_start_system_rng(struct plat_os_abs_hdl *phdl)

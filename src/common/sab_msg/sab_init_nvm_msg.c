@@ -1,6 +1,6 @@
 // SPDX-License-Identifier: BSD-3-Clause
 /*
- * Copyright 2022-2024 NXP
+ * Copyright 2022-2024, 2026 NXP
  */
 
 #include "sab_msg_def.h"
@@ -176,7 +176,7 @@ static int init_proc_sab_nvm_msg_engine(msg_type_t msg_type, uint32_t msg_id)
 
 void init_sab_nvm_msg_engine(msg_type_t msg_type)
 {
-	if ((msg_type > NOT_SUPPORTED) && (msg_type >= MAX_MSG_TYPE))
+	if (msg_type <= NOT_SUPPORTED || msg_type >= MAX_MSG_TYPE)
 		return;
 
 	init_proc_sab_msg_cmd_eng(msg_type,

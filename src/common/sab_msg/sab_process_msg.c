@@ -71,14 +71,17 @@ void init_proc_sab_msg_cmd_eng(msg_type_t msg_type,
 			       uint32_t max_msg_id,
 			       int (*func)(msg_type_t msg_type, uint32_t msg_id))
 {
-	int i = 0;
-	int ret = NOT_DONE;
+	int i;
+	int ret;
 
 	for (i = 0; i < max_msg_id; i++) {
-		ret = NOT_DONE;
-
 		ret = (func)(msg_type, i);
 		if (ret == NOT_DONE) {
+			if (msg_type <= NOT_SUPPORTED || msg_type >= MAX_MSG_TYPE) {
+				se_print("%s: Invalid msg-type = %d.\n",
+					 __func__, msg_type);
+				continue;
+			}
 			add_sab_msg_handler(i, msg_type,
 					    prep_sab_msg_not_supported,
 					    proc_sab_msg_rsp_not_supported);
