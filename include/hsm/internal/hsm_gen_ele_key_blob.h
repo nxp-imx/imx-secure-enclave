@@ -64,14 +64,21 @@ typedef struct {
 #define OP_GEN_ELE_KEY_BLOB_PAYLOAD_DEK_AES256_CBC_SZ	0x20
 #define OP_GEN_ELE_KEY_BLOB_PAYLOAD_DEK_SM4_CBC_SZ	0x10
 
+#define OP_GEN_ELE_KEY_BLOB_PAYLOAD_MAX_SZ \
+			OP_GEN_ELE_KEY_BLOB_PAYLOAD_OTFAD_SZ
+#define OP_GEN_ELE_KEY_BLOB_FORMAT_SZ_WO_PAYLOAD \
+	(sizeof(op_gen_ele_key_blob_format_t) - OP_GEN_ELE_KEY_BLOB_PAYLOAD_MAX_SZ)
+
 /**
  * Structure specifying the gen-ele-key-blob-format.
  */
 typedef struct {
 	uint8_t vers;
 	//!< Hard-coded as GEN_ELE_KEY_BLOB_FORMAT_VERS.
-	uint16_t length;
-	//!< Total length in bytes of the header and its payload..
+	uint8_t lsb_len;
+	//!< LSB of total length in bytes of the header and its payload.
+	uint8_t msb_len;
+	//!< MSB of total length in bytes of the header and its payload.
 	uint8_t tag;
 	//!< Tag identifier. Hard-coded as GEN_ELE_KEY_BLOB_FORMAT_TAG.
 	hsm_op_gen_ele_key_blob_flags_t flag;
@@ -86,6 +93,13 @@ typedef struct {
 	uint8_t payload[OP_GEN_ELE_KEY_BLOB_PAYLOAD_OTFAD_SZ];
 	//!< Payload as per flag and algo.
 } op_gen_ele_key_blob_format_t;
+
+static inline void set_blob_format_len(op_gen_ele_key_blob_format_t *blob_format,
+				       uint16_t total_len)
+{
+	blob_format->msb_len = ((total_len >> 8) & 0xFF);
+	blob_format->lsb_len = total_len & 0xFF;
+}
 
 /**
  * Structure specifying the gen-ele-key-blob request.
