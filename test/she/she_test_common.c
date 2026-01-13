@@ -1,6 +1,6 @@
 // SPDX-License-Identifier: BSD-3-Clause
 /*
- * Copyright 2023-2025 NXP
+ * Copyright 2023-2026 NXP
  */
 
 #include <signal.h>
@@ -309,7 +309,8 @@ void she_tests(uint8_t SHE_id,
 	}
 
 	if (se_get_soc_id() == SOC_IMX95 ||
-	    se_get_soc_id() == SOC_IMX943)
+	    se_get_soc_id() == SOC_IMX943 ||
+	    se_get_soc_id() == SOC_IMX952)
 		she_sess_count = SHE_TEST_SESSIONS;
 
 	for (j = 0; j < she_sess_count; j++) {
