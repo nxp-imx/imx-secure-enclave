@@ -1,6 +1,6 @@
 // SPDX-License-Identifier: BSD-3-Clause
 /*
- * Copyright 2024-2025 NXP
+ * Copyright 2024-2026 NXP
  */
 
 #include <string.h>
@@ -227,7 +227,7 @@ she_err_t do_she_fast_mac_mubuff_v2_test(she_hdl_t utils_handle)
 	if (err)
 		if (err == SHE_FEATURE_NOT_SUPPORTED)
 			se_print("GENERATE FAST MAC MUBUFF V2 TEST -> NOT SUPPORTED\n");
-		else if (err == SHE_OUT_OF_MEMORY)
+		else if (err == SHE_LIB_ERR_IO_BUF_OUT_OF_MEM)
 			se_print("MU BUFFER MEMORY EXHAUSTED\n");
 		else
 			se_print("GENERATE FAST MAC MUBUFF V2 TEST ---> FAILED\n\n");
@@ -238,7 +238,7 @@ she_err_t do_she_fast_mac_mubuff_v2_test(she_hdl_t utils_handle)
 	if (err)
 		if (err == SHE_FEATURE_NOT_SUPPORTED)
 			se_print("VERIFY FAST MAC MUBUFF V2 TEST -> NOT SUPPORTED\n");
-		else if (err == SHE_OUT_OF_MEMORY)
+		else if (err == SHE_LIB_ERR_IO_BUF_OUT_OF_MEM)
 			se_print("MU BUFFER MEMORY EXHAUSTED\n");
 		else
 			se_print("VERIFY FAST MAC MUBUFF V2 TEST ---> FAILED\n\n");

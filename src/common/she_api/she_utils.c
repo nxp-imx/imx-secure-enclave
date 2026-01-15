@@ -242,41 +242,23 @@ she_err_t plat_err_to_she_err(uint8_t msg_id, uint32_t lib_err, uint8_t dir)
 	return ret;
 }
 
-she_err_t plat_err_rating_to_she_err(uint32_t plat_err)
-{
-	she_err_t err = SHE_GENERAL_ERROR;
-
-	switch (plat_err) {
-	case PLAT_MEMCPY_FAIL:
-		break;
-	case PLAT_ERR_OUT_OF_MEMORY:
-		err = SHE_OUT_OF_MEMORY;
-		break;
-	case PLAT_DATA_BUF_SETUP_FAIL:
-		break;
-	case PLAT_SIGNED_MESSAGE_SETUP_FAIL:
-		break;
-	default:
-		break;
-	}
-	return err;
-}
-
 she_err_t lib_err_to_she_err(uint32_t lib_err)
 {
 	she_err_t ret = SHE_LIB_ERROR;
+	uint8_t lib_err_type;
 	uint32_t lib_err_status = PARSE_LIB_ERR_STATUS(lib_err);
 
 	if (lib_err_status == SAB_LIB_SUCCESS)
 		return SHE_NO_ERROR;
 
-	if (PARSE_LIB_ERR_PLAT(lib_err)) {
-		ret = plat_err_rating_to_she_err(GET_STATUS_CODE(lib_err));
-		return ret;
-	}
-
 	if (PARSE_LIB_ERR_PATH(lib_err) == ENGN_RCV_RESP_PATH_FLAG)
 		return SHE_NO_ERROR;
+
+	if (lib_err_status == SAB_LIB_CMD_MSG_PREP_FAIL) {
+		lib_err_type = PARSE_LIB_ERR_PLAT(lib_err);
+		if (lib_err_type == PLAT_DATA_BUF_SETUP_FAIL_OUT_OF_MEM)
+			ret |= lib_err_type << 8;
+	}
 
 	if (is_lib_err(lib_err))
 		ret = sab_err_rating_to_she_err(GET_RATING_CODE(lib_err_status));

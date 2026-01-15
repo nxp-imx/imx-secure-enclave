@@ -9,6 +9,12 @@
 #include <stdint.h>
 
 /**
+ * @defgroup group0 Error codes
+ *
+ * @{
+ */
+
+/**
  * Error codes returned by SE LIB functions.
  */
 typedef enum {
@@ -19,6 +25,15 @@ typedef enum {
 	SE_LIB_ERROR                       = 0xEF,
 	/**< SE library failure */
 } se_lib_err_t;
-/** @} end of error code group */
 
+/**
+ * Type of lib error. When SE_LIB_ERROR(0xEF) is reported,
+ * the value on the second byte provides the reason behind the lib error.
+ */
+typedef enum {
+	IO_BUF_OUT_OF_MEM     = 0x1400u,
+	/**<IO Buffer setup failure. */
+} lib_err_t;
+
+/** @} end of error code group */
 #endif
