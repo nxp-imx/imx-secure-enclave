@@ -1,6 +1,6 @@
 // SPDX-License-Identifier: BSD-3-Clause
 /*
- * Copyright 2025 NXP
+ * Copyright 2025-2026 NXP
  */
 
 #include <stdio.h>
@@ -377,7 +377,7 @@ static void test_generate_opaque_key_id(hsm_hdl_t key_mgmt_hdl, uint32_t *key_id
 				 HSM_KEY_USAGE_DECRYPT;
 	key_gen_args.permitted_algo = ALGO_RSA_PKCS1_OAEP_SHA1;
 	key_gen_args.bit_key_sz = HSM_KEY_SIZE_RSA_4096;
-	key_gen_args.key_lifecycle = HSM_KEY_LIFECYCLE_OPEN;
+	key_gen_args.key_lifecycle = 0; //Current Device Lifecycle
 	key_gen_args.key_type = HSM_KEY_TYPE_RSA;
 	key_gen_args.out_key = NULL;
 
@@ -401,7 +401,7 @@ static void test_generate_opaque_key_data(hsm_hdl_t key_mgmt_hdl, uint32_t *key_
 				 HSM_KEY_USAGE_DECRYPT;
 	key_gen_args.permitted_algo = ALGO_RSA_PKCS1_OAEP_SHA1;
 	key_gen_args.bit_key_sz = HSM_KEY_SIZE_RSA_4096;
-	key_gen_args.key_lifecycle = HSM_KEY_LIFECYCLE_OPEN;
+	key_gen_args.key_lifecycle = 0; //Current Device Lifecycle
 	key_gen_args.key_type = HSM_KEY_TYPE_RSA;
 	key_gen_args.out_key = modulus_opaque;
 
