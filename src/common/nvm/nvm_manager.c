@@ -1,6 +1,6 @@
 // SPDX-License-Identifier: BSD-3-Clause
 /*
- * Copyright 2019-2025 NXP
+ * Copyright 2019-2026 NXP
  */
 
 #include <errno.h>
@@ -31,7 +31,7 @@ static uint32_t nvm_storage_import(struct nvm_ctx_st *nvm_ctx_param,
 {
 	struct nvm_header_s *blob_hdr;
 	uint32_t ret = SAB_FAILURE_STATUS;
-	int32_t error;
+	uint32_t error;
 	uint32_t rsp_code = SAB_FAILURE_STATUS;
 
 	do {

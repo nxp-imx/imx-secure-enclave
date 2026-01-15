@@ -1,6 +1,6 @@
 // SPDX-License-Identifier: BSD-3-Clause
 /*
- * Copyright 2023 NXP
+ * Copyright 2023, 2026 NXP
  */
 
 #include <stdint.h>
@@ -18,7 +18,7 @@
 
 hsm_err_t hsm_gc_akey_gen(hsm_hdl_t session_hdl, op_gc_akey_gen_args_t *args)
 {
-	int32_t error;
+	uint32_t error;
 	struct hsm_session_hdl_s *sess_ptr;
 	hsm_err_t err = HSM_GENERAL_ERROR;
 	uint32_t rsp_code = SAB_NO_MESSAGE_RATING;

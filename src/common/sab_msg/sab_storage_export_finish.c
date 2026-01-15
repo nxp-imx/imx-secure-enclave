@@ -1,6 +1,6 @@
 // SPDX-License-Identifier: BSD-3-Clause
 /*
- * Copyright 2023, 2025 NXP
+ * Copyright 2023, 2025-2026 NXP
  */
 
 #include <errno.h>
@@ -60,6 +60,9 @@ uint32_t parse_cmd_prep_rsp_storage_finish_export(struct nvm_ctx_st *nvm_ctx_par
 		goto out;
 	}
 
+	if (!*data)
+		goto out;
+
 	if (*prev_cmd_id == SAB_STORAGE_MASTER_EXPORT_REQ) {
 		data_len = UINT32_ADD(*data_sz, NVM_HEADER_SZ);
 		if (!data_len)
@@ -101,6 +104,9 @@ uint32_t parse_cmd_prep_rsp_storage_finish_export(struct nvm_ctx_st *nvm_ctx_par
 		}
 	} else {
 		chunk = *data;
+		if (!chunk->data)
+			goto out;
+
 		blob_hdr = (struct nvm_header_s *)chunk->data;
 		blob_hdr->size = chunk->len;
 		blob_hdr->crc = plat_fetch_msg_crc((uint32_t *)

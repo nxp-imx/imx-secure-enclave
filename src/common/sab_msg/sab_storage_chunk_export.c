@@ -1,6 +1,6 @@
 // SPDX-License-Identifier: BSD-3-Clause
 /*
- * Copyright 2023, 2025 NXP
+ * Copyright 2023, 2025-2026 NXP
  */
 
 #include <errno.h>
@@ -22,10 +22,10 @@ uint32_t parse_cmd_prep_rsp_storage_chunk_export(struct nvm_ctx_st *nvm_ctx_para
 						 uint8_t *prev_cmd_id,
 						 uint8_t *next_cmd_id)
 {
-	uint32_t err = 0u;
+	uint32_t err;
 	uint32_t data_len;
-	struct nvm_chunk_hdr *chunk = NULL;
-	uint32_t blob_size = 0u;
+	struct nvm_chunk_hdr *chunk;
+	uint32_t blob_size;
 
 	struct sab_cmd_key_store_chunk_export_rsp *resp =
 			 (struct sab_cmd_key_store_chunk_export_rsp *)rsp_buf;
@@ -59,22 +59,25 @@ uint32_t parse_cmd_prep_rsp_storage_chunk_export(struct nvm_ctx_st *nvm_ctx_para
 		goto out;
 	}
 
-	/* Allocate memory for receiving data. */
+	/*
+	 * Allocate memory for receiving data.
+	 * If allocation failed the response should be sent to platform
+	 * with an error code. Process is stopped after.
+	 */
 	chunk = (struct nvm_chunk_hdr *)plat_os_abs_malloc((uint32_t)
 							   sizeof(struct nvm_chunk_hdr));
 
 	if (chunk) {
 		chunk->data = plat_os_abs_malloc(data_len);
+		if (!chunk->data) {
+			plat_os_abs_free(chunk);
+			goto out;
+		}
+
 		plat_os_abs_memcpy((uint8_t *)&chunk->blob_id, (uint8_t *)&msg->blob_id,
 				   sizeof(chunk->blob_id));
 		chunk->len = data_len;
-	}
-
-	if (!chunk || !chunk->data) {
-		/*
-		 * If allocation failed the response should be sent to platform
-		 * with an error code. Process is stopped after.
-		 */
+	} else {
 		goto out;
 	}
 

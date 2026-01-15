@@ -423,8 +423,8 @@ void init_proc_sab_msg_rcv_eng(msg_type_t msg_type,
 					   uint32_t start_msg_id,
 					   uint32_t msg_id))
 {
-	int i = 0;
-	int ret = NOT_DONE;
+	int i;
+	int ret;
 
 	if (max_msg_id < start_msg_id) {
 		se_err("Initialization Failure(Range-mismatch).\n");
@@ -432,8 +432,6 @@ void init_proc_sab_msg_rcv_eng(msg_type_t msg_type,
 	}
 
 	for (i = 0; i < (max_msg_id - start_msg_id); i++) {
-		ret = NOT_DONE;
-
 		ret = (func)(msg_type, start_msg_id, (start_msg_id + i));
 		if (ret == NOT_DONE) {
 			add_sab_rcvmsg_handler(i, msg_type,
