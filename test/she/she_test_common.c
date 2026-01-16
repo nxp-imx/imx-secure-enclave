@@ -1,6 +1,6 @@
 // SPDX-License-Identifier: BSD-3-Clause
 /*
- * Copyright 2023-2025 NXP
+ * Copyright 2023-2026 NXP
  */
 
 #include <signal.h>
@@ -173,7 +173,7 @@ void execute_tests(int session_id, int SHE_id, int key_store_num)
 
 	err = do_she_fast_mac_mubuff_v2_test(utils_args[j][i].utils_handle);
 	if (err) {
-		if (err != SHE_FEATURE_NOT_SUPPORTED && err != SHE_OUT_OF_MEMORY) {
+		if (err != SHE_FEATURE_NOT_SUPPORTED && err != SHE_LIB_ERR_IO_BUF_OUT_OF_MEM) {
 			se_print("Error[0x%x]: FAST MAC V2 test Failed.\n", err);
 			return;
 		}

@@ -1,6 +1,6 @@
 // SPDX-License-Identifier: BSD-3-Clause
 /*
- * Copyright 2023-2024 NXP
+ * Copyright 2023-2024, 2026 NXP
  */
 
 #ifndef SHE_UTILS_H
@@ -9,6 +9,7 @@
 #include <stdint.h>
 #include "common/err.h"
 #include "common/global_info.h"
+#include "common/se_lib_utils.h"
 
 #define SHE_PREPARE	0x66
 #define SHE_RESPONSE	0x99
@@ -93,10 +94,13 @@ typedef enum {
 	//!< Memory Error.
 	SHE_GENERAL_ERROR = 0xDC,
 	//!< SHE General error.
-	SHE_LIB_ERROR = 0xEF,
+	SHE_LIB_ERROR = SE_LIB_ERROR,
 	//!< SHE library error
 	SHE_FATAL_FAILURE = SAB_FATAL_FAILURE,
 	//!< fatal error
+	SHE_LIB_ERR_IO_BUF_OUT_OF_MEM =
+		SHE_LIB_ERROR | IO_BUF_OUT_OF_MEM,
+	//!< SHE library failure - IO Buffer setup error
 } she_err_t;
 
 /** @} end of error code group */
