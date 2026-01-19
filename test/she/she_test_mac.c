@@ -1,6 +1,6 @@
 // SPDX-License-Identifier: BSD-3-Clause
 /*
- * Copyright 2024-2025 NXP
+ * Copyright 2024-2026 NXP
  */
 
 #include <string.h>
@@ -306,7 +306,8 @@ she_err_t she_verify_mac_one_go(she_hdl_t mac_handle)
 	}
 
 	if (se_get_soc_id() == SOC_IMX95 ||
-	    se_get_soc_id() == SOC_IMX943) {
+	    se_get_soc_id() == SOC_IMX943 ||
+	    se_get_soc_id() == SOC_IMX952) {
 		memset(&verify_mac_args, 0, sizeof(verify_mac_args));
 		verify_mac_args.algorithm = SHE_OP_MAC_ONE_GO_ALGO_CMAC;
 		verify_mac_args.key_identifier = SHE_RAM_KEY;
@@ -639,7 +640,8 @@ she_err_t she_generate_mac_one_go(she_hdl_t mac_handle)
 	se_print("SHE GENERATE MAC (16 BYTES) --> PASSED\n");
 
 	if (se_get_soc_id() == SOC_IMX95 ||
-	    se_get_soc_id() == SOC_IMX943) {
+	    se_get_soc_id() == SOC_IMX943 ||
+	    se_get_soc_id() == SOC_IMX952) {
 		memset(&generate_mac_args, 0, sizeof(generate_mac_args));
 		generate_mac_args.algorithm = SHE_OP_MAC_ONE_GO_ALGO_CMAC;
 		generate_mac_args.key_identifier = SHE_RAM_KEY;

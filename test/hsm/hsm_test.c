@@ -1,6 +1,6 @@
 // SPDX-License-Identifier: BSD-3-Clause
 /*
- * Copyright 2019-2025 NXP
+ * Copyright 2019-2026 NXP
  */
 
 #include <signal.h>
@@ -891,12 +891,14 @@ int main(int argc, char *argv[])
 
 #ifdef PSA_COMPLIANT
 	if (se_get_soc_id() == SOC_IMX95 ||
-	    se_get_soc_id() == SOC_IMX943) {
+	    se_get_soc_id() == SOC_IMX943 ||
+	    se_get_soc_id() == SOC_IMX952) {
 		test_ele_blob_unblob(hsm_session_hdl, NULL, 0);
 		test_ele_blob_unblob(hsm_session_hdl, "abcdefghijklmnopqrstuvwxyz", 5);
 	}
 
-	if (se_get_soc_id() == SOC_IMX95)
+	if (se_get_soc_id() == SOC_IMX95 ||
+	    se_get_soc_id() == SOC_IMX952)
 		test_mono_counter(hsm_session_hdl);
 
 #endif
