@@ -1,6 +1,6 @@
 // SPDX-License-Identifier: BSD-3-Clause
 /*
- * Copyright 2022-2024 NXP
+ * Copyright 2022-2024, 2026 NXP
  */
 
 #include <pthread.h>
@@ -252,7 +252,7 @@ void enc_data_storage_test(hsm_hdl_t key_mgmt_hdl, hsm_hdl_t key_store_hdl)
 			   HSM_KEY_USAGE_ENCRYPT | HSM_KEY_USAGE_DECRYPT,
 			   PERMITTED_ALGO_CBC_NO_PADDING,
 			   HSM_KEY_SIZE_AES_256,
-			   HSM_KEY_LIFECYCLE_OPEN,
+			   0,
 			   &enc_key_id);
 
 	if (err != HSM_NO_ERROR) {
@@ -271,7 +271,7 @@ void enc_data_storage_test(hsm_hdl_t key_mgmt_hdl, hsm_hdl_t key_store_hdl)
 			   HSM_KEY_USAGE_SIGN_MSG | HSM_KEY_USAGE_VERIFY_MSG,
 			   PERMITTED_ALGO_CMAC,
 			   HSM_KEY_SIZE_AES_256,
-			   HSM_KEY_LIFECYCLE_OPEN,
+			   0,
 			   &sign_key_id);
 
 	if (err != HSM_NO_ERROR) {
@@ -293,7 +293,7 @@ void enc_data_storage_test(hsm_hdl_t key_mgmt_hdl, hsm_hdl_t key_store_hdl)
 	enc_data_storage_args.sign_algo = PERMITTED_ALGO_CMAC;
 	enc_data_storage_args.sign_key_id = sign_key_id;
 	enc_data_storage_args.flags = HSM_OP_ENC_DATA_STORAGE_FLAGS_READ_ONCE;
-	enc_data_storage_args.lifecycle = HSM_KEY_LIFECYCLE_OPEN;
+	enc_data_storage_args.lifecycle = 0; //Current Device Lifecycle
 
 	err = hsm_enc_data_ops(key_store_hdl, &enc_data_storage_args);
 	if (err != HSM_NO_ERROR) {
@@ -452,7 +452,7 @@ void data_storage_delete_test(hsm_hdl_t key_store_hdl)
 	args.data_id = ENC_DATA_ID;
 
 	err = hsm_data_delete_ops(key_store_hdl, &args);
-	printf("hsm_data_delete_ops [Data#2 (Encrypted)] err: 0x%x (-ve)", err);
+	printf("\nhsm_data_delete_ops [Data#2 (Encrypted)] err: 0x%x (-ve)", err);
 	if (err == HSM_UNKNOWN_ID)
 		printf("--> SUCCESS\n");
 	else
