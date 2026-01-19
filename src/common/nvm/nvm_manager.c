@@ -18,10 +18,6 @@
 #include "plat_os_abs.h"
 #include "plat_utils.h"
 
-#if MT_SAB_STORAGE_KEY_DB_REQ
-#include "sab_storage_key_db.h"
-#endif
-
 #define SOC_IMX8DXL	0xe
 uint16_t g_soc_id;
 
@@ -256,17 +252,6 @@ uint32_t nvm_manager(uint8_t flags,
 	plat_os_abs_memcpy(nvm_ctx->nvm_fname, fname, NO_LENGTH);
 	plat_os_abs_memcpy(nvm_ctx->nvm_dname, dname, NO_LENGTH);
 
-#if MT_SAB_STORAGE_KEY_DB_REQ
-	for (int i = 0; i < MAX_KEY_STORE; i++) {
-		/*
-		 * Key store ID == 0 is a valid ID. Database is not in used if
-		 * both file descriptor are negative
-		 */
-		nvm_ctx->key_db[i].persistent_tmp_fd = -1;
-		nvm_ctx->key_db[i].volatile_fd = -1;
-	}
-#endif
-
 	*ctx = nvm_ctx;
 
 	do {
@@ -360,11 +345,6 @@ uint32_t nvm_manager(uint8_t flags,
 		} else {
 			nvm_ctx->status = NVM_STATUS_STOPPED;
 		}
-
-#if MT_SAB_STORAGE_KEY_DB_REQ
-		/* Close all opened key database files */
-		storage_close_key_db_fd(nvm_ctx->key_db);
-#endif
 
 		if (nvm_ctx->phdl)
 			nvm_close_session(nvm_ctx);

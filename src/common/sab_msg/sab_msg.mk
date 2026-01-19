@@ -1,5 +1,5 @@
 # SPDX-License-Identifier: BSD-3-Clause
-# Copyright 2022-2025 NXP
+# Copyright 2022-2026 NXP
 #
 
 include $(PLAT_PATH)/sab_msg.def
@@ -72,12 +72,6 @@ ifneq (${MT_SAB_STORAGE_CHUNK_EXPORT_REQ},0x0)
 DEFINES		+=	-DMT_SAB_STORAGE_CHUNK_EXPORT_REQ=${MT_SAB_STORAGE_CHUNK_EXPORT_REQ}
 SAB_RCVMSG_SRC	+= \
 		$(PLAT_COMMON_PATH)/sab_msg/sab_storage_chunk_export.o
-endif
-
-ifneq (${MT_SAB_STORAGE_KEY_DB_REQ}, 0x0)
-DEFINES		+=	-DMT_SAB_STORAGE_KEY_DB_REQ=${MT_SAB_STORAGE_KEY_DB_REQ}
-SAB_RCVMSG_SRC	+= \
-		$(PLAT_COMMON_PATH)/sab_msg/sab_storage_key_db.o
 endif
 
 ifneq (${MT_SAB_SIGN_GEN},0x0)

@@ -1,6 +1,6 @@
 // SPDX-License-Identifier: BSD-3-Clause
 /*
- * Copyright 2021-2023 NXP
+ * Copyright 2021-2023, 2026 NXP
  */
 
 #ifndef PLAT_OS_ABS_DEF_H
@@ -46,14 +46,6 @@ struct plat_mu_params {
 #define MU_CHANNEL_V2X_SG1        (0x14u)
 #define MU_CHANNEL_V2X_SHE_NVM    (0x15u)
 #define MU_CHANNEL_V2X_HSM_NVM    (0x16u)
-
-#define MAX_KEY_STORE             (0x02u)
-
-struct key_db_fd {
-	uint32_t key_store_id;
-	int persistent_tmp_fd;
-	int volatile_fd;
-};
 
 uint32_t plat_sab_success_tag(void *phdl);
 

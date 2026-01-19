@@ -11,10 +11,6 @@
 #include "plat_os_abs.h"
 #include "plat_utils.h"
 
-#if MT_SAB_STORAGE_KEY_DB_REQ
-#include "sab_storage_key_db.h"
-#endif
-
 uint32_t parse_cmd_prep_rsp_storage_finish_export(struct nvm_ctx_st *nvm_ctx_param,
 						  void *cmd_buf,
 						  void *rsp_buf,
@@ -127,13 +123,6 @@ uint32_t parse_cmd_prep_rsp_storage_finish_export(struct nvm_ctx_st *nvm_ctx_par
 			resp->rsp_code = plat_sab_success_tag(nvm_ctx_param->phdl);
 		}
 	}
-
-#if MT_SAB_STORAGE_KEY_DB_REQ
-	/* Update key database if needed */
-	err = storage_key_db_save_persistent(blob_id, nvm_ctx_param);
-	if (err != 0u)
-		resp->rsp_code = SAB_FAILURE_STATUS;
-#endif
 
 out:
 	resp->storage_handle = nvm_ctx_param->storage_handle;

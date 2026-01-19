@@ -1,6 +1,6 @@
 // SPDX-License-Identifier: BSD-3-Clause
 /*
- * Copyright 2019-2025 NXP
+ * Copyright 2019-2026 NXP
  */
 
 
@@ -435,76 +435,6 @@ uint32_t get_chunk_file_path(char **path,
  * \return PLAT_SUCCESS on success, PLAT_FAILURE on failure.
  */
 uint32_t plat_os_abs_storage_remove_file(char *filename, char *dirname);
-
-#if MT_SAB_STORAGE_KEY_DB_REQ
-/**
- * Open a key database file descriptor.
- *
- * \param path pathname of the file.
- * \param flags open flags.
- * \param mode open mode.
- *
- * \return file descriptor. In case of failure, return PLAT_OPEN_FAILURE.
- */
-uint32_t plat_os_abs_storage_open_key_db_fd(uint8_t *path, int flags, uint32_t mode);
-
-/**
- * Close a key database file descriptor.
- *
- * \param fd file descriptor to close.
- *
- * \return PLAT_SUCCESS on success, PLAT_FAILURE on failure.
- */
-uint32_t plat_os_abs_storage_close_key_db_fd(int fd);
-
-/**
- * Get file size in bytes.
- *
- * \param fd file descriptor.
- * \param file_size pointer updated with file size.
- *
- * \return PLAT_SUCCESS on success, PLAT_FAILURE on failure.
- */
-uint32_t plat_os_abs_storage_get_file_size(int fd, size_t *file_size);
-
-/**
- * Read @size bytes of @fd file in @buffer buffer.
- *
- * \param fd file desrciptor of the file to read.
- * \param buffer pointer to destination buffer.
- * \param size number of bytes to read.
- * \param offset file offset from which data are read.
- * \param size_read pointer updated with number of bytes read.
- *
- * \return PLAT_SUCCESS on success, PLAT_FAILURE on failure.
- */
-uint32_t plat_os_abs_storage_pread(int fd, void *buffer, size_t size, off_t offset,
-				   size_t *size_read);
-
-/**
- * Write @size bytes of @buffer in @fd file. Execute fsync after write operation.
- *
- * \param fd file descriptor of the file to update.
- * \param buffer pointer to source buffer.
- * \param size number of bytes to write.
- * \param offset file offset from which data are written.
- * \param size_written pointer updated with number of bytes written.
- *
- * \return PLAT_SUCCESS on success, PLAT_FAILURE on failure.
- */
-uint32_t plat_os_abs_storage_pwrite(int fd, void *buffer, size_t size, off_t offset,
-				    size_t *size_written);
-
-/**
- * Truncate a file to new length. Execute fsync after ftruncate operation.
- *
- * \param fd file descriptor.
- * \param length new file's length.
- *
- * \return PLAT_SUCCESS on success, PLAT_FAILURE on failure.
- */
-uint32_t plat_os_abs_storage_file_truncate(int fd, off_t length);
-#endif
 
 /**
  * Get start and end timestamps in kernel for a crypto operation.
