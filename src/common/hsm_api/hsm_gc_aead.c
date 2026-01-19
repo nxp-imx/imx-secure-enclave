@@ -1,6 +1,6 @@
 // SPDX-License-Identifier: BSD-3-Clause
 /*
- * Copyright 2024 NXP
+ * Copyright 2024, 2026 NXP
  */
 
 #include <stdint.h>
@@ -9,11 +9,11 @@
 
 #include "internal/hsm_handle.h"
 #include "internal/hsm_utils.h"
-#include "internal/hsm_gc_acrypto.h"
+#include "internal/hsm_gc_aead.h"
 
 #include "sab_process_msg.h"
 
-hsm_err_t hsm_gc_aead(hsm_hdl_t session_hdl, op_gc_acrypto_args_t *args)
+hsm_err_t hsm_gc_aead(hsm_hdl_t session_hdl, op_gc_aead_args_t *args)
 {
 	uint32_t error;
 	struct hsm_session_hdl_s *sess_ptr;
