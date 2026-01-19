@@ -196,10 +196,8 @@ static uint32_t nvm_open_session(uint8_t flags, struct nvm_ctx_st *nvm_ctx)
 			break;
 	} while (false);
 
-	if (args) {
+	if (args)
 		plat_os_abs_free(args);
-		args = NULL;
-	}
 
 	/* Clean-up in case of error. */
 	if (err == SAB_FAILURE_STATUS) {
@@ -230,10 +228,10 @@ uint32_t nvm_manager(uint8_t flags,
 		     uint8_t *dname)
 {
 	int32_t len = 0;
-	uint32_t data_len = 0u;
+	uint32_t data_len;
 	struct nvm_header_s nvm_hdr;
 	uint32_t err = 0u;
-	uint8_t *data = NULL;
+	uint8_t *data;
 	uint8_t retry = 0;
 	struct nvm_ctx_st *nvm_ctx = NULL;
 
@@ -313,7 +311,6 @@ uint32_t nvm_manager(uint8_t flags,
 						se_err("Warn: Failure in Master Storage Data Import.\n");
 				}
 				plat_os_abs_free(data);
-				data = NULL;
 				len = 0;
 			}
 		}

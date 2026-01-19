@@ -311,10 +311,9 @@ out:
 	return ret;
 }
 
-void plat_os_abs_free(void *ptr __attribute__((unused)))
+void plat_os_abs_free(void *ptr)
 {
 	free(ptr);
-	ptr = NULL;
 }
 
 void plat_os_abs_start_system_rng(struct plat_os_abs_hdl *phdl)
