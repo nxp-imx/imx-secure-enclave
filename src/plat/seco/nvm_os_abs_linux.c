@@ -1,6 +1,6 @@
 // SPDX-License-Identifier: BSD-3-Clause
 /*
- * Copyright 2021-2025 NXP
+ * Copyright 2021-2026 NXP
  */
 
 #include <stdio.h>
@@ -85,7 +85,7 @@ uint32_t plat_os_abs_storage_write(struct plat_os_abs_hdl *phdl,
 	}
 exit:
 
-	return TO_UINT32_T(l);
+	return l;
 }
 
 uint32_t plat_os_abs_storage_read(struct plat_os_abs_hdl *phdl,
@@ -114,7 +114,7 @@ uint32_t plat_os_abs_storage_read(struct plat_os_abs_hdl *phdl,
 			(void)close(fd);
 		}
 	}
-	return TO_UINT32_T(l);
+	return l;
 }
 
 uint32_t get_chunk_file_path(char **path,
@@ -208,7 +208,7 @@ uint32_t plat_os_abs_storage_write_chunk(struct plat_os_abs_hdl *phdl,
 	if (path)
 		plat_os_abs_free(path);
 
-	return TO_UINT32_T(l);
+	return l;
 }
 
 uint32_t plat_os_abs_storage_read_chunk(struct plat_os_abs_hdl *phdl,
@@ -250,5 +250,5 @@ uint32_t plat_os_abs_storage_read_chunk(struct plat_os_abs_hdl *phdl,
 	if (path)
 		plat_os_abs_free(path);
 
-	return TO_UINT32_T(l);
+	return l;
 }

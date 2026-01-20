@@ -250,8 +250,8 @@ uint32_t nvm_manager(uint8_t flags,
 	}
 
 	plat_os_abs_memset((uint8_t *)nvm_ctx, 0, sizeof(struct nvm_ctx_st));
-	plat_os_abs_memcpy(nvm_ctx->nvm_fname, fname, NO_LENGTH);
-	plat_os_abs_memcpy(nvm_ctx->nvm_dname, dname, NO_LENGTH);
+	plat_os_abs_memcpy(nvm_ctx->nvm_fname, fname, strlen(fname));
+	plat_os_abs_memcpy(nvm_ctx->nvm_dname, dname, strlen(dname));
 
 	*ctx = nvm_ctx;
 

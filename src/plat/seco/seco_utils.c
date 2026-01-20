@@ -1,6 +1,6 @@
 // SPDX-License-Identifier: BSD-3-Clause
 /*
- * Copyright 2019-2025 NXP
+ * Copyright 2019-2026 NXP
  */
 
 #include "errno.h"
@@ -51,7 +51,7 @@ void plat_build_cmd_msg_hdr(struct sab_mu_hdr *hdr, msg_type_t msg_type,
 	}
 	hdr->tag = phdl->mu_info.cmd_tag;
 	hdr->command = cmd;
-	hdr->size = TO_UINT8_T(len >> 2);
+	hdr->size = len >> 2;
 }
 
 void plat_build_rsp_msg_hdr(struct sab_mu_hdr *hdr, msg_type_t msg_type,
@@ -87,7 +87,7 @@ void plat_build_rsp_msg_hdr(struct sab_mu_hdr *hdr, msg_type_t msg_type,
 	}
 	hdr->tag = phdl->mu_info.rsp_tag;
 	hdr->command = rsp;
-	hdr->size = TO_UINT8_T(len >> 2);
+	hdr->size = len >> 2;
 }
 
 #if DEBUG

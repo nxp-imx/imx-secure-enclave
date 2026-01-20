@@ -55,7 +55,7 @@ uint32_t plat_os_abs_storage_write(struct plat_os_abs_hdl *phdl,
 		}
 	}
 
-	return TO_UINT32_T(l);
+	return l;
 }
 
 uint32_t plat_os_abs_storage_read(struct plat_os_abs_hdl *phdl,
@@ -89,7 +89,7 @@ uint32_t plat_os_abs_storage_read(struct plat_os_abs_hdl *phdl,
 			(void)close(fd);
 		}
 	}
-	return TO_UINT32_T(l);
+	return l;
 }
 
 uint32_t get_chunk_file_path(char **path,
@@ -176,7 +176,7 @@ uint32_t plat_os_abs_storage_write_chunk(struct plat_os_abs_hdl *phdl,
 	if (path)
 		plat_os_abs_free(path);
 
-	return TO_UINT32_T(l);
+	return l;
 }
 
 uint32_t plat_os_abs_storage_read_chunk(struct plat_os_abs_hdl *phdl,
@@ -210,7 +210,7 @@ uint32_t plat_os_abs_storage_read_chunk(struct plat_os_abs_hdl *phdl,
 	if (path)
 		plat_os_abs_free(path);
 
-	return TO_UINT32_T(l);
+	return l;
 }
 
 uint32_t plat_os_abs_storage_remove_file(char *filename, char *dirname)

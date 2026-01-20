@@ -345,7 +345,7 @@ uint32_t decode_from_tlv_buf(uint8_t **data,
 
 	next_tlv_data_buf_idx = tag_len + len_of_len + *len;
 out:
-	return TO_UINT32_T(next_tlv_data_buf_idx);
+	return next_tlv_data_buf_idx;
 }
 
 uint32_t se_get_info(uint32_t session_hdl, op_get_info_args_t *args)

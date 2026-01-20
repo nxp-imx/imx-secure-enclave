@@ -1,6 +1,6 @@
 // SPDX-License-Identifier: BSD-3-Clause
 /*
- * Copyright 2023-2024 NXP
+ * Copyright 2023-2024, 2026 NXP
  */
 
 #include <stdbool.h>
@@ -392,29 +392,29 @@ uint8_t decode_enc_data_tlv(op_data_storage_args_t *args)
 						 &args->data[next_tlv_data_idx],
 						 args->data_size - next_tlv_data_idx);
 
-	if (next_tlv_data_idx >= args->data_size)
+	if (!args->uuid || next_tlv_data_idx >= args->data_size)
 		goto out;
 
-	next_tlv_data_idx = TO_UINT32_T(next_tlv_data_idx +
-				decode_from_tlv_buf(&args->iv,
-						    &iv_len,
-						    ENC_DATA_TLV_IV_TAG,
-						    ENC_DATA_TLV_IV_TAG_LEN,
-						    &args->data[next_tlv_data_idx],
-						    args->data_size - next_tlv_data_idx));
+	next_tlv_data_idx = next_tlv_data_idx +
+			    decode_from_tlv_buf(&args->iv,
+						&iv_len,
+						ENC_DATA_TLV_IV_TAG,
+						ENC_DATA_TLV_IV_TAG_LEN,
+						&args->data[next_tlv_data_idx],
+						args->data_size - next_tlv_data_idx);
 
-	if (next_tlv_data_idx >= args->data_size)
+	if ((!args->iv && iv_len) || next_tlv_data_idx >= args->data_size)
 		goto out;
 
-	next_tlv_data_idx = TO_UINT32_T(next_tlv_data_idx +
-				decode_from_tlv_buf(&args->ciphertext,
-						    &args->ciphertext_len,
-						    ENC_DATA_TLV_ENC_DATA_TAG,
-						    ENC_DATA_TLV_ENC_DATA_TAG_LEN,
-						    &args->data[next_tlv_data_idx],
-						    args->data_size - next_tlv_data_idx));
+	next_tlv_data_idx = next_tlv_data_idx +
+			    decode_from_tlv_buf(&args->ciphertext,
+						&args->ciphertext_len,
+						ENC_DATA_TLV_ENC_DATA_TAG,
+						ENC_DATA_TLV_ENC_DATA_TAG_LEN,
+						&args->data[next_tlv_data_idx],
+						args->data_size - next_tlv_data_idx);
 
-	if (next_tlv_data_idx >= args->data_size)
+	if (!args->ciphertext || next_tlv_data_idx >= args->data_size)
 		goto out;
 
 	decode_from_tlv_buf(&args->signature,
@@ -423,10 +423,12 @@ uint8_t decode_enc_data_tlv(op_data_storage_args_t *args)
 			    ENC_DATA_TLV_SIGN_TAG_LEN,
 			    &args->data[next_tlv_data_idx],
 			    args->data_size - next_tlv_data_idx);
+	if (!args->signature)
+		goto out;
 
-	args->uuid_len = TO_UINT16_T(uuid_len);
-	args->iv_len = TO_UINT16_T(iv_len);
-	args->signature_len = TO_UINT16_T(signature_len);
+	args->uuid_len = uuid_len;
+	args->iv_len = iv_len;
+	args->signature_len = signature_len;
 
 	if (args->signature_len &&
 	    args->data_size > args->signature_len) {
@@ -441,10 +443,38 @@ uint8_t decode_enc_data_tlv(op_data_storage_args_t *args)
 		plat_os_abs_memcpy(args->payload,
 				   args->data,
 				   args->payload_len);
+	} else {
+		goto out;
 	}
 
 	ret = 0;
-#endif
 out:
+	if (ret && args) {
+		if (args->uuid) {
+			plat_os_abs_free(args->uuid);
+			args->uuid = NULL;
+		}
+
+		if (args->iv) {
+			plat_os_abs_free(args->iv);
+			args->iv = NULL;
+		}
+
+		if (args->ciphertext) {
+			plat_os_abs_free(args->ciphertext);
+			args->ciphertext = NULL;
+		}
+
+		if (args->signature) {
+			plat_os_abs_free(args->signature);
+			args->signature = NULL;
+		}
+
+		if (args->payload) {
+			plat_os_abs_free(args->payload);
+			args->payload = NULL;
+		}
+	}
+#endif
 	return ret;
 }

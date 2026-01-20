@@ -39,10 +39,6 @@
 		(_c < UINT32_MAX) ? (uint32_t)_c : 0; \
 	 })
 
-#define TO_UINT8_T(x)   ((x) & 0xFFu)
-#define TO_UINT16_T(x)  ((x) & 0xFFFFu)
-#define TO_UINT32_T(x)  ((x) & 0xFFFFFFFFu)
-
 #define PLAT_SUCCESS        (0x0u)
 #define PLAT_FAILURE        (0x1u)
 #define PLAT_READ_FAILURE   (0x0u)

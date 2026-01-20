@@ -8,7 +8,6 @@
 
 #include <stdint.h>
 
-#define NO_LENGTH                   0x0u
 #define MAX_FNAME_DNAME_SZ          256u
 
 struct mu_info {

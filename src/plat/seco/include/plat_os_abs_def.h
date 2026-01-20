@@ -1,6 +1,6 @@
 // SPDX-License-Identifier: BSD-3-Clause
 /*
- * Copyright 2019-2023 NXP
+ * Copyright 2019-2023, 2026 NXP
  */
 
 #ifndef PLAT_OS_ABS_DEF_H
@@ -8,7 +8,6 @@
 
 #include <stdint.h>
 
-#define NO_LENGTH                   0x0u
 #define MAX_FNAME_DNAME_SZ          256u
 
 struct mu_info {

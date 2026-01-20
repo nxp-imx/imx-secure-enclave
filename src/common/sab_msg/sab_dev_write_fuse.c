@@ -1,6 +1,6 @@
 // SPDX-License-Identifier: BSD-3-Clause
 /*
- * Copyright 2024 NXP
+ * Copyright 2024, 2026 NXP
  */
 
 #include <string.h>
@@ -24,8 +24,13 @@ uint32_t prepare_msg_dev_write_fuse(void *phdl, void *cmd_buf, void *rsp_buf,
 	struct sab_cmd_dev_write_fuse_msg *cmd =
 		(struct sab_cmd_dev_write_fuse_msg *)cmd_buf;
 	op_dev_write_fuse_args_t *op_args = (op_dev_write_fuse_args_t *)args;
+	uint64_t temp;
 
-	cmd->bit_pos = TO_UINT16_T(op_args->word_pos * BITS_IN_WORD + op_args->bit_pos);
+	temp = op_args->word_pos * BITS_IN_WORD + op_args->bit_pos;
+	if (temp > UINT16_MAX)
+		return err;
+
+	cmd->bit_pos = temp;
 	cmd->bit_len = op_args->bit_len;
 
 	if (cmd->bit_len < BITS_IN_WORD)

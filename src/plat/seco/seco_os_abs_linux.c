@@ -148,7 +148,7 @@ uint32_t plat_os_abs_send_mu_message(struct plat_os_abs_hdl *phdl,
 		       strerror(errno));
 	}
 
-	return TO_UINT32_T(ret);
+	return ret;
 }
 
 /*
@@ -170,7 +170,7 @@ uint32_t plat_os_abs_read_mu_message(struct plat_os_abs_hdl *phdl,
 		       strerror(errno));
 	}
 
-	return TO_UINT32_T(ret);
+	return ret;
 };
 
 /* Map the shared buffer allocated by Seco. */
@@ -263,9 +263,6 @@ void plat_os_abs_memset(uint8_t *dst, uint8_t val, uint32_t len)
 
 void plat_os_abs_memcpy(uint8_t *dst, uint8_t *src, uint32_t len)
 {
-	if (len == NO_LENGTH)
-		len = TO_UINT32_T(strlen(src));
-
 	(void)memcpy(dst, src, len);
 }
 
@@ -278,9 +275,6 @@ uint32_t plat_os_abs_memcpy_v2(uint8_t *dst, uint8_t *src, uint32_t len)
 		err = PLAT_MEMCPY_FAIL;
 		goto out;
 	}
-
-	if (len == NO_LENGTH)
-		len = TO_UINT32_T(strlen(src));
 
 	ret = (void *)memcpy(dst, src, len);
 
@@ -352,7 +346,7 @@ uint32_t plat_os_abs_send_signed_message(struct plat_os_abs_hdl *phdl,
 		err = msg.error_code;
 	}
 
-	return TO_UINT32_T(err);
+	return err;
 }
 
 uint32_t plat_os_abs_send_signed_message_v2(struct plat_os_abs_hdl *phdl,
@@ -415,7 +409,7 @@ uint32_t plat_os_abs_get_soc_info(struct plat_os_abs_hdl *phdl,
 	*soc_rev = soc_info.soc_rev;
 	*board_type = soc_info.board_type;
 out:
-	return TO_UINT32_T(ret);
+	return ret;
 }
 
 uint32_t plat_get_perf_timer(struct plat_os_abs_hdl *phdl,
@@ -423,7 +417,7 @@ uint32_t plat_get_perf_timer(struct plat_os_abs_hdl *phdl,
 			     struct timespec *t_end)
 {
 	struct seco_time_frame perf_time;
-	int32_t ret = PLAT_SUCCESS;
+	int32_t ret;
 
 	if (!phdl || !t_start || !t_end)
 		return PLAT_FAILURE;
@@ -439,40 +433,40 @@ uint32_t plat_get_perf_timer(struct plat_os_abs_hdl *phdl,
 	*t_start = perf_time.t_start;
 	*t_end = perf_time.t_end;
 
-	return TO_UINT32_T(ret);
+	return ret;
 }
 
 uint32_t plat_os_abs_cmd_snd_rcv_rsp(struct plat_os_abs_hdl *phdl,
 				     uint32_t *tx_buf, uint32_t *tx_buf_sz,
 				     uint32_t *rx_buf, uint32_t *rx_buf_sz)
 {
-    struct seco_ioctl_cmd_snd_rcv_rsp_info cmd_snd_rcv_rsp_info;
-    int32_t err;
+	struct seco_ioctl_cmd_snd_rcv_rsp_info cmd_snd_rcv_rsp_info;
+	int32_t err;
 
-    cmd_snd_rcv_rsp_info.tx_buf = tx_buf;
-    cmd_snd_rcv_rsp_info.tx_buf_sz = *tx_buf_sz;
-    cmd_snd_rcv_rsp_info.rx_buf = rx_buf;
-    cmd_snd_rcv_rsp_info.rx_buf_sz = *rx_buf_sz;
+	cmd_snd_rcv_rsp_info.tx_buf = tx_buf;
+	cmd_snd_rcv_rsp_info.tx_buf_sz = *tx_buf_sz;
+	cmd_snd_rcv_rsp_info.rx_buf = rx_buf;
+	cmd_snd_rcv_rsp_info.rx_buf_sz = *rx_buf_sz;
 
-    err = ioctl(phdl->fd, SECO_IOCTL_CMD_SEND_RCV_RSP, &cmd_snd_rcv_rsp_info);
+	err = ioctl(phdl->fd, SECO_IOCTL_CMD_SEND_RCV_RSP, &cmd_snd_rcv_rsp_info);
 
-    if (err < 0) {
-        err = PLAT_FAILURE;
-	if (cmd_snd_rcv_rsp_info.tx_buf_sz < 0)
-		printf("\nPLAT send error[%d]: %s\n",
-		       errno,
-		       strerror(errno));
+	if (err < 0 || cmd_snd_rcv_rsp_info.tx_buf_sz < 0 ||
+	    cmd_snd_rcv_rsp_info.rx_buf_sz < 0) {
+		err = PLAT_FAILURE;
+		if (cmd_snd_rcv_rsp_info.tx_buf_sz < 0)
+			printf("\nPLAT send error[%d]: %s\n",
+			       errno,
+			       strerror(errno));
 
-	if (cmd_snd_rcv_rsp_info.rx_buf_sz < 0)
-		printf("\nPLAT read error[%d]: %s\n",
-		       errno,
-		       strerror(errno));
-    }
-    else {
-        err = PLAT_SUCCESS;
-        *tx_buf_sz = cmd_snd_rcv_rsp_info.tx_buf_sz;
-        *rx_buf_sz = cmd_snd_rcv_rsp_info.rx_buf_sz;
-    }
+		if (cmd_snd_rcv_rsp_info.rx_buf_sz < 0)
+			printf("\nPLAT read error[%d]: %s\n",
+			       errno,
+			       strerror(errno));
+	} else {
+		err = PLAT_SUCCESS;
+		*tx_buf_sz = cmd_snd_rcv_rsp_info.tx_buf_sz;
+		*rx_buf_sz = cmd_snd_rcv_rsp_info.rx_buf_sz;
+	}
 
-    return err;
+	return err;
 }
