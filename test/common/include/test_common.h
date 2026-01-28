@@ -184,9 +184,12 @@ void test_asymmetric_crypto(hsm_hdl_t sess_hdl, hsm_hdl_t key_store_hdl);
 #define GEN_ELE_KEY_BLOB_FORMAT_ALGO_KEY_SZ_AES192	"AES192"
 #define GEN_ELE_KEY_BLOB_FORMAT_ALGO_KEY_SZ_AES256	"AES256"
 #define GEN_ELE_KEY_BLOB_FORMAT_ALGO_KEY_SZ_SM4128	"SM4128"
+#define GEN_ELE_KEY_BLOB_FORMAT_ALGO_SM4_EXCEPTION	"(only with OSSCA boot)"
 
 #define GEN_ELE_KEY_BLOB_DEK_KEY_FILE_NAME \
-	"filename_with_absolute_path_containing_key_buffer"
+	"Filename containing key-buffer, in binary-format"
+#define GEN_ELE_KEY_BLOB_OUTPUT_DEK_BLOB_FILENAME \
+	"Filename to save generated ELE DEK-blob, in binary-format"
 uint16_t gen_ele_key_blob_get_keysize(hsm_op_gen_ele_key_blob_flags_t flag, char *str);
 hsm_op_gen_ele_key_blob_algo_t
 	gen_ele_key_blob_get_algo(hsm_op_gen_ele_key_blob_flags_t flag, char *str);

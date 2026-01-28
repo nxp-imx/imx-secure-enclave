@@ -3,6 +3,7 @@
  * Copyright 2025-2026 NXP
  */
 
+#include <errno.h>
 #include <signal.h>
 #include <stdbool.h>
 #include <stdio.h>
@@ -37,17 +38,20 @@ void se_tools_usage(void)
 	printf("-g or --gen-ele-key-blob: Generate blob for <\"%s\"/\"%s\">.",
 	       GEN_ELE_KEY_BLOB_TYPE_DEK, GEN_ELE_KEY_BLOB_TYPE_OTFAD);
 	printf("\n\t DEK: Mandatory input:");
-	printf("\n\t\t<algo>     : %s, %s",
+	printf("\n\t\t<key-id>       : <0..UINT32_MAX>");
+	printf("\n\t\t<algo>         : %s, %s",
 	       GEN_ELE_KEY_BLOB_FORMAT_ALGO_AES_CBC,
 	       GEN_ELE_KEY_BLOB_FORMAT_ALGO_SM4_CBC);
-	printf("\n\t\t<key-type> : %s, %s, %s, %s",
+	printf("\n\t\t<key-type>     : %s, %s, %s, %s%s",
 	       GEN_ELE_KEY_BLOB_FORMAT_ALGO_KEY_SZ_AES128,
 	       GEN_ELE_KEY_BLOB_FORMAT_ALGO_KEY_SZ_AES192,
 	       GEN_ELE_KEY_BLOB_FORMAT_ALGO_KEY_SZ_AES256,
-	       GEN_ELE_KEY_BLOB_FORMAT_ALGO_KEY_SZ_SM4128);
-	printf("\n\t\t<filename> : %s\n", GEN_ELE_KEY_BLOB_DEK_KEY_FILE_NAME);
+	       GEN_ELE_KEY_BLOB_FORMAT_ALGO_KEY_SZ_SM4128,
+	       GEN_ELE_KEY_BLOB_FORMAT_ALGO_SM4_EXCEPTION);
+	printf("\n\t\t<Input-fname>  : %s", GEN_ELE_KEY_BLOB_DEK_KEY_FILE_NAME);
+	printf("\n\t\t<Output-fname> : %s\n", GEN_ELE_KEY_BLOB_OUTPUT_DEK_BLOB_FILENAME);
 	printf("\n\t OTFAD: Not Supported.\n");
-	printf("-u or --lc_update <LC_STATE>: for life-cycle update only\n");
+	printf("-u or --lc-update <LC_STATE>: for life-cycle update only\n");
 	printf("\t where, permitted values for LC_STATE are:");
 	printf("\n\t\tHSM_NXP_PROVISIONED_STATE,");
 	printf("\n\t\tHSM_OEM_OPEN_STATE,");
@@ -56,6 +60,78 @@ void se_tools_usage(void)
 	printf("\n\t\tHSM_NXP_FIELD_RET_STATE,");
 	printf("\n\t\tHSM_OEM_LOCKED_STATE\n");
 #endif
+}
+
+static int se_tool_fread(const uint8_t *in_fname, uint8_t *in_buf, uint16_t *in_buf_sz)
+{
+	FILE *se_fptr = fopen(in_fname, "rb");
+	uint16_t in_buf_read = 0;
+	size_t bytes_read_itr, in_file_sz;
+
+	if (!se_fptr) {
+		printf("Error: Failed to open file:%s\n", in_fname);
+		return -errno;
+	}
+
+	if (fseek(se_fptr, 0, SEEK_END) != 0) {
+		printf("Error: F-seek to end failed: %d\n", errno);
+		fclose(se_fptr);
+		return -errno;
+	}
+
+	in_file_sz = ftell(se_fptr);
+	if (in_file_sz != *in_buf_sz) {
+		printf("Error: Mismatch input-file-buf-sz[%zd bytes] & req-input-sz[%d",
+		       in_file_sz, *in_buf_sz);
+		printf(" bytes].\n");
+		fclose(se_fptr);
+		return -EINVAL;
+	}
+
+	if (fseek(se_fptr, 0, 0) != 0) {
+		printf("Error: F-seek to start failed: %d\n", errno);
+		fclose(se_fptr);
+		return -errno;
+	}
+
+	do {
+		bytes_read_itr = fread(in_buf + in_buf_read, 1, *in_buf_sz - in_buf_read,
+				       se_fptr);
+		in_buf_read += bytes_read_itr;
+	} while (bytes_read_itr > 0);
+
+	if (in_file_sz != in_buf_read)
+		printf("Error: Mismatch F-seek-to-end-size[%zd] and read-size[%d]",
+		       in_file_sz, in_buf_read);
+
+#ifdef SE_TOOL_DEBUG
+	hexdump((uint32_t *)in_buf, *in_buf_sz >> 2);
+#endif
+	fclose(se_fptr);
+
+	return 0;
+}
+
+static int se_tool_fwrite(const uint8_t *out_fname, uint8_t *out_buf, int out_buf_sz)
+{
+	FILE *se_fptr = fopen(out_fname, "wb");
+	uint16_t out_buf_write = 0;
+	size_t bytes_write_itr;
+
+	if (!se_fptr) {
+		printf("Error: Failed to open file:%s\n", out_fname);
+		return -errno;
+	}
+	do {
+		bytes_write_itr = fwrite(out_buf + out_buf_write, 1,
+					 out_buf_sz - out_buf_write,
+					 se_fptr);
+		out_buf_write += bytes_write_itr;
+	} while (out_buf_write < out_buf_sz);
+
+	fclose(se_fptr);
+
+	return 0;
 }
 
 #ifdef PSA_COMPLIANT
@@ -182,18 +258,17 @@ int process_option(int opt_arg_count, char **optarg)
 
 	if ((strcmp("--gen-ele-key-blob", optarg[1]) == 0 ||
 	     strcmp("-g", optarg[1]) == 0)) {
-		uint8_t generated_ele_dek_blob[88];
-		uint8_t gen_ele_dek_blob_sz = 88;
+		const uint8_t *payload_fname = (opt_arg_count >= 8) ? optarg[6] : NULL;
+		const uint8_t *output_fname = (opt_arg_count >= 8) ? optarg[7] : NULL;
+		uint8_t payload[OP_GEN_ELE_KEY_BLOB_PAYLOAD_MAX_SZ];
 		hsm_op_gen_ele_key_blob_flags_t flag;
 		hsm_op_gen_ele_key_blob_algo_t algo;
+		uint8_t generated_ele_dek_blob[88];
+		uint8_t gen_ele_dek_blob_sz = 88;
 		uint16_t key_size;
-		uint16_t payload_size_read = 0;
-		size_t bytes_read_itr = 0;
 		uint32_t key_id;
-		const uint8_t *payload_fname = (opt_arg_count >= 7) ? optarg[6] : NULL;
-		uint8_t payload[OP_GEN_ELE_KEY_BLOB_PAYLOAD_MAX_SZ];
 
-		if (opt_arg_count != 7) {
+		if (opt_arg_count != 8) {
 			se_tools_usage();
 			return 0;
 		}
@@ -214,32 +289,18 @@ int process_option(int opt_arg_count, char **optarg)
 			return 0;
 		}
 		key_size = gen_ele_key_blob_get_keysize(flag, optarg[5]);
-		if (!algo) {
+		if (!key_size) {
 			se_tools_usage();
 			return 0;
 		}
 		key_id = atoi(optarg[3]);
-		if (payload_fname) {
-			FILE *pl_fptr = fopen(payload_fname, "rb");
-
-			if (!pl_fptr) {
-				printf("Error: Failed to open file:%s\n",
-				       payload_fname);
-				return 0;
-			}
-			do {
-				bytes_read_itr = fread(payload, 1, sizeof(payload),
-						       pl_fptr);
-				payload_size_read += bytes_read_itr;
-			} while (bytes_read_itr > 0);
-
-			if (payload_size_read >> 1 != key_size) {
-				printf("Error: Mismatch in file-input-buff & input-sz[%d",
-				       payload_size_read >> 1);
-				printf(" bytes].\n");
-				return 0;
-			}
+		if (!payload_fname) {
+			printf("Error: Empty Out-file name.\n");
+			return 0;
 		}
+		memset(payload, 0, sizeof(payload));
+		if (se_tool_fread(payload_fname, payload, &key_size))
+			return 0;
 
 		err = test_gen_ele_key_blob(se_lib_serv_hdl, flag, key_id,
 					    algo, payload, key_size,
@@ -248,6 +309,19 @@ int process_option(int opt_arg_count, char **optarg)
 		if (err)
 			printf("Failed to generate ELE Key blob for DEK.\n");
 
+		if (!output_fname) {
+			printf("Error: Empty Out-file name.\n");
+			return 0;
+		}
+
+		if (se_tool_fwrite(output_fname, generated_ele_dek_blob,
+				   gen_ele_dek_blob_sz))
+			return 0;
+
+#ifdef SE_TOOL_DEBUG
+		key_size = gen_ele_dek_blob_sz;
+		se_tool_fread(output_fname, generated_ele_dek_blob, &key_size);
+#endif
 		return 0;
 	}
 #endif
