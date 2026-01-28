@@ -191,6 +191,7 @@ SE_TOOL_OBJ= tools/se_tools.c \
 	     test/common/test_dev_attest.c \
 	     test/common/test_lc_update.c \
 	     test/common/test_gen_ele_key_blob.c \
+	     test/common/test_rng.c \
 	     test/common/test_dev_getinfo.c
 
 PRIME_TEST_OBJ= test/prime/*.c

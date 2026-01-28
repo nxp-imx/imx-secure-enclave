@@ -56,6 +56,8 @@ hsm_err_t hsm_mac_plainkey_test(hsm_hdl_t key_store_hdl, hsm_hdl_t key_mgmt_hdl)
 hsm_err_t hsm_mac_stream_test(hsm_hdl_t key_store_hdl, hsm_hdl_t key_mgmt_hdl);
 #endif
 hsm_err_t do_rng_test(hsm_hdl_t hsm_session_hdl);
+hsm_err_t gen_rng_hex_str(hsm_hdl_t sess_hdl, op_get_random_args_t *rng_get_random_args,
+			  uint8_t *rng_out_buff, bool flag_print_disabled);
 hsm_err_t do_key_recovery_test(hsm_hdl_t key_store_hdl, hsm_hdl_t key_mgmt_hdl,
 							uint32_t key_id,
 							uint8_t *pub_key,
@@ -200,5 +202,10 @@ hsm_err_t test_gen_ele_key_blob(hsm_hdl_t sess_hdl,
 				uint8_t payload_len, uint8_t *ele_key_blob,
 				uint8_t *ele_key_blob_sz);
 #endif
+#define GEN_RNG_OUT_FILENAME \
+	"to save generated RNG number, in binary format"
+#define GEN_RNG_OUT_SILENT \
+	"to suppress writing to console or to file"
+
 
 #endif

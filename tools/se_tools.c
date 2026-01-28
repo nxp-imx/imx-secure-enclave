@@ -18,6 +18,7 @@
 
 open_se_lib_serv_args_t se_lib_serv_args;
 se_lib_hdl_t se_lib_serv_hdl;
+#define SE_TOOL_SUPPRESS	"silent"
 
 void hsm_test_sig_handler(int ht_signo, siginfo_t *ht_siginfo, void *ht_sigctx)
 {
@@ -32,8 +33,12 @@ void se_tools_usage(void)
 	printf("Options:\n");
 	printf("-i or --info: show Global Info only.\n");
 	printf("-d or --dev-info: show device info.\n");
+	printf("-r or --get-rng: to generate RNG number.");
+	printf("\n\t <input size>: Size in bytes.");
+	printf("\n\t <filename> : %s, or", GEN_RNG_OUT_FILENAME);
+	printf("\n\t \"%s\": %s", SE_TOOL_SUPPRESS, GEN_RNG_OUT_SILENT);
 #ifdef PSA_COMPLIANT
-	printf("-t or --dev-attest: attest the device and show device-attested info.\n");
+	printf("\n-t or --dev-attest: attest the device & show device-attested info.\n");
 	printf("-e or --get-event: show list of active events.\n");
 	printf("-g or --gen-ele-key-blob: Generate blob for <\"%s\"/\"%s\">.",
 	       GEN_ELE_KEY_BLOB_TYPE_DEK, GEN_ELE_KEY_BLOB_TYPE_OTFAD);
@@ -49,7 +54,7 @@ void se_tools_usage(void)
 	       GEN_ELE_KEY_BLOB_FORMAT_ALGO_KEY_SZ_SM4128,
 	       GEN_ELE_KEY_BLOB_FORMAT_ALGO_SM4_EXCEPTION);
 	printf("\n\t\t<Input-fname>  : %s", GEN_ELE_KEY_BLOB_DEK_KEY_FILE_NAME);
-	printf("\n\t\t<Output-fname> : %s\n", GEN_ELE_KEY_BLOB_OUTPUT_DEK_BLOB_FILENAME);
+	printf("\n\t\t<Output-fname> : %s", GEN_ELE_KEY_BLOB_OUTPUT_DEK_BLOB_FILENAME);
 	printf("\n\t OTFAD: Not Supported.\n");
 	printf("-u or --lc-update <LC_STATE>: for life-cycle update only\n");
 	printf("\t where, permitted values for LC_STATE are:");
@@ -215,6 +220,45 @@ int process_option(int opt_arg_count, char **optarg)
 		return 0;
 	}
 
+	if (((strcmp("--get-rng", optarg[1]) == 0 || strcmp("-r", optarg[1]) == 0))) {
+		const uint8_t *output_fname = (opt_arg_count > 3) ? optarg[3] : NULL;
+		bool flag_print_disabled = output_fname ? true : false;
+		op_get_random_args_t rng_get_random_args = {0};
+		uint8_t *rng_out_buff;
+
+		if (opt_arg_count < 3) {
+			se_tools_usage();
+			return 0;
+		}
+
+		rng_get_random_args.random_size = atoi(optarg[2]);
+		if (!rng_get_random_args.random_size)
+			return 0;
+
+		rng_out_buff = malloc(rng_get_random_args.random_size);
+		if (!rng_out_buff) {
+			printf("Error: Buffer alloc failed.\n");
+			printf("Command failed.\n");
+			return 0;
+		}
+		if (gen_rng_hex_str(se_lib_serv_hdl, &rng_get_random_args,
+				    rng_out_buff, flag_print_disabled))
+			goto rng_exit;
+
+		if (!output_fname)
+			goto rng_exit;
+
+		if (!memcmp(output_fname, SE_TOOL_SUPPRESS, strlen(SE_TOOL_SUPPRESS)))
+			goto rng_exit;
+
+		if (se_tool_fwrite(output_fname, rng_out_buff,
+				   rng_get_random_args.random_size))
+			goto rng_exit;
+rng_exit:
+		free(rng_out_buff);
+		return 0;
+	}
+
 #ifdef PSA_COMPLIANT
 	if ((strcmp("--dev-attest", optarg[1]) == 0 || strcmp("-t", optarg[1]) == 0)) {
 		perform_dev_attestation(se_lib_serv_hdl);
@@ -263,8 +307,10 @@ int process_option(int opt_arg_count, char **optarg)
 		uint8_t payload[OP_GEN_ELE_KEY_BLOB_PAYLOAD_MAX_SZ];
 		hsm_op_gen_ele_key_blob_flags_t flag;
 		hsm_op_gen_ele_key_blob_algo_t algo;
-		uint8_t generated_ele_dek_blob[88];
-		uint8_t gen_ele_dek_blob_sz = 88;
+		uint8_t generated_ele_dek_blob[GEN_ELE_KEY_BLOB_OVERHEAD_SZ +
+						OP_GEN_ELE_KEY_BLOB_PAYLOAD_MAX_SZ];
+		uint8_t gen_ele_dek_blob_sz = GEN_ELE_KEY_BLOB_OVERHEAD_SZ +
+						OP_GEN_ELE_KEY_BLOB_PAYLOAD_MAX_SZ;
 		uint16_t key_size;
 		uint32_t key_id;
 
