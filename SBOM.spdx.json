@@ -2,23 +2,23 @@
   "SPDXID": "SPDXRef-DOCUMENT",
   "spdxVersion": "SPDX-2.3",
   "creationInfo": {
-    "created": "2025-11-12T06:59:01Z",
+    "created": "2026-01-26T02:11:43Z",
     "creators": [
       "Organization: NXP"
     ],
-    "licenseListVersion": "3.20"
+    "licenseListVersion": "3.26"
   },
-  "name": "imx-secure-enclave-LF_6.12.49_2.2.0",
+  "name": "imx-secure-enclave-LF_6.18.2_1.0.0",
   "dataLicense": "CC0-1.0",
-  "documentNamespace": "https://nxp.com/spdx/2dc83551-9d59-44ec-a403-d64de76a213d",
+  "documentNamespace": "https://nxp.com/spdx/876bbf34-7368-457c-9089-5a3e64d3c2d0",
   "packages": [
     {
-      "SPDXID": "SPDXRef-package-2dc83551-9d59-44ec-a403-d64de76a213d",
+      "SPDXID": "SPDXRef-package-876bbf34-7368-457c-9089-5a3e64d3c2d0",
       "name": "imx-secure-enclave",
-      "versionInfo": "LF_6.12.49_2.2.0",
+      "versionInfo": "LF_6.18.2_1.0.0",
       "licenseConcluded": "(BSD-3-Clause)",
       "licenseDeclared": "(BSD-3-Clause)",
-      "downloadLocation": "https://github.com/NXP/imx-secure-enclave.git -b lf-6.12.49-2.2.0",
+      "downloadLocation": "https://github.com/NXP/imx-secure-enclave.git -b lf-6.18.2-1.0.0",
       "originator": "Organization: NXP",
       "supplier": "NOASSERTION",
       "externalRefs": [],
@@ -29,7 +29,7 @@
     {
       "spdxElementId": "SPDXRef-DOCUMENT",
       "relationshipType": "DESCRIBES",
-      "relatedSpdxElement": "SPDXRef-package-2dc83551-9d59-44ec-a403-d64de76a213d"
+      "relatedSpdxElement": "SPDXRef-package-876bbf34-7368-457c-9089-5a3e64d3c2d0"
     }
   ]
 }
