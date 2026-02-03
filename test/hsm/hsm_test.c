@@ -885,7 +885,7 @@ int main(int argc, char *argv[])
 			       &hsm_session_hdl);
 	if (err != HSM_NO_ERROR) {
 		printf("hsm_open_session failed err:0x%x\n", err);
-		return 0;
+		goto ginfo_out;
 	}
 	printf("hsm_open_session PASS 0x%x\n", hsm_session_hdl);
 
@@ -940,7 +940,7 @@ int main(int argc, char *argv[])
 	}
 	if (err) {
 		printf("\nhsm_open_key_store_service ret:0x%x\n", err);
-		return err;
+		goto ginfo_out;
 	}
 
 	/* execute tests on non-shared key store */
@@ -1024,6 +1024,11 @@ ginfo_out:
 			open_session_args[i].session_hdl = 0;
 		}
 	}
-
+	if (err == HSM_FEATURE_DISABLED) {
+		printf("\n*************** ERROR: HSM Feature Disabled ***************\n");
+		printf(" > NVM services might be used, without starting NVM-Daemon.\n");
+		printf(" > Need to restart the board to use ELE FW services.\n");
+		printf("***********************************************************\n");
+	}
 	return 0;
 }
