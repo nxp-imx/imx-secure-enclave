@@ -1,5 +1,5 @@
 /* SPDX-License-Identifier: BSD-3-Clause
- * Copyright 2025 NXP
+ * Copyright 2025-2026 NXP
  */
 
 #include <stdio.h>
@@ -21,6 +21,8 @@
 #define MU_BUF_OFFSET	    0x8000
 #define DMA_MEM_SZ_MAX      0x10000000
 #define DMA_MEM_START_ADDR  0xa4220000
+#define MU_MAP_OFFSET		0
+#define RESERVED_MAP_OFFSET	1
 
 static struct uio_prime_mu g_prime_mu;
 
@@ -50,7 +52,7 @@ static int match_prime_dev_name(const char *uio_path, const char *uio_name)
 	return 0;
 }
 
-static int read_prime_uio_num(void)
+static int read_prime_uio_minor(void)
 {
 	DIR *dp = NULL;
 	const char *substring = "uio";
@@ -101,8 +103,7 @@ static int read_prime_uio_num(void)
 	return uio_minor_num;
 }
 
-static int
-read_val(const char *path, long *val)
+static int read_val(const char *path, long *val)
 {
 	char tmp[ARR_LEN] = {0};
 	ssize_t bytes;
@@ -125,35 +126,41 @@ read_val(const char *path, long *val)
 	return 0;
 }
 
+static int read_prime_uio_map(int uio_minor,
+			      int map_index,
+			      const char *str,
+			      long *out)
+{
+	char path[ARR_LEN] = {0};
+
+	snprintf(path, sizeof(path), "%s/uio%d/maps/map%d/%s",
+		 UIO_DIR_PATH, uio_minor, map_index, str);
+	return read_val(path, out);
+}
+
 struct uio_prime_mu* prime_mu_open(void)
 {
 	struct uio_prime_mu *prime_mu = &g_prime_mu;
 	char path[ARR_LEN] = {0};
-	int uio_minor_num;
+	int uio_minor;
 	void *map;
-	int ret;
 
 	/* read uio number, generally 0 */
-	uio_minor_num  = read_prime_uio_num();
-	if (uio_minor_num < 0)
+	uio_minor  = read_prime_uio_minor();
+	if (uio_minor < 0)
 		return NULL;
 
-	/* create path /sys/class/uio/uio0/maps/map0/size */
-	snprintf(path, sizeof(path), "%s/%s%d/%s%d/%s",
-		 UIO_DIR_PATH, "uio", uio_minor_num,
-		 UIO_MAP_PATH, uio_minor_num, "size");
-
-	/* read the size */
-	ret = read_val(path, &prime_mu->size);
-	if (ret) {
-		perror("uio prime read size");
+	/* read /sys/class/uio/uio0/maps/map0/size */
+	if (read_prime_uio_map(uio_minor,
+			       MU_MAP_OFFSET,
+			       "size", &prime_mu->size)) {
+		perror("uio prime read: mu map size");
 		return NULL;
 	}
 
 	/* create path /dev/uio<n> */
-	memset(path, 0, sizeof(path));
 	snprintf(path, sizeof(path), "%s%d",
-		 UIO_DEV_PATH, uio_minor_num);
+		 UIO_DEV_PATH, uio_minor);
 
 	/* open uio device */
 	prime_mu->fd = open(path, O_RDWR | O_SYNC);
@@ -166,7 +173,7 @@ struct uio_prime_mu* prime_mu_open(void)
 	map = mmap(NULL, prime_mu->size, PROT_READ | PROT_WRITE,
 		   MAP_SHARED, prime_mu->fd, 0);
 	if (map == MAP_FAILED) {
-		perror("uio prime mmap");
+		perror("uio prime mu mmap");
 		close(prime_mu->fd);
 		return NULL;
 	}
@@ -208,28 +215,38 @@ int prime_mu_close(int fd)
 int v2x_prime_mmap(void)
 {
 	struct uio_prime_mu *prime_mu = &g_prime_mu;
-	int fd;
+	off_t phys_addr;
+	size_t size;
+	int ret;
 
-	prime_mu->iomem.phys_addr = 0xa4220000;
-	prime_mu->iomem.size = DMA_MEM_SZ_MAX;
-	prime_mu->iomem.pos = 0;
-
-	fd = open("/dev/mem", O_RDWR | O_SYNC);
-	if (fd < 0) {
-		perror("open /dev/mem");
+	/* read /sys/class/uio/uio0/maps/map1/addr */
+	if (read_prime_uio_map(prime_mu->uio_minor,
+			       RESERVED_MAP_OFFSET,
+			       "addr", &phys_addr)) {
+		perror("uio prime read: reserved map addr");
 		return -1;
 	}
+
+	/* read /sys/class/uio/uio0/maps/map1/size */
+	if (read_prime_uio_map(prime_mu->uio_minor,
+			       RESERVED_MAP_OFFSET,
+			       "size", &size)) {
+		perror("uio prime read: reserved map size");
+		return -1;
+	}
+
+	prime_mu->iomem.phys_addr = phys_addr;
+	prime_mu->iomem.size = size;
+	prime_mu->iomem.pos  = 0;
 
 	prime_mu->iomem.virt_addr = mmap(NULL, prime_mu->iomem.size,
-				       PROT_READ | PROT_WRITE, MAP_SHARED,
-				       fd, prime_mu->iomem.phys_addr);
+					 PROT_READ | PROT_WRITE, MAP_SHARED,
+					 prime_mu->fd,
+					 1 * sysconf(_SC_PAGESIZE));
 	if (prime_mu->iomem.virt_addr == MAP_FAILED) {
-		perror("mmap physical memory");
-		close(fd);
+		perror("uio prime reserved mmap");
 		return -1;
 	}
-
-	close(fd);
 
 	return 0;
 }

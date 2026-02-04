@@ -1,5 +1,5 @@
 /* SPDX-License-Identifier: BSD-3-Clause
- * Copyright 2025 NXP
+ * Copyright 2025-2026 NXP
  */
 
 #ifndef UIO_H
@@ -20,6 +20,7 @@ struct io_mem {
 
 struct uio_prime_mu {
 	int fd;
+	int uio_minor;
 	void *base;
 	long size;
 	uint8_t *mu_buf;
