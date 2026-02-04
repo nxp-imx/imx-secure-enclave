@@ -30,14 +30,15 @@ static void set_status(crypto_op_args_t **ops, uint16_t nb_ops, int req_id,
 	}
 }
 
-static void dequeue_ops(crypto_op_args_t **ops, uint32_t nb_ops)
+static int dequeue_ops(crypto_op_args_t **ops, uint32_t nb_ops)
 {
 	struct uio_prime_mu *prime_mu = get_uio_prime_mu();
 	uint32_t req_id, last_req_id;
-	int status;
+	int status, ret = 0;
 
-	if (!prime_read_clear_gsr(prime_mu->base))
-		return;
+	ret = prime_read_clear_gsr(prime_mu->base);
+	if (!ret)
+		return ret;
 
 	/* Error signal is set, clear the FW qeuue by reading error job */
 	last_req_id = ops[nb_ops - 1]->req_id;
@@ -48,6 +49,8 @@ static void dequeue_ops(crypto_op_args_t **ops, uint32_t nb_ops)
 			set_status(ops, nb_ops, req_id, status);
 
 	} while (req_id < last_req_id);
+
+	return ret;
 }
 
 static void build_op(crypto_op_args_t *op, uint8_t buf_off, uint8_t flag)
@@ -113,6 +116,7 @@ static int run_ops(crypto_op_args_t **ops, uint32_t nb_ops)
 {
 	uint32_t cnt_ops, enqd_ops, i;
 	uint8_t flag;
+	int ret = 0;
 
 	i = 0;
 	while (i < nb_ops) {
@@ -132,12 +136,12 @@ static int run_ops(crypto_op_args_t **ops, uint32_t nb_ops)
 	}
 
 	/* read the status and clear the error jobs in fw queue */
-	dequeue_ops(ops, i);
+	ret = dequeue_ops(ops, i);
 
 	if (i != nb_ops)
 		return CRYPTO_OP_ENQ_ERR;
 
-	return CRYPTO_OP_SUCCESS;
+	return ret;
 }
 
 int prime_process_ops(uint32_t service_hdl,
