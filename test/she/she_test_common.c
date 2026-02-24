@@ -205,8 +205,10 @@ void execute_tests(int session_id, int SHE_id, int key_store_num)
 
 	err = do_she_cipher_test(cipher_args[j][i].cipher_hdl);
 	if (err) {
-		se_print("Error[0x%x]: Cipher test Failed.\n", err);
-		return;
+		if (err != SHE_FEATURE_NOT_SUPPORTED) {
+			se_print("Error[0x%x]: Cipher test Failed.\n", err);
+			return;
+		}
 	}
 }
 
