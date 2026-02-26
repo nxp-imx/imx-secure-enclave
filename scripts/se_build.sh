@@ -1,6 +1,6 @@
 # SPDX-License-Identifier: BSD-3-Clause
 #
-# Copyright 2022-2025 NXP
+# Copyright 2022-2026 NXP
 #
 
 #!/bin/bash
@@ -185,6 +185,33 @@ function mbedtls()
     eval "${cmd_script}"
 }
 
+function prime()
+{
+    cmd_script="cmake ${opt_toolchain} ${opt_openssl} ${opt_compatible_mach}"
+    prime_script="${script_dir}/build_prime.cmake"
+
+    printf "\033[0;32m\n"
+    printf "************************************************\n"
+    printf " Install Secure-Enclave for PRIME Platforms to %s\n" "${opt_export}"
+    printf "************************************************\n"
+    printf "\033[0m\n"
+
+    if [[ -z ${opt_export} || -z ${opt_src} ]]; then
+        usage_prime
+        exit 1
+    fi
+
+    cmd_script="${cmd_script} -DPRIME_SRC_PATH=${opt_src}"
+    if [[ ${opt_cov_scan} -eq 1 ]]; then
+        cmd_script="${cmd_script} -DPRIME_MAKE_FOR_COVERITY=${opt_cov_scan}"
+    fi
+    cmd_script="${cmd_script} -DPRIME_ROOT=${opt_export} -P ${prime_script}"
+
+    printf "Execute %s\n" "${cmd_script}"
+    eval "${cmd_script}"
+    eval "make clean; make PLAT=ele clean; make PLAT=prime clean;"
+}
+
 function seco()
 {
     cmd_script="cmake ${opt_toolchain} ${opt_openssl} ${opt_compatible_mach}"
@@ -236,7 +263,7 @@ function ele()
 
     printf "Execute %s\n" "${cmd_script}"
     eval "${cmd_script}"
-    eval "make clean"
+    eval "make clean; make PLAT=ele clean;"
 }
 
 
@@ -525,6 +552,21 @@ function usage_openssl()
     printf "toolpath=[dir] toolname=[name]\n"
     printf "    export   = Export directory\n"
     printf "    src      = [optional] Temporary directory where install sources\n"
+    printf "    arch     = [optional] Toolchain architecture (aarch32|aarch64)\n"
+    printf "    toolpath = [optional] Toolchain path where installed\n"
+    printf "    toolname = [optional] Toolchain name\n"
+    printf "\n"
+}
+
+function usage_prime()
+{
+    printf "\n"
+    printf "To build and install the PRIME libraries\n"
+    printf "  %s prime export=[dir] src=[dir] openssl=[root] " "${script_name}"
+    printf "arch=[arch] toolpath=[dir] toolname=[name]\n"
+    printf "    export   = Export directory\n"
+    printf "    src      = Source directory\n"
+    printf "    openssl     = [optional] openssl library root directory\n"
     printf "    arch     = [optional] Toolchain architecture (aarch32|aarch64)\n"
     printf "    toolpath = [optional] Toolchain path where installed\n"
     printf "    toolname = [optional] Toolchain name\n"
@@ -947,9 +989,15 @@ case ${opt_action} in
         ele
         ;;
 
+    ele_v2x)
+    	seco
+        ele
+        ;;
+
     plat_all)
     	seco
         ele
+        prime
         ;;
 
     teec)
