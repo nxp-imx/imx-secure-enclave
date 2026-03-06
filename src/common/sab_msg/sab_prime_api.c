@@ -1,9 +1,11 @@
 /* SPDX-License-Identifier: BSD-3-Clause
- * Copyright 2025 NXP
+ * Copyright 2025-2026 NXP
  */
 
 #include <stdio.h>
 #include <string.h>
+#include <unistd.h>
+#include <poll.h>
 
 #include "sab_prime_api.h"
 #include "mu_regs.h"
@@ -71,7 +73,36 @@ int prime_get_request_status(void *mu_base, uint32_t *req_id)
 	return msg.data[0];
 }
 
-int prime_read_clear_gsr(void *mu_base)
+int prime_deq(int uio_fd)
 {
-	return imx_mu_read_clear_gsr(mu_base);
+	struct pollfd pfd;
+	uint32_t cnt;
+	uint32_t one = 1;
+
+	pfd.fd = uio_fd;
+	pfd.events = POLLIN;
+
+	/* Block until UIO interrupt arrives (10 second timeout).
+	 * Only one uio_fd to poll. Hence passing 1 as a second arg.
+	 */
+	int ret = poll(&pfd, 1, TIMEOUT);
+
+	if (ret < 0) {
+		perror("poll");
+		return -1;
+	}
+
+	/* consume the UIO event */
+	if (read(uio_fd, &cnt, sizeof(cnt)) != sizeof(cnt)) {
+		perror("read");
+		return -1;
+	}
+
+	/* Re-enable GIER */
+	if (write(uio_fd, &one, sizeof(one)) != sizeof(one)) {
+		perror("write");
+		return -1;
+	}
+
+	return 0;
 }

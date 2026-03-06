@@ -1,6 +1,6 @@
 // SPDX-License-Identifier: BSD-3-Clause
 /*
- * Copyright 2025 NXP
+ * Copyright 2025-2026 NXP
  */
 
 #include <stdio.h>
@@ -34,11 +34,11 @@ static int dequeue_ops(crypto_op_args_t **ops, uint32_t nb_ops)
 {
 	struct uio_prime_mu *prime_mu = get_uio_prime_mu();
 	uint32_t req_id, last_req_id;
-	int status, ret = 0;
+	int status, err = 0;
 
-	ret = prime_read_clear_gsr(prime_mu->base);
-	if (!ret)
-		return ret;
+	err = prime_deq(prime_mu->fd);
+	if (!err)
+		return err;
 
 	/* Error signal is set, clear the FW qeuue by reading error job */
 	last_req_id = ops[nb_ops - 1]->req_id;
@@ -50,7 +50,7 @@ static int dequeue_ops(crypto_op_args_t **ops, uint32_t nb_ops)
 
 	} while (req_id < last_req_id);
 
-	return ret;
+	return err;
 }
 
 static void build_op(crypto_op_args_t *op, uint8_t buf_off, uint8_t flag)

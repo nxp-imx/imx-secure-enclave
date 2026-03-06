@@ -1,5 +1,5 @@
 /* SPDX-License-Identifier: BSD-3-Clause
- * Copyright 2025 NXP
+ * Copyright 2025-2026 NXP
  */
 
 #ifndef MU_REGS_H
@@ -56,7 +56,6 @@ struct prime_load_key_msg {
 };
 
 int imx_mu_send_recv(void *base, void *tx_msg, void *rx_msg);
-int imx_mu_read_clear_gsr(struct mu_type *base);
 void imx_mu_init(struct mu_type *base);
 
 #endif /* MU_REGS_H */
