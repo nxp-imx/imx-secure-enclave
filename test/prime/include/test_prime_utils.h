@@ -1,10 +1,14 @@
 // SPDX-License-Identifier: BSD-3-Clause
 /*
- * Copyright 2025 NXP
+ * Copyright 2025-2026 NXP
  */
 
 #ifndef TEST_PRIME_UTILS_H
 #define TEST_PRIME_UTILS_H
+
+#ifndef __aligned
+#define __aligned(x) __attribute__((__aligned__(x)))
+#endif
 
 void hexdump(uint8_t buf[], uint32_t size);
 void data_cache_clean(uint8_t *buf, uint32_t len, int clean_only);

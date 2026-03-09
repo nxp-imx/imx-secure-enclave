@@ -1,6 +1,6 @@
 # SPDX-License-Identifier: BSD-3-Clause
 #
-# Copyright 2022-2023, 2025 NXP
+# Copyright 2022-2023, 2025-2026 NXP
 #
 
 #!/bin/bash
@@ -84,6 +84,7 @@ function _ex_checkpatch() {
       --ignore CONCATENATED_STRING \
       --ignore SPDX_LICENSE_TAG \
       --ignore NEW_TYPEDEFS \
+      --ignore VOLATILE \
       --max-line-length=${col_width} \
       --no-tree \
       --strict \
