@@ -617,6 +617,9 @@ Note #8:
 On i.MX943 board, SHE0 MU is been used by PRIME so functionality of SHE is supported on
 SHE1 MU only from LF-Q2 2025.
 
+Note #9:
+On i.MX8DXL DL3 board which supports V2X-SHE, ECB cipher is not supported.
+
 Ensure that following Secure Enclave Tests Artifacts are installed on the
 Board's rootfs:
 

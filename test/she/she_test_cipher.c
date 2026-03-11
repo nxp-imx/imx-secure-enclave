@@ -1,6 +1,6 @@
 // SPDX-License-Identifier: BSD-3-Clause
 /*
- * Copyright 2023-2024 NXP
+ * Copyright 2023-2024, 2026 NXP
  */
 
 #include <string.h>
@@ -154,6 +154,9 @@ she_err_t do_she_cipher_test(she_hdl_t cipher_handle)
 		se_print("CBC CIPHER TEST ---> FAILED\n");
 	else
 		se_print("CBC CIPHER TEST ---> PASSED\n");
+
+	if (se_get_soc_id() == SOC_IMX8DXL && se_get_board_type() == IMX8DXL_DL3)
+		return SHE_FEATURE_NOT_SUPPORTED;
 
 	err = she_ecb_test(cipher_handle);
 	if (err)
