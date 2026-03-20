@@ -1,14 +1,14 @@
 // SPDX-License-Identifier: BSD-3-Clause
 /*
- * Copyright 2024 NXP
+ * Copyright 2024, 2026 NXP
  */
 
 #ifndef HSM_DEV_WRITE_FUSE_H
 #define HSM_DEV_WRITE_FUSE_H
 
-#include "internal/hsm_handle.h"
-#include "internal/hsm_key.h"
-#include "internal/hsm_utils.h"
+#include "hsm_handle.h"
+#include "hsm_key.h"
+#include "hsm_utils.h"
 
 /**
  *  @defgroup group32 Write Fuse

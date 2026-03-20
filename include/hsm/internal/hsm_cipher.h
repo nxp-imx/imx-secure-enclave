@@ -1,14 +1,14 @@
 // SPDX-License-Identifier: BSD-3-Clause
 /*
- * Copyright 2022-2024 NXP
+ * Copyright 2022-2024, 2026 NXP
  */
 
 #ifndef HSM_CIPHER_H
 #define HSM_CIPHER_H
 
-#include "internal/hsm_handle.h"
-#include "internal/hsm_utils.h"
-#include "internal/hsm_common_def.h"
+#include "hsm_handle.h"
+#include "hsm_utils.h"
+#include "hsm_common_def.h"
 #include "common/cipher.h"
 
 #define CIPHER_OPEN_FLAGS_DEFAULT       0x0u

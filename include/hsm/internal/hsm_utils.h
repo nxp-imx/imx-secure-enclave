@@ -10,7 +10,7 @@
 
 #include "common/se_lib_utils.h"
 
-#include "internal/hsm_handle.h"
+#include "hsm_handle.h"
 #include "common/global_info.h"
 
 #define HSM_PREPARE	0x66

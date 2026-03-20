@@ -1,6 +1,6 @@
 // SPDX-License-Identifier: BSD-3-Clause
 /*
- * Copyright 2023 NXP
+ * Copyright 2023, 2026 NXP
  */
 
 #ifndef HSM_SIGN_PREPARE_H
@@ -8,9 +8,9 @@
 
 #include <stdint.h>
 
-#include "internal/hsm_handle.h"
-#include "internal/hsm_utils.h"
-#include "internal/hsm_sign_gen.h"
+#include "hsm_handle.h"
+#include "hsm_utils.h"
+#include "hsm_sign_gen.h"
 
 /**
  *  @defgroup group5 Signature generation

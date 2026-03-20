@@ -1,15 +1,15 @@
 // SPDX-License-Identifier: BSD-3-Clause
 /*
- * Copyright 2023-2024 NXP
+ * Copyright 2023-2024, 2026 NXP
  */
 
 #ifndef HSM_PUB_KEY_RECONSTRUCTION_H
 #define HSM_PUB_KEY_RECONSTRUCTION_H
 
-#include "internal/hsm_common_def.h"
-#include "internal/hsm_utils.h"
-#include "internal/hsm_handle.h"
-#include "internal/hsm_key.h"
+#include "hsm_common_def.h"
+#include "hsm_utils.h"
+#include "hsm_handle.h"
+#include "hsm_key.h"
 #ifndef PSA_COMPLIANT
 /**
  *  @defgroup group9 Public key reconstruction

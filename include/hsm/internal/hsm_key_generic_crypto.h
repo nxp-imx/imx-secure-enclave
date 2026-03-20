@@ -1,15 +1,15 @@
 // SPDX-License-Identifier: BSD-3-Clause
 /*
- * Copyright 2023-2024 NXP
+ * Copyright 2023-2024, 2026 NXP
  */
 
 #ifndef HSM_KEY_GENERIC_CRYPTO_H
 #define HSM_KEY_GENERIC_CRYPTO_H
 
-#include "internal/hsm_handle.h"
-#include "internal/hsm_utils.h"
-#include "internal/hsm_key.h"
-#include "internal/hsm_key_generate.h"
+#include "hsm_handle.h"
+#include "hsm_utils.h"
+#include "hsm_key.h"
+#include "hsm_key_generate.h"
 #ifndef PSA_COMPLIANT
 /**
  *  @defgroup group22 Key generic crypto service

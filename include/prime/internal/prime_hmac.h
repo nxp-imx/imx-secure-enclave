@@ -1,12 +1,12 @@
 // SPDX-License-Identifier: BSD-3-Clause
 /*
- * Copyright 2025 NXP
+ * Copyright 2025-2026 NXP
  */
 
 #ifndef PRIME_HMAC_H
 #define PRIME_HMAC_H
 
-#include "internal/prime_utils.h"
+#include "prime_utils.h"
 
 typedef struct {
 	const uint8_t *key;

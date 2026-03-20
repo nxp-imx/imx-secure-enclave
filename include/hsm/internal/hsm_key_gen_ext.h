@@ -1,15 +1,15 @@
 // SPDX-License-Identifier: BSD-3-Clause
 /*
- * Copyright 2022-2024 NXP
+ * Copyright 2022-2024, 2026 NXP
  */
 
 #ifndef HSM_KEY_GEN_EXT_H
 #define HSM_KEY_GEN_EXT_H
 
-#include "internal/hsm_key.h"
-#include "internal/hsm_utils.h"
-#include "internal/hsm_handle.h"
-#include "internal/hsm_key_generate.h"
+#include "hsm_key.h"
+#include "hsm_utils.h"
+#include "hsm_handle.h"
+#include "hsm_key_generate.h"
 
 /**
  *  @defgroup group3 Key management

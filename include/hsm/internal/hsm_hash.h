@@ -1,6 +1,6 @@
 // SPDX-License-Identifier: BSD-3-Clause
 /*
- * Copyright 2022-2025 NXP
+ * Copyright 2022-2026 NXP
  */
 
 #ifndef HSM_HASH_H
@@ -9,8 +9,8 @@
 #include <stdint.h>
 #include <string.h>
 
-#include "internal/hsm_handle.h"
-#include "internal/hsm_utils.h"
+#include "hsm_handle.h"
+#include "hsm_utils.h"
 /**
  *  @defgroup group8 Hashing
  * @{

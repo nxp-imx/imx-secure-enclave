@@ -1,13 +1,13 @@
 // SPDX-License-Identifier: BSD-3-Clause
 /*
- * Copyright 2025 NXP
+ * Copyright 2025-2026 NXP
  */
 
 #ifndef HSM_BOOT_STAGE_CTX_OPS_H
 #define HSM_BOOT_STAGE_CTX_OPS_H
 
-#include "internal/hsm_handle.h"
-#include "internal/hsm_utils.h"
+#include "hsm_handle.h"
+#include "hsm_utils.h"
 
 /**
  *  @defgroup group36 BOOT-STAGE Context operation

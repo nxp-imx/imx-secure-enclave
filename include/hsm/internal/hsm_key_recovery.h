@@ -1,14 +1,14 @@
 // SPDX-License-Identifier: BSD-3-Clause
 /*
- * Copyright 2022-2023 NXP
+ * Copyright 2022-2023, 2026 NXP
  */
 
 #ifndef HSM_KEY_RECOVERY_H
 #define HSM_KEY_RECOVERY_H
 
-#include "internal/hsm_utils.h"
-#include "internal/hsm_handle.h"
-#include "internal/hsm_key.h"
+#include "hsm_utils.h"
+#include "hsm_handle.h"
+#include "hsm_key.h"
 
 /**
  *  @defgroup group12 Public key recovery

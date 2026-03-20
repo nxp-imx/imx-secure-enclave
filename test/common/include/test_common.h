@@ -7,7 +7,9 @@
 #define COMMON_H
 
 #include "hsm_api.h"
+#ifndef PSA_COMPLIANT
 #include "she_api.h"
+#endif
 #include "test_utils.h"
 #include "test_key_exchange.h"
 #include "test_key_exchange_signed.h"
@@ -148,7 +150,7 @@ void word_byteswap(uint32_t *buf, uint32_t buf_len);
  */
 int get_cmdline_arg(void);
 time_t get_ele_perf_time(void);
-
+#ifndef PSA_COMPLIANT
 she_err_t do_she_rng_test(she_hdl_t session_hdl);
 she_err_t do_she_key_update_test(she_hdl_t utils_handle);
 she_err_t do_she_ram_key_update_test(she_hdl_t utils_handle);
@@ -172,7 +174,7 @@ int8_t get_supported_mu(uint8_t mu_type);
 she_err_t open_session(open_session_args_t *args, struct she_session_hdl_s **hdl);
 
 int shx_v2x_hsm_tests(int argc, char *argv[]);
-#ifdef PSA_COMPLIANT
+#else
 uint32_t test_ele_blob_unblob(hsm_hdl_t session_hdl, uint8_t *usr_ctx_buf,
 			      uint32_t bsctx_val);
 void test_mono_counter(hsm_hdl_t sess_hdl);
