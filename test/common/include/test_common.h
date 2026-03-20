@@ -117,6 +117,9 @@ hsm_err_t gc_akey_gen_test(hsm_hdl_t session_hdl);
 hsm_err_t gc_acrypto_test(hsm_hdl_t session_hdl);
 hsm_err_t gc_cipher_test(hsm_hdl_t hsm_session_hdl);
 hsm_err_t gc_aead_test(hsm_hdl_t hsm_session_hdl);
+#ifdef PSA_COMPLIANT
+uint8_t test_key_store_status(hsm_hdl_t sess_hdl, uint32_t key_store_id);
+#endif
 hsm_err_t test_key_store_reprov_en(hsm_hdl_t session_hdl);
 void set_signed_tests_en_status(uint8_t *oem_srkh, uint16_t len);
 uint8_t get_signed_tests_en_status(void);

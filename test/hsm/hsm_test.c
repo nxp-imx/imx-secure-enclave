@@ -20,6 +20,10 @@
 #endif
 
 #define HSM_TEST_SESSIONS	2
+#define REGULAR_KEY_STORE_ID		0xABCD
+#define REGULAR_KEY_STORE_NOUNCE	0x1234
+#define SHARED_KEY_STORE_ID		0xCDEF
+#define SHARED_KEY_STORE_NOUNCE		0x5678
 
 open_se_lib_serv_args_t se_lib_serv_args = {0};
 open_session_args_t open_session_args[HSM_TEST_SESSIONS] = {0};
@@ -964,12 +968,16 @@ int main(int argc, char *argv[])
 	 */
 	//lc_update_info(hsm_session_hdl, HSM_OEM_OPEN_STATE);
 
-	hsm_key_store_args.key_store_identifier = 0xABCD;
-	hsm_key_store_args.authentication_nonce = 0x1234;
+	hsm_key_store_args.key_store_identifier = REGULAR_KEY_STORE_ID;
+	hsm_key_store_args.authentication_nonce = REGULAR_KEY_STORE_NOUNCE;
 	hsm_key_store_args.flags            = HSM_SVC_KEY_STORE_FLAGS_CREATE;
 
 #ifndef PSA_COMPLIANT
 	hsm_key_store_args.max_updates_number   = 100;
+#else
+	err = test_key_store_status(hsm_session_hdl, REGULAR_KEY_STORE_ID);
+	if (err)
+		goto ginfo_out;
 #endif
 	printf("hsm_open_key_store_service for key_id = 0x%x, flags = 0x%x\n",
 	       hsm_key_store_args.key_store_identifier,
@@ -1003,6 +1011,10 @@ int main(int argc, char *argv[])
 	}
 
 #ifdef PSA_COMPLIANT
+	err = test_key_store_status(hsm_session_hdl, REGULAR_KEY_STORE_ID);
+	if (err)
+		goto ginfo_out;
+
 	/* Test shared keystores */
 	for (i = 0; i < HSM_TEST_SESSIONS; i++) {
 		if (i > 0) {
@@ -1016,10 +1028,14 @@ int main(int argc, char *argv[])
 			printf("hsm_open_session[%d] PASS 0x%x\n", i, hsm_session_hdl);
 		}
 
-		key_store_args[i].key_store_identifier = 0xCDEF;
-		key_store_args[i].authentication_nonce = 0x5678;
+		key_store_args[i].key_store_identifier = SHARED_KEY_STORE_ID;
+		key_store_args[i].authentication_nonce = SHARED_KEY_STORE_NOUNCE;
 		key_store_args[i].flags		       = HSM_SVC_KEY_STORE_FLAGS_CREATE |
 							 HSM_SVC_KEY_STORE_FLAGS_SHARED;
+
+		err = test_key_store_status(hsm_session_hdl, SHARED_KEY_STORE_ID);
+		if (err)
+			goto ginfo_out;
 
 		printf("hsm_open_key_store_service for key_id = 0x%x, flags = 0x%x\n",
 		       key_store_args[i].key_store_identifier, key_store_args[i].flags);
@@ -1040,6 +1056,10 @@ int main(int argc, char *argv[])
 
 		/* execute tests on shared key store */
 		err = execute_hsm_tests(key_store_args[i].key_store_identifier);
+		if (err)
+			goto ginfo_out;
+
+		err = test_key_store_status(hsm_session_hdl, SHARED_KEY_STORE_ID);
 		if (err)
 			goto ginfo_out;
 	}

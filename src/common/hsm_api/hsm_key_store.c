@@ -1,6 +1,6 @@
 // SPDX-License-Identifier: BSD-3-Clause
 /*
- * Copyright 2023-2024 NXP
+ * Copyright 2023-2024, 2026 NXP
  */
 
 #include <stdio.h>
@@ -12,6 +12,28 @@
 #include "plat_utils.h"
 #include "sab_process_msg.h"
 
+static hsm_err_t exchange_key_store_open_msg(struct plat_os_abs_hdl *phdl,
+					     uint32_t mu_type,
+					     hsm_hdl_t session_hdl,
+					     void *args)
+{
+	uint32_t rsp_code = SAB_NO_MESSAGE_RATING;
+	hsm_err_t err = HSM_GENERAL_ERROR;
+	uint32_t lib_err;
+
+	lib_err = process_sab_msg(phdl, mu_type,
+				  SAB_KEY_STORE_OPEN_REQ,
+				  MT_SAB_KEY_STORE,
+				  session_hdl,
+				  args, &rsp_code);
+
+	err = lib_err_to_hsm_err(lib_err);
+	if (err == HSM_NO_ERROR)
+		err = sab_rating_to_hsm_err(rsp_code, phdl);
+
+	return err;
+}
+
 hsm_err_t hsm_open_key_store_service(hsm_hdl_t session_hdl,
 				     open_svc_key_store_args_t *args,
 				     hsm_hdl_t *key_store_hdl)
@@ -19,8 +41,6 @@ hsm_err_t hsm_open_key_store_service(hsm_hdl_t session_hdl,
 	struct hsm_session_hdl_s *sess_ptr;
 	struct hsm_service_hdl_s *serv_ptr;
 	hsm_err_t err = HSM_GENERAL_ERROR;
-	uint32_t rsp_code = SAB_NO_MESSAGE_RATING;
-	uint32_t lib_err;
 
 	do {
 		if (!args || !key_store_hdl)
@@ -56,20 +76,9 @@ hsm_err_t hsm_open_key_store_service(hsm_hdl_t session_hdl,
 				break;
 		}
 #endif
-		lib_err = process_sab_msg(serv_ptr->session->phdl,
-					  serv_ptr->session->mu_type,
-					  SAB_KEY_STORE_OPEN_REQ,
-					  MT_SAB_KEY_STORE,
-					  session_hdl,
-					  args, &rsp_code);
-
-		err = lib_err_to_hsm_err(lib_err);
-		if (err != HSM_NO_ERROR) {
-			delete_service(serv_ptr);
-			break;
-		}
-
-		err = sab_rating_to_hsm_err(rsp_code, serv_ptr->session->phdl);
+		err = exchange_key_store_open_msg(serv_ptr->session->phdl,
+						  serv_ptr->session->mu_type,
+						  session_hdl, args);
 
 		if (err != HSM_NO_ERROR) {
 			se_err("HSM RSP Error: SAB_KEY_STORE_OPEN_REQ [0x%x].\n",
@@ -177,3 +186,57 @@ hsm_err_t hsm_key_store_reprov_en(hsm_hdl_t session_hdl,
 
 	return err;
 }
+
+#ifdef PSA_COMPLIANT
+hsm_err_t hsm_get_key_store_status(hsm_hdl_t session_hdl,
+				   uint32_t key_store_id,
+				   op_key_store_status_args_t *args)
+{
+	hsm_err_t err = HSM_GENERAL_ERROR;
+	struct hsm_session_hdl_s *sess_ptr;
+	open_svc_key_store_args_t key_store_args = {0};
+	uint32_t status;
+
+	do {
+		if (!args)
+			break;
+
+		if (!session_hdl) {
+			err = HSM_UNKNOWN_HANDLE;
+			break;
+		}
+
+		sess_ptr = session_hdl_to_ptr(session_hdl);
+		if (!sess_ptr) {
+			err = HSM_UNKNOWN_HANDLE;
+			break;
+		}
+
+		key_store_args.key_store_identifier = key_store_id;
+		key_store_args.flags = HSM_SVC_KEY_STORE_FLAGS_KEY_STORE_STATUS;
+
+		err = exchange_key_store_open_msg(sess_ptr->phdl, sess_ptr->mu_type,
+						  session_hdl, args);
+
+		if (err != HSM_NO_ERROR) {
+			se_err("%s RSP Error: SAB_KEY_STORE_OPEN_REQ [0x%x].\n",
+			       err, "HSM GET KEY STORE STATUS");
+			break;
+		}
+
+		/* The command had flag HSM_SVC_KEY_STORE_FLAGS_KEY_STORE_STATUS
+		 * set, so key_store_handle field actually contains the key status
+		 */
+		status = key_store_args.key_store_hdl;
+
+		/* Decode key store status, and populate the status structure args */
+		args->exist_status = HSM_KEY_STORE_STATUS_EXIST(status);
+		args->open_status = HSM_KEY_STORE_STATUS_OPEN(status);
+		args->num_keys_status = HSM_KEY_STORE_STATUS_NUM_KEYS(status);
+		args->num_sess_status = HSM_KEY_STORE_STATUS_NUM_SESS(status);
+
+	} while (false);
+
+	return err;
+}
+#endif

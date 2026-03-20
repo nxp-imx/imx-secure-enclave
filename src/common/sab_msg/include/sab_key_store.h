@@ -1,6 +1,6 @@
 // SPDX-License-Identifier: BSD-3-Clause
 /*
- * Copyright 2023 NXP
+ * Copyright 2023, 2026 NXP
  */
 
 #ifndef SAB_KEY_STORE_H
@@ -30,6 +30,12 @@ struct sab_cmd_key_store_open_msg {
 struct sab_cmd_key_store_open_rsp {
 	struct sab_mu_hdr hdr;
 	uint32_t rsp_code;
+#ifdef PSA_COMPLIANT
+	/* The field will return either one of below (depending on command flags):
+	 *   - Key store handle, or
+	 *   - Key store status
+	 */
+#endif
 	uint32_t key_store_handle;
 };
 

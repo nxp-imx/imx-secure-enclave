@@ -47,6 +47,15 @@ typedef uint8_t hsm_svc_key_store_flags_t;
 //!< If set, minimum mac length specified in min_mac_length field will be
 //!< stored in the key store when creating the key store.
 //!< Must only be set at key store creation.
+#ifdef PSA_COMPLIANT
+#define HSM_SVC_KEY_STORE_FLAGS_KEY_STORE_STATUS \
+	((hsm_svc_key_store_flags_t)(1u << 4))
+//!<  Get Key store status. The status include following details:
+//!<   - Key Store ID exist or does not exist.
+//!<   - Key Store ID opened or not opened.
+//!<   - Number of keys stored in Key store ID.
+//!<   - Number of sessions stored in Key store ID.
+#endif
 #define HSM_SVC_KEY_STORE_FLAGS_MONOTONIC \
 	((hsm_svc_key_store_flags_t)(1u << 5))
 //!< When used in conjunction with STRICT flag, the request is completed only when
@@ -56,6 +65,14 @@ typedef uint8_t hsm_svc_key_store_flags_t;
 //!< The request is completed only when the new key store has been written
 //!< in the NVM. This applicable for CREATE operations only.
 //!< NOTE: In latest ELE FW API guide, STRICT has been replaced with SYNC.
+
+#ifdef PSA_COMPLIANT
+//!< Macros to decode Key store status information
+#define HSM_KEY_STORE_STATUS_EXIST(status)     (((status) >> 0) & 0x01u)
+#define HSM_KEY_STORE_STATUS_OPEN(status)      (((status) >> 1) & 0x01u)
+#define HSM_KEY_STORE_STATUS_NUM_KEYS(status)  (((status) >> 8) & 0xFFu)
+#define HSM_KEY_STORE_STATUS_NUM_SESS(status)  (((status) >> 16) & 0xFFFFu)
+#endif
 
 /**
  * Open a service flow on the specified key store.
@@ -92,6 +109,19 @@ hsm_err_t hsm_close_key_store_service(hsm_hdl_t key_store_hdl);
  */
 hsm_err_t hsm_key_store_reprov_en(hsm_hdl_t session_hdl,
 				  op_key_store_reprov_en_args_t *args);
+#ifdef PSA_COMPLIANT
+/**
+ *
+ * \param session_hdl pointer to the handle identifying the current session.
+ * \param key_store_id key store identifier for getting the status.
+ * \param args pointer to the structure containing the function arguments.
+ *
+ * \return error code.
+ */
+hsm_err_t hsm_get_key_store_status(hsm_hdl_t session_hdl,
+				   uint32_t key_store_id,
+				   op_key_store_status_args_t *args);
+#endif
 /** @} end of key store service flow */
 
 #endif

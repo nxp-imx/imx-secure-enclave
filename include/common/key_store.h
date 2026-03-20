@@ -1,6 +1,6 @@
 // SPDX-License-Identifier: BSD-3-Clause
 /*
- * Copyright 2023-2024 NXP
+ * Copyright 2023-2024, 2026 NXP
  */
 
 #ifndef KEY_STORE_H
@@ -55,6 +55,22 @@ typedef struct {
 	//!< key store re-provisioning.
 #endif
 } open_svc_key_store_args_t;
+
+#ifdef PSA_COMPLIANT
+/**
+ * Structure specifying the key store status details
+ */
+typedef struct {
+	uint8_t exist_status;
+	//!< Key Store ID exists(1) or does not exist(0).
+	uint8_t open_status;
+	//!< Key Store ID open(1) or not open(0).
+	uint8_t num_keys_status;
+	//!< Number of keys stored in Key store ID.
+	uint16_t num_sess_status;
+	//!< Number of sessions using Key store ID.
+} op_key_store_status_args_t;
+#endif
 
 /**
  * Structure describing the key store reprovisioning enable operation arguments
