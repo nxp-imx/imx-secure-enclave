@@ -1,6 +1,6 @@
 // SPDX-License-Identifier: BSD-3-Clause
 /*
- * Copyright 2024 NXP
+ * Copyright 2024, 2026 NXP
  */
 
 #include <errno.h>
@@ -114,7 +114,7 @@ int shx_she_tests(int argc, char *argv[])
 
 		idx++;
 
-		if (!fp) {
+		if (fp) {
 			(void)fclose(fp);
 
 			/* Indicate the end of a test */
