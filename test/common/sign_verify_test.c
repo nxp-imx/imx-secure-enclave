@@ -1,6 +1,6 @@
 // SPDX-License-Identifier: BSD-3-Clause
 /*
- * Copyright 2022-2025 NXP
+ * Copyright 2022-2026 NXP
  */
 
 #include <stdbool.h>
@@ -43,12 +43,18 @@ static uint8_t ecc_nist_256_pub_key[64]  = {
 	0x10, 0x92, 0xaa, 0xb6, 0xbf, 0xd1, 0xae, 0xe0,
 };
 
+static uint8_t sm2_id[16] = {
+	0x00, 0x01, 0x02, 0x03, 0x04, 0x05, 0x06, 0x07,
+	0x08, 0x09, 0x0A, 0x0B, 0x0C, 0x0D, 0x0E, 0x0F,
+};
+
 hsm_err_t hsm_sign_verify_tests(hsm_hdl_t sess_hdl, hsm_hdl_t key_store_hdl,
 				uint32_t key_id,
 				hsm_signature_scheme_id_t scheme_id,
 #ifdef PSA_COMPLIANT
 				uint16_t key_type,
 				hsm_pubkey_type_t pkey_type, hsm_bit_key_sz_t key_sz,
+				uint8_t *sm2_id, uint16_t sm2_id_size,
 #endif
 				uint8_t *signature_data, uint32_t sign_data_sz,
 				uint8_t *input_data, uint32_t input_data_sz,
@@ -88,6 +94,10 @@ hsm_err_t hsm_sign_verify_tests(hsm_hdl_t sess_hdl, hsm_hdl_t key_store_hdl,
 	sig_gen_args.signature_size = sign_data_sz;
 #ifdef PSA_COMPLIANT
 	sig_gen_args.salt_len = 0;
+	sig_gen_args.sm2_pub_key_size = pub_key_sz;
+	sig_gen_args.sm2_pub_key = pub_key;
+	sig_gen_args.sm2_id_size = sm2_id_size;
+	sig_gen_args.sm2_id = sm2_id;
 #else
 	sig_gen_args.svc_flags = 0;
 #endif
@@ -107,6 +117,8 @@ hsm_err_t hsm_sign_verify_tests(hsm_hdl_t sess_hdl, hsm_hdl_t key_store_hdl,
 	sig_ver_args.pkey_type = pkey_type;
 	sig_ver_args.key_sz   = key_sz;
 	sig_ver_args.salt_len = 0;
+	sig_ver_args.sm2_id_size = sm2_id_size;
+	sig_ver_args.sm2_id = sm2_id;
 #endif
 	hsmret = hsm_verify_sign(sess_hdl, &sig_ver_args, &verif_status);
 	if (hsmret)
@@ -157,6 +169,7 @@ hsm_err_t hsm_sign_verify_plaintext_tests(hsm_hdl_t sess_hdl,
 				    HSM_KEY_TYPE_ECC_NIST,
 				    HSM_PUBKEY_TYPE_ECC_NIST,
 				    HSM_KEY_SIZE_ECC_NIST_256,
+				    NULL, 0,
 				    signature_data,
 				    2 * BITS_TO_BYTES(HSM_KEY_SIZE_ECC_NIST_256),
 				    payload,
@@ -210,6 +223,7 @@ static hsm_err_t hsm_sign_verify_eddsa_tests_helper(hsm_hdl_t sess_hdl,
 				0,
 				0,
 				50,
+				0, NULL,
 				pub_key_size,
 				pub_key,
 				&key_id);
@@ -222,6 +236,7 @@ static hsm_err_t hsm_sign_verify_eddsa_tests_helper(hsm_hdl_t sess_hdl,
 				    0,
 				    HSM_PUBKEY_TYPE_ECC_TWISTED_EDWARDS,
 				    bit_key_size,
+				    NULL, 0,
 				    signature, signature_size,
 				    payload, sizeof(payload),
 				    0, 0,
@@ -296,5 +311,132 @@ void hsm_sign_verify_eddsa_tests(hsm_hdl_t sess_hdl,
 					   HSM_KEY_SIZE_ECC_TWISTED_EDWARDS_448,
 					   PERMITTED_ALGO_EDDSA_ALL,
 					   HSM_SIGNATURE_SCHEME_PURE_EDDSA);
+}
+
+/* SM2: Signature Generation & Verification using Opaque Key */
+static uint8_t hsm_sign_verify_sm2_subtest_01(hsm_hdl_t sess_hdl,
+					      hsm_hdl_t key_store_hdl,
+					      hsm_hdl_t key_mgmt_hdl)
+{
+	uint8_t ret = TEST_FAILED;
+	hsm_err_t err;
+	uint32_t key_id = 0;
+	uint16_t pub_key_size = 2 * BITS_TO_BYTES(HSM_KEY_SIZE_SM2_256);
+	uint8_t pub_key[64] = {0};
+	uint8_t signature[64] = {0};
+	uint16_t signature_size = sizeof(signature);
+
+	printf("HSM_KEY_SIZE_SM2_256 & HSM_SIGNATURE_SCHEME_SM2_SM3:");
+
+	/* Generate SM2 key-pair */
+	err = generate_test_key(key_mgmt_hdl,
+				HSM_KEY_TYPE_SM2,
+				HSM_KEY_SIZE_SM2_256,
+				HSM_SE_KEY_STORAGE_VOLATILE,
+				HSM_KEY_USAGE_SIGN_MSG | HSM_KEY_USAGE_VERIFY_MSG,
+				HSM_SIGNATURE_SCHEME_SM2_SM3,
+				0,
+				0,
+				50,
+				0, NULL,
+				pub_key_size,
+				pub_key,
+				&key_id);
+	if (err != HSM_NO_ERROR)
+		goto out;
+
+	/* Signature Generation and Signature Verification using Opaque Key ID */
+	err = hsm_sign_verify_tests(sess_hdl, key_store_hdl, key_id,
+				    HSM_SIGNATURE_SCHEME_SM2_SM3,
+				    0,
+				    HSM_PUBKEY_TYPE_SM2,
+				    HSM_KEY_SIZE_SM2_256,
+				    sm2_id, sizeof(sm2_id),
+				    signature, signature_size,
+				    payload, sizeof(payload),
+				    NULL, 0,
+				    pub_key, pub_key_size,
+				    TEST_INPUT_MESSAGE);
+	if (err != HSM_NO_ERROR)
+		goto out;
+
+	ret = TEST_SUCCESS;
+
+out:
+	if (key_id) {
+		err = delete_test_key(key_mgmt_hdl, key_id, 0);
+		if (err != HSM_NO_ERROR)
+			ret = TEST_FAILED;
+	}
+
+	if (ret == TEST_SUCCESS)
+		printf("\nResult ---> SUCCESS\n");
+	else
+		printf("\nResult ---> FAILED\n");
+
+	return ret;
+}
+
+/* SM2: Signature Generation & Verification using Plaintext Key */
+static uint8_t hsm_sign_verify_sm2_subtest_02(hsm_hdl_t sess_hdl,
+					      hsm_hdl_t key_store_hdl,
+					      hsm_hdl_t key_mgmt_hdl)
+{
+	uint8_t ret = TEST_FAILED;
+	hsm_err_t err;
+	uint16_t pub_key_size = 2 * BITS_TO_BYTES(HSM_KEY_SIZE_SM2_256);
+	uint8_t pub_key[64] = {0};
+	uint16_t priv_key_size = BITS_TO_BYTES(HSM_KEY_SIZE_SM2_256);
+	uint8_t priv_key[32] = {0};
+	uint8_t signature[64] = {0};
+	uint16_t signature_size = sizeof(signature);
+
+	printf("HSM_KEY_SIZE_SM2_256 & HSM_SIGNATURE_SCHEME_SM2_SM3 (plainkey):");
+
+	/* Generate SM2 key-pair plain key */
+	err = generate_test_key(key_mgmt_hdl,
+				HSM_KEY_TYPE_SM2, HSM_KEY_SIZE_SM2_256,
+				0, 0, 0, 0,
+				HSM_OP_KEY_GENERATION_FLAGS_PLAINTEXT_KEY,
+				0,
+				priv_key_size, priv_key,
+				pub_key_size, pub_key,
+				NULL);
+	if (err != HSM_NO_ERROR)
+		goto out;
+
+	/* Signature Generation and Signature Verification using plain key */
+	err = hsm_sign_verify_tests(sess_hdl, key_store_hdl, 0,
+				    HSM_SIGNATURE_SCHEME_SM2_SM3,
+				    HSM_KEY_TYPE_SM2,
+				    HSM_PUBKEY_TYPE_SM2,
+				    HSM_KEY_SIZE_SM2_256,
+				    sm2_id, sizeof(sm2_id),
+				    signature, signature_size,
+				    payload, sizeof(payload),
+				    priv_key, priv_key_size,
+				    pub_key, pub_key_size,
+				    TEST_INPUT_MESSAGE);
+	if (err != HSM_NO_ERROR)
+		goto out;
+
+	ret = TEST_SUCCESS;
+
+out:
+	if (ret == TEST_SUCCESS)
+		printf("\nResult ---> SUCCESS\n");
+	else
+		printf("\nResult ---> FAILED\n");
+}
+
+uint8_t hsm_sign_verify_sm2_tests(hsm_hdl_t sess_hdl, hsm_hdl_t key_store_hdl,
+				  hsm_hdl_t key_mgmt_hdl)
+{
+	uint8_t ret = TEST_SUCCESS;
+
+	ret |= hsm_sign_verify_sm2_subtest_01(sess_hdl, key_store_hdl, key_mgmt_hdl);
+	ret |= hsm_sign_verify_sm2_subtest_02(sess_hdl, key_store_hdl, key_mgmt_hdl);
+
+	return ret;
 }
 #endif

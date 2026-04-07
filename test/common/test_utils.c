@@ -1,6 +1,6 @@
 // SPDX-License-Identifier: BSD-3-Clause
 /*
- * Copyright 2022-2025 NXP
+ * Copyright 2022-2026 NXP
  */
 
 #include <stdint.h>
@@ -25,6 +25,10 @@ hsm_err_t generate_test_key(hsm_hdl_t key_mgmt_hdl,
 #endif
 			    hsm_op_key_gen_flags_t flags,
 			    hsm_key_group_t key_group,
+#ifdef PSA_COMPLIANT
+			    uint16_t priv_out_key_sz,
+			    uint8_t *priv_out_key,
+#endif
 			    uint16_t out_size,
 			    uint8_t *out_key,
 			    uint32_t *key_id)
@@ -44,6 +48,8 @@ hsm_err_t generate_test_key(hsm_hdl_t key_mgmt_hdl,
 	key_gen_args.permitted_algo = permitted_algo;
 	key_gen_args.bit_key_sz = bit_key_sz;
 	key_gen_args.key_lifecycle = key_lifecycle;
+	key_gen_args.priv_out_key_sz = priv_out_key_sz;
+	key_gen_args.priv_out_key = priv_out_key;
 #else
 	key_gen_args.key_info = key_info;
 #endif

@@ -12,6 +12,9 @@
 #include "test_key_exchange.h"
 #include "test_key_exchange_signed.h"
 
+#define TEST_SUCCESS 0u
+#define TEST_FAILED  1u
+
 #define DELETE	1
 #define IMPORT	2
 #define KEYATTR 3
@@ -43,6 +46,10 @@ hsm_err_t generate_test_key(hsm_hdl_t key_mgmt_hdl,
 #endif
 			    hsm_op_key_gen_flags_t flags,
 			    hsm_key_group_t key_group,
+#ifdef PSA_COMPLIANT
+			    uint16_t priv_out_key_sz,
+			    uint8_t *priv_out_key,
+#endif
 			    uint16_t out_size,
 			    uint8_t *out_key,
 			    uint32_t *key_id);
@@ -81,6 +88,7 @@ hsm_err_t hsm_sign_verify_tests(hsm_hdl_t sess_hdl, hsm_hdl_t key_store_hdl,
 #ifdef PSA_COMPLIANT
 				uint16_t key_type,
 				hsm_pubkey_type_t pkey_type, hsm_bit_key_sz_t key_sz,
+				uint8_t *sm2_id, uint16_t sm2_id_size,
 #endif
 				uint8_t *signature_data, uint32_t sign_data_sz,
 				uint8_t *input_data, uint32_t input_data_sz,
@@ -94,6 +102,8 @@ hsm_err_t hsm_sign_verify_tests(hsm_hdl_t sess_hdl, hsm_hdl_t key_store_hdl,
 hsm_err_t hsm_sign_verify_plaintext_tests(hsm_hdl_t sess_hdl,
 					  hsm_hdl_t key_store_hdl,
 					  hsm_hdl_t key_mgmt_hdl);
+uint8_t hsm_sign_verify_sm2_tests(hsm_hdl_t sess_hdl, hsm_hdl_t key_store_hdl,
+				  hsm_hdl_t key_mgmt_hdl);
 #endif
 void hsm_sign_verify_eddsa_tests(hsm_hdl_t sess_hdl,
 				 hsm_hdl_t key_store_hdl,

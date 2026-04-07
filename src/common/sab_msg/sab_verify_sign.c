@@ -1,6 +1,6 @@
 // SPDX-License-Identifier: BSD-3-Clause
 /*
- * Copyright 2022-2023, 2025 NXP
+ * Copyright 2022-2023, 2025-2026 NXP
  */
 
 #include <string.h>
@@ -109,6 +109,12 @@ uint32_t prepare_msg_verify_sign(void *phdl,
 							   op_args->key,
 							   op_args->key_size,
 							   DATA_BUF_IS_INPUT));
+	set_phy_addr_to_words(&cmd->sm2_id_addr,
+			      0u,
+			      plat_os_abs_data_buf((struct plat_os_abs_hdl *)phdl,
+						   op_args->sm2_id,
+						   op_args->sm2_id_size,
+						   DATA_BUF_IS_INPUT));
 #else
 	set_phy_addr_to_words(&cmd->key,
 			      0u,
@@ -138,6 +144,7 @@ uint32_t prepare_msg_verify_sign(void *phdl,
 	cmd->key_security_size = op_args->key_sz;
 	cmd->key_type = op_args->pkey_type;
 	cmd->salt_len = op_args->salt_len;
+	cmd->sm2_id_size = op_args->sm2_id_size;
 #endif
 	cmd->flags = op_args->flags;
 	cmd->crc = 0u;

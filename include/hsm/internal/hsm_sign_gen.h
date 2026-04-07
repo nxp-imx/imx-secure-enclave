@@ -1,6 +1,6 @@
 // SPDX-License-Identifier: BSD-3-Clause
 /*
- * Copyright 2022-2025 NXP
+ * Copyright 2022-2026 NXP
  */
 
 #ifndef HSM_SIGN_GEN_H
@@ -112,6 +112,7 @@ typedef enum {
 	HSM_SIGNATURE_SCHEME_ED448PH                    = 0x06000915,
 	HSM_SIGNATURE_SCHEME_PURE_EDDSA                 = 0x06000800,
 	HSM_SIGNATURE_SCHEME_EDDSA_ALL                  = 0x86000800,
+	HSM_SIGNATURE_SCHEME_SM2_SM3                    = 0x8600C214,
 } hsm_signature_scheme_id_t;
 
 #else
@@ -194,6 +195,18 @@ typedef struct {
 	uint16_t key_security_size;
 	//!< Keypair security size in bits.
 	//!< Only valid with PLAINTEXT flag.
+	uint16_t sm2_pub_key_size;
+	//!< Size in bytes of the SM2 public key input buffer.
+	//!< Only valid with SM2 algorithm.
+	uint8_t *sm2_pub_key;
+	//!< Pointer to the SM2 public key input buffer.
+	//!< Only valid with SM2 algorithm.
+	uint16_t sm2_id_size;
+	//!< Size in bytes of the identity input buffer.
+	//!< Only valid with SM2 algorithm.
+	uint8_t *sm2_id;
+	//!< Pointer to the SM2 identity input buffer.
+	//!< Only valid with SM2 algorithm.
 	uint16_t exp_signature_size;
 	//!< expected signature buffer size for output, returned by FW in case
 	//!<	 the input signature size provided is less than the required size.

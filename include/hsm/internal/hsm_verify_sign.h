@@ -1,6 +1,6 @@
 // SPDX-License-Identifier: BSD-3-Clause
 /*
- * Copyright 2022-2023, 2025 NXP
+ * Copyright 2022-2023, 2025-2026 NXP
  */
 
 #ifndef HSM_VERIFY_SIGN_H
@@ -86,6 +86,12 @@ typedef struct {
 	hsm_pubkey_type_t pkey_type;
 	//!< indicates the public key type
 	//!< Only valid with PLAINTEXT flag.
+	uint16_t sm2_id_size;
+	//!< Size in bytes of the identity input buffer.
+	//!< Only valid with SM2 algorithm.
+	uint8_t *sm2_id;
+	//!< Pointer to the SM2 identity input buffer.
+	//!< Only valid with SM2 algorithm.
 #endif
 	hsm_op_verify_sign_flags_t flags;
 	//!< bitmap specifying the operation attributes
