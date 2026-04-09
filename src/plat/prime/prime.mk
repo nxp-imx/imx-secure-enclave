@@ -28,6 +28,7 @@ DEFINES		+=	-DCONFIG_PLAT_PRIME \
 			-DLIB_MINOR_VERSION=${MINOR_VER}
 
 PLAT_OBJECTS	:=	$(PLAT_PATH)/uio.o \
+			$(PLAT_PATH)/v2x_version_ioctl.o \
 			$(PLAT_PATH)/mu.o
 
 OBJECTS	+= $(PLAT_OBJECTS)

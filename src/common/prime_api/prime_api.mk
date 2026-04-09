@@ -6,6 +6,7 @@ PRIME_API_SRC	+= \
 		$(PLAT_COMMON_PATH)/prime_api/service.o \
 		$(PLAT_COMMON_PATH)/prime_api/hmac.o \
 		$(PLAT_COMMON_PATH)/prime_api/aes.o \
+		$(PLAT_COMMON_PATH)/prime_api/v2x_version.o \
 		$(PLAT_COMMON_PATH)/prime_api/mem.o
 
 OBJECTS		+= $(PRIME_API_SRC)
