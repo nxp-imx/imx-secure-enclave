@@ -1,6 +1,6 @@
 // SPDX-License-Identifier: BSD-3-Clause
 /*
- * Copyright 2022-2024 NXP
+ * Copyright 2022-2024, 2026 NXP
  */
 
 #ifndef SAB_SIGN_GEN_H
@@ -55,6 +55,10 @@ struct sab_signature_generate_msg {
 	uint16_t key_type;
 	uint16_t priv_key_size;
 	uint16_t key_security_size;
+	uint32_t sm2_pub_key_addr;
+	uint32_t sm2_id_addr;
+	uint16_t sm2_pub_key_size;
+	uint16_t sm2_id_size;
 #else
 	uint8_t scheme_id;
 	uint8_t flags;

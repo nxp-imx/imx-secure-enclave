@@ -1,6 +1,6 @@
 // SPDX-License-Identifier: BSD-3-Clause
 /*
- * Copyright 2024-2025 NXP
+ * Copyright 2024-2026 NXP
  */
 
 #include <stdio.h>
@@ -239,8 +239,8 @@ static void test_tls1_3_early_secrets(hsm_hdl_t key_mgmt_hdl,
 			  0x0,
 			  0x0,
 			  40,
-			  0x0,
-			  NULL,
+			  0x0, NULL,
+			  0x0, NULL,
 			  &psk_id);
 
 	/* 3.2. Prepare Input Plaintext Context, with PSK ID */
@@ -800,8 +800,8 @@ static void test_tls1_3_handshake_secrets(hsm_hdl_t key_mgmt_hdl,
 			  0x0,
 			  0x0,
 			  40,
-			  0x0,
-			  NULL,
+			  0x0, NULL,
+			  0x0, NULL,
 			  &psk_id);
 
 	/* 5.2. Prepare Input Plaintext Context for TLS 1.3, with PSK ID */
@@ -1057,8 +1057,8 @@ static void test_tls1_3_master_secrets(hsm_hdl_t key_mgmt_hdl,
 			  0x0,
 			  0x0,
 			  40,
-			  0x0,
-			  NULL,
+			  0x0, NULL,
+			  0x0, NULL,
 			  &psk_id);
 
 	/* 4.2. Prepare Input Plaintext Context for TLS 1.3, with PSK ID */
