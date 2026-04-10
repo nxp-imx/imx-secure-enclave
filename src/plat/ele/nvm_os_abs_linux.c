@@ -16,7 +16,7 @@
 
 #include "errno.h"
 
-#include "she_api.h"
+#include "session.h"
 #include "plat_os_abs.h"
 #include "plat_utils.h"
 

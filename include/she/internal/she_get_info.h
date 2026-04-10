@@ -1,12 +1,12 @@
 // SPDX-License-Identifier: BSD-3-Clause
 /*
- * Copyright 2023-2024 NXP
+ * Copyright 2023-2024, 2026 NXP
  */
 
 #ifndef SHE_GET_INFO_H
 #define SHE_GET_INFO_H
 
-#include "internal/she_handle.h"
+#include "she_handle.h"
 #include "common/get_info.h"
 
 /**

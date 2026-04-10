@@ -1,14 +1,14 @@
 // SPDX-License-Identifier: BSD-3-Clause
 /*
- * Copyright 2023-2024 NXP
+ * Copyright 2023-2024, 2026 NXP
  */
 
 #ifndef SHE_LOAD_PLAIN_KEY_H
 #define SHE_LOAD_PLAIN_KEY_H
 
-#include "internal/she_handle.h"
-#include "internal/she_utils.h"
-#include "internal/she_key.h"
+#include "she_handle.h"
+#include "she_utils.h"
+#include "she_key.h"
 
 /**
  * @defgroup group13 CMD_LOAD_PLAIN_KEY

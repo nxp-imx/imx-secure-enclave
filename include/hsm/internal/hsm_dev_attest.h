@@ -1,13 +1,13 @@
 // SPDX-License-Identifier: BSD-3-Clause
 /*
- * Copyright 2022-2025 NXP
+ * Copyright 2022-2026 NXP
  */
 
 #ifndef HSM_DEV_ATTEST_H
 #define HSM_DEV_ATTEST_H
 
-#include "internal/hsm_handle.h"
-#include "internal/hsm_utils.h"
+#include "hsm_handle.h"
+#include "hsm_utils.h"
 
 /**
  *  @defgroup group27 Dev attest

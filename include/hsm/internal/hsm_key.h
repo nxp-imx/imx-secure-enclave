@@ -8,7 +8,7 @@
 
 #include <stdint.h>
 
-#include "internal/hsm_common_def.h"
+#include "hsm_common_def.h"
 
 #define IV_LENGTH		12
 

@@ -1,13 +1,13 @@
 // SPDX-License-Identifier: BSD-3-Clause
 /*
- * Copyright 2025 NXP
+ * Copyright 2025-2026 NXP
  */
 
 #ifndef CRRM_HANDLE_H
 #define CRRM_HANDLE_H
 
 #include <stdint.h>
-#include <internal/hsm_utils.h>
+#include "internal/hsm_utils.h"
 
 #define CRRM_HANDLE_NONE		(0x0)
 

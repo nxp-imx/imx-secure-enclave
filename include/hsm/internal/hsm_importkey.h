@@ -1,6 +1,6 @@
 // SPDX-License-Identifier: BSD-3-Clause
 /*
- * Copyright 2022-2024 NXP
+ * Copyright 2022-2024, 2026 NXP
  */
 
 #ifndef HSM_IMPORT_KEY_H
@@ -10,8 +10,8 @@
 #include <stdlib.h>
 #include <stdio.h>
 
-#include "internal/hsm_handle.h"
-#include "internal/hsm_utils.h"
+#include "hsm_handle.h"
+#include "hsm_utils.h"
 
 /**
  *  @defgroup group3 Key management

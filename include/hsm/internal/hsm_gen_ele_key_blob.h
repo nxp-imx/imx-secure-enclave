@@ -6,8 +6,8 @@
 #ifndef HSM_GEN_ELE_KEY_BLOB_H
 #define HSM_GEN_ELE_KEY_BLOB_H
 
-#include "internal/hsm_handle.h"
-#include "internal/hsm_utils.h"
+#include "hsm_handle.h"
+#include "hsm_utils.h"
 
 /**
  *  @defgroup group40 GEN-ELE-KEY-BLOB

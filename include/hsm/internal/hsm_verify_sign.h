@@ -1,6 +1,6 @@
 // SPDX-License-Identifier: BSD-3-Clause
 /*
- * Copyright 2022-2023, 2025 NXP
+ * Copyright 2022-2023, 2025-2026 NXP
  */
 
 #ifndef HSM_VERIFY_SIGN_H
@@ -10,10 +10,10 @@
 #include <stdio.h>
 #include <stdlib.h>
 
-#include "internal/hsm_sign_gen.h"
-#include "internal/hsm_handle.h"
-#include "internal/hsm_utils.h"
-#include "internal/hsm_key.h"
+#include "hsm_sign_gen.h"
+#include "hsm_handle.h"
+#include "hsm_utils.h"
+#include "hsm_key.h"
 
 /**
  *  @defgroup group6 Signature verification

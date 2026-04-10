@@ -1,13 +1,13 @@
 // SPDX-License-Identifier: BSD-3-Clause
 /*
- * Copyright 2023-2024 NXP
+ * Copyright 2023-2024, 2026 NXP
  */
 
 #ifndef SHE_UTILS_SERVICE_H
 #define SHE_UTILS_SERVICE_H
 
-#include <internal/she_utils.h>
-#include <internal/she_handle.h>
+#include "she_utils.h"
+#include "she_handle.h"
 
 /**
  * @defgroup group3 Utils

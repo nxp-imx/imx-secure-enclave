@@ -1,13 +1,13 @@
 // SPDX-License-Identifier: BSD-3-Clause
 /*
- * Copyright 2025 NXP
+ * Copyright 2025-2026 NXP
  */
 
 #ifndef PRIME_SERVICE_H
 #define PRIME_SERVICE_H
 
-#include "internal/prime_utils.h"
-#include "internal/prime_handle.h"
+#include "prime_utils.h"
+#include "prime_handle.h"
 
 enum service_type {
 	SERVICE_TYPE_NONE,

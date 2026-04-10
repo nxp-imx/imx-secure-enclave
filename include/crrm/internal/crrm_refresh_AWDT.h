@@ -1,12 +1,12 @@
 // SPDX-License-Identifier: BSD-3-Clause
 /*
- * Copyright 2025 NXP
+ * Copyright 2025-2026 NXP
  */
 
 #ifndef CRRM_REFRESH_AWDT_H
 #define CRRM_REFRESH_AWDT_H
 
-#include "internal/crrm_handle.h"
+#include "crrm_handle.h"
 
 /**
  *  @defgroup group4 Refresh AWDT

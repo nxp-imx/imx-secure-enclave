@@ -1,12 +1,12 @@
 // SPDX-License-Identifier: BSD-3-Clause
 /*
- * Copyright 2025 NXP
+ * Copyright 2025-2026 NXP
  */
 
 #ifndef CRRM_BOOT_MODE_H
 #define CRRM_BOOT_MODE_H
 
-#include "internal/crrm_handle.h"
+#include "crrm_handle.h"
 
 /**
  *  @defgroup group1 Boot Mode
