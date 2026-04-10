@@ -622,7 +622,8 @@ static void transient_key_tests(hsm_hdl_t sess_hdl,
 				    HSM_KEY_SIZE_AES_256,
 				    "KEY_AES_256 ALGO_CMAC");
 
-	if (se_get_soc_id() == SOC_IMX943)
+	if (se_get_soc_id() == SOC_IMX943 ||
+	    se_get_soc_id() == SOC_IMX952)
 		hsm_mac_stream_test(key_store_hdl, key_mgmt_hdl,
 				    PERMITTED_ALGO_CMAC,
 				    HSM_KEY_TYPE_SM4,

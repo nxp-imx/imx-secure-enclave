@@ -1,6 +1,6 @@
 // SPDX-License-Identifier: BSD-3-Clause
 /*
- * Copyright 2022-2025 NXP
+ * Copyright 2022-2026 NXP
  */
 
 #include <pthread.h>
@@ -328,7 +328,9 @@ hsm_err_t do_hash_test(hsm_hdl_t hash_sess)
 		     hash_args.algo == HSM_HASH_ALGO_SHA_1))
 			continue;
 
-		if (se_get_soc_id() != SOC_IMX943 && hash_args.algo == HSM_HASH_ALGO_SM3)
+		if ((se_get_soc_id() != SOC_IMX943 &&
+		     se_get_soc_id() != SOC_IMX952) &&
+		     hash_args.algo == HSM_HASH_ALGO_SM3)
 			continue;
 #endif
 		hash_args.output_size = hash_size;
@@ -476,7 +478,9 @@ hsm_err_t do_hash_stream_test(hsm_hdl_t hash_sess)
 		     hash_args.algo == HSM_HASH_ALGO_SHA_1))
 			continue;
 
-		if (se_get_soc_id() != SOC_IMX943 && hash_args.algo == HSM_HASH_ALGO_SM3)
+		if ((se_get_soc_id() != SOC_IMX943 &&
+		     se_get_soc_id() != SOC_IMX952) &&
+		     hash_args.algo == HSM_HASH_ALGO_SM3)
 			continue;
 #endif
 		hash_args.svc_flags = HSM_HASH_FLAG_GET_CONTEXT;

@@ -525,123 +525,123 @@ hsm_err_t hsm_mac_test(hsm_hdl_t key_store_hdl, hsm_hdl_t key_mgmt_hdl)
 		status(&mac_one_go);
 #endif
 
-	if (se_get_soc_id() != SOC_IMX943)
-		goto out;
-
+	if (se_get_soc_id() == SOC_IMX943 ||
+	    se_get_soc_id() == SOC_IMX952) {
 #ifdef PSA_COMPLIANT
-	printf("HSM_KEY_TYPE_SM4_128 & PERMITTED_ALGO_CMAC:");
-	sym_key_id = 0;
-	generate_key(key_mgmt_hdl,
-		     HSM_SE_KEY_STORAGE_VOLATILE,
-		     HSM_KEY_USAGE_SIGN_MSG | HSM_KEY_USAGE_VERIFY_MSG,
-		     PERMITTED_ALGO_CMAC,
-		     HSM_KEY_SIZE_SM4_128,
-		     0,
-		     HSM_KEY_TYPE_SM4,
-		     &sym_key_id);
+		printf("HSM_KEY_TYPE_SM4_128 & PERMITTED_ALGO_CMAC:");
+		sym_key_id = 0;
+		generate_key(key_mgmt_hdl,
+			     HSM_SE_KEY_STORAGE_VOLATILE,
+			     HSM_KEY_USAGE_SIGN_MSG | HSM_KEY_USAGE_VERIFY_MSG,
+			     PERMITTED_ALGO_CMAC,
+			     HSM_KEY_SIZE_SM4_128,
+			     0,
+			     HSM_KEY_TYPE_SM4,
+			     &sym_key_id);
 
-	mac_one_go.key_identifier = sym_key_id;
-	mac_one_go.algorithm = PERMITTED_ALGO_CMAC;
-	mac_one_go.flags = HSM_OP_MAC_ONE_GO_FLAGS_MAC_GENERATION;
-	mac_one_go.payload = test_msg;
-	mac_one_go.mac = work_area;
-	mac_one_go.payload_size = 16;
-	mac_one_go.mac_size = 16;
+		mac_one_go.key_identifier = sym_key_id;
+		mac_one_go.algorithm = PERMITTED_ALGO_CMAC;
+		mac_one_go.flags = HSM_OP_MAC_ONE_GO_FLAGS_MAC_GENERATION;
+		mac_one_go.payload = test_msg;
+		mac_one_go.mac = work_area;
+		mac_one_go.payload_size = 16;
+		mac_one_go.mac_size = 16;
 
-	err = hsm_do_mac(key_store_hdl, &mac_one_go);
+		err = hsm_do_mac(key_store_hdl, &mac_one_go);
 
-	mac_one_go.flags = HSM_OP_MAC_ONE_GO_FLAGS_MAC_VERIFICATION;
-	mac_one_go.mac_size = 16;
+		mac_one_go.flags = HSM_OP_MAC_ONE_GO_FLAGS_MAC_VERIFICATION;
+		mac_one_go.mac_size = 16;
 
-	err = hsm_do_mac(key_store_hdl, &mac_one_go);
-	status(&mac_one_go);
-	delete_test_key(key_mgmt_hdl, sym_key_id, 0);
+		err = hsm_do_mac(key_store_hdl, &mac_one_go);
+		status(&mac_one_go);
+		delete_test_key(key_mgmt_hdl, sym_key_id, 0);
 
-	printf("HSM_KEY_TYPE_SM4_128 & PERMITTED_ALGO_CBCMAC:");
-	sym_key_id = 0;
-	generate_key(key_mgmt_hdl,
-		     HSM_SE_KEY_STORAGE_VOLATILE,
-		     HSM_KEY_USAGE_SIGN_MSG | HSM_KEY_USAGE_VERIFY_MSG,
-		     PERMITTED_ALGO_CBCMAC,
-		     HSM_KEY_SIZE_SM4_128,
-		     0,
-		     HSM_KEY_TYPE_SM4,
-		     &sym_key_id);
+		printf("HSM_KEY_TYPE_SM4_128 & PERMITTED_ALGO_CBCMAC:");
+		sym_key_id = 0;
+		generate_key(key_mgmt_hdl,
+			     HSM_SE_KEY_STORAGE_VOLATILE,
+			     HSM_KEY_USAGE_SIGN_MSG | HSM_KEY_USAGE_VERIFY_MSG,
+			     PERMITTED_ALGO_CBCMAC,
+			     HSM_KEY_SIZE_SM4_128,
+			     0,
+			     HSM_KEY_TYPE_SM4,
+			     &sym_key_id);
 
-	mac_one_go.key_identifier = sym_key_id;
-	mac_one_go.algorithm = PERMITTED_ALGO_CBCMAC;
-	mac_one_go.flags = HSM_OP_MAC_ONE_GO_FLAGS_MAC_GENERATION;
-	mac_one_go.payload = test_msg;
-	mac_one_go.mac = work_area;
-	mac_one_go.payload_size = 16;
-	mac_one_go.mac_size = 16;
+		mac_one_go.key_identifier = sym_key_id;
+		mac_one_go.algorithm = PERMITTED_ALGO_CBCMAC;
+		mac_one_go.flags = HSM_OP_MAC_ONE_GO_FLAGS_MAC_GENERATION;
+		mac_one_go.payload = test_msg;
+		mac_one_go.mac = work_area;
+		mac_one_go.payload_size = 16;
+		mac_one_go.mac_size = 16;
 
-	err = hsm_do_mac(key_store_hdl, &mac_one_go);
+		err = hsm_do_mac(key_store_hdl, &mac_one_go);
 
-	mac_one_go.flags = HSM_OP_MAC_ONE_GO_FLAGS_MAC_VERIFICATION;
-	mac_one_go.mac_size = 16;
+		mac_one_go.flags = HSM_OP_MAC_ONE_GO_FLAGS_MAC_VERIFICATION;
+		mac_one_go.mac_size = 16;
 
-	err = hsm_do_mac(key_store_hdl, &mac_one_go);
-	status(&mac_one_go);
-	delete_test_key(key_mgmt_hdl, sym_key_id, 0);
+		err = hsm_do_mac(key_store_hdl, &mac_one_go);
+		status(&mac_one_go);
+		delete_test_key(key_mgmt_hdl, sym_key_id, 0);
 #ifdef NEGATIVE
-	printf("HSM_KEY_TYPE_SM4_128 & PERMITTED_ALGO_HMAC_SHA256:");
-	sym_key_id = 0;
-	generate_key(key_mgmt_hdl,
-		     HSM_SE_KEY_STORAGE_VOLATILE,
-		     HSM_KEY_USAGE_SIGN_MSG | HSM_KEY_USAGE_VERIFY_MSG,
-		     PERMITTED_ALGO_HMAC_SHA256,
-		     HSM_KEY_SIZE_SM4_128,
-		     0,
-		     HSM_KEY_TYPE_SM4,
-		     &sym_key_id);
+		printf("HSM_KEY_TYPE_SM4_128 & PERMITTED_ALGO_HMAC_SHA256:");
+		sym_key_id = 0;
+		generate_key(key_mgmt_hdl,
+			     HSM_SE_KEY_STORAGE_VOLATILE,
+			     HSM_KEY_USAGE_SIGN_MSG | HSM_KEY_USAGE_VERIFY_MSG,
+			     PERMITTED_ALGO_HMAC_SHA256,
+			     HSM_KEY_SIZE_SM4_128,
+			     0,
+			     HSM_KEY_TYPE_SM4,
+			     &sym_key_id);
 
-	mac_one_go.key_identifier = sym_key_id;
-	mac_one_go.algorithm = PERMITTED_ALGO_HMAC_SHA256;
-	mac_one_go.flags = HSM_OP_MAC_ONE_GO_FLAGS_MAC_GENERATION;
-	mac_one_go.payload = test_msg;
-	mac_one_go.mac = work_area;
-	mac_one_go.payload_size = 16;
-	mac_one_go.mac_size = 16;
+		mac_one_go.key_identifier = sym_key_id;
+		mac_one_go.algorithm = PERMITTED_ALGO_HMAC_SHA256;
+		mac_one_go.flags = HSM_OP_MAC_ONE_GO_FLAGS_MAC_GENERATION;
+		mac_one_go.payload = test_msg;
+		mac_one_go.mac = work_area;
+		mac_one_go.payload_size = 16;
+		mac_one_go.mac_size = 16;
 
-	err = hsm_do_mac(key_store_hdl, &mac_one_go);
+		err = hsm_do_mac(key_store_hdl, &mac_one_go);
 
-	mac_one_go.flags = HSM_OP_MAC_ONE_GO_FLAGS_MAC_VERIFICATION;
-	mac_one_go.mac_size = 16;
+		mac_one_go.flags = HSM_OP_MAC_ONE_GO_FLAGS_MAC_VERIFICATION;
+		mac_one_go.mac_size = 16;
 
-	err = hsm_do_mac(key_store_hdl, &mac_one_go);
-	status(&mac_one_go);
-	delete_test_key(key_mgmt_hdl, sym_key_id, 0);
+		err = hsm_do_mac(key_store_hdl, &mac_one_go);
+		status(&mac_one_go);
+		delete_test_key(key_mgmt_hdl, sym_key_id, 0);
 
-	printf("HSM_KEY_TYPE_SM4_128 & PERMITTED_ALGO_HMAC_SHA384:");
-	sym_key_id = 0;
-	generate_key(key_mgmt_hdl,
-		     HSM_SE_KEY_STORAGE_VOLATILE,
-		     HSM_KEY_USAGE_SIGN_MSG | HSM_KEY_USAGE_VERIFY_MSG,
-		     PERMITTED_ALGO_HMAC_SHA384,
-		     HSM_KEY_SIZE_SM4_128,
-		     0,
-		     HSM_KEY_TYPE_SM4,
-		     &sym_key_id);
+		printf("HSM_KEY_TYPE_SM4_128 & PERMITTED_ALGO_HMAC_SHA384:");
+		sym_key_id = 0;
+		generate_key(key_mgmt_hdl,
+			     HSM_SE_KEY_STORAGE_VOLATILE,
+			     HSM_KEY_USAGE_SIGN_MSG | HSM_KEY_USAGE_VERIFY_MSG,
+			     PERMITTED_ALGO_HMAC_SHA384,
+			     HSM_KEY_SIZE_SM4_128,
+			     0,
+			     HSM_KEY_TYPE_SM4,
+			     &sym_key_id);
 
-	mac_one_go.key_identifier = sym_key_id;
-	mac_one_go.algorithm = PERMITTED_ALGO_HMAC_SHA384;
-	mac_one_go.flags = HSM_OP_MAC_ONE_GO_FLAGS_MAC_GENERATION;
-	mac_one_go.payload = test_msg;
-	mac_one_go.mac = work_area;
-	mac_one_go.payload_size = 16;
-	mac_one_go.mac_size = 16;
+		mac_one_go.key_identifier = sym_key_id;
+		mac_one_go.algorithm = PERMITTED_ALGO_HMAC_SHA384;
+		mac_one_go.flags = HSM_OP_MAC_ONE_GO_FLAGS_MAC_GENERATION;
+		mac_one_go.payload = test_msg;
+		mac_one_go.mac = work_area;
+		mac_one_go.payload_size = 16;
+		mac_one_go.mac_size = 16;
 
-	err = hsm_do_mac(key_store_hdl, &mac_one_go);
+		err = hsm_do_mac(key_store_hdl, &mac_one_go);
 
-	mac_one_go.flags = HSM_OP_MAC_ONE_GO_FLAGS_MAC_VERIFICATION;
-	mac_one_go.mac_size = 16;
+		mac_one_go.flags = HSM_OP_MAC_ONE_GO_FLAGS_MAC_VERIFICATION;
+		mac_one_go.mac_size = 16;
 
-	err = hsm_do_mac(key_store_hdl, &mac_one_go);
-	status(&mac_one_go);
-	delete_test_key(key_mgmt_hdl, sym_key_id, 0);
+		err = hsm_do_mac(key_store_hdl, &mac_one_go);
+		status(&mac_one_go);
+		delete_test_key(key_mgmt_hdl, sym_key_id, 0);
 #endif
 #endif
+	}
 out:
 	printf("\n---------------------------------------------------\n");
 	printf("SECONDARY API: DO MAC Test Complete\n");
@@ -771,36 +771,37 @@ hsm_err_t hsm_mac_plainkey_test(hsm_hdl_t key_store_hdl, hsm_hdl_t key_mgmt_hdl)
 
 	status(&args);
 
-	if (se_get_soc_id() != SOC_IMX943)
-		goto out;
+	if (se_get_soc_id() == SOC_IMX943 ||
+	    se_get_soc_id() == SOC_IMX952) {
+		printf("HSM_KEY_SIZE_SM4_128 & PERMITTED_ALGO_CBCMAC:");
 
-	printf("HSM_KEY_SIZE_SM4_128 & PERMITTED_ALGO_CBCMAC:");
+		memset(work_area, 0, sizeof(work_area));
+		memset(&args, 0, sizeof(op_mac_args_t));
+		args.flags = HSM_OP_MAC_FLAGS_MAC_GENERATION |
+			     HSM_OP_MAC_FLAGS_PLAINTEXT_KEY;
+		args.key = test_key_128;
+		args.key_size = sizeof(test_key_128);
+		args.key_type = HSM_KEY_TYPE_SM4;
+		args.algorithm = PERMITTED_ALGO_CBCMAC;
+		args.payload = test_msg;
+		args.mac = work_area;
+		args.payload_size = 16;
+		args.mac_size = 16;
 
-	memset(work_area, 0, sizeof(work_area));
-	memset(&args, 0, sizeof(op_mac_args_t));
-	args.flags = HSM_OP_MAC_FLAGS_MAC_GENERATION | HSM_OP_MAC_FLAGS_PLAINTEXT_KEY;
-	args.key = test_key_128;
-	args.key_size = sizeof(test_key_128);
-	args.key_type = HSM_KEY_TYPE_SM4;
-	args.algorithm = PERMITTED_ALGO_CBCMAC;
-	args.payload = test_msg;
-	args.mac = work_area;
-	args.payload_size = 16;
-	args.mac_size = 16;
+		err = hsm_do_mac(key_store_hdl, &args);
+		if (err != HSM_NO_ERROR)
+			printf("\nhsm_do_mac (gen) err: 0x%x\n", err);
 
-	err = hsm_do_mac(key_store_hdl, &args);
-	if (err != HSM_NO_ERROR)
-		printf("\nhsm_do_mac (gen) err: 0x%x\n", err);
+		args.flags = HSM_OP_MAC_FLAGS_MAC_VERIFICATION |
+			     HSM_OP_MAC_FLAGS_PLAINTEXT_KEY;
+		args.mac_size = 16;
 
-	args.flags = HSM_OP_MAC_FLAGS_MAC_VERIFICATION | HSM_OP_MAC_FLAGS_PLAINTEXT_KEY;
-	args.mac_size = 16;
+		err = hsm_do_mac(key_store_hdl, &args);
+		if (err != HSM_NO_ERROR)
+			printf("\nhsm_do_mac (verify) err: 0x%x\n", err);
 
-	err = hsm_do_mac(key_store_hdl, &args);
-	if (err != HSM_NO_ERROR)
-		printf("\nhsm_do_mac (verify) err: 0x%x\n", err);
-
-	status(&args);
-
+		status(&args);
+	}
 out:
 	printf("\n---------------------------------------------------\n");
 	printf("SECONDARY API: DO MAC Test Complete\n");
