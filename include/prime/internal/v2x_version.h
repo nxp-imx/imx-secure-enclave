@@ -6,7 +6,7 @@
 #ifndef V2X_VERSION_H
 #define V2X_VERSION_H
 
-#include "internal/prime_utils.h"
+#include "prime_utils.h"
 
 typedef struct {
 	uint8_t major;
