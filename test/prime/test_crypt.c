@@ -1,6 +1,6 @@
 // SPDX-License-Identifier: BSD-3-Clause
 /*
- * Copyright 2025 NXP
+ * Copyright 2025-2026 NXP
  */
 
 #include <stdio.h>
@@ -47,6 +47,7 @@ int main(void)
 	hmac_test(serv_hdl);
 	aes_cbc_test(serv_hdl);
 	aes_ecb_test(serv_hdl);
+	aes_ctr_test(serv_hdl);
 	aes_gcm_test(serv_hdl);
 
 	prime_close_service(serv_hdl);
