@@ -242,7 +242,7 @@ $(V2X_HSM_TEST): $(V2X_HSM_TEST_OBJ) $(HSM_LIB)
 	$(CC) $^  -o $@ ${TEST_INCLUDE_PATHS} ${COMMON_TEST_INC} $(V2X_HSM_SHX_TEST_INC) $(SHX_INC) $(CFLAGS) $(TEST_LDFLAGS) -lpthread $(GCOV_FLAGS)
 
 # NVM Daemon
-NVM_D_OBJ=$(wildcard src/common/nvm/*.c)
+NVM_D_OBJ= src/common/nvm/nvm_daemon.c
 $(NVM_DAEMON): $(NVM_D_OBJ) $(NVM_LIB)
 	$(CC) $^  -o $@ ${INCLUDE_PATHS} $(CFLAGS) $(LDFLAGS) -lpthread $(GCOV_FLAGS)
 
