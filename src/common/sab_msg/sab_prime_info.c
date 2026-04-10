@@ -1,0 +1,35 @@
+/* SPDX-License-Identifier: BSD-3-Clause
+ * Copyright 2026 NXP
+ */
+
+#include <stdio.h>
+#include <string.h>
+
+#include "sab_prime_api.h"
+#include "sab_prime_info.h"
+#include "mu_regs.h"
+
+int process_get_prime_info(void *mu_base, prime_info_t *prime_info)
+{
+	struct prime_msg msg = {0};
+	int ret;
+
+	/* message header */
+	msg.version = PRIME_VERSION;
+	msg.size = PRIME_GET_INFO_REQ_SZ >> 2;
+	msg.tag = PRIME_CMD_TAG;
+	msg.command = PRIME_GET_INFO_REQ;
+
+	ret = imx_mu_send_recv(mu_base, &msg, &msg);
+	if (ret) {
+		printf("Error in retrieving Prime info 0x%x", msg.data[0]);
+		return ret;
+	}
+
+	prime_info->major = (msg.data[1] >> FW_MAJOR_SHIFT) & FW_VERSION_MASK;
+	prime_info->minor = (msg.data[1] >> FW_MINOR_SHIFT) & FW_VERSION_MASK;
+	prime_info->patch = msg.data[1] & FW_VERSION_MASK;
+	prime_info->num_fifo_entries = msg.data[2];
+
+	return ret;
+}
