@@ -1,5 +1,5 @@
 /* SPDX-License-Identifier: BSD-3-Clause
- * Copyright 2025 NXP
+ * Copyright 2025-2026 NXP
  */
 
 #include <stdio.h>
@@ -18,39 +18,6 @@
 
 #define MU_SR_TE0_MASK	1UL
 #define MU_SR_RF0_MASK	1UL
-#define MU_GSR_SIG_FIN	1UL
-#define MU_GSR_SIG_ERR	BIT(1)
-
-int imx_mu_read_clear_gsr(struct mu_type *base)
-{
-	uint32_t mask = MU_GSR_SIG_FIN;
-	uint32_t val;
-	uint32_t count = 10;
-	int ret;
-
-	do {
-		ret = read_and_timeout_check(&base->gsr, val,
-					     val & mask, 1000000);
-		if (ret < 0) {
-			count--;
-			printf("mu read gsr wait %us\n", 10 - count);
-		} else {
-			break;
-		}
-	} while (count > 0);
-
-	if (count == 0) {
-		printf("%s timeout\n", __func__);
-		return -ETIMEDOUT;
-	}
-	/* clear the global status register */
-	*(volatile unsigned int *)&base->gsr = val;
-
-	if (val & MU_GSR_SIG_ERR)
-		return -EIO;
-
-	return 0;
-}
 
 static int imx_mu_read(struct mu_type *base, uint32_t reg_index, uint32_t *msg)
 {
