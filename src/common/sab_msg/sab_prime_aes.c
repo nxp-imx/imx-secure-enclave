@@ -1,5 +1,5 @@
 /* SPDX-License-Identifier: BSD-3-Clause
- * Copyright 2025 NXP
+ * Copyright 2025-2026 NXP
  */
 
 #include <stdio.h>
@@ -9,9 +9,25 @@
 #include "sab_prime_aes.h"
 #include "mu_regs.h"
 
+#define PRIME_SET_HDR(mu_reg, idx, msg_size, cmd) \
+	(mu_reg[idx] = (PRIME_VERSION) | \
+		       ((msg_size) >> 2) << 8 | \
+		       (cmd) << 16 | \
+		       (PRIME_CMD_TAG) << 24)
+
+static void copy_bytes(volatile uint32_t *mu_reg, uint32_t offset,
+		       const uint8_t *src, size_t srclen)
+{
+	volatile uint8_t *mu_reg_byte = (volatile uint8_t *)&mu_reg[offset];
+	uint32_t j;
+
+	for (j = 0; j < srclen; j++)
+		mu_reg_byte[j] = src[j];
+}
+
 void prime_cbc_construct(uint32_t *mu_buf, uint8_t keyslot,
 			 uint32_t src_addr, uint32_t dst_addr,
-			 size_t len, uint8_t op,
+			 size_t len, uint8_t enc,
 			 uint8_t *iv, size_t ivlen,
 			 uint32_t digest_addr, uint8_t sha_algo,
 			 uint8_t flag)
@@ -23,10 +39,10 @@ void prime_cbc_construct(uint32_t *mu_buf, uint8_t keyslot,
 	msg.size = PRIME_CBC_SZ >> 2;
 	msg.tag = PRIME_CMD_TAG;
 
-	if (op)
-		msg.command = PRIME_CBC_DEC;
-	else
+	if (enc)
 		msg.command = PRIME_CBC_ENC;
+	else
+		msg.command = PRIME_CBC_DEC;
 
 	/* message data */
 	msg.data[0] = 0x0;
@@ -41,9 +57,42 @@ void prime_cbc_construct(uint32_t *mu_buf, uint8_t keyslot,
 	imx_mu_word_copy(mu_buf, (uint32_t *)&msg, msg.size);
 }
 
+void prime_ctr_construct(uint32_t *mu_buf, uint8_t keyslot,
+			 uint32_t src_addr, uint32_t dst_addr,
+			 size_t len, uint8_t enc,
+			 uint8_t *ctr, size_t ctrlen,
+			 uint32_t digest_addr, uint8_t sha_algo,
+			 uint8_t flag)
+{
+	uint8_t command;
+	uint32_t i = 0, j;
+	volatile uint32_t *mu_reg = (volatile uint32_t *)mu_buf;
+
+	/* message header - packed into first word */
+	if (enc)
+		command = PRIME_CTR_ENC;
+	else
+		command = PRIME_CTR_DEC;
+
+	/* message header - packed into first word */
+	PRIME_SET_HDR(mu_reg, i++, PRIME_CTR_SZ, command);
+
+	/* message data */
+	mu_reg[i++] = 0x0;
+	mu_reg[i++] = (keyslot << PRIME_KEY_SLOT_SHIFT) |
+		      (sha_algo << 4) | flag;
+	mu_reg[i++] = digest_addr;
+	mu_reg[i++] = len;
+	mu_reg[i++] = src_addr;
+	mu_reg[i++] = dst_addr;
+
+	/* Copy counter bytes */
+	copy_bytes(mu_reg, i, ctr, ctrlen);
+}
+
 void prime_ecb_construct(uint32_t *mu_buf, uint8_t keyslot,
 			 uint32_t src_addr, uint32_t dst_addr,
-			 size_t len, uint8_t op,
+			 size_t len, uint8_t enc,
 			 uint32_t digest_addr, uint8_t sha_algo,
 			 uint8_t flag)
 {
@@ -54,10 +103,10 @@ void prime_ecb_construct(uint32_t *mu_buf, uint8_t keyslot,
 	msg.size = PRIME_ECB_SZ >> 2;
 	msg.tag = PRIME_CMD_TAG;
 
-	if (op)
-		msg.command = PRIME_ECB_DEC;
-	else
+	if (enc)
 		msg.command = PRIME_ECB_ENC;
+	else
+		msg.command = PRIME_ECB_DEC;
 
 	/* message data */
 	msg.data[0] = 0x0;
@@ -73,7 +122,7 @@ void prime_ecb_construct(uint32_t *mu_buf, uint8_t keyslot,
 
 void prime_gcm_construct(uint32_t *mu_buf, uint8_t keyslot,
 			 uint32_t src_addr, uint32_t dst_addr,
-			 size_t len, uint8_t op,
+			 size_t len, uint8_t enc,
 			 uint8_t *iv, size_t ivlen,
 			 uint32_t aad_addr, size_t aadlen,
 			 uint32_t tag_addr, size_t taglen,
@@ -86,10 +135,10 @@ void prime_gcm_construct(uint32_t *mu_buf, uint8_t keyslot,
 	msg.size = PRIME_GCM_SZ >> 2;
 	msg.tag = PRIME_CMD_TAG;
 
-	if (op)
-		msg.command = PRIME_GCM_DEC;
-	else
+	if (enc)
 		msg.command = PRIME_GCM_ENC;
+	else
+		msg.command = PRIME_GCM_DEC;
 
 	/* message data */
 	msg.data[0] = 0x0;

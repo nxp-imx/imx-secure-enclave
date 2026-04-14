@@ -1,5 +1,5 @@
 /* SPDX-License-Identifier: BSD-3-Clause
- * Copyright 2025 NXP
+ * Copyright 2025-2026 NXP
  */
 
 #include <stdio.h>
@@ -46,6 +46,13 @@ int prime_cipher_build(crypto_op_args_t *op,
 		prime_ecb_construct(mu_buf, op->op_aes_args.keyslot,
 				    op->src.phys_addr, op->dst.phys_addr,
 				    op->src.len, op->op_aes_args.enc,
+				    digest_addr, sha_algo, flag);
+		break;
+	case CRYPTO_CIPHER_AES_CTR:
+		prime_ctr_construct(mu_buf, op->op_aes_args.keyslot,
+				    op->src.phys_addr, op->dst.phys_addr,
+				    op->src.len, op->op_aes_args.enc,
+				    op->op_aes_args.iv, op->op_aes_args.ivlen,
 				    digest_addr, sha_algo, flag);
 		break;
 	default:

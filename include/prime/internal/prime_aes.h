@@ -16,17 +16,18 @@ typedef struct {
 
 enum crypto_cipher_algorithm {
 	CRYPTO_CIPHER_AES_CBC = 1,
-	CRYPTO_CIPHER_AES_ECB
+	CRYPTO_CIPHER_AES_ECB,
+	CRYPTO_CIPHER_AES_CTR
 };
 
 enum crypto_aead_algorithm {
-	CRYPTO_AEAD_AES_GCM = 3,
+	CRYPTO_AEAD_AES_GCM = 4,
 	CRYPTO_AEAD_AES_CCM
 };
 
 enum crypto_cipher_operation {
-	CRYPTO_CIPHER_OP_ENCRYPT,
-	CRYPTO_CIPHER_OP_DECRYPT
+	CRYPTO_CIPHER_OP_DECRYPT,
+	CRYPTO_CIPHER_OP_ENCRYPT
 };
 
 /* Cipher Parameters */
