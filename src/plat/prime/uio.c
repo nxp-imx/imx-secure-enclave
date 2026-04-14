@@ -16,7 +16,7 @@
 
 #define UIO_DIR_PATH        "/sys/class/uio"
 #define UIO_DEV_PATH	    "/dev/uio"
-#define PRIME_UIO_NAME	    "FCE UIO"
+#define PRIME_UIO_NAME	    "PRIME UIO"
 #define UIO_MAP_PATH	    "maps/map"
 #define MU_BUF_OFFSET	    0x8000
 #define DMA_MEM_SZ_MAX      0x10000000
@@ -78,7 +78,7 @@ static int read_prime_uio_minor(void)
 		snprintf(uio_path, sizeof(uio_path), "%s/%s/%s",
 			 UIO_DIR_PATH, entry->d_name, "name");
 
-		/* check if uio path has driver name as 'FCE UIO' */
+		/* check if uio path has driver name as 'PRIME UIO' */
 		ret = match_prime_dev_name(uio_path, PRIME_UIO_NAME);
 		if (ret) {
 			uio_minor_num = -1;
