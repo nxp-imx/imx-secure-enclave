@@ -209,7 +209,7 @@ function prime()
 
     printf "Execute %s\n" "${cmd_script}"
     eval "${cmd_script}"
-    eval "make clean; make PLAT=ele clean; make PLAT=prime clean;"
+    eval "make PLAT=seco clean; make PLAT=ele clean; make PLAT=prime clean;"
 }
 
 function seco()
@@ -236,7 +236,7 @@ function seco()
 
     printf "Execute %s\n" "${cmd_script}"
     eval "${cmd_script}"
-    eval "make clean"
+    eval "make PLAT=seco clean; make PLAT=ele clean; make PLAT=prime clean;"
 }
 
 function ele()
@@ -263,7 +263,7 @@ function ele()
 
     printf "Execute %s\n" "${cmd_script}"
     eval "${cmd_script}"
-    eval "make clean; make PLAT=ele clean;"
+    eval "make PLAT=seco clean; make PLAT=ele clean; make PLAT=prime clean;"
 }
 
 
@@ -862,6 +862,11 @@ do
             opt_ele="-DELE_ROOT=${opt_ele}"
             ;;
 
+        prime=*)
+            opt_prime="${arg#*=}"
+            opt_prime="-DPRIME_ROOT=${opt_prime}"
+            ;;
+
 #	plat_all=*)
 #            opt_seco="${arg#*=}"
 #            opt_seco="-DSECO_ROOT=${opt_seco}"
@@ -987,6 +992,10 @@ case ${opt_action} in
 
     ele)
         ele
+        ;;
+
+    prime)
+        prime
         ;;
 
     ele_v2x)
