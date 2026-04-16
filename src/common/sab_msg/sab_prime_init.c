@@ -1,6 +1,6 @@
 // SPDX-License-Identifier: BSD-3-Clause
 /*
- * Copyright 2025 NXP
+ * Copyright 2025-2026 NXP
  */
 
 #include <stdio.h>
@@ -17,7 +17,7 @@ void v2x_prime_init(void)
 	}
 
 	if (v2x_prime_mmap() < 0)
-		perror("Failed to map V2X PRIME reserved memory\n");
+		perror("Failed to map ATU memory\n");
 }
 
 void v2x_prime_deinit(void)

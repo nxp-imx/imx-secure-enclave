@@ -53,39 +53,49 @@ static int dequeue_ops(crypto_op_args_t **ops, uint32_t nb_ops)
 	return err;
 }
 
-static void build_op(crypto_op_args_t *op, uint8_t buf_off, uint8_t flag)
+static int build_op(uint32_t handle, crypto_op_args_t *op, uint8_t buf_off, uint8_t flag)
 {
+	int ret;
+	prime_service_t *hdl;
+
+	hdl = prime_session_to_ptr(handle);
+	if (!hdl) {
+		printf("Invalid handle\n");
+		return -1;
+	}
+
 	switch (op->op_type) {
 	case CRYPTO_OP_TYPE_AES:
-		prime_cipher_build(op, buf_off, flag);
+		ret = prime_cipher_build(hdl, op, buf_off, flag);
 		break;
 	case CRYPTO_OP_TYPE_AEAD:
-		prime_aead_build(op, buf_off, flag);
+		ret = prime_aead_build(hdl, op, buf_off, flag);
 		break;
 	case CRYPTO_OP_TYPE_HMAC:
-		prime_auth_build(op, buf_off, flag);
+		ret = prime_auth_build(hdl, op, buf_off, flag);
 		break;
 	default:
 		printf("Un-supported crypto operation.\n");
+		ret = -1;
 		break;
 	};
 
-	return;
+	return ret;
 }
 
-static int enqueue_ops(crypto_op_args_t **ops, uint16_t nb_ops, uint8_t flag)
+static int enqueue_ops(uint32_t handle, crypto_op_args_t **ops,
+		       uint16_t nb_ops, uint8_t flag)
 {
 	struct uio_prime_mu *prime_mu = get_uio_prime_mu();
 	uint8_t slot = 0, jobs = 0, buf_off = 64;
-	int i, ret, req_id;
+	int i, req_id;
 
 	/* Push Request: MU Slot */
 	for (i = 0; i < nb_ops; i++) {
 		if (flag && (i + 1 == nb_ops))
-			build_op(ops[i], buf_off * i, PRIME_SIG_POP_REQ);
+			build_op(handle, ops[i], buf_off * i, PRIME_SIG_POP_REQ);
 		else
-			build_op(ops[i], buf_off * i, PRIME_POP_REQ);
-
+			build_op(handle, ops[i], buf_off * i, PRIME_POP_REQ);
 		slot = slot | (1 << i);
 		jobs++;
 	}
@@ -112,7 +122,7 @@ static int enqueue_ops(crypto_op_args_t **ops, uint16_t nb_ops, uint8_t flag)
 	return jobs;
 }
 
-static int run_ops(crypto_op_args_t **ops, uint32_t nb_ops)
+static int run_ops(uint32_t handle, crypto_op_args_t **ops, uint32_t nb_ops)
 {
 	uint32_t cnt_ops, enqd_ops, i;
 	uint8_t flag;
@@ -128,7 +138,7 @@ static int run_ops(crypto_op_args_t **ops, uint32_t nb_ops)
 			flag = 1;
 		}
 
-		enqd_ops = enqueue_ops(&ops[i], cnt_ops, flag);
+		enqd_ops = enqueue_ops(handle, &ops[i], cnt_ops, flag);
 		if (enqd_ops < cnt_ops)
 			break;
 
@@ -152,10 +162,25 @@ int prime_process_ops(uint32_t service_hdl,
 	uint32_t unused_ops = nb_ops;
 	uint32_t enq_ops;
 	int ret = CRYPTO_OP_SUCCESS;
+	prime_service_t *hdl;
+
+	hdl = prime_session_to_ptr(service_hdl);
+	if (!hdl) {
+		printf("Invalid handle\n");
+		return -1;
+	}
 
 	for (uint32_t i = 0; i < nb_ops; i = i + enq_ops) {
 		enq_ops = (unused_ops > max_ops) ? max_ops : unused_ops;
-		ret = run_ops(&ops[i], enq_ops);
+		/* Check if address is in range of owned address */
+		if (ops[i]->src.phys_addr < hdl->physical_addr ||
+		    (ops[i]->src.phys_addr + ops[i]->src.len) >
+		    (hdl->physical_addr + hdl->size)) {
+			printf("Not correct owner\n");
+			return -1;
+		}
+
+		ret = run_ops(service_hdl, &ops[i], enq_ops);
 		if (ret)
 			break;
 
