@@ -22,14 +22,6 @@ uint32_t crc_compute(uint32_t *msg, size_t len)
 	return crc;
 }
 
-void imx_mu_word_copy(uint32_t *buf, uint32_t *data, uint8_t size)
-{
-	uint8_t i;
-
-	for (i = 0; i < size; i++)
-		*((volatile uint32_t *)buf + i) = data[i];
-}
-
 int prime_push(void *mu_base, uint8_t slot)
 {
 	struct prime_msg msg = {0};

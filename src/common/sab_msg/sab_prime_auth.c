@@ -1,5 +1,5 @@
 /* SPDX-License-Identifier: BSD-3-Clause
- * Copyright 2025 NXP
+ * Copyright 2025-2026 NXP
  */
 
 #include <stdio.h>
@@ -9,34 +9,32 @@
 #include "sab_prime_auth.h"
 #include "mu_regs.h"
 
-void prime_auth_construct(uint32_t *mu_buf, uint8_t key_slot,
+void prime_auth_construct(uint32_t *mu_buf, uint8_t keyslot,
 			  uint32_t src_addr, size_t len,
 			  uint32_t digest_addr, uint8_t sha_algo,
 			  uint8_t dir, uint8_t flag)
 {
-	struct prime_msg msg = {0};
-
-	/* message header */
-	msg.version = PRIME_VERSION;
-	msg.size = PRIME_AUTH_SZ >> 2;
-	msg.tag = PRIME_CMD_TAG;
+	volatile uint32_t *mu_reg = (volatile uint32_t *)mu_buf;
+	uint8_t command;
+	uint32_t i = 0;
 
 	if (dir == 0)
-		msg.command = PRIME_HMAC_GEN;
+		command = PRIME_HMAC_GEN;
 	else if (dir == 1)
-		msg.command = PRIME_HMAC_VERIFY;
+		command = PRIME_HMAC_VERIFY;
 	else if (dir == 2)
-		msg.command = PRIME_HASH;
+		command = PRIME_HASH;
+
+	/* message header - packed into first word */
+	PRIME_SET_HDR(mu_reg, i++, PRIME_AUTH_SZ, command);
 
 	/* message data */
-	msg.data[0] = 0x0;
-	msg.data[1] = (key_slot << PRIME_KEY_SLOT_SHIFT) |
+	mu_reg[i++] = 0x0;
+	mu_reg[i++] = (keyslot << PRIME_KEY_SLOT_SHIFT) |
 		      (sha_algo << 4) | flag;
-	msg.data[2] = digest_addr;
-	msg.data[3] = len;
-	msg.data[4] = src_addr;
-
-	imx_mu_word_copy(mu_buf, (uint32_t *)&msg, msg.size);
+	mu_reg[i++] = digest_addr;
+	mu_reg[i++] = len;
+	mu_reg[i] = src_addr;
 }
 
 int prime_load_hmac_key(void *mu_base,

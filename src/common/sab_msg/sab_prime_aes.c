@@ -9,12 +9,6 @@
 #include "sab_prime_aes.h"
 #include "mu_regs.h"
 
-#define PRIME_SET_HDR(mu_reg, idx, msg_size, cmd) \
-	(mu_reg[idx] = (PRIME_VERSION) | \
-		       ((msg_size) >> 2) << 8 | \
-		       (cmd) << 16 | \
-		       (PRIME_CMD_TAG) << 24)
-
 static void copy_bytes(volatile uint32_t *mu_reg, uint32_t offset,
 		       const uint8_t *src, size_t srclen)
 {
@@ -32,29 +26,29 @@ void prime_cbc_construct(uint32_t *mu_buf, uint8_t keyslot,
 			 uint32_t digest_addr, uint8_t sha_algo,
 			 uint8_t flag)
 {
-	struct prime_msg msg = {0};
-
-	/* message header */
-	msg.version = PRIME_VERSION;
-	msg.size = PRIME_CBC_SZ >> 2;
-	msg.tag = PRIME_CMD_TAG;
+	volatile uint32_t *mu_reg = (volatile uint32_t *)mu_buf;
+	uint8_t command;
+	uint32_t i = 0;
 
 	if (enc)
-		msg.command = PRIME_CBC_ENC;
+		command = PRIME_CBC_ENC;
 	else
-		msg.command = PRIME_CBC_DEC;
+		command = PRIME_CBC_DEC;
+
+	/* message header - packed into first word */
+	PRIME_SET_HDR(mu_reg, i++, PRIME_CBC_SZ, command);
 
 	/* message data */
-	msg.data[0] = 0x0;
-	msg.data[1] = (keyslot << PRIME_KEY_SLOT_SHIFT) |
+	mu_reg[i++] = 0x0;
+	mu_reg[i++] = (keyslot << PRIME_KEY_SLOT_SHIFT) |
 		      (sha_algo << 4) | flag;
-	msg.data[2] = digest_addr;
-	msg.data[3] = len;
-	msg.data[4] = src_addr;
-	msg.data[5] = dst_addr;
-	memcpy(&msg.data[6], iv, ivlen);
+	mu_reg[i++] = digest_addr;
+	mu_reg[i++] = len;
+	mu_reg[i++] = src_addr;
+	mu_reg[i++] = dst_addr;
 
-	imx_mu_word_copy(mu_buf, (uint32_t *)&msg, msg.size);
+	/* Copy iv bytes */
+	copy_bytes(mu_reg, i, iv, ivlen);
 }
 
 void prime_ctr_construct(uint32_t *mu_buf, uint8_t keyslot,
@@ -64,11 +58,10 @@ void prime_ctr_construct(uint32_t *mu_buf, uint8_t keyslot,
 			 uint32_t digest_addr, uint8_t sha_algo,
 			 uint8_t flag)
 {
-	uint8_t command;
-	uint32_t i = 0, j;
 	volatile uint32_t *mu_reg = (volatile uint32_t *)mu_buf;
+	uint8_t command;
+	uint32_t i = 0;
 
-	/* message header - packed into first word */
 	if (enc)
 		command = PRIME_CTR_ENC;
 	else
@@ -96,28 +89,26 @@ void prime_ecb_construct(uint32_t *mu_buf, uint8_t keyslot,
 			 uint32_t digest_addr, uint8_t sha_algo,
 			 uint8_t flag)
 {
-	struct prime_msg msg = {0};
-
-	/* message header */
-	msg.version = PRIME_VERSION;
-	msg.size = PRIME_ECB_SZ >> 2;
-	msg.tag = PRIME_CMD_TAG;
+	volatile uint32_t *mu_reg = (volatile uint32_t *)mu_buf;
+	uint8_t command;
+	uint32_t i = 0;
 
 	if (enc)
-		msg.command = PRIME_ECB_ENC;
+		command = PRIME_ECB_ENC;
 	else
-		msg.command = PRIME_ECB_DEC;
+		command = PRIME_ECB_DEC;
+
+	/* message header - packed into first word */
+	PRIME_SET_HDR(mu_reg, i++, PRIME_ECB_SZ, command);
 
 	/* message data */
-	msg.data[0] = 0x0;
-	msg.data[1] = (keyslot << PRIME_KEY_SLOT_SHIFT) |
+	mu_reg[i++] = 0x0;
+	mu_reg[i++] = (keyslot << PRIME_KEY_SLOT_SHIFT) |
 		      (sha_algo << 4) | flag;
-	msg.data[2] = digest_addr;
-	msg.data[3] = len;
-	msg.data[4] = src_addr;
-	msg.data[5] = dst_addr;
-
-	imx_mu_word_copy(mu_buf, (uint32_t *)&msg, msg.size);
+	mu_reg[i++] = digest_addr;
+	mu_reg[i++] = len;
+	mu_reg[i++] = src_addr;
+	mu_reg[i] = dst_addr;
 }
 
 void prime_gcm_construct(uint32_t *mu_buf, uint8_t keyslot,
@@ -128,32 +119,33 @@ void prime_gcm_construct(uint32_t *mu_buf, uint8_t keyslot,
 			 uint32_t tag_addr, size_t taglen,
 			 uint8_t flag)
 {
-	struct prime_msg msg = {0};
-
-	/* message header */
-	msg.version = PRIME_VERSION;
-	msg.size = PRIME_GCM_SZ >> 2;
-	msg.tag = PRIME_CMD_TAG;
+	volatile uint32_t *mu_reg = (volatile uint32_t *)mu_buf;
+	uint8_t command;
+	uint32_t i = 0;
 
 	if (enc)
-		msg.command = PRIME_GCM_ENC;
+		command = PRIME_GCM_ENC;
 	else
-		msg.command = PRIME_GCM_DEC;
+		command = PRIME_GCM_DEC;
+
+	/* message header - packed into first word */
+	PRIME_SET_HDR(mu_reg, i++, PRIME_GCM_SZ, command);
 
 	/* message data */
-	msg.data[0] = 0x0;
-	msg.data[1] = (ivlen << 24) |
+	mu_reg[i++] = 0x0;
+	mu_reg[i++] = (ivlen << 24) |
 		      (keyslot << PRIME_KEY_SLOT_SHIFT) |
 		      (taglen << 8) | flag;
-	msg.data[2] = tag_addr;
-	msg.data[3] = len;
-	msg.data[4] = src_addr;
-	msg.data[5] = dst_addr;
-	memcpy(&msg.data[6], iv, ivlen);
-	msg.data[10] = aadlen;
-	msg.data[11] = aad_addr;
+	mu_reg[i++] = tag_addr;
+	mu_reg[i++] = len;
+	mu_reg[i++] = src_addr;
+	mu_reg[i++] = dst_addr;
 
-	imx_mu_word_copy(mu_buf, (uint32_t *)&msg, msg.size);
+	/* Copy iv bytes */
+	copy_bytes(mu_reg, i, iv, ivlen);
+
+	mu_reg[11] = aadlen;
+	mu_reg[12] = aad_addr;
 }
 
 int prime_load_aes_key(void *mu_base,

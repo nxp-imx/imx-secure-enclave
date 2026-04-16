@@ -11,6 +11,12 @@
 #define PRIME_VERSION			0x02
 #define PRIME_CMD_TAG			0x1B
 
+#define PRIME_SET_HDR(mu_reg, idx, msg_size, cmd) \
+	(mu_reg[idx] = (PRIME_VERSION) | \
+		       ((msg_size) >> 2) << 8 | \
+		       (cmd) << 16 | \
+		       (PRIME_CMD_TAG) << 24)
+
 #define PRIME_KEY_SLOT_SHIFT		0x10
 
 #define PRIME_PUSH_REQ(SLOT)		(0xB0 | (SLOT))
@@ -24,7 +30,6 @@
 
 /* PRIME APIs, using mailbox to communicate with FW */
 uint32_t crc_compute(uint32_t *msg, size_t len);
-void imx_mu_word_copy(uint32_t *buf, uint32_t *data, uint8_t size);
 int prime_push(void *mu_base, uint8_t slot);
 int prime_get_request_status(void *mu_base, uint32_t *req_id);
 int prime_deq(int uio_fd);
