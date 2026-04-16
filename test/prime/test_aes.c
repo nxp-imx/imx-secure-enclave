@@ -9,8 +9,9 @@
 #include <string.h>
 
 #include "prime.h"
-#include "internal/prime_mem.h"
+#include "uio.h"
 
+#include "include/mem.h"
 #include "include/test_prime_utils.h"
 #include "include/aes_ecb_test_vector.h"
 #include "include/aes_cbc_test_vector.h"
@@ -59,19 +60,6 @@ static void free_test_pattern(void)
 	}
 }
 
-static void free_aes_ops(uint32_t service_hdl, crypto_op_args_t **ops,
-			 uint32_t nb_ops)
-{
-	uint32_t i;
-
-	for (i = 0; i < nb_ops; i++) {
-		if (ops[i]->dst.virt_addr != ops[i]->src.virt_addr)
-			prime_mfree(service_hdl, ops[i]->dst.len);
-
-		prime_mfree(service_hdl, ops[i]->src.len);
-	}
-}
-
 static void complete_aes_ops(crypto_op_args_t **ops, uint32_t nb_ops)
 {
 	uint32_t i;
@@ -91,18 +79,19 @@ static int aes_load_key(aes_key_t *key_args, uint8_t *key, uint32_t keylen)
 
 static int validate_aes_op(crypto_op_args_t *op, uint8_t *test_vec)
 {
-	return prime_mcompare(op->dst.virt_addr, test_vec, op->dst.len);
+	if (prime_mcompare(op->dst.virt_addr, test_vec, op->dst.len))
+		return -1;
+	return 0;
 }
 
 static void prepare_aes_op(uint32_t service_hdl, crypto_op_args_t *op,
 			   uint8_t *test_vec, uint32_t len,
 			   int algo, uint8_t keyslot, int enc,
-			   uint8_t *iv, uint16_t ivlen)
+			   uint8_t *iv, uint16_t ivlen, void *va, uint64_t phys)
 {
-	/* allocate input buffer from reserved memory */
 	op->src.len = len;
-	prime_malloc(service_hdl, &op->src.virt_addr, &op->src.phys_addr,
-		     op->src.len);
+	op->src.virt_addr = (uint8_t *)va;
+	op->src.phys_addr = phys;
 
 	/* output buffer */
 	op->dst.len = op->src.len;
@@ -122,16 +111,18 @@ static void prepare_aes_op(uint32_t service_hdl, crypto_op_args_t *op,
 	op->op_aes_args.ivlen = ivlen;
 }
 
-void aes_ctr_test_8192(uint32_t service_hdl, aes_key_t *key_args)
+int aes_ctr_test_8192(uint32_t service_hdl, aes_key_t *key_args, void *va, uint64_t phys)
 {
 	crypto_op_args_t op[2] = {0};
 	crypto_op_args_t *ops_ptr;
 	uint32_t nb_ops;
+	int32_t err;
 
 	/* Generate test patterns */
-	if (generate_test_pattern(8192)) {
+	err = generate_test_pattern(8192);
+	if (err) {
 		printf("Failed to generate test patterns\n");
-		return;
+		return err;
 	}
 
 	/* ========== Encryption ========== */
@@ -140,14 +131,18 @@ void aes_ctr_test_8192(uint32_t service_hdl, aes_key_t *key_args)
 		       plaintext, 8192,
 		       CRYPTO_CIPHER_AES_CTR, key_args->keyslot,
 		       CRYPTO_CIPHER_OP_ENCRYPT,
-		       ctr, sizeof(ctr));
+		       ctr, sizeof(ctr), va, phys);
 
 	/* fill ops array */
 	ops_ptr = &op[0];
 	nb_ops = 1;
 
 	/* invoke fast crypto engine */
-	prime_process_ops(service_hdl, &ops_ptr, nb_ops);
+	err = prime_process_ops(service_hdl, &ops_ptr, nb_ops);
+	if (err) {
+		free_test_pattern();
+		return err;
+	}
 
 	/* complete operation */
 	complete_aes_ops(&ops_ptr, nb_ops);
@@ -160,153 +155,171 @@ void aes_ctr_test_8192(uint32_t service_hdl, aes_key_t *key_args)
 		       ciphertext, 8192,
 		       CRYPTO_CIPHER_AES_CTR, key_args->keyslot,
 		       CRYPTO_CIPHER_OP_DECRYPT,
-		       ctr, sizeof(ctr));
+		       ctr, sizeof(ctr), va, phys);
 
 	ops_ptr = &op[1];
 	nb_ops = 1;
 
 	/* invoke fast crypto engine */
-	prime_process_ops(service_hdl, &ops_ptr, nb_ops);
+	err = prime_process_ops(service_hdl, &ops_ptr, nb_ops);
+	if (err) {
+		free_test_pattern();
+		return err;
+	}
 
 	/* complete operation */
 	complete_aes_ops(&ops_ptr, nb_ops);
 
 	/* compare output data */
-	if (validate_aes_op(&op[1], plaintext))
+	if (validate_aes_op(&op[1], plaintext)) {
 		printf("AES-256-CTR(%dB) test failed\n", op[1].dst.len);
-	else
-		printf("AES-256-CTR(%dB) test passed\n", op[1].dst.len);
-
-	/* free ops memory */
-	free_aes_ops(service_hdl, &ops_ptr, nb_ops);
+		free_test_pattern();
+		return -1;
+	}
 
 	/* free test patterns */
 	free_test_pattern();
+	return 0;
 }
 
-void aes_ctr_test_256(uint32_t service_hdl, aes_key_t *key_args)
+int aes_ctr_test_256(uint32_t service_hdl, aes_key_t *key_args, void *va, uint64_t phys)
 {
 	crypto_op_args_t op = {0};
 	crypto_op_args_t *ops_ptr;
 	uint32_t nb_ops;
+	int32_t err;
 
 	/* prepare op */
 	prepare_aes_op(service_hdl, &op,
 		       ctr_plain_256, sizeof(ctr_plain_256),
 		       CRYPTO_CIPHER_AES_CTR, key_args->keyslot,
 		       CRYPTO_CIPHER_OP_ENCRYPT,
-		       ctr, sizeof(ctr));
+		       ctr, sizeof(ctr), va, phys);
 
 	/* fill ops array */
 	ops_ptr = &op;
 	nb_ops = 1;
 
 	/* invoke fast crypto engine */
-	prime_process_ops(service_hdl, &ops_ptr, nb_ops);
+	err = prime_process_ops(service_hdl, &ops_ptr, nb_ops);
+	if (err)
+		return err;
 
 	/* complete execution and free memory */
 	complete_aes_ops(&ops_ptr, nb_ops);
 
 	/* compare output data */
-	if (validate_aes_op(&op, ctr_cipher_256))
+	if (validate_aes_op(&op, ctr_cipher_256)) {
 		printf("AES-256-CTR(%dB) test failed\n", op.dst.len);
-	else
-		printf("AES-256-CTR(%dB) test passed\n", op.dst.len);
+		return -1;
+	}
 
-	/* free ops memory */
-	free_aes_ops(service_hdl, &ops_ptr, nb_ops);
+	return 0;
 }
 
-void aes_ctr_test(uint32_t service_hdl)
+int aes_ctr_test(uint32_t service_hdl, void *va, uint64_t phys)
 {
 	aes_key_t key_args = {0};
+	int32_t err;
 
 	/* load aes key */
-	if (aes_load_key(&key_args, ctr_key, sizeof(ctr_key))) {
+	err = aes_load_key(&key_args, ctr_key, sizeof(ctr_key));
+	if (err) {
 		printf("Failed to load AES-CTR key (256B)\n");
-		return;
+		return err;
 	}
 
 	/* Test with 256 bytes */
-	aes_ctr_test_256(service_hdl, &key_args);
+	err = aes_ctr_test_256(service_hdl, &key_args, va, phys);
+	if (err)
+		return err;
 
 	/* Test with 8192 bytes */
-	aes_ctr_test_8192(service_hdl, &key_args);
+	err = aes_ctr_test_8192(service_hdl, &key_args, va, phys);
+	if (err)
+		return err;
+
+	return 0;
 }
 
-void aes_cbc_test(uint32_t service_hdl)
+int aes_cbc_test(uint32_t service_hdl, void *va, uint64_t phys)
 {
 	aes_key_t key_args = {0};
 	crypto_op_args_t op = {0};
 	crypto_op_args_t *ops_ptr;
 	uint32_t nb_ops;
+	int32_t err;
 
 	/* load aes key */
-	if (aes_load_key(&key_args, cbc_key, sizeof(cbc_key)))
-		return;
+	err = aes_load_key(&key_args, cbc_key, sizeof(cbc_key));
+	if (err)
+		return err;
 
 	/* prepare op */
 	prepare_aes_op(service_hdl, &op,
 		       cbc_plain, sizeof(cbc_plain),
 		       CRYPTO_CIPHER_AES_CBC, key_args.keyslot,
 		       CRYPTO_CIPHER_OP_ENCRYPT,
-		       iv, sizeof(iv));
+		       iv, sizeof(iv), va, phys);
 
 	/* fill ops array */
 	ops_ptr = &op;
 	nb_ops = 1;
 
 	/* invoke fast crypto engine */
-	prime_process_ops(service_hdl, &ops_ptr, nb_ops);
+	err = prime_process_ops(service_hdl, &ops_ptr, nb_ops);
+	if (err)
+		return err;
 
 	/* complete execution and free memory */
 	complete_aes_ops(&ops_ptr, nb_ops);
 
 	/* compare output data */
-	if (validate_aes_op(&op, cbc_cipher))
+	if (validate_aes_op(&op, cbc_cipher)) {
 		printf("AES-256-CBC(%dB) test failed\n", op.dst.len);
-	else
-		printf("AES-256-CBC(%dB) test passed\n", op.dst.len);
+		return -1;
+	}
 
-	/* free ops memory */
-	free_aes_ops(service_hdl, &ops_ptr, nb_ops);
+	return 0;
 }
 
-void aes_ecb_test(uint32_t service_hdl)
+int aes_ecb_test(uint32_t service_hdl, void *va, uint64_t phys)
 {
 	aes_key_t key_args = {0};
 	crypto_op_args_t op = {0};
 	crypto_op_args_t *ops_ptr;
 	uint32_t nb_ops;
+	int32_t err;
 
 	/* load aes key */
-	if (aes_load_key(&key_args, ecb_key, sizeof(ecb_key)))
-		return;
+	err = aes_load_key(&key_args, ecb_key, sizeof(ecb_key));
+	if (err)
+		return err;
 
 	/* prepare op */
 	prepare_aes_op(service_hdl, &op,
 		       ecb_plain, sizeof(ecb_plain),
 		       CRYPTO_CIPHER_AES_ECB, key_args.keyslot,
 		       CRYPTO_CIPHER_OP_ENCRYPT,
-		       NULL, 0);
+		       NULL, 0, va, phys);
 
 	/* fill ops array */
 	ops_ptr = &op;
 	nb_ops = 1;
 
 	/* invoke fast crypto engine */
-	prime_process_ops(service_hdl, &ops_ptr, nb_ops);
+	err = prime_process_ops(service_hdl, &ops_ptr, nb_ops);
+	if (err)
+		return err;
 
 	/* complete execution and free memory */
 	complete_aes_ops(&ops_ptr, nb_ops);
 
 	/* compare output data */
-	/* compare output data */
-	if (validate_aes_op(&op, ecb_cipher))
+	if (validate_aes_op(&op, ecb_cipher)) {
 		printf("AES-256-ECB(%dB) test failed\n", op.dst.len);
-	else
-		printf("AES-256-ECB(%dB) test passed\n", op.dst.len);
+		return -1;
+	}
 
-	/* free ops memory */
-	free_aes_ops(service_hdl, &ops_ptr, nb_ops);
+	return 0;
 }

@@ -8,8 +8,9 @@
 #include <string.h>
 
 #include "prime.h"
-#include "internal/prime_mem.h"
+#include "uio.h"
 
+#include "include/mem.h"
 #include "include/test_prime_utils.h"
 
 static uint8_t key[32] = {
@@ -104,7 +105,7 @@ static uint8_t iv[12] = {
 	0xea, 0xda, 0x16, 0x5a,
 };
 
-static void validate_aes_gcm_ops(crypto_op_args_t **ops, uint32_t nb_ops)
+static int32_t validate_aes_gcm_ops(crypto_op_args_t **ops, uint32_t nb_ops)
 {
 	uint32_t i;
 
@@ -112,26 +113,12 @@ static void validate_aes_gcm_ops(crypto_op_args_t **ops, uint32_t nb_ops)
 		if (prime_mcompare(ops[i]->dst.virt_addr, gcm_cipher,
 				   ops[i]->dst.len) ||
 		    prime_mcompare(ops[i]->op_aead_args.tag.virt_addr, tag,
-				   ops[i]->op_aead_args.tag.len))
+				   ops[i]->op_aead_args.tag.len)) {
 			printf("AES-256-GCM(256B) test failed\n");
-		else
-			printf("AES-256-GCM(256B) test passed\n");
+			return -1;
+		}
 	}
-}
-
-static void free_aes_gcm_ops(uint32_t service_hdl, crypto_op_args_t **ops,
-			     uint32_t nb_ops)
-{
-	uint32_t i;
-
-	for (i = 0; i < nb_ops; i++) {
-		if (ops[i]->dst.virt_addr != ops[i]->src.virt_addr)
-			prime_mfree(service_hdl, ops[i]->dst.len);
-
-		prime_mfree(service_hdl, ops[i]->src.len);
-		prime_mfree(service_hdl, ops[i]->op_aead_args.aad.len);
-		prime_mfree(service_hdl, ops[i]->op_aead_args.tag.len);
-	}
+	return 0;
 }
 
 static void complete_aes_gcm_ops(crypto_op_args_t **ops, uint32_t nb_ops)
@@ -146,14 +133,13 @@ static void complete_aes_gcm_ops(crypto_op_args_t **ops, uint32_t nb_ops)
 }
 
 static void prepare_aes_gcm_op(uint32_t service_hdl, crypto_op_args_t *op,
-			       uint8_t keyslot, int enc)
+			       uint8_t keyslot, int enc, void *va, uint64_t phys)
 {
 	int i;
 
-	/* allocate input buffer */
 	op->src.len = sizeof(gcm_plain);
-	prime_malloc(service_hdl, &op->src.virt_addr, &op->src.phys_addr,
-		     op->src.len);
+	op->src.virt_addr = (uint8_t *)va;
+	op->src.phys_addr = phys;
 
 	/* output buffer */
 	op->dst.len = op->src.len;
@@ -166,18 +152,19 @@ static void prepare_aes_gcm_op(uint32_t service_hdl, crypto_op_args_t *op,
 
 	/* allocate aad buffer */
 	op->op_aead_args.aad.len = sizeof(aad);
-	prime_malloc(service_hdl, &op->op_aead_args.aad.virt_addr,
-		     &op->op_aead_args.aad.phys_addr, op->op_aead_args.aad.len);
-
+	op->op_aead_args.aad.virt_addr = op->dst.virt_addr + op->src.len;
+	op->op_aead_args.aad.phys_addr = op->dst.phys_addr + op->src.len;
 	/* copy aad & cache clean */
 	prime_mcopy(op->op_aead_args.aad.virt_addr, aad, op->op_aead_args.aad.len);
 	data_cache_clean(op->op_aead_args.aad.virt_addr, op->op_aead_args.aad.len, 1);
 
 	/* allocate tag buffer from reserved memory  */
 	op->op_aead_args.tag.len = 16;
-	prime_malloc(service_hdl, &op->op_aead_args.tag.virt_addr,
-		     &op->op_aead_args.tag.phys_addr,
-		     op->op_aead_args.tag.len);
+
+	op->op_aead_args.tag.virt_addr = op->op_aead_args.aad.virt_addr +
+					 op->op_aead_args.aad.len;
+	op->op_aead_args.tag.phys_addr = op->op_aead_args.aad.phys_addr +
+					 op->op_aead_args.aad.len;
 
 	/* prepare op */
 	op->op_type = CRYPTO_OP_TYPE_AEAD;
@@ -197,34 +184,37 @@ static int aes_load_key(aes_key_t *key_args)
 	return prime_cipher_init(key_args);
 }
 
-void aes_gcm_test(uint32_t service_hdl)
+int aes_gcm_test(uint32_t service_hdl, void *va, uint64_t phys)
 {
 	aes_key_t key_args = {0};
 	crypto_op_args_t op = {0};
 	crypto_op_args_t *op_ptr;
 	uint32_t nb_ops;
+	int32_t err;
 
 	/* load aes key */
-	if (aes_load_key(&key_args))
-		return;
+	err = aes_load_key(&key_args);
+	if (err)
+		return err;
 
 	/* prepare op */
 	prepare_aes_gcm_op(service_hdl, &op, key_args.keyslot,
-			   CRYPTO_CIPHER_OP_ENCRYPT);
+			   CRYPTO_CIPHER_OP_ENCRYPT, va, phys);
 
 	/* fill ops array */
 	op_ptr = &op;
 	nb_ops = 1;
 
 	/* invoke fast crypto engine */
-	prime_process_ops(service_hdl, &op_ptr, nb_ops);
+	err = prime_process_ops(service_hdl, &op_ptr, nb_ops);
+	if (err)
+		return err;
 
 	/* complete execution and free memory */
 	complete_aes_gcm_ops(&op_ptr, nb_ops);
 
 	/* compare output data */
-	validate_aes_gcm_ops(&op_ptr, nb_ops);
+	err = validate_aes_gcm_ops(&op_ptr, nb_ops);
 
-	/* free ops memory */
-	free_aes_gcm_ops(service_hdl, &op_ptr, nb_ops);
+	return err;
 }

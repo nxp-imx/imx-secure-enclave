@@ -1,6 +1,6 @@
 // SPDX-License-Identifier: BSD-3-Clause
 /*
- * Copyright 2025 NXP
+ * Copyright 2025-2026 NXP
  */
 
 #include <stdio.h>
@@ -8,8 +8,9 @@
 #include <string.h>
 
 #include "prime.h"
-#include "internal/prime_mem.h"
+#include "uio.h"
 
+#include "include/mem.h"
 #include "include/test_prime_utils.h"
 
 static uint8_t msg[256] __attribute__((aligned(16))) = {
@@ -61,9 +62,9 @@ static uint8_t digest[32] = {
 	0xe3, 0xe9, 0x37, 0xc0, 0x89, 0x4b, 0x67, 0x26,
 };
 
-static void complete_hmac_ops(uint32_t service_hdl,
-			      crypto_op_args_t **ops,
-			      uint32_t nb_ops)
+static int32_t complete_hmac_ops(uint32_t service_hdl,
+				 crypto_op_args_t **ops,
+				 uint32_t nb_ops)
 {
 	uint32_t i;
 
@@ -72,26 +73,25 @@ static void complete_hmac_ops(uint32_t service_hdl,
 				 ops[i]->op_auth_args.digest.len, 0);
 
 		if (prime_mcompare(ops[i]->op_auth_args.digest.virt_addr,
-				   digest, ops[i]->op_auth_args.digest.len))
+				   digest, ops[i]->op_auth_args.digest.len)) {
 			printf("SHA2-256-HMAC test failed\n");
-		else
-			printf("SHA2-256-HMAC test passed\n");
-
-		/* free memory */
-		prime_mfree(service_hdl, ops[i]->op_auth_args.digest.len);
-		prime_mfree(service_hdl, ops[i]->src.len);
+			return -1;
+		} else {
+			return 0;
+		}
 	}
 }
 
 static void prepare_hmac_op(uint32_t service_hdl,
 			    crypto_op_args_t *op,
 			    hmac_key_t *key_args,
-			    int dir)
+			    int dir,
+			    void *va,
+			    uint64_t phys)
 {
-	/* allocate input buffer from reserved memory */
 	op->src.len = sizeof(msg);
-	prime_malloc(service_hdl, &op->src.virt_addr, &op->src.phys_addr,
-		     op->src.len);
+	op->src.virt_addr = (uint8_t *)va;
+	op->src.phys_addr = phys;
 
 	/* copy the test vector & cache clean */
 	prime_mcopy(op->src.virt_addr, msg, op->src.len);
@@ -99,9 +99,9 @@ static void prepare_hmac_op(uint32_t service_hdl,
 
 	/* allocate digest buffer from reserved memory  */
 	op->op_auth_args.digest.len = 32;
-	prime_malloc(service_hdl, &op->op_auth_args.digest.virt_addr,
-		     &op->op_auth_args.digest.phys_addr,
-		     op->op_auth_args.digest.len);
+
+	op->op_auth_args.digest.virt_addr = op->src.virt_addr + op->src.len;
+	op->op_auth_args.digest.phys_addr = op->src.phys_addr + op->src.len;
 
 	/* prepare op */
 	op->op_type = CRYPTO_OP_TYPE_HMAC;
@@ -120,27 +120,33 @@ int hmac_load_key(hmac_key_t *key_args, int sha_algo)
 	return prime_auth_init(key_args);
 }
 
-void hmac_test(uint32_t service_hdl)
+int hmac_test(uint32_t service_hdl, void *va, uint64_t phys)
 {
 	hmac_key_t key_args = {0};
 	crypto_op_args_t op = {0};
 	crypto_op_args_t *op_ptr;
 	uint32_t nb_ops;
+	int32_t err;
 
 	/* load hmac key */
-	if (hmac_load_key(&key_args, CRYPTO_AUTH_SHA_256))
-		return;
+	err = hmac_load_key(&key_args, CRYPTO_AUTH_SHA_256);
+	if (err)
+		return err;
 
 	/* prepare op */
-	prepare_hmac_op(service_hdl, &op, &key_args, CRYPTO_AUTH_OP_HMAC_GEN);
+	prepare_hmac_op(service_hdl, &op, &key_args, CRYPTO_AUTH_OP_HMAC_GEN, va, phys);
 
 	/* fill ops array */
 	op_ptr = &op;
 	nb_ops = 1;
 
 	/* invoke fast crypto engine */
-	prime_process_ops(service_hdl, &op_ptr, nb_ops);
+	err = prime_process_ops(service_hdl, &op_ptr, nb_ops);
+	if (err)
+		return err;
 
 	/* complete execution and free memory */
-	complete_hmac_ops(service_hdl, &op_ptr, nb_ops);
+	err = complete_hmac_ops(service_hdl, &op_ptr, nb_ops);
+
+	return err;
 }
