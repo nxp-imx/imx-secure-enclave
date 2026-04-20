@@ -20,6 +20,6 @@ int prime_load_hmac_key(void *mu_base, const uint8_t *key, size_t keylen,
 void prime_auth_construct(uint32_t *mu_buf, uint8_t keyslot,
 			  uint32_t src_addr, size_t len,
 			  uint32_t digest_addr, uint8_t sha_algo,
-			  uint8_t dir, uint8_t flag);
+			  uint8_t dir, uint8_t flag, uint32_t status_addr);
 
 #endif /* SAB_PRIME_AUTH_H */

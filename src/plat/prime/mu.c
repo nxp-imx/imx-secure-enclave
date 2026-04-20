@@ -156,6 +156,17 @@ int imx_mu_send_recv(void *mu_base, void *tx_msg, void *rx_msg)
 	if (rx_msg && tx_msg != rx_msg)
 		printf("tx_msg %p, rx_msg %p\n", tx_msg, rx_msg);
 
+#ifdef DEBUG
+	/* Dump TX message before sending */
+	struct prime_msg *tx = (struct prime_msg *)tx_msg;
+	struct prime_msg *rx = (struct prime_msg *)rx_msg;
+	uint32_t i;
+
+	printf("=== TX Message (size=%u) ===\n", tx->size);
+	printf("TX Header: 0x%08x\n", *((uint32_t *)tx));
+	for (i = 0; i < tx->size - 1 && i < PRIME_MAX_MSG - 1; i++)
+		printf("TX data[%u]: 0x%08x\n", i, tx->data[i]);
+#endif
 	ret = imx_mu_tx(base, tx_msg);
 	if (ret)
 		return ret;
@@ -164,7 +175,15 @@ int imx_mu_send_recv(void *mu_base, void *tx_msg, void *rx_msg)
 	if (ret)
 		return ret;
 
+#ifdef DEBUG
+	/* Dump RX message after receiving */
+	printf("=== RX Message (size=%u) ===\n", rx->size);
+	printf("RX Header: 0x%08x\n", *((uint32_t *)rx));
+	for (i = 0; i < rx->size - 1 && i < PRIME_MAX_MSG - 1; i++)
+		printf("RX data[%u]: 0x%08x\n", i, rx->data[i]);
+#endif
 	result = ((struct prime_msg *)rx_msg)->data[0];
+
 	if ((result & 0xff) == REQ_SUCCESS)
 		return 0;
 	else if ((result & 0xffff) == PRIME_FIFO_FULL)

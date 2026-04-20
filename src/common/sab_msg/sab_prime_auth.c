@@ -12,7 +12,8 @@
 void prime_auth_construct(uint32_t *mu_buf, uint8_t keyslot,
 			  uint32_t src_addr, size_t len,
 			  uint32_t digest_addr, uint8_t sha_algo,
-			  uint8_t dir, uint8_t flag)
+			  uint8_t dir, uint8_t flag,
+			  uint32_t status_addr)
 {
 	volatile uint32_t *mu_reg = (volatile uint32_t *)mu_buf;
 	uint8_t command;
@@ -29,7 +30,7 @@ void prime_auth_construct(uint32_t *mu_buf, uint8_t keyslot,
 	PRIME_SET_HDR(mu_reg, i++, PRIME_AUTH_SZ, command);
 
 	/* message data */
-	mu_reg[i++] = 0x0;
+	mu_reg[i++] = status_addr;
 	mu_reg[i++] = (keyslot << PRIME_KEY_SLOT_SHIFT) |
 		      (sha_algo << 4) | flag;
 	mu_reg[i++] = digest_addr;

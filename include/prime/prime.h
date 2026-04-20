@@ -1,6 +1,6 @@
 // SPDX-License-Identifier: BSD-3-Clause
 /*
- * Copyright 2025 NXP
+ * Copyright 2025-2026 NXP
  */
 
 #ifndef PRIME_H
@@ -23,21 +23,30 @@ enum crypto_op_type {
 
 /* Status of crypto operation */
 enum crypto_op_status {
-	CRYPTO_OP_SUCCESS,
-	CRYPTO_OP_IN_PROGRESS,
-	CRYPTO_OP_ENQ_ERR,
-	CRYPTO_OP_AUTH_FAILED,
-	CRYPTO_OP_INVALID_ARGS,
-	CRYPTO_OP_FIFO_FULL,
-	CRYPTO_OP_ERROR,
+	CRYPTO_OP_COMPLETED, // dequeue done, after getting interrupt
+	CRYPTO_OP_SUBMITTED, // enqueue done
+	CRYPTO_OP_FIFO_FULL, // push fail
+};
+
+/* Status buffer structure updated by firmware */
+typedef struct status_buf {
+	uint8_t status_code;	/* 0xD6 = success, other = error */
+	uint8_t error_info;	/* Additional error information */
+	uint16_t reserved;	/* Reserved for future use */
+} status_buf_t;
+
+struct crypto_status {
+	status_buf_t *phys_addr;
+	status_buf_t *virt_addr;
 };
 
 /* PRIME crypto private session structure */
 typedef struct prime_crypto_op {
 	struct buf src;
 	struct buf dst;
-	uint32_t req_id;
-	enum crypto_op_status status;
+	uint32_t req_id; // to be deleted from user interface
+	struct crypto_status crypto_status;
+	enum crypto_op_status op_status;
 	enum crypto_op_type op_type;
 
 	union {

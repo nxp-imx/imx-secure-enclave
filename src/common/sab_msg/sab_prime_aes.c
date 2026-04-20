@@ -24,7 +24,7 @@ void prime_cbc_construct(uint32_t *mu_buf, uint8_t keyslot,
 			 size_t len, uint8_t enc,
 			 uint8_t *iv, size_t ivlen,
 			 uint32_t digest_addr, uint8_t sha_algo,
-			 uint8_t flag)
+			 uint8_t flag, uint32_t status_addr)
 {
 	volatile uint32_t *mu_reg = (volatile uint32_t *)mu_buf;
 	uint8_t command;
@@ -39,7 +39,7 @@ void prime_cbc_construct(uint32_t *mu_buf, uint8_t keyslot,
 	PRIME_SET_HDR(mu_reg, i++, PRIME_CBC_SZ, command);
 
 	/* message data */
-	mu_reg[i++] = 0x0;
+	mu_reg[i++] = status_addr;
 	mu_reg[i++] = (keyslot << PRIME_KEY_SLOT_SHIFT) |
 		      (sha_algo << 4) | flag;
 	mu_reg[i++] = digest_addr;
@@ -56,7 +56,7 @@ void prime_ctr_construct(uint32_t *mu_buf, uint8_t keyslot,
 			 size_t len, uint8_t enc,
 			 uint8_t *ctr, size_t ctrlen,
 			 uint32_t digest_addr, uint8_t sha_algo,
-			 uint8_t flag)
+			 uint8_t flag, uint32_t status_addr)
 {
 	volatile uint32_t *mu_reg = (volatile uint32_t *)mu_buf;
 	uint8_t command;
@@ -71,7 +71,7 @@ void prime_ctr_construct(uint32_t *mu_buf, uint8_t keyslot,
 	PRIME_SET_HDR(mu_reg, i++, PRIME_CTR_SZ, command);
 
 	/* message data */
-	mu_reg[i++] = 0x0;
+	mu_reg[i++] = status_addr;
 	mu_reg[i++] = (keyslot << PRIME_KEY_SLOT_SHIFT) |
 		      (sha_algo << 4) | flag;
 	mu_reg[i++] = digest_addr;
@@ -87,7 +87,7 @@ void prime_ecb_construct(uint32_t *mu_buf, uint8_t keyslot,
 			 uint32_t src_addr, uint32_t dst_addr,
 			 size_t len, uint8_t enc,
 			 uint32_t digest_addr, uint8_t sha_algo,
-			 uint8_t flag)
+			 uint8_t flag, uint32_t status_addr)
 {
 	volatile uint32_t *mu_reg = (volatile uint32_t *)mu_buf;
 	uint8_t command;
@@ -102,7 +102,7 @@ void prime_ecb_construct(uint32_t *mu_buf, uint8_t keyslot,
 	PRIME_SET_HDR(mu_reg, i++, PRIME_ECB_SZ, command);
 
 	/* message data */
-	mu_reg[i++] = 0x0;
+	mu_reg[i++] = status_addr;
 	mu_reg[i++] = (keyslot << PRIME_KEY_SLOT_SHIFT) |
 		      (sha_algo << 4) | flag;
 	mu_reg[i++] = digest_addr;
@@ -117,7 +117,7 @@ void prime_gcm_construct(uint32_t *mu_buf, uint8_t keyslot,
 			 uint8_t *iv, size_t ivlen,
 			 uint32_t aad_addr, size_t aadlen,
 			 uint32_t tag_addr, size_t taglen,
-			 uint8_t flag)
+			 uint8_t flag, uint32_t status_addr)
 {
 	volatile uint32_t *mu_reg = (volatile uint32_t *)mu_buf;
 	uint8_t command;
@@ -132,7 +132,7 @@ void prime_gcm_construct(uint32_t *mu_buf, uint8_t keyslot,
 	PRIME_SET_HDR(mu_reg, i++, PRIME_GCM_SZ, command);
 
 	/* message data */
-	mu_reg[i++] = 0x0;
+	mu_reg[i++] = status_addr;
 	mu_reg[i++] = (ivlen << 24) |
 		      (keyslot << PRIME_KEY_SLOT_SHIFT) |
 		      (taglen << 8) | flag;

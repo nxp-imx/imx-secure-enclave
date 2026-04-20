@@ -81,7 +81,6 @@ static int32_t complete_hmac_ops(uint32_t service_hdl,
 		}
 	}
 }
-
 static void prepare_hmac_op(uint32_t service_hdl,
 			    crypto_op_args_t *op,
 			    hmac_key_t *key_args,
@@ -108,8 +107,11 @@ static void prepare_hmac_op(uint32_t service_hdl,
 	op->op_auth_args.sha_algo = key_args->sha_algo;
 	op->op_auth_args.keyslot = key_args->keyslot;
 	op->op_auth_args.dir = dir;		// dir = {0:generate, 1:verify}
+	op->crypto_status.phys_addr = (status_buf_t *)(op->op_auth_args.digest.phys_addr +
+				      ALIGN_UP(op->op_auth_args.digest.len, 64));
+	op->crypto_status.virt_addr = (status_buf_t *)(op->op_auth_args.digest.virt_addr +
+				      ALIGN_UP(op->op_auth_args.digest.len, 64));
 }
-
 int hmac_load_key(hmac_key_t *key_args, int sha_algo)
 {
 	key_args->key = hmac_key;

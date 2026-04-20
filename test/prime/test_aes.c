@@ -89,6 +89,8 @@ static void prepare_aes_op(uint32_t service_hdl, crypto_op_args_t *op,
 			   int algo, uint8_t keyslot, int enc,
 			   uint8_t *iv, uint16_t ivlen, void *va, uint64_t phys)
 {
+	uint64_t status_offset;
+
 	op->src.len = len;
 	op->src.virt_addr = (uint8_t *)va;
 	op->src.phys_addr = phys;
@@ -109,6 +111,11 @@ static void prepare_aes_op(uint32_t service_hdl, crypto_op_args_t *op,
 	op->op_aes_args.enc = enc;
 	op->op_aes_args.iv = iv;
 	op->op_aes_args.ivlen = ivlen;
+	status_offset = ALIGN_UP(len, 64);
+	op->crypto_status.phys_addr =
+		(status_buf_t *)(op->src.phys_addr + status_offset);
+	op->crypto_status.virt_addr =
+		(status_buf_t *)(op->src.virt_addr + status_offset);
 }
 
 int aes_ctr_test_8192(uint32_t service_hdl, aes_key_t *key_args, void *va, uint64_t phys)

@@ -173,6 +173,10 @@ static void prepare_aes_gcm_op(uint32_t service_hdl, crypto_op_args_t *op,
 	op->op_aead_args.enc = enc;		// enc = {0:encrypt, 1:decrypt}
 	op->op_aead_args.iv = iv;
 	op->op_aead_args.ivlen = sizeof(iv);
+	op->crypto_status.phys_addr = (status_buf_t *)(op->op_aead_args.tag.phys_addr +
+				      ALIGN_UP(op->op_aead_args.tag.len, 64));
+	op->crypto_status.virt_addr = (status_buf_t *)(op->op_aead_args.tag.virt_addr +
+				      ALIGN_UP(op->op_aead_args.tag.len, 64));
 }
 
 static int aes_load_key(aes_key_t *key_args)

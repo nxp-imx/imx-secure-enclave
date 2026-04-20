@@ -43,28 +43,6 @@ int prime_push(void *mu_base, uint8_t slot)
 	return msg.data[1];
 }
 
-int prime_get_request_status(void *mu_base, uint32_t *req_id)
-{
-	struct prime_msg msg = {0};
-	int ret;
-
-	/* message header */
-	msg.version = PRIME_VERSION;
-	msg.size = PRIME_GET_REQ_STATUS_SZ >> 2;
-	msg.tag = PRIME_CMD_TAG;
-	msg.command = PRIME_GET_REQ_STATUS;
-	msg.data[0] = *req_id;
-
-	ret = imx_mu_send_recv(mu_base, &msg, &msg);
-	if (ret)
-		printf("Session req-id: 0x%x, Err req-id: 0x%x, Err: 0x%x.\n",
-		       *req_id, msg.data[1],  msg.data[0]);
-
-	*req_id = msg.data[1];
-
-	return msg.data[0];
-}
-
 int prime_deq(int uio_fd)
 {
 	struct pollfd pfd;

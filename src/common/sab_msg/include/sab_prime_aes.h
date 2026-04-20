@@ -33,24 +33,24 @@ void prime_cbc_construct(uint32_t *mu_buf, uint8_t keyslot,
 			 size_t len, uint8_t enc,
 			 uint8_t *iv, size_t ivlen,
 			 uint32_t digest_addr, uint8_t sha_algo,
-			 uint8_t flag);
+			 uint8_t flag, uint32_t status_addr);
 void prime_ecb_construct(uint32_t *mu_buf, uint8_t keyslot,
 			 uint32_t src_addr, uint32_t dst_addr,
 			 size_t len, uint8_t enc,
 			 uint32_t digest_addr, uint8_t sha_algo,
-			 uint8_t flag);
+			 uint8_t flag, uint32_t status_addr);
 void prime_ctr_construct(uint32_t *mu_buf, uint8_t keyslot,
 			 uint32_t src_addr, uint32_t dst_addr,
 			 size_t len, uint8_t enc,
 			 uint8_t *ctr, size_t ctrlen,
 			 uint32_t digest_addr, uint8_t sha_algo,
-			 uint8_t flag);
+			 uint8_t flag, uint32_t status_addr);
 void prime_gcm_construct(uint32_t *mu_buf, uint8_t keyslot,
 			 uint32_t src_addr, uint32_t dst_addr,
 			 size_t len, uint8_t enc,
 			 uint8_t *iv, size_t ivlen,
 			 uint32_t aad_addr, size_t aadlen,
 			 uint32_t tag_addr, size_t taglen,
-			 uint8_t flag);
+			 uint8_t flag, uint32_t status_addr);
 
 #endif /* SAB_PRIME_AES_H */

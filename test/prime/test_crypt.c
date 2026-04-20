@@ -63,12 +63,24 @@ void data_cache_clean(uint8_t *buf, uint32_t len, int clean_only)
 {
 	uint32_t i;
 
+	/* Check for NULL pointer */
+	if (!buf) {
+		printf("%s ERROR: NULL buffer pointer\n", __func__);
+		return;
+	}
+
+	/* Check for zero length */
+	if (len == 0) {
+		printf("%s WARNING: Zero length\n", __func__);
+		return;
+	}
+
 	if (clean_only) {
-		for (i = 0; i <= len; i += PRIME_CACHE_LINE_SIZE)
+		for (i = 0; i < len; i += PRIME_CACHE_LINE_SIZE)
 			dcbf(buf + i);
 	} else {
 		/* clean and invalidate */
-		for (i = 0; i <= len; i += PRIME_CACHE_LINE_SIZE)
+		for (i = 0; i < len; i += PRIME_CACHE_LINE_SIZE)
 			dccivac(buf + i);
 	}
 }

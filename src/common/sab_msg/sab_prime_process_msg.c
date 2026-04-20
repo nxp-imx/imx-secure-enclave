@@ -13,42 +13,20 @@
 #include "sab_prime_pvt.h"
 #include "uio.h"
 
-static void set_status(crypto_op_args_t **ops, uint16_t nb_ops, int req_id,
-		       int status)
-{
-	int i;
-
-	for (i = 0; i < nb_ops; i++) {
-		if (ops[i]->req_id == req_id) {
-			if (status == REQ_VERIFY_FAIL)
-				ops[i]->status = CRYPTO_OP_AUTH_FAILED;
-			else
-				ops[i]->status = CRYPTO_OP_ERROR;
-
-			break;
-		}
-	}
-}
-
 static int dequeue_ops(crypto_op_args_t **ops, uint32_t nb_ops)
 {
 	struct uio_prime_mu *prime_mu = get_uio_prime_mu();
 	uint32_t req_id, last_req_id;
-	int status, err = 0;
+	int status, err = 0, i;
 
 	err = prime_deq(prime_mu->fd);
-	if (!err)
-		return err;
 
-	/* Error signal is set, clear the FW qeuue by reading error job */
-	last_req_id = ops[nb_ops - 1]->req_id;
-	do {
-		req_id = last_req_id;
-		status = prime_get_request_status(prime_mu->base, &req_id);
-		if (status != 0xd6)
-			set_status(ops, nb_ops, req_id, status);
-
-	} while (req_id < last_req_id);
+	if (!err) {
+		for (i = 0; i < nb_ops; i++)
+			ops[i]->op_status = CRYPTO_OP_COMPLETED;
+	} else {
+		printf("[dequeue_ops] ERROR: Dequeue failed with error %d\n", err);
+	}
 
 	return err;
 }
@@ -104,18 +82,19 @@ static int enqueue_ops(uint32_t handle, crypto_op_args_t **ops,
 		req_id = prime_push(prime_mu->base, slot);
 		if (req_id < 0) {
 			for (i = 0; i < nb_ops; i++)
-				ops[i]->status = CRYPTO_OP_FIFO_FULL;
+				ops[i]->op_status = CRYPTO_OP_FIFO_FULL;
 
 			return 0;
 		}
 	}
 
 	/* save the request id for each op and set the status */
+	/* req_id is incremented by firmware by 0x10 after every request */
 	for (i = nb_ops - 1; i >= 0; i--) {
 		if (slot & (1 << i)) {
 			ops[i]->req_id = req_id;
 			req_id = req_id - PRIME_REQ_ID_DIFF;
-			ops[i]->status = CRYPTO_OP_IN_PROGRESS;
+			ops[i]->op_status = CRYPTO_OP_SUBMITTED;
 		}
 	}
 
@@ -148,9 +127,6 @@ static int run_ops(uint32_t handle, crypto_op_args_t **ops, uint32_t nb_ops)
 	/* read the status and clear the error jobs in fw queue */
 	ret = dequeue_ops(ops, i);
 
-	if (i != nb_ops)
-		return CRYPTO_OP_ENQ_ERR;
-
 	return ret;
 }
 
@@ -161,7 +137,7 @@ int prime_process_ops(uint32_t service_hdl,
 	uint32_t max_ops = PRIME_MAX_OPS;
 	uint32_t unused_ops = nb_ops;
 	uint32_t enq_ops;
-	int ret = CRYPTO_OP_SUCCESS;
+	int ret;
 	prime_service_t *hdl;
 
 	hdl = prime_session_to_ptr(service_hdl);
