@@ -194,6 +194,10 @@ SE_TOOL_OBJ= tools/se_tools.c \
 	     test/common/test_rng.c \
 	     test/common/test_dev_getinfo.c
 
+ifeq (${PLAT},ele)
+SE_TOOL_OBJ += test/common/test_commit.c
+endif
+
 PRIME_TEST_OBJ= test/prime/*.c
 HSM_TEST_OBJ= test/hsm/hsm_test.c $(COMMON_TEST_OBJ) $(MBEDTLS_TEST_OBJ)
 HSM_PERF_TEST_OBJ= test/hsm/hsm_perf_test.c $(HSM_TEST_PERF_OBJ)

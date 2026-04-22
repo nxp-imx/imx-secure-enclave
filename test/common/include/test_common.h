@@ -212,6 +212,10 @@ uint16_t gen_ele_key_blob_get_keysize(hsm_op_gen_ele_key_blob_flags_t flag, char
 hsm_op_gen_ele_key_blob_algo_t
 	gen_ele_key_blob_get_algo(hsm_op_gen_ele_key_blob_flags_t flag, char *str);
 
+#ifdef PSA_COMPLIANT
+hsm_err_t exchange_commit_command(hsm_hdl_t session_hdl, uint32_t info_type);
+#endif
+
 hsm_err_t test_gen_ele_key_blob(hsm_hdl_t sess_hdl,
 				hsm_op_gen_ele_key_blob_flags_t flag, uint32_t key_id,
 				hsm_op_gen_ele_key_blob_algo_t algo, uint8_t *payload,

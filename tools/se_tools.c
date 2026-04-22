@@ -64,6 +64,13 @@ void se_tools_usage(void)
 	printf("\n\t\tHSM_OEM_FIELD_RET_STATE,");
 	printf("\n\t\tHSM_NXP_FIELD_RET_STATE,");
 	printf("\n\t\tHSM_OEM_LOCKED_STATE\n");
+	printf("-c or --commit: commit SRK revocation and FW version to fuses.");
+	printf("\n\t <info_type>: Bitmask of information types to commit:");
+	printf("\n\t\t0x01 - NXP SRK revocation");
+	printf("\n\t\t0x02 - NXP FW version");
+	printf("\n\t\t0x10 - OEM SRK revocation");
+	printf("\n\t\t0x20 - OEM FW version");
+	printf("\n\t\tExample: 0x03 commits both NXP SRK and FW version\n");
 #endif
 }
 
@@ -368,6 +375,45 @@ rng_exit:
 		key_size = gen_ele_dek_blob_sz;
 		se_tool_fread(output_fname, generated_ele_dek_blob, &key_size);
 #endif
+		return 0;
+	}
+
+	if ((strcmp("--commit", optarg[1]) == 0 || strcmp("-c", optarg[1]) == 0)) {
+		uint32_t info_type;
+
+		if (opt_arg_count < 3) {
+			printf("Error: Missing info_type parameter\n");
+			se_tools_usage();
+			return 0;
+		}
+
+		/* Parse info_type (supports hex with 0x prefix or decimal) */
+		if (strncmp(optarg[2], "0x", 2) == 0 ||
+		    strncmp(optarg[2], "0X", 2) == 0)
+			info_type = (uint32_t)strtoul(optarg[2], NULL, 16);
+		else
+			info_type = (uint32_t)strtoul(optarg[2], NULL, 10);
+
+		if (info_type == 0) {
+			printf("Error: Invalid info_type value\n");
+			se_tools_usage();
+			return 0;
+		}
+
+		/* Validate info_type bitmask */
+		uint32_t valid_bits = HSM_COMMIT_NXP_SRK_REVOCATION |
+				      HSM_COMMIT_NXP_FW_VERSION |
+				      HSM_COMMIT_OEM_SRK_REVOCATION |
+				      HSM_COMMIT_OEM_FW_VERSION;
+
+		if (info_type & ~valid_bits) {
+			printf("Error: Invalid bits in info_type (0x%08X)\n", info_type);
+			printf("Valid bits: 0x%08X\n", valid_bits);
+			se_tools_usage();
+			return 0;
+		}
+
+		exchange_commit_command(se_lib_serv_hdl, info_type);
 		return 0;
 	}
 #endif
