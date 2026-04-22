@@ -87,6 +87,8 @@ extern "C" {
 
 #include "internal/hsm_dev_ele_reset.h"
 
+#include "internal/hsm_commit.h"
+
 /**
  *  @defgroup group1 Session
  * The API must be initialized by a potential requestor by opening a session.\n

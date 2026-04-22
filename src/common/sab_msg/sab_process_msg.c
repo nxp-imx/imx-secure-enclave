@@ -111,6 +111,7 @@ static uint8_t err_handling_v2_support(uint8_t msg_type, uint8_t msg_id)
 		    msg_id == ROM_DEV_WRITE_FUSE_REQ ||
 		    msg_id == ROM_DEV_GET_EVENT ||
 		    msg_id == ROM_BLOB_UNBLOB_REQ ||
+		    msg_id == ROM_COMMIT_MSG_REQ ||
 		    msg_id == ROM_GEN_ELE_KEY_BLOB_REQ ||
 		    msg_id == ROM_BOOT_STAGE_CTX_OPS ||
 		    msg_id == ROM_DEV_MONO_COUNTER_REQ ||

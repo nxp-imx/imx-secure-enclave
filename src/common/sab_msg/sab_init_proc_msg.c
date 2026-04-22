@@ -26,6 +26,10 @@
 #include "sab_bsctx_ops.h"
 #endif
 
+#if MT_SAB_COMMIT
+#include "sab_commit.h"
+#endif
+
 #if MT_SAB_DEBUG_DUMP
 #include "sab_debug_dump.h"
 #endif
@@ -274,6 +278,15 @@ static int init_proc_sab_base_msg_engine(msg_type_t msg_type,
 				ret = add_sab_msg_handler(msg_id, MT_SAB_BOOT_STAGE,
 							  prepare_msg_bsctx_ops,
 							  proc_msg_rsp_bsctx_ops);
+			}
+			break;
+#endif
+#if MT_SAB_COMMIT
+		case ROM_COMMIT_MSG_REQ:
+			if (msg_type == MT_SAB_COMMIT) {
+				ret = add_sab_msg_handler(msg_id, MT_SAB_COMMIT,
+							  prepare_msg_commit,
+							  proc_msg_rsp_commit);
 			}
 			break;
 #endif

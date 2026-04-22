@@ -179,6 +179,12 @@ HSM_API_SRC	+= \
 		$(PLAT_COMMON_PATH)/hsm_api/hsm_bsctx_ops.o
 endif
 
+ifneq (${MT_SAB_COMMIT},0x0)
+DEFINES		+=	-DHSM_COMMIT
+HSM_API_SRC	+= \
+		$(PLAT_COMMON_PATH)/hsm_api/hsm_commit.o
+endif
+
 ifneq (${MT_SAB_DEBUG_DUMP},0x0)
 DEFINES		+=	-DHSM_DEBUG_DUMP
 HSM_API_SRC	+= \

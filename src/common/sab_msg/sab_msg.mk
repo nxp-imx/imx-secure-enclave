@@ -122,6 +122,12 @@ SAB_MSG_SRC	+= \
 		$(PLAT_COMMON_PATH)/sab_msg/sab_bsctx_ops.o
 endif
 
+ifneq (${MT_SAB_COMMIT},0x0)
+DEFINES		+=	-DMT_SAB_COMMIT=${MT_SAB_COMMIT}
+SAB_MSG_SRC	+= \
+		$(PLAT_COMMON_PATH)/sab_msg/sab_commit.o
+endif
+
 ifneq (${MT_SAB_DEBUG_DUMP},0x0)
 DEFINES		+=	-DMT_SAB_DEBUG_DUMP=${MT_SAB_DEBUG_DUMP}
 SAB_MSG_SRC	+= \
