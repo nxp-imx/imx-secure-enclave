@@ -28,10 +28,7 @@ int prime_push(void *mu_base, uint8_t slot)
 	int ret;
 
 	/* message header */
-	msg.version = PRIME_VERSION;
-	msg.size = PRIME_PUSH_REQ_SZ >> 2;
-	msg.tag = PRIME_CMD_TAG;
-	msg.command = PRIME_PUSH_REQ(slot);
+	PRIME_MSG_HDR_INIT(&msg, PRIME_PUSH_REQ(slot), PRIME_PUSH_REQ_SZ);
 
 	ret = imx_mu_send_recv(mu_base, &msg, &msg);
 	if (ret) {

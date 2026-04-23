@@ -26,9 +26,10 @@ void prime_cbc_construct(uint32_t *mu_buf, uint8_t keyslot,
 			 uint32_t digest_addr, uint8_t sha_algo,
 			 uint8_t flag, uint32_t status_addr)
 {
+	struct prime_msg *hdr = (struct prime_msg *)mu_buf;
 	volatile uint32_t *mu_reg = (volatile uint32_t *)mu_buf;
 	uint8_t command;
-	uint32_t i = 0;
+	uint32_t i = 1;
 
 	if (enc)
 		command = PRIME_CBC_ENC;
@@ -36,7 +37,7 @@ void prime_cbc_construct(uint32_t *mu_buf, uint8_t keyslot,
 		command = PRIME_CBC_DEC;
 
 	/* message header - packed into first word */
-	PRIME_SET_HDR(mu_reg, i++, PRIME_CBC_SZ, command);
+	PRIME_MSG_HDR_INIT(hdr, command, PRIME_CBC_SZ);
 
 	/* message data */
 	mu_reg[i++] = status_addr;
@@ -58,9 +59,10 @@ void prime_ctr_construct(uint32_t *mu_buf, uint8_t keyslot,
 			 uint32_t digest_addr, uint8_t sha_algo,
 			 uint8_t flag, uint32_t status_addr)
 {
+	struct prime_msg *hdr = (struct prime_msg *)mu_buf;
 	volatile uint32_t *mu_reg = (volatile uint32_t *)mu_buf;
 	uint8_t command;
-	uint32_t i = 0;
+	uint32_t i = 1;
 
 	if (enc)
 		command = PRIME_CTR_ENC;
@@ -68,7 +70,7 @@ void prime_ctr_construct(uint32_t *mu_buf, uint8_t keyslot,
 		command = PRIME_CTR_DEC;
 
 	/* message header - packed into first word */
-	PRIME_SET_HDR(mu_reg, i++, PRIME_CTR_SZ, command);
+	PRIME_MSG_HDR_INIT(hdr, command, PRIME_CTR_SZ);
 
 	/* message data */
 	mu_reg[i++] = status_addr;
@@ -89,9 +91,10 @@ void prime_ecb_construct(uint32_t *mu_buf, uint8_t keyslot,
 			 uint32_t digest_addr, uint8_t sha_algo,
 			 uint8_t flag, uint32_t status_addr)
 {
+	struct prime_msg *hdr = (struct prime_msg *)mu_buf;
 	volatile uint32_t *mu_reg = (volatile uint32_t *)mu_buf;
 	uint8_t command;
-	uint32_t i = 0;
+	uint32_t i = 1;
 
 	if (enc)
 		command = PRIME_ECB_ENC;
@@ -99,7 +102,7 @@ void prime_ecb_construct(uint32_t *mu_buf, uint8_t keyslot,
 		command = PRIME_ECB_DEC;
 
 	/* message header - packed into first word */
-	PRIME_SET_HDR(mu_reg, i++, PRIME_ECB_SZ, command);
+	PRIME_MSG_HDR_INIT(hdr, command, PRIME_ECB_SZ);
 
 	/* message data */
 	mu_reg[i++] = status_addr;
@@ -119,9 +122,10 @@ void prime_gcm_construct(uint32_t *mu_buf, uint8_t keyslot,
 			 uint32_t tag_addr, size_t taglen,
 			 uint8_t flag, uint32_t status_addr)
 {
+	struct prime_msg *hdr = (struct prime_msg *)mu_buf;
 	volatile uint32_t *mu_reg = (volatile uint32_t *)mu_buf;
 	uint8_t command;
-	uint32_t i = 0;
+	uint32_t i = 1;
 
 	if (enc)
 		command = PRIME_GCM_ENC;
@@ -129,7 +133,7 @@ void prime_gcm_construct(uint32_t *mu_buf, uint8_t keyslot,
 		command = PRIME_GCM_DEC;
 
 	/* message header - packed into first word */
-	PRIME_SET_HDR(mu_reg, i++, PRIME_GCM_SZ, command);
+	PRIME_MSG_HDR_INIT(hdr, command, PRIME_GCM_SZ);
 
 	/* message data */
 	mu_reg[i++] = status_addr;
@@ -157,10 +161,7 @@ int prime_load_aes_key(void *mu_base,
 	int ret;
 
 	/* message header */
-	msg.version = PRIME_VERSION;
-	msg.size = PRIME_LOAD_AES_KEY_REQ_SZ >> 2;
-	msg.tag = PRIME_CMD_TAG;
-	msg.command = PRIME_LOAD_AES_KEY_REQ;
+	PRIME_MSG_HDR_INIT(&msg, PRIME_LOAD_AES_KEY_REQ, PRIME_LOAD_AES_KEY_REQ_SZ);
 
 	/* key info */
 	msg.keyslot = keyslot;

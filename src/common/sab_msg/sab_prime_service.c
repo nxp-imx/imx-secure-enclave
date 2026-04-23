@@ -1,5 +1,5 @@
 /* SPDX-License-Identifier: BSD-3-Clause
- * Copyright 2025 NXP
+ * Copyright 2025-2026 NXP
  */
 
 #include <stdio.h>
@@ -15,10 +15,7 @@ int prime_service_open(void *mu_base)
 	int ret;
 
 	/* message header */
-	msg.version = PRIME_VERSION;
-	msg.size = PRIME_SERVICE_REQ_SZ >> 2;
-	msg.tag = PRIME_CMD_TAG;
-	msg.command = PRIME_SERVICE_OPEN_REQ;
+	PRIME_MSG_HDR_INIT(&msg, PRIME_SERVICE_OPEN_REQ, PRIME_SERVICE_REQ_SZ);
 
 	ret = imx_mu_send_recv(mu_base, &msg, &msg);
 	if (ret) {
@@ -36,10 +33,7 @@ void prime_service_close(void *mu_base)
 	struct prime_msg msg = {0};
 
 	/* message header */
-	msg.version = PRIME_VERSION;
-	msg.size = PRIME_SERVICE_REQ_SZ >> 2;
-	msg.tag = PRIME_CMD_TAG;
-	msg.command = PRIME_SERVICE_CLOSE_REQ;
+	PRIME_MSG_HDR_INIT(&msg, PRIME_SERVICE_CLOSE_REQ, PRIME_SERVICE_REQ_SZ);
 
 	imx_mu_send_recv(mu_base, &msg, &msg);
 }

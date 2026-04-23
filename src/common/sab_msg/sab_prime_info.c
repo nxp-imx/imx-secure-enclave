@@ -13,12 +13,8 @@ int process_get_prime_info(void *mu_base, prime_info_t *prime_info)
 {
 	struct prime_msg msg = {0};
 	int ret;
-
 	/* message header */
-	msg.version = PRIME_VERSION;
-	msg.size = PRIME_GET_INFO_REQ_SZ >> 2;
-	msg.tag = PRIME_CMD_TAG;
-	msg.command = PRIME_GET_INFO_REQ;
+	PRIME_MSG_HDR_INIT(&msg, PRIME_GET_INFO_REQ, PRIME_GET_INFO_REQ_SZ);
 
 	ret = imx_mu_send_recv(mu_base, &msg, &msg);
 	if (ret) {

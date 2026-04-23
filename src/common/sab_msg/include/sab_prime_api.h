@@ -11,11 +11,14 @@
 #define PRIME_VERSION			0x02
 #define PRIME_CMD_TAG			0x1B
 
-#define PRIME_SET_HDR(mu_reg, idx, msg_size, cmd) \
-	(mu_reg[idx] = (PRIME_VERSION) | \
-		       ((msg_size) >> 2) << 8 | \
-		       (cmd) << 16 | \
-		       (PRIME_CMD_TAG) << 24)
+#define PRIME_MSG_HDR_INIT(msg, cmd, sz) \
+	do { \
+		typeof(msg) _msg = (msg); \
+		_msg->version = PRIME_VERSION; \
+		_msg->size = (sz) >> 2; \
+		_msg->tag = PRIME_CMD_TAG; \
+		_msg->command = (cmd); \
+	} while (0)
 
 #define PRIME_KEY_SLOT_SHIFT		0x10
 

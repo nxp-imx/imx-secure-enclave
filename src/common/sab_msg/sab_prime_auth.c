@@ -8,16 +8,16 @@
 #include "sab_prime_api.h"
 #include "sab_prime_auth.h"
 #include "mu_regs.h"
-
 void prime_auth_construct(uint32_t *mu_buf, uint8_t keyslot,
 			  uint32_t src_addr, size_t len,
 			  uint32_t digest_addr, uint8_t sha_algo,
 			  uint8_t dir, uint8_t flag,
 			  uint32_t status_addr)
 {
+	struct prime_msg *hdr = (struct prime_msg *)mu_buf;
 	volatile uint32_t *mu_reg = (volatile uint32_t *)mu_buf;
 	uint8_t command;
-	uint32_t i = 0;
+	uint32_t i = 1;
 
 	if (dir == 0)
 		command = PRIME_HMAC_GEN;
@@ -27,7 +27,7 @@ void prime_auth_construct(uint32_t *mu_buf, uint8_t keyslot,
 		command = PRIME_HASH;
 
 	/* message header - packed into first word */
-	PRIME_SET_HDR(mu_reg, i++, PRIME_AUTH_SZ, command);
+	PRIME_MSG_HDR_INIT(hdr, command, PRIME_AUTH_SZ);
 
 	/* message data */
 	mu_reg[i++] = status_addr;
@@ -37,7 +37,6 @@ void prime_auth_construct(uint32_t *mu_buf, uint8_t keyslot,
 	mu_reg[i++] = len;
 	mu_reg[i] = src_addr;
 }
-
 int prime_load_hmac_key(void *mu_base,
 			const uint8_t *key,
 			size_t keylen,
@@ -48,10 +47,7 @@ int prime_load_hmac_key(void *mu_base,
 	int ret;
 
 	/* message header */
-	msg.version = PRIME_VERSION;
-	msg.size = PRIME_LOAD_HMAC_KEY_REQ_SZ >> 2;
-	msg.tag = PRIME_CMD_TAG;
-	msg.command = PRIME_LOAD_HMAC_KEY_REQ;
+	PRIME_MSG_HDR_INIT(&msg, PRIME_LOAD_HMAC_KEY_REQ, PRIME_LOAD_HMAC_KEY_REQ_SZ);
 
 	/* message data */
 	msg.data[0] = (sha_algo << 8) | key_slot;
