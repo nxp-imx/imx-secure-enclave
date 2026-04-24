@@ -1,6 +1,6 @@
 // SPDX-License-Identifier: BSD-3-Clause
 /*
- * Copyright 2022-2024 NXP
+ * Copyright 2022-2024, 2026 NXP
  */
 
 #include "internal/hsm_handle.h"
@@ -55,7 +55,8 @@ hsm_err_t hsm_mac(hsm_hdl_t mac_hdl,
 		}
 
 
-		if (args->flags == HSM_OP_MAC_FLAGS_MAC_VERIFICATION &&
+		if (((args->flags & HSM_OP_MAC_FLAG_OP_TYPE_MASK)
+		     == HSM_OP_MAC_FLAGS_MAC_VERIFICATION) &&
 		    args->verification_status != HSM_MAC_VERIFICATION_STATUS_SUCCESS) {
 			err = HSM_SIGNATURE_INVALID;
 			se_err("\nHSM Error: HSM_SIGNATURE_INVALID (0x%x)\n",

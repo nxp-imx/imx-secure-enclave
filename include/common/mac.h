@@ -1,6 +1,6 @@
 // SPDX-License-Identifier: BSD-3-Clause
 /*
- * Copyright 2024 NXP
+ * Copyright 2024, 2026 NXP
  */
 
 #ifndef MAC_H
@@ -24,6 +24,11 @@ typedef struct {
 	uint32_t mac_serv_hdl;
 	//!< indicates the mac handle.
 } open_svc_mac_args_t;
+
+/**
+ * Mask for mac operation type
+ */
+#define MAC_OP_FLAG_OP_TYPE_MASK	0x01
 
 /**
  * Bit indicating mac verify operation

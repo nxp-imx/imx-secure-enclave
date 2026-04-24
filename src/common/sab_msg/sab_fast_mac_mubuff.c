@@ -1,6 +1,6 @@
 // SPDX-License-Identifier: BSD-3-Clause
 /*
- * Copyright 2023-2024 NXP
+ * Copyright 2023-2024, 2026 NXP
  */
 
 #include "sab_messaging.h"
@@ -106,7 +106,7 @@ uint32_t prepare_msg_fast_mac_mubuff(void *phdl,
 	/* Variable 'flags', is the first member in both the
 	 * structures: op_generate_mac_t & op_verify_mac_t
 	 */
-	if (op_args->flags == SHE_FAST_MAC_FLAGS_VERIFICATION)
+	if (op_args->flags & SHE_FAST_MAC_FLAGS_VERIFICATION)
 		err = process_verify_args(phdl, cmd, args);
 	else
 		err = process_generate_args(phdl, cmd, args);

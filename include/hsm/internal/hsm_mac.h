@@ -49,6 +49,12 @@ typedef uint8_t hsm_op_mac_flags_t;
 typedef hsm_op_mac_flags_t hsm_op_mac_one_go_flags_t;
 
 /**
+ * Mask for HSM MAC Opetation type
+ */
+#define HSM_OP_MAC_FLAG_OP_TYPE_MASK \
+		MAC_OP_FLAG_OP_TYPE_MASK
+
+/**
  * Bit indicating MAC Verify operation
  */
 #define HSM_OP_MAC_FLAGS_MAC_VERIFICATION \
