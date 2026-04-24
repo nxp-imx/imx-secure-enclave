@@ -1,6 +1,6 @@
 // SPDX-License-Identifier: BSD-3-Clause
 /*
- * Copyright 2024 NXP
+ * Copyright 2024, 2026 NXP
  */
 #ifdef PSA_COMPLIANT
 #include "mbedtls_utils.h"
@@ -418,7 +418,8 @@ static uint8_t mbedtls_cipher_flag_from_hsm_cipher_flag(uint8_t hsm_cipher_flag)
 {
 	uint8_t mbedtls_cipher_flag = MBEDTLS_AES_DECRYPT;
 
-	if (hsm_cipher_flag == HSM_CIPHER_ONE_GO_FLAGS_ENCRYPT)
+	if ((hsm_cipher_flag & HSM_CIPHER_ONE_GO_MASK_OP_TYPE)
+	    == HSM_CIPHER_ONE_GO_FLAGS_ENCRYPT) /* ENCRYPT */
 		mbedtls_cipher_flag = MBEDTLS_AES_ENCRYPT;
 
 	return mbedtls_cipher_flag;

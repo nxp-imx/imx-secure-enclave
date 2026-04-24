@@ -1,6 +1,6 @@
 // SPDX-License-Identifier: BSD-3-Clause
 /*
- * Copyright 2025 NXP
+ * Copyright 2025-2026 NXP
  */
 
 #include "hsm_exec.h"
@@ -52,7 +52,8 @@ uint32_t test_hsm_auth_enc(hsm_test_struct_t *testCtx, FILE *fp)
 	args.input_size          = READ_VALUE(fp, uint32_t);
 	args.input               = READ_INPUT_BUFFER(fp, args.input_size);
 
-	if ((args.flags & 0x01) == HSM_CIPHER_ONE_GO_FLAGS_DECRYPT) { /* DECRYPT */
+	if ((args.flags & HSM_CIPHER_ONE_GO_MASK_OP_TYPE)
+	    == HSM_CIPHER_ONE_GO_FLAGS_DECRYPT) { /* DECRYPT */
 		if (store_ind == BAD_VAL) {
 			args.input      = (uint8_t *)BAD_VAL;
 			args.input_size = 0;
@@ -69,7 +70,8 @@ uint32_t test_hsm_auth_enc(hsm_test_struct_t *testCtx, FILE *fp)
 
 	hsm_err_t err = hsm_auth_enc(testCtx->hdl[index], &args);
 
-	if ((args.flags & 0x01) == HSM_CIPHER_ONE_GO_FLAGS_DECRYPT) {
+	if ((args.flags & HSM_CIPHER_ONE_GO_MASK_OP_TYPE)
+	    == HSM_CIPHER_ONE_GO_FLAGS_DECRYPT) { /* DECRYPT */
 		if (err == HSM_GENERAL_ERROR) {
 			slt_print(SLT_ERROR, "<OUTPUT_DATA>\nFAIL\n</OUTPUT_DATA>\n");
 		} else {
@@ -150,7 +152,8 @@ uint32_t test_hsm_verify_auth_encryption(hsm_test_struct_t *testCtx, FILE *fp)
 	key_size        = READ_VALUE(fp, uint32_t);
 	key_data        = READ_INPUT_BUFFER(fp, key_size);
 
-	if ((args.flags & 0x01) == HSM_CIPHER_ONE_GO_FLAGS_DECRYPT) { /* DECRYPT */
+	if ((args.flags & HSM_CIPHER_ONE_GO_MASK_OP_TYPE)
+	    == HSM_CIPHER_ONE_GO_FLAGS_DECRYPT) { /* DECRYPT */
 		slt_print(SLT_ERROR, "Auth_enc verification only verifies encryption\n");
 		return 1;
 	}

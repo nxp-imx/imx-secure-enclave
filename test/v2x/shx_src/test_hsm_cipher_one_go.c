@@ -1,6 +1,6 @@
 // SPDX-License-Identifier: BSD-3-Clause
 /*
- * Copyright 2025 NXP
+ * Copyright 2025-2026 NXP
  */
 
 #include "hsm_exec.h"
@@ -51,7 +51,8 @@ uint32_t test_hsm_cipher_one_go(hsm_test_struct_t *testCtx, FILE *fp)
 	input_ptr                = READ_INPUT_BUFFER(fp, args.input_size);
 	args.input               = input_ptr;
 
-	if ((args.flags & 0x01) == HSM_CIPHER_ONE_GO_FLAGS_DECRYPT) { /* DECRYPT */
+	if ((args.flags & HSM_CIPHER_ONE_GO_MASK_OP_TYPE)
+	    == HSM_CIPHER_ONE_GO_FLAGS_DECRYPT) { /* DECRYPT */
 		if (cipher_store_index == BAD_VAL) {
 			args.input               = (uint8_t *)BAD_VAL;
 			args.input_size          = 0;
@@ -77,7 +78,8 @@ uint32_t test_hsm_cipher_one_go(hsm_test_struct_t *testCtx, FILE *fp)
 
 	READ_CHECK_VALUE(testCtx, fp, err);
 
-	if ((args.flags & 0x01) == HSM_CIPHER_ONE_GO_FLAGS_ENCRYPT) { /* ENCRYPT */
+	if ((args.flags & HSM_CIPHER_ONE_GO_MASK_OP_TYPE)
+	    == HSM_CIPHER_ONE_GO_FLAGS_ENCRYPT) { /* ENCRYPT */
 		testCtx->cipher_size[cipher_store_index] = args.output_size;
 		testCtx->cipher_ptr[cipher_store_index] = args.output;
 	}
@@ -102,7 +104,8 @@ uint32_t test_hsm_cipher_one_go(hsm_test_struct_t *testCtx, FILE *fp)
 	if (input_ptr)
 		FREE_BUFFER(input_ptr);
 
-	if ((args.flags & 0x01) == HSM_CIPHER_ONE_GO_FLAGS_DECRYPT)
+	if ((args.flags & HSM_CIPHER_ONE_GO_MASK_OP_TYPE)
+	    == HSM_CIPHER_ONE_GO_FLAGS_DECRYPT) /* DECRYPT */
 		FREE_BUFFER(args.output);
 
 	return fails;
@@ -147,7 +150,8 @@ uint32_t test_hsm_verify_cipher_one_go_ccm_encryption(hsm_test_struct_t *testCtx
 	key_size                 = READ_VALUE(fp, uint32_t);
 	key_data                 = READ_INPUT_BUFFER(fp, key_size);
 
-	if ((args.flags & 0x01) == HSM_CIPHER_ONE_GO_FLAGS_DECRYPT) { /* DECRYPT */
+	if ((args.flags & HSM_CIPHER_ONE_GO_MASK_OP_TYPE)
+	    == HSM_CIPHER_ONE_GO_FLAGS_DECRYPT) { /* DECRYPT */
 		slt_print(SLT_ERROR, "Auth_enc verification only verifies encryption\n");
 		return 1;
 	}

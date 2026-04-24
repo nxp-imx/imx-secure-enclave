@@ -13,11 +13,11 @@ hsm_op_gen_ele_key_blob_algo_t
 	gen_ele_key_blob_get_algo(hsm_op_gen_ele_key_blob_flags_t flag, char *str)
 {
 #ifdef PSA_COMPLIANT
-	if (flag == HSM_OP_GEN_ELE_KEY_BLOB_FLAG_BLOB_TYPE_OTFAD_CONF) {
+	if (flag & HSM_OP_GEN_ELE_KEY_BLOB_FLAG_BLOB_TYPE_OTFAD_CONF) {
 		if (!memcmp(GEN_ELE_KEY_BLOB_FORMAT_ALGO_AES_CTR, str, strlen(str)))
 			return HSM_OP_GEN_ELE_KEY_BLOB_ALGO_AES_CTR;
 	}
-	if (flag == HSM_OP_GEN_ELE_KEY_BLOB_FLAG_BLOB_TYPE_DEK) {
+	if (flag & HSM_OP_GEN_ELE_KEY_BLOB_FLAG_BLOB_TYPE_DEK) {
 		if (!memcmp(GEN_ELE_KEY_BLOB_FORMAT_ALGO_AES_CBC, str, strlen(str)))
 			return HSM_OP_GEN_ELE_KEY_BLOB_ALGO_AES_CBC;
 		if (!memcmp(GEN_ELE_KEY_BLOB_FORMAT_ALGO_SM4_CBC, str, strlen(str)))
@@ -31,7 +31,7 @@ hsm_op_gen_ele_key_blob_algo_t
 uint16_t gen_ele_key_blob_get_keysize(hsm_op_gen_ele_key_blob_flags_t flag, char *str)
 {
 #ifdef PSA_COMPLIANT
-	if (flag == HSM_OP_GEN_ELE_KEY_BLOB_FLAG_BLOB_TYPE_DEK) {
+	if (flag & HSM_OP_GEN_ELE_KEY_BLOB_FLAG_BLOB_TYPE_DEK) {
 		if (!memcmp(GEN_ELE_KEY_BLOB_FORMAT_ALGO_KEY_SZ_AES128, str, strlen(str)))
 			return 16;
 		if (!memcmp(GEN_ELE_KEY_BLOB_FORMAT_ALGO_KEY_SZ_AES192, str, strlen(str)))
@@ -41,7 +41,7 @@ uint16_t gen_ele_key_blob_get_keysize(hsm_op_gen_ele_key_blob_flags_t flag, char
 		if (!memcmp(GEN_ELE_KEY_BLOB_FORMAT_ALGO_KEY_SZ_SM4128, str, strlen(str)))
 			return 16;
 	}
-	if (flag == HSM_OP_GEN_ELE_KEY_BLOB_FLAG_BLOB_TYPE_OTFAD_CONF)
+	if (flag & HSM_OP_GEN_ELE_KEY_BLOB_FLAG_BLOB_TYPE_OTFAD_CONF)
 		return OP_GEN_ELE_KEY_BLOB_PAYLOAD_OTFAD_SZ;
 #endif
 
@@ -92,7 +92,7 @@ hsm_err_t test_gen_ele_key_blob(hsm_hdl_t sess_hdl,
 		return err;
 	memcpy(blob_format.payload, payload, blob_format.raw_data_sz);
 
-	if (flag == HSM_OP_GEN_ELE_KEY_BLOB_FLAG_BLOB_TYPE_OTFAD_CONF)
+	if (flag & HSM_OP_GEN_ELE_KEY_BLOB_FLAG_BLOB_TYPE_OTFAD_CONF)
 		option = "OTFAD";
 
 	total_len = OP_GEN_ELE_KEY_BLOB_FORMAT_SZ_WO_PAYLOAD + blob_format.raw_data_sz;

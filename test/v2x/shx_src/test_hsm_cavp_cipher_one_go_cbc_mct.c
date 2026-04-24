@@ -1,6 +1,6 @@
 // SPDX-License-Identifier: BSD-3-Clause
 /*
- * Copyright 2025 NXP
+ * Copyright 2025-2026 NXP
  */
 #include <sys/types.h>
 
@@ -88,10 +88,12 @@ uint32_t test_hsm_cavp_cipher_one_go_cbc_mct(hsm_test_struct_t *testCtx, FILE *f
 			for (i = 0; i < 1000; i++) {
 				hsm_cipher_one_go(testCtx->hdl[index], &args);
 
-				if (args.flags == HSM_CIPHER_ONE_GO_FLAGS_DECRYPT)
+				if ((args.flags & HSM_CIPHER_ONE_GO_MASK_OP_TYPE)
+				    == HSM_CIPHER_ONE_GO_FLAGS_DECRYPT) /* DECRYPT */
 					memcpy(args.iv, args.input, args.input_size);
 
-				else if (args.flags == HSM_CIPHER_ONE_GO_FLAGS_ENCRYPT)
+				else if ((args.flags & HSM_CIPHER_ONE_GO_MASK_OP_TYPE)
+					 == HSM_CIPHER_ONE_GO_FLAGS_ENCRYPT)
 					memcpy(args.iv, args.output, args.output_size);
 
 				if (i == 0)

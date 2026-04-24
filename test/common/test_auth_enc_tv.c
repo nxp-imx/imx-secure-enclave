@@ -1,6 +1,6 @@
 // SPDX-License-Identifier: BSD-3-Clause
 /*
- * Copyright 2024-2025 NXP
+ * Copyright 2024-2026 NXP
  */
 
 #include <stdio.h>
@@ -81,8 +81,8 @@ static hsm_err_t do_auth_enc_test(hsm_hdl_t key_store_hdl, hsm_hdl_t key_mgmt_hd
 	auth_enc_args.input = ciphered_data;
 
 	//Different IV SIZE based on flag
-	if (flags == HSM_AUTH_ENC_FLAGS_GENERATE_FULL_IV ||
-	    flags == HSM_AUTH_ENC_FLAGS_GENERATE_COUNTER_IV) {
+	if (flags & HSM_AUTH_ENC_FLAGS_GENERATE_FULL_IV ||
+	    flags & HSM_AUTH_ENC_FLAGS_GENERATE_COUNTER_IV) {
 		dec_iv_data = plaintext_size + TAG_SIZE;
 		auth_enc_args.iv_size = IV_SIZE;
 		auth_enc_args.iv = auth_enc_args.input + dec_iv_data;

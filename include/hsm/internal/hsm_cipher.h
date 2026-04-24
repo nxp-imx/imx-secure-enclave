@@ -109,6 +109,11 @@ typedef uint8_t hsm_op_cipher_one_go_flags_t;
 #endif
 
 /**
+ * Mask for HSM CIPHER ONE GO operation type
+ */
+#define HSM_CIPHER_ONE_GO_MASK_OP_TYPE	0x01
+
+/**
  * Bit indicating the decrypt operation
  */
 #define HSM_CIPHER_ONE_GO_FLAGS_DECRYPT \

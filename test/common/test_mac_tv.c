@@ -1,6 +1,6 @@
 // SPDX-License-Identifier: BSD-3-Clause
 /*
- * Copyright 2023-2025 NXP
+ * Copyright 2023-2026 NXP
  */
 
 #include <stdio.h>
@@ -139,8 +139,9 @@ static void mac_test(hsm_hdl_t key_store_hdl, uint32_t key_identifier,
 	print_perf_data(&ver_stats, key_size, algo_name, mac_size);
 #endif
 
-	if ((mac_args.flags == HSM_OP_MAC_ONE_GO_FLAGS_MAC_VERIFICATION) &&
-		(mac_args.verification_status != exp_verification_status)) {
+	if ((mac_args.flags & HSM_OP_MAC_FLAG_OP_TYPE_MASK)
+	    == HSM_OP_MAC_ONE_GO_FLAGS_MAC_VERIFICATION &&
+	    mac_args.verification_status != exp_verification_status) {
 
 		se_info("\nEXP_VERIFICATION_STATUS didn't match Actual status(0x%x)\n",
 			mac_args.verification_status);
