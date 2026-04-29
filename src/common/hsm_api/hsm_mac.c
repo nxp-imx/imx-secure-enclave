@@ -19,6 +19,7 @@ hsm_err_t hsm_mac(hsm_hdl_t mac_hdl,
 	struct hsm_service_hdl_s *serv_ptr;
 	hsm_err_t err = HSM_GENERAL_ERROR;
 	uint32_t rsp_code = SAB_NO_MESSAGE_RATING;
+	bool is_verification_op = false;
 
 	do {
 		if (!args || !status)
@@ -54,9 +55,18 @@ hsm_err_t hsm_mac(hsm_hdl_t mac_hdl,
 			break;
 		}
 
+#ifdef PSA_COMPLIANT
+		if (args->flags & HSM_OP_MAC_FLAGS_STREAM_MASK) {
+			if (args->flags & HSM_OP_MAC_FLAGS_FINALIZE_VERIFY)
+				is_verification_op = true;
+		}
+#endif
+		if (!is_verification_op && (args->flags & HSM_OP_MAC_FLAG_OP_TYPE_MASK)
+		     == HSM_OP_MAC_FLAGS_MAC_VERIFICATION) {
+			is_verification_op = true;
+		}
 
-		if (((args->flags & HSM_OP_MAC_FLAG_OP_TYPE_MASK)
-		     == HSM_OP_MAC_FLAGS_MAC_VERIFICATION) &&
+		if (is_verification_op &&
 		    args->verification_status != HSM_MAC_VERIFICATION_STATUS_SUCCESS) {
 			err = HSM_SIGNATURE_INVALID;
 			se_err("\nHSM Error: HSM_SIGNATURE_INVALID (0x%x)\n",

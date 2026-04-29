@@ -97,12 +97,14 @@ typedef hsm_op_mac_flags_t hsm_op_mac_one_go_flags_t;
  */
 #define HSM_OP_MAC_FLAGS_FINALIZE \
 		((hsm_op_mac_flags_t)(1u << 11))
+
 /**
  * Bit indicating FINALIZE VERIFY multipart operation, i.e. Finalize the operation
  * and internal MAC verification
  */
 #define HSM_OP_MAC_FLAGS_FINALIZE_VERIFY \
 		((hsm_op_mac_flags_t)(1u << 12))
+
 /**
  * Bit indicating ABORT the multipart operation and clean the context
  */
@@ -114,6 +116,17 @@ typedef hsm_op_mac_flags_t hsm_op_mac_one_go_flags_t;
  */
 #define HSM_OP_MAC_FLAGS_GET_CTX_SIZE \
 		((hsm_op_mac_flags_t)(1u << 15))
+
+/**
+ * Mask for HSM MAC Stream Operation.
+ */
+#define HSM_OP_MAC_FLAGS_STREAM_MASK \
+		(HSM_OP_MAC_FLAGS_INIT |\
+		HSM_OP_MAC_FLAGS_UPDATE_DATA |\
+		HSM_OP_MAC_FLAGS_FINALIZE |\
+		HSM_OP_MAC_FLAGS_FINALIZE_VERIFY |\
+		HSM_OP_MAC_FLAGS_ABORT |\
+		HSM_OP_MAC_FLAGS_GET_CTX_SIZE)
 
 #else
 #define HSM_OP_MAC_ONE_GO_FLAGS_MAC_LENGTH_IN_BITS \
