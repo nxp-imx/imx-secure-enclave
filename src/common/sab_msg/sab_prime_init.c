@@ -5,6 +5,12 @@
 
 #include <stdio.h>
 #include "uio.h"
+#include "sab_prime_process_msg.h"
+#include "sab_prime_api.h"
+
+/* Global variables for tracking request IDs */
+uint32_t producer_req_id_index;
+uint32_t consumer_req_id_index;
 
 static struct uio_prime_mu *prime_mu;
 
@@ -18,6 +24,11 @@ void v2x_prime_init(void)
 
 	if (v2x_prime_mmap() < 0)
 		perror("Failed to map ATU memory\n");
+
+	/* Read starting value for producer_req_id_index */
+	producer_req_id_index = read_req_id();
+	if (!producer_req_id_index)
+		producer_req_id_index = PRIME_PRODUCE_INDEX_INIT_VAL;
 }
 
 void v2x_prime_deinit(void)

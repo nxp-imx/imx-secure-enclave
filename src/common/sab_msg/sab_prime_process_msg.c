@@ -66,7 +66,8 @@ static int enqueue_ops(uint32_t handle, crypto_op_args_t **ops,
 {
 	struct uio_prime_mu *prime_mu = get_uio_prime_mu();
 	uint8_t slot = 0, jobs = 0, buf_off = 64;
-	int i, req_id;
+	int i;
+	uint32_t req_id;
 
 	/* Push Request: MU Slot */
 	for (i = 0; i < nb_ops; i++) {
@@ -79,10 +80,22 @@ static int enqueue_ops(uint32_t handle, crypto_op_args_t **ops,
 	}
 
 	if (slot) {
+		/*
+		 * Update producer_req_id_index before push to consider the case
+		 * of receiving job success interrupt before push command response
+		 */
+		producer_req_id_index += (nb_ops * PRIME_REQ_ID_DIFF);
+
 		req_id = prime_push(prime_mu->base, slot);
-		if (req_id < 0) {
+		/*
+		 * if last nibble is set, it means there is error in push command
+		 * because req_id is always incremented by 0x10
+		 */
+		if (req_id & NIBBLE_MASK) {
 			for (i = 0; i < nb_ops; i++)
 				ops[i]->op_status = CRYPTO_OP_FIFO_FULL;
+
+			producer_req_id_index -= (nb_ops * PRIME_REQ_ID_DIFF);
 
 			return 0;
 		}
