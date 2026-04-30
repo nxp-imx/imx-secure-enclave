@@ -13,7 +13,9 @@
 #include <sys/stat.h>
 #include <sys/types.h>
 #include <unistd.h>
+#include "internal/prime_info.h"
 #include "internal/prime_service.h"
+#include "internal/v2x_version.h"
 
 #include "include/test_prime.h"
 #include "include/test_prime_utils.h"
@@ -150,6 +152,32 @@ void *alloc_huge(size_t size, int huge_flag, uint64_t *phys_out)
 	return addr;
 }
 
+static void test_prime_info(void)
+{
+	prime_hdl_t serv_hdl;
+	prime_info_t prime_info;
+	v2x_version_t v2x_version;
+
+	get_v2x_version(&v2x_version);
+
+	printf("V2X version : %d.%d.%d\nCommit Id : 0x%x\n",
+	       v2x_version.major, v2x_version.minor,
+	       v2x_version.patch, v2x_version.commit_id);
+
+	op_serv_args[0].serv_type = SERVICE_TYPE_ALL;
+	op_serv_args[0].size  = SIZE_256MB;
+	if (prime_open_service(&op_serv_args[0], &serv_hdl)) {
+		printf("Failed to open prime service\n");
+		return;
+	}
+
+	if (!prime_get_info(serv_hdl, &prime_info))
+		printf("PRIME API version : %d.%d.%d\nNumber of FIFO entries : %d\n",
+		       prime_info.major, prime_info.minor, prime_info.patch,
+		       prime_info.num_fifo_entries);
+
+	prime_close_service(op_serv_args[0].service_hdl);
+}
 static int execute_crypto_test(uint32_t serv_hdl, void *va, uint64_t phys)
 {
 	if (hmac_test(serv_hdl, va, phys))
@@ -169,6 +197,7 @@ static int execute_crypto_test(uint32_t serv_hdl, void *va, uint64_t phys)
 static int test_1G_memory(void *va, uint64_t phys, size_t size)
 {
 	prime_hdl_t serv_hdl;
+	prime_info_t prime_info;
 	int32_t err;
 
 	printf("\nExecuting %s\n", __func__);
@@ -447,6 +476,7 @@ static int test_user_alloc_flow(void)
 static int test_se_1G_memory(void)
 {
 	prime_hdl_t serv_hdl;
+	prime_info_t prime_info;
 	int32_t err;
 	uint64_t phys;
 
@@ -761,6 +791,8 @@ static int test_se_alloc_flow(void)
 int main(void)
 {
 	int ret;
+
+	test_prime_info();
 
 	printf("\n---------------- USER ALLOCATED MEMORY TEST --------------\n");
 	ret = test_user_alloc_flow();
