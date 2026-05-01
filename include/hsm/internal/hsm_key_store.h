@@ -67,9 +67,17 @@ typedef uint8_t hsm_svc_key_store_flags_t;
 //!< NOTE: In latest ELE FW API guide, STRICT has been replaced with SYNC.
 
 #ifdef PSA_COMPLIANT
+
+typedef enum {
+	HSM_STORAGE_STATUS_NOT_OPENED,
+	HSM_STORAGE_STATUS_OPENED,
+	HSM_STORAGE_STATUS_FETCH_FAILED,
+} hsm_storage_status_t;
+
 //!< Macros to decode Key store status information
 #define HSM_KEY_STORE_STATUS_EXIST(status)     (((status) >> 0) & 0x01u)
 #define HSM_KEY_STORE_STATUS_OPEN(status)      (((status) >> 1) & 0x01u)
+#define HSM_KEY_STORE_STATUS_STORAGE_OPEN(status)  (((status) >> 7) & 0x01u)
 #define HSM_KEY_STORE_STATUS_NUM_KEYS(status)  (((status) >> 8) & 0xFFu)
 #define HSM_KEY_STORE_STATUS_NUM_SESS(status)  (((status) >> 16) & 0xFFFFu)
 #endif
@@ -121,6 +129,27 @@ hsm_err_t hsm_key_store_reprov_en(hsm_hdl_t session_hdl,
 hsm_err_t hsm_get_key_store_status(hsm_hdl_t session_hdl,
 				   uint32_t key_store_id,
 				   op_key_store_status_args_t *args);
+
+#ifdef PSA_COMPLIANT
+/**
+ * \param session_hdl: pointer to the handle identifying the current session
+ *                     opened with mu_type. se_lib_service_hdl handle can be
+ *		       used too, instead of session_hdl.
+ * \param mu_type idenfier to the MU type on which storage status to be fetched.
+ *
+ * Any one of the above param, is required. If session_hdl is provided, other is
+ * optional. If both are provided, session_hdl will be used; other will be ignored.
+ *
+ * \param storage_status pointer-reference of type hsm_storage_status_t:
+ *      HSM_STORAGE_STATUS_NOT_OPENED,
+ *      HSM_STORAGE_STATUS_OPENED,
+ *      HSM_STORAGE_STATUS_FETCH_FAILED,
+ *
+ * \return error code.
+ */
+hsm_err_t hsm_get_storage_status(hsm_hdl_t session_hdl, uint32_t mu_type,
+				 hsm_storage_status_t *storage_status);
+#endif
 #endif
 /** @} end of key store service flow */
 
