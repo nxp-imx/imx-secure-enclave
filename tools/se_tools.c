@@ -31,6 +31,9 @@ void se_tools_usage(void)
 {
 	printf("se_tools usage: se_tools [options]\n");
 	printf("Options:\n");
+#ifdef PSA_COMPLIANT
+	printf("-n or --nvm_status: show NVM storage running status only.\n");
+#endif
 	printf("-i or --info: show Global Info only.\n");
 	printf("-d or --dev-info: show device info.\n");
 	printf("-r or --get-rng: to generate RNG number.");
@@ -414,6 +417,15 @@ rng_exit:
 		}
 
 		exchange_commit_command(se_lib_serv_hdl, info_type);
+		return 0;
+	}
+
+	if (!strcmp("--nvm_status", optarg[1]) || !strcmp("-n", optarg[1])) {
+		hsm_storage_status_t storage_status;
+
+		hsm_get_storage_status(se_lib_serv_hdl, HSM1, &storage_status);
+		print_hsm_storage_status(storage_status);
+
 		return 0;
 	}
 #endif
