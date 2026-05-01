@@ -487,7 +487,7 @@ PRIME_SAB_MSG_SRC += \
 		$(PLAT_COMMON_PATH)/sab_msg/sab_prime_crypt.o \
 		$(PLAT_COMMON_PATH)/sab_msg/sab_prime_api.o \
 		$(PLAT_COMMON_PATH)/sab_msg/sab_prime_aes.o \
-		$(PLAT_COMMON_PATH)/sab_msg/sab_prime_auth.o \
+		$(PLAT_COMMON_PATH)/sab_msg/sab_prime_mac.o \
 		$(PLAT_COMMON_PATH)/sab_msg/sab_prime_info.o \
 
 

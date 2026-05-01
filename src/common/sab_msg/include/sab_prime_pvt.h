@@ -10,10 +10,10 @@
 #include "prime.h"
 #include "uio.h"
 
-int prime_auth_build(prime_service_t *hdl,
-		     crypto_op_args_t *op,
-		     uint8_t buf_off,
-		     uint8_t flag);
+int prime_mac_build(prime_service_t *hdl,
+		    crypto_op_args_t *op,
+		    uint8_t buf_off,
+		    uint8_t flag);
 
 int prime_cipher_build(prime_service_t *hdl,
 		       crypto_op_args_t *op,

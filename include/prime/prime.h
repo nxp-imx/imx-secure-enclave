@@ -52,7 +52,7 @@ typedef struct prime_crypto_op {
 	union {
 		struct aes_op_params op_aes_args;
 		struct aead_op_params op_aead_args;
-		struct auth_op_params op_auth_args;
+		struct mac_op_params op_mac_args;
 	};
 } crypto_op_args_t;
 

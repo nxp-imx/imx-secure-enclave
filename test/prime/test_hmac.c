@@ -69,11 +69,11 @@ static int32_t complete_hmac_ops(uint32_t service_hdl,
 	uint32_t i;
 
 	for (i = 0; i < nb_ops; i++) {
-		data_cache_clean(ops[i]->op_auth_args.digest.virt_addr,
-				 ops[i]->op_auth_args.digest.len, 0);
+		data_cache_clean(ops[i]->op_mac_args.digest.virt_addr,
+				 ops[i]->op_mac_args.digest.len, 0);
 
-		if (prime_mcompare(ops[i]->op_auth_args.digest.virt_addr,
-				   digest, ops[i]->op_auth_args.digest.len)) {
+		if (prime_mcompare(ops[i]->op_mac_args.digest.virt_addr,
+				   digest, ops[i]->op_mac_args.digest.len)) {
 			printf("SHA2-256-HMAC test failed\n");
 			return -1;
 		} else {
@@ -97,20 +97,20 @@ static void prepare_hmac_op(uint32_t service_hdl,
 	data_cache_clean(op->src.virt_addr, op->src.len, 1);
 
 	/* allocate digest buffer from reserved memory  */
-	op->op_auth_args.digest.len = 32;
+	op->op_mac_args.digest.len = 32;
 
-	op->op_auth_args.digest.virt_addr = op->src.virt_addr + op->src.len;
-	op->op_auth_args.digest.phys_addr = op->src.phys_addr + op->src.len;
+	op->op_mac_args.digest.virt_addr = op->src.virt_addr + op->src.len;
+	op->op_mac_args.digest.phys_addr = op->src.phys_addr + op->src.len;
 
 	/* prepare op */
 	op->op_type = CRYPTO_OP_TYPE_HMAC;
-	op->op_auth_args.sha_algo = key_args->sha_algo;
-	op->op_auth_args.keyslot = key_args->keyslot;
-	op->op_auth_args.dir = dir;		// dir = {0:generate, 1:verify}
-	op->crypto_status.phys_addr = (status_buf_t *)(op->op_auth_args.digest.phys_addr +
-				      ALIGN_UP(op->op_auth_args.digest.len, 64));
-	op->crypto_status.virt_addr = (status_buf_t *)(op->op_auth_args.digest.virt_addr +
-				      ALIGN_UP(op->op_auth_args.digest.len, 64));
+	op->op_mac_args.sha_algo = key_args->sha_algo;
+	op->op_mac_args.keyslot = key_args->keyslot;
+	op->op_mac_args.dir = dir;		// dir = {0:generate, 1:verify}
+	op->crypto_status.phys_addr = (status_buf_t *)(op->op_mac_args.digest.phys_addr +
+				      ALIGN_UP(op->op_mac_args.digest.len, 64));
+	op->crypto_status.virt_addr = (status_buf_t *)(op->op_mac_args.digest.virt_addr +
+				      ALIGN_UP(op->op_mac_args.digest.len, 64));
 }
 int hmac_load_key(hmac_key_t *key_args, int sha_algo)
 {
@@ -119,7 +119,7 @@ int hmac_load_key(hmac_key_t *key_args, int sha_algo)
 	key_args->keyslot = 0;
 	key_args->sha_algo = sha_algo;
 
-	return prime_auth_init(key_args);
+	return prime_mac_init(key_args);
 }
 
 int hmac_test(uint32_t service_hdl, void *va, uint64_t phys)

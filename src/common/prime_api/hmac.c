@@ -1,12 +1,12 @@
 /* SPDX-License-Identifier: BSD-3-Clause
- * Copyright 2025 NXP
+ * Copyright 2025-2026 NXP
  */
 
 #include "sab_prime_process_msg.h"
-#include "sab_prime_auth.h"
+#include "sab_prime_mac.h"
 #include "uio.h"
 
-prime_err_t prime_auth_init(hmac_key_t *args)
+prime_err_t prime_mac_init(hmac_key_t *args)
 {
 	struct uio_prime_mu *prime_mu = get_uio_prime_mu();
 
