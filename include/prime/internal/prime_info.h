@@ -23,6 +23,6 @@ typedef struct {
 	//!< Number of FIFO entries
 } prime_info_t;
 
-prime_err_t get_prime_info(prime_hdl_t serv_hdl, prime_info_t *prime_info);
+prime_err_t prime_get_info(prime_hdl_t serv_hdl, prime_info_t *prime_info);
 
 #endif

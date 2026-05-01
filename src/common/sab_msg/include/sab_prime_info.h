@@ -16,6 +16,6 @@
 #define FW_VERSION_MASK       0xFF
 
 /* PRIME message construction APIs, using mailbox to communicate with FW */
-int process_get_prime_info(void *mu_base, prime_info_t *args);
+int process_prime_get_info(void *mu_base, prime_info_t *args);
 
 #endif /* SAB_PRIME_INFO_H */

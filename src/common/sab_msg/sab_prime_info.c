@@ -9,7 +9,7 @@
 #include "sab_prime_info.h"
 #include "mu_regs.h"
 
-int process_get_prime_info(void *mu_base, prime_info_t *prime_info)
+int process_prime_get_info(void *mu_base, prime_info_t *prime_info)
 {
 	struct prime_msg msg = {0};
 	int ret;
