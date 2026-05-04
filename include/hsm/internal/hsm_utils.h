@@ -94,6 +94,8 @@ typedef enum {
 	/**<Command CRC check error */
 	HSM_INCONSISTENT_PARAM_ERR = 0xBC,
 	/**<In-consistent parameter provided in the message request. */
+	HSM_EVENT_QUEUE_NOT_EMPTY = 0xC0,
+	/**<Event queue not empty error. */
 	HSM_OEM_CLOSED_LC_SIGNED_MSG_VERIFICATION_FAIL = 0xF0,
 	/**<In OEM closed lifecycle, Signed message signature verification
 	 * failure

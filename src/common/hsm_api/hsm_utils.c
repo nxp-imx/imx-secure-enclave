@@ -158,6 +158,14 @@ static hsm_err_t sab_err_rating_to_hsm_err(uint8_t sab_err_rating)
 		se_err("\nHSM Error: HSM_CRC_CHECK_ERR (0x%x)\n", hsm_err);
 		break;
 
+	case HSM_INCONSISTENT_PARAM_ERR:
+		se_err("\nHSM Error: HSM_INCONSISTENT_PARAM_ERR (0x%x)\n", hsm_err);
+		break;
+
+	case HSM_EVENT_QUEUE_NOT_EMPTY:
+		se_err("\nHSM Error: HSM_EVENT_QUEUE_NOT_EMPTY (0x%x)\n", hsm_err);
+		break;
+
 	case HSM_OEM_CLOSED_LC_SIGNED_MSG_VERIFICATION_FAIL:
 		se_err("\nHSM Error: HSM_OEM_CLOSED_LC_SIGNED_MSG_VERIFICATION_FAIL (0x%x)\n",
 				hsm_err);

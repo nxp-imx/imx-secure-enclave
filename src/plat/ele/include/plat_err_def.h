@@ -1,6 +1,6 @@
 // SPDX-License-Identifier: BSD-3-Clause
 /*
- * Copyright 2023-2025 NXP
+ * Copyright 2023-2026 NXP
  */
 
 #ifndef PLAT_ERR_DEF_H
@@ -203,7 +203,7 @@ uint8_t plat_sab_err_rating_to_hsm_err_map[SAB_ERR_MAP_SZ] = {
 	HSM_UNKNOWN_ERROR, //0xBD [189]
 	HSM_UNKNOWN_ERROR, //0xBE [190]
 	HSM_UNKNOWN_ERROR, //0xBF [191]
-	HSM_UNKNOWN_ERROR, //0xC0 [192]
+	HSM_EVENT_QUEUE_NOT_EMPTY, //0xC0 [192]
 	HSM_UNKNOWN_ERROR, //0xC1 [193]
 	HSM_UNKNOWN_ERROR, //0xC2 [194]
 	HSM_UNKNOWN_ERROR, //0xC3 [195]
