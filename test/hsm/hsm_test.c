@@ -21,8 +21,10 @@
 
 #define HSM_TEST_SESSIONS	2
 
+open_se_lib_serv_args_t se_lib_serv_args = {0};
 open_session_args_t open_session_args[HSM_TEST_SESSIONS] = {0};
 open_svc_key_store_args_t key_store_args[HSM_TEST_SESSIONS] = {0};
+se_lib_hdl_t se_lib_serv_hdl;
 hsm_hdl_t hsm_session_hdl;
 hsm_hdl_t key_store_hdl;
 int cmdline_arg;
@@ -754,6 +756,10 @@ static void transient_key_tests(hsm_hdl_t sess_hdl,
 		key_exchange_test_tls1_2(key_store_hdl, key_mgmt_hdl, key_store_id);
 	}
 
+	if ((se_get_soc_id() == SOC_IMX943 && se_get_soc_rev() >= SOC_REV_A1) ||
+	    se_get_soc_id() == SOC_IMX952)
+		test_key_agreement(key_mgmt_hdl, key_store_id);
+
 	//Public Key Attestation
 	pub_key_attest_test(key_store_hdl, key_mgmt_hdl);
 #else
@@ -762,6 +768,11 @@ static void transient_key_tests(hsm_hdl_t sess_hdl,
 #endif
 	hsmret = hsm_close_key_management_service(key_mgmt_hdl);
 	printf("hsm_close_key_management_service ret:0x%x\n", hsmret);
+}
+
+se_lib_hdl_t get_se_lib_serv_hdl(void)
+{
+	return se_lib_serv_hdl;
 }
 
 hsm_hdl_t get_hsm_session_hdl(void)
@@ -788,6 +799,7 @@ void hsm_test_sig_handler(int ht_signo, siginfo_t *ht_siginfo, void *ht_sigctx)
 {
 	hsm_close_key_store_service(key_store_hdl);
 	hsm_close_session(hsm_session_hdl);
+	se_lib_close_service(se_lib_serv_hdl);
 
 	exit(EXIT_SUCCESS);
 }
@@ -906,6 +918,14 @@ int main(int argc, char *argv[])
 		perror("failed to register hsm_test_sig_handler\n");
 		return 0;
 	}
+
+	se_lib_serv_args.mu_type = HSM1;
+	err = se_lib_open_service(&se_lib_serv_args, &se_lib_serv_hdl);
+	if (err != HSM_NO_ERROR) {
+		printf("SE lib open service failed err:0x%x\n", err);
+		goto ginfo_out;
+	}
+
 	open_session_args[i].mu_type = HSM1;
 	err = hsm_open_session(&open_session_args[i],
 			       &hsm_session_hdl);
@@ -1050,6 +1070,12 @@ ginfo_out:
 			open_session_args[i].session_hdl = 0;
 		}
 	}
+
+	if (se_lib_serv_args.se_lib_serv_hdl) {
+		se_lib_close_service(se_lib_serv_args.se_lib_serv_hdl);
+		se_lib_serv_args.se_lib_serv_hdl = 0;
+	}
+
 	if (err == HSM_FEATURE_DISABLED) {
 		printf("\n*************** ERROR: HSM Feature Disabled ***************\n");
 		printf(" > NVM services might be used, without starting NVM-Daemon.\n");

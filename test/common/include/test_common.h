@@ -61,6 +61,7 @@ hsm_err_t do_mac_test(hsm_hdl_t key_store_hdl, hsm_hdl_t key_mgmt_hdl);
 hsm_err_t do_cipher_test(hsm_hdl_t key_store_hdl, hsm_hdl_t key_mgmt_hdl);
 hsm_err_t hsm_mac_test(hsm_hdl_t key_store_hdl, hsm_hdl_t key_mgmt_hdl);
 #ifdef PSA_COMPLIANT
+uint8_t test_key_agreement(uint32_t key_management_handle, uint32_t key_store_id);
 hsm_err_t hsm_mac_plainkey_test(hsm_hdl_t key_store_hdl, hsm_hdl_t key_mgmt_hdl);
 hsm_err_t hsm_mac_stream_test(hsm_hdl_t key_store_hdl, hsm_hdl_t key_mgmt_hdl,
 			      hsm_permitted_algo_t key_permitted_algo,
@@ -144,6 +145,7 @@ void print_global_info(void);
 /* To run tests of test vector file */
 void tv_tests_run(hsm_hdl_t key_store_hdl, uint8_t *tv_file_path);
 
+se_lib_hdl_t get_se_lib_serv_hdl(void);
 /* To fetch the global session handle
  * opened as part of the test run
  */
