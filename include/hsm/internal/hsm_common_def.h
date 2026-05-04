@@ -88,6 +88,10 @@ typedef enum {
 } hsm_key_exchange_algo_t;
 
 typedef enum {
+	ALGO_ECDH = 0x89020000,
+} hsm_key_agreement_algo_t;
+
+typedef enum {
 	ALGO_HKDF_SHA256 = 0x08000109,
 	ALGO_HKDF_SHA384 = 0x0800010A,
 	ALGO_HKDF_EXTRACT_SHA256  = 0x08000409,
