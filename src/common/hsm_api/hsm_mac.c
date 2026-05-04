@@ -19,6 +19,7 @@ hsm_err_t hsm_mac(hsm_hdl_t mac_hdl,
 	struct hsm_service_hdl_s *serv_ptr;
 	hsm_err_t err = HSM_GENERAL_ERROR;
 	uint32_t rsp_code = SAB_NO_MESSAGE_RATING;
+	bool is_stream_op = false;
 	bool is_verification_op = false;
 
 	do {
@@ -57,11 +58,12 @@ hsm_err_t hsm_mac(hsm_hdl_t mac_hdl,
 
 #ifdef PSA_COMPLIANT
 		if (args->flags & HSM_OP_MAC_FLAGS_STREAM_MASK) {
+			is_stream_op = true;
 			if (args->flags & HSM_OP_MAC_FLAGS_FINALIZE_VERIFY)
 				is_verification_op = true;
 		}
 #endif
-		if (!is_verification_op && (args->flags & HSM_OP_MAC_FLAG_OP_TYPE_MASK)
+		if (!is_stream_op && (args->flags & HSM_OP_MAC_FLAG_OP_TYPE_MASK)
 		     == HSM_OP_MAC_FLAGS_MAC_VERIFICATION) {
 			is_verification_op = true;
 		}
