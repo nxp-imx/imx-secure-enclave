@@ -6,7 +6,7 @@
 
 #include "prime.h"
 #include "sab_prime_process_msg.h"
-#include "sab_prime_auth.h"
+#include "sab_prime_mac.h"
 #include "sab_prime_aes.h"
 #include "uio.h"
 #include "mu_regs.h"
@@ -30,8 +30,8 @@ static int32_t get_inbound_addr(prime_service_t *hdl, uint64_t phys_addr,
 	return 0;
 }
 
-int prime_auth_build(prime_service_t *hdl,
-		     crypto_op_args_t *op,
+int prime_mac_build(prime_service_t *hdl,
+		    crypto_op_args_t *op,
 		     uint8_t buf_off,
 		     uint8_t flag)
 {
@@ -42,8 +42,8 @@ int prime_auth_build(prime_service_t *hdl,
 	if (get_inbound_addr(hdl, op->src.phys_addr, op->src.len, &inbound_src_addr) < 0)
 		return -1;
 
-	if (get_inbound_addr(hdl, op->op_auth_args.digest.phys_addr,
-			     op->op_auth_args.digest.len, &inbound_digest_addr) < 0)
+	if (get_inbound_addr(hdl, op->op_mac_args.digest.phys_addr,
+			     op->op_mac_args.digest.len, &inbound_digest_addr) < 0)
 		return -1;
 	if (get_inbound_addr(hdl, (uint64_t)op->crypto_status.phys_addr,
 			     1, &inbound_status_addr) < 0)
@@ -52,10 +52,10 @@ int prime_auth_build(prime_service_t *hdl,
 	/* Update status code as success, FW will update this on error */
 	op->crypto_status.virt_addr->status_code = REQ_SUCCESS;
 
-	prime_auth_construct(mu_buf, op->op_auth_args.keyslot,
-			     inbound_src_addr, op->src.len,
-			     inbound_digest_addr, op->op_auth_args.sha_algo,
-			     op->op_auth_args.dir, flag, inbound_status_addr);
+	prime_mac_construct(mu_buf, op->op_mac_args.keyslot,
+			    inbound_src_addr, op->src.len,
+			    inbound_digest_addr, op->op_mac_args.sha_algo,
+			    op->op_mac_args.dir, flag, inbound_status_addr);
 	return 0;
 }
 

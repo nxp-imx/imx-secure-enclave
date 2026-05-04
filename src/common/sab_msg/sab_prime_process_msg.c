@@ -50,7 +50,7 @@ static int build_op(uint32_t handle, crypto_op_args_t *op, uint8_t buf_off, uint
 		ret = prime_aead_build(hdl, op, buf_off, flag);
 		break;
 	case CRYPTO_OP_TYPE_HMAC:
-		ret = prime_auth_build(hdl, op, buf_off, flag);
+		ret = prime_mac_build(hdl, op, buf_off, flag);
 		break;
 	default:
 		printf("Un-supported crypto operation.\n");

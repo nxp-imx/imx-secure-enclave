@@ -15,26 +15,26 @@ typedef struct {
 	uint8_t sha_algo;
 } hmac_key_t;
 
-enum crypto_auth_operation {
+enum crypto_mac_operation {
 	CRYPTO_AUTH_OP_HMAC_GEN,
 	CRYPTO_AUTH_OP_HMAC_VERIFY,
 	CRYPTO_AUTH_OP_SHA_GEN
 };
 
-enum crypto_auth_algorithm {
+enum crypto_sha_algorithm {
 	CRYPTO_AUTH_SHA_256 = 1,
 	CRYPTO_AUTH_SHA_384,
 	CRYPTO_AUTH_SHA_521
 };
 
 /* Authentication Parameters */
-struct auth_op_params {
-	enum crypto_auth_algorithm sha_algo;
+struct mac_op_params {
+	enum crypto_sha_algorithm sha_algo;
 	uint8_t keyslot;
 	uint8_t dir;
 	struct buf digest;
 };
 
-prime_err_t prime_auth_init(hmac_key_t *args);
+prime_err_t prime_mac_init(hmac_key_t *args);
 
 #endif

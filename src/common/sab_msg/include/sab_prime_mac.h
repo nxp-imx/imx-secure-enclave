@@ -2,8 +2,8 @@
  * Copyright 2025-2026 NXP
  */
 
-#ifndef SAB_PRIME_AUTH_H
-#define SAB_PRIME_AUTH_H
+#ifndef SAB_PRIME_MAC_H
+#define SAB_PRIME_MAC_H
 
 /* PRIME commands */
 #define PRIME_LOAD_HMAC_KEY_REQ		0x45
@@ -17,9 +17,9 @@
 /* PRIME message construction APIs, using mailbox to communicate with FW */
 int prime_load_hmac_key(void *mu_base, const uint8_t *key, size_t keylen,
 			uint8_t key_slot, uint8_t sha_algo);
-void prime_auth_construct(uint32_t *mu_buf, uint8_t keyslot,
-			  uint32_t src_addr, size_t len,
-			  uint32_t digest_addr, uint8_t sha_algo,
-			  uint8_t dir, uint8_t flag, uint32_t status_addr);
+void prime_mac_construct(uint32_t *mu_buf, uint8_t keyslot,
+			 uint32_t src_addr, size_t len,
+			 uint32_t digest_addr, uint8_t sha_algo,
+			 uint8_t dir, uint8_t flag, uint32_t status_addr);
 
-#endif /* SAB_PRIME_AUTH_H */
+#endif /* SAB_PRIME_MAC_H */
