@@ -16,7 +16,6 @@
 #include "internal/prime_service.h"
 
 #include "sab_prime_process_msg.h"
-#include "sab_prime_service.h"
 #include "uio.h"
 
 /**
@@ -241,7 +240,6 @@ uint32_t allocate_memory_to_user(open_service_args_t *op_serv_args,
 prime_err_t prime_open_service(open_service_args_t *op_serv_args,
 		prime_hdl_t *serv_hdl)
 {
-	struct uio_prime_mu *prime_mu = get_uio_prime_mu();
 	prime_service_t *handle;
 	int ret;
 
@@ -254,13 +252,6 @@ prime_err_t prime_open_service(open_service_args_t *op_serv_args,
 	if (!handle) {
 		printf("Failed to get empty slot for session\n");
 		return PRIME_ERR_MEMORY_ALLOC;
-	}
-
-	// Open the prime service
-	ret = prime_service_open(prime_mu->base);
-	if (ret != PRIME_ERR_NONE) {
-		printf("Prime Service: Failed to open service: %d\n", ret);
-		return PRIME_ERR_SERVICE_OPEN;
 	}
 
 	handle->hdl = (prime_hdl_t)((uint32_t)getpid() << 16) ^
@@ -290,7 +281,6 @@ prime_err_t prime_open_service(open_service_args_t *op_serv_args,
 	return PRIME_ERR_NONE;
 
 err:
-	prime_service_close(prime_mu->base);
 	delete_prime_session(handle);
 
 	return PRIME_ERR_SERVICE_OPEN;
@@ -319,7 +309,6 @@ void deconfigure_user_memory(prime_service_t *handle)
 
 void prime_close_service(prime_hdl_t ser_hdl)
 {
-	struct uio_prime_mu *prime_mu = get_uio_prime_mu();
 	prime_service_t *handle;
 
 	if (ser_hdl == PRIME_HANDLE_NONE) {
@@ -332,9 +321,6 @@ void prime_close_service(prime_hdl_t ser_hdl)
 		printf("Invalid handle\n");
 		return;
 	}
-
-	// Close the prime service
-	prime_service_close(prime_mu->base);
 
 	if (!handle->physical_addr && !handle->size)
 		return;

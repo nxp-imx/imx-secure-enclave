@@ -6,6 +6,7 @@
 #include <stdio.h>
 #include "uio.h"
 #include "sab_prime_process_msg.h"
+#include "sab_prime_service.h"
 #include "sab_prime_api.h"
 
 /* Global variables for tracking request IDs */
@@ -22,6 +23,12 @@ void v2x_prime_init(void)
 		return;
 	}
 
+	// Open the prime service
+	if (prime_service_open(prime_mu->base)) {
+		printf("Failed to open prime service\n");
+		return;
+	}
+
 	if (v2x_prime_mmap() < 0)
 		perror("Failed to map ATU memory\n");
 
@@ -34,6 +41,10 @@ void v2x_prime_init(void)
 void v2x_prime_deinit(void)
 {
 	v2x_prime_munmap();
+
+	// Close the prime service
+	prime_service_close(prime_mu->base);
+
 	prime_mu_close(prime_mu->fd);
 	prime_mu = NULL;
 }
