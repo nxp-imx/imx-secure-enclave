@@ -355,8 +355,9 @@ static hsm_err_t auth_enc_new_ccm_plainkey_test(hsm_hdl_t key_store_hdl,
 	return err;
 }
 
-static hsm_err_t auth_enc_new_ccm_stream_test(hsm_hdl_t key_store_hdl,
-					      hsm_hdl_t key_mgmt_hdl)
+/* AEAD - CCM streaming test using Opaque key. */
+static hsm_err_t auth_enc_new_stream_subtest_01(hsm_hdl_t key_store_hdl,
+						hsm_hdl_t key_mgmt_hdl)
 {
 	hsm_err_t err;
 	open_svc_cipher_args_t open_cipher_args = {0};
@@ -530,6 +531,237 @@ out:
 
 	return err;
 }
+
+/* AEAD - CCM streaming test using plaintext key. */
+static hsm_err_t auth_enc_new_stream_subtest_02(hsm_hdl_t key_store_hdl,
+						hsm_hdl_t key_mgmt_hdl)
+{
+	hsm_err_t err;
+	op_generate_key_args_t kgen_args = {0};
+	open_svc_cipher_args_t open_cipher_args = {0};
+	op_auth_enc_new_args_t args = {0};
+	hsm_hdl_t cipher_hdl = 0;
+	uint8_t priv_key[32] = {0};
+	uint8_t ciphertext[32] = {0};
+	uint8_t plaintext[32] = {0};
+	uint8_t tag[16] = {0};
+	uint8_t *context = NULL;
+	uint16_t context_size;
+	uint8_t idx_ctr;
+
+	printf("\nCCM Streaming Test - Plaintext Key:\n");
+	printf("-------------------------------------\n");
+
+	/* Generate Plaintext key  */
+	kgen_args.flags = HSM_OP_KEY_GENERATION_FLAGS_PLAINTEXT_KEY;
+	kgen_args.bit_key_sz = HSM_KEY_SIZE_AES_256;
+	kgen_args.key_type = HSM_KEY_TYPE_AES;
+	kgen_args.priv_out_key_sz = sizeof(priv_key);
+	kgen_args.priv_out_key = priv_key;
+
+	err = hsm_generate_key(key_mgmt_hdl, &kgen_args);
+	if (err != HSM_NO_ERROR) {
+		printf("Failed to generate plaintext key.\n");
+		goto out;
+	}
+
+	err = hsm_open_cipher_service(key_store_hdl, &open_cipher_args, &cipher_hdl);
+	if (err != HSM_NO_ERROR) {
+		printf("\nhsm_open_cipher_service err: 0x%x\n", err);
+		goto out;
+	}
+
+	/* GET CTX SIZE */
+	memset(&args, 0, sizeof(op_auth_enc_new_args_t));
+	args.flags = HSM_AUTH_ENC_FLAGS_GET_CTX_SIZE;
+
+	err = hsm_auth_enc_new(cipher_hdl, &args);
+	if (err != HSM_NO_ERROR) {
+		printf("\nhsm_auth_enc_new (GET CTX SIZE) err: 0x%x\n", err);
+		goto out;
+	}
+
+	context_size = args.exp_output_size;
+	if (context_size) {
+		context = (uint8_t *)malloc(context_size);
+		if (!context) {
+			printf("\nFailed to allocate memory for context.\n");
+			goto out;
+		}
+	}
+	memset(context, 0, context_size);
+
+	/* AEAD ENCRYPT (Streaming) */
+
+	/* INIT */
+	memset(&args, 0, sizeof(op_auth_enc_new_args_t));
+	args.flags = HSM_AUTH_ENC_FLAGS_ENCRYPT | HSM_AUTH_ENC_FLAGS_INIT |
+		     HSM_AUTH_ENC_FLAGS_PLAINTEXT_KEY;
+	args.key = priv_key;
+	args.key_size = BITS_TO_BYTES(HSM_KEY_SIZE_AES_256);
+	args.key_type = HSM_KEY_TYPE_AES;
+	args.ae_algo = HSM_AEAD_ALGO_CCM;
+	args.iv_size = sizeof(iv_data);
+	args.iv_in = iv_data;
+	args.context_size = context_size;
+	args.context = context;
+
+	err = hsm_auth_enc_new(cipher_hdl, &args);
+	if (err != HSM_NO_ERROR) {
+		printf("\nhsm_auth_enc_new (encrypt) (INIT) err: 0x%x\n", err);
+		goto out;
+	}
+
+	/* UPDATE AAD */
+	memset(&args, 0, sizeof(op_auth_enc_new_args_t));
+	args.flags = HSM_AUTH_ENC_FLAGS_ENCRYPT | HSM_AUTH_ENC_FLAGS_UPDATE_AAD |
+		     HSM_AUTH_ENC_FLAGS_PLAINTEXT_KEY;
+	args.ae_algo = HSM_AEAD_ALGO_CCM;
+	args.aad_size = sizeof(aad_data);
+	args.aad = aad_data;
+	args.context_size = context_size;
+	args.context = context;
+
+	err = hsm_auth_enc_new(cipher_hdl, &args);
+	if (err != HSM_NO_ERROR) {
+		printf("\nhsm_auth_enc_new (encrypt) (UPDATE AAD) err: 0x%x\n", err);
+		goto out;
+	}
+
+	/* UPDATE DATA */
+	memset(&args, 0, sizeof(op_auth_enc_new_args_t));
+	args.flags = HSM_AUTH_ENC_FLAGS_ENCRYPT | HSM_AUTH_ENC_FLAGS_UPDATE_DATA |
+		     HSM_AUTH_ENC_FLAGS_PLAINTEXT_KEY;
+	args.ae_algo = HSM_AEAD_ALGO_CCM;
+	args.input_size = sizeof(test_message);
+	args.input = test_message;
+	args.output_size = sizeof(ciphertext);
+	args.output = ciphertext;
+	args.context_size = context_size;
+	args.context = context;
+
+	err = hsm_auth_enc_new(cipher_hdl, &args);
+	if (err != HSM_NO_ERROR) {
+		printf("\nhsm_auth_enc_new (encrypt) (UPDATE DATA) err: 0x%x\n", err);
+		goto out;
+	}
+
+	idx_ctr = args.exp_output_size;
+
+	/* FINALIZE */
+	memset(&args, 0, sizeof(op_auth_enc_new_args_t));
+	args.flags = HSM_AUTH_ENC_FLAGS_ENCRYPT | HSM_AUTH_ENC_FLAGS_FINALIZE |
+		     HSM_AUTH_ENC_FLAGS_PLAINTEXT_KEY;
+	args.ae_algo = HSM_AEAD_ALGO_CCM;
+	args.tag_size = sizeof(tag);
+	args.tag = tag;
+	args.output_size = sizeof(ciphertext) - idx_ctr;
+	args.output = ciphertext + idx_ctr;
+	args.context_size = context_size;
+	args.context = context;
+
+	err = hsm_auth_enc_new(cipher_hdl, &args);
+	if (err != HSM_NO_ERROR) {
+		printf("\nhsm_auth_enc_new (encrypt) (FINALIZE) err: 0x%x\n", err);
+		goto out;
+	}
+
+	memset(context, 0, context_size);
+
+	/* AEAD DECRYPT (Streaming) */
+
+	/* INIT */
+	memset(&args, 0, sizeof(op_auth_enc_new_args_t));
+	args.flags = HSM_AUTH_ENC_FLAGS_DECRYPT | HSM_AUTH_ENC_FLAGS_INIT |
+		     HSM_AUTH_ENC_FLAGS_PLAINTEXT_KEY;
+	args.key = priv_key;
+	args.key_size = BITS_TO_BYTES(HSM_KEY_SIZE_AES_256);
+	args.key_type = HSM_KEY_TYPE_AES;
+	args.ae_algo = HSM_AEAD_ALGO_CCM;
+	args.iv_size = sizeof(iv_data);
+	args.iv_in = iv_data;
+	args.context_size = context_size;
+	args.context = context;
+
+	err = hsm_auth_enc_new(cipher_hdl, &args);
+	if (err != HSM_NO_ERROR) {
+		printf("\nhsm_auth_enc_new (decrypt) (INIT) err: 0x%x\n", err);
+		goto out;
+	}
+
+	/* UPDATE AAD */
+	memset(&args, 0, sizeof(op_auth_enc_new_args_t));
+	args.flags = HSM_AUTH_ENC_FLAGS_DECRYPT | HSM_AUTH_ENC_FLAGS_UPDATE_AAD |
+		     HSM_AUTH_ENC_FLAGS_PLAINTEXT_KEY;
+	args.ae_algo = HSM_AEAD_ALGO_CCM;
+	args.aad_size = sizeof(aad_data);
+	args.aad = aad_data;
+	args.context_size = context_size;
+	args.context = context;
+
+	err = hsm_auth_enc_new(cipher_hdl, &args);
+	if (err != HSM_NO_ERROR) {
+		printf("\nhsm_auth_enc_new (decrypt) (UPDATE AAD) err: 0x%x\n", err);
+		goto out;
+	}
+
+	/* UPDATE DATA */
+	memset(&args, 0, sizeof(op_auth_enc_new_args_t));
+	args.flags = HSM_AUTH_ENC_FLAGS_DECRYPT | HSM_AUTH_ENC_FLAGS_UPDATE_DATA |
+		     HSM_AUTH_ENC_FLAGS_PLAINTEXT_KEY;
+	args.ae_algo = HSM_AEAD_ALGO_CCM;
+	args.input_size = sizeof(ciphertext);
+	args.input = ciphertext;
+	args.output_size = sizeof(plaintext);
+	args.output = plaintext;
+	args.context_size = context_size;
+	args.context = context;
+
+	err = hsm_auth_enc_new(cipher_hdl, &args);
+	if (err != HSM_NO_ERROR) {
+		printf("\nhsm_auth_enc_new (decrypt) (UPDATE DATA) err: 0x%x\n", err);
+		goto out;
+	}
+
+	idx_ctr = args.exp_output_size;
+
+	/* FINALIZE VERIFY */
+	memset(&args, 0, sizeof(op_auth_enc_new_args_t));
+	args.flags = HSM_AUTH_ENC_FLAGS_DECRYPT | HSM_AUTH_ENC_FLAGS_FINALIZE_VERIFY |
+		     HSM_AUTH_ENC_FLAGS_PLAINTEXT_KEY;
+	args.ae_algo = HSM_AEAD_ALGO_CCM;
+	args.tag_size = sizeof(tag);
+	args.tag = tag;
+	args.output_size = sizeof(plaintext) - idx_ctr;
+	args.output = plaintext + idx_ctr;
+	args.context_size = context_size;
+	args.context = context;
+
+	err = hsm_auth_enc_new(cipher_hdl, &args);
+	if (err != HSM_NO_ERROR) {
+		printf("\nhsm_auth_enc_new (decrypt) (FINALIZE VERIFY) err: 0x%x\n", err);
+		goto out;
+	}
+
+	/* Close the Cipher Service */
+	err = hsm_close_cipher_service(cipher_hdl);
+	if (err != HSM_NO_ERROR) {
+		printf("\nhsm_close_cipher_service err: 0x%x\n", err);
+		goto out;
+	}
+
+	if (args.verify_status == HSM_AEAD_VERIFICATION_STATUS_SUCCESS &&
+	    memcmp(test_message, plaintext, sizeof(plaintext)) == 0)
+		printf("\nDecrypted data matches Test data [PASS]\n");
+	else
+		printf("\nDecrypted data doesn't match Test data [FAIL]\n");
+
+out:
+	if (context)
+		free(context);
+
+	return err;
+}
 #endif
 
 hsm_err_t auth_enc_test(hsm_hdl_t key_store_hdl, hsm_hdl_t key_mgmt_hdl)
@@ -590,8 +822,10 @@ hsm_err_t auth_enc_test(hsm_hdl_t key_store_hdl, hsm_hdl_t key_mgmt_hdl)
 
 	if (se_get_soc_id() == SOC_IMX95 ||
 	    se_get_soc_id() == SOC_IMX943 ||
-	    se_get_soc_id() == SOC_IMX952)
-		auth_enc_new_ccm_stream_test(key_store_hdl, key_mgmt_hdl);
+	    se_get_soc_id() == SOC_IMX952) {
+		auth_enc_new_stream_subtest_01(key_store_hdl, key_mgmt_hdl);
+		auth_enc_new_stream_subtest_02(key_store_hdl, key_mgmt_hdl);
+	}
 
 	printf("\n------------------------------------------------\n");
 	printf("Test Complete");
