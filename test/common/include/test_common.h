@@ -219,6 +219,7 @@ hsm_op_gen_ele_key_blob_algo_t
 
 #ifdef PSA_COMPLIANT
 hsm_err_t exchange_commit_command(hsm_hdl_t session_hdl, uint32_t info_type);
+void print_hsm_storage_status(hsm_storage_status_t storage_status);
 #endif
 
 hsm_err_t test_gen_ele_key_blob(hsm_hdl_t sess_hdl,

@@ -225,6 +225,20 @@ void key_management(uint32_t key_op,
 	}
 }
 
+#ifdef PSA_COMPLIANT
+void print_hsm_storage_status(hsm_storage_status_t storage_status)
+{
+	if (storage_status == HSM_STORAGE_STATUS_FETCH_FAILED)
+		printf("Failed to fetch storage status.\n");
+	else if (storage_status == HSM_STORAGE_STATUS_NOT_OPENED)
+		printf("Storage status: Not opened.\n");
+	else if (storage_status == HSM_STORAGE_STATUS_OPENED)
+		printf("Storage status: Opened.\n");
+	else
+		printf("Unknown storage status[0x%x].\n", storage_status);
+}
+#endif
+
 void print_global_info(void)
 {
 	printf("-----------------------------------------------------------\n");

@@ -899,8 +899,14 @@ int main(int argc, char *argv[])
 	struct sigaction hsm_test_sigact = {0};
 	open_svc_key_store_args_t hsm_key_store_args = {0};
 	int i = 0;
-
 	hsm_err_t err;
+#ifdef PSA_COMPLIANT
+	hsm_storage_status_t storage_status;
+
+	err = hsm_get_storage_status(0x0, HSM1, &storage_status);
+	if (err == HSM_NO_ERROR)
+		print_hsm_storage_status(storage_status);
+#endif
 
 	if (argc == 2 && (strcmp("--help", argv[1]) == 0 || strcmp("-h", argv[1]) == 0)) {
 		ele_hsm_test_usage();
@@ -940,6 +946,10 @@ int main(int argc, char *argv[])
 	printf("hsm_open_session PASS 0x%x\n", hsm_session_hdl);
 
 #ifdef PSA_COMPLIANT
+	err = hsm_get_storage_status(hsm_session_hdl, 0, &storage_status);
+	if (err == HSM_NO_ERROR)
+		print_hsm_storage_status(storage_status);
+
 	if (se_get_soc_id() == SOC_IMX95 ||
 	    se_get_soc_id() == SOC_IMX943 ||
 	    se_get_soc_id() == SOC_IMX952) {
@@ -967,6 +977,11 @@ int main(int argc, char *argv[])
 	 * Hence commenting this test.
 	 */
 	//lc_update_info(hsm_session_hdl, HSM_OEM_OPEN_STATE);
+
+#ifdef PSA_COMPLIANT
+	if (storage_status != HSM_STORAGE_STATUS_OPENED)
+		goto ginfo_out;
+#endif
 
 	hsm_key_store_args.key_store_identifier = REGULAR_KEY_STORE_ID;
 	hsm_key_store_args.authentication_nonce = REGULAR_KEY_STORE_NOUNCE;
