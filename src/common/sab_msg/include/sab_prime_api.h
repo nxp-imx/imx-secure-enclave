@@ -33,7 +33,8 @@
 
 /* PRIME APIs, using mailbox to communicate with FW */
 uint32_t crc_compute(uint32_t *msg, size_t len);
-int prime_push(void *mu_base, uint8_t slot);
+uint32_t prime_push(void *mu_base, uint8_t slot);
 int prime_deq(int uio_fd);
+uint32_t read_req_id(void);
 
 #endif /* SAB_PRIME_API_H */
