@@ -6,7 +6,7 @@
 #ifndef HSM_COMMIT_H
 #define HSM_COMMIT_H
 
-#include "utils.h"
+#include "common/utils.h"
 #include "hsm_utils.h"
 
 /* Commit information type bitmask definitions */
