@@ -62,7 +62,7 @@ static uint8_t digest[32] = {
 	0xe3, 0xe9, 0x37, 0xc0, 0x89, 0x4b, 0x67, 0x26,
 };
 
-static int32_t complete_hmac_ops(uint32_t service_hdl,
+static int32_t complete_hmac_ops(prime_hdl_t service_hdl,
 				 crypto_op_args_t **ops,
 				 uint32_t nb_ops)
 {
@@ -81,7 +81,8 @@ static int32_t complete_hmac_ops(uint32_t service_hdl,
 		}
 	}
 }
-static void prepare_hmac_op(uint32_t service_hdl,
+
+static void prepare_hmac_op(prime_hdl_t service_hdl,
 			    crypto_op_args_t *op,
 			    hmac_key_t *key_args,
 			    int dir,
@@ -112,17 +113,18 @@ static void prepare_hmac_op(uint32_t service_hdl,
 	op->crypto_status.virt_addr = (status_buf_t *)(op->op_mac_args.digest.virt_addr +
 				      ALIGN_UP(op->op_mac_args.digest.len, 64));
 }
-int hmac_load_key(hmac_key_t *key_args, int sha_algo)
+
+int hmac_load_key(prime_hdl_t service_hdl, hmac_key_t *key_args, int sha_algo)
 {
 	key_args->key = hmac_key;
 	key_args->keylen = sizeof(hmac_key);
 	key_args->keyslot = 0;
 	key_args->sha_algo = sha_algo;
 
-	return prime_mac_init(key_args);
+	return prime_mac_init(service_hdl, key_args);
 }
 
-int hmac_test(uint32_t service_hdl, void *va, uint64_t phys)
+int hmac_test(prime_hdl_t service_hdl, void *va, uint64_t phys)
 {
 	hmac_key_t key_args = {0};
 	crypto_op_args_t op = {0};
@@ -131,7 +133,7 @@ int hmac_test(uint32_t service_hdl, void *va, uint64_t phys)
 	int32_t err;
 
 	/* load hmac key */
-	err = hmac_load_key(&key_args, CRYPTO_AUTH_SHA_256);
+	err = hmac_load_key(service_hdl, &key_args, CRYPTO_AUTH_SHA_256);
 	if (err)
 		return err;
 

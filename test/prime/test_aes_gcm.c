@@ -132,7 +132,7 @@ static void complete_aes_gcm_ops(crypto_op_args_t **ops, uint32_t nb_ops)
 	}
 }
 
-static void prepare_aes_gcm_op(uint32_t service_hdl, crypto_op_args_t *op,
+static void prepare_aes_gcm_op(prime_hdl_t service_hdl, crypto_op_args_t *op,
 			       uint8_t keyslot, int enc, void *va, uint64_t phys)
 {
 	int i;
@@ -179,16 +179,16 @@ static void prepare_aes_gcm_op(uint32_t service_hdl, crypto_op_args_t *op,
 				      ALIGN_UP(op->op_aead_args.tag.len, 64));
 }
 
-static int aes_load_key(aes_key_t *key_args)
+static int aes_load_key(prime_hdl_t service_hdl, aes_key_t *key_args)
 {
 	key_args->key = key;
 	key_args->keylen = sizeof(key);
 	key_args->keyslot = 0;
 
-	return prime_cipher_init(key_args);
+	return prime_cipher_init(service_hdl, key_args);
 }
 
-int aes_gcm_test(uint32_t service_hdl, void *va, uint64_t phys)
+int aes_gcm_test(prime_hdl_t service_hdl, void *va, uint64_t phys)
 {
 	aes_key_t key_args = {0};
 	crypto_op_args_t op = {0};
@@ -197,7 +197,7 @@ int aes_gcm_test(uint32_t service_hdl, void *va, uint64_t phys)
 	int32_t err;
 
 	/* load aes key */
-	err = aes_load_key(&key_args);
+	err = aes_load_key(service_hdl, &key_args);
 	if (err)
 		return err;
 

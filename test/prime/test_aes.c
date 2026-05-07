@@ -68,13 +68,14 @@ static void complete_aes_ops(crypto_op_args_t **ops, uint32_t nb_ops)
 		data_cache_clean(ops[i]->dst.virt_addr, ops[i]->dst.len, 0);
 }
 
-static int aes_load_key(aes_key_t *key_args, uint8_t *key, uint32_t keylen)
+static int aes_load_key(prime_hdl_t service_hdl, aes_key_t *key_args,
+			uint8_t *key, uint32_t keylen)
 {
 	key_args->key = key;
 	key_args->keylen = keylen;
 	key_args->keyslot = 0;
 
-	return prime_cipher_init(key_args);
+	return prime_cipher_init(service_hdl, key_args);
 }
 
 static int validate_aes_op(crypto_op_args_t *op, uint8_t *test_vec)
@@ -84,7 +85,7 @@ static int validate_aes_op(crypto_op_args_t *op, uint8_t *test_vec)
 	return 0;
 }
 
-static void prepare_aes_op(uint32_t service_hdl, crypto_op_args_t *op,
+static void prepare_aes_op(prime_hdl_t service_hdl, crypto_op_args_t *op,
 			   uint8_t *test_vec, uint32_t len,
 			   int algo, uint8_t keyslot, int enc,
 			   uint8_t *iv, uint16_t ivlen, void *va, uint64_t phys)
@@ -118,7 +119,8 @@ static void prepare_aes_op(uint32_t service_hdl, crypto_op_args_t *op,
 		(status_buf_t *)(op->src.virt_addr + status_offset);
 }
 
-int aes_ctr_test_8192(uint32_t service_hdl, aes_key_t *key_args, void *va, uint64_t phys)
+int aes_ctr_test_8192(prime_hdl_t service_hdl, aes_key_t *key_args,
+		      void *va, uint64_t phys)
 {
 	crypto_op_args_t op[2] = {0};
 	crypto_op_args_t *ops_ptr;
@@ -189,7 +191,8 @@ int aes_ctr_test_8192(uint32_t service_hdl, aes_key_t *key_args, void *va, uint6
 	return 0;
 }
 
-int aes_ctr_test_256(uint32_t service_hdl, aes_key_t *key_args, void *va, uint64_t phys)
+int aes_ctr_test_256(prime_hdl_t service_hdl, aes_key_t *key_args,
+		     void *va, uint64_t phys)
 {
 	crypto_op_args_t op = {0};
 	crypto_op_args_t *ops_ptr;
@@ -224,13 +227,13 @@ int aes_ctr_test_256(uint32_t service_hdl, aes_key_t *key_args, void *va, uint64
 	return 0;
 }
 
-int aes_ctr_test(uint32_t service_hdl, void *va, uint64_t phys)
+int aes_ctr_test(prime_hdl_t service_hdl, void *va, uint64_t phys)
 {
 	aes_key_t key_args = {0};
 	int32_t err;
 
 	/* load aes key */
-	err = aes_load_key(&key_args, ctr_key, sizeof(ctr_key));
+	err = aes_load_key(service_hdl, &key_args, ctr_key, sizeof(ctr_key));
 	if (err) {
 		printf("Failed to load AES-CTR key (256B)\n");
 		return err;
@@ -249,7 +252,7 @@ int aes_ctr_test(uint32_t service_hdl, void *va, uint64_t phys)
 	return 0;
 }
 
-int aes_cbc_test(uint32_t service_hdl, void *va, uint64_t phys)
+int aes_cbc_test(prime_hdl_t service_hdl, void *va, uint64_t phys)
 {
 	aes_key_t key_args = {0};
 	crypto_op_args_t op = {0};
@@ -258,7 +261,7 @@ int aes_cbc_test(uint32_t service_hdl, void *va, uint64_t phys)
 	int32_t err;
 
 	/* load aes key */
-	err = aes_load_key(&key_args, cbc_key, sizeof(cbc_key));
+	err = aes_load_key(service_hdl, &key_args, cbc_key, sizeof(cbc_key));
 	if (err)
 		return err;
 
@@ -290,7 +293,7 @@ int aes_cbc_test(uint32_t service_hdl, void *va, uint64_t phys)
 	return 0;
 }
 
-int aes_ecb_test(uint32_t service_hdl, void *va, uint64_t phys)
+int aes_ecb_test(prime_hdl_t service_hdl, void *va, uint64_t phys)
 {
 	aes_key_t key_args = {0};
 	crypto_op_args_t op = {0};
@@ -299,7 +302,7 @@ int aes_ecb_test(uint32_t service_hdl, void *va, uint64_t phys)
 	int32_t err;
 
 	/* load aes key */
-	err = aes_load_key(&key_args, ecb_key, sizeof(ecb_key));
+	err = aes_load_key(service_hdl, &key_args, ecb_key, sizeof(ecb_key));
 	if (err)
 		return err;
 
