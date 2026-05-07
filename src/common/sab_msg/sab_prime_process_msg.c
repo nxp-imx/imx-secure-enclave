@@ -31,7 +31,8 @@ static int dequeue_ops(crypto_op_args_t **ops, uint32_t nb_ops)
 	return err;
 }
 
-static int build_op(uint32_t handle, crypto_op_args_t *op, uint8_t buf_off, uint8_t flag)
+static int build_op(prime_hdl_t handle, crypto_op_args_t *op,
+		    uint8_t buf_off, uint8_t flag)
 {
 	int ret;
 	prime_service_t *hdl;
@@ -61,7 +62,7 @@ static int build_op(uint32_t handle, crypto_op_args_t *op, uint8_t buf_off, uint
 	return ret;
 }
 
-static int enqueue_ops(uint32_t handle, crypto_op_args_t **ops,
+static int enqueue_ops(prime_hdl_t handle, crypto_op_args_t **ops,
 		       uint16_t nb_ops, uint8_t flag)
 {
 	struct uio_prime_mu *prime_mu = get_uio_prime_mu();
@@ -114,7 +115,7 @@ static int enqueue_ops(uint32_t handle, crypto_op_args_t **ops,
 	return jobs;
 }
 
-static int run_ops(uint32_t handle, crypto_op_args_t **ops, uint32_t nb_ops)
+static int run_ops(prime_hdl_t handle, crypto_op_args_t **ops, uint32_t nb_ops)
 {
 	uint32_t cnt_ops, enqd_ops, i;
 	uint8_t flag;
@@ -143,7 +144,7 @@ static int run_ops(uint32_t handle, crypto_op_args_t **ops, uint32_t nb_ops)
 	return ret;
 }
 
-int prime_process_ops(uint32_t service_hdl,
+int prime_process_ops(prime_hdl_t service_hdl,
 		      crypto_op_args_t **ops,
 		      uint32_t nb_ops)
 {

@@ -50,6 +50,6 @@ struct aead_op_params {
 	struct buf tag;
 };
 
-prime_err_t prime_cipher_init(aes_key_t *args);
+prime_err_t prime_cipher_init(prime_hdl_t service_hdl, aes_key_t *args);
 
 #endif

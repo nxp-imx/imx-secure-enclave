@@ -31,7 +31,7 @@ struct uio_prime_mu *get_uio_prime_mu(void);
 
 void v2x_prime_init(void);
 void v2x_prime_deinit(void);
-int prime_process_ops(uint32_t service_hdl,
+int prime_process_ops(prime_hdl_t service_hdl,
 		      crypto_op_args_t **ops,
 		      uint32_t nb_ops);
 

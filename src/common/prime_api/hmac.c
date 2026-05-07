@@ -6,7 +6,7 @@
 #include "sab_prime_mac.h"
 #include "uio.h"
 
-prime_err_t prime_mac_init(hmac_key_t *args)
+prime_err_t prime_mac_init(prime_hdl_t service_hdl, hmac_key_t *args)
 {
 	struct uio_prime_mu *prime_mu = get_uio_prime_mu();
 

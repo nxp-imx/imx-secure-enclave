@@ -35,6 +35,6 @@ struct mac_op_params {
 	struct buf digest;
 };
 
-prime_err_t prime_mac_init(hmac_key_t *args);
+prime_err_t prime_mac_init(prime_hdl_t service_hdl, hmac_key_t *args);
 
 #endif

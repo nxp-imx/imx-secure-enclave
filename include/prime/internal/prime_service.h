@@ -20,7 +20,7 @@ enum service_type {
  * Structure detailing the open session operation member arguments
  */
 typedef struct {
-	uint32_t service_hdl;
+	prime_hdl_t service_hdl;
 	//!< Service handle.
 	enum service_type serv_type;
 	//!< MU with associated functionality on which service session will be opened
@@ -32,8 +32,9 @@ typedef struct {
 	//!< Input requested buffer size
 } open_service_args_t;
 
-prime_err_t prime_open_service(open_service_args_t *op_serv_args, prime_hdl_t *serv_hdl);
+prime_err_t prime_open_service(open_service_args_t *op_serv_args,
+			       prime_hdl_t *service_hdl);
 
-void prime_close_service(prime_hdl_t ser_hdl);
+void prime_close_service(prime_hdl_t service_hdl);
 
 #endif
