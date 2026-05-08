@@ -194,6 +194,10 @@
 #include "sab_key_agreement.h"
 #endif
 
+#if MT_SAB_KEY_DERIVATION
+#include "sab_key_derivation.h"
+#endif
+
 #if MT_SAB_SESSION
 #include "sab_session.h"
 #endif
@@ -907,6 +911,15 @@ static  int init_proc_sab_hsm_msg_engine(msg_type_t msg_type,
 			ret = add_sab_msg_handler(msg_id, MT_SAB_KEY_AGREEMENT,
 						  prepare_msg_key_agreement,
 						  proc_msg_rsp_key_agreement);
+		}
+		break;
+#endif
+#if MT_SAB_KEY_DERIVATION
+	case SAB_KEY_DERIVATION_REQ:
+		if (msg_type == MT_SAB_KEY_DERIVATION) {
+			ret = add_sab_msg_handler(msg_id, MT_SAB_KEY_DERIVATION,
+						  prepare_msg_key_derivation,
+						  proc_msg_rsp_key_derivation);
 		}
 		break;
 #endif

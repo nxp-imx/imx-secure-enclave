@@ -43,6 +43,8 @@ extern "C" {
 
 #include "internal/hsm_key_agreement.h"
 
+#include "internal/hsm_key_derivation.h"
+
 #include "internal/hsm_key_gen_ext.h"
 
 #include "internal/hsm_gc_akey_gen.h"

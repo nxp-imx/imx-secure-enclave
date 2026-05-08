@@ -85,6 +85,7 @@
 
 #ifdef PSA_COMPLIANT
 #define SAB_KEY_AGREEMENT_REQ                   0x4Du
+#define SAB_KEY_DERIVATION_REQ                  0x58u
 #define SAB_ASYMMETRIC_ENC_OPEN_REQ		0x90
 #define SAB_ASYMMETRIC_ENC_CLOSE_REQ		0x91
 #define SAB_ASYMMETRIC_ENC_REQ			0x92

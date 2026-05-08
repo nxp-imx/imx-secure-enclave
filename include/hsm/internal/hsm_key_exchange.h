@@ -9,6 +9,7 @@
 #include "hsm_key.h"
 #include "hsm_utils.h"
 #include "hsm_handle.h"
+#include "hsm_key_derivation.h"
 #include "hsm_key_generate.h"
 
 /**
@@ -39,24 +40,6 @@ typedef enum {
 	HSM_KEY_EXCHANGE_ECDH_HKDF_SHA384 = ALGO_ECDH_HKDF_SHA384_KEY_IMPORT,
 	//!< ECDH HKDF SHA384. This will be deprecated soon.
 } hsm_op_key_exchange_algo_t;
-
-/**
- * Enum describing Key Derivation algorithms supported
- */
-typedef enum {
-	HSM_KEY_DERIVATION_HKDF_SHA256 = ALGO_HKDF_SHA256,
-	//!< HKDF SHA256 (HMAC two-step)
-	HSM_KEY_DERIVATION_HKDF_SHA384 = ALGO_HKDF_SHA384,
-	//!< HKDF SHA384 (HMAC two-step)
-	HSM_KEY_DERIVATION_HKDF_EXTRACT_SHA256 = ALGO_HKDF_EXTRACT_SHA256,
-	//!< HKDF Extract SHA256
-	HSM_KEY_DERIVATION_HKDF_EXTRACT_SHA384 = ALGO_HKDF_EXTRACT_SHA384,
-	//!< HKDF Extract SHA384
-	HSM_KEY_DERIVATION_HKDF_EXPAND_SHA256 = ALGO_HKDF_EXPAND_SHA256,
-	//!< HKDF Expand SHA256
-	HSM_KEY_DERIVATION_HKDF_EXPAND_SHA384 = ALGO_HKDF_EXPAND_SHA384,
-	//!< HKDF Expand SHA384
-} hsm_op_key_derivation_algo_t;
 
 /**
  * Enum describing TLS 1.2 Key Derivation algorithms supported
