@@ -1,6 +1,6 @@
 // SPDX-License-Identifier: BSD-3-Clause
 /*
- * Copyright 2024-2025 NXP
+ * Copyright 2024-2026 NXP
  */
 
 #include <stdio.h>
@@ -9,6 +9,7 @@
 #include "hsm_api.h"
 
 #ifdef PSA_COMPLIANT
+#if SUPPORT_KEY_EXCHANGE_HKDF
 
 #include "mbedtls_utils.h"
 
@@ -473,4 +474,5 @@ void key_exchange_test_hkdf_full(hsm_hdl_t key_store_hdl,
 	printf("Test Complete");
 	printf("\n-----------------------------------------------------\n");
 };
+#endif
 #endif

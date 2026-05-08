@@ -761,8 +761,10 @@ static void transient_key_tests(hsm_hdl_t sess_hdl,
 	}
 
 	if ((se_get_soc_id() == SOC_IMX943 && se_get_soc_rev() >= SOC_REV_A1) ||
-	    se_get_soc_id() == SOC_IMX952)
+	    se_get_soc_id() == SOC_IMX952) {
 		test_key_agreement(key_mgmt_hdl, key_store_id);
+		test_key_derivation(key_mgmt_hdl, key_store_id);
+	}
 
 	//Public Key Attestation
 	pub_key_attest_test(key_store_hdl, key_mgmt_hdl);

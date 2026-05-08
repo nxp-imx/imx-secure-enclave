@@ -1,6 +1,6 @@
 // SPDX-License-Identifier: BSD-3-Clause
 /*
- * Copyright 2024-2025 NXP
+ * Copyright 2024-2026 NXP
  */
 
 #include <stdio.h>
@@ -432,6 +432,7 @@ void tls13_hkdf_label_encode(uint16_t length,
  */
 void key_exchange_test_tls1_3(hsm_hdl_t key_mgmt_hdl, uint32_t key_store_id);
 
+#if SUPPORT_KEY_EXCHANGE_HKDF
 /* Key Exchange - HKDF Expand tests */
 void key_exchange_test_hkdf_expand(hsm_hdl_t key_mgmt_hdl, uint32_t key_store_id);
 
@@ -439,7 +440,7 @@ void key_exchange_test_hkdf_expand(hsm_hdl_t key_mgmt_hdl, uint32_t key_store_id
 void key_exchange_test_hkdf_full(hsm_hdl_t key_store_hdl,
 				 hsm_hdl_t key_mgmt_hdl,
 				 uint32_t key_store_id);
-
+#endif
 /* Key Exchange - TLS 1.2 option tests */
 void key_exchange_test_tls1_2(hsm_hdl_t key_store_hdl,
 			      hsm_hdl_t key_mgmt_hdl,
