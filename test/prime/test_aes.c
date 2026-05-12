@@ -73,7 +73,6 @@ static int aes_load_key(prime_hdl_t service_hdl, aes_key_t *key_args,
 {
 	key_args->key = key;
 	key_args->keylen = keylen;
-	key_args->keyslot = 0;
 
 	return prime_cipher_init(service_hdl, key_args);
 }
@@ -331,5 +330,22 @@ int aes_ecb_test(prime_hdl_t service_hdl, void *va, uint64_t phys)
 		return -1;
 	}
 
+	return 0;
+}
+
+int test_aes_keyslot(prime_hdl_t service_hdl)
+{
+	aes_key_t key_args = {0};
+	int32_t err;
+	uint8_t max_keyslot = MAX_PRIME_KEY_SLOT_SUPPORTED;
+
+	/* load aes key */
+	while (max_keyslot) {
+		err = aes_load_key(service_hdl, &key_args, ecb_key, sizeof(ecb_key));
+		if (err && max_keyslot)
+			return err;
+
+		max_keyslot--;
+	}
 	return 0;
 }

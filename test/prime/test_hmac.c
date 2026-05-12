@@ -118,7 +118,6 @@ int hmac_load_key(prime_hdl_t service_hdl, hmac_key_t *key_args, int sha_algo)
 {
 	key_args->key = hmac_key;
 	key_args->keylen = sizeof(hmac_key);
-	key_args->keyslot = 0;
 	key_args->sha_algo = sha_algo;
 
 	return prime_mac_init(service_hdl, key_args);
@@ -153,4 +152,21 @@ int hmac_test(prime_hdl_t service_hdl, void *va, uint64_t phys)
 	err = complete_hmac_ops(service_hdl, &op_ptr, nb_ops);
 
 	return err;
+}
+
+int test_hmac_keyslot(prime_hdl_t service_hdl)
+{
+	hmac_key_t key_args = {0};
+	int32_t err;
+	uint8_t max_keyslot = MAX_PRIME_KEY_SLOT_SUPPORTED;
+
+	/* load hmac key */
+	while (max_keyslot) {
+		err = hmac_load_key(service_hdl, &key_args, CRYPTO_AUTH_SHA_256);
+		if (err && max_keyslot)
+			return err;
+
+		max_keyslot--;
+	}
+	return 0;
 }

@@ -152,6 +152,26 @@ void *alloc_huge(size_t size, int huge_flag, uint64_t *phys_out)
 	return addr;
 }
 
+static void test_keyslot(void)
+{
+	prime_hdl_t serv_hdl;
+
+	op_serv_args[0].serv_type = SERVICE_TYPE_ALL;
+	op_serv_args[0].size  = SIZE_256MB;
+	if (prime_open_service(&op_serv_args[0], &serv_hdl)) {
+		printf("Failed to open prime service\n");
+		return;
+	}
+
+	if (test_hmac_keyslot(serv_hdl))
+		printf("HMAC Keyslot test failed\n");
+
+	if (test_aes_keyslot(serv_hdl))
+		printf("AES Keyslot test failed\n");
+
+	prime_close_service(op_serv_args[0].service_hdl);
+}
+
 static void test_prime_info(void)
 {
 	prime_hdl_t serv_hdl;
@@ -793,6 +813,8 @@ int main(void)
 	int ret;
 
 	test_prime_info();
+
+	test_keyslot();
 
 	printf("\n---------------- USER ALLOCATED MEMORY TEST --------------\n");
 	ret = test_user_alloc_flow();
