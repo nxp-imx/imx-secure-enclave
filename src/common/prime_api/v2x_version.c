@@ -7,7 +7,6 @@
 #include "internal/v2x_version.h"
 
 #include "prime_ioctl.h"
-#include "uio.h"
 
 prime_err_t get_v2x_version(v2x_version_t *args)
 {

@@ -4,7 +4,6 @@
  */
 
 #include <stdio.h>
-#include "uio.h"
 #include "sab_prime_process_msg.h"
 #include "sab_prime_service.h"
 #include "sab_prime_api.h"

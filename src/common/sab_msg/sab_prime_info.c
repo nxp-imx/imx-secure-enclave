@@ -3,7 +3,6 @@
  */
 
 #include <stdio.h>
-#include <string.h>
 
 #include "sab_prime_api.h"
 #include "sab_prime_info.h"

@@ -10,7 +10,6 @@
 #include "sab_prime_api.h"
 #include "sab_prime_process_msg.h"
 #include "mu_regs.h"
-#include "uio.h"
 
 uint32_t crc_compute(uint32_t *msg, size_t len)
 {

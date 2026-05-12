@@ -7,6 +7,7 @@
 #define SAB_PRIME_PROCESS_MSG_H
 
 #include "prime.h"
+#include "uio.h"
 
 #define PRIME_MAX_OPS		32
 #define PRIME_SIG_POP_REQ	0x3

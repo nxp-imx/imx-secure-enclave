@@ -8,7 +8,6 @@
 #include "sab_prime_process_msg.h"
 #include "sab_prime_mac.h"
 #include "sab_prime_aes.h"
-#include "uio.h"
 #include "mu_regs.h"
 
 static int32_t get_inbound_addr(prime_service_t *hdl, uint64_t phys_addr,

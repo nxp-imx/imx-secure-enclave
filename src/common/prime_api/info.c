@@ -7,7 +7,6 @@
 
 #include "sab_prime_process_msg.h"
 #include "sab_prime_info.h"
-#include "uio.h"
 
 prime_err_t prime_get_info(prime_hdl_t serv_hdl, prime_info_t *args)
 {
