@@ -12,6 +12,9 @@ typedef struct {
 	const uint8_t *key;
 	uint32_t keylen;
 	uint8_t keyslot;
+	//!< keyslot, valid value 0...63.
+	//!< SE library will allocate the available key_slot and
+	//!< return the value in keyslot
 } aes_key_t;
 
 enum crypto_cipher_algorithm {

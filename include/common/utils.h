@@ -9,7 +9,7 @@
 #include <stdint.h>
 
 #ifndef BIT
-#define BIT(x) (1 << (x))
+#define BIT(x) (1UL << (x))
 #endif
 
 #endif

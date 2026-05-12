@@ -252,6 +252,7 @@ int v2x_prime_mmap(void)
 	// Store memory information
 	prime_mu->phys_addr = mem_info.phys_addr;
 
+	close(fd);
 	return 0;
 }
 

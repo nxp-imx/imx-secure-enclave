@@ -11,6 +11,8 @@
 #include <stdbool.h>
 #include <stdint.h>
 
+#define MAX_PRIME_KEY_SLOT_SUPPORTED	64
+
 enum service_type {
 	SERVICE_TYPE_NONE,
 	SERVICE_TYPE_ALL = 7,

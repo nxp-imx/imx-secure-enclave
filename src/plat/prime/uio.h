@@ -28,6 +28,8 @@
 
 typedef struct prime_service {
 	prime_hdl_t hdl;
+	uint64_t hmac_keyslot_map;
+	uint64_t aes_keyslot_map;
 	uint64_t physical_addr;
 	uint64_t size;
 	uint32_t inbound_addr;

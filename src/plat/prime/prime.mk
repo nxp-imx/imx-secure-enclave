@@ -29,6 +29,7 @@ DEFINES		+=	-DCONFIG_PLAT_PRIME \
 
 PLAT_OBJECTS	:=	$(PLAT_PATH)/uio.o \
 			$(PLAT_PATH)/v2x_version_ioctl.o \
+			$(PLAT_PATH)/keyslot.o \
 			$(PLAT_PATH)/mu.o
 
 OBJECTS	+= $(PLAT_OBJECTS)

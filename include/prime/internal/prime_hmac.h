@@ -12,6 +12,9 @@ typedef struct {
 	const uint8_t *key;
 	uint32_t keylen;
 	uint8_t keyslot;
+	//!< keyslot, valid value 0...63.
+	//!< SE library will allocate the available key_slot and
+	//!< return the value in keyslot
 	uint8_t sha_algo;
 } hmac_key_t;
 

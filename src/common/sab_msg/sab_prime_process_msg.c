@@ -11,7 +11,7 @@
 #include "sab_prime_process_msg.h"
 #include "sab_prime_api.h"
 #include "sab_prime_pvt.h"
-#include "uio.h"
+#include "utils.h"
 
 static int dequeue_ops(crypto_op_args_t **ops, uint32_t nb_ops)
 {
@@ -175,8 +175,33 @@ int prime_process_ops(prime_hdl_t service_hdl,
 		if (ops[i]->src.phys_addr < hdl->physical_addr ||
 		    (ops[i]->src.phys_addr + ops[i]->src.len) >
 		    (hdl->physical_addr + hdl->size)) {
-			printf("Not correct owner\n");
+			printf("Not correct owner for ops %d\n", i);
 			return -1;
+		}
+
+		/* Check for valid keyslot */
+		switch (ops[i]->op_type) {
+		case CRYPTO_OP_TYPE_AES:
+			if (!(hdl->aes_keyslot_map &
+			    BIT(ops[i]->op_aes_args.keyslot))) {
+				printf("Invalid Keyslot for ops %d\n", i);
+				return -1;
+			}
+			break;
+		case CRYPTO_OP_TYPE_AEAD:
+			if (!(hdl->aes_keyslot_map &
+			    BIT(ops[i]->op_aead_args.keyslot))) {
+				printf("Invalid Keyslot for ops %d\n", i);
+				return -1;
+			}
+			break;
+		case CRYPTO_OP_TYPE_HMAC:
+			if (!(hdl->hmac_keyslot_map &
+			    BIT(ops[i]->op_mac_args.keyslot))) {
+				printf("Invalid Keyslot for ops %d\n", i);
+				return -1;
+			}
+			break;
 		}
 
 		ret = run_ops(service_hdl, &ops[i], enq_ops);
