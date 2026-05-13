@@ -1,6 +1,6 @@
 // SPDX-License-Identifier: BSD-3-Clause
 /*
- * Copyright 2020-2025 NXP
+ * Copyright 2020-2026 NXP
  */
 
 #include "hsm_api.h"
@@ -949,8 +949,6 @@ int v2x_hsm_tests(void)
 			       index, sx_sess_hdl[index]);
 	}
 
-	//Populate global info structure, using SV0
-	populate_global_info(sx_sess_hdl[SV0]);
 	print_global_info();
 
 	if ((se_get_soc_id() == SOC_IMX8DXL && se_get_board_type() == IMX8DXL_DL2) ||
@@ -2051,7 +2049,6 @@ int main(int argc, char *argv[])
 		return 0;
 	}
 
-	populate_global_info(open_session_args.session_hdl);
 	hsm_close_session(open_session_args.session_hdl);
 
 	/* return if not i.MX95 B0 or later board */

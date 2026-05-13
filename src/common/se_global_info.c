@@ -215,7 +215,6 @@ void populate_global_info(uint32_t session_hdl)
 	op_get_info_args_t getinfo_args = {0};
 
 	if (!global_info.lifecycle) {
-		plat_os_abs_memset((uint8_t *)&getinfo_args, 0, sizeof(getinfo_args));
 		if (!se_get_info(session_hdl, &getinfo_args)) {
 			if (getinfo_args.chip_unique_id)
 				plat_os_abs_free(getinfo_args.chip_unique_id);
