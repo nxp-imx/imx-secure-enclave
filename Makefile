@@ -29,6 +29,7 @@ SYSTEMD_NVM_SERVICE = $(NVM_DAEMON).service
 NVMD_CONFIG_SCRIPT = nvmd_conf_setup.sh
 SE_TOOL = se_tools
 
+EXPORT_SE_TOOL =
 EXPORT_NVM_DAEMON =
 EXPORT_NVMD_CONF_FILE =
 EXPORT_SYSTEMD_NVM_SERVICE =
@@ -91,14 +92,17 @@ V2X_HSM_TV_PATH := test/v2x/v2x_hsm_test_vectors/
 LIB_NAMES := $(HSM_LIB_NAME) $(NVM_LIB_NAME) $(SHE_LIB_NAME) $(CRRM_LIB_NAME) $(PRIME_LIB_NAME)
 
 all_tests:= $(SHE_TEST) $(HSM_TEST) $(HSM_PERF_TEST) $(V2X_HSM_TEST) $(V2X_SHE_TEST) $(CRRM_TEST) $(SE_TOOL) $(PRIME_TEST)
+all_tools:= $(SE_TOOL)
 all_libs:= $(SHE_LIB) $(NVM_LIB) $(HSM_LIB) $(CRRM_LIB) $(PRIME_LIB)
 
 # Make targets, must need NVM-Daemon to run successfully.
 tests: | install_version build_tests  clean_ver_hfile
+tools: | install_version build_tools  clean_ver_hfile
 libs: | install_version build_libs clean_ver_hfile
 all: | install_version build_all clean_ver_hfile
 
 build_tests: $(all_tests) $(NVM_DAEMON)
+build_tools: $(all_tools) $(NVM_DAEMON)
 build_libs: $(all_libs) $(NVM_DAEMON)
 build_all: $(all_libs) $(all_tests) $(NVM_DAEMON)
 
@@ -207,7 +211,7 @@ TEST_CRRM_LDFLAGS = -L $(OPENSSL_PATH) -lcrypto
 TEST_INCLUDE_PATHS = ${INCLUDE_PATHS} -I$(OPENSSL_PATH)/include
 
 $(SE_TOOL): $(SE_TOOL_OBJ) $(HSM_LIB)
-	$(CC) $^  -o $@ ${TEST_INCLUDE_PATHS} ${TEST_INCLUDE_PATHS_MBEDTLS} ${COMMON_TEST_INC} $(TEST_CFLAGS) $(TEST_LDFLAGS) $(GCOV_FLAGS)
+	$(CC) $^  -o $@ ${TEST_INCLUDE_PATHS} ${COMMON_TEST_INC} $(TEST_CFLAGS) $(GCOV_FLAGS)
 $(PRIME_TEST): $(PRIME_TEST_OBJ) $(PRIME_LIB)
 	$(CC) $^  -o $@ ${TEST_INCLUDE_PATHS} $(TEST_CFLAGS) $(LDFLAGS) $(GCOV_FLAGS)
 $(HSM_TEST): $(HSM_TEST_OBJ) $(HSM_LIB)
@@ -251,7 +255,7 @@ $(NVM_DAEMON): $(NVM_D_OBJ) $(NVM_LIB)
 	$(CC) $^  -o $@ ${INCLUDE_PATHS} $(CFLAGS) $(LDFLAGS) -lpthread $(GCOV_FLAGS)
 
 clean:
-	rm -rf $(OBJECTS) *.gcno *.a *_test $(TEST_OBJ) $(all_libs) *.so* $(all_tests) $(NVM_DAEMON) ${SE_VER_FILE} $(STAGE_DIR)
+	rm -rf $(OBJECTS) *.gcno *.a *_test $(TEST_OBJ) $(all_libs) *.so* $(all_tools) $(all_tests) $(NVM_DAEMON) ${SE_VER_FILE} $(STAGE_DIR)
 
 she_doc: include/she/she_api.h
 	rm -rf doc/latex/
@@ -290,7 +294,7 @@ crrm_doc: include/crrm/crrm_api.h
 	rm -rf doc/latex/
 	rm -rf doc/rtf/
 
-install: libs
+install: libs tools
 	mkdir -p $(DESTDIR)$(LIBDIR) $(DESTDIR)$(INCLUDEDIR)
 	$(foreach i, $(LIB_NAMES),\
 		ln -s -f $(i).$(SO_EXT) $(i).so.$(MAJOR_VER); \
@@ -298,6 +302,7 @@ install: libs
 		cp -av --no-preserve=ownership "$(i).$(SO_EXT)" "$(i).so.$(MAJOR_VER)" "$(i).so" $(DESTDIR)$(LIBDIR);)
 	mkdir -p $(DESTDIR)$(BINDIR)
 	$(prepare_seco_stage_files)
+	$(EXPORT_SE_TOOL)
 	$(EXPORT_NVM_DAEMON)
 ifdef NVMD_CONFIG_SCRIPT
 	cp $(SE_SCRIPTS_PATH)/$(NVMD_CONFIG_SCRIPT) $(DESTDIR)$(BINDIR)
