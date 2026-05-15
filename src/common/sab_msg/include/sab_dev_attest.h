@@ -1,6 +1,6 @@
 // SPDX-License-Identifier: BSD-3-Clause
 /*
- * Copyright 2022-2023, 2025 NXP
+ * Copyright 2022-2023, 2025-2026 NXP
  */
 
 #ifndef SAB_DEV_ATTEST_H
@@ -20,6 +20,7 @@ struct sab_cmd_dev_attest_msg_v1 {
 	uint16_t buf_sz;
 	uint16_t reserved;
 	uint8_t nounce[DEV_ATTEST_NOUNCE_SIZE_V1];
+	uint32_t rsv[3];
 	uint32_t crc;
 };
 
