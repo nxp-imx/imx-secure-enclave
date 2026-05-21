@@ -1,6 +1,6 @@
 // SPDX-License-Identifier: BSD-3-Clause
 /*
- * Copyright 2019-2023 NXP
+ * Copyright 2019-2023, 2026 NXP
  */
 
 #ifndef SAB_RNG_H
@@ -11,7 +11,8 @@
 struct sab_cmd_get_rnd_msg {
 	struct sab_mu_hdr hdr;
 #ifdef PSA_COMPLIANT
-	uint32_t rnd_addr_msb;
+	uint16_t reserved;
+	uint16_t flags;
 #else
 	uint32_t rng_handle;
 #endif

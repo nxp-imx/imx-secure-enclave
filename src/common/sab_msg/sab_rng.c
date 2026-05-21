@@ -1,6 +1,6 @@
 // SPDX-License-Identifier: BSD-3-Clause
 /*
- * Copyright 2022-2023 NXP
+ * Copyright 2022-2023, 2026 NXP
  */
 
 #include <string.h>
@@ -67,8 +67,10 @@ uint32_t prepare_msg_get_rng(void *phdl,
 		return SAB_ENGN_FAIL;
 
 #ifdef PSA_COMPLIANT
+	cmd->flags = op_args->flags;
+
 	set_phy_addr_to_words(&cmd->rnd_addr,
-			      &cmd->rnd_addr_msb,
+			      0u,
 			      plat_os_abs_data_buf(phdl,
 						   op_args->output,
 						   op_args->random_size,
