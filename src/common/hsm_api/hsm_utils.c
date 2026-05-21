@@ -149,6 +149,10 @@ static hsm_err_t sab_err_rating_to_hsm_err(uint8_t sab_err_rating)
 		se_err("\nHSM Error: HSM_OUT_TOO_SMALL (0x%x)\n", hsm_err);
 		break;
 
+	case HSM_INVALID_DATA_SIZE:
+		se_err("\nHSM Error: HSM_INVALID_DATA_SIZE (0x%x)\n", hsm_err);
+		break;
+
 	case HSM_INVALID_SIGNATURE_VERIFICATION_HANDLE:
 		se_err("\nHSM Error: HSM_INVALID_SIGNATURE_VERIFICATION_HANDLE (0x%x)\n",
 		       hsm_err);

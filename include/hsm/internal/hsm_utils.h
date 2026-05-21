@@ -88,6 +88,12 @@ typedef enum {
 	/**<Trying to delete a permanent key */
 	HSM_OUT_TOO_SMALL                   = 0x1D,
 	/**<Output buffer size is too small */
+	HSM_INVALID_DATA_SIZE               = 0x1E,
+	/**< Invalid data size, where data is dependent on the type of operation.
+	 * Data Storage (store) operation - Input data size is too big
+	 * Streaming operation - Invalid context size
+	 * Storage master import operation - Wrong storage master size
+	 */
 	HSM_INVALID_SIGNATURE_VERIFICATION_HANDLE = 0x21,
 	/**< Invalid Signature verification handle: Opaque key can’t be used. */
 	HSM_CRC_CHECK_ERR = 0xB9,
