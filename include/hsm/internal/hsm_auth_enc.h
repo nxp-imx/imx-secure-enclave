@@ -304,6 +304,13 @@ hsm_err_t hsm_auth_enc(hsm_hdl_t cipher_hdl, op_auth_enc_args_t *args);
  *   - One-Shot AEAD operation using an opaque or plaintext key.
  *   - Streaming AEAD operation using an opaque or plaintext key.
  *
+ * For streaming (multi-part) operation using plaintext key::
+ *   - Before INIT step, get the required context buffer size using
+ *     HSM_AUTH_ENC_FLAGS_GET_CTX_SIZE flag operation.
+ *   - exp_output_size will then output the FW returned value for
+ *     expected context size to be allocated, which can be allocated now
+ *     and provided for further operations through context and context_size fields
+ *
  * User can call this function only after having opened a cipher service flow\n
  *
  * \param cipher_hdl handle identifying the cipher service flow.

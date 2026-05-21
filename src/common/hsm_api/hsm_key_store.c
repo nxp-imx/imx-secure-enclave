@@ -20,7 +20,7 @@ static hsm_err_t exchange_key_store_open_msg(struct plat_os_abs_hdl *phdl,
 					     void *args)
 {
 	uint32_t rsp_code = SAB_NO_MESSAGE_RATING;
-	hsm_err_t err = HSM_GENERAL_ERROR;
+	hsm_err_t err;
 	uint32_t lib_err;
 
 	lib_err = process_sab_msg(phdl, mu_type,
@@ -225,7 +225,7 @@ hsm_err_t hsm_get_key_store_status(hsm_hdl_t session_hdl,
 
 		if (err != HSM_NO_ERROR) {
 			se_err("%s RSP Error: SAB_KEY_STORE_OPEN_REQ [0x%x].\n",
-			       err, "HSM GET KEY STORE STATUS");
+			       "HSM GET KEY STORE STATUS", err);
 			break;
 		}
 
@@ -286,7 +286,7 @@ hsm_err_t hsm_get_storage_status(hsm_hdl_t session_hdl, uint32_t mu_type,
 			HSM_STORAGE_STATUS_OPENED : HSM_STORAGE_STATUS_NOT_OPENED;
 	} else {
 		se_err("%s RSP Error: SAB_KEY_STORE_OPEN_REQ [0x%x].\n",
-		       err, "HSM GET KEY STORE STATUS");
+		       "HSM GET KEY STORE STATUS", err);
 	}
 
 	if (!session_hdl)

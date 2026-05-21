@@ -44,15 +44,15 @@ typedef enum {
 	HSM_KEY_DERIVATION_HKDF_SHA256 = ALGO_HKDF_SHA256,
 	//!< HKDF SHA256 (HMAC two-step)
 	HSM_KEY_DERIVATION_HKDF_SHA384 = ALGO_HKDF_SHA384,
-	//!< HKDF SHA384 (HMAC two-step)
+	//!< HKDF SHA384 (HMAC two-step). Not supported.
 	HSM_KEY_DERIVATION_HKDF_EXTRACT_SHA256 = ALGO_HKDF_EXTRACT_SHA256,
 	//!< HKDF Extract SHA256
 	HSM_KEY_DERIVATION_HKDF_EXTRACT_SHA384 = ALGO_HKDF_EXTRACT_SHA384,
-	//!< HKDF Extract SHA384
+	//!< HKDF Extract SHA384. Not supported.
 	HSM_KEY_DERIVATION_HKDF_EXPAND_SHA256 = ALGO_HKDF_EXPAND_SHA256,
 	//!< HKDF Expand SHA256
 	HSM_KEY_DERIVATION_HKDF_EXPAND_SHA384 = ALGO_HKDF_EXPAND_SHA384,
-	//!< HKDF Expand SHA384
+	//!< HKDF Expand SHA384. Not supported.
 } hsm_op_key_derivation_algo_t;
 
 /**
@@ -112,10 +112,10 @@ typedef struct {
 	//!< It must be 0 if salt not used.
 	uint8_t *fixed_info;
 	//!< Pointer to the fixed info.
-	//!< It must be 0 if not plaintext mode.
+	//!< It must be 0 if fixed info not used.
 	uint32_t fixed_info_size;
 	//!< Fixed info size in bytes.
-	//!< It must be 0 if not plaintext mode.
+	//!< It must be 0 if fixed info not used.
 	uint8_t *okm;
 	//!< Pointer to where the OKM will be output.
 	//!< It must be 0 if not plaintext mode.
