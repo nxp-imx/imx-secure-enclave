@@ -32,7 +32,7 @@ uint32_t prime_push(void *mu_base, uint8_t slot)
 	PRIME_MSG_HDR_INIT(&msg, PRIME_PUSH_REQ(slot), PRIME_PUSH_REQ_SZ);
 
 	if (imx_mu_send_recv(mu_base, &msg, &msg)) {
-		printf("Push Error 0x%x", msg.data[0]);
+		printf("Push Error 0x%x\n", msg.data[0]);
 		return msg.data[0];
 	}
 

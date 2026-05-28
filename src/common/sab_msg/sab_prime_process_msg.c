@@ -31,16 +31,16 @@ static int dequeue_ops(crypto_op_args_t **ops, uint32_t nb_ops)
 	return err;
 }
 
-static int build_op(prime_hdl_t handle, crypto_op_args_t *op,
-		    uint8_t buf_off, uint8_t flag)
+static uint32_t build_op(prime_hdl_t handle, crypto_op_args_t *op,
+			 uint8_t buf_off, uint8_t flag)
 {
-	int ret;
+	uint32_t ret;
 	prime_service_t *hdl;
 
 	hdl = prime_session_to_ptr(handle);
 	if (!hdl) {
 		printf("Invalid handle\n");
-		return -1;
+		return CRYPTO_OP_INVALID_HANDLE;
 	}
 
 	switch (op->op_type) {
@@ -55,7 +55,7 @@ static int build_op(prime_hdl_t handle, crypto_op_args_t *op,
 		break;
 	default:
 		printf("Un-supported crypto operation.\n");
-		ret = -1;
+		ret = CRYPTO_OP_INVALID_ALGO;
 		break;
 	};
 
@@ -68,14 +68,20 @@ static int enqueue_ops(prime_hdl_t handle, crypto_op_args_t **ops,
 	struct uio_prime_mu *prime_mu = get_uio_prime_mu();
 	uint8_t slot = 0, jobs = 0, buf_off = 64;
 	int i;
+	int ret;
 	uint32_t req_id;
 
 	/* Push Request: MU Slot */
 	for (i = 0; i < nb_ops; i++) {
 		if (flag && (i + 1 == nb_ops))
-			build_op(handle, ops[i], buf_off * i, PRIME_SIG_POP_REQ);
+			ret = build_op(handle, ops[i], buf_off * i, PRIME_SIG_POP_REQ);
 		else
-			build_op(handle, ops[i], buf_off * i, PRIME_POP_REQ);
+			ret = build_op(handle, ops[i], buf_off * i, PRIME_POP_REQ);
+		if (ret) {
+			ops[i]->op_status = ret;
+			return 0;
+		}
+
 		slot = slot | (1 << i);
 		jobs++;
 	}
@@ -98,6 +104,7 @@ static int enqueue_ops(prime_hdl_t handle, crypto_op_args_t **ops,
 
 			producer_req_id_index -= (nb_ops * PRIME_REQ_ID_DIFF);
 
+			/* It returns num of jobs completed, returning 0 means error */
 			return 0;
 		}
 	}
@@ -132,14 +139,16 @@ static int run_ops(prime_hdl_t handle, crypto_op_args_t **ops, uint32_t nb_ops)
 		}
 
 		enqd_ops = enqueue_ops(handle, &ops[i], cnt_ops, flag);
-		if (enqd_ops < cnt_ops)
+
+		if (!enqd_ops)
 			break;
 
 		i += cnt_ops;
 	}
 
 	/* read the status and clear the error jobs in fw queue */
-	ret = dequeue_ops(ops, i);
+	if (i)
+		ret = dequeue_ops(ops, i);
 
 	return ret;
 }

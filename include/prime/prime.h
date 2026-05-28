@@ -26,6 +26,12 @@ enum crypto_op_status {
 	CRYPTO_OP_COMPLETED, // dequeue done, after getting interrupt
 	CRYPTO_OP_SUBMITTED, // enqueue done
 	CRYPTO_OP_FIFO_FULL, // push fail
+	CRYPTO_OP_INVALID_HANDLE,
+	//!< Operation failed, invalid handle
+	CRYPTO_OP_INVALID_ALGO,
+	//!< Operation failed, invalid cryptographic algorithm
+	CRYPTO_OP_MSG_BUILD_FAILED,
+	//!< Failed to build MU message
 };
 
 /* Status buffer structure updated by firmware */
