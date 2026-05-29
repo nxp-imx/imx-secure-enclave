@@ -294,6 +294,13 @@ crrm_doc: include/crrm/crrm_api.h
 	rm -rf doc/latex/
 	rm -rf doc/rtf/
 
+prime_doc: include/prime/prime.h
+	rm -rf doc/latex/
+	doxygen doc/prime/PRIME_Doxyfile
+	make -C ./doc/latex pdf
+	cp doc/latex/refman.pdf doc/prime_api_document.pdf
+	rm -rf doc/latex/
+
 install: libs tools
 	mkdir -p $(DESTDIR)$(LIBDIR) $(DESTDIR)$(INCLUDEDIR)
 	$(foreach i, $(LIB_NAMES),\
