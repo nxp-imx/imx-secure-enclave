@@ -14,7 +14,7 @@
 
 #define no_printf(...)						\
 {}
-
+/* Legacy logging macros - preserved for backward compatibility */
 #define se_print(a,...) printf("%s(): " a,__func__,##__VA_ARGS__)
 
 #ifdef ELE_DEBUG
@@ -26,6 +26,57 @@
 #define se_info(...) no_printf(__VA_ARGS__) /* not debugging */
 #define se_warn(...) no_printf(__VA_ARGS__) /* not debugging */
 #endif
+
+/* ========================================================================
+ * New Standard Log Level System
+ * ========================================================================
+ */
+
+/* Standard log levels */
+#define SE_LOG_LEVEL_NONE     0
+#define SE_LOG_LEVEL_FATAL    1
+#define SE_LOG_LEVEL_ERROR    2
+#define SE_LOG_LEVEL_WARN     3
+#define SE_LOG_LEVEL_INFO     4
+#define SE_LOG_LEVEL_DEBUG    5
+#define SE_LOG_LEVEL_VERBOSE  6
+
+/* Set default log level to ERROR if not defined */
+#ifndef SE_LOG_LEVEL
+#define SE_LOG_LEVEL SE_LOG_LEVEL_ERROR
+#endif
+
+/* Core logging macro with level check */
+#define se_log(level, tag, fmt, ...) \
+	do { \
+		if (level <= SE_LOG_LEVEL) { \
+			printf("[" tag "] %s(): " fmt, __func__, ##__VA_ARGS__); \
+		} \
+	} while (0)
+
+/* New standard log level functions */
+#define se_log_fatal(fmt, ...) \
+		se_log(SE_LOG_LEVEL_FATAL,   "FATAL",   fmt, ##__VA_ARGS__)
+#define se_log_error(fmt, ...) \
+		se_log(SE_LOG_LEVEL_ERROR,   "ERROR",   fmt, ##__VA_ARGS__)
+#define se_log_warn(fmt, ...) \
+		se_log(SE_LOG_LEVEL_WARN,    "WARN",    fmt, ##__VA_ARGS__)
+#define se_log_info(fmt, ...) \
+		se_log(SE_LOG_LEVEL_INFO,    "INFO",    fmt, ##__VA_ARGS__)
+#define se_log_debug(fmt, ...) \
+		se_log(SE_LOG_LEVEL_DEBUG,   "DEBUG",   fmt, ##__VA_ARGS__)
+#define se_log_verbose(fmt, ...) \
+		se_log(SE_LOG_LEVEL_VERBOSE, "VERBOSE", fmt, ##__VA_ARGS__)
+
+/* Shorter aliases for convenience */
+#define SE_FATAL(fmt, ...)   se_log_fatal(fmt, ##__VA_ARGS__)
+#define SE_ERROR(fmt, ...)   se_log_error(fmt, ##__VA_ARGS__)
+#define SE_WARN(fmt, ...)    se_log_warn(fmt, ##__VA_ARGS__)
+#define SE_INFO(fmt, ...)    se_log_info(fmt, ##__VA_ARGS__)
+#define SE_DEBUG(fmt, ...)   se_log_debug(fmt, ##__VA_ARGS__)
+#define SE_VERBOSE(fmt, ...) se_log_verbose(fmt, ##__VA_ARGS__)
+
+/* ======================================================================== */
 
 #ifndef BIT
 #define BIT(x) (1 << (x))
