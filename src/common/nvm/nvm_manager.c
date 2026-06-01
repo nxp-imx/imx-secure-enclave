@@ -46,7 +46,7 @@ static uint32_t nvm_storage_import(struct nvm_ctx_st *nvm_ctx_param,
 		if (plat_fetch_msg_crc((uint32_t *)BLOB_START_ADDR(data, g_nvm_header_sz),
 				       BLOB_LEN(blob_hdr->size, g_nvm_header_sz))
 		    != blob_hdr->crc) {
-			printf("\nplat_fetch_msg_crc: CRC validation failed\n");
+			se_log_error("blob CRC validation failed\n");
 			break;
 		}
 
