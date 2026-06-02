@@ -330,6 +330,8 @@ uint32_t proc_msg_rsp_dev_attest(void *rsp_buf, void *args)
 		op_args->imem_state = rsp_w_data_v2->d_addn_info.imem_state;
 		op_args->csal_state = rsp_w_data_v2->d_addn_info.csal_state;
 		op_args->trng_state = rsp_w_data_v2->d_addn_info.trng_state;
+		op_args->oem_srk_revoke_status =
+				rsp_w_data_v2->d_addn_info.oem_srk_revoke_status;
 	}
 
 	if (hsm_get_dev_attest_api_ver() >= HSM_API_VERSION_3) {

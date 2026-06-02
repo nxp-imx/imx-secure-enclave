@@ -1,6 +1,6 @@
 // SPDX-License-Identifier: BSD-3-Clause
 /*
- * Copyright 2022-2023, 2025 NXP
+ * Copyright 2022-2023, 2025-2026 NXP
  */
 
 #include <string.h>
@@ -160,6 +160,7 @@ uint32_t proc_msg_rsp_dev_getinfo(void *rsp_buf, void *args)
 	op_args->imem_state = rsp_w_data->d_addn_info.imem_state;
 	op_args->csal_state = rsp_w_data->d_addn_info.csal_state;
 	op_args->trng_state = rsp_w_data->d_addn_info.trng_state;
+	op_args->oem_srk_revoke_status = rsp_w_data->d_addn_info.oem_srk_revoke_status;
 
 	op_args->oem_pqc_srkh_sz = DEV_GETINFO_OEM_SRKH_SZ;
 

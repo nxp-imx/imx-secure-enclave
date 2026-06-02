@@ -1,6 +1,6 @@
 // SPDX-License-Identifier: BSD-3-Clause
 /*
- * Copyright 2022-2025 NXP
+ * Copyright 2022-2026 NXP
  */
 
 #include <stdio.h>
@@ -81,6 +81,8 @@ void dev_get_info(hsm_hdl_t sess_hdl)
 		printf("IMEM state = 0x%x.\n", dev_getinfo_args.imem_state);
 		printf("CSAL state = 0x%x.\n", dev_getinfo_args.csal_state);
 		printf("TRNG state = 0x%x.\n", dev_getinfo_args.trng_state);
+		printf("OEM SRK Revoke status = 0x%x.\n",
+		       dev_getinfo_args.oem_srk_revoke_status);
 
 		// freeing memory after the usage
 

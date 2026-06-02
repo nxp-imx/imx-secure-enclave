@@ -52,6 +52,15 @@ typedef struct {
 	//!< crypto Lib random context initialization state.
 	uint8_t  trng_state;
 	//!< indicates TRNG state.
+	uint8_t oem_srk_revoke_status;
+	//!< Revocation status of OEM SRKs.
+	//!< It will not reflect any revocation changes not yet committed.
+	//!< The bitmap description:
+	//!< Bit 0: SRK0 revoked
+	//!< Bit 1: SRK1 revoked
+	//!< Bit 2: SRK2 revoked
+	//!< Bit 3: SRK3 revoked
+	//!< Bits 4-7: Reserved
 	uint16_t oem_pqc_srkh_sz;
 	//!< indicates the size of FW OEM PQC SRKH.
 	uint8_t  *oem_pqc_srkh;

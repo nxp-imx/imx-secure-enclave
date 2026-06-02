@@ -1,6 +1,6 @@
 // SPDX-License-Identifier: BSD-3-Clause
 /*
- * Copyright 2022-2023, 2025 NXP
+ * Copyright 2022-2023, 2025-2026 NXP
  */
 
 #ifndef SAB_DEV_GETINFO_H
@@ -40,7 +40,7 @@ struct dev_addn_info {
 	uint8_t  trng_state;
 	uint8_t  csal_state;
 	uint8_t  imem_state;
-	uint8_t  reserved2;
+	uint8_t  oem_srk_revoke_status;
 };
 
 struct data_addn_ver3_info {

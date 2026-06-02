@@ -64,6 +64,16 @@ typedef struct {
 	uint8_t  csal_state;
 	//!< CSAL state (version 2)
 	uint8_t  trng_state;
+	//!< TRNG state (version 2)
+	uint8_t oem_srk_revoke_status;
+	//!< Revocation status of OEM SRKs. (version 2)
+	//!< It will not reflect any revocation changes not yet committed.
+	//!< The bitmap description:
+	//!< Bit 0: SRK0 revoked
+	//!< Bit 1: SRK1 revoked
+	//!< Bit 2: SRK2 revoked
+	//!< Bit 3: SRK3 revoked
+	//!< Bits 4-7: Reserved
 	uint16_t oem_pqc_srkh_sz;
 	//!< buffer size in bytes for OEM PQC SRKH (version 3)
 	uint8_t  *oem_pqc_srkh;
