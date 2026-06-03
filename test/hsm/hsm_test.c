@@ -981,7 +981,13 @@ int main(int argc, char *argv[])
 	//lc_update_info(hsm_session_hdl, HSM_OEM_OPEN_STATE);
 
 #ifdef PSA_COMPLIANT
-	if (storage_status != HSM_STORAGE_STATUS_OPENED)
+	/* Check the latest NVM/storage open status, before executing related
+	 * testcases. If Storage not opened yet, or failed to fetch the status,
+	 * then skip all the NVM/storage dependent tests, to avoid HSM services
+	 * disabled scenario.
+	 */
+	err = hsm_get_storage_status(hsm_session_hdl, 0, &storage_status);
+	if (err != HSM_NO_ERROR || storage_status != HSM_STORAGE_STATUS_OPENED)
 		goto ginfo_out;
 #endif
 
