@@ -14,12 +14,14 @@
 #include "sab_process_msg.h"
 #include "sab_storage_open.h"
 #include "internal/hsm_session.h"
+#include "nvm_blob_conversion.h"
 
 #include "plat_os_abs.h"
 #include "plat_utils.h"
 
 #define SOC_IMX8DXL	0xe
 uint16_t g_soc_id;
+uint8_t g_nvm_header_sz;
 
 /* Storage import processing. Return 0 on success.  */
 static uint32_t nvm_storage_import(struct nvm_ctx_st *nvm_ctx_param,
@@ -41,10 +43,12 @@ static uint32_t nvm_storage_import(struct nvm_ctx_st *nvm_ctx_param,
 		if (blob_hdr->size != len)
 			break;
 
-		if (plat_fetch_msg_crc((uint32_t *)BLOB_START_ADDR(data, NVM_HEADER_SZ),
-				       BLOB_LEN(blob_hdr->size, NVM_HEADER_SZ))
-		    != blob_hdr->crc)
+		if (plat_fetch_msg_crc((uint32_t *)BLOB_START_ADDR(data, g_nvm_header_sz),
+				       BLOB_LEN(blob_hdr->size, g_nvm_header_sz))
+		    != blob_hdr->crc) {
+			printf("\nplat_fetch_msg_crc: CRC validation failed\n");
 			break;
+		}
 
 		error = process_sab_msg(nvm_ctx_param->phdl,
 					nvm_ctx_param->mu_type,
@@ -218,16 +222,146 @@ bool is_flag_supported(uint8_t flags)
 		return false;
 }
 
+static uint32_t nvm_storage_import_helper(struct nvm_ctx_st *nvm_ctx,
+					  uint32_t nvm_hdr_sz_field_value)
+{
+	uint32_t ret = SAB_LIB_SUCCESS;
+	uint8_t *data;
+	uint32_t data_len;
+#ifdef PSA_COMPLIANT
+	struct nvm_header_s *nvm_hdr;
+#endif
+	data_len = nvm_hdr_sz_field_value;
+	if ((data_len == 0U || data_len < sizeof(struct nvm_header_s)))
+		return SAB_LIB_ERROR;
+
+	data = plat_os_abs_malloc(data_len);
+	if (!data)
+		return SAB_LIB_ERROR;
+
+	if (plat_os_abs_storage_read(nvm_ctx->phdl,
+				     data,
+				     data_len,
+				     nvm_ctx->nvm_fname)
+			!= data_len) {
+		ret = SAB_LIB_ERROR;
+		goto exit;
+	}
+#ifdef PSA_COMPLIANT
+	/* In case of checking for v1 format version, need below
+	 * modification in the NVM blob header buffer, so that
+	 * the master blob can be parsed successfully with the
+	 * v2 parsing rules.
+	 */
+	if (g_nvm_header_sz == NVM_HEADER_SZ_V1) {
+		nvm_hdr = (struct nvm_header_s *)data;
+		if (nvm_hdr->size > (UINT32_MAX - g_nvm_header_sz) ||
+		    (nvm_hdr->size != (data_len - g_nvm_header_sz))) {
+			ret = SAB_LIB_ERROR;
+			goto exit;
+		}
+		nvm_hdr->size += g_nvm_header_sz;
+	}
+#endif
+	/* In case of error then start anyway
+	 * the storage manager process so
+	 * platform can create and export a
+	 * storage.
+	 */
+	if (nvm_storage_import(nvm_ctx,
+			       data,
+			       data_len)
+			!= plat_sab_success_tag(nvm_ctx->phdl)) {
+		ret = SAB_FAILURE_STATUS;
+		se_err("Warn: Failure in Master Storage Data Import.\n");
+	}
+exit:
+	plat_os_abs_free(data);
+	return ret;
+}
+
+static uint32_t do_nvm_import_n_blob_conversion(struct nvm_ctx_st *nvm_ctx,
+						uint32_t nvm_hdr_sz_field_value)
+{
+	uint32_t ret;
+#ifdef PSA_COMPLIANT
+	uint8_t blob_version_target;
+	uint8_t blob_version_present;
+	uint32_t adjusted_size;
+
+	/* Identify the existing NVM blob format version:
+	 *   - First consider the storage master file to be in latest format
+	 *     (version 2) and parse according to perform Storage Import operation.
+	 *   - If failed with first consideration, then perform the same process
+	 *     with older blob format (version 1) parsing rules.
+	 *
+	 * The passing case will help identify the format version of existing
+	 * NVM blobs.
+	 */
+
+	/* Check v2 format for the existing NVM storage master blob */
+	g_nvm_header_sz = NVM_HEADER_SZ_V2;
+
+	ret = nvm_storage_import_helper(nvm_ctx, nvm_hdr_sz_field_value);
+	if (ret == SAB_LIB_SUCCESS) {
+		printf("\nNVM storage master import: v2 success\n");
+		goto out;
+	} else if (ret == SAB_FAILURE_STATUS) {
+		printf("\nNVM storage master import: v2 failed\n");
+	} else {
+		printf("\nNVM storage master import: v2 lib error\n");
+	}
+
+	/* Check v1 format for the existing NVM storage master blob */
+	g_nvm_header_sz = NVM_HEADER_SZ_V1;
+
+	if (nvm_hdr_sz_field_value > (UINT32_MAX - g_nvm_header_sz)) {
+		printf("Error: NVM header size calculation would overflow\n");
+		ret = SAB_LIB_ERROR;
+		goto out;
+	}
+
+	adjusted_size = nvm_hdr_sz_field_value + g_nvm_header_sz;
+
+	ret = nvm_storage_import_helper(nvm_ctx, adjusted_size);
+	if (ret == SAB_LIB_SUCCESS) {
+		printf("\nNVM storage master import: v1 success\n");
+		goto out;
+	} else if (ret == SAB_FAILURE_STATUS) {
+		printf("\nNVM storage master import: v1 failed\n");
+	} else {
+		printf("\nNVM storage master import: v1 lib error\n");
+	}
+
+out:
+	blob_version_present = g_nvm_header_sz;
+	blob_version_target = nvm_get_current_header_version();
+
+	/* Check if existing blobs format version mismatch with the current
+	 * supported version, and blobs need to be migrated accordingly to work
+	 * with current blob format parsing rules.
+	 */
+	if (ret == SAB_LIB_SUCCESS && blob_version_present != blob_version_target) {
+		ret = nvm_blobs_format_conversion(nvm_ctx,
+						  blob_version_present,
+						  blob_version_target);
+		if (ret)
+			printf("\nError: failed to convert NVM blobs format.\n");
+	}
+#else
+	g_nvm_header_sz = NVM_HEADER_SZ;
+	ret = nvm_storage_import_helper(nvm_ctx, nvm_hdr_sz_field_value);
+#endif
+	return ret;
+}
+
 uint32_t nvm_manager(uint8_t flags,
 		     void **ctx,
 		     uint8_t *fname,
 		     uint8_t *dname)
 {
-	int32_t len = 0;
-	uint32_t data_len;
 	struct nvm_header_s nvm_hdr;
 	uint32_t err = 0u;
-	uint8_t *data;
 	uint8_t retry = 0;
 	struct nvm_ctx_st *nvm_ctx = NULL;
 
@@ -275,30 +409,12 @@ uint32_t nvm_manager(uint8_t flags,
 					     NVM_HEADER_SZ,
 					     nvm_ctx->nvm_fname)
 					     == NVM_HEADER_SZ) {
-
-			data_len = nvm_hdr.size;
-			data = plat_os_abs_malloc(data_len);
-
-			if (data != NULL) {
-				if (plat_os_abs_storage_read(nvm_ctx->phdl,
-							     data,
-							     data_len,
-							     nvm_ctx->nvm_fname)
-							     == data_len) {
-					/* In case of error then start anyway
-					 * the storage manager process so
-					 * platform can create and export a
-					 * storage.
-					 */
-					if (nvm_storage_import(nvm_ctx,
-								data,
-								data_len)
-						!= plat_sab_success_tag(nvm_ctx->phdl))
-						se_err("Warn: Failure in Master Storage Data Import.\n");
-				}
-				plat_os_abs_free(data);
-				len = 0;
-			}
+			/* For NVM storage master import process,
+			 * check if the existing NVM blobs need conversion to
+			 * the latest blob format, decide on the basis on the
+			 * NVM storage master file and proceed accordingly.
+			 */
+			do_nvm_import_n_blob_conversion(nvm_ctx, nvm_hdr.size);
 		}
 
 		err = plat_os_abs_set_mu_chnl_as_nvm(nvm_ctx->mu_type,

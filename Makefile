@@ -55,6 +55,7 @@ INCLUDE_PATHS := -I${PLAT_PATH}/include -I${PLAT_COMMON_PATH}/include -Iinclude 
 
 NVM_OBJECTS := \
 	$(PLAT_COMMON_PATH)/nvm/nvm_manager.o \
+	$(PLAT_COMMON_PATH)/nvm/nvm_blob_conversion.o\
 	$(PLAT_PATH)/nvm_os_abs_linux.o
 
 OBJECTS	:= $(NVM_OBJECTS)\
@@ -161,6 +162,7 @@ $(CRRM_LIB): $(CRRM_LIB_OBJECTS) \
 
 # NVM manager lib
 $(NVM_LIB): $(PLAT_COMMON_PATH)/nvm/nvm_manager.o\
+	$(PLAT_COMMON_PATH)/nvm/nvm_blob_conversion.o\
 	$(PLAT_COMMON_PATH)/sab_msg/sab_session.o\
 	$(PLAT_COMMON_PATH)/sab_common_err.o\
 	$(PLAT_COMMON_PATH)/sab_messaging.o \

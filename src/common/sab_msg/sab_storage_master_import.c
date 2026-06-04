@@ -1,6 +1,6 @@
 // SPDX-License-Identifier: BSD-3-Clause
 /*
- * Copyright 2023, 2025 NXP
+ * Copyright 2023, 2025-2026 NXP
  */
 
 #include <errno.h>
@@ -11,6 +11,8 @@
 #include "sab_messaging.h"
 
 #include "plat_os_abs.h"
+
+extern uint8_t g_nvm_header_sz;
 
 uint32_t prepare_msg_storage_master_import(void *phdl,
 					   void *cmd_buf, void *rsp_buf,
@@ -29,7 +31,7 @@ uint32_t prepare_msg_storage_master_import(void *phdl,
 		return SAB_ENGN_FAIL;
 
 	msg->storage_handle = msg_hdl;
-	msg->key_store_size = BLOB_LEN(blob_hdr->size, NVM_HEADER_SZ);
+	msg->key_store_size = BLOB_LEN(blob_hdr->size, g_nvm_header_sz);
 
 	if (!msg->key_store_size)
 		return SAB_ENGN_FAIL;
@@ -38,7 +40,7 @@ uint32_t prepare_msg_storage_master_import(void *phdl,
 			      0u,
 			      plat_os_abs_data_buf((struct plat_os_abs_hdl *)phdl,
 						   BLOB_START_ADDR(data,
-								   NVM_HEADER_SZ),
+								   g_nvm_header_sz),
 						   msg->key_store_size,
 						   DATA_BUF_IS_INPUT));
 

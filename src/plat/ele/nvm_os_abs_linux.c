@@ -4,6 +4,7 @@
  */
 
 #include <stdio.h>
+#include <dirent.h>
 #include <errno.h>
 #include <stdlib.h>
 #include <string.h>
@@ -235,6 +236,119 @@ uint32_t plat_os_abs_storage_remove_file(char *filename, char *dirname)
 	} else {
 		fsync(dir_fd);
 		close(dir_fd);
+	}
+
+	return ret;
+}
+
+/* Open directory for reading files */
+void *plat_os_abs_open_dir(uint8_t *dirname)
+{
+	DIR *dir = opendir((const char *)dirname);
+
+	if (!dir)
+		se_err("Failed to open directory [%d]: %s\n", errno, strerror(errno));
+
+	return (void *)dir;
+}
+
+/* Read next filename from directory */
+uint8_t *plat_os_abs_read_dir(void *dir_handle)
+{
+	struct dirent *entry;
+	DIR *dir = (DIR *)dir_handle;
+
+	if (!dir)
+		return NULL;
+
+	entry = readdir(dir);
+	if (!entry)
+		return NULL;
+
+	return (uint8_t *)entry->d_name;
+}
+
+/* Close directory */
+void plat_os_abs_close_dir(void *dir_handle)
+{
+	DIR *dir = (DIR *)dir_handle;
+
+	if (dir)
+		closedir(dir);
+}
+
+/* Get file size */
+uint32_t plat_os_abs_storage_get_size(struct plat_os_abs_hdl *phdl,
+				      uint8_t *nvm_fname)
+{
+	struct stat file_stat;
+	char *path;
+	uint32_t file_size = 0;
+
+	path = (char *)nvm_fname;
+	if (path) {
+		/* Get file statistics */
+		if (stat(path, &file_stat) == 0) {
+			if (file_stat.st_size < 0) {
+				se_err("Invalid file size (negative): %s\n", path);
+				file_size = 0;
+			} else if (file_stat.st_size > UINT32_MAX) {
+				se_err("File size exceeds UINT32_MAX: %s (size: %ld)\n",
+				       path, (long)file_stat.st_size);
+				file_size = 0;
+			} else {
+				file_size = (uint32_t)file_stat.st_size;
+			}
+		} else {
+			se_err("Failed to stat file [%d]: %s\n",
+			       errno, strerror(errno));
+		}
+	}
+
+	return file_size;
+}
+
+/* Truncate a file to specified size */
+uint32_t plat_os_abs_storage_truncate(struct plat_os_abs_hdl *phdl,
+				      uint8_t *nvm_fname,
+				      uint32_t size)
+{
+	char *path;
+	uint32_t ret = PLAT_SUCCESS;
+
+	path = (char *)nvm_fname;
+
+	if (path) {
+		if (truncate(path, (off_t)size) != 0) {
+			se_err("Failed to truncate file [%d]: %s\n",
+			       errno, strerror(errno));
+			ret = PLAT_FAILURE;
+		}
+	} else {
+		ret = PLAT_FAILURE;
+	}
+
+	return ret;
+}
+
+/* Delete a file */
+uint32_t plat_os_abs_storage_delete(struct plat_os_abs_hdl *phdl, uint8_t *filename)
+{
+	uint32_t ret = PLAT_SUCCESS;
+	int err;
+
+	if (!filename) {
+		se_err("Error: NULL filename provided\n");
+		return PLAT_FAILURE;
+	}
+
+	err = remove((const char *)filename);
+	if (err) {
+		se_err("Failed to delete file [%d]: %s\n", errno, strerror(errno));
+		ret = PLAT_FAILURE;
+
+		if (errno == ENOENT)
+			ret = PLAT_ERR_NO_SUCH_FILE_DIR;
 	}
 
 	return ret;

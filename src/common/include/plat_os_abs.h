@@ -467,5 +467,95 @@ uint32_t plat_os_abs_cmd_snd_rcv_rsp(struct plat_os_abs_hdl *phdl,
  * \return PLAT_SUCCESS/PLAT_FAILURE
  */
 uint32_t plat_os_abs_set_mu_chnl_as_nvm(uint32_t type, struct plat_os_abs_hdl *phdl);
+#ifdef PSA_COMPLIANT
+/**
+ * Open a directory for reading its contents.
+ *
+ * This function opens a directory to allow iteration through its files.
+ * The returned handle should be used with plat_os_abs_read_dir() to read
+ * directory entries and must be closed with plat_os_abs_close_dir() when done.
+ *
+ * \param dirname pointer to the directory path to open (null-terminated string).
+ *
+ * \return pointer to directory handle on success, NULL on failure.
+ */
+void *plat_os_abs_open_dir(uint8_t *dirname);
+
+/**
+ * Read the next entry from an open directory.
+ *
+ * This function returns the next filename in the directory. It should be called
+ * repeatedly until it returns NULL to iterate through all directory entries.
+ * The returned pointer is valid only until the next call to this function or
+ * until the directory is closed.
+ *
+ * Note: The returned filenames include "." and ".." entries which should typically
+ * be skipped by the caller.
+ *
+ * \param dir_handle pointer to directory handle returned by plat_os_abs_open_dir().
+ *
+ * \return pointer to filename (null-terminated string) on success, NULL when no
+ *         more entries.
+ */
+uint8_t *plat_os_abs_read_dir(void *dir_handle);
+
+/**
+ * Close a previously opened directory.
+ *
+ * This function closes a directory handle and releases associated resources.
+ * After calling this function, the directory handle should not be used again.
+ *
+ * \param dir_handle pointer to directory handle returned by plat_os_abs_open_dir()
+ */
+void plat_os_abs_close_dir(void *dir_handle);
+
+/**
+ * Get the size of a file in bytes.
+ *
+ * This function queries the filesystem to determine the actual size of a file.
+ * It is used to allocate appropriately sized buffers before reading blob data.
+ *
+ * \param phdl pointer to the session handle
+ * \param nvm_fname pointer to the file path (null-terminated string)
+ *
+ * \return file size in bytes, or 0 if file doesn't exist or on error
+ */
+uint32_t plat_os_abs_storage_get_size(struct plat_os_abs_hdl *phdl,
+				      uint8_t *nvm_fname);
+
+/**
+ * Truncate a file to a specified size.
+ *
+ * This function resizes a file to the specified size. If the file is larger than
+ * the specified size, the extra data is discarded. If the file is smaller, it may
+ * be extended (behavior is platform-dependent).
+ *
+ * \param phdl pointer to the session handle
+ * \param nvm_fname pointer to the file path (null-terminated string)
+ * \param size new size in bytes for the file
+ *
+ * \return PLAT_SUCCESS on success, PLAT_FAILURE on error
+ */
+uint32_t plat_os_abs_storage_truncate(struct plat_os_abs_hdl *phdl,
+				      uint8_t *nvm_fname,
+				      uint32_t size);
+
+/**
+ * Delete a file from storage.
+ *
+ * This function permanently removes a file from the filesystem.
+ * If the file does not exist, the function may return an error or success
+ * depending on the platform implementation.
+ *
+ * \param phdl pointer to the session handle
+ * \param filename pointer to the file path to delete (null-terminated string)
+ *
+ * \return PLAT_SUCCESS on success
+ *         PLAT_FAILURE on general error
+ *         PLAT_ERR_NO_SUCH_FILE_DIR if file doesn't exist
+ */
+uint32_t plat_os_abs_storage_delete(struct plat_os_abs_hdl *phdl,
+				    uint8_t *filename);
+#endif
 /** @} end of porting guide */
 #endif
