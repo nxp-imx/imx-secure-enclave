@@ -150,7 +150,7 @@ Secure Enclave library code repo
 
 	cd imx-secure-enclave/
 
-	git checkout lf-6.6.36_2.1.0
+	git checkout lf-6.18.20_2.0.0
 
 
 Secure Enclave Environment Setup
@@ -663,7 +663,24 @@ SECO: SECO-HSM + SECO-SHE: Tests Artifacts
 Secure Enclave (HSM/SHE) APIs Documents:
 ----------------------------------------
 
-	https://github.com/nxp-imx/imx-secure-enclave/tree/lf-6.18.2_1.0.0/doc
+	https://github.com/nxp-imx/imx-secure-enclave/tree/lf-6.18.20_2.0.0/doc
+
+
+Table 6: NVM blob format compatibility details
+----------------------------------------------
+
++---------------------------+---------------------------------------+
+|  NVM blob format version  |         Supported LF releases         |
++===========================+=======================================+
+|                           |                                       |
+|         Version 1         |  lf-6.6.3_1.0.0  -  lf-6.12.34_2.1.0  |
+|                           |                                       |
++---------------------------+---------------------------------------+
+|                           |                                       |
+|         Version 2         |  lf-6.12.49_2.2.0  - present          |
+|                           |                                       |
++---------------------------+---------------------------------------+
+
 
 6. Licenses
 ===========
@@ -679,6 +696,19 @@ Known Limitations
 -----------------
 
 - ELE-HSM
+
+  NVM blob format compatibility issue:
+   - While switching between LF releases, if the existing NVM blobs (containing
+     persistent keys and data) used with an incompatible LF release, the blobs
+     will not get identified or parsed correctly. (see Table 6).
+   - In lf-6.18.20_2.0.0, added NVM blob format conversion logic to automatically
+     detect the older blob format (version 1) and convert all the existing blobs
+     to the latest (version 2) format, during first execution of NVM daemon.
+   - It is to be noted that depending on the number of NVM blob files, the
+     completion for conversion may take some time (although very small), so it is
+     recommended to not interrupt the conversion process in-between.
+   - Also note that the NVM directory must contain blobs following only one type
+     of format i.e. either all version 1 or version 2.
 
   i.MX95:
 
