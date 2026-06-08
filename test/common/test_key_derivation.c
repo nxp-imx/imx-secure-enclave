@@ -9,6 +9,9 @@
 #include "hsm_api.h"
 
 #ifdef PSA_COMPLIANT
+
+#define TEST_KEY_DERIVATION_KEY_GROUP 91
+
 static uint8_t salt[32] = {
 	0x00, 0x01, 0x02, 0x03, 0x04, 0x05, 0x06, 0x07,
 	0x08, 0x09, 0x0A, 0x0B, 0x0C, 0x0D, 0x0E, 0x0F,
@@ -162,6 +165,82 @@ static uint8_t test_key_derivation_subtest_03(uint32_t key_mgmt_hdl,
 	return TEST_SUCCESS;
 }
 
+/* Key Derivation operation - Opaque keys mode */
+static uint8_t test_key_derivation_subtest_04(uint32_t key_mgmt_hdl,
+					      uint32_t key_store_id,
+					      uint32_t *okm_key_id)
+{
+	uint8_t ret = TEST_FAILED;
+	hsm_err_t err;
+	op_key_derivation_args_t args = {0};
+	op_key_derivation_key_store_args_t key_store_args = {0};
+	op_key_derivation_algo_hkdf_args_t hkdf_args = {0};
+	uint32_t priv_key_id = 0;
+
+	/* Generate a key (IKM) opaque for Key Derivation */
+	err = generate_test_key(key_mgmt_hdl,
+				HSM_KEY_TYPE_DERIVE,
+				HSM_KEY_SIZE_DERIVE_256,
+				0,
+				HSM_KEY_USAGE_DERIVE,
+				PERMITTED_ALGO_HKDF_SHA256,
+				0, 0,
+				TEST_KEY_DERIVATION_KEY_GROUP,
+				0, NULL,
+				0, NULL,
+				&priv_key_id);
+	if (err != HSM_NO_ERROR)
+		goto out;
+
+	/* Populate Key store arguments */
+	key_store_args.vers = HSM_KEY_DERIVATION_KEY_STORE_ARGS_FORMAT_VERS;
+	key_store_args.key_store_id = key_store_id;
+	key_store_args.key_material_id = priv_key_id;
+	key_store_args.derived_key_type = HSM_KEY_TYPE_DERIVE;
+	key_store_args.derived_key_bits_sz = HSM_KEY_SIZE_DERIVE_256;
+	key_store_args.derived_key_lifetime = 0; //Ignored, set to standard volatile.
+	key_store_args.derived_key_usage = HSM_KEY_USAGE_DERIVE;
+	key_store_args.derived_key_permitted_algo = PERMITTED_ALGO_HKDF_SHA256;
+	key_store_args.derived_key_lifecycle = 0; //Ignored, set to current lifecycle.
+	key_store_args.derived_key_id = 0; //Ignored, FW will choose the key id.
+	key_store_args.derived_key_group = TEST_KEY_DERIVATION_KEY_GROUP;
+
+	/* Populate HKDF algorithm arguments */
+	hkdf_args.vers = HSM_KEY_DERIVATION_ALGO_ARGS_HKDF_FORMAT_VERS;
+	hkdf_args.salt = salt;
+	hkdf_args.salt_size = sizeof(salt);
+	hkdf_args.fixed_info = fixed_info;
+	hkdf_args.fixed_info_size = sizeof(fixed_info);
+
+	/* Key Derivation command arguments */
+	args.algorithm = HSM_KEY_DERIVATION_HKDF_SHA256;
+	args.flags = HSM_OP_KEY_DERIVATION_FLAGS_OPAQUE;
+	args.key_store_args = &key_store_args;
+	args.key_store_args_size = sizeof(op_key_derivation_key_store_args_t);
+	args.key_derivation_algo_args = &hkdf_args;
+	args.key_derivation_algo_args_size = sizeof(op_key_derivation_algo_hkdf_args_t);
+
+	err = hsm_key_derivation(key_mgmt_hdl, &args);
+	if (err != HSM_NO_ERROR) {
+		printf("\nhsm_key_derivation (HKDF) (opaque) err: 0x%x. --> FAILED\n",
+		       err);
+		goto out;
+	}
+
+	printf("\nhsm_key_derivation (HKDF) (opaque) [key_id=0x%x] --> SUCCESS\n",
+	       args.derived_key_id);
+
+	ret = TEST_SUCCESS;
+out:
+	if (priv_key_id)
+		delete_test_key(key_mgmt_hdl, priv_key_id, 0);
+
+	if (args.derived_key_id)
+		delete_test_key(key_mgmt_hdl, args.derived_key_id, 0);
+
+	return ret;
+}
+
 uint8_t test_key_derivation(uint32_t key_mgmt_hdl, uint32_t key_store_id)
 {
 	uint8_t ret = TEST_SUCCESS;
@@ -205,6 +284,8 @@ uint8_t test_key_derivation(uint32_t key_mgmt_hdl, uint32_t key_store_id)
 		printf("HKDF OKM outputs do not match. --> FAILED\n");
 		return TEST_FAILED;
 	}
+
+	ret |= test_key_derivation_subtest_04(key_mgmt_hdl, key_store_id, &hkdf_okm_id);
 
 	printf("\n----------------------------------------------------------\n");
 
