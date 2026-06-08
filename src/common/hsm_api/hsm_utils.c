@@ -17,6 +17,8 @@
 #include "plat_err_def.h"
 
 #define HSM_ERR_SUPPORT 0
+#define SOC_ID_MASK_IMX9XX              0xFFF0
+#define SOC_ID_MASK_IMX95               0xFF00
 
 /* Print warnings if any with the SAB Success rating */
 static hsm_err_t sab_success_rating_to_hsm_warning(uint8_t sab_success_rating)
@@ -371,6 +373,20 @@ uint32_t se_get_info(uint32_t session_hdl, op_get_info_args_t *args)
 	return err;
 }
 
+static uint32_t get_normalized_soc_id(uint32_t get_info_soc_id)
+{
+	if ((get_info_soc_id & SOC_ID_MASK_IMX9XX) == SOC_IMX952)
+		return SOC_IMX952;
+
+	if ((get_info_soc_id & SOC_ID_MASK_IMX95) == SOC_IMX95)
+		return SOC_IMX95;
+
+	if ((get_info_soc_id & SOC_ID_MASK_IMX9XX) == SOC_IMX943)
+		return SOC_IMX943;
+
+	return get_info_soc_id;  /* Default to list value */
+}
+
 void se_get_soc_info(uint32_t session_hdl,
 		     uint16_t *soc_id,
 		     uint16_t *soc_rev,
@@ -396,7 +412,7 @@ void se_get_soc_info(uint32_t session_hdl,
 		se_err("\nGlobal Info: hsm_dev_getinfo(ROM) failed err:0x%x\n",
 		       err);
 
-	*soc_id = dev_getinfo_args.soc_id;
+	*soc_id = get_normalized_soc_id(dev_getinfo_args.soc_id);
 	*soc_rev = dev_getinfo_args.soc_rev;
 
 	if (dev_getinfo_args.uid)
