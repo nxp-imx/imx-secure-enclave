@@ -247,7 +247,8 @@ void print_global_info(void)
 
 	printf("%s %s\n", get_soc_id_str(se_get_soc_id()),
 	       get_soc_rev_str(se_get_soc_rev()));
-	printf("%s Lifecycle\n", get_soc_lf_str(se_get_chip_lifecycle()));
+	if (se_get_chip_lifecycle())
+		printf("%s Lifecycle\n", get_soc_lf_str(se_get_chip_lifecycle()));
 	printf("Fips mode 0x%x\n", se_get_fips_mode());
 	printf("LIB Version: %s\n", se_get_lib_version());
 	printf("NVM Version: %s\n", se_get_nvm_version());
