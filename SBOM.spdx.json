@@ -2,26 +2,94 @@
   "SPDXID": "SPDXRef-DOCUMENT",
   "spdxVersion": "SPDX-2.3",
   "creationInfo": {
-    "created": "2026-01-26T02:11:43Z",
+    "created": "2026-06-02T02:50:06Z",
     "creators": [
       "Organization: NXP"
     ],
     "licenseListVersion": "3.26"
   },
-  "name": "imx-secure-enclave-LF_6.18.2_1.0.0",
+  "name": "imx-secure-enclave-lf-6.18.20-2.0.0",
   "dataLicense": "CC0-1.0",
-  "documentNamespace": "https://nxp.com/spdx/876bbf34-7368-457c-9089-5a3e64d3c2d0",
+  "documentNamespace": "https://nxp.com/spdx/ae802013-adad-449c-8f96-ff5b1c1e914c",
   "packages": [
     {
-      "SPDXID": "SPDXRef-package-876bbf34-7368-457c-9089-5a3e64d3c2d0",
+      "SPDXID": "SPDXRef-package-ae802013-adad-449c-8f96-ff5b1c1e914c",
       "name": "imx-secure-enclave",
-      "versionInfo": "LF_6.18.2_1.0.0",
-      "licenseConcluded": "(BSD-3-Clause)",
-      "licenseDeclared": "(BSD-3-Clause)",
-      "downloadLocation": "https://github.com/NXP/imx-secure-enclave.git -b lf-6.18.2-1.0.0",
+      "versionInfo": "lf-6.18.20-2.0.0",
+      "licenseConcluded": "BSD-3-Clause",
+      "licenseDeclared": "BSD-3-Clause",
+      "downloadLocation": "https://github.com/nxp-imx/imx-secure-enclave.git -b lf-6.18.20-2.0.0",
       "originator": "Organization: NXP",
       "supplier": "NOASSERTION",
       "externalRefs": [],
+      "filesAnalyzed": false
+    },
+    {
+      "SPDXID": "SPDXRef-package-ae802013-adad-449c-8f96-ff5b1c1e914c---e536d8ef-a2e1-4d12-9bb2-705d1166e06f",
+      "name": "mbed TLS",
+      "versionInfo": "v3.6.5",
+      "licenseConcluded": "Apache-2.0",
+      "licenseDeclared": "Apache-2.0",
+      "homepage": "https://www.trustedfirmware.org/",
+      "downloadLocation": "NOASSERTION",
+      "originator": "Organization: mbed TLS",
+      "supplier": "NOASSERTION",
+      "externalRefs": [
+        {
+          "referenceCategory": "SECURITY",
+          "referenceLocator": "cpe:2.3:a:arm:mbed_tls:3.6.5:*:*:*:*:*:*:*",
+          "referenceType": "cpe23Type"
+        },
+        {
+          "referenceCategory": "SECURITY",
+          "referenceLocator": "cpe:2.3:a:mbed:mbedtls:3.6.5:*:*:*:*:*:*:*",
+          "referenceType": "cpe23Type"
+        },
+        {
+          "referenceCategory": "SECURITY",
+          "referenceLocator": "cpe:2.3:o:arm:mbed_tls:3.6.5:*:*:*:*:*:*:*",
+          "referenceType": "cpe23Type"
+        }
+      ],
+      "filesAnalyzed": false
+    },
+    {
+      "SPDXID": "SPDXRef-package-ae802013-adad-449c-8f96-ff5b1c1e914c---8420f039-09f7-4a30-9cda-59128844008f",
+      "name": "OpenSSL",
+      "versionInfo": "3.5.4",
+      "licenseConcluded": "Apache-2.0",
+      "licenseDeclared": "Apache-2.0",
+      "homepage": "https://www.openssl.org",
+      "downloadLocation": "NOASSERTION",
+      "originator": "Organization: OpenSSL",
+      "supplier": "NOASSERTION",
+      "externalRefs": [
+        {
+          "referenceCategory": "SECURITY",
+          "referenceLocator": "cpe:2.3:a:debian_package:libssl-dev:3.5.4:1:*:*:*:*:*:*",
+          "referenceType": "cpe23Type"
+        },
+        {
+          "referenceCategory": "SECURITY",
+          "referenceLocator": "cpe:2.3:a:debian_package:libssl-dev:3.5.4:1\\+b1:*:*:*:*:*:*",
+          "referenceType": "cpe23Type"
+        },
+        {
+          "referenceCategory": "SECURITY",
+          "referenceLocator": "cpe:2.3:a:debian_package:libssl-dev:3.5.4:1\\~deb13u1:*:*:*:*:*:*",
+          "referenceType": "cpe23Type"
+        },
+        {
+          "referenceCategory": "SECURITY",
+          "referenceLocator": "cpe:2.3:a:debian_package:libssl-dev:3.5.4:1\\~deb13u2:*:*:*:*:*:*",
+          "referenceType": "cpe23Type"
+        },
+        {
+          "referenceCategory": "SECURITY",
+          "referenceLocator": "cpe:2.3:a:debian_package:libssl-doc:3.5.4:1:*:*:*:*:*:*",
+          "referenceType": "cpe23Type"
+        }
+      ],
       "filesAnalyzed": false
     }
   ],
@@ -29,7 +97,17 @@
     {
       "spdxElementId": "SPDXRef-DOCUMENT",
       "relationshipType": "DESCRIBES",
-      "relatedSpdxElement": "SPDXRef-package-876bbf34-7368-457c-9089-5a3e64d3c2d0"
+      "relatedSpdxElement": "SPDXRef-package-ae802013-adad-449c-8f96-ff5b1c1e914c"
+    },
+    {
+      "spdxElementId": "SPDXRef-package-ae802013-adad-449c-8f96-ff5b1c1e914c",
+      "relationshipType": "DYNAMIC_LINK",
+      "relatedSpdxElement": "SPDXRef-package-ae802013-adad-449c-8f96-ff5b1c1e914c---8420f039-09f7-4a30-9cda-59128844008f"
+    },
+    {
+      "spdxElementId": "SPDXRef-package-ae802013-adad-449c-8f96-ff5b1c1e914c",
+      "relationshipType": "DYNAMIC_LINK",
+      "relatedSpdxElement": "SPDXRef-package-ae802013-adad-449c-8f96-ff5b1c1e914c---e536d8ef-a2e1-4d12-9bb2-705d1166e06f"
     }
   ]
 }
