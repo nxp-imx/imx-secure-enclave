@@ -185,6 +185,11 @@ uint8_t se_get_nvm_major_ver(void);
 uint8_t se_get_nvm_minor_ver(void);
 
 /**
+ * Get SRK revocation status bitmap.
+ */
+uint8_t se_get_srk_revoke_bitmap(void);
+
+/**
  * Get Build commit id.
  */
 const char *se_get_commit_id(void);

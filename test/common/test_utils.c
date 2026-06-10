@@ -239,8 +239,30 @@ void print_hsm_storage_status(hsm_storage_status_t storage_status)
 }
 #endif
 
+static void print_u8_binary(uint8_t value)
+{
+	for (int i = 7; i >= 0; i--)
+		printf("%d", (value >> i) & 1);
+}
+
+const char *se_get_srk_revoke_status_str(uint8_t status)
+{
+	if (!status)
+		return "None";
+
+	switch (status) {
+	case BIT(0): return "SRK0";
+	case BIT(1): return "SRK1";
+	case BIT(2): return "SRK2";
+	case BIT(3): return "SRK3";
+	default: return "Unknown";
+	}
+}
+
 void print_global_info(void)
 {
+	uint8_t status;
+
 	printf("-----------------------------------------------------------\n");
 	printf("Global Info:\n");
 	printf("-----------------------------------------------------------\n");
@@ -252,6 +274,10 @@ void print_global_info(void)
 	printf("Fips mode 0x%x\n", se_get_fips_mode());
 	printf("LIB Version: %s\n", se_get_lib_version());
 	printf("NVM Version: %s\n", se_get_nvm_version());
+	status = se_get_srk_revoke_bitmap();
+	printf("SRK Revoke Status Bitmap: ");
+	print_u8_binary(status);
+	printf(" (%s)\n", se_get_srk_revoke_status_str(status));
 	printf("Build ID: %s\n", se_get_commit_id());
 	printf("-----------------------------------------------------------\n");
 }

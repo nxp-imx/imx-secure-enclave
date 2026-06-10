@@ -46,6 +46,8 @@ struct global_info_s {
 	//!< Secure Enclave Library version string
 	char nvm_version[GINFO_NVM_VERSION_LEN];
 	//!< NVM version string
+	uint8_t se_srk_revok_bit_map;
+	//!< SRK revocation status bit-map.
 	char se_commit_id[GINFO_COMMIT_ID_SZ];
 	//!< Secure Enclave Build Commit ID
 	uint32_t flags;
@@ -379,6 +381,11 @@ const char *se_get_commit_id(void)
 	return global_info.se_commit_id;
 }
 
+uint8_t se_get_srk_revoke_bitmap(void)
+{
+	return global_info.se_srk_revok_bit_map;
+}
+
 void show_global_info(void)
 {
 	se_info("-------------------------------------------------------\n");
@@ -391,6 +398,7 @@ void show_global_info(void)
 	se_info("Fips Mode 0x%x\n", se_get_fips_mode());
 	se_info("LIB Version %s\n", se_get_lib_version());
 	se_info("NVM Version %s\n", se_get_nvm_version());
+	se_info("SRK Revoke Status Bitmap: %x\n", se_get_srk_revoke_bitmap());
 	se_info("Build ID %s\n", se_get_commit_id());
 	se_info("-------------------------------------------------------\n");
 }
