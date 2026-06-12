@@ -1,6 +1,6 @@
 // SPDX-License-Identifier: BSD-3-Clause
 /*
- * Copyright 2022, 2023 NXP
+ * Copyright 2022, 2023, 2026 NXP
  */
 
 #include <stdint.h>
@@ -22,7 +22,7 @@ hsm_err_t hsm_manage_key(hsm_hdl_t key_management_hdl,
 	int32_t error = 1;
 	struct hsm_service_hdl_s *serv_ptr;
 	hsm_err_t err = HSM_GENERAL_ERROR;
-	uint32_t rsp_code;
+	uint32_t rsp_code = SAB_NO_MESSAGE_RATING;
 
 	do {
 		if ((args == NULL) || (args->key_identifier == NULL)) {
@@ -64,7 +64,7 @@ hsm_err_t hsm_manage_key_ext(hsm_hdl_t key_management_hdl,
 	int32_t error = 1;
 	struct hsm_service_hdl_s *serv_ptr;
 	hsm_err_t err = HSM_GENERAL_ERROR;
-	uint32_t rsp_code;
+	uint32_t rsp_code = SAB_NO_MESSAGE_RATING;
 
 	do {
 		if ((args == NULL) || (args->key_identifier == NULL)) {
