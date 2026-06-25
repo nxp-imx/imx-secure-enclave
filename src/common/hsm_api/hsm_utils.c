@@ -375,6 +375,9 @@ uint32_t se_get_info(uint32_t session_hdl, op_get_info_args_t *args)
 
 static uint32_t get_normalized_soc_id(uint32_t get_info_soc_id)
 {
+	if ((get_info_soc_id & SOC_ID_MASK_IMX9XX) == SOC_IMX937)
+		return SOC_IMX937;
+
 	if ((get_info_soc_id & SOC_ID_MASK_IMX9XX) == SOC_IMX952)
 		return SOC_IMX952;
 

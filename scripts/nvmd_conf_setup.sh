@@ -2,7 +2,7 @@
 
 # SPDX-License-Identifier: BSD-3-Clause
 #
-# Copyright 2023-2025 NXP
+# Copyright 2023-2026 NXP
 
 set -eu
 
@@ -235,7 +235,7 @@ case ${opt_plat} in
         imx8qxpmek_nvmd_config ${opt_config_id}
         ;;
 
-    i.MX95|i.MX952)
+    i.MX95|i.MX952|i.MX937)
         imx95evk_nvmd_config ${opt_config_id}
         ;;
 

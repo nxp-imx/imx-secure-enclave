@@ -6,8 +6,8 @@
 /*! \mainpage PRIME API
  *
  * This document is a software reference description of the API provided by the
- * Secure Enclave Library on i.MX941, i.MX942, i.MX943 and i.MX952 platforms for
- * V2X PRIME solutions
+ * Secure Enclave Library on i.MX937, i.MX941, i.MX942, i.MX943 and i.MX952 platforms
+ * for V2X PRIME solutions
  */
 
 /*! \page History Revision History

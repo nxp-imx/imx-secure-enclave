@@ -98,6 +98,8 @@ const char *get_soc_id_str(uint16_t soc_id)
 		return "i.MX942";
 	case SOC_IMX943:
 		return "i.MX943";
+	case SOC_IMX937:
+		return "i.MX937";
 	case SOC_IMX952:
 		return "i.MX952";
 	default:
@@ -206,6 +208,7 @@ const char *get_soc_lf_str(uint16_t lifecycle)
 {
 	if (se_get_soc_id() == SOC_IMX95 ||
 	    (se_get_soc_id() & SOC_MASK_IMX94) == SOC_IMX94 ||
+	    se_get_soc_id() == SOC_IMX937 ||
 	    se_get_soc_id() == SOC_IMX952)
 		return get_soc_lf_str_new(lifecycle);
 
@@ -238,6 +241,7 @@ void populate_global_info(uint32_t session_hdl)
 			&global_info.board_type);
 #ifdef PSA_COMPLIANT
 	if ((global_info.soc_id & SOC_MASK_IMX94) == SOC_IMX94 ||
+	    global_info.soc_id == SOC_IMX937 ||
 	    global_info.soc_id == SOC_IMX952 ||
 	    (global_info.soc_id == SOC_IMX95 && global_info.soc_rev >= SOC_REV_B0))
 		global_info.ver = HSM_API_VERSION_3;

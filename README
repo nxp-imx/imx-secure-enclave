@@ -104,22 +104,24 @@ Table 1: Supported Secure Enclave Library Artifacts Type for each platform
 +----------+---------+-----------+-----------+---------------+------------+------------+
 | i.MX952  |   YES   |    YES    |    YES    |      YES      |     NA     |     NA     |
 +----------+---------+-----------+-----------+---------------+------------+------------+
+| i.MX937  |   YES   |    YES    |    YES    |      YES      |     NA     |     NA     |
++----------+---------+-----------+-----------+---------------+------------+------------+
 
 
 Table 2: Secure Enclave Storage (NVM) directories
 -------------------------------------------------
 
-+--------+--------------------------------------+-------------------+-----------------+
-| H/W IP |                 Platform             |        HSM        |       SHE       |
-+========+======================================+===================+=================+
-|  ELE   |   i.MX8ULP/i.MX93/i.MX95/i.MX91/     |    /etc/ele/      |     N/A         |
-|        |  i.MX941/i.MX942/i.MX943/i.MX952     |                   |                 |
-|--------+--------------------------------------+-------------------+-----------------+
-|  V2X   |   i.MX95/i.MX941/i.MX942/i.MX943/    |                   |                 |
-|        |           i.MX8DXL/i.MX952           |   /etc/v2x_hsm/   |  /etc/v2x_she/  |
-+--------+--------------------------------------+-------------------+-----------------+
-|  SECO  |       i.MX8DXL/i.MX8QXP              |   /etc/hsm/       |  /etc/she/      |
-+--------+--------------------------------------+-------------------+-----------------+
++--------+------------------------------------------+-------------------+-----------------+
+| H/W IP |                 Platform                 |        HSM        |       SHE       |
++========+==========================================+===================+=================+
+|  ELE   |  i.MX8ULP/i.MX93/i.MX95/i.MX91/i.MX937/  |    /etc/ele/      |     N/A         |
+|        |     i.MX941/i.MX942/i.MX943/i.MX952      |                   |                 |
+|--------+------------------------------------------+-------------------+-----------------+
+|  V2X   |   i.MX95/i.MX941/i.MX942/i.MX943/        |                   |                 |
+|        |       i.MX8DXL/i.MX952/i.MX937           |   /etc/v2x_hsm/   |  /etc/v2x_she/  |
++--------+------------------------------------------+-------------------+-----------------+
+|  SECO  |           i.MX8DXL/i.MX8QXP              |   /etc/hsm/       |  /etc/she/      |
++--------+------------------------------------------+-------------------+-----------------+
 
 
 2. How to Build
@@ -333,26 +335,26 @@ V2X PRIME Library Artifacts
 Table 3: Secure Enclave HSM Tests with their target Platform/IP
 -----------------------------------------------------------
 
-+--------+------------------------------------+-------------------+
-|   IP   |                Platform            |     HSM Test      |
-+========+====================================+===================+
-|  ELE   |   i.MX8ULP/i.MX93/i.MX95/i.MX91/   | ele_hsm_test      |
-|        |  i.MX941/i.MX942/i.MX943/i.MX952   | ele_hsm_perf_test |
-|--------+------------------------------------+-------------------+
-|  V2X   |   i.MX95/i.MX8DXL/i.MX941/i.MX942/ |                   |
-|        |         i.MX943/i.MX952            |   v2x_hsm_test    |
-+--------+------------------------------------+-------------------+
-|  SECO  |        i.MX8DXL/i.MX8QXP           |   seco_hsm_test   |
-+--------+------------------------------------+-------------------+
++--------+-------------------------------------------+-------------------+
+|   IP   |                   Platform                |     HSM Test      |
++========+===========================================+===================+
+|  ELE   |      i.MX8ULP/i.MX93/i.MX95/i.MX91/       | ele_hsm_test      |
+|        |  i.MX941/i.MX942/i.MX943/i.MX952/i.MX937  | ele_hsm_perf_test |
+|--------+-------------------------------------------+-------------------+
+|  V2X   |     i.MX95/i.MX8DXL/i.MX941/i.MX942/      |                   |
+|        |          i.MX943/i.MX952/i.MX937          |   v2x_hsm_test    |
++--------+-------------------------------------------+-------------------+
+|  SECO  |               i.MX8DXL/i.MX8QXP           |   seco_hsm_test   |
++--------+-------------------------------------------+-------------------+
 
 Table 4: Secure Enclave SHE Tests with their target Platform/IP
 -----------------------------------------------------------
 
-+--------+---------------------------------+-----------------+
-|   IP   |              Platform           |     SHE Test    |
-+========+=================================+=================+
-|  V2X   |  i.MX95/i.MX8DXL-DL3/i.MX941/   |                 |
-|        |    i.MX942/i.MX943/i.MX952      |   v2x_she_test  |
++--------+-----------------------------------+-----------------+
+|   IP   |                Platform           |     SHE Test    |
++========+===================================+=================+
+|  V2X   |    i.MX95/i.MX8DXL-DL3/i.MX941/   |                 |
+|        |  i.MX942/i.MX943/i.MX952/i.MX937  |   v2x_she_test  |
 +--------+---------------------------------+-----------------+
 |  SECO  |        i.MX8QXP/i.MX8DXL-DL1    |   seco_she_test |
 +--------+---------------------------------+-----------------+
@@ -360,12 +362,12 @@ Table 4: Secure Enclave SHE Tests with their target Platform/IP
 Table 5: Secure Enclave V2X PRIME Tests with their target Platform/IP
 -----------------------------------------------------------
 
-+--------+----------------------------------+-------------------+
-|   IP   |              Platform            |        Test       |
-+========+==================================+===================+
-|  V2X   |  i.MX941/i.MX942/i.MX943/i.MX952 |     prime_test    |
-| PRIME  |                                  |                   |
-+--------+----------------------------------+-------------------+
++--------+------------------------------------------+-------------------+
+|   IP   |                   Platform               |        Test       |
++========+==========================================+===================+
+|  V2X   |  i.MX941/i.MX942/i.MX943/i.MX952/i.MX937 |     prime_test    |
+| PRIME  |                                          |                   |
++--------+------------------------------------------+-------------------+
 
 Note #3:
 - V2X-HSM test can not be supported on i.MX95 A0, as no support for SG MUs.
@@ -558,7 +560,7 @@ V2X-HSM Test:
 	systemctl start nvm_daemon_v2x_hsm.service;
 	systemctl status nvm_daemon_v2x_hsm.service;
 	v2x_hsm_test;
-	v2x_hsm_test -a;           //execute all test vectors, supported on i.MX941/942/943 and i.MX952 currently
+	v2x_hsm_test -a;           //execute all test vectors, supported on i.MX 941/942/943/952/937 currently
 	v2x_hsm_test shx_file;     //execute test vectors available in given shx
 	systemctl stop nvm_daemon_v2x_hsm.service;
 
@@ -631,7 +633,7 @@ On i.MX8DXL DL3 board which supports V2X-SHE, ECB cipher is not supported.
 
 Note #10:
 On i.MX952 board, SHE0 MU is been used by PRIME by default, to use SHE0 MU as SHE,
-use imx952-evk-v2x-she0.dtb.
+use imx952-evk-v2x-she0.dtb. The same follows for i.MX937 platform.
 
 Ensure that following Secure Enclave Tests Artifacts are installed on the
 Board's rootfs:
