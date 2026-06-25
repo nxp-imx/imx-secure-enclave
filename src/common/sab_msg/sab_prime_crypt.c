@@ -51,6 +51,7 @@ uint32_t prime_mac_build(prime_service_t *hdl,
 
 	/* Update status code as success, FW will update this on error */
 	op->crypto_status.virt_addr->status_code = REQ_SUCCESS;
+	op->crypto_status.virt_addr->error_info = 0x00;
 
 	prime_mac_construct(mu_buf, op->op_mac_args.keyslot,
 			    inbound_src_addr, op->src.len,
