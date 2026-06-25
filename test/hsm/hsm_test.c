@@ -500,7 +500,8 @@ static void transient_key_tests(hsm_hdl_t sess_hdl,
 	if (se_get_soc_id() == SOC_IMX93 || se_get_soc_id() == SOC_IMX91 ||
 	    (se_get_soc_id() == SOC_IMX95 && se_get_soc_rev() >= SOC_REV_B0) ||
 	    ((se_get_soc_id() & SOC_MASK_IMX94) == SOC_IMX94 &&
-	      se_get_soc_rev() >= SOC_REV_A1) || se_get_soc_id() == SOC_IMX952)
+	      se_get_soc_rev() >= SOC_REV_A1) || se_get_soc_id() == SOC_IMX952 ||
+	    se_get_soc_id() == SOC_IMX937)
 		hsm_sign_verify_eddsa_tests(sess_hdl, key_store_hdl, key_mgmt_hdl);
 
 	printf("-----------------------------------------------------\n");
@@ -510,7 +511,8 @@ static void transient_key_tests(hsm_hdl_t sess_hdl,
 
 	if ((se_get_soc_id() == SOC_IMX95 && se_get_soc_rev() > SOC_REV_B0) ||
 	    ((se_get_soc_id() & SOC_MASK_IMX94) == SOC_IMX94 &&
-	      se_get_soc_rev() >= SOC_REV_A1) || se_get_soc_id() == SOC_IMX952)
+	      se_get_soc_rev() >= SOC_REV_A1) || se_get_soc_id() == SOC_IMX952 ||
+	    se_get_soc_id() == SOC_IMX937)
 		hsm_sign_verify_sm2_tests(sess_hdl, key_store_hdl, key_mgmt_hdl);
 #endif
 #else
@@ -621,6 +623,7 @@ static void transient_key_tests(hsm_hdl_t sess_hdl,
 
 	if (se_get_soc_id() == SOC_IMX95 ||
 	    (se_get_soc_id() & SOC_MASK_IMX94) == SOC_IMX94 ||
+	    se_get_soc_id() == SOC_IMX937 ||
 	    se_get_soc_id() == SOC_IMX952)
 		hsm_mac_stream_test(key_store_hdl, key_mgmt_hdl,
 				    PERMITTED_ALGO_CMAC,
@@ -629,6 +632,7 @@ static void transient_key_tests(hsm_hdl_t sess_hdl,
 				    "KEY_AES_256 ALGO_CMAC");
 
 	if ((se_get_soc_id() & SOC_MASK_IMX94) == SOC_IMX94 ||
+	    se_get_soc_id() == SOC_IMX937 ||
 	    se_get_soc_id() == SOC_IMX952)
 		hsm_mac_stream_test(key_store_hdl, key_mgmt_hdl,
 				    PERMITTED_ALGO_CMAC,
@@ -751,7 +755,8 @@ static void transient_key_tests(hsm_hdl_t sess_hdl,
 	if (se_get_soc_id() == SOC_IMX93 || se_get_soc_id() == SOC_IMX91 ||
 	    (se_get_soc_id() == SOC_IMX95 && se_get_soc_rev() >= SOC_REV_B0) ||
 	    ((se_get_soc_id() & SOC_MASK_IMX94) == SOC_IMX94 &&
-	      se_get_soc_rev() >= SOC_REV_A1) || se_get_soc_id() == SOC_IMX952) {
+	      se_get_soc_rev() >= SOC_REV_A1) || se_get_soc_id() == SOC_IMX952 ||
+	    se_get_soc_id() == SOC_IMX937) {
 		key_exchange_test_tls1_3(key_mgmt_hdl, key_store_id);
 #if SUPPORT_KEY_EXCHANGE_HKDF
 		key_exchange_test_hkdf_expand(key_mgmt_hdl, key_store_id);
@@ -761,7 +766,9 @@ static void transient_key_tests(hsm_hdl_t sess_hdl,
 	}
 
 	if (((se_get_soc_id() & SOC_MASK_IMX94) == SOC_IMX94 &&
-	     se_get_soc_rev() >= SOC_REV_A1) || se_get_soc_id() == SOC_IMX952) {
+	     se_get_soc_rev() >= SOC_REV_A1) ||
+	     se_get_soc_id() == SOC_IMX952 ||
+	     se_get_soc_id() == SOC_IMX937) {
 		test_key_agreement(key_mgmt_hdl, key_store_id);
 		test_key_derivation(key_mgmt_hdl, key_store_id);
 	}
@@ -955,12 +962,14 @@ int main(int argc, char *argv[])
 
 	if (se_get_soc_id() == SOC_IMX95 ||
 	    (se_get_soc_id() & SOC_MASK_IMX94) == SOC_IMX94 ||
+	    se_get_soc_id() == SOC_IMX937 ||
 	    se_get_soc_id() == SOC_IMX952) {
 		test_ele_blob_unblob(hsm_session_hdl, NULL, 0);
 		test_ele_blob_unblob(hsm_session_hdl, "abcdefghijklmnopqrstuvwxyz", 5);
 	}
 
 	if (se_get_soc_id() == SOC_IMX95 ||
+	    se_get_soc_id() == SOC_IMX937 ||
 	    se_get_soc_id() == SOC_IMX952)
 		test_mono_counter(hsm_session_hdl);
 

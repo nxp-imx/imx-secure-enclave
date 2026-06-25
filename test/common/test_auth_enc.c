@@ -809,6 +809,7 @@ hsm_err_t auth_enc_test(hsm_hdl_t key_store_hdl, hsm_hdl_t key_mgmt_hdl)
 
 	/* SM4 testing */
 	if ((se_get_soc_id() & SOC_MASK_IMX94) == SOC_IMX94 ||
+	    se_get_soc_id() == SOC_IMX937 ||
 	    se_get_soc_id() == SOC_IMX952)
 		auth_enc_new_test(key_store_hdl, key_mgmt_hdl,
 				  PERMITTED_ALGO_CCM,
@@ -822,6 +823,7 @@ hsm_err_t auth_enc_test(hsm_hdl_t key_store_hdl, hsm_hdl_t key_mgmt_hdl)
 
 	if (se_get_soc_id() == SOC_IMX95 ||
 	    (se_get_soc_id() & SOC_MASK_IMX94) == SOC_IMX94 ||
+	    se_get_soc_id() == SOC_IMX937 ||
 	    se_get_soc_id() == SOC_IMX952) {
 		auth_enc_new_stream_subtest_01(key_store_hdl, key_mgmt_hdl);
 		auth_enc_new_stream_subtest_02(key_store_hdl, key_mgmt_hdl);

@@ -255,6 +255,7 @@ static int8_t prepare_and_run_genkey_test(FILE *fp)
 
 		if ((se_get_soc_id() == SOC_IMX95 ||
 		     (se_get_soc_id() & SOC_MASK_IMX94) == SOC_IMX94 ||
+		     se_get_soc_id() == SOC_IMX937 ||
 		     se_get_soc_id() == SOC_IMX952) &&
 		    key_usage == HSM_KEY_USAGE_DERIVE) {
 			test_status = TEST_STATUS_SKIPPED;

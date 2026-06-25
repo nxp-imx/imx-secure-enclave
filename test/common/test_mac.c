@@ -526,6 +526,7 @@ hsm_err_t hsm_mac_test(hsm_hdl_t key_store_hdl, hsm_hdl_t key_mgmt_hdl)
 #endif
 
 	if ((se_get_soc_id() & SOC_MASK_IMX94) == SOC_IMX94 ||
+	    se_get_soc_id() == SOC_IMX937 ||
 	    se_get_soc_id() == SOC_IMX952) {
 #ifdef PSA_COMPLIANT
 		printf("HSM_KEY_TYPE_SM4_128 & PERMITTED_ALGO_CMAC:");
@@ -772,6 +773,7 @@ hsm_err_t hsm_mac_plainkey_test(hsm_hdl_t key_store_hdl, hsm_hdl_t key_mgmt_hdl)
 	status(&args);
 
 	if ((se_get_soc_id() & SOC_MASK_IMX94) == SOC_IMX94 ||
+	    se_get_soc_id() == SOC_IMX937 ||
 	    se_get_soc_id() == SOC_IMX952) {
 		printf("HSM_KEY_SIZE_SM4_128 & PERMITTED_ALGO_CBCMAC:");
 

@@ -329,6 +329,7 @@ hsm_err_t do_hash_test(hsm_hdl_t hash_sess)
 			continue;
 
 		if (((se_get_soc_id() & SOC_MASK_IMX94) != SOC_IMX94 &&
+		     se_get_soc_id() != SOC_IMX937 &&
 		     se_get_soc_id() != SOC_IMX952) &&
 		     hash_args.algo == HSM_HASH_ALGO_SM3)
 			continue;
@@ -479,6 +480,7 @@ hsm_err_t do_hash_stream_test(hsm_hdl_t hash_sess)
 			continue;
 
 		if (((se_get_soc_id() & SOC_MASK_IMX94) != SOC_IMX94 &&
+		     se_get_soc_id() != SOC_IMX937 &&
 		     se_get_soc_id() != SOC_IMX952) &&
 		     hash_args.algo == HSM_HASH_ALGO_SM3)
 			continue;

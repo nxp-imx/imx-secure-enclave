@@ -132,6 +132,7 @@ hsm_err_t hsm_sign_verify_tests(hsm_hdl_t sess_hdl, hsm_hdl_t key_store_hdl,
 	if (key_id &&
 	    ((se_get_soc_id() == SOC_IMX95 && se_get_soc_rev() >= SOC_REV_B0) ||
 	     (se_get_soc_id() & SOC_MASK_IMX94) == SOC_IMX94 ||
+	     se_get_soc_id() == SOC_IMX937 ||
 	      se_get_soc_id() == SOC_IMX952)) {
 		sig_ver_args.flags |= HSM_OP_VERIFY_SIGN_FLAGS_OPAQUE_KEY;
 		sig_ver_args.key_identifier = key_id;

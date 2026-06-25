@@ -312,6 +312,7 @@ void she_tests(uint8_t SHE_id,
 
 	if (se_get_soc_id() == SOC_IMX95 ||
 	    (se_get_soc_id() & SOC_MASK_IMX94) == SOC_IMX94 ||
+	    se_get_soc_id() == SOC_IMX937 ||
 	    se_get_soc_id() == SOC_IMX952)
 		she_sess_count = SHE_TEST_SESSIONS;
 

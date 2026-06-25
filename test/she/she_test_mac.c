@@ -697,6 +697,7 @@ she_err_t she_verify_mac_one_go(she_hdl_t mac_handle)
 
 	if (se_get_soc_id() == SOC_IMX95 ||
 	    (se_get_soc_id() & SOC_MASK_IMX94) == SOC_IMX94 ||
+	    se_get_soc_id() == SOC_IMX937 ||
 	    se_get_soc_id() == SOC_IMX952) {
 		memset(&verify_mac_args, 0, sizeof(verify_mac_args));
 		verify_mac_args.algorithm = SHE_OP_MAC_ONE_GO_ALGO_CMAC;
@@ -802,6 +803,7 @@ she_err_t she_generate_mac_one_go(she_hdl_t mac_handle)
 
 	if (se_get_soc_id() == SOC_IMX95 ||
 	    (se_get_soc_id() & SOC_MASK_IMX94) == SOC_IMX94 ||
+	    se_get_soc_id() == SOC_IMX937 ||
 	    se_get_soc_id() == SOC_IMX952) {
 		memset(&generate_mac_args, 0, sizeof(generate_mac_args));
 		generate_mac_args.algorithm = SHE_OP_MAC_ONE_GO_ALGO_CMAC;
