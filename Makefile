@@ -63,7 +63,8 @@ OBJECTS	:= $(NVM_OBJECTS)\
 	$(PLAT_COMMON_PATH)/sab_common_err.o \
 	$(PLAT_COMMON_PATH)/she_lib.o \
 	$(PLAT_COMMON_PATH)/hsm_lib.o \
-	$(PLAT_COMMON_PATH)/crrm_lib.o
+	$(PLAT_COMMON_PATH)/crrm_lib.o \
+	$(PLAT_COMMON_PATH)/prime_lib.o
 
 NVM_LIB :=
 NVM_LIB_MAJOR :=
