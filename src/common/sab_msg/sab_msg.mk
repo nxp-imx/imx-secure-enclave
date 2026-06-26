@@ -11,6 +11,8 @@ ifneq (${MT_SAB_STORAGE_OPEN},0x0)
 DEFINES		+=	-DMT_SAB_STORAGE_OPEN=${MT_SAB_STORAGE_OPEN}
 SAB_RCVMSG_SRC	+= \
 		$(PLAT_COMMON_PATH)/sab_msg/sab_storage_open.o
+SAB_MSG_SRC	+= \
+		$(PLAT_COMMON_PATH)/sab_msg/sab_storage_open.o
 endif
 
 ifneq (${MT_SAB_STORAGE_CLOSE},0x0)

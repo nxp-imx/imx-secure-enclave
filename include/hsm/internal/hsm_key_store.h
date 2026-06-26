@@ -67,17 +67,9 @@ typedef uint8_t hsm_svc_key_store_flags_t;
 //!< NOTE: In latest ELE FW API guide, STRICT has been replaced with SYNC.
 
 #ifdef PSA_COMPLIANT
-
-typedef enum {
-	HSM_STORAGE_STATUS_NOT_OPENED,
-	HSM_STORAGE_STATUS_OPENED,
-	HSM_STORAGE_STATUS_FETCH_FAILED,
-} hsm_storage_status_t;
-
 //!< Macros to decode Key store status information
 #define HSM_KEY_STORE_STATUS_EXIST(status)     (((status) >> 0) & 0x01u)
 #define HSM_KEY_STORE_STATUS_OPEN(status)      (((status) >> 1) & 0x01u)
-#define HSM_KEY_STORE_STATUS_STORAGE_OPEN(status)  (((status) >> 7) & 0x01u)
 #define HSM_KEY_STORE_STATUS_NUM_KEYS(status)  (((status) >> 8) & 0xFFu)
 #define HSM_KEY_STORE_STATUS_NUM_SESS(status)  (((status) >> 16) & 0xFFFFu)
 #endif
@@ -131,6 +123,21 @@ hsm_err_t hsm_get_key_store_status(hsm_hdl_t session_hdl,
 				   op_key_store_status_args_t *args);
 
 #ifdef PSA_COMPLIANT
+typedef uint8_t hsm_storage_flags_t;
+
+#define HSM_STORAGE_FLAGS_NVM_STATUS \
+			((hsm_storage_flags_t)(1u << 7))
+typedef enum {
+	HSM_STORAGE_STATUS_NOT_OPENED,
+	HSM_STORAGE_STATUS_OPENED,
+	HSM_STORAGE_STATUS_FETCH_FAILED,
+} hsm_storage_status_t;
+
+#define HSM_STORAGE_GET_STATUS(status)  ((status) & 0x01u)
+
+#define HSM_KEY_STORE_STATUS_STORAGE_OPEN HSM_STORAGE_GET_STATUS
+//!< Going to be depricated. Use HSM_STORAGE_GET_STATUS instead.
+
 /**
  * \param session_hdl: pointer to the handle identifying the current session
  *                     opened with mu_type. se_lib_service_hdl handle can be
