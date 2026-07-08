@@ -185,6 +185,7 @@ COMMON_TEST_OBJ=$(wildcard test/common/*.c)
 MBEDTLS_TEST_OBJ=$(wildcard test/mbedtls/*.c)
 HSM_TEST_PERF_OBJ := test/common/ele_perf.c \
 			test/common/test_file_reader.c \
+			test/common/test_storage_utils.c \
 			test/common/test_utils.c \
 			test/common/test_utils_tv.c \
 			test/common/test_genkey_tv.c \
@@ -248,7 +249,9 @@ V2X_HSM_SHX_TEST_INC=-Itest/v2x/shx_src/include/
 
 SHX_V2X_HSM_COMMON_TEST_OBJ=$(wildcard test/v2x/shx_src/*.c)
 #V2X-HSM test app
-V2X_HSM_TEST_OBJ=$(V2X_HSM_COMMON_TEST_OBJ) $(SHX_V2X_HSM_COMMON_TEST_OBJ) $(SHX_COMMON_TEST_OBJ)
+V2X_HSM_TEST_OBJ=$(V2X_HSM_COMMON_TEST_OBJ) $(SHX_V2X_HSM_COMMON_TEST_OBJ) \
+			$(SHX_COMMON_TEST_OBJ) test/common/test_storage_utils.c
+
 $(V2X_HSM_TEST): $(V2X_HSM_TEST_OBJ) $(HSM_LIB)
 	$(CC) $^  -o $@ ${TEST_INCLUDE_PATHS} ${COMMON_TEST_INC} $(V2X_HSM_SHX_TEST_INC) $(SHX_INC) $(CFLAGS) $(TEST_LDFLAGS) -lpthread $(GCOV_FLAGS)
 

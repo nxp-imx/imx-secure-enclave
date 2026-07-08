@@ -1,6 +1,6 @@
 // SPDX-License-Identifier: BSD-3-Clause
 /*
- * Copyright 2022-2025 NXP
+ * Copyright 2022-2026 NXP
  */
 
 #include <errno.h>
@@ -14,6 +14,7 @@
 #include "test_common.h"
 #include "test_common_tv.h"
 #include "plat_utils.h"
+#include "test_storage_utils.h"
 
 #define TV_TEMP_KEY_STORE_ID 0xABCC
 #define TV_TEMP_KEY_STORE_NONCE 0x1233
@@ -30,6 +31,8 @@ void new_nvm_daemon(void)
 	const char *filename = "filename=/etc/ele_temp/ele_nvm_master ";
 	const char *flag = "flag=0x80 ";
 	const char *type = "type=ELE";
+	hsm_hdl_t session_hdl = get_hsm_session_hdl();
+	uint32_t mu_type = 0;
 
 	size_t total_length = strlen(conf_setup) + strlen(dir_name)
 			      + strlen(filename) + strlen(flag)
@@ -38,25 +41,30 @@ void new_nvm_daemon(void)
 
 	if (!command) {
 		se_err("\nError: Couldn't allocate memory for Command\n");
-		goto out;
+		return;
 	}
 
 	snprintf(command, total_length, "%s%s%s%s%s",
 		 conf_setup, dir_name, filename, flag, type);
 
-	if (system("systemctl stop nvm_daemon"))
+	if (stop_nvm_daemon_wait("nvm_daemon", session_hdl, mu_type,
+				 NVM_DAEMON_TIMEOUT_SEC) != 0) {
 		printf("Error: Failed to stop NVM Daemon\n");
+		goto out;
+	}
 
 	if (system("rm -rf /var/lib/se/persistent/*"))
 		printf("Error: Failed to remove persistent files\n");
 
-	if (system(command))
+	if (system(command)) {
 		printf("Error: Failed to execute nvmd_conf_setup.sh\n");
+		goto out;
+	}
 
-	if (system("systemctl start nvm_daemon"))
+	if (start_nvm_daemon_wait("nvm_daemon", session_hdl, mu_type,
+				  NVM_DAEMON_TIMEOUT_SEC) != 0)
 		printf("Error: Failed to start NVM Daemon\n");
 
-	sleep(SLEEP_INTERVAL);
 out:
 	if (command)
 		free(command);
@@ -74,6 +82,8 @@ void end_nvm_daemon(void)
 	const char *filename = "filename=/etc/ele/ele_nvm_master ";
 	const char *flag = "flag=0x80 ";
 	const char *type = "type=ELE";
+	hsm_hdl_t session_hdl = get_hsm_session_hdl();
+	uint32_t mu_type = 0;
 
 	size_t total_length = strlen(conf_setup) + strlen(dir_name)
 			      + strlen(filename) + strlen(flag)
@@ -82,14 +92,17 @@ void end_nvm_daemon(void)
 
 	if (!command) {
 		se_err("\nError: Couldn't allocate memory for Command\n");
-		goto out;
+		return;
 	}
 
 	snprintf(command, total_length, "%s%s%s%s%s",
 		 conf_setup, dir_name, filename, flag, type);
 
-	if (system("systemctl stop nvm_daemon"))
-		printf("Error: Failed to execute nvmd_conf_setup.sh\n");
+	if (stop_nvm_daemon_wait("nvm_daemon", session_hdl, mu_type,
+				 NVM_DAEMON_TIMEOUT_SEC) != 0) {
+		printf("Error: Failed to stop NVM Daemon\n");
+		goto out;
+	}
 
 	if (system("rm -rf /etc/ele_temp*"))
 		printf("Error: Failed to remove new directories\n");
@@ -97,13 +110,15 @@ void end_nvm_daemon(void)
 	if (system("rm -rf /var/lib/se/persistent/*"))
 		printf("Error: Failed to remove persistent files\n");
 
-	if (system(command))
+	if (system(command)) {
 		printf("Error: Failed to execute nvmd_conf_setup.sh\n");
+		goto out;
+	}
 
-	if (system("systemctl start nvm_daemon"))
+	if (start_nvm_daemon_wait("nvm_daemon", session_hdl, mu_type,
+				  NVM_DAEMON_TIMEOUT_SEC) != 0)
 		printf("Error: Failed to start NVM Daemon\n");
 
-	sleep(SLEEP_INTERVAL);
 out:
 	if (command)
 		free(command);
