@@ -136,7 +136,7 @@ function imx95evk_nvmd_config()
     esac
 }
 
-function imx943evk_nvmd_config()
+function imx94evk_nvmd_config()
 {
     local loc_config_id=$1
 
@@ -156,7 +156,7 @@ function imx943evk_nvmd_config()
             ;;
 
         0xE0 | 0xe0 | "V2X_SHE_DEBUG_MU_NVM" | "v2x_she_debug_mu_nvm")
-            printf "Unsupported NVM-D config opted for iMX943.\n"
+            printf "Unsupported NVM-D config opted for iMX94x.\n"
             ;;
 
         *)
@@ -239,8 +239,8 @@ case ${opt_plat} in
         imx95evk_nvmd_config ${opt_config_id}
         ;;
 
-    i.MX943)
-        imx943evk_nvmd_config ${opt_config_id}
+    i.MX943|i.MX942|i.MX941)
+        imx94evk_nvmd_config ${opt_config_id}
         ;;
 
     *)

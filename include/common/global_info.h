@@ -26,6 +26,8 @@
 #define SOC_IMX91   0x9100
 #define SOC_IMX93   0x9300
 #define SOC_IMX95   0x9500
+#define SOC_IMX941  0x9410
+#define SOC_IMX942  0x9420
 #define SOC_IMX943  0x9430
 #define SOC_IMX952  0x9520
 
@@ -35,6 +37,10 @@
 #define SOC_REV_B0  0xb000
 #define SOC_REV_B1  0xb100
 #define SOC_REV_C0  0xc000
+
+/* To check if SoC belong to i.MX 94 family  */
+#define SOC_IMX94   0x9400
+#define SOC_MASK_IMX94 0xFF00
 
 #define GINFO_LIB_VERSION_LEN        16
 #define GINFO_NVM_VERSION_LEN        16

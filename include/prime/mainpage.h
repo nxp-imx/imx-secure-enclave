@@ -6,14 +6,16 @@
 /*! \mainpage PRIME API
  *
  * This document is a software reference description of the API provided by the
- * Secure Enclave Library on i.MX943 and i.MX952 platforms for V2X PRIME solutions
+ * Secure Enclave Library on i.MX941, i.MX942, i.MX943 and i.MX952 platforms for
+ * V2X PRIME solutions
  */
 
 /*! \page History Revision History
  *
  * Revision       | date           | description
  * :------------: | :-------------:| :------------
- * 0.1 | May 29 2026  | Initial Draft
+ * 0.1 | May 29 2026   | Initial Draft
+ * 0.2 | July 14 2026  | Updated supported platforms list
  */
 
 /*! \page page1 General concepts related to the API

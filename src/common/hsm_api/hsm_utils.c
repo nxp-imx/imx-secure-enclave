@@ -381,6 +381,12 @@ static uint32_t get_normalized_soc_id(uint32_t get_info_soc_id)
 	if ((get_info_soc_id & SOC_ID_MASK_IMX95) == SOC_IMX95)
 		return SOC_IMX95;
 
+	if ((get_info_soc_id & SOC_ID_MASK_IMX9XX) == SOC_IMX941)
+		return SOC_IMX941;
+
+	if ((get_info_soc_id & SOC_ID_MASK_IMX9XX) == SOC_IMX942)
+		return SOC_IMX942;
+
 	if ((get_info_soc_id & SOC_ID_MASK_IMX9XX) == SOC_IMX943)
 		return SOC_IMX943;
 

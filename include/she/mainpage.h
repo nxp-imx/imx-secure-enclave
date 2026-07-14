@@ -1,12 +1,13 @@
 // SPDX-License-Identifier: BSD-3-Clause
 /*
- * Copyright 2023-2025 NXP
+ * Copyright 2023-2026 NXP
  */
 
 /*! \mainpage SHE(Secure Hardware Extension) API
  *
  * This document is a software reference description of the API provided by the
- * Secure Enclave Library on i.MX8DXL and i.MX95 platforms for SHE solutions
+ * Secure Enclave Library on i.MX8DXL, i.MX95, i.MX941, i.MX942 and i.MX943 platforms
+ * for SHE solutions.
  * \image latex she_control_logic.png
  */
 /*! \page  History Revision History
@@ -19,6 +20,7 @@
  * 0.3 | Aug 28 2024  | Update Global Info and get_soc_info ioctl for board_type
  * 0.4 | Nov 14 2024  | Add support of CMAC API
  * 0.5 | Jun 04 2025  | Add support of i.MX943 SoC and Update MU_TYPE
+ * 0.6 | July 14 2026 | Update supported platforms list
  */
 
 /*! \page page1 General concepts related to the API

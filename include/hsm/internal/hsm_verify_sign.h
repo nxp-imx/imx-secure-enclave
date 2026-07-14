@@ -55,7 +55,7 @@ typedef struct {
 	//!< identifier of the key to be used for the operation
 	//!< In case of using key identifier (i.e. opaque key),
 	//!< it must be ensured that the flag for PLAINTEXT key is not set.
-	//!< Supported platforms: i.MX95 and i.MX943.
+	//!< Supported platforms: i.MX95, i.MX941, i.MX942, i.MX943 and i.MX952.
 #endif
 	uint8_t *message;
 	//!< pointer to the input (message or message digest)
