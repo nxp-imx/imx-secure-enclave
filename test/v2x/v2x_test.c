@@ -956,7 +956,7 @@ int v2x_hsm_tests(void)
 		fips_enabled = 1;
 
 	// close SV1 session as SV1 MU is used as SHE1
-	if (se_get_soc_id() == SOC_IMX943 ||
+	if ((se_get_soc_id() & SOC_MASK_IMX94) == SOC_IMX94 ||
 	    se_get_soc_id() == SOC_IMX95 ||
 	    se_get_soc_id() == SOC_IMX952)
 		sv1_as_she1 = 1;

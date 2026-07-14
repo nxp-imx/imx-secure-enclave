@@ -1,6 +1,6 @@
 // SPDX-License-Identifier: BSD-3-Clause
 /*
- * Copyright 2023-2025 NXP
+ * Copyright 2023-2026 NXP
  */
 
 #include <stdio.h>
@@ -201,7 +201,7 @@ static void sign_verify_test(hsm_hdl_t key_store_hdl,
 	/* Signature Verification using Opaque Key */
 	if (key_identifier &&
 	    ((se_get_soc_id() == SOC_IMX95 && se_get_soc_rev() >= SOC_REV_B0) ||
-	      se_get_soc_id() == SOC_IMX943)) {
+	      (se_get_soc_id() & SOC_MASK_IMX94) == SOC_IMX94)) {
 		sig_ver_args.flags |= HSM_OP_VERIFY_SIGN_FLAGS_OPAQUE_KEY;
 		sig_ver_args.key_identifier = key_identifier;
 		sig_ver_args.key = NULL;
