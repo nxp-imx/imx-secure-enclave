@@ -43,7 +43,7 @@ uint32_t plat_os_abs_storage_write(struct plat_os_abs_hdl *phdl,
 				   uint8_t *nvm_fname)
 {
 	int32_t fd;
-	int64_t l;
+	int64_t l = 0;
 	char nvm_storage_dname[256];
 
 	if (phdl->type == SHE_NVM ||
