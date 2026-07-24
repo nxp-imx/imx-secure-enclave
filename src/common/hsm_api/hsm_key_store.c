@@ -13,6 +13,7 @@
 #include "plat_utils.h"
 #include "sab_process_msg.h"
 #include "se_lib_serv_intern.h"
+#include "sab_storage_open.h"
 
 static hsm_err_t exchange_key_store_open_msg(struct plat_os_abs_hdl *phdl,
 					     uint32_t mu_type,
@@ -249,10 +250,12 @@ hsm_err_t hsm_get_storage_status(hsm_hdl_t session_hdl, uint32_t mu_type,
 				 hsm_storage_status_t *storage_status)
 {
 	open_se_lib_serv_args_t se_lib_serv_args = {0};
-	open_svc_key_store_args_t key_store_args = {0};
+	op_storage_open_args_t storage_args = {0};
 	struct se_lib_service_hdl_s *se_lib_serv_ptr;
+	uint32_t rsp_code = SAB_NO_MESSAGE_RATING;
 	struct hsm_session_hdl_s *sess_ptr;
 	hsm_err_t err = HSM_UNKNOWN_HANDLE;
+	uint32_t error;
 
 	*storage_status = HSM_STORAGE_STATUS_FETCH_FAILED;
 	if (!mu_type && !session_hdl)
@@ -275,20 +278,28 @@ hsm_err_t hsm_get_storage_status(hsm_hdl_t session_hdl, uint32_t mu_type,
 	if (!se_lib_serv_ptr || !se_lib_serv_ptr->phdl)
 		return err;
 
-	key_store_args.flags = HSM_SVC_KEY_STORE_FLAGS_KEY_STORE_STATUS;
+	storage_args.flags = HSM_STORAGE_FLAGS_NVM_STATUS;
 
-	err = exchange_key_store_open_msg(se_lib_serv_ptr->phdl, se_lib_serv_ptr->mu_type,
-					  session_hdl, &key_store_args);
+	error = process_sab_msg(se_lib_serv_ptr->phdl, se_lib_serv_ptr->mu_type,
+				SAB_STORAGE_OPEN_REQ, MT_SAB_STORAGE_OPEN,
+				session_hdl, &storage_args, &rsp_code);
+	err = sab_rating_to_hsm_err(error, se_lib_serv_ptr->phdl);
 
-	if (err == HSM_NO_ERROR) {
-		*storage_status =
-			HSM_KEY_STORE_STATUS_STORAGE_OPEN(key_store_args.key_store_hdl) ?
-			HSM_STORAGE_STATUS_OPENED : HSM_STORAGE_STATUS_NOT_OPENED;
-	} else {
-		se_err("%s RSP Error: SAB_KEY_STORE_OPEN_REQ [0x%x].\n",
-		       "HSM GET KEY STORE STATUS", err);
+	if (err != HSM_NO_ERROR) {
+		se_err("HSM Lib Error: %s [0x%x].\n", "HSM GET STORAGE STATUS", err);
+		goto exit;
+	}
+	err = sab_rating_to_hsm_err(rsp_code, se_lib_serv_ptr->phdl);
+
+	if (err != HSM_NO_ERROR) {
+		se_err("%s RSP Error: SAB_STORAGE_OPEN_REQ [0x%x].\n",
+		       "HSM GET STORAGE STATUS", err);
+		goto exit;
 	}
 
+	*storage_status = HSM_STORAGE_GET_STATUS(storage_args.storage_handle) ?
+				HSM_STORAGE_STATUS_OPENED : HSM_STORAGE_STATUS_NOT_OPENED;
+exit:
 	if (!session_hdl)
 		se_lib_close_service(se_lib_serv_args.se_lib_serv_hdl);
 

@@ -222,6 +222,10 @@
 #include "sab_asymmetric_crypto.h"
 #endif
 
+#if MT_SAB_STORAGE_OPEN
+#include "sab_storage_open.h"
+#endif
+
 static int init_proc_sab_base_msg_engine(msg_type_t msg_type,
 					 uint32_t msg_id)
 {
@@ -947,6 +951,15 @@ static  int init_proc_sab_hsm_msg_engine(msg_type_t msg_type,
 		}
 		break;
 #endif
+#endif
+#if MT_SAB_STORAGE_OPEN
+	case SAB_STORAGE_OPEN_REQ:
+		if (msg_type == MT_SAB_STORAGE_OPEN) {
+			ret = add_sab_msg_handler(msg_id, MT_SAB_STORAGE_OPEN,
+						  prepare_msg_storage_open,
+						  proc_msg_rsp_storage_open);
+		}
+	break;
 #endif
 	default:
 		break;
