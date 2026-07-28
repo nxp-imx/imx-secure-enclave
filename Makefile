@@ -306,10 +306,14 @@ prime_doc: include/prime/prime.h
 
 install: libs tools
 	mkdir -p $(DESTDIR)$(LIBDIR) $(DESTDIR)$(INCLUDEDIR)
-	$(foreach i, $(LIB_NAMES),\
+	$(foreach i, $(filter-out $(HSM_LIB_NAME), $(LIB_NAMES)),\
 		ln -s -f $(i).$(SO_EXT) $(i).so.$(MAJOR_VER); \
 		ln -s -f $(i).so.$(MAJOR_VER) $(i).so; \
 		cp -av --no-preserve=ownership "$(i).$(SO_EXT)" "$(i).so.$(MAJOR_VER)" "$(i).so" $(DESTDIR)$(LIBDIR);)
+	$(if $(HSM_LIB_NAME),\
+		ln -s -f $(HSM_LIB) $(HSM_LIB_MAJOR); \
+		ln -s -f $(HSM_LIB_MAJOR) $(HSM_LIB_NAME).so; \
+		cp -av --no-preserve=ownership "$(HSM_LIB)" "$(HSM_LIB_MAJOR)" "$(HSM_LIB_NAME).so" $(DESTDIR)$(LIBDIR);)
 	mkdir -p $(DESTDIR)$(BINDIR)
 	$(prepare_seco_stage_files)
 	$(EXPORT_SE_TOOL)
