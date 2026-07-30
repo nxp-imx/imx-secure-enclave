@@ -25,4 +25,9 @@ int prime_aead_build(prime_service_t *hdl,
 		     uint8_t buf_off,
 		     uint8_t flag);
 
+int prime_hash_build(prime_service_t *hdl,
+		     crypto_op_args_t *op,
+		     uint8_t buf_off,
+		     uint8_t flag);
+
 #endif /* SAB_PRIME_PVT_H */

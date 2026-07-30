@@ -53,6 +53,9 @@ static uint32_t build_op(prime_hdl_t handle, crypto_op_args_t *op,
 	case CRYPTO_OP_TYPE_HMAC:
 		ret = prime_mac_build(hdl, op, buf_off, flag);
 		break;
+	case CRYPTO_OP_TYPE_HASH:
+		ret = prime_hash_build(hdl, op, buf_off, flag);
+		break;
 	default:
 		printf("Un-supported crypto operation.\n");
 		ret = CRYPTO_OP_INVALID_ALGO;
@@ -217,6 +220,9 @@ int prime_process_ops(prime_hdl_t service_hdl,
 				printf("Invalid Keyslot for ops %d\n", i);
 				return -1;
 			}
+			break;
+		case CRYPTO_OP_TYPE_HASH:
+			/* Hash one go does not use a key slot */
 			break;
 		}
 

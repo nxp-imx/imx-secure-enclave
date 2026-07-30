@@ -8,6 +8,7 @@
 #include "sab_prime_process_msg.h"
 #include "sab_prime_mac.h"
 #include "sab_prime_aes.h"
+#include "sab_prime_api.h"
 #include "mu_regs.h"
 #include "internal/cache.h"
 
@@ -174,5 +175,68 @@ uint32_t prime_aead_build(prime_service_t *hdl,
 		return CRYPTO_OP_INVALID_ALGO;
 	}
 
+	return 0;
+}
+
+/*
+ * prime_hash_build - build FCE HASH Generate MU slot buffer
+ *
+ * FCE HASH Generate message layout:
+ *   W0: Header  (cmd=0x80, size=0x18)
+ *   W1: Status Address
+ *   W2: Flags   (bits[5:4]=hash_algo, bit1=AutoPOP, bit0=Signal)
+ *   W3: Digest Address
+ *   W4: Payload Byte Length
+ *   W5: Input Address
+ *
+ * Hash algo in flags bits[5:4]:
+ *   CRYPTO_HASH_SHA2_256 (0x01) -> FCE_HASH_ALGO_SHA256 (1<<4)
+ *   CRYPTO_HASH_SHA2_384 (0x02) -> FCE_HASH_ALGO_SHA384 (2<<4)
+ *   CRYPTO_HASH_SHA2_512 (0x03) -> FCE_HASH_ALGO_SHA512 (3<<4)
+ */
+int prime_hash_build(prime_service_t *hdl, crypto_op_args_t *op,
+		     uint8_t buf_off, uint8_t flag)
+{
+	struct uio_prime_mu *prime_mu = get_uio_prime_mu();
+	uint32_t *mu_buf = (uint32_t *)(prime_mu->mu_buf + buf_off);
+	uint32_t inbound_src_addr, inbound_digest_addr, inbound_status_addr;
+	uint8_t algo = (uint8_t)op->op_hash_args.algo;
+	uint32_t fce_flags;
+
+	if (algo < CRYPTO_HASH_SHA2_256 || algo > CRYPTO_HASH_SHA2_512) {
+		printf("%s: invalid algo %u\n", __func__, algo);
+		return CRYPTO_OP_MSG_BUILD_FAILED;
+	}
+
+	if (get_inbound_addr(hdl, op->src.phys_addr, op->src.len,
+			     &inbound_src_addr) < 0)
+		return CRYPTO_OP_MSG_BUILD_FAILED;
+
+	if (get_inbound_addr(hdl, op->op_hash_args.digest.phys_addr,
+			     op->op_hash_args.digest.len,
+			     &inbound_digest_addr) < 0)
+		return CRYPTO_OP_MSG_BUILD_FAILED;
+
+	if (get_inbound_addr(hdl, (uint64_t)op->crypto_status.phys_addr,
+			     1, &inbound_status_addr) < 0)
+		return CRYPTO_OP_MSG_BUILD_FAILED;
+
+	op->crypto_status.virt_addr->status_code = REQ_SUCCESS;
+
+	/*
+	 * Build FCE flags word (W2):
+	 * - bits[5:4]: hash algorithm (algo value maps directly:
+	 *              1=SHA256, 2=SHA384, 3=SHA512)
+	 * - bit1: AutoPOP (from push flag bit1)
+	 * - bit0: Signal (from push flag bit0)
+	 */
+	fce_flags = ((uint32_t)algo << 4) | (flag & 0x3);
+
+	prime_hash_construct(mu_buf,
+			     inbound_status_addr,
+			     fce_flags,
+			     inbound_digest_addr,
+			     op->src.len,
+			     inbound_src_addr);
 	return 0;
 }
