@@ -39,6 +39,9 @@ void v2x_prime_init(void)
 
 void v2x_prime_deinit(void)
 {
+	if (!prime_mu)
+		return;
+
 	v2x_prime_munmap();
 
 	// Close the prime service
