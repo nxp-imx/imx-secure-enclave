@@ -40,6 +40,8 @@ enum crypto_op_type {
 	//!< AEAD operation (GCM, CCM)
 	CRYPTO_OP_TYPE_HMAC,
 	//!< HMAC or SHA hash operation
+	CRYPTO_OP_TYPE_HASH,
+	//!< Hash one go operation (standalone hash, no key required)
 	CRYPTO_OP_TYPE_MAX,
 	//!< Maximum operation type (boundary marker)
 };
@@ -120,6 +122,8 @@ typedef struct prime_crypto_op {
 		//!< AEAD operation parameters
 		struct mac_op_params op_mac_args;
 		//!< HMAC/MAC operation parameters
+		struct hash_one_go_op_params op_hash_args;
+		//!< Hash one go operation parameters
 	};
 } crypto_op_args_t;
 

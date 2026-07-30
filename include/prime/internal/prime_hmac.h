@@ -86,6 +86,61 @@ struct mac_op_params {
 };
 
 /**
+ * @brief FCE Hash algorithm identifiers
+ *
+ * These values are placed in bits[5:4] of the FCE flags word (Word 2)
+ * of the HASH Generate command (0x80):
+ *   1 = SHA256, 2 = SHA384, 3 = SHA512
+ */
+enum crypto_hash_algorithm {
+	CRYPTO_HASH_SHA2_256 = 0x01,
+	//!< SHA2-256 (32-byte digest) - FCE flags bits[5:4] = 1
+	CRYPTO_HASH_SHA2_384 = 0x02,
+	//!< SHA2-384 (48-byte digest) - FCE flags bits[5:4] = 2
+	CRYPTO_HASH_SHA2_512 = 0x03,
+	//!< SHA2-512 (64-byte digest) - FCE flags bits[5:4] = 3
+};
+
+/**
+ * @brief Hash one go arguments passed to prime_hash_one_go()
+ */
+typedef struct {
+	enum crypto_hash_algorithm algo;
+	//!< Hash algorithm to use
+	uint8_t flags;
+	//!< Reserved for future use; must be set to 0, currently ignored
+	const uint8_t *input;
+	//!< Pointer to input data buffer (virtual address)
+	uint32_t input_size;
+	//!< Length in bytes of the input payload
+	uint8_t *output;
+	//!< Pointer to output digest buffer (virtual address) must have
+	//!< ALIGN_UP(output_size, 64) + sizeof(status_buf_t) bytes allocated
+	uint32_t output_size;
+	//!< Length in bytes of the output digest
+	uint64_t input_phys;
+	//!< Physical address of input buffer (DMA accessible, 64-byte aligned)
+	uint64_t output_phys;
+	//!< Physical address of output buffer (DMA accessible, 64-byte aligned)
+} hash_one_go_args_t;
+
+/**
+ * @brief Hash one go operation parameters
+ *
+ * Parameters for a standalone hash operation that does not require
+ * a pre-loaded key. The caller provides the algorithm to use
+ * and a buffer to receive the output digest.
+ */
+struct hash_one_go_op_params {
+	enum crypto_hash_algorithm algo;
+	//!< Hash algorithm to use
+	uint8_t flags;
+	//!< Reserved for future use; must be set to 0, currently ignored
+	struct buf digest;
+	//!< Output digest buffer (virt + phys addresses, len = digest size)
+};
+
+/**
  * @brief Initialize HMAC with the specified key
  *
  * This function initializes the HMAC engine with the provided key
@@ -101,6 +156,21 @@ struct mac_op_params {
  * @return PRIME_ERROR on other errors
  */
 prime_err_t prime_mac_init(prime_hdl_t service_hdl, hmac_key_t *args);
+
+/**
+ * @brief Perform a hash one go operation
+ *
+ * Computes a hash digest over the input buffer in a single FCE operation.
+ *
+ * @param[in] service_hdl Handle to the PRIME service session
+ * @param[in] args        Pointer to hash one go arguments
+ *
+ * @return PRIME_ERR_NONE on success
+ * @return PRIME_ERR_INVALID_PARAM if parameters are invalid or NULL
+ * @return PRIME_ERROR on other errors
+ */
+prime_err_t prime_hash_one_go(prime_hdl_t service_hdl,
+			      hash_one_go_args_t *args);
 
 /** @} */ /* end of prime_hmac group */
 
