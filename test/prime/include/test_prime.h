@@ -14,4 +14,8 @@ int aes_gcm_test(prime_hdl_t service_hdl, void *va, uint64_t phys);
 
 int test_hmac_keyslot(prime_hdl_t service_hdl);
 int test_aes_keyslot(prime_hdl_t service_hdl);
+
+/* Hash One Go tests */
+int hash_one_go_test(prime_hdl_t service_hdl, void *va, uint64_t phys);
+
 #endif

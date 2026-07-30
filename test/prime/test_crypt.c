@@ -184,6 +184,8 @@ static int execute_crypto_test(uint32_t serv_hdl, void *va, uint64_t phys)
 		return -1;
 	if (aes_gcm_test(serv_hdl, va, phys))
 		return -1;
+	if (hash_one_go_test(serv_hdl, va, phys))
+		return -1;
 
 	return 0;
 }
@@ -236,6 +238,11 @@ static int test_1G_memory(void *va, uint64_t phys, size_t size)
 		return -1;
 
 	printf("AES-256-GCM(256B) test passed\n");
+
+	if (hash_one_go_test(serv_hdl, va, phys))
+		return -1;
+
+	printf("Hash One Go (SHA2-256/384/512) tests passed\n");
 
 	prime_close_service(op_serv_args[0].service_hdl);
 
@@ -517,6 +524,10 @@ static int test_se_1G_memory(void)
 		return -1;
 
 	printf("AES-256-GCM(256B) test passed\n");
+
+	if (hash_one_go_test(serv_hdl, (void *)op_serv_args[0].virtual_addr,
+			     op_serv_args[0].physical_addr))
+		return -1;
 
 	prime_close_service(op_serv_args[0].service_hdl);
 
