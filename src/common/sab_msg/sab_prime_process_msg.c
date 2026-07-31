@@ -89,7 +89,9 @@ static int enqueue_ops(prime_hdl_t handle, crypto_op_args_t **ops,
 	if (slot) {
 		/*
 		 * Update producer_req_id_index before push to consider the case
-		 * of receiving job success interrupt before push command response
+		 * of receiving job success interrupt before push command response.
+		 * This is speculative and is re-anchored to the authoritative
+		 * req_id below on the success path (and rolled back on error).
 		 */
 		producer_req_id_index += (nb_ops * PRIME_REQ_ID_DIFF);
 
@@ -107,6 +109,20 @@ static int enqueue_ops(prime_hdl_t handle, crypto_op_args_t **ops,
 			/* It returns num of jobs completed, returning 0 means error */
 			return 0;
 		}
+
+		/*
+		 * Re-anchor producer_req_id_index to the authoritative req_id
+		 * returned by firmware for the last op in this batch. The value
+		 * seeded at init from the FW request-id register is ambiguous
+		 * for the value 0 (it cannot tell a fresh boot from the state
+		 * where exactly one op has already completed), which otherwise
+		 * desyncs producer vs consumer on the second op after reboot.
+		 *
+		 * req_id already reflects the cumulative state after all nb_ops
+		 * slots in this batch (req_id == base + nb_ops * PRIME_REQ_ID_DIFF),
+		 * so this assignment subsumes the speculative increment above.
+		 */
+		producer_req_id_index = req_id;
 	}
 
 	/* save the request id for each op and set the status */
