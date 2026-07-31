@@ -65,7 +65,7 @@ static void complete_aes_ops(crypto_op_args_t **ops, uint32_t nb_ops)
 	uint32_t i;
 
 	for (i = 0; i < nb_ops; i++)
-		data_cache_clean(ops[i]->dst.virt_addr, ops[i]->dst.len, 0);
+		data_cache_clean(ops[i]->dst.virt_addr, ops[i]->dst.len, CACHE_CLEAN_INVALIDATE);
 }
 
 static int aes_load_key(prime_hdl_t service_hdl, aes_key_t *key_args,
@@ -102,7 +102,7 @@ static void prepare_aes_op(prime_hdl_t service_hdl, crypto_op_args_t *op,
 
 	/* copy the test vector & cache clean */
 	prime_mcopy(op->src.virt_addr, test_vec, op->src.len);
-	data_cache_clean(op->src.virt_addr, op->src.len, 1);
+	data_cache_clean(op->src.virt_addr, op->src.len, CACHE_CLEAN_ONLY);
 
 	/* prepare op args */
 	op->op_type = CRYPTO_OP_TYPE_AES;

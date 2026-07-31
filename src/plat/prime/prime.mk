@@ -1,6 +1,6 @@
 # SPDX-License-Identifier: BSD-3-Clause
 #
-# Copyright 2025 NXP
+# Copyright 2025 - 2026 NXP
 #
 
 MINOR_VER := 0
@@ -30,6 +30,7 @@ DEFINES		+=	-DCONFIG_PLAT_PRIME \
 PLAT_OBJECTS	:=	$(PLAT_PATH)/uio.o \
 			$(PLAT_PATH)/v2x_version_ioctl.o \
 			$(PLAT_PATH)/keyslot.o \
-			$(PLAT_PATH)/mu.o
+			$(PLAT_PATH)/mu.o \
+			$(PLAT_PATH)/cache.o
 
 OBJECTS	+= $(PLAT_OBJECTS)

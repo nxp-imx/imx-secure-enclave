@@ -126,9 +126,11 @@ static void complete_aes_gcm_ops(crypto_op_args_t **ops, uint32_t nb_ops)
 	uint32_t i;
 
 	for (i = 0; i < nb_ops; i++) {
-		data_cache_clean(ops[i]->dst.virt_addr, ops[i]->dst.len, 0);
+		data_cache_clean(ops[i]->dst.virt_addr, ops[i]->dst.len,
+				 CACHE_CLEAN_INVALIDATE);
 		data_cache_clean(ops[i]->op_aead_args.tag.virt_addr,
-				 ops[i]->op_aead_args.tag.len, 0);
+				 ops[i]->op_aead_args.tag.len,
+				 CACHE_CLEAN_INVALIDATE);
 	}
 }
 
@@ -148,7 +150,7 @@ static void prepare_aes_gcm_op(prime_hdl_t service_hdl, crypto_op_args_t *op,
 
 	/* copy test vector and cache clean */
 	prime_mcopy(op->src.virt_addr, gcm_plain, op->src.len);
-	data_cache_clean(op->src.virt_addr, op->src.len, 1);
+	data_cache_clean(op->src.virt_addr, op->src.len, CACHE_CLEAN_ONLY);
 
 	/* allocate aad buffer */
 	op->op_aead_args.aad.len = sizeof(aad);
@@ -156,7 +158,8 @@ static void prepare_aes_gcm_op(prime_hdl_t service_hdl, crypto_op_args_t *op,
 	op->op_aead_args.aad.phys_addr = op->dst.phys_addr + op->src.len;
 	/* copy aad & cache clean */
 	prime_mcopy(op->op_aead_args.aad.virt_addr, aad, op->op_aead_args.aad.len);
-	data_cache_clean(op->op_aead_args.aad.virt_addr, op->op_aead_args.aad.len, 1);
+	data_cache_clean(op->op_aead_args.aad.virt_addr, op->op_aead_args.aad.len,
+			 CACHE_CLEAN_ONLY);
 
 	/* allocate tag buffer from reserved memory  */
 	op->op_aead_args.tag.len = 16;

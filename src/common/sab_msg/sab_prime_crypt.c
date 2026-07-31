@@ -9,6 +9,7 @@
 #include "sab_prime_mac.h"
 #include "sab_prime_aes.h"
 #include "mu_regs.h"
+#include "internal/cache.h"
 
 static int32_t get_inbound_addr(prime_service_t *hdl, uint64_t phys_addr,
 				uint32_t len, uint32_t *inbound_addr)
@@ -53,6 +54,9 @@ uint32_t prime_mac_build(prime_service_t *hdl,
 	op->crypto_status.virt_addr->status_code = REQ_SUCCESS;
 	op->crypto_status.virt_addr->error_info = 0x00;
 
+	data_cache_clean((uint8_t *)op->crypto_status.virt_addr,
+			 sizeof(status_buf_t), CACHE_CLEAN_INVALIDATE);
+
 	prime_mac_construct(mu_buf, op->op_mac_args.keyslot,
 			    inbound_src_addr, op->src.len,
 			    inbound_digest_addr, op->op_mac_args.sha_algo,
@@ -84,6 +88,9 @@ uint32_t prime_cipher_build(prime_service_t *hdl,
 	/* Update status code as success, FW will update this on error */
 	op->crypto_status.virt_addr->status_code = REQ_SUCCESS;
 	op->crypto_status.virt_addr->error_info = 0x00;
+
+	data_cache_clean((uint8_t *)op->crypto_status.virt_addr,
+			 sizeof(status_buf_t), CACHE_CLEAN_INVALIDATE);
 
 	switch (op->op_aes_args.algo) {
 	case CRYPTO_CIPHER_AES_CBC:
@@ -146,6 +153,9 @@ uint32_t prime_aead_build(prime_service_t *hdl,
 	/* Update status code as success, FW will update this on error */
 	op->crypto_status.virt_addr->status_code = REQ_SUCCESS;
 	op->crypto_status.virt_addr->error_info = 0x00;
+
+	data_cache_clean((uint8_t *)op->crypto_status.virt_addr,
+			 sizeof(status_buf_t), CACHE_CLEAN_INVALIDATE);
 
 	switch (op->op_aead_args.algo) {
 	case CRYPTO_AEAD_AES_GCM:

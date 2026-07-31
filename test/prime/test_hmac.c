@@ -70,7 +70,7 @@ static int32_t complete_hmac_ops(prime_hdl_t service_hdl,
 
 	for (i = 0; i < nb_ops; i++) {
 		data_cache_clean(ops[i]->op_mac_args.digest.virt_addr,
-				 ops[i]->op_mac_args.digest.len, 0);
+				 ops[i]->op_mac_args.digest.len, CACHE_CLEAN_INVALIDATE);
 
 		if (prime_mcompare(ops[i]->op_mac_args.digest.virt_addr,
 				   digest, ops[i]->op_mac_args.digest.len)) {
@@ -95,7 +95,7 @@ static void prepare_hmac_op(prime_hdl_t service_hdl,
 
 	/* copy the test vector & cache clean */
 	prime_mcopy(op->src.virt_addr, msg, op->src.len);
-	data_cache_clean(op->src.virt_addr, op->src.len, 1);
+	data_cache_clean(op->src.virt_addr, op->src.len, CACHE_CLEAN_ONLY);
 
 	/* allocate digest buffer from reserved memory  */
 	op->op_mac_args.digest.len = 32;
