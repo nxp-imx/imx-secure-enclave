@@ -961,6 +961,15 @@ static  int init_proc_sab_hsm_msg_engine(msg_type_t msg_type,
 		}
 	break;
 #endif
+#if MT_SAB_STORAGE_STATUS
+	case SAB_STORAGE_STATUS_REQ:
+		if (msg_type == MT_SAB_STORAGE_STATUS) {
+			ret = add_sab_msg_handler(msg_id, MT_SAB_STORAGE_STATUS,
+						  prepare_msg_storage_open,
+						  proc_msg_rsp_storage_open);
+		}
+	break;
+#endif
 	default:
 		break;
 	}

@@ -246,6 +246,7 @@ hsm_err_t hsm_get_key_store_status(hsm_hdl_t session_hdl,
 	return err;
 }
 
+#if MT_SAB_STORAGE_STATUS
 hsm_err_t hsm_get_storage_status(hsm_hdl_t session_hdl, uint32_t mu_type,
 				 hsm_storage_status_t *storage_status)
 {
@@ -281,7 +282,7 @@ hsm_err_t hsm_get_storage_status(hsm_hdl_t session_hdl, uint32_t mu_type,
 	storage_args.flags = HSM_STORAGE_FLAGS_NVM_STATUS;
 
 	error = process_sab_msg(se_lib_serv_ptr->phdl, se_lib_serv_ptr->mu_type,
-				SAB_STORAGE_OPEN_REQ, MT_SAB_STORAGE_OPEN,
+				SAB_STORAGE_STATUS_REQ, MT_SAB_STORAGE_STATUS,
 				session_hdl, &storage_args, &rsp_code);
 	err = sab_rating_to_hsm_err(error, se_lib_serv_ptr->phdl);
 
@@ -292,7 +293,7 @@ hsm_err_t hsm_get_storage_status(hsm_hdl_t session_hdl, uint32_t mu_type,
 	err = sab_rating_to_hsm_err(rsp_code, se_lib_serv_ptr->phdl);
 
 	if (err != HSM_NO_ERROR) {
-		se_err("%s RSP Error: SAB_STORAGE_OPEN_REQ [0x%x].\n",
+		se_err("%s RSP Error: SAB_STORAGE_STATUS_REQ [0x%x].\n",
 		       "HSM GET STORAGE STATUS", err);
 		goto exit;
 	}
@@ -305,4 +306,5 @@ exit:
 
 	return err;
 }
+#endif
 #endif

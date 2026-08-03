@@ -122,7 +122,7 @@ hsm_err_t hsm_get_key_store_status(hsm_hdl_t session_hdl,
 				   uint32_t key_store_id,
 				   op_key_store_status_args_t *args);
 
-#ifdef PSA_COMPLIANT
+#if MT_SAB_STORAGE_STATUS
 typedef uint8_t hsm_storage_flags_t;
 
 #define HSM_STORAGE_FLAGS_NVM_STATUS \
@@ -134,9 +134,6 @@ typedef enum {
 } hsm_storage_status_t;
 
 #define HSM_STORAGE_GET_STATUS(status)  ((status) & 0x01u)
-
-#define HSM_KEY_STORE_STATUS_STORAGE_OPEN HSM_STORAGE_GET_STATUS
-//!< Going to be depricated. Use HSM_STORAGE_GET_STATUS instead.
 
 /**
  * \param session_hdl: pointer to the handle identifying the current session

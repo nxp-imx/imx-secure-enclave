@@ -7,8 +7,16 @@ SAB_RCVMSG_SRC	+= \
 		$(PLAT_COMMON_PATH)/sab_msg/sab_process_msg.o \
 		$(PLAT_COMMON_PATH)/sab_msg/sab_init_nvm_msg.o
 
+# MT_SAB_STORAGE_STATUS is using the same API as that of
+# sab_storage_open. Having the support of fetching the
+# NVM status is only possible if SAB_STORAGE_OPEN is supported.
 ifneq (${MT_SAB_STORAGE_OPEN},0x0)
+
 DEFINES		+=	-DMT_SAB_STORAGE_OPEN=${MT_SAB_STORAGE_OPEN}
+ifneq (${MT_SAB_STORAGE_STATUS},0x0)
+DEFINES		+=	-DMT_SAB_STORAGE_STATUS=${MT_SAB_STORAGE_STATUS}
+endif
+
 SAB_RCVMSG_SRC	+= \
 		$(PLAT_COMMON_PATH)/sab_msg/sab_storage_open.o
 SAB_MSG_SRC	+= \

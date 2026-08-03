@@ -154,8 +154,9 @@
 #define SAB_STORAGE_CHUNK_GET_REQ               0xE6u
 #define SAB_STORAGE_CHUNK_GET_DONE_REQ          0xE7u
 #define SAB_STORAGE_CHUNK_DELETE_REQ            0xE9u
+#define SAB_STORAGE_STATUS_REQ                  0xEAu
 #define SAB_RCVMSG_START_ID                     SAB_STORAGE_OPEN_REQ
-#define SAB_STORAGE_NVM_LAST_CMD                (SAB_STORAGE_CHUNK_DELETE_REQ + 1)
+#define SAB_STORAGE_NVM_LAST_CMD                (SAB_STORAGE_STATUS_REQ + 1)
 
 #define SAB_RCVMSG_MAX_ID                       (SAB_STORAGE_NVM_LAST_CMD \
 							- SAB_RCVMSG_START_ID)
