@@ -56,9 +56,15 @@ struct sab_signature_generate_msg {
 	uint16_t priv_key_size;
 	uint16_t key_security_size;
 	uint32_t sm2_pub_key_addr;
-	uint32_t sm2_id_addr;
+	union {
+		uint32_t sm2_id_addr;
+		uint32_t ml_dsa_ctx_addr;
+	};
 	uint16_t sm2_pub_key_size;
-	uint16_t sm2_id_size;
+	union {
+		uint16_t sm2_id_size;
+		uint16_t ml_dsa_ctx_size;
+	};
 #else
 	uint8_t scheme_id;
 	uint8_t flags;
