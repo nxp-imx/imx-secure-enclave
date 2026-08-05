@@ -93,6 +93,7 @@ hsm_err_t hsm_sign_verify_tests(hsm_hdl_t sess_hdl, hsm_hdl_t key_store_hdl,
 				uint16_t key_type,
 				hsm_pubkey_type_t pkey_type, hsm_bit_key_sz_t key_sz,
 				uint8_t *sm2_id, uint16_t sm2_id_size,
+				uint8_t *ml_dsa_ctx, uint16_t ml_dsa_ctx_size,
 #endif
 				uint8_t *signature_data, uint32_t sign_data_sz,
 				uint8_t *input_data, uint32_t input_data_sz,
@@ -112,7 +113,9 @@ uint8_t hsm_sign_verify_sm2_tests(hsm_hdl_t sess_hdl, hsm_hdl_t key_store_hdl,
 void hsm_sign_verify_eddsa_tests(hsm_hdl_t sess_hdl,
 				 hsm_hdl_t key_store_hdl,
 				 hsm_hdl_t key_mgmt_hdl);
-
+void hsm_sign_verify_ml_dsa_tests(hsm_hdl_t sess_hdl,
+				  hsm_hdl_t key_store_hdl,
+				  hsm_hdl_t key_mgmt_hdl);
 hsm_err_t auth_enc_test(hsm_hdl_t key_store_hdl, hsm_hdl_t key_mgmt_hdl);
 hsm_err_t gc_akey_gen_test(hsm_hdl_t session_hdl);
 hsm_err_t gc_acrypto_test(hsm_hdl_t session_hdl);

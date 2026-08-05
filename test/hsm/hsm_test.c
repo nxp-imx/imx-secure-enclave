@@ -481,7 +481,7 @@ static void transient_key_tests(hsm_hdl_t sess_hdl,
 				       0,
 				       HSM_PUBKEY_TYPE_ECC_NIST,
 				       HSM_KEY_SIZE_ECC_NIST_256,
-				       NULL, 0,
+				       NULL, 0, NULL, 0,
 #else
 				       HSM_SIGNATURE_SCHEME_ECDSA_NIST_P256_SHA_256,
 #endif
@@ -512,8 +512,11 @@ static void transient_key_tests(hsm_hdl_t sess_hdl,
 	if ((se_get_soc_id() == SOC_IMX95 && se_get_soc_rev() > SOC_REV_B0) ||
 	    ((se_get_soc_id() & SOC_MASK_IMX94) == SOC_IMX94 &&
 	      se_get_soc_rev() >= SOC_REV_A1) || se_get_soc_id() == SOC_IMX952 ||
-	    se_get_soc_id() == SOC_IMX937)
+	    se_get_soc_id() == SOC_IMX937) {
 		hsm_sign_verify_sm2_tests(sess_hdl, key_store_hdl, key_mgmt_hdl);
+		hsm_sign_verify_ml_dsa_tests(sess_hdl, key_store_hdl, key_mgmt_hdl);
+	}
+	printf("-----------------------------------------------------\n");
 #endif
 #else
 	memset(&open_sig_gen_args, 0, sizeof(open_sig_gen_args));

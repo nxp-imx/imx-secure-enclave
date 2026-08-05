@@ -52,8 +52,14 @@ struct sab_signature_verify_msg {
 	uint32_t sig_scheme;
 	uint16_t salt_len;
 	uint16_t rsv2;
-	uint32_t sm2_id_addr;
-	uint16_t sm2_id_size;
+	union {
+		uint32_t sm2_id_addr;
+		uint32_t ml_dsa_ctx_addr;
+	};
+	union {
+		uint16_t sm2_id_size;
+		uint16_t ml_dsa_ctx_size;
+	};
 	uint16_t rsv3;
 #else
 	uint16_t key_size;

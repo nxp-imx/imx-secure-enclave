@@ -100,21 +100,18 @@ uint32_t prepare_msg_verify_sign(void *phdl,
 
 	cmd->sig_ver_hdl = msg_hdl;
 #ifdef PSA_COMPLIANT
-	if (op_args->flags & HSM_OP_VERIFY_SIGN_FLAGS_OPAQUE_KEY)
+	if (op_args->flags & HSM_OP_VERIFY_SIGN_FLAGS_OPAQUE_KEY) {
 		cmd->key = op_args->key_identifier;
-	else
+	} else {
 		set_phy_addr_to_words(&cmd->key,
 				      0u,
 				      plat_os_abs_data_buf((struct plat_os_abs_hdl *)phdl,
 							   op_args->key,
 							   op_args->key_size,
 							   DATA_BUF_IS_INPUT));
-	set_phy_addr_to_words(&cmd->sm2_id_addr,
-			      0u,
-			      plat_os_abs_data_buf((struct plat_os_abs_hdl *)phdl,
-						   op_args->sm2_id,
-						   op_args->sm2_id_size,
-						   DATA_BUF_IS_INPUT));
+
+		cmd->sig_ver_hdl = 0;
+	}
 #else
 	set_phy_addr_to_words(&cmd->key,
 			      0u,
@@ -144,7 +141,23 @@ uint32_t prepare_msg_verify_sign(void *phdl,
 	cmd->key_security_size = op_args->key_sz;
 	cmd->key_type = op_args->pkey_type;
 	cmd->salt_len = op_args->salt_len;
-	cmd->sm2_id_size = op_args->sm2_id_size;
+	if (HSM_IS_ML_DSA_SCHEME(op_args->scheme_id)) {
+		cmd->ml_dsa_ctx_size = op_args->ml_dsa_ctx_size;
+		set_phy_addr_to_words(&cmd->ml_dsa_ctx_addr,
+				      0u,
+				      plat_os_abs_data_buf((struct plat_os_abs_hdl *)phdl,
+							   op_args->ml_dsa_ctx,
+							   op_args->ml_dsa_ctx_size,
+							   DATA_BUF_IS_INPUT));
+	} else {
+		cmd->sm2_id_size = op_args->sm2_id_size;
+		set_phy_addr_to_words(&cmd->sm2_id_addr,
+				      0u,
+				      plat_os_abs_data_buf((struct plat_os_abs_hdl *)phdl,
+							   op_args->sm2_id,
+							   op_args->sm2_id_size,
+							   DATA_BUF_IS_INPUT));
+	}
 #endif
 	cmd->flags = op_args->flags;
 	cmd->crc = 0u;

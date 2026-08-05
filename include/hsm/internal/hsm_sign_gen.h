@@ -8,6 +8,7 @@
 
 #include <stdint.h>
 
+#include "hsm_common_def.h"
 #include "hsm_handle.h"
 #include "hsm_utils.h"
 
@@ -91,7 +92,6 @@ typedef uint8_t hsm_op_generate_sign_flags_t;
 				((hsm_op_generate_sign_flags_t)(1u << 3))
 
 //! Bit field indicating the PSA compliant requested operations:
-
 typedef enum {
 	HSM_SIGNATURE_SCHEME_RSA_PKCS1_V15_SHA224       = 0x06000208,
 	HSM_SIGNATURE_SCHEME_RSA_PKCS1_V15_SHA256       = 0x06000209,
@@ -113,6 +113,12 @@ typedef enum {
 	HSM_SIGNATURE_SCHEME_PURE_EDDSA                 = 0x06000800,
 	HSM_SIGNATURE_SCHEME_EDDSA_ALL                  = 0x86000800,
 	HSM_SIGNATURE_SCHEME_SM2_SM3                    = 0x8600C214,
+	HSM_SIGNATURE_SCHEME_PURE_ML_DSA                = 0x06004400,
+	HSM_SIGNATURE_SCHEME_ML_DSA_SHA256              = 0x06004409,
+	HSM_SIGNATURE_SCHEME_ML_DSA_SHA512              = 0x0600440B,
+	HSM_SIGNATURE_SCHEME_ML_DSA_SHA3_256            = 0x06004411,
+	HSM_SIGNATURE_SCHEME_ML_DSA_SHA3_512            = 0x06004413,
+	HSM_SIGNATURE_SCHEME_ML_DSA_SHAKE_256           = 0x06004415,
 } hsm_signature_scheme_id_t;
 
 #else
@@ -207,6 +213,12 @@ typedef struct {
 	uint8_t *sm2_id;
 	//!< Pointer to the SM2 identity input buffer.
 	//!< Only valid with SM2 algorithm.
+	uint16_t ml_dsa_ctx_size;
+	//!< Size in bytes of the ML-DSA user context input buffer.
+	//!< Only valid with ML-DSA algorithm.
+	uint8_t *ml_dsa_ctx;
+	//!< Pointer to the ML-DSA user context input buffer.
+	//!< Only valid with ML-DSA algorithm.
 	uint16_t exp_signature_size;
 	//!< expected signature buffer size for output, returned by FW in case
 	//!<	 the input signature size provided is less than the required size.

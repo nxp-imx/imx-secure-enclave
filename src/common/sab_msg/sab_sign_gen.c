@@ -120,22 +120,30 @@ uint32_t prepare_msg_sign_generate(void *phdl,
 	cmd->key_type = op_args->key_type;
 	cmd->key_security_size = op_args->key_security_size;
 	cmd->priv_key_size = op_args->priv_key_size;
-	cmd->sm2_pub_key_size = op_args->sm2_pub_key_size;
-	cmd->sm2_id_size = op_args->sm2_id_size;
-
-	set_phy_addr_to_words(&cmd->sm2_pub_key_addr,
-			      0u,
-			      plat_os_abs_data_buf((struct plat_os_abs_hdl *)phdl,
-						   op_args->sm2_pub_key,
-						   op_args->sm2_pub_key_size,
-						   DATA_BUF_IS_INPUT));
-
-	set_phy_addr_to_words(&cmd->sm2_id_addr,
-			      0u,
-			      plat_os_abs_data_buf((struct plat_os_abs_hdl *)phdl,
-						   op_args->sm2_id,
-						   op_args->sm2_id_size,
-						   DATA_BUF_IS_INPUT));
+	if (HSM_IS_ML_DSA_SCHEME(op_args->scheme_id)) {
+		cmd->ml_dsa_ctx_size = op_args->ml_dsa_ctx_size;
+		set_phy_addr_to_words(&cmd->ml_dsa_ctx_addr,
+				      0u,
+				      plat_os_abs_data_buf((struct plat_os_abs_hdl *)phdl,
+							   op_args->ml_dsa_ctx,
+							   op_args->ml_dsa_ctx_size,
+							   DATA_BUF_IS_INPUT));
+	} else {
+		cmd->sm2_pub_key_size = op_args->sm2_pub_key_size;
+		cmd->sm2_id_size = op_args->sm2_id_size;
+		set_phy_addr_to_words(&cmd->sm2_pub_key_addr,
+				      0u,
+				      plat_os_abs_data_buf((struct plat_os_abs_hdl *)phdl,
+							   op_args->sm2_pub_key,
+							   op_args->sm2_pub_key_size,
+							   DATA_BUF_IS_INPUT));
+		set_phy_addr_to_words(&cmd->sm2_id_addr,
+				      0u,
+				      plat_os_abs_data_buf((struct plat_os_abs_hdl *)phdl,
+							   op_args->sm2_id,
+							   op_args->sm2_id_size,
+							   DATA_BUF_IS_INPUT));
+	}
 
 	if ((op_args->flags & HSM_OP_GENERATE_SIGN_FLAGS_PLAINTEXT_KEY) ==
 	    HSM_OP_GENERATE_SIGN_FLAGS_PLAINTEXT_KEY) {

@@ -18,6 +18,21 @@
 #define TEST_ED25519_SIGNATURE_SIZE 64
 #define TEST_ED448_SIGNATURE_SIZE   114
 
+// Add ML-DSA signature size definitions
+#define TEST_ML_DSA_44_SIGNATURE_SIZE  2420
+#define TEST_ML_DSA_65_SIGNATURE_SIZE  3309
+#define TEST_ML_DSA_87_SIGNATURE_SIZE  4627
+
+// Add ML-DSA public key size definitions
+#define TEST_ML_DSA_44_PUBKEY_SIZE  1312
+#define TEST_ML_DSA_65_PUBKEY_SIZE  1952
+#define TEST_ML_DSA_87_PUBKEY_SIZE  2592
+
+// Add ML-DSA private key size definitions
+#define TEST_ML_DSA_44_PRIV_KEY_SIZE  2560
+#define TEST_ML_DSA_65_PRIV_KEY_SIZE  4032
+#define TEST_ML_DSA_87_PRIV_KEY_SIZE  4896
+
 static uint8_t payload[32] = {
 	0x00, 0x01, 0x02, 0x03, 0x04, 0x05, 0x06, 0x07,
 	0x08, 0x09, 0x0A, 0x0B, 0x0C, 0x0D, 0x0E, 0x0F,
@@ -48,6 +63,12 @@ static uint8_t sm2_id[16] = {
 	0x08, 0x09, 0x0A, 0x0B, 0x0C, 0x0D, 0x0E, 0x0F,
 };
 
+// Random ML-DSA test context
+static uint8_t ml_dsa_ctx[16] = {
+	0x00, 0x01, 0x02, 0x03, 0x04, 0x05, 0x06, 0x07,
+	0x08, 0x09, 0x0A, 0x0B, 0x0C, 0x0D, 0x0E, 0x0F,
+};
+
 hsm_err_t hsm_sign_verify_tests(hsm_hdl_t sess_hdl, hsm_hdl_t key_store_hdl,
 				uint32_t key_id,
 				hsm_signature_scheme_id_t scheme_id,
@@ -55,6 +76,7 @@ hsm_err_t hsm_sign_verify_tests(hsm_hdl_t sess_hdl, hsm_hdl_t key_store_hdl,
 				uint16_t key_type,
 				hsm_pubkey_type_t pkey_type, hsm_bit_key_sz_t key_sz,
 				uint8_t *sm2_id, uint16_t sm2_id_size,
+				uint8_t *ml_dsa_ctx, uint16_t ml_dsa_ctx_size,
 #endif
 				uint8_t *signature_data, uint32_t sign_data_sz,
 				uint8_t *input_data, uint32_t input_data_sz,
@@ -98,6 +120,8 @@ hsm_err_t hsm_sign_verify_tests(hsm_hdl_t sess_hdl, hsm_hdl_t key_store_hdl,
 	sig_gen_args.sm2_pub_key = pub_key;
 	sig_gen_args.sm2_id_size = sm2_id_size;
 	sig_gen_args.sm2_id = sm2_id;
+	sig_gen_args.ml_dsa_ctx_size = ml_dsa_ctx_size;
+	sig_gen_args.ml_dsa_ctx = ml_dsa_ctx;
 #else
 	sig_gen_args.svc_flags = 0;
 #endif
@@ -119,6 +143,8 @@ hsm_err_t hsm_sign_verify_tests(hsm_hdl_t sess_hdl, hsm_hdl_t key_store_hdl,
 	sig_ver_args.salt_len = 0;
 	sig_ver_args.sm2_id_size = sm2_id_size;
 	sig_ver_args.sm2_id = sm2_id;
+	sig_ver_args.ml_dsa_ctx_size = ml_dsa_ctx_size;
+	sig_ver_args.ml_dsa_ctx = ml_dsa_ctx;
 #endif
 	hsmret = hsm_verify_sign(sess_hdl, &sig_ver_args, &verif_status);
 	if (hsmret)
@@ -152,7 +178,6 @@ hsm_err_t hsm_sign_verify_tests(hsm_hdl_t sess_hdl, hsm_hdl_t key_store_hdl,
 #endif
 	return hsmret;
 }
-
 #ifdef PSA_COMPLIANT
 hsm_err_t hsm_sign_verify_plaintext_tests(hsm_hdl_t sess_hdl,
 					  hsm_hdl_t key_store_hdl,
@@ -171,7 +196,7 @@ hsm_err_t hsm_sign_verify_plaintext_tests(hsm_hdl_t sess_hdl,
 				    HSM_KEY_TYPE_ECC_NIST,
 				    HSM_PUBKEY_TYPE_ECC_NIST,
 				    HSM_KEY_SIZE_ECC_NIST_256,
-				    NULL, 0,
+				    NULL, 0, NULL, 0,
 				    signature_data,
 				    2 * BITS_TO_BYTES(HSM_KEY_SIZE_ECC_NIST_256),
 				    payload,
@@ -238,7 +263,7 @@ static hsm_err_t hsm_sign_verify_eddsa_tests_helper(hsm_hdl_t sess_hdl,
 				    0,
 				    HSM_PUBKEY_TYPE_ECC_TWISTED_EDWARDS,
 				    bit_key_size,
-				    NULL, 0,
+				    NULL, 0, NULL, 0,
 				    signature, signature_size,
 				    payload, sizeof(payload),
 				    0, 0,
@@ -257,7 +282,7 @@ out:
 	if (test_status == TEST_STATUS_SUCCESS)
 		printf("\nResult ---> SUCCESS\n");
 	else
-		printf("\nResult ---> FAILURE\n");
+		printf("\nResult ---> FAILED\n");
 
 	return ret;
 }
@@ -354,6 +379,7 @@ static uint8_t hsm_sign_verify_sm2_subtest_01(hsm_hdl_t sess_hdl,
 				    HSM_PUBKEY_TYPE_SM2,
 				    HSM_KEY_SIZE_SM2_256,
 				    sm2_id, sizeof(sm2_id),
+				    NULL, 0,
 				    signature, signature_size,
 				    payload, sizeof(payload),
 				    NULL, 0,
@@ -414,6 +440,7 @@ static uint8_t hsm_sign_verify_sm2_subtest_02(hsm_hdl_t sess_hdl,
 				    HSM_PUBKEY_TYPE_SM2,
 				    HSM_KEY_SIZE_SM2_256,
 				    sm2_id, sizeof(sm2_id),
+				    NULL, 0,
 				    signature, signature_size,
 				    payload, sizeof(payload),
 				    priv_key, priv_key_size,
@@ -429,6 +456,8 @@ out:
 		printf("\nResult ---> SUCCESS\n");
 	else
 		printf("\nResult ---> FAILED\n");
+
+	return ret;
 }
 
 uint8_t hsm_sign_verify_sm2_tests(hsm_hdl_t sess_hdl, hsm_hdl_t key_store_hdl,
@@ -440,5 +469,122 @@ uint8_t hsm_sign_verify_sm2_tests(hsm_hdl_t sess_hdl, hsm_hdl_t key_store_hdl,
 	ret |= hsm_sign_verify_sm2_subtest_02(sess_hdl, key_store_hdl, key_mgmt_hdl);
 
 	return ret;
+}
+
+/* Add ML-DSA test helper function */
+static hsm_err_t hsm_sign_verify_ml_dsa_tests_helper(hsm_hdl_t sess_hdl,
+						     hsm_hdl_t key_store_hdl,
+						     hsm_hdl_t key_mgmt_hdl,
+						     hsm_bit_key_sz_t bit_key_size,
+						     hsm_permitted_algo_t permitted_algo,
+						     hsm_signature_scheme_id_t algo)
+{
+	hsm_err_t ret;
+	uint8_t priv_key[TEST_ML_DSA_87_PRIV_KEY_SIZE] = {0};
+	uint16_t priv_key_size = 0;
+	uint8_t pub_key[TEST_ML_DSA_87_PUBKEY_SIZE] = {0};
+	uint16_t pub_key_size = 0;
+	uint8_t signature[TEST_ML_DSA_87_SIGNATURE_SIZE] = {0};
+	uint16_t signature_size = 0;
+	uint8_t test_status = TEST_STATUS_FAILED;
+
+	/* Determine sizes based on key security bit size (security level) */
+	if (bit_key_size == HSM_KEY_SIZE_ML_DSA_128) {
+		priv_key_size = TEST_ML_DSA_44_PRIV_KEY_SIZE;
+		pub_key_size = TEST_ML_DSA_44_PUBKEY_SIZE;
+		signature_size = TEST_ML_DSA_44_SIGNATURE_SIZE;
+	} else if (bit_key_size == HSM_KEY_SIZE_ML_DSA_192) {
+		priv_key_size = TEST_ML_DSA_65_PRIV_KEY_SIZE;
+		pub_key_size = TEST_ML_DSA_65_PUBKEY_SIZE;
+		signature_size = TEST_ML_DSA_65_SIGNATURE_SIZE;
+	} else if (bit_key_size == HSM_KEY_SIZE_ML_DSA_256) {
+		priv_key_size = TEST_ML_DSA_87_PRIV_KEY_SIZE;
+		pub_key_size = TEST_ML_DSA_87_PUBKEY_SIZE;
+		signature_size = TEST_ML_DSA_87_SIGNATURE_SIZE;
+	} else {
+		printf("\nUnknown ML-DSA key size: %u\n", bit_key_size);
+		ret = HSM_GENERAL_ERROR;
+		goto out;
+	}
+
+	/* Generate ML-DSA key-pair plain key */
+	ret = generate_test_key(key_mgmt_hdl,
+				HSM_KEY_TYPE_ML_DSA,
+				bit_key_size,
+				0, 0, 0, 0,
+				HSM_OP_KEY_GENERATION_FLAGS_PLAINTEXT_KEY,
+				0,
+				priv_key_size, priv_key,
+				pub_key_size, pub_key,
+				NULL);
+	if (ret != HSM_NO_ERROR)
+		goto out;
+
+	ret = hsm_sign_verify_tests(sess_hdl, key_store_hdl, 0,
+				    algo,
+				    HSM_KEY_TYPE_ML_DSA,
+				    HSM_PUBKEY_TYPE_ML_DSA,
+				    bit_key_size,
+				    NULL, 0,
+				    ml_dsa_ctx, sizeof(ml_dsa_ctx),
+				    signature, signature_size,
+				    payload, sizeof(payload),
+				    priv_key, priv_key_size,
+				    pub_key, pub_key_size,
+				    TEST_INPUT_DIGEST);
+	if (ret != HSM_NO_ERROR)
+		goto out;
+
+	test_status = TEST_STATUS_SUCCESS;
+
+out:
+	if (test_status == TEST_STATUS_SUCCESS)
+		printf("\nResult ---> SUCCESS\n");
+	else
+		printf("\nResult ---> FAILED\n");
+
+	return ret;
+}
+
+/* Add ML-DSA test suite function */
+void hsm_sign_verify_ml_dsa_tests(hsm_hdl_t sess_hdl,
+				  hsm_hdl_t key_store_hdl,
+				  hsm_hdl_t key_mgmt_hdl)
+{
+	printf("HSM_KEY_SIZE_ML_DSA_128 & HSM_SIGNATURE_SCHEME_ML_DSA_SHA256:");
+	hsm_sign_verify_ml_dsa_tests_helper(sess_hdl, key_store_hdl, key_mgmt_hdl,
+					    HSM_KEY_SIZE_ML_DSA_128,
+					    PERMITTED_ALGO_ML_DSA_SHA256,
+					    HSM_SIGNATURE_SCHEME_ML_DSA_SHA256);
+
+	printf("HSM_KEY_SIZE_ML_DSA_192 & HSM_SIGNATURE_SCHEME_ML_DSA_SHA256:");
+	hsm_sign_verify_ml_dsa_tests_helper(sess_hdl, key_store_hdl, key_mgmt_hdl,
+					    HSM_KEY_SIZE_ML_DSA_192,
+					    PERMITTED_ALGO_ML_DSA_SHA256,
+					    HSM_SIGNATURE_SCHEME_ML_DSA_SHA256);
+
+	printf("HSM_KEY_SIZE_ML_DSA_256 & HSM_SIGNATURE_SCHEME_ML_DSA_SHA256:");
+	hsm_sign_verify_ml_dsa_tests_helper(sess_hdl, key_store_hdl, key_mgmt_hdl,
+					    HSM_KEY_SIZE_ML_DSA_256,
+					    PERMITTED_ALGO_ML_DSA_SHA256,
+					    HSM_SIGNATURE_SCHEME_ML_DSA_SHA256);
+
+	printf("HSM_KEY_SIZE_ML_DSA_128 & HSM_SIGNATURE_SCHEME_ML_DSA_SHA3_256:");
+	hsm_sign_verify_ml_dsa_tests_helper(sess_hdl, key_store_hdl, key_mgmt_hdl,
+					    HSM_KEY_SIZE_ML_DSA_128,
+					    PERMITTED_ALGO_ML_DSA_SHA3_256,
+					    HSM_SIGNATURE_SCHEME_ML_DSA_SHA3_256);
+
+	printf("HSM_KEY_SIZE_ML_DSA_192 & HSM_SIGNATURE_SCHEME_ML_DSA_SHA3_256:");
+	hsm_sign_verify_ml_dsa_tests_helper(sess_hdl, key_store_hdl, key_mgmt_hdl,
+					    HSM_KEY_SIZE_ML_DSA_192,
+					    PERMITTED_ALGO_ML_DSA_SHA3_256,
+					    HSM_SIGNATURE_SCHEME_ML_DSA_SHA3_256);
+
+	printf("HSM_KEY_SIZE_ML_DSA_256 & HSM_SIGNATURE_SCHEME_ML_DSA_SHA3_256:");
+	hsm_sign_verify_ml_dsa_tests_helper(sess_hdl, key_store_hdl, key_mgmt_hdl,
+					    HSM_KEY_SIZE_ML_DSA_256,
+					    PERMITTED_ALGO_ML_DSA_SHA3_256,
+					    HSM_SIGNATURE_SCHEME_ML_DSA_SHA3_256);
 }
 #endif

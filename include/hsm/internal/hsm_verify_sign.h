@@ -92,6 +92,12 @@ typedef struct {
 	uint8_t *sm2_id;
 	//!< Pointer to the SM2 identity input buffer.
 	//!< Only valid with SM2 algorithm.
+	uint16_t ml_dsa_ctx_size;
+	//!< Size in bytes of the ML-DSA user context input buffer.
+	//!< Only valid with ML-DSA algorithm.
+	uint8_t *ml_dsa_ctx;
+	//!< Pointer to the ML-DSA user context input buffer.
+	//!< Only valid with ML-DSA algorithm.
 #endif
 	hsm_op_verify_sign_flags_t flags;
 	//!< bitmap specifying the operation attributes
