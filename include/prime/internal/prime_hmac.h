@@ -64,7 +64,7 @@ enum crypto_sha_algorithm {
 	//!< SHA-256 algorithm (256-bit digest)
 	CRYPTO_AUTH_SHA_384,
 	//!< SHA-384 algorithm (384-bit digest)
-	CRYPTO_AUTH_SHA_521
+	CRYPTO_AUTH_SHA_512
 	//!< SHA-512 algorithm (512-bit digest)
 };
 
