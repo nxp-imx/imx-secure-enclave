@@ -2,30 +2,30 @@
   "SPDXID": "SPDXRef-DOCUMENT",
   "spdxVersion": "SPDX-2.3",
   "creationInfo": {
-    "created": "2026-06-02T02:50:06Z",
+    "created": "2026-08-26T02:35:58Z",
     "creators": [
       "Organization: NXP"
     ],
-    "licenseListVersion": "3.26"
+    "licenseListVersion": "3.28"
   },
-  "name": "imx-secure-enclave-lf-6.18.20-2.0.0",
+  "name": "imx-secure-enclave-lf-6.18.37-2.1.0",
   "dataLicense": "CC0-1.0",
-  "documentNamespace": "https://nxp.com/spdx/ae802013-adad-449c-8f96-ff5b1c1e914c",
+  "documentNamespace": "https://nxp.com/spdx/822c66c1-001e-4f3f-b266-054d9f8d4cad",
   "packages": [
     {
-      "SPDXID": "SPDXRef-package-ae802013-adad-449c-8f96-ff5b1c1e914c",
+      "SPDXID": "SPDXRef-package-822c66c1-001e-4f3f-b266-054d9f8d4cad",
       "name": "imx-secure-enclave",
-      "versionInfo": "lf-6.18.20-2.0.0",
+      "versionInfo": "lf-6.18.37-2.1.0",
       "licenseConcluded": "BSD-3-Clause",
       "licenseDeclared": "BSD-3-Clause",
-      "downloadLocation": "https://github.com/nxp-imx/imx-secure-enclave.git -b lf-6.18.20-2.0.0",
+      "downloadLocation": "https://github.com/nxp-imx/imx-secure-enclave.git -b lf-6.18.37-2.1.0",
       "originator": "Organization: NXP",
       "supplier": "NOASSERTION",
       "externalRefs": [],
       "filesAnalyzed": false
     },
     {
-      "SPDXID": "SPDXRef-package-ae802013-adad-449c-8f96-ff5b1c1e914c---e536d8ef-a2e1-4d12-9bb2-705d1166e06f",
+      "SPDXID": "SPDXRef-package-822c66c1-001e-4f3f-b266-054d9f8d4cad---e536d8ef-a2e1-4d12-9bb2-705d1166e06f",
       "name": "mbed TLS",
       "versionInfo": "v3.6.5",
       "licenseConcluded": "Apache-2.0",
@@ -54,7 +54,7 @@
       "filesAnalyzed": false
     },
     {
-      "SPDXID": "SPDXRef-package-ae802013-adad-449c-8f96-ff5b1c1e914c---8420f039-09f7-4a30-9cda-59128844008f",
+      "SPDXID": "SPDXRef-package-822c66c1-001e-4f3f-b266-054d9f8d4cad---8420f039-09f7-4a30-9cda-59128844008f",
       "name": "OpenSSL",
       "versionInfo": "3.5.4",
       "licenseConcluded": "Apache-2.0",
@@ -97,17 +97,19 @@
     {
       "spdxElementId": "SPDXRef-DOCUMENT",
       "relationshipType": "DESCRIBES",
-      "relatedSpdxElement": "SPDXRef-package-ae802013-adad-449c-8f96-ff5b1c1e914c"
+      "relatedSpdxElement": "SPDXRef-package-822c66c1-001e-4f3f-b266-054d9f8d4cad"
     },
     {
-      "spdxElementId": "SPDXRef-package-ae802013-adad-449c-8f96-ff5b1c1e914c",
-      "relationshipType": "DYNAMIC_LINK",
-      "relatedSpdxElement": "SPDXRef-package-ae802013-adad-449c-8f96-ff5b1c1e914c---8420f039-09f7-4a30-9cda-59128844008f"
+      "spdxElementId": "SPDXRef-package-822c66c1-001e-4f3f-b266-054d9f8d4cad",
+      "relationshipType": "OTHER",
+      "relatedSpdxElement": "SPDXRef-package-822c66c1-001e-4f3f-b266-054d9f8d4cad---8420f039-09f7-4a30-9cda-59128844008f",
+      "comment": "Separate Work"
     },
     {
-      "spdxElementId": "SPDXRef-package-ae802013-adad-449c-8f96-ff5b1c1e914c",
-      "relationshipType": "DYNAMIC_LINK",
-      "relatedSpdxElement": "SPDXRef-package-ae802013-adad-449c-8f96-ff5b1c1e914c---e536d8ef-a2e1-4d12-9bb2-705d1166e06f"
+      "spdxElementId": "SPDXRef-package-822c66c1-001e-4f3f-b266-054d9f8d4cad",
+      "relationshipType": "OTHER",
+      "relatedSpdxElement": "SPDXRef-package-822c66c1-001e-4f3f-b266-054d9f8d4cad---e536d8ef-a2e1-4d12-9bb2-705d1166e06f",
+      "comment": "Separate Work"
     }
   ]
 }
