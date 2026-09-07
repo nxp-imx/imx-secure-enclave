@@ -100,6 +100,7 @@ hsm_err_t hsm_open_key_store_service(hsm_hdl_t session_hdl,
  */
 hsm_err_t hsm_close_key_store_service(hsm_hdl_t key_store_hdl);
 
+#ifdef PSA_COMPLIANT
 /**
  *
  * \param session_hdl pointer to the handle identifying the current session.
@@ -109,7 +110,7 @@ hsm_err_t hsm_close_key_store_service(hsm_hdl_t key_store_hdl);
  */
 hsm_err_t hsm_key_store_reprov_en(hsm_hdl_t session_hdl,
 				  op_key_store_reprov_en_args_t *args);
-#ifdef PSA_COMPLIANT
+
 /**
  *
  * \param session_hdl pointer to the handle identifying the current session.
