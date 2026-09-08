@@ -160,6 +160,10 @@ static hsm_err_t sab_err_rating_to_hsm_err(uint8_t sab_err_rating)
 		       hsm_err);
 		break;
 
+	case HSM_BS_NO_KCV_FEATURE_DISABLED:
+		se_err("\nHSM Error: HSM_BS_NO_KCV_FEATURE_DISABLED (0x%x)\n", hsm_err);
+		break;
+
 	case HSM_CRC_CHECK_ERR:
 		se_err("\nHSM Error: HSM_CRC_CHECK_ERR (0x%x)\n", hsm_err);
 		break;

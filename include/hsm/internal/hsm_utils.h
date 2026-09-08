@@ -77,7 +77,11 @@ typedef enum {
 	HSM_NOT_READY_RATING                = 0x13,
 	/**<The HSM is not ready to handle the current request */
 	HSM_FEATURE_DISABLED                = 0x14,
-	/**<The required service/operation is disabled */
+	/**< The HSM feature is disabled. Possible causes include:
+	 *   - BBSM interrupt policy has been set to disable HSM crypto services.
+	 *   - An error occurred during export/import of storage blob to/from NVM.
+	 * Feature is re-enabled when system is reset.
+	 */
 	HSM_KEY_GROUP_FULL                  = 0x19,
 	/**<Not enough space to store the key in the key group */
 	HSM_CANNOT_RETRIEVE_KEY_GROUP       = 0x1A,
@@ -96,6 +100,10 @@ typedef enum {
 	 */
 	HSM_INVALID_SIGNATURE_VERIFICATION_HANDLE = 0x21,
 	/**< Invalid Signature verification handle: Opaque key can’t be used. */
+	HSM_BS_NO_KCV_FEATURE_DISABLED = 0xB6,
+	/**< Feature disabled due to missing Key Check Values (KCVs).
+	 * Device Attestation operation will fail/reported as disabled feature.
+	 */
 	HSM_CRC_CHECK_ERR = 0xB9,
 	/**<Command CRC check error */
 	HSM_INCONSISTENT_PARAM_ERR = 0xBC,
