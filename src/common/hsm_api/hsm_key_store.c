@@ -146,6 +146,7 @@ hsm_err_t hsm_close_key_store_service(hsm_hdl_t key_store_hdl)
 	return err;
 }
 
+#ifdef PSA_COMPLIANT
 hsm_err_t hsm_key_store_reprov_en(hsm_hdl_t session_hdl,
 				  op_key_store_reprov_en_args_t *args)
 {
@@ -193,7 +194,6 @@ hsm_err_t hsm_key_store_reprov_en(hsm_hdl_t session_hdl,
 	return err;
 }
 
-#ifdef PSA_COMPLIANT
 hsm_err_t hsm_get_key_store_status(hsm_hdl_t session_hdl,
 				   uint32_t key_store_id,
 				   op_key_store_status_args_t *args)

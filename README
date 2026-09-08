@@ -156,7 +156,7 @@ Secure Enclave library code repo
 
 	cd imx-secure-enclave/
 
-	git checkout lf-6.18.20_2.0.0
+	git checkout lf-6.18.37_2.1.0
 
 
 Secure Enclave Environment Setup
@@ -287,9 +287,9 @@ while 0.1 represents that library is for SECO (SECO-HSM), V2X (V2X-SHE, V2X-HSM)
 
 ELE-HSM: SECO-HSM: Library Artifacts
 ------------------------------------
-/usr/lib/libele_hsm.so -> libele_hsm.so.1      (ELE-HSM Shared library)
-/usr/lib/libele_hsm.so.1 -> libele_hsm.so.1.0  (ELE-HSM Shared library)
-/usr/lib/libele_hsm.so.1.0                     (ELE-HSM Shared library)
+/usr/lib/libele_hsm.so -> libele_hsm.so.2      (ELE-HSM Shared library)
+/usr/lib/libele_hsm.so.2 -> libele_hsm.so.2.0  (ELE-HSM Shared library)
+/usr/lib/libele_hsm.so.2.0                     (ELE-HSM Shared library)
 /usr/lib/libele_nvm.so -> libele_nvm.so.1      (ELE-NVM Shared library)
 /usr/lib/libele_nvm.so.1 -> libele_nvm.so.1.0  (ELE-NVM Shared library)
 /usr/lib/libele_nvm.so.1.0                     (ELE-NVM Shared library)
@@ -669,7 +669,7 @@ SECO: SECO-HSM + SECO-SHE: Tests Artifacts
 Secure Enclave (HSM/SHE) APIs Documents:
 ----------------------------------------
 
-	https://github.com/nxp-imx/imx-secure-enclave/tree/lf-6.18.20_2.0.0/doc
+	https://github.com/nxp-imx/imx-secure-enclave/tree/lf-6.18.37_2.1.0/doc
 
 
 Table 6: NVM blob format compatibility details
@@ -687,6 +687,8 @@ Table 6: NVM blob format compatibility details
 |                           |                                       |
 +---------------------------+---------------------------------------+
 
+Note: lf-6.6.52_2.2.2 release also follows Version 2 and is affected by the
+NVM blob format compatibility issue.
 
 6. Licenses
 ===========
@@ -715,6 +717,8 @@ Known Limitations
      recommended to not interrupt the conversion process in-between.
    - Also note that the NVM directory must contain blobs following only one type
      of format i.e. either all version 1 or version 2.
+   - Back-port and apply the fix patch from lf-6.18.20_2.0.0 to the impacted release.
+     It automatically detects and converts v1 blobs to v2 on the first NVM daemon run.
 
   i.MX95:
 

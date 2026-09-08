@@ -650,6 +650,25 @@ static uint8_t message_3k[3072] = {0x6b, 0xc1, 0xbe, 0xe2, 0x2e, 0x40, 0x9f, 0x9
 				   0x6b, 0xc1, 0xbe, 0xe2, 0x2e, 0x40, 0x9f, 0x96,
 				   0xe9, 0x3d, 0x7e, 0x11, 0x73, 0x93, 0x2, 0x1};
 
+/*
+ * AES-128-CMAC golden value for message_3k, computed independently with
+ * OpenSSL (not read back from ELE FW):
+ *
+ *   openssl dgst -mac cmac -macopt cipher:aes-128-cbc \
+ *       -macopt hexkey:85610dbcbee1003cabde7652862ea762 \
+ *       -binary < msg3k.bin | xxd
+ *
+ * Key: the second RAM key loaded by she_load_plain_key_test() in
+ *      test/she/she_test_plain_key.c (key[10]=0x76 variant):
+ *      85 61 0d bc  be e1 00 3c  ab de 76 52  86 2e a7 62
+ *
+ * The previous value was self-generated from buggy ELE FW and was wrong.
+ */
+static const uint8_t she_mac_3k_golden[SHE_MAC_SIZE] = {
+	0x10, 0x39, 0xd7, 0x3f, 0x0e, 0x54, 0x61, 0x8f,
+	0x19, 0xde, 0xaa, 0x51, 0x0a, 0xb2, 0x2c, 0xdd
+};
+
 she_err_t she_verify_mac_one_go(she_hdl_t mac_handle)
 {
 	op_mac_one_go_args_t verify_mac_args = {0};
@@ -668,11 +687,6 @@ she_err_t she_verify_mac_one_go(she_hdl_t mac_handle)
 					      0xec, 0x27, 0x8c, 0x63,
 					      0x89, 0xff, 0x59, 0x73,
 					      0xa8, 0x15, 0xe7, 0xd4};
-	uint8_t input_mac_3k[SHE_MAC_SIZE] = {0x95, 0x7d, 0x39, 0x9e,
-					      0x16, 0x7a, 0x14, 0x98,
-					      0xb5, 0x69, 0x59, 0x7c,
-					      0x69, 0x2d, 0xeb, 0x99};
-
 	memset(&verify_mac_args, 0, sizeof(verify_mac_args));
 	verify_mac_args.algorithm = SHE_OP_MAC_ONE_GO_ALGO_CMAC;
 	verify_mac_args.key_identifier = SHE_RAM_KEY;
@@ -726,7 +740,7 @@ she_err_t she_verify_mac_one_go(she_hdl_t mac_handle)
 		verify_mac_args.algorithm = SHE_OP_MAC_ONE_GO_ALGO_CMAC;
 		verify_mac_args.key_identifier = SHE_RAM_KEY;
 		verify_mac_args.flags = MAC_OP_FLAGS_MAC_VERIFICATION;
-		verify_mac_args.mac = input_mac_3k;
+		verify_mac_args.mac = (uint8_t *)she_mac_3k_golden;
 		verify_mac_args.mac_size = SHE_MAC_SIZE;
 		verify_mac_args.payload = message_3k;
 		verify_mac_args.payload_size = sizeof(message_3k);
@@ -767,11 +781,6 @@ she_err_t she_generate_mac_one_go(she_hdl_t mac_handle)
 						0xec, 0x27, 0x8c, 0x63,
 						0x89, 0xff, 0x59, 0x73,
 						0xa8, 0x15, 0xe7, 0xd4};
-	uint8_t expected_mac3k[SHE_MAC_SIZE] = {0x95, 0x7d, 0x39, 0x9e,
-						0x16, 0x7a, 0x14, 0x98,
-						0xb5, 0x69, 0x59, 0x7c,
-						0x69, 0x2d, 0xeb, 0x99};
-
 	memset(&generate_mac_args, 0, sizeof(generate_mac_args));
 	generate_mac_args.algorithm = SHE_OP_MAC_ONE_GO_ALGO_CMAC;
 	generate_mac_args.key_identifier = SHE_RAM_KEY;
@@ -856,13 +865,14 @@ she_err_t she_generate_mac_one_go(she_hdl_t mac_handle)
 		for (i = 0; i < SHE_MAC_SIZE; i++) {
 			if ((i % 10) == 0)
 				printf("\n");
-			printf("%02x:%02x ", generate_mac_args.mac[i], expected_mac3k[i]);
+			printf("%02x:%02x ",
+			       generate_mac_args.mac[i], she_mac_3k_golden[i]);
 		}
 		printf("\n");
 
-		if (memcmp(expected_mac3k,
+		if (memcmp(she_mac_3k_golden,
 			   generate_mac_args.mac,
-			   sizeof(expected_mac3k)) != 0) {
+			   sizeof(she_mac_3k_golden)) != 0) {
 			se_print("Generated MAC(3K) doesn't match expected MAC [FAIL]\n");
 			return SHE_GENERAL_ERROR;
 		}
