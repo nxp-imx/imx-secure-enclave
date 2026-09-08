@@ -69,6 +69,9 @@ static uint8_t ml_dsa_ctx[16] = {
 	0x08, 0x09, 0x0A, 0x0B, 0x0C, 0x0D, 0x0E, 0x0F,
 };
 
+// Key group used for the ML-DSA opaque test keys
+#define TEST_ML_DSA_KEY_GROUP 50
+
 hsm_err_t hsm_sign_verify_tests(hsm_hdl_t sess_hdl, hsm_hdl_t key_store_hdl,
 				uint32_t key_id,
 				hsm_signature_scheme_id_t scheme_id,
@@ -90,6 +93,7 @@ hsm_err_t hsm_sign_verify_tests(hsm_hdl_t sess_hdl, hsm_hdl_t key_store_hdl,
 	op_verify_sign_args_t sig_ver_args = {0};
 	hsm_verification_status_t verif_status = 0;
 	hsm_err_t hsmret;
+	hsm_err_t ret = HSM_NO_ERROR;
 
 	if (input_data_type == TEST_INPUT_DIGEST) {
 		sig_gen_args.flags = HSM_OP_GENERATE_SIGN_FLAGS_INPUT_DIGEST;
@@ -126,8 +130,10 @@ hsm_err_t hsm_sign_verify_tests(hsm_hdl_t sess_hdl, hsm_hdl_t key_store_hdl,
 	sig_gen_args.svc_flags = 0;
 #endif
 	hsmret = hsm_do_sign(key_store_hdl, &sig_gen_args);
-	if (hsmret)
+	if (hsmret) {
 		printf("hsm_do_sign failed ret:0x%x\n", hsmret);
+		ret = hsmret;
+	}
 
 	/* Signature Verification using Plaintext key */
 	sig_ver_args.key = pub_key;
@@ -147,11 +153,16 @@ hsm_err_t hsm_sign_verify_tests(hsm_hdl_t sess_hdl, hsm_hdl_t key_store_hdl,
 	sig_ver_args.ml_dsa_ctx = ml_dsa_ctx;
 #endif
 	hsmret = hsm_verify_sign(sess_hdl, &sig_ver_args, &verif_status);
-	if (hsmret)
+	if (hsmret) {
 		printf("hsm_verify_signature ret:0x%x\n", hsmret);
+		ret = hsmret;
+	}
 
-	if (verif_status != HSM_VERIFICATION_STATUS_SUCCESS)
+	if (verif_status != HSM_VERIFICATION_STATUS_SUCCESS) {
 		printf("Verification FAIL, status:0x%x\n", verif_status);
+		if (ret == HSM_NO_ERROR)
+			ret = HSM_SIGNATURE_INVALID;
+	}
 
 #ifdef PSA_COMPLIANT
 	/* Signature Verification using Opaque key */
@@ -169,14 +180,19 @@ hsm_err_t hsm_sign_verify_tests(hsm_hdl_t sess_hdl, hsm_hdl_t key_store_hdl,
 
 		hsmret = hsm_verify_sign(key_store_hdl, &sig_ver_args, &verif_status);
 
-		if (hsmret)
+		if (hsmret) {
 			printf("hsm_verify_signature (opaque key) ret:0x%x\n", hsmret);
+			ret = hsmret;
+		}
 
-		if (verif_status != HSM_VERIFICATION_STATUS_SUCCESS)
+		if (verif_status != HSM_VERIFICATION_STATUS_SUCCESS) {
 			printf("Verification FAIL, status:0x%x\n", verif_status);
+			if (ret == HSM_NO_ERROR)
+				ret = HSM_SIGNATURE_INVALID;
+		}
 	}
 #endif
-	return hsmret;
+	return ret;
 }
 #ifdef PSA_COMPLIANT
 hsm_err_t hsm_sign_verify_plaintext_tests(hsm_hdl_t sess_hdl,
@@ -471,15 +487,26 @@ uint8_t hsm_sign_verify_sm2_tests(hsm_hdl_t sess_hdl, hsm_hdl_t key_store_hdl,
 	return ret;
 }
 
-/* Add ML-DSA test helper function */
-static hsm_err_t hsm_sign_verify_ml_dsa_tests_helper(hsm_hdl_t sess_hdl,
-						     hsm_hdl_t key_store_hdl,
-						     hsm_hdl_t key_mgmt_hdl,
-						     hsm_bit_key_sz_t bit_key_size,
-						     hsm_permitted_algo_t permitted_algo,
-						     hsm_signature_scheme_id_t algo)
+/* ML-DSA sign/verify helper - shared by plaintext and opaque key sub-suites.
+ * When is_opaque is 0, a plaintext key pair is generated and used for signing.
+ * When is_opaque is 1, a volatile opaque key pair is generated; signing uses
+ * the opaque key_id and hsm_sign_verify_tests() exercises the opaque verify
+ * path. The opaque key is deleted on exit path.
+ * input_type selects TEST_INPUT_MESSAGE or TEST_INPUT_DIGEST for the operation.
+ */
+static uint8_t hsm_sign_verify_ml_dsa_tests_helper(hsm_hdl_t sess_hdl,
+						   hsm_hdl_t key_store_hdl,
+						   hsm_hdl_t key_mgmt_hdl,
+						   hsm_bit_key_sz_t bit_key_size,
+						   hsm_permitted_algo_t permitted_algo,
+						   hsm_signature_scheme_id_t algo,
+						   uint8_t is_opaque,
+						   uint8_t input_type)
 {
 	hsm_err_t ret;
+	hsm_err_t del_ret;
+	hsm_key_usage_t key_usage;
+	uint32_t key_id = 0;
 	uint8_t priv_key[TEST_ML_DSA_87_PRIV_KEY_SIZE] = {0};
 	uint16_t priv_key_size = 0;
 	uint8_t pub_key[TEST_ML_DSA_87_PUBKEY_SIZE] = {0};
@@ -507,84 +534,306 @@ static hsm_err_t hsm_sign_verify_ml_dsa_tests_helper(hsm_hdl_t sess_hdl,
 		goto out;
 	}
 
-	/* Generate ML-DSA key-pair plain key */
-	ret = generate_test_key(key_mgmt_hdl,
-				HSM_KEY_TYPE_ML_DSA,
-				bit_key_size,
-				0, 0, 0, 0,
-				HSM_OP_KEY_GENERATION_FLAGS_PLAINTEXT_KEY,
-				0,
-				priv_key_size, priv_key,
-				pub_key_size, pub_key,
-				NULL);
+	if (!is_opaque) {
+		/* Generate ML-DSA plaintext key pair */
+		ret = generate_test_key(key_mgmt_hdl,
+					HSM_KEY_TYPE_ML_DSA,
+					bit_key_size,
+					0, 0, 0, 0,
+					HSM_OP_KEY_GENERATION_FLAGS_PLAINTEXT_KEY,
+					0,
+					priv_key_size, priv_key,
+					pub_key_size, pub_key,
+					NULL);
+	} else {
+		if (input_type == TEST_INPUT_DIGEST)
+			key_usage = HSM_KEY_USAGE_SIGN_HASH | HSM_KEY_USAGE_VERIFY_HASH;
+		else
+			key_usage = HSM_KEY_USAGE_SIGN_MSG | HSM_KEY_USAGE_VERIFY_MSG;
+
+		/* Generate ML-DSA volatile opaque key pair */
+		ret = generate_test_key(key_mgmt_hdl,
+					HSM_KEY_TYPE_ML_DSA,
+					bit_key_size,
+					HSM_SE_KEY_STORAGE_VOLATILE,
+					key_usage,
+					permitted_algo,
+					0,
+					0,
+					TEST_ML_DSA_KEY_GROUP,
+					0, NULL,
+					pub_key_size,
+					pub_key,
+					&key_id);
+	}
+
 	if (ret != HSM_NO_ERROR)
 		goto out;
 
-	ret = hsm_sign_verify_tests(sess_hdl, key_store_hdl, 0,
+	/* Signature Generation and Verification */
+	ret = hsm_sign_verify_tests(sess_hdl, key_store_hdl, key_id,
 				    algo,
-				    HSM_KEY_TYPE_ML_DSA,
+				    is_opaque ? 0 : HSM_KEY_TYPE_ML_DSA,
 				    HSM_PUBKEY_TYPE_ML_DSA,
 				    bit_key_size,
 				    NULL, 0,
 				    ml_dsa_ctx, sizeof(ml_dsa_ctx),
 				    signature, signature_size,
 				    payload, sizeof(payload),
-				    priv_key, priv_key_size,
+				    is_opaque ? NULL : priv_key,
+				    is_opaque ? 0 : priv_key_size,
 				    pub_key, pub_key_size,
-				    TEST_INPUT_DIGEST);
+				    input_type);
 	if (ret != HSM_NO_ERROR)
 		goto out;
 
 	test_status = TEST_STATUS_SUCCESS;
 
 out:
+	if (key_id) {
+		del_ret = delete_test_key(key_mgmt_hdl, key_id, 0);
+
+		if (del_ret != HSM_NO_ERROR)
+			printf("\nWarning: delete_test_key(0x%08x) failed: 0x%x\n",
+			       key_id, del_ret);
+	}
+
 	if (test_status == TEST_STATUS_SUCCESS)
 		printf("\nResult ---> SUCCESS\n");
 	else
 		printf("\nResult ---> FAILED\n");
 
+	return (test_status == TEST_STATUS_SUCCESS) ? TEST_SUCCESS : TEST_FAILED;
+}
+
+/*
+ * ML-DSA per-combo sub-suite: for a given algo + key-size combination run
+ * the sub-tests in order:
+ *   1. Plain key  + INPUT_TYPE_MESSAGE
+ *   2. Plain key  + INPUT_TYPE_DIGEST
+ *   3. Opaque key + INPUT_TYPE_MESSAGE
+ *   4. Opaque key + INPUT_TYPE_DIGEST
+ *
+ * skip_digest: when set, the DIGEST sub-tests (2 and 4) are skipped.
+ * run_opaque:  when clear, the opaque-key sub-tests (3 and 4) are skipped.
+ *              Opaque-key coverage is limited to the ML_DSA_SHA256 combos;
+ *              all other algos exercise plaintext-key sub-tests only.
+ */
+static uint8_t hsm_sign_verify_ml_dsa_combo_tests(hsm_hdl_t sess_hdl,
+						  hsm_hdl_t key_store_hdl,
+						  hsm_hdl_t key_mgmt_hdl,
+						  hsm_bit_key_sz_t bit_key_size,
+						  hsm_permitted_algo_t permitted_algo,
+						  hsm_signature_scheme_id_t algo,
+						  uint8_t skip_digest,
+						  uint8_t run_opaque,
+						  const char *combo_label)
+{
+	uint8_t ret = TEST_SUCCESS;
+
+	printf("%s (plainkey, MESSAGE):", combo_label);
+	ret |= hsm_sign_verify_ml_dsa_tests_helper(sess_hdl, key_store_hdl, key_mgmt_hdl,
+						   bit_key_size, permitted_algo, algo,
+						   0, TEST_INPUT_MESSAGE);
+
+	if (!skip_digest) {
+		printf("%s (plainkey, DIGEST):", combo_label);
+		ret |= hsm_sign_verify_ml_dsa_tests_helper(sess_hdl, key_store_hdl,
+							   key_mgmt_hdl, bit_key_size,
+							   permitted_algo, algo,
+							   0, TEST_INPUT_DIGEST);
+	}
+
+	if (!run_opaque)
+		return ret;
+
+	printf("%s (opaque, MESSAGE):", combo_label);
+	ret |= hsm_sign_verify_ml_dsa_tests_helper(sess_hdl, key_store_hdl, key_mgmt_hdl,
+						   bit_key_size, permitted_algo, algo,
+						   1, TEST_INPUT_MESSAGE);
+
+	if (!skip_digest) {
+		printf("%s (opaque, DIGEST):", combo_label);
+		ret |= hsm_sign_verify_ml_dsa_tests_helper(sess_hdl, key_store_hdl,
+							   key_mgmt_hdl, bit_key_size,
+							   permitted_algo, algo,
+							   1, TEST_INPUT_DIGEST);
+	}
+
 	return ret;
 }
 
-/* Add ML-DSA test suite function */
 void hsm_sign_verify_ml_dsa_tests(hsm_hdl_t sess_hdl,
 				  hsm_hdl_t key_store_hdl,
 				  hsm_hdl_t key_mgmt_hdl)
 {
-	printf("HSM_KEY_SIZE_ML_DSA_128 & HSM_SIGNATURE_SCHEME_ML_DSA_SHA256:");
-	hsm_sign_verify_ml_dsa_tests_helper(sess_hdl, key_store_hdl, key_mgmt_hdl,
-					    HSM_KEY_SIZE_ML_DSA_128,
-					    PERMITTED_ALGO_ML_DSA_SHA256,
-					    HSM_SIGNATURE_SCHEME_ML_DSA_SHA256);
+	uint8_t ret = TEST_SUCCESS;
 
-	printf("HSM_KEY_SIZE_ML_DSA_192 & HSM_SIGNATURE_SCHEME_ML_DSA_SHA256:");
-	hsm_sign_verify_ml_dsa_tests_helper(sess_hdl, key_store_hdl, key_mgmt_hdl,
-					    HSM_KEY_SIZE_ML_DSA_192,
-					    PERMITTED_ALGO_ML_DSA_SHA256,
-					    HSM_SIGNATURE_SCHEME_ML_DSA_SHA256);
+	ret |= hsm_sign_verify_ml_dsa_combo_tests(sess_hdl, key_store_hdl,
+						  key_mgmt_hdl,
+						  HSM_KEY_SIZE_ML_DSA_128,
+						  PERMITTED_ALGO_PURE_ML_DSA,
+						  HSM_SIGNATURE_SCHEME_PURE_ML_DSA,
+						  1,
+						  0,
+						  "KEY_ML_DSA_128 & PURE_ML_DSA");
 
-	printf("HSM_KEY_SIZE_ML_DSA_256 & HSM_SIGNATURE_SCHEME_ML_DSA_SHA256:");
-	hsm_sign_verify_ml_dsa_tests_helper(sess_hdl, key_store_hdl, key_mgmt_hdl,
-					    HSM_KEY_SIZE_ML_DSA_256,
-					    PERMITTED_ALGO_ML_DSA_SHA256,
-					    HSM_SIGNATURE_SCHEME_ML_DSA_SHA256);
+	ret |= hsm_sign_verify_ml_dsa_combo_tests(sess_hdl, key_store_hdl,
+						  key_mgmt_hdl,
+						  HSM_KEY_SIZE_ML_DSA_192,
+						  PERMITTED_ALGO_PURE_ML_DSA,
+						  HSM_SIGNATURE_SCHEME_PURE_ML_DSA,
+						  1,
+						  0,
+						  "KEY_ML_DSA_192 & PURE_ML_DSA");
 
-	printf("HSM_KEY_SIZE_ML_DSA_128 & HSM_SIGNATURE_SCHEME_ML_DSA_SHA3_256:");
-	hsm_sign_verify_ml_dsa_tests_helper(sess_hdl, key_store_hdl, key_mgmt_hdl,
-					    HSM_KEY_SIZE_ML_DSA_128,
-					    PERMITTED_ALGO_ML_DSA_SHA3_256,
-					    HSM_SIGNATURE_SCHEME_ML_DSA_SHA3_256);
+	ret |= hsm_sign_verify_ml_dsa_combo_tests(sess_hdl, key_store_hdl,
+						  key_mgmt_hdl,
+						  HSM_KEY_SIZE_ML_DSA_256,
+						  PERMITTED_ALGO_PURE_ML_DSA,
+						  HSM_SIGNATURE_SCHEME_PURE_ML_DSA,
+						  1,
+						  0,
+						  "KEY_ML_DSA_256 & PURE_ML_DSA");
 
-	printf("HSM_KEY_SIZE_ML_DSA_192 & HSM_SIGNATURE_SCHEME_ML_DSA_SHA3_256:");
-	hsm_sign_verify_ml_dsa_tests_helper(sess_hdl, key_store_hdl, key_mgmt_hdl,
-					    HSM_KEY_SIZE_ML_DSA_192,
-					    PERMITTED_ALGO_ML_DSA_SHA3_256,
-					    HSM_SIGNATURE_SCHEME_ML_DSA_SHA3_256);
+	ret |= hsm_sign_verify_ml_dsa_combo_tests(sess_hdl, key_store_hdl,
+						  key_mgmt_hdl,
+						  HSM_KEY_SIZE_ML_DSA_128,
+						  PERMITTED_ALGO_ML_DSA_SHA256,
+						  HSM_SIGNATURE_SCHEME_ML_DSA_SHA256,
+						  0,
+						  1,
+						  "KEY_ML_DSA_128 & ML_DSA_SHA256");
 
-	printf("HSM_KEY_SIZE_ML_DSA_256 & HSM_SIGNATURE_SCHEME_ML_DSA_SHA3_256:");
-	hsm_sign_verify_ml_dsa_tests_helper(sess_hdl, key_store_hdl, key_mgmt_hdl,
-					    HSM_KEY_SIZE_ML_DSA_256,
-					    PERMITTED_ALGO_ML_DSA_SHA3_256,
-					    HSM_SIGNATURE_SCHEME_ML_DSA_SHA3_256);
+	ret |= hsm_sign_verify_ml_dsa_combo_tests(sess_hdl, key_store_hdl,
+						  key_mgmt_hdl,
+						  HSM_KEY_SIZE_ML_DSA_192,
+						  PERMITTED_ALGO_ML_DSA_SHA256,
+						  HSM_SIGNATURE_SCHEME_ML_DSA_SHA256,
+						  0,
+						  1,
+						  "KEY_ML_DSA_192 & ML_DSA_SHA256");
+
+	ret |= hsm_sign_verify_ml_dsa_combo_tests(sess_hdl, key_store_hdl,
+						  key_mgmt_hdl,
+						  HSM_KEY_SIZE_ML_DSA_256,
+						  PERMITTED_ALGO_ML_DSA_SHA256,
+						  HSM_SIGNATURE_SCHEME_ML_DSA_SHA256,
+						  0,
+						  1,
+						  "KEY_ML_DSA_256 & ML_DSA_SHA256");
+
+	ret |= hsm_sign_verify_ml_dsa_combo_tests(sess_hdl, key_store_hdl,
+						  key_mgmt_hdl,
+						  HSM_KEY_SIZE_ML_DSA_128,
+						  PERMITTED_ALGO_ML_DSA_SHA512,
+						  HSM_SIGNATURE_SCHEME_ML_DSA_SHA512,
+						  0,
+						  0,
+						  "KEY_ML_DSA_128 & ML_DSA_SHA512");
+
+	ret |= hsm_sign_verify_ml_dsa_combo_tests(sess_hdl, key_store_hdl,
+						  key_mgmt_hdl,
+						  HSM_KEY_SIZE_ML_DSA_192,
+						  PERMITTED_ALGO_ML_DSA_SHA512,
+						  HSM_SIGNATURE_SCHEME_ML_DSA_SHA512,
+						  0,
+						  0,
+						  "KEY_ML_DSA_192 & ML_DSA_SHA512");
+
+	ret |= hsm_sign_verify_ml_dsa_combo_tests(sess_hdl, key_store_hdl,
+						  key_mgmt_hdl,
+						  HSM_KEY_SIZE_ML_DSA_256,
+						  PERMITTED_ALGO_ML_DSA_SHA512,
+						  HSM_SIGNATURE_SCHEME_ML_DSA_SHA512,
+						  0,
+						  0,
+						  "KEY_ML_DSA_256 & ML_DSA_SHA512");
+
+	ret |= hsm_sign_verify_ml_dsa_combo_tests(sess_hdl, key_store_hdl,
+						  key_mgmt_hdl,
+						  HSM_KEY_SIZE_ML_DSA_128,
+						  PERMITTED_ALGO_ML_DSA_SHA3_256,
+						  HSM_SIGNATURE_SCHEME_ML_DSA_SHA3_256,
+						  0,
+						  0,
+						  "KEY_ML_DSA_128 & ML_DSA_SHA3_256");
+
+	ret |= hsm_sign_verify_ml_dsa_combo_tests(sess_hdl, key_store_hdl,
+						  key_mgmt_hdl,
+						  HSM_KEY_SIZE_ML_DSA_192,
+						  PERMITTED_ALGO_ML_DSA_SHA3_256,
+						  HSM_SIGNATURE_SCHEME_ML_DSA_SHA3_256,
+						  0,
+						  0,
+						  "KEY_ML_DSA_192 & ML_DSA_SHA3_256");
+
+	ret |= hsm_sign_verify_ml_dsa_combo_tests(sess_hdl, key_store_hdl,
+						  key_mgmt_hdl,
+						  HSM_KEY_SIZE_ML_DSA_256,
+						  PERMITTED_ALGO_ML_DSA_SHA3_256,
+						  HSM_SIGNATURE_SCHEME_ML_DSA_SHA3_256,
+						  0,
+						  0,
+						  "KEY_ML_DSA_256 & ML_DSA_SHA3_256");
+
+	ret |= hsm_sign_verify_ml_dsa_combo_tests(sess_hdl, key_store_hdl,
+						  key_mgmt_hdl,
+						  HSM_KEY_SIZE_ML_DSA_128,
+						  PERMITTED_ALGO_ML_DSA_SHA3_512,
+						  HSM_SIGNATURE_SCHEME_ML_DSA_SHA3_512,
+						  0,
+						  0,
+						  "KEY_ML_DSA_128 & ML_DSA_SHA3_512");
+
+	ret |= hsm_sign_verify_ml_dsa_combo_tests(sess_hdl, key_store_hdl,
+						  key_mgmt_hdl,
+						  HSM_KEY_SIZE_ML_DSA_192,
+						  PERMITTED_ALGO_ML_DSA_SHA3_512,
+						  HSM_SIGNATURE_SCHEME_ML_DSA_SHA3_512,
+						  0,
+						  0,
+						  "KEY_ML_DSA_192 & ML_DSA_SHA3_512");
+
+	ret |= hsm_sign_verify_ml_dsa_combo_tests(sess_hdl, key_store_hdl,
+						  key_mgmt_hdl,
+						  HSM_KEY_SIZE_ML_DSA_256,
+						  PERMITTED_ALGO_ML_DSA_SHA3_512,
+						  HSM_SIGNATURE_SCHEME_ML_DSA_SHA3_512,
+						  0,
+						  0,
+						  "KEY_ML_DSA_256 & ML_DSA_SHA3_512");
+
+	ret |= hsm_sign_verify_ml_dsa_combo_tests(sess_hdl, key_store_hdl,
+						  key_mgmt_hdl,
+						  HSM_KEY_SIZE_ML_DSA_128,
+						  PERMITTED_ALGO_ML_DSA_SHAKE_256,
+						  HSM_SIGNATURE_SCHEME_ML_DSA_SHAKE_256,
+						  0,
+						  0,
+						  "KEY_ML_DSA_128 & ML_DSA_SHAKE_256");
+
+	ret |= hsm_sign_verify_ml_dsa_combo_tests(sess_hdl, key_store_hdl,
+						  key_mgmt_hdl,
+						  HSM_KEY_SIZE_ML_DSA_192,
+						  PERMITTED_ALGO_ML_DSA_SHAKE_256,
+						  HSM_SIGNATURE_SCHEME_ML_DSA_SHAKE_256,
+						  0,
+						  0,
+						  "KEY_ML_DSA_192 & ML_DSA_SHAKE_256");
+
+	ret |= hsm_sign_verify_ml_dsa_combo_tests(sess_hdl, key_store_hdl,
+						  key_mgmt_hdl,
+						  HSM_KEY_SIZE_ML_DSA_256,
+						  PERMITTED_ALGO_ML_DSA_SHAKE_256,
+						  HSM_SIGNATURE_SCHEME_ML_DSA_SHAKE_256,
+						  0,
+						  0,
+						  "KEY_ML_DSA_256 & ML_DSA_SHAKE_256");
+
+	if (ret == TEST_SUCCESS)
+		printf("\nML-DSA Sign/Verify Tests ---> SUCCESS\n");
+	else
+		printf("\nML-DSA Sign/Verify Tests ---> FAILED\n");
 }
 #endif

@@ -687,6 +687,10 @@ she_err_t she_verify_mac_one_go(she_hdl_t mac_handle)
 					      0xec, 0x27, 0x8c, 0x63,
 					      0x89, 0xff, 0x59, 0x73,
 					      0xa8, 0x15, 0xe7, 0xd4};
+	/* writable copy: the SHE ioctl writes the computed MAC into this buffer */
+	uint8_t input_mac_3k[SHE_MAC_SIZE];
+
+	memcpy(input_mac_3k, she_mac_3k_golden, SHE_MAC_SIZE);
 	memset(&verify_mac_args, 0, sizeof(verify_mac_args));
 	verify_mac_args.algorithm = SHE_OP_MAC_ONE_GO_ALGO_CMAC;
 	verify_mac_args.key_identifier = SHE_RAM_KEY;
@@ -740,7 +744,7 @@ she_err_t she_verify_mac_one_go(she_hdl_t mac_handle)
 		verify_mac_args.algorithm = SHE_OP_MAC_ONE_GO_ALGO_CMAC;
 		verify_mac_args.key_identifier = SHE_RAM_KEY;
 		verify_mac_args.flags = MAC_OP_FLAGS_MAC_VERIFICATION;
-		verify_mac_args.mac = (uint8_t *)she_mac_3k_golden;
+		verify_mac_args.mac = input_mac_3k;
 		verify_mac_args.mac_size = SHE_MAC_SIZE;
 		verify_mac_args.payload = message_3k;
 		verify_mac_args.payload_size = sizeof(message_3k);
